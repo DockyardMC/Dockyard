@@ -1,9 +1,9 @@
-package cz.lukynka.dockyard;
+package cz.lukynka.dockyard
 
-import cz.lukynka.dockyard.Server.DiscardServer
+import cz.lukynka.dockyard.server.PacketServer
 
 fun main(args: Array<String>) {
-    DiscardServer().run();
+    PacketServer().run()
 }
 
 

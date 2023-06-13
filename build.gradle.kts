@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.8.0"
+    kotlin("jvm") version "1.8.22"
     application
 }
 
@@ -11,19 +11,14 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
     implementation("io.ktor:ktor-server-netty:1.6.0")
     implementation("io.ktor:ktor-network:1.6.0")
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
-
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("cz.lukynka.dockyard.MainKt")
 }
