@@ -1,6 +1,6 @@
-package cz.lukynka.dockyard.server.packets.protocol
+package io.github.dockyard.server.packets.protocol
 
-import cz.lukynka.dockyard.server.PacketHandler
+import io.github.dockyard.server.PacketHandler
 import io.netty.buffer.ByteBuf
 
 interface Packet {

@@ -1,4 +1,4 @@
-package cz.lukynka.dockyard.server
+package io.github.dockyard.server
 
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelInitializer

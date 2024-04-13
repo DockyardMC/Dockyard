@@ -1,4 +1,4 @@
-package cz.lukynka.dockyard.server.packets
+package io.github.dockyard.server.packets
 
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException

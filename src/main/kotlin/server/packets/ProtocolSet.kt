@@ -1,6 +1,6 @@
-package cz.lukynka.dockyard.server.packets
+package io.github.dockyard.server.packets
 
-import cz.lukynka.dockyard.server.packets.protocol.Packet
+import io.github.dockyard.server.packets.protocol.Packet
 import io.netty.buffer.ByteBuf
 
 class ProtocolSet(registrar: ProtocolSet.() -> Unit) {

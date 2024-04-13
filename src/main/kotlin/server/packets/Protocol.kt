@@ -1,7 +1,7 @@
-package cz.lukynka.dockyard.server.packets
+package io.github.dockyard.server.packets
 
-import cz.lukynka.dockyard.server.packets.protocol.handshake.ServerboundHandshakePacket
-import cz.lukynka.dockyard.server.packets.protocol.status.ServerboundStatusRequestPacket
+import io.github.dockyard.server.packets.protocol.handshake.ServerboundHandshakePacket
+import io.github.dockyard.server.packets.protocol.status.ServerboundStatusRequestPacket
 
 enum class Protocol(val registrar: ProtocolSet.() -> Unit) {
 

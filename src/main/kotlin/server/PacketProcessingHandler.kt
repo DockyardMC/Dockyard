@@ -1,6 +1,6 @@
-package cz.lukynka.dockyard.server
+package io.github.dockyard.server
 
-import cz.lukynka.dockyard.server.packets.protocol.PacketWrapper
+import io.github.dockyard.server.packets.protocol.PacketWrapper
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter

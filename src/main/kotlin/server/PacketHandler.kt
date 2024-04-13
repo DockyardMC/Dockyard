@@ -1,8 +1,8 @@
-package cz.lukynka.dockyard.server
+package io.github.dockyard.server
 
-import cz.lukynka.dockyard.server.packets.Protocol
-import cz.lukynka.dockyard.server.packets.protocol.handshake.ServerboundHandshakePacket
-import cz.lukynka.dockyard.server.packets.protocol.status.ServerboundStatusRequestPacket
+import io.github.dockyard.server.packets.Protocol
+import io.github.dockyard.server.packets.protocol.handshake.ServerboundHandshakePacket
+import io.github.dockyard.server.packets.protocol.status.ServerboundStatusRequestPacket
 
 class PacketHandler(val channel: PacketProcessingHandler) {
     var protocol: Protocol = Protocol.HANDSHAKE

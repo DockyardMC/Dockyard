@@ -1,6 +1,6 @@
-package cz.lukynka.dockyard
+package io.github.dockyard
 
-import cz.lukynka.dockyard.server.PacketServer
+import io.github.dockyard.server.PacketServer
 
 fun main(args: Array<String>) {
     PacketServer().run()

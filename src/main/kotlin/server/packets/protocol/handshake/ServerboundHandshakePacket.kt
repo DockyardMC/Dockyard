@@ -1,9 +1,9 @@
-package cz.lukynka.dockyard.server.packets.protocol.handshake
+package io.github.dockyard.server.packets.protocol.handshake
 
-import cz.lukynka.dockyard.server.PacketHandler
-import cz.lukynka.dockyard.server.packets.protocol.Packet
-import cz.lukynka.dockyard.server.packets.readUtf
-import cz.lukynka.dockyard.server.packets.readVarInt
+import io.github.dockyard.server.PacketHandler
+import io.github.dockyard.server.packets.protocol.Packet
+import io.github.dockyard.server.packets.readUtf
+import io.github.dockyard.server.packets.readVarInt
 import io.netty.buffer.ByteBuf
 
 class ServerboundHandshakePacket(

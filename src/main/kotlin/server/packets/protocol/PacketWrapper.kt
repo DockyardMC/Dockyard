@@ -1,8 +1,8 @@
-package cz.lukynka.dockyard.server.packets.protocol
+package io.github.dockyard.server.packets.protocol
 
-import cz.lukynka.dockyard.exceptions.InvalidPacketException
-import cz.lukynka.dockyard.server.packets.Protocol
-import cz.lukynka.dockyard.server.packets.readVarInt
+import io.github.dockyard.exceptions.InvalidPacketException
+import io.github.dockyard.server.packets.Protocol
+import io.github.dockyard.server.packets.readVarInt
 import io.netty.buffer.ByteBuf
 
 class PacketWrapper(protocol: Protocol, buf: ByteBuf) {
