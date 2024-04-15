@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Dockyard Server" type="JetRunConfigurationType">
+    <option name="MAIN_CLASS_NAME" value="io.github.dockyardmc.MainKt" />
+    <module name="DockyardMC.main" />
+    <shortenClasspath name="NONE" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
