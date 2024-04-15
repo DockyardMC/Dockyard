@@ -12,7 +12,7 @@ class ServerboundHandshakePacket(
     val serverAddress: String,
     val port: Short,
     val nextState: Int,
-): ServerboundPacket() {
+): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext) {
         processor.handler.handleHandshake(this, connection)

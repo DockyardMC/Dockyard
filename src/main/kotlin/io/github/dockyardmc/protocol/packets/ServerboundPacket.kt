@@ -3,9 +3,7 @@ package io.github.dockyardmc.protocol.packets
 import io.github.dockyardmc.PacketProcessor
 import io.netty.channel.ChannelHandlerContext
 
-open class ServerboundPacket {
+interface ServerboundPacket {
 
-    open fun handle(processor: PacketProcessor, connection: ChannelHandlerContext) {
-
-    }
+    fun handle(processor: PacketProcessor, connection: ChannelHandlerContext)
 }
