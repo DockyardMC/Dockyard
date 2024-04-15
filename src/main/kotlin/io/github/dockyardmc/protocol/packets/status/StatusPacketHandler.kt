@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.status
 
+import LogType
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerListPingEvent
@@ -9,10 +10,18 @@ import io.github.dockyardmc.motd.ServerStatus
 import io.github.dockyardmc.motd.Version
 import io.github.dockyardmc.motd.toJson
 import io.netty.channel.ChannelHandlerContext
+import log
 import java.io.File
 import java.util.*
 
 class StatusPacketHandler {
+
+    fun handlePing(packet: ServerboundPingRequestPacket, connection: ChannelHandlerContext) {
+
+        log("Received ping with time ${packet.time}", LogType.DEBUG)
+        val out = ClientboundPongResponsePacket(packet.time)
+        connection.write(out.asByteBuf())
+    }
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
 
