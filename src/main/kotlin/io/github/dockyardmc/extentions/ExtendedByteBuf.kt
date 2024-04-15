@@ -1,4 +1,4 @@
-package io.github.dockyard.server.packets
+package io.github.dockyardmc.extentions
 
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
@@ -43,4 +43,11 @@ fun ByteBuf.readUtf(i: Int): String {
     this.readerIndex(this.readerIndex() + size)
     if (string.length > i) throw DecoderException("The received string was longer than the allowed (${string.length} > $i)")
     return string
+}
+
+fun ByteBuf.writeUtf(text: String) {
+    val utf8Bytes = text.toByteArray(StandardCharsets.UTF_8)
+    val length = utf8Bytes.size
+    this.writeVarInt(length)
+    this.writeBytes(utf8Bytes)
 }
