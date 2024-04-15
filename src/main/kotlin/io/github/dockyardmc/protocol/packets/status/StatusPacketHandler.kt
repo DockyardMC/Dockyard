@@ -4,6 +4,10 @@ import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerListPingEvent
 import io.github.dockyardmc.extentions.byteSize
+import io.github.dockyardmc.motd.Players
+import io.github.dockyardmc.motd.ServerStatus
+import io.github.dockyardmc.motd.Version
+import io.github.dockyardmc.motd.toJson
 import io.netty.channel.ChannelHandlerContext
 import java.io.File
 import java.util.*
@@ -12,35 +16,31 @@ class StatusPacketHandler {
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
 
-        val messageBindable = Bindable("dewfault message")
+        val base64EncodedIcon = Base64.getEncoder().encode(File("./icon.png").readBytes()).decodeToString()
 
-        Events.dispatch(ServerListPingEvent(messageBindable))
+        val serverStatus = ServerStatus(
+            version = Version(
+                name = "1.20.4",
+                protocol = packet.version,
+            ),
+            players = Players(
+                max = 727,
+                online = 0,
+                sample = mutableListOf(),
+            ),
+            description = "§bDockyardMC §8| §7Kotlin Server Implementation",
+            enforceSecureChat = false,
+            previewsChat = false,
+            favicon = base64EncodedIcon
+        )
 
-        val json = getServerStatusJson(messageBindable.value, packet.version)
+        val bindableServerStatus = Bindable<ServerStatus>(serverStatus)
+
+        Events.dispatch(ServerListPingEvent(bindableServerStatus))
+
+        val json = bindableServerStatus.value.toJson()
         val out = ClientboundStatusResponsePacket(json.byteSize() + 3, 0, json)
 
         connection.write(out.asByteBuf())
-    }
-
-
-    private val icon = File("./icon.png")
-    val encoded: ByteArray = Base64.getEncoder().encode(icon.readBytes())
-    fun getServerStatusJson(message: String, version: Int): String {
-        return """
-            {
-                "version": {
-                    "name": "1.20.4",
-                    "protocol": $version
-                },
-                "players": {
-                    "max": 420,
-                    "online": 69
-                },
-                "description": "§bDockyardMC §8| §7Kotlin Server Implementation\n§8$message",
-                "enforceSecureChat": true,
-                "previewsChat": false,
-                "favicon": "data:image/png;base64,${encoded.decodeToString()}"
-            }
-        """.trimIndent()
     }
 }
