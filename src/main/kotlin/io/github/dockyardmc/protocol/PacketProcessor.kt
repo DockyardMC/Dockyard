@@ -5,6 +5,7 @@ import io.github.dockyardmc.TCP
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.status.StatusPacketHandler
@@ -19,6 +20,10 @@ import log
 class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     private var innerState = ProtocolState.HANDSHAKE
+    var encrypted = false
+
+    lateinit var player: Player
+
     var state: ProtocolState
         get() = innerState
         set(value) {
@@ -40,12 +45,19 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                 val size = buf.readVarInt()
                 val id = buf.readVarInt()
 
-                val packet = PacketParser.parsePacket(id, buf, this)
+                val data = buf.readBytes(size - 1)
+
+                val packet = PacketParser.parsePacket(id, data, this)
 
                 if(packet == null) {
                     log("Received unhandled packet with ID $id", LogType.ERROR)
                     continue
                 }
+
+                if(encrypted) {
+                    PacketDecryptor.decrypt(packet, player.connectionEncryption)
+                }
+
                 log("Received ${packet::class.simpleName} (Size ${size})", LogType.NETWORK)
 
                 Events.dispatch(PacketReceivedEvent(packet))

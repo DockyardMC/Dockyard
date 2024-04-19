@@ -2,7 +2,6 @@ package io.github.dockyardmc.protocol.packets.login
 
 import LogType
 import io.github.dockyardmc.TEMP
-import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerLoginEvent
 import io.github.dockyardmc.extentions.sendPacket
@@ -16,15 +15,12 @@ import io.github.dockyardmc.protocol.packets.status.ServerboundHandshakePacket
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
 import log
-import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import javax.crypto.Cipher
 
 @OptIn(ExperimentalStdlibApi::class)
 class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
-
-    private lateinit var player: Player
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
         processor.state = ProtocolState.LOGIN
@@ -48,9 +44,11 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val player = Player(packet.name, packet.uuid, connection.channel().remoteAddress().address, playerConnectionEncryption, connection)
 
         PlayerManager.players.add(player)
-        this.player = player
+        processor.player = player
 
         Events.dispatch(PlayerLoginEvent(player))
+
+        processor.encrypted = true
 
         val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken)
         connection.sendPacket(out)
@@ -60,11 +58,17 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         log("Received encryption response: ${packet.sharedSecret.size} | ${packet.verifyToken.size}")
 
         val cipher = Cipher.getInstance("RSA")
-        cipher.init(Cipher.DECRYPT_MODE, player.connectionEncryption.privateKey)
+        cipher.init(Cipher.DECRYPT_MODE, processor.player.connectionEncryption.privateKey)
 
         val verifyToken = cipher.doFinal(packet.verifyToken)
+//        val sharedSecret = cipher.doFinal(packet.sharedSecret)
+        val sharedSecret = cipher.doFinal(packet.sharedSecret)
 
-        log(player.connectionEncryption.verifyToken.toHexString(HexFormat.Default))
+        log(processor.player.connectionEncryption.verifyToken.toHexString(HexFormat.Default))
         log(verifyToken.toHexString(HexFormat.Default), TEMP)
+        log(sharedSecret.size.toString(), TEMP)
+
+        val out = ClientboundLoginSuccessPacket(processor.player.uuid, processor.player.username)
+        connection.sendPacket(out)
     }
 }

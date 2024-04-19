@@ -10,11 +10,17 @@ private const val SEGMENT_BITS: Byte = 0x7F
 private const val CONTINUE_BIT = 0x80
 
 fun ByteBuf.readUUID(): UUID {
-//    this.readByte() //TODO: TThis is temp fix, will properly fix later icba to spend more time on this packet after debugging it for 2 days
     val most = this.readLong()
     val least = this.readLong()
     return UUID(most, least)
 }
+
+fun ByteBuf.writeUUID(uuid: UUID) {
+    this.writeLong(uuid.mostSignificantBits)
+    this.writeLong(uuid.leastSignificantBits)
+//    return UUID(most, least)
+}
+
 
 fun ByteBuf.writeByteArray(bs: ByteArray) {
     this.writeVarInt(bs.size)

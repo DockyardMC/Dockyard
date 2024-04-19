@@ -32,8 +32,3 @@ class ServerboundHandshakePacket(
         }
     }
 }
-
-public enum class TEST(var i: Int) {
-    ABC(1),
-    CDE(2)
-}
