@@ -1,15 +1,12 @@
-package io.github.dockyardmc
+package io.github.dockyardmc.protocol
 
 import LogType
+import io.github.dockyardmc.TCP
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
-import io.github.dockyardmc.extentions.readUUID
-import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.protocol.PacketParser
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
-import io.github.dockyardmc.protocol.packets.status.ServerboundHandshakePacket
 import io.github.dockyardmc.protocol.packets.status.StatusPacketHandler
 import io.ktor.util.network.*
 import io.netty.buffer.ByteBuf
@@ -50,8 +47,9 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                     continue
                 }
                 log("Received ${packet::class.simpleName} (Size ${size})", LogType.NETWORK)
-                packet.handle(this, connection)
+
                 Events.dispatch(PacketReceivedEvent(packet))
+                packet.handle(this, connection)
             }
         } finally {
             connection.flush()

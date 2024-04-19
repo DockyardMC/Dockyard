@@ -1,14 +1,15 @@
 package io.github.dockyardmc.protocol.packets.status
 
 import LogType
-import io.github.dockyardmc.PacketProcessor
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerListPingEvent
 import io.github.dockyardmc.extentions.byteSize
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.Players
 import io.github.dockyardmc.motd.ServerStatus
 import io.github.dockyardmc.motd.Version
 import io.github.dockyardmc.motd.toJson
+import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.netty.channel.ChannelHandlerContext
@@ -23,7 +24,7 @@ class StatusPacketHandler(val processor: PacketProcessor): PacketHandler(process
 
         log("Received ping with time ${packet.time}", LogType.DEBUG)
         val out = ClientboundPongResponsePacket(packet.time)
-        connection.write(out.asByteBuf())
+        connection.sendPacket(out)
     }
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
@@ -63,7 +64,6 @@ class StatusPacketHandler(val processor: PacketProcessor): PacketHandler(process
         val json = serverStatus.toJson()
         val out = ClientboundStatusResponsePacket(json.byteSize() + 3, 0, json)
 
-        connection.write(out.asByteBuf())
-
+        connection.sendPacket(out)
     }
 }

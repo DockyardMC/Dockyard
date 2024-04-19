@@ -1,14 +1,19 @@
 package io.github.dockyardmc.protocol.packets.login
 
 import LogType
-import io.github.dockyardmc.PacketProcessor
 import io.github.dockyardmc.TEMP
+import io.github.dockyardmc.bindables.Bindable
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerLoginEvent
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerConnectionEncryption
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.status.ServerboundHandshakePacket
+import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
 import log
 import java.security.KeyPair
@@ -40,14 +45,15 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         // verificationToken.size reports 4 but nextBytes WRITES 8 IN REALITY... WHY???? I HAVE SPENT 2 HOURS DEBUGGING THIS
 
         val playerConnectionEncryption = PlayerConnectionEncryption(keyPair.public, keyPair.private, verificationToken)
-        val player = Player(packet.name, packet.uuid, playerConnectionEncryption)
+        val player = Player(packet.name, packet.uuid, connection.channel().remoteAddress().address, playerConnectionEncryption, connection)
 
         PlayerManager.players.add(player)
-
         this.player = player
 
+        Events.dispatch(PlayerLoginEvent(player))
+
         val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken)
-        connection.write(out.asByteBuf())
+        connection.sendPacket(out)
     }
 
     fun handleEncryptionResponse(packet: ServerboundEncryptionResponsePacket, connection: ChannelHandlerContext) {
@@ -62,4 +68,3 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         log(verifyToken.toHexString(HexFormat.Default), TEMP)
     }
 }
-

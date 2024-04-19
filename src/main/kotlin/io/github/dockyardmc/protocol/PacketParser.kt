@@ -1,6 +1,5 @@
 package io.github.dockyardmc.protocol
 
-import io.github.dockyardmc.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.protocol.packets.login.ServerboundEncryptionResponsePacket

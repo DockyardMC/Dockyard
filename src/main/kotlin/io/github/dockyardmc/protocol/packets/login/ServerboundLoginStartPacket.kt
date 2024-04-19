@@ -1,10 +1,10 @@
 package io.github.dockyardmc.protocol.packets.login
 
-import io.github.dockyardmc.PacketProcessor
 import io.github.dockyardmc.TEMP
 import io.github.dockyardmc.extentions.readUUID
 import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.extentions.readUtfAndLength
+import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
