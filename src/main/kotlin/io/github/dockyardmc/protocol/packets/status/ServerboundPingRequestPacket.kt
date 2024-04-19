@@ -14,7 +14,6 @@ class ServerboundPingRequestPacket(val time: Long): ServerboundPacket {
     }
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext) {
-        processor.handler.handlePing(this, connection)
+        processor.statusHandler.handlePing(this, connection)
     }
-
 }
