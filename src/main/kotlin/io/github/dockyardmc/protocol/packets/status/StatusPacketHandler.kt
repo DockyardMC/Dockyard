@@ -23,7 +23,7 @@ class StatusPacketHandler(val processor: PacketProcessor): PacketHandler(process
     fun handlePing(packet: ServerboundPingRequestPacket, connection: ChannelHandlerContext) {
 
         log("Received ping with time ${packet.time}", LogType.DEBUG)
-        val out = ClientboundPongResponsePacket(packet.time)
+        val out = ClientboundPingResponsePacket(packet.time)
         connection.sendPacket(out)
     }
 
@@ -56,13 +56,13 @@ class StatusPacketHandler(val processor: PacketProcessor): PacketHandler(process
             description = "§bDockyardMC §8| §7Kotlin Server Implementation",
             enforceSecureChat = false,
             previewsChat = false,
-            favicon = base64EncodedIcon
+            favicon = "data:image/png;base64,$base64EncodedIcon"
         )
 
         Events.dispatch(ServerListPingEvent(serverStatus))
 
         val json = serverStatus.toJson()
-        val out = ClientboundStatusResponsePacket(json.byteSize() + 3, 0, json)
+        val out = ClientboundStatusResponsePacket(json)
 
         connection.sendPacket(out)
     }

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.extentions
 
+import io.github.dockyardmc.player.ProfileProperty
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
 import java.nio.charset.StandardCharsets
@@ -18,7 +19,22 @@ fun ByteBuf.readUUID(): UUID {
 fun ByteBuf.writeUUID(uuid: UUID) {
     this.writeLong(uuid.mostSignificantBits)
     this.writeLong(uuid.leastSignificantBits)
-//    return UUID(most, least)
+}
+
+fun ByteBuf.writeProfileProperties(properties: MutableList<ProfileProperty>) {
+    // Number of properties
+    this.writeVarInt(properties.size)
+
+    // Properties
+    properties.forEach {
+        this.writeUtf(it.name)
+        this.writeUtf(it.name)
+        this.writeBoolean(it.isSigned)
+        if(it.isSigned && it.signature != null) {
+            this.writeUtf(it.signature)
+        }
+    }
+
 }
 
 

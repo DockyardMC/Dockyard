@@ -12,11 +12,13 @@ import io.github.dockyardmc.protocol.packets.status.StatusPacketHandler
 import io.ktor.util.network.*
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
+import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.util.ReferenceCountUtil
 import log
 
+@Sharable
 class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     private var innerState = ProtocolState.HANDSHAKE
@@ -45,6 +47,9 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                 val size = buf.readVarInt()
                 val id = buf.readVarInt()
 
+                log("Packet Size: $size", LogType.NETWORK)
+                log("Packet Id: $id", LogType.NETWORK)
+
                 val data = buf.readBytes(size - 1)
 
                 val packet = PacketParser.parsePacket(id, data, this)
@@ -52,10 +57,6 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                 if(packet == null) {
                     log("Received unhandled packet with ID $id", LogType.ERROR)
                     continue
-                }
-
-                if(encrypted) {
-                    PacketDecryptor.decrypt(packet, player.connectionEncryption)
                 }
 
                 log("Received ${packet::class.simpleName} (Size ${size})", LogType.NETWORK)

@@ -1,14 +1,16 @@
 package io.github.dockyardmc.protocol.packets.login
 
 import LogType
-import io.github.dockyardmc.TEMP
+import io.github.dockyardmc.DECRYPT
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerLoginEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerConnectionEncryption
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.protocol.encryption.PacketDecryptionHandler
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.encryption.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.status.ServerboundHandshakePacket
@@ -18,6 +20,7 @@ import log
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 @OptIn(ExperimentalStdlibApi::class)
 class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
@@ -32,7 +35,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val generator = KeyPairGenerator.getInstance("RSA")
         generator.initialize(1024)
         val keyPair = generator.generateKeyPair()
-        var privateKey = keyPair.private
+        val privateKey = keyPair.private
         val publicKey = keyPair.public
 
         val secureRandom = SecureRandom()
@@ -40,7 +43,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         secureRandom.nextBytes(verificationToken)
         // verificationToken.size reports 4 but nextBytes WRITES 8 IN REALITY... WHY???? I HAVE SPENT 2 HOURS DEBUGGING THIS
 
-        val playerConnectionEncryption = PlayerConnectionEncryption(keyPair.public, keyPair.private, verificationToken)
+        val playerConnectionEncryption = PlayerConnectionEncryption(publicKey, privateKey, verificationToken)
         val player = Player(packet.name, packet.uuid, connection.channel().remoteAddress().address, playerConnectionEncryption, connection)
 
         PlayerManager.players.add(player)
@@ -48,27 +51,34 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
         Events.dispatch(PlayerLoginEvent(player))
 
-        processor.encrypted = true
-
         val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken)
         connection.sendPacket(out)
     }
 
     fun handleEncryptionResponse(packet: ServerboundEncryptionResponsePacket, connection: ChannelHandlerContext) {
-        log("Received encryption response: ${packet.sharedSecret.size} | ${packet.verifyToken.size}")
+        log("Received encryption response: ${packet.sharedSecret.size}bytes | ${packet.verifyToken.size}bytes")
 
         val cipher = Cipher.getInstance("RSA")
         cipher.init(Cipher.DECRYPT_MODE, processor.player.connectionEncryption.privateKey)
 
         val verifyToken = cipher.doFinal(packet.verifyToken)
-//        val sharedSecret = cipher.doFinal(packet.sharedSecret)
         val sharedSecret = cipher.doFinal(packet.sharedSecret)
 
-        log(processor.player.connectionEncryption.verifyToken.toHexString(HexFormat.Default))
-        log(verifyToken.toHexString(HexFormat.Default), TEMP)
-        log(sharedSecret.size.toString(), TEMP)
+        if(!verifyToken.contentEquals(processor.player.connectionEncryption.verifyToken)) log("Verify Token of player ${processor.player.username} does not match!", LogType.ERROR)
 
-        val out = ClientboundLoginSuccessPacket(processor.player.uuid, processor.player.username)
-        connection.sendPacket(out)
-    }
+        log("Shared Secret: ${sharedSecret.toHexString()}", DECRYPT)
+        log("Verify Token: ${verifyToken.toHexString()} (MATCHES)", DECRYPT)
+
+        processor.player.connectionEncryption.sharedSecret = SecretKeySpec(sharedSecret, "AES")
+        processor.encrypted = true
+        log("Encryption Enabled", LogType.SUCCESS)
+
+        connection.channel().pipeline().removeLast()
+        connection.channel().pipeline().addLast(PacketDecryptionHandler(processor.player.connectionEncryption))
+        connection.channel().pipeline().addLast(PacketEncryptionHandler(processor.player.connectionEncryption))
+        connection.channel().pipeline().addLast(processor)
+
+        val player = processor.player
+        connection.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, mutableListOf()))
+      }
 }

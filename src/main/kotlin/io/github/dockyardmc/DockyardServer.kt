@@ -7,12 +7,18 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
+import io.netty.channel.ChannelPipeline
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import log
 
 class DockyardServer(var port: Int) {
+
+    lateinit var bootstrap: ServerBootstrap
+    lateinit var channelPipeline: ChannelPipeline
+    val bossGroup = NioEventLoopGroup()
+    val workerGroup = NioEventLoopGroup()
 
     fun start() {
         log("Starting DockyardMC Version $version", LogType.DEBUG)
@@ -32,16 +38,14 @@ class DockyardServer(var port: Int) {
 
     @Throws(Exception::class)
     private fun runPacketServer() {
-        val bossGroup = NioEventLoopGroup()
-        val workerGroup = NioEventLoopGroup()
         try {
-            val bootstrap = ServerBootstrap()
+            bootstrap = ServerBootstrap()
             bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel::class.java)
                 .childHandler(object : ChannelInitializer<SocketChannel>(){
                     override fun initChannel(ch: SocketChannel) {
-                        ch.pipeline()
-                            .addLast(PacketProcessor())
+                        channelPipeline = ch.pipeline()
+                            .addLast("processor", PacketProcessor())
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)
@@ -57,5 +61,4 @@ class DockyardServer(var port: Int) {
             workerGroup.shutdownGracefully()
         }
     }
-
 }

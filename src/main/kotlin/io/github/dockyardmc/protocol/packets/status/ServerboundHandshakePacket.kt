@@ -1,14 +1,11 @@
 package io.github.dockyardmc.protocol.packets.status
 
-import LoggerSettings
-import io.github.dockyardmc.extentions.readEnum
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.protocol.PacketProcessor
-import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder.EncoderMode
 
 class ServerboundHandshakePacket(
     val version: Int,
