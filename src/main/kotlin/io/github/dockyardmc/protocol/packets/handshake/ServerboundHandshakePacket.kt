@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.packets.status
+package io.github.dockyardmc.protocol.packets.handshake
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -14,7 +14,7 @@ class ServerboundHandshakePacket(
     val nextState: Int,
 ): ServerboundPacket {
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext) {
+    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.statusHandler.handleHandshake(this, connection)
     }
 

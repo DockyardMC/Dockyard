@@ -1,9 +1,8 @@
-package io.github.dockyardmc.protocol.packets.status
+package io.github.dockyardmc.protocol.packets.handshake
 
 import LogType
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerListPingEvent
-import io.github.dockyardmc.extentions.byteSize
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.Players
 import io.github.dockyardmc.motd.ServerStatus
@@ -17,7 +16,7 @@ import log
 import java.io.File
 import java.util.*
 
-class StatusPacketHandler(val processor: PacketProcessor): PacketHandler(processor) {
+class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor) {
 
 
     fun handlePing(packet: ServerboundPingRequestPacket, connection: ChannelHandlerContext) {

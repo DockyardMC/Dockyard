@@ -4,6 +4,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.ServerStartEvent
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.encryption.PacketEncryptionHandler
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption

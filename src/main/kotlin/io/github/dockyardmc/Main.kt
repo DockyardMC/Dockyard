@@ -7,8 +7,6 @@ import io.github.dockyardmc.events.ServerListPingEvent
 const val version = 0.1
 
 val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
-val TEMP = CustomLogType("\uD83D\uDC1B DEBUG", AnsiPair.ORANGE)
-val DECRYPT = CustomLogType("\uD83D\uDD11 ENCRYPTION", AnsiPair.WHITE)
 
 fun main(args: Array<String>) {
 

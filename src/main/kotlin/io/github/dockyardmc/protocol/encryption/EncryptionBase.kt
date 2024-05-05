@@ -1,7 +1,6 @@
 package io.github.dockyardmc.protocol.encryption
 
 import io.netty.buffer.ByteBuf
-import io.netty.buffer.Unpooled
 import io.netty.channel.ChannelHandlerContext
 import javax.crypto.Cipher
 
@@ -25,13 +24,14 @@ class EncryptionBase(private val cipher: Cipher) {
         return outputBuf
     }
 
-    fun encrypt(buf: ByteBuf): ByteBuf {
+    fun encrypt(buf: ByteBuf, out: ByteBuf) {
         val i = buf.readableBytes()
         val byteArray = nettyBufToByteArray(buf)
         val outputSize = cipher.getOutputSize(i)
         if (outputBuffer.size < outputSize) {
             outputBuffer = ByteArray(outputSize)
         }
-        return Unpooled.buffer().writeBytes(outputBuffer, 0, cipher.update(byteArray, 0, i, outputBuffer))
+//        out.writeBytes(outputBuffer, 0, cipher.update(byteArray, 0, i, outputBuffer))
+        out.writeBytes(this.outputBuffer as ByteArray?, 0, cipher.update(byteArray, 0, i, this.outputBuffer))
     }
 }

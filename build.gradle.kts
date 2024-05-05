@@ -27,9 +27,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
-
 }
-
 
 kotlin {
     jvmToolchain(17)

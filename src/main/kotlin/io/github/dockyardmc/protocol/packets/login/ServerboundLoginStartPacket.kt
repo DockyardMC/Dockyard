@@ -10,7 +10,7 @@ import java.util.UUID
 
 class ServerboundLoginStartPacket(val name: String, val uuid: UUID): ServerboundPacket {
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext) {
+    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.loginHandler.handleLoginStart(this, connection)
     }
 

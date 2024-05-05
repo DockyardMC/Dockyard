@@ -8,7 +8,7 @@ import io.netty.channel.ChannelHandlerContext
 
 class ServerboundEncryptionResponsePacket(var sharedSecret: ByteArray, var verifyToken: ByteArray): ServerboundPacket {
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext) {
+    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.loginHandler.handleEncryptionResponse(this, connection)
     }
 

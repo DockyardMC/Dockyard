@@ -7,8 +7,9 @@ import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
-import io.github.dockyardmc.protocol.packets.status.StatusPacketHandler
+import io.github.dockyardmc.protocol.packets.handshake.HandshakeHandler
 import io.ktor.util.network.*
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
@@ -33,8 +34,9 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
             log("Protocol state changed to $value")
         }
 
-    var statusHandler = StatusPacketHandler(this)
+    var statusHandler = HandshakeHandler(this)
     var loginHandler = LoginHandler(this)
+    var configurationHandler = ConfigurationHandler(this)
 
     var buffer: ByteBuf = Unpooled.buffer()
 
@@ -52,7 +54,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
                 val data = buf.readBytes(size - 1)
 
-                val packet = PacketParser.parsePacket(id, data, this)
+                val packet = PacketParser.parsePacket(id, data, this, size)
 
                 if(packet == null) {
                     log("Received unhandled packet with ID $id", LogType.ERROR)
@@ -62,7 +64,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                 log("Received ${packet::class.simpleName} (Size ${size})", LogType.NETWORK)
 
                 Events.dispatch(PacketReceivedEvent(packet))
-                packet.handle(this, connection)
+                packet.handle(this, connection, size, id)
             }
         } finally {
             connection.flush()
