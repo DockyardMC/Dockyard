@@ -8,6 +8,7 @@ import io.github.dockyardmc.motd.Players
 import io.github.dockyardmc.motd.ServerStatus
 import io.github.dockyardmc.motd.Version
 import io.github.dockyardmc.motd.toJson
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -17,7 +18,6 @@ import java.io.File
 import java.util.*
 
 class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor) {
-
 
     fun handlePing(packet: ServerboundPingRequestPacket, connection: ChannelHandlerContext) {
 
@@ -29,6 +29,7 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
 
         val handshakeState = packet.nextState
+        log("Handshake ${packet.version}")
 
         if(handshakeState == 2) {
             processor.loginHandler.handleHandshake(packet, connection)
@@ -45,11 +46,11 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
         val serverStatus = ServerStatus(
             version = Version(
                 name = "1.20.4",
-                protocol = 0,
+                protocol = 765,
             ),
             players = Players(
                 max = 727,
-                online = 0,
+                online = PlayerManager.players.size,
                 sample = mutableListOf(),
             ),
             description = "§bDockyardMC §8| §7Kotlin Server Implementation",

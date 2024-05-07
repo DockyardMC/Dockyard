@@ -3,6 +3,7 @@ package io.github.dockyardmc.protocol
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.protocol.packets.configurations.ServerboundClientInformationPacket
+import io.github.dockyardmc.protocol.packets.configurations.ServerboundFinishConfigurationAcknowledgePacket
 import io.github.dockyardmc.protocol.packets.configurations.ServerboundPluginMessagePacket
 import io.github.dockyardmc.protocol.packets.login.ServerboundEncryptionResponsePacket
 import io.github.dockyardmc.protocol.packets.login.ServerboundLoginStartPacket
@@ -10,6 +11,7 @@ import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacke
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundPingRequestPacket
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundStatusRequestPacket
 import io.github.dockyardmc.protocol.packets.login.ServerboundLoginAcknowledgedPacket
+import io.github.dockyardmc.protocol.packets.play.ServerboundTeleportConformationPacket
 import io.netty.buffer.ByteBuf
 
 object PacketParser {
@@ -46,6 +48,14 @@ object PacketParser {
             outPacket = when(id) {
                 0 -> ServerboundClientInformationPacket.read(buffer)
                 1 -> ServerboundPluginMessagePacket.read(buffer)
+                2 -> ServerboundFinishConfigurationAcknowledgePacket()
+                else -> null
+            }
+        }
+
+        if(processor.state == ProtocolState.PLAY) {
+            outPacket = when(id) {
+                0 -> ServerboundTeleportConformationPacket.read(buffer)
                 else -> null
             }
         }

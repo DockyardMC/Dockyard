@@ -9,6 +9,6 @@ import log
 
 fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket) {
     Events.dispatch(PacketSentEvent(packet))
-    log("Sent ${packet::class.simpleName}", LogType.NETWORK)
+    log("<- Sent ${packet::class.simpleName}", LogType.NETWORK)
     this.write(packet.asByteBuf())
 }

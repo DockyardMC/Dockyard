@@ -10,6 +10,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.handshake.HandshakeHandler
+import io.github.dockyardmc.protocol.packets.play.PlayHandler
 import io.ktor.util.network.*
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
@@ -37,6 +38,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
     var statusHandler = HandshakeHandler(this)
     var loginHandler = LoginHandler(this)
     var configurationHandler = ConfigurationHandler(this)
+    var playHandler = PlayHandler(this)
 
     var buffer: ByteBuf = Unpooled.buffer()
 
@@ -49,9 +51,6 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                 val size = buf.readVarInt()
                 val id = buf.readVarInt()
 
-                log("Packet Size: $size", LogType.NETWORK)
-                log("Packet Id: $id", LogType.NETWORK)
-
                 val data = buf.readBytes(size - 1)
 
                 val packet = PacketParser.parsePacket(id, data, this, size)
@@ -61,7 +60,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                     continue
                 }
 
-                log("Received ${packet::class.simpleName} (Size ${size})", LogType.NETWORK)
+                log("-> Received ${packet::class.simpleName} (Size ${size})", LogType.NETWORK)
 
                 Events.dispatch(PacketReceivedEvent(packet))
                 packet.handle(this, connection, size, id)
