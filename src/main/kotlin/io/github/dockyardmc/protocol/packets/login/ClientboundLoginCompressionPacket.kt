@@ -6,7 +6,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundLoginCompressionPacket: ClientboundPacket(3) {
 
     init {
-        data.writeVarInt(999999999)
+        data.writeVarInt(-1)
     }
 
 }

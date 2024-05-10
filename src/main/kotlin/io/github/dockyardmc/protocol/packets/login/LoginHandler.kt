@@ -85,6 +85,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val texturesPropertyMap = ProfilePropertyMap("textures", mutableListOf(texturesProperty))
         list.add(texturesPropertyMap)
 
+        connection.sendPacket(ClientboundLoginCompressionPacket())
         connection.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, list))
     }
 

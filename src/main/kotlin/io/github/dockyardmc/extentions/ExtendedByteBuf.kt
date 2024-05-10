@@ -1,9 +1,14 @@
 package io.github.dockyardmc.extentions
 
-import io.github.dockyardmc.player.ProfileProperty
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
+import log
+import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
+import org.jglrxavpok.hephaistos.nbt.NBT
+import org.jglrxavpok.hephaistos.nbt.NBTWriter
+import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.experimental.inv
@@ -49,6 +54,36 @@ fun ByteBuf.readByteArray(): ByteArray {
     return readBytes(len).toByteArraySafe()
 }
 
+fun ByteBuf.writeNBT(nbt: NBT) {
+
+    val outputStream = ByteArrayOutputStream()
+    log(nbt.toSNBT())
+    try {
+        val writer = NBTWriter(outputStream, CompressedProcesser.NONE)
+        writer.writeNamed("", nbt)
+        writer.close()
+    } finally {
+        var outData = outputStream.toByteArray() //this is 0a00156d696e656. I need this to be 0a6d696e656 (so without the 0015 after 0a)
+
+        // Since 1.20.2 (Protocol 764) NBT sent over the network has been updated to exclude the name from the root TAG_COMPOUND
+        // ┌───────────┬────────┬────────────────┬──────────────┬───────────┐
+        // │  Version  │ TypeID │ Length of Name │     Name     │  Payload  │
+        // ├───────────┼────────┼────────────────┼──────────────┼───────────┤
+        // │ < 1.20.2  │ 0x0a   │ 0x00 0x00      │ Empty String │ 0x02 0x09 │
+        // │ >= 1.20.2 │ 0x0a   │ N/A            │ N/A          │ 0x02 0x09 │
+        // └───────────┴────────┴────────────────┴──────────────┴───────────┘
+
+        val list = outData.toMutableList()
+        list.removeAt(1)
+        list.removeAt(1)
+        outData = list.toByteArray()
+        writeBytes(outData)
+    }
+}
+
+
+// Thanks to Kev (kev_dev) for pointing this out cause I think I would have gone mad otherwise
+
 fun ByteBuf.readVarLong(): Long {
     var value: Long = 0
     var position = 0
@@ -72,11 +107,10 @@ fun ByteBuf.writeVarLong(value: Long) {
         }
         writeLong(writtenValue and SEGMENT_BITS.toLong() or CONTINUE_BIT.toLong())
 
-        // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
+        // Note: ushr means that the sign bit is shifted with the rest of the number rather than being left alone
         writtenValue = writtenValue ushr 7
     }
 }
-
 
 inline fun <reified T : Enum<T>> ByteBuf.readEnum(): T = T::class.java.enumConstants[readVarInt()]
 
@@ -94,7 +128,10 @@ fun ByteBuf.readVarInt(): Int {
     return value
 }
 
-
+fun ByteBuf.writeStringArray(list: MutableList<String>) {
+    writeVarInt(list.size)
+    list.forEach { writeUtf(it) }
+}
 
 fun ByteBuf.writeVarInt(int: Int) {
     var value = int

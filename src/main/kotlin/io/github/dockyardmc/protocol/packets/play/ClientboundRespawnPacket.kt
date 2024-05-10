@@ -28,7 +28,7 @@ class ClientboundRespawnPacket(
         data.writeBoolean(true)
         data.writeBoolean(false)
         data.writeVarInt(0)
-        data.writeByte(0x02)
+        data.writeByte(1)
     }
 }
 

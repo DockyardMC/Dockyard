@@ -42,32 +42,38 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     var buffer: ByteBuf = Unpooled.buffer()
 
+    @OptIn(ExperimentalStdlibApi::class)
     override fun channelRead(connection: ChannelHandlerContext, msg: Any) {
         val buf = msg as ByteBuf
         buffer = buf
 
         try {
-            while (buf.isReadable) {
-                val size = buf.readVarInt()
-                val id = buf.readVarInt()
+            try {
+                while (buf.isReadable) {
+                    val size = buf.readVarInt()
+                    val id = buf.readVarInt()
+                    val byte = id.toByte().toHexString()
 
-                val data = buf.readBytes(size - 1)
+                    val data = buf.readBytes(size - 1)
 
-                val packet = PacketParser.parsePacket(id, data, this, size)
+                    val packet = PacketParser.parsePacket(id, data, this, size)
 
-                if(packet == null) {
-                    log("Received unhandled packet with ID $id", LogType.ERROR)
-                    continue
+                    if(packet == null) {
+                        log("Received unhandled packet with ID $id ($byte)", LogType.ERROR)
+                        continue
+                    }
+
+                    log("-> Received ${packet::class.simpleName} (${byte})", LogType.NETWORK)
+
+                    Events.dispatch(PacketReceivedEvent(packet))
+                    packet.handle(this, connection, size, id)
                 }
-
-                log("-> Received ${packet::class.simpleName} (Size ${size})", LogType.NETWORK)
-
-                Events.dispatch(PacketReceivedEvent(packet))
-                packet.handle(this, connection, size, id)
+            } finally {
+                connection.flush()
+                ReferenceCountUtil.release(msg)
             }
-        } finally {
-            connection.flush()
-            ReferenceCountUtil.release(msg)
+        } catch (ex: Exception) {
+            //ignore
         }
     }
 

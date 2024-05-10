@@ -1,11 +1,12 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import org.jglrxavpok.hephaistos.nbt.NBT
 
-class ClientboundRegistryDataPacket(nbt: String): ClientboundPacket(5) {
+class ClientboundRegistryDataPacket(compound: NBT): ClientboundPacket(5) {
 
     init {
-        data.writeUtf(nbt)
+        data.writeNBT(compound)
     }
 }

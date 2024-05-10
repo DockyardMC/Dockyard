@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.8.22"
+    kotlin("jvm") version "1.9.23"
     kotlin("plugin.serialization") version "1.9.23"
     application
 }
@@ -27,6 +27,9 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("io.github.jglrxavpok.hephaistos:common:2.2.0")
+    implementation("io.github.jglrxavpok.hephaistos:gson:2.2.0")
 }
 
 kotlin {
