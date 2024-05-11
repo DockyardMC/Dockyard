@@ -10,7 +10,6 @@ import log
 class PacketDecryptionHandler(private val playerConnectionEncryption: PlayerConnectionEncryption): MessageToMessageDecoder<ByteBuf>() {
 
     private val encryptionBase = EncryptionBase(EncryptionUtil.getDecryptionCipherInstance(playerConnectionEncryption))
-
     override fun decode(ctx: ChannelHandlerContext, msg: ByteBuf, out: MutableList<Any>) {
         if(!playerConnectionEncryption.isEncrypted) { out.add(msg); return}
         val byteBuf = encryptionBase.decrypt(ctx, msg)

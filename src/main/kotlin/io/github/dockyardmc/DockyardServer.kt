@@ -51,7 +51,7 @@ class DockyardServer(var port: Int) {
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
-            log("Packet server running on port $port", LogType.SUCCESS)
+            log("DockyardMC server running on port $port", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent(this))
             load()
 

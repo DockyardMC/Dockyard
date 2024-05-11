@@ -11,7 +11,7 @@ import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacke
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundPingRequestPacket
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundStatusRequestPacket
 import io.github.dockyardmc.protocol.packets.login.ServerboundLoginAcknowledgedPacket
-import io.github.dockyardmc.protocol.packets.play.ServerboundTeleportConformationPacket
+import io.github.dockyardmc.protocol.packets.play.serverbound.*
 import io.netty.buffer.ByteBuf
 
 object PacketParser {
@@ -56,6 +56,10 @@ object PacketParser {
         if(processor.state == ProtocolState.PLAY) {
             outPacket = when(id) {
                 0 -> ServerboundTeleportConformationPacket.read(buffer)
+                16 -> ServerboundPlayPluginMessagePacket.read(buffer, size)
+                23 -> ServerboundSetPlayerPositionPacket.read(buffer)
+                24 -> ServerboundSetPlayerPositionAndRotationPacket.read(buffer)
+                25 -> ServerboundSetPlayerRotationPacket.read(buffer)
                 else -> null
             }
         }

@@ -6,6 +6,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
@@ -23,16 +24,22 @@ import log
 @Sharable
 class PacketProcessor : ChannelInboundHandlerAdapter() {
 
+    private val hideLogsWith = mutableListOf(
+        "position"
+    )
+
     private var innerState = ProtocolState.HANDSHAKE
     var encrypted = false
 
     lateinit var player: Player
+    lateinit var address: String
 
     var state: ProtocolState
         get() = innerState
         set(value) {
             innerState = value
-            log("Protocol state changed to $value")
+            val display = if(this::player.isInitialized) player.username else address
+            log("Protocol state for $display changed to $value")
         }
 
     var statusHandler = HandshakeHandler(this)
@@ -41,39 +48,57 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
     var playHandler = PlayHandler(this)
 
     var buffer: ByteBuf = Unpooled.buffer()
+    private var bufferReleased = false
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun channelRead(connection: ChannelHandlerContext, msg: Any) {
+        if(!this::address.isInitialized) address = connection.channel().remoteAddress().address
         val buf = msg as ByteBuf
         buffer = buf
 
         try {
             try {
                 while (buf.isReadable) {
+                    bufferReleased = false
                     val size = buf.readVarInt()
                     val id = buf.readVarInt()
                     val byte = id.toByte().toHexString()
+                    //log("-> 0x$byte[$id] (${buf.readableBytes() + buf.readerIndex()} bytes)", LogType.DEBUG)
+
+                    //Wtf is this why is it having issues with `readBytes` below?
+                    if(id == 16) {
+                        buf.release()
+                        bufferReleased = true
+                        return
+                    }
 
                     val data = buf.readBytes(size - 1)
 
                     val packet = PacketParser.parsePacket(id, data, this, size)
 
                     if(packet == null) {
-                        log("Received unhandled packet with ID $id ($byte)", LogType.ERROR)
-                        continue
+                        log("Received unhandled packet with ID $id (0x$byte)", LogType.ERROR)
+                        buf.release()
+                        bufferReleased = true
+                        return
                     }
 
-                    log("-> Received ${packet::class.simpleName} (${byte})", LogType.NETWORK)
+                    val className = packet::class.simpleName ?: "UnknownClass"
+                    if(hideLogsWith.firstOrNull { className.contains(it) } != null) {
+                        log("-> Received ${packet::class.simpleName} (0x${byte})", LogType.NETWORK)
+                    }
 
-                    Events.dispatch(PacketReceivedEvent(packet))
+                    Events.dispatch(PacketReceivedEvent(packet, connection, size, id))
                     packet.handle(this, connection, size, id)
                 }
             } finally {
                 connection.flush()
-                ReferenceCountUtil.release(msg)
+                if(!bufferReleased) ReferenceCountUtil.release(msg)
+                bufferReleased = true
             }
         } catch (ex: Exception) {
-            //ignore
+            log(ex)
+            ReferenceCountUtil.release(msg)
         }
     }
 
@@ -83,8 +108,8 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
     }
 
     override fun handlerRemoved(ctx: ChannelHandlerContext) {
-
         log("TCP Handler Removed <-> ${ctx.channel().remoteAddress().address}", TCP)
+        if(this::player.isInitialized) PlayerManager.players.remove(player)
     }
 
     override fun channelReadComplete(ctx: ChannelHandlerContext) {

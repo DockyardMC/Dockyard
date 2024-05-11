@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.packets.play
+package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.protocol.PacketProcessor

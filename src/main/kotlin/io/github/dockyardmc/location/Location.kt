@@ -14,4 +14,8 @@ class Location(
         yaw: Float = 0f,
         pitch: Float = 0f
     ): this(x.toDouble(), y.toDouble(), z.toDouble(), yaw, pitch)
+
+    override fun toString(): String {
+        return "Location($x, $y, $z, yaw: $yaw, pitch: $pitch)"
+    }
 }

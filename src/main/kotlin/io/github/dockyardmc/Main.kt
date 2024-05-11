@@ -10,7 +10,7 @@ val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
 
 fun main(args: Array<String>) {
 
-    val port = (args.getOrNull(0) ?: "25566").toInt()
+    val port = (args.getOrNull(0) ?: "25565").toInt()
     val server = DockyardServer(port)
 
     Events.on<ServerListPingEvent> {

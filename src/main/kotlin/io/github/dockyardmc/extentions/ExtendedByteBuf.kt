@@ -57,7 +57,6 @@ fun ByteBuf.readByteArray(): ByteArray {
 fun ByteBuf.writeNBT(nbt: NBT) {
 
     val outputStream = ByteArrayOutputStream()
-    log(nbt.toSNBT())
     try {
         val writer = NBTWriter(outputStream, CompressedProcesser.NONE)
         writer.writeNamed("", nbt)
