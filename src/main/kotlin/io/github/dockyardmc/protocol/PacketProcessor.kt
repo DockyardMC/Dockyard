@@ -83,18 +83,17 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                         return
                     }
 
-                    val className = packet::class.simpleName ?: "UnknownClass"
+                    val className = packet::class.simpleName ?: packet::class.toString()
                     if(hideLogsWith.firstOrNull { className.contains(it) } != null) {
-                        log("-> Received ${packet::class.simpleName} (0x${byte})", LogType.NETWORK)
+                        log("-> Received $className (0x${byte})", LogType.NETWORK)
                     }
 
                     Events.dispatch(PacketReceivedEvent(packet, connection, size, id))
                     packet.handle(this, connection, size, id)
                 }
             } finally {
+                if(!bufferReleased) { ReferenceCountUtil.release(msg); bufferReleased = true }
                 connection.flush()
-                if(!bufferReleased) ReferenceCountUtil.release(msg)
-                bufferReleased = true
             }
         } catch (ex: Exception) {
             log(ex)
