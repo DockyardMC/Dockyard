@@ -4,6 +4,7 @@ import LogType
 import io.github.dockyardmc.TCP
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
+import io.github.dockyardmc.events.PlayerDisconnectEvent
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
@@ -12,6 +13,7 @@ import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.handshake.HandshakeHandler
 import io.github.dockyardmc.protocol.packets.play.PlayHandler
+import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.ktor.util.network.*
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
@@ -33,6 +35,8 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     lateinit var player: Player
     lateinit var address: String
+
+    var respondedToLastKeepAlive = true
 
     var state: ProtocolState
         get() = innerState
@@ -108,7 +112,10 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     override fun handlerRemoved(ctx: ChannelHandlerContext) {
         log("TCP Handler Removed <-> ${ctx.channel().remoteAddress().address}", TCP)
-        if(this::player.isInitialized) PlayerManager.players.remove(player)
+        if(this::player.isInitialized) {
+            PlayerManager.remove(player)
+            Events.dispatch(PlayerDisconnectEvent(player))
+        }
     }
 
     override fun channelReadComplete(ctx: ChannelHandlerContext) {

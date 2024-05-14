@@ -38,9 +38,13 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
         player.location = location
         player.isOnGround = isOnGround
-        log("Player moved: $location (only head: $isOnlyHeadMovement)", LogType.DEBUG)
+//        log("Player moved: $location (only head: $isOnlyHeadMovement)", LogType.DEBUG)
     }
 
+
+    fun handleKeepAlive(packet: ServerboundKeepAlivePacket, connection: ChannelHandlerContext) {
+        processor.respondedToLastKeepAlive = true
+    }
 
 
     fun handlePluginMessage(packet: ServerboundPlayPluginMessagePacket, connection: ChannelHandlerContext) {

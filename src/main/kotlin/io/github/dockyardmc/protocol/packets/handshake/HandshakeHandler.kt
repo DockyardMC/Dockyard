@@ -3,15 +3,15 @@ package io.github.dockyardmc.protocol.packets.handshake
 import LogType
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerListPingEvent
+import io.github.dockyardmc.extentions.component
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.motd.Players
-import io.github.dockyardmc.motd.ServerStatus
-import io.github.dockyardmc.motd.Version
-import io.github.dockyardmc.motd.toJson
+import io.github.dockyardmc.motd.*
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.scroll.ComponentSerializer
+import io.github.dockyardmc.utils.Branding
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
 import log
@@ -54,7 +54,7 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
                 online = PlayerManager.players.size,
                 sample = mutableListOf(),
             ),
-            description = "§bDockyardMC §8| §7Kotlin Server Implementation",
+            description = "<${Branding.COLOR}>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".component(),
             enforceSecureChat = false,
             previewsChat = false,
             favicon = "data:image/png;base64,$base64EncodedIcon"

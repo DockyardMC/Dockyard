@@ -1,6 +1,10 @@
 package io.github.dockyardmc.player
 
+import io.github.dockyardmc.extentions.component
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisconnectPacket
+import io.github.dockyardmc.scroll.Component
 import io.netty.channel.ChannelHandlerContext
 import java.util.UUID
 
@@ -17,5 +21,13 @@ class Player(
 ) {
     override fun toString(): String {
         return username
+    }
+
+    fun kick(reason: String) {
+        this.kick(reason.component())
+    }
+
+    fun kick(reason: Component) {
+        connection.sendPacket(ClientboundDisconnectPacket(reason))
     }
 }

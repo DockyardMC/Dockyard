@@ -1,6 +1,7 @@
 package io.github.dockyardmc.events
 
+import io.github.dockyardmc.annotations.EventDocumentation
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 
-class PacketSentEvent(packet: ClientboundPacket): Event {
-}
+@EventDocumentation("server sends packet to client", true)
+class PacketSentEvent(packet: ClientboundPacket): Event

@@ -1,8 +1,10 @@
 package io.github.dockyardmc.motd
 
+import io.github.dockyardmc.scroll.Component
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 fun ServerStatus.toJson(): String {
     return Json.encodeToString<ServerStatus>(this)
@@ -12,7 +14,7 @@ fun ServerStatus.toJson(): String {
 data class ServerStatus(
     var version: Version,
     var players: Players,
-    var description: String,
+    var description: Component,
     var enforceSecureChat: Boolean,
     var previewsChat: Boolean,
     var favicon: String

@@ -57,6 +57,7 @@ object PacketParser {
             outPacket = when(id) {
                 0 -> ServerboundTeleportConformationPacket.read(buffer)
                 16 -> ServerboundPlayPluginMessagePacket.read(buffer, size)
+                21 -> ServerboundKeepAlivePacket.read(buffer)
                 23 -> ServerboundSetPlayerPositionPacket.read(buffer)
                 24 -> ServerboundSetPlayerPositionAndRotationPacket.read(buffer)
                 25 -> ServerboundSetPlayerRotationPacket.read(buffer)

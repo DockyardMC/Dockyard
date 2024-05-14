@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.login
 
 import LogType
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerLoginEvent
+import io.github.dockyardmc.events.PlayerConnectEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.encryption.PacketDecryptionHandler
@@ -43,10 +43,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val playerConnectionEncryption = PlayerConnectionEncryption(publicKey, privateKey, verificationToken)
         val player = Player(packet.name, packet.uuid, connection.channel().remoteAddress().address, playerConnectionEncryption, connection)
 
-        PlayerManager.players.add(player)
-        processor.player = player
-
-        Events.dispatch(PlayerLoginEvent(player))
+        PlayerManager.add(player, processor)
 
         val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken)
         connection.sendPacket(out)

@@ -2,6 +2,7 @@
   <profile version="1.0">
     <option name="myName" value="Project Default" />
     <inspection_tool class="KotlinConstantConditions" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES" />
+    <inspection_tool class="MemberVisibilityCanBePrivate" enabled="true" level="TEXT ATTRIBUTES" enabled_by_default="true" editorAttributes="GENERIC_SERVER_ERROR_OR_WARNING" />
     <inspection_tool class="ReplaceUntilWithRangeUntil" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
   </profile>
 </component>
