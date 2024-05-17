@@ -1,12 +1,14 @@
 package io.github.dockyardmc.protocol.packets.play
 
-import LogType
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerMoveEvent
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundInitializeWorldBorderPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
+import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 import log
 
@@ -38,14 +40,19 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
         player.location = location
         player.isOnGround = isOnGround
-//        log("Player moved: $location (only head: $isOnlyHeadMovement)", LogType.DEBUG)
-    }
 
+//        val worldBorder = WorldManager.worlds[0].worldBorder
+//        val packet = ClientboundInitializeWorldBorderPacket(worldBorder.diameter, worldBorder.diameter, 0, worldBorder.warningBlocks, worldBorder.warningTime)
+//        connection.sendPacket(packet)
+
+//        val playerInfo = PlayerInfoUpdate(player.uuid, AddPlayerAction(player.profile!!))
+//        val playerInfoUpdatePacket = ClientboundPlayerInfoUpdatePacket(0x01, 1, mutableListOf(playerInfo))
+//        connection.sendPacket(playerInfoUpdatePacket)
+    }
 
     fun handleKeepAlive(packet: ServerboundKeepAlivePacket, connection: ChannelHandlerContext) {
         processor.respondedToLastKeepAlive = true
     }
-
 
     fun handlePluginMessage(packet: ServerboundPlayPluginMessagePacket, connection: ChannelHandlerContext) {
         log(packet.channel)

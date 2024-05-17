@@ -10,6 +10,8 @@ import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
+import io.github.dockyardmc.world.World
+import io.github.dockyardmc.world.WorldManager
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
@@ -58,10 +60,15 @@ class DockyardServer(var port: Int) {
     }
 
     private fun load() {
-        log("DockyardMC finished loading", LogType.SUCCESS)
-        Events.dispatch(ServerFinishLoadEvent(this))
         tickTimer.run()
         keepAlivePacketTimer.run()
+
+        val mainWorld = World("world")
+        mainWorld.worldBorder.diameter = 1000.0
+        WorldManager.worlds.add(mainWorld)
+
+        log("DockyardMC finished loading", LogType.SUCCESS)
+        Events.dispatch(ServerFinishLoadEvent(this))
     }
 
     @Throws(Exception::class)

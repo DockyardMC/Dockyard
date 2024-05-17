@@ -102,6 +102,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
         } catch (ex: Exception) {
             log(ex)
             ReferenceCountUtil.release(msg)
+            bufferReleased = true
         }
     }
 

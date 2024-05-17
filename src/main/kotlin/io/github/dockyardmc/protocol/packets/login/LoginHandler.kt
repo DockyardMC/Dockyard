@@ -81,6 +81,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val texturesProperty = ProfileProperty("value", value, true, signature)
         val texturesPropertyMap = ProfilePropertyMap("textures", mutableListOf(texturesProperty))
         list.add(texturesPropertyMap)
+        player.profile = texturesPropertyMap
 
         connection.sendPacket(ClientboundLoginCompressionPacket())
         connection.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, list))
@@ -88,6 +89,5 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
     fun handleLoginAcknowledge(packet: ServerboundLoginAcknowledgedPacket, connection: ChannelHandlerContext) {
         processor.state = ProtocolState.CONFIGURATION
-
     }
 }

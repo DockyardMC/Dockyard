@@ -1,10 +1,9 @@
 package io.github.dockyardmc.extentions
 
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.netty.buffer.ByteBuf
-import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
-import log
 import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTWriter
@@ -12,6 +11,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.experimental.inv
+import kotlin.math.roundToInt
 
 private const val SEGMENT_BITS: Byte = 0x7F
 private const val CONTINUE_BIT = 0x80
@@ -62,7 +62,7 @@ fun ByteBuf.writeNBT(nbt: NBT) {
         writer.writeNamed("", nbt)
         writer.close()
     } finally {
-        var outData = outputStream.toByteArray() //this is 0a00156d696e656. I need this to be 0a6d696e656 (so without the 0015 after 0a)
+        var outData = outputStream.toByteArray()
 
         // Since 1.20.2 (Protocol 764) NBT sent over the network has been updated to exclude the name from the root TAG_COMPOUND
         // ┌───────────┬────────┬────────────────┬──────────────┬───────────┐
@@ -72,6 +72,7 @@ fun ByteBuf.writeNBT(nbt: NBT) {
         // │ >= 1.20.2 │ 0x0a   │ N/A            │ N/A          │ 0x02 0x09 │
         // └───────────┴────────┴────────────────┴──────────────┴───────────┘
 
+        // Thanks to Kev (kev_dev) for pointing this out because I think I would have gone mad otherwise
         val list = outData.toMutableList()
         list.removeAt(1)
         list.removeAt(1)
@@ -81,36 +82,34 @@ fun ByteBuf.writeNBT(nbt: NBT) {
 }
 
 
-// Thanks to Kev (kev_dev) for pointing this out cause I think I would have gone mad otherwise
+
+fun ByteBuf.writeVarLong(long: Long): ByteBuf {
+    var modLong = long
+    while (true) {
+        if (modLong and -0x80L == 0L) {
+            this.writeByte(modLong.toInt())
+        }
+        this.writeByte((modLong and 0x7FL).toInt() or 0x80)
+        modLong = modLong ushr 7
+    }
+}
 
 fun ByteBuf.readVarLong(): Long {
-    var value: Long = 0
-    var position = 0
-    var currentByte: Byte
-    while (true) {
-        currentByte = readByte()
-        value = value or ((currentByte.toInt() and SEGMENT_BITS.toInt()).toLong() shl position)
-        if (currentByte.toInt() and CONTINUE_BIT == 0) break
-        position += 7
-        if (position >= 64) throw RuntimeException("VarLong is too big")
-    }
-    return value
+    var b: Byte
+    var long = 0L
+    var iteration = 0
+    do {
+        b = this.readByte()
+        long = long or ((b.toInt() and 0x7F).toLong() shl iteration++ * 7)
+        if (iteration <= 10) continue
+        throw RuntimeException("VarLong too big")
+    } while (hasContinuationBit(b))
+    return long
 }
 
-fun ByteBuf.writeVarLong(value: Long) {
-    var writtenValue = value
-    while (true) {
-        if (writtenValue and SEGMENT_BITS.toLong().inv() == 0L) {
-            writeLong(writtenValue)
-            return
-        }
-        writeLong(writtenValue and SEGMENT_BITS.toLong() or CONTINUE_BIT.toLong())
-
-        // Note: ushr means that the sign bit is shifted with the rest of the number rather than being left alone
-        writtenValue = writtenValue ushr 7
-    }
+fun hasContinuationBit(byte: Byte): Boolean {
+    return byte.toInt() and 0x80 == 128
 }
-
 inline fun <reified T : Enum<T>> ByteBuf.readEnum(): T = T::class.java.enumConstants[readVarInt()]
 
 fun ByteBuf.readVarInt(): Int {
@@ -130,6 +129,12 @@ fun ByteBuf.readVarInt(): Int {
 fun ByteBuf.writeStringArray(list: MutableList<String>) {
     writeVarInt(list.size)
     list.forEach { writeUtf(it) }
+}
+
+fun ByteBuf.writePosition(location: Location) {
+    this.writeInt(location.x.roundToInt())
+    this.writeInt(location.z.roundToInt())
+    this.writeInt(location.y.roundToInt())
 }
 
 fun ByteBuf.writeVarInt(int: Int) {

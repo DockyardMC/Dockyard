@@ -44,6 +44,11 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
 
         val base64EncodedIcon = Base64.getEncoder().encode(File("./icon.png").readBytes()).decodeToString()
 
+        val players = mutableListOf<ServerListPlayer>()
+        PlayerManager.players.forEach {
+            players.add(ServerListPlayer(it.username, it.uuid.toString()))
+        }
+
         val serverStatus = ServerStatus(
             version = Version(
                 name = "1.20.4",
@@ -52,7 +57,7 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
             players = Players(
                 max = 727,
                 online = PlayerManager.players.size,
-                sample = mutableListOf(),
+                sample = players,
             ),
             description = "<${Branding.COLOR}>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".component(),
             enforceSecureChat = false,

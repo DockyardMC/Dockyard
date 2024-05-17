@@ -61,6 +61,9 @@ object PacketParser {
                 23 -> ServerboundSetPlayerPositionPacket.read(buffer)
                 24 -> ServerboundSetPlayerPositionAndRotationPacket.read(buffer)
                 25 -> ServerboundSetPlayerRotationPacket.read(buffer)
+                32 -> ServerboundPlayerAbilitiesPacket.read(buffer)
+                34 -> ServerboundPlayerCommandPacket.read(buffer)
+                51 -> ServerboundPlayerSwingHandPacket.read(buffer)
                 else -> null
             }
         }

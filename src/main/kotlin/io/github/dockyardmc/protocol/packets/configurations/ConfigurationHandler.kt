@@ -7,6 +7,7 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ClientConfiguration
 import io.github.dockyardmc.player.GameMode
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -16,6 +17,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerS
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRespawnPacket
 import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.world.Difficulty
+import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 import log
 import org.jglrxavpok.hephaistos.parser.SNBTParser
@@ -74,19 +76,18 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         processor.state = ProtocolState.PLAY
 
         val playPacket = ClientboundPlayPacket(
-            123456,
+            PlayerManager.entityCounter.incrementAndGet(),
             false,
-            1,
-            mutableListOf("minecraft:overworld"),
-            1,
+            mutableListOf("world"),
+            20,
             16,
             16,
             false,
             true,
             false,
-            "minecraft:overworld",
-            "world",
-            0L,
+            "overworld",
+            WorldManager.worlds[0].name,
+            WorldManager.worlds[0].seed,
             GameMode.CREATIVE,
             GameMode.SURVIVAL,
             false,
