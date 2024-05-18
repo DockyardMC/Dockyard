@@ -34,7 +34,6 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         processor.player.brand = event.data
 
         // Send server brand
-        //@TODO add Adventure API
         val serverBrandEvent = ServerBrandEvent("§bDockyardMC §8| §7Custom Kotlin Server Implementation")
         Events.dispatch(serverBrandEvent)
         connection.sendPacket(ClientboundPluginMessagePacket("minecraft:brand", serverBrandEvent.brand))
