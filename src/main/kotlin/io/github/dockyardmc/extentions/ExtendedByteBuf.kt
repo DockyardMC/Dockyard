@@ -2,6 +2,7 @@ package io.github.dockyardmc.extentions
 
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
+import io.github.dockyardmc.utils.Math
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
 import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
@@ -9,6 +10,7 @@ import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTWriter
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
+import java.time.Instant
 import java.util.*
 import kotlin.experimental.inv
 import kotlin.math.roundToInt
@@ -81,7 +83,15 @@ fun ByteBuf.writeNBT(nbt: NBT) {
     }
 }
 
+fun ByteBuf.readFixedBitSet(i: Int): BitSet {
+    val bs = ByteArray(Math.positiveCeilDiv(i, 8))
+    this.readBytes(bs)
+    return BitSet.valueOf(bs)
+}
 
+fun ByteBuf.readInstant(): Instant {
+    return Instant.ofEpochMilli(this.readLong())
+}
 
 fun ByteBuf.writeVarLong(long: Long): ByteBuf {
     var modLong = long

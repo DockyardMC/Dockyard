@@ -62,28 +62,31 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
         try {
             try {
-                while (buf.isReadable) {
+                while (buffer.isReadable) {
                     bufferReleased = false
-                    val size = buf.readVarInt()
-                    val id = buf.readVarInt()
+                    val size = buffer.readVarInt()
+                    val id = buffer.readVarInt()
                     val byte = id.toByte().toHexString()
-                    //log("-> 0x$byte[$id] (${buf.readableBytes() + buf.readerIndex()} bytes)", LogType.DEBUG)
+//                    log("-> 0x$byte[$id] (${buf.readableBytes() + buf.readerIndex()} bytes)", LogType.DEBUG)
+                    log("$size $id ($byte) (${buffer.readableBytes()})")
 
                     //Wtf is this why is it having issues with `readBytes` below?
                     if(id == 16) {
-                        buf.release()
+                        ReferenceCountUtil.release(msg)
+                        connection.flush()
                         bufferReleased = true
                         return
                     }
 
-                    val data = buf.readBytes(size - 1)
+                    val data = buffer.readBytes(size - 1)
 
                     val packet = PacketParser.parsePacket(id, data, this, size)
 
                     if(packet == null) {
                         log("Received unhandled packet with ID $id (0x$byte)", LogType.ERROR)
-                        buf.release()
+                        ReferenceCountUtil.release(msg)
                         bufferReleased = true
+                        connection.flush()
                         return
                     }
 
@@ -102,6 +105,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
         } catch (ex: Exception) {
             log(ex)
             ReferenceCountUtil.release(msg)
+            connection.flush()
             bufferReleased = true
         }
     }
@@ -125,6 +129,6 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
         cause.printStackTrace()
-        ctx.close()
+//        ctx.close()
     }
 }

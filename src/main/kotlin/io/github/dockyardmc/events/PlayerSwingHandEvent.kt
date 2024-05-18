@@ -5,4 +5,4 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.SwingAnimationHand
 
 @EventDocumentation("when player swings their hand", false)
-class PlayerSwingHandEvent(player: Player, hand: SwingAnimationHand): Event
+class PlayerSwingHandEvent(val player: Player, val hand: SwingAnimationHand): Event

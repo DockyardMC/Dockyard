@@ -17,6 +17,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerS
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRespawnPacket
 import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.world.Difficulty
+import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 import log
@@ -73,11 +74,12 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
     fun handleConfigurationFinishAcknowledge(packet: ServerboundFinishConfigurationAcknowledgePacket, connection: ChannelHandlerContext) {
         log("Configuration Finish Acknowledged", LogType.SUCCESS)
         processor.state = ProtocolState.PLAY
+        processor.player.releaseMessagesQueue()
 
         val playPacket = ClientboundPlayPacket(
             PlayerManager.entityCounter.incrementAndGet(),
             false,
-            mutableListOf("world"),
+            WorldManager.worlds.map { it.name }.toMutableList(),
             20,
             16,
             16,

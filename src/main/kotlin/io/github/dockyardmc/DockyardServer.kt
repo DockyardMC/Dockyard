@@ -3,13 +3,14 @@ package io.github.dockyardmc
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.ServerStartEvent
-import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
+import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.bootstrap.ServerBootstrap
@@ -95,5 +96,12 @@ class DockyardServer(var port: Int) {
             bossGroup.shutdownGracefully()
             workerGroup.shutdownGracefully()
         }
+    }
+
+    companion object {
+        fun broadcastMessage(message: String) { this.broadcastMessage(message.component()) }
+        fun broadcastMessage(component: Component) { PlayerManager.players.sendMessage(component) }
+        fun broadcastActionBar(message: String) { this.broadcastActionBar(message.component()) }
+        fun broadcastActionBar(component: Component) { PlayerManager.players.sendActionBar(component) }
     }
 }
