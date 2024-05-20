@@ -6,14 +6,14 @@ import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-class ServerboundTeleportConformationPacket(teleportId: Int): ServerboundPacket {
+class ServerboundTeleportConfirmationPacket(teleportId: Int): ServerboundPacket {
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.playHandler.handleTeleportConfirmation(this, connection)
     }
 
     companion object {
-        fun read(buf: ByteBuf): ServerboundTeleportConformationPacket {
-            return ServerboundTeleportConformationPacket(buf.readVarInt())
+        fun read(buf: ByteBuf): ServerboundTeleportConfirmationPacket {
+            return ServerboundTeleportConfirmationPacket(buf.readVarInt())
         }
     }
 }

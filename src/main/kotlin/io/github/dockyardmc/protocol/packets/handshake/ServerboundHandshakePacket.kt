@@ -24,7 +24,7 @@ class ServerboundHandshakePacket(
                 version = byteBuf.readVarInt(),
                 serverAddress = byteBuf.readUtf(255),
                 port = byteBuf.readUnsignedShort().toShort(),
-                nextState = byteBuf.readByte().toInt()
+                nextState = byteBuf.readVarInt()
             )
         }
     }

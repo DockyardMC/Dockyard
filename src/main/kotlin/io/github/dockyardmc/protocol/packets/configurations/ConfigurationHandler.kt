@@ -76,8 +76,12 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         processor.state = ProtocolState.PLAY
         processor.player.releaseMessagesQueue()
 
+        val entityId = PlayerManager.entityCounter.incrementAndGet()
+        processor.player.entityId = entityId
+        PlayerManager.playerToEntityIdMap[entityId] = processor.player
+
         val playPacket = ClientboundPlayPacket(
-            PlayerManager.entityCounter.incrementAndGet(),
+            entityId,
             false,
             WorldManager.worlds.map { it.name }.toMutableList(),
             20,

@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.encryption
+package io.github.dockyardmc.protocol.cryptography
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext

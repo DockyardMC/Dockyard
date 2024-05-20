@@ -24,8 +24,8 @@ class ServerboundClientInformationPacket(
     companion object {
         fun read(buf: ByteBuf): ServerboundClientInformationPacket {
             return ServerboundClientInformationPacket(
-                buf.readUtf(),
-                buf.readVarInt(),
+                buf.readUtf(16),
+                buf.readByte().toInt(),
                 buf.readVarInt(),
                 buf.readBoolean(),
                 buf.readUnsignedByte(),

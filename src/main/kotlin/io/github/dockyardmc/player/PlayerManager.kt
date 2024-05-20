@@ -14,6 +14,7 @@ object PlayerManager {
     var entityCounter = AtomicInteger()
     val players: MutableList<Player> = mutableListOf()
     val playerToProcessorMap = mutableMapOf<UUID, PacketProcessor>()
+    val playerToEntityIdMap = mutableMapOf<Int, Player>()
 
     fun add(player: Player, processor: PacketProcessor) {
         players.add(player)
@@ -25,6 +26,7 @@ object PlayerManager {
     fun remove(player: Player) {
         players.remove(player)
         playerToProcessorMap.remove(player.uuid)
+        playerToEntityIdMap.remove(player.entityId)
     }
 
     fun sendToEveryoneInWorld(world: World, packet: ClientboundPacket) {

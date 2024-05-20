@@ -10,12 +10,13 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.world.World
 import io.netty.channel.ChannelHandlerContext
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 
 class Player(
     val username: String,
     val uuid: UUID,
     val address: String,
-    val connectionEncryption: PlayerConnectionEncryption,
+    val crypto: PlayerCrypto,
     val connection: ChannelHandlerContext,
     var brand: String? = null,
     var profile: ProfilePropertyMap? = null,
@@ -24,6 +25,7 @@ class Player(
     var isOnGround: Boolean = false,
     var world: World? = null,
     var isFlying: Boolean = false,
+    var entityId: Int? = null,
     var isSneaking: Boolean = false,
     var isSprinting: Boolean = false,
 ) {

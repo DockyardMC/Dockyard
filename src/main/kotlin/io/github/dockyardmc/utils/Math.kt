@@ -7,5 +7,4 @@ object Math {
     fun positiveCeilDiv(i: Int, j: Int): Int {
         return -Math.floorDiv(-i, j)
     }
-
 }

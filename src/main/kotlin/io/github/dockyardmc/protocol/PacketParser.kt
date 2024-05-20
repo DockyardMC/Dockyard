@@ -47,7 +47,7 @@ object PacketParser {
         if(processor.state == ProtocolState.CONFIGURATION) {
             outPacket = when(id) {
                 0 -> ServerboundClientInformationPacket.read(buffer)
-                1 -> ServerboundPluginMessagePacket.read(buffer)
+                1 -> ServerboundPluginMessagePacket.read(buffer, size)
                 2 -> ServerboundFinishConfigurationAcknowledgePacket()
                 else -> null
             }
@@ -55,8 +55,9 @@ object PacketParser {
 
         if(processor.state == ProtocolState.PLAY) {
             outPacket = when(id) {
-                0 -> ServerboundTeleportConformationPacket.read(buffer)
+                0 -> ServerboundTeleportConfirmationPacket.read(buffer)
                 5 -> ServerboundPlayerChatMessagePacket.read(buffer)
+                6 -> ServerboundPlayerSessionPacket.read(buffer)
                 16 -> ServerboundPlayPluginMessagePacket.read(buffer, size)
                 21 -> ServerboundKeepAlivePacket.read(buffer)
                 23 -> ServerboundSetPlayerPositionPacket.read(buffer)
@@ -69,6 +70,7 @@ object PacketParser {
             }
         }
 
+//        log("Returning $outPacket for id $id")
         return outPacket
     }
 }
