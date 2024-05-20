@@ -4,6 +4,10 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.ServerStartEvent
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.motd.Players
+import io.github.dockyardmc.motd.ServerStatus
+import io.github.dockyardmc.motd.Version
+import io.github.dockyardmc.motd.toJson
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
@@ -12,6 +16,7 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.utils.Branding
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.bootstrap.ServerBootstrap
@@ -22,6 +27,8 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import log
+import java.io.File
+import java.util.*
 
 class DockyardServer(var port: Int) {
 
@@ -69,6 +76,26 @@ class DockyardServer(var port: Int) {
         mainWorld.worldBorder.diameter = 1000.0
         WorldManager.worlds.add(mainWorld)
 
+        // Encode the default motd on load so it doesn't encode on first server list ping and take 0.5 - 1s extra
+        val base64EncodedIcon = Base64.getEncoder().encode(File("./icon.png").readBytes()).decodeToString()
+        defaultMotd = ServerStatus(
+            version = Version(
+                name = "1.20.4",
+                protocol = 765,
+            ),
+            players = Players(
+                max = 727,
+                online = PlayerManager.players.size,
+                sample = mutableListOf(),
+            ),
+            description = "<aqua>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".component(),
+            enforceSecureChat = false,
+            previewsChat = false,
+            favicon = "data:image/png;base64,$base64EncodedIcon"
+        )
+        val json = defaultMotd.toJson()
+
+
         log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))
     }
@@ -104,5 +131,6 @@ class DockyardServer(var port: Int) {
         fun broadcastMessage(component: Component) { PlayerManager.players.sendMessage(component) }
         fun broadcastActionBar(message: String) { this.broadcastActionBar(message.component()) }
         fun broadcastActionBar(component: Component) { PlayerManager.players.sendActionBar(component) }
+        lateinit var defaultMotd: ServerStatus
     }
 }

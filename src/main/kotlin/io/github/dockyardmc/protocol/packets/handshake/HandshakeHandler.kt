@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.handshake
 
 import LogType
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerListPingEvent
 import io.github.dockyardmc.extentions.component
@@ -49,21 +50,7 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
             players.add(ServerListPlayer(it.username, it.uuid.toString()))
         }
 
-        val serverStatus = ServerStatus(
-            version = Version(
-                name = "1.20.4",
-                protocol = 765,
-            ),
-            players = Players(
-                max = 727,
-                online = PlayerManager.players.size,
-                sample = players,
-            ),
-            description = "<${Branding.COLOR}>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".component(),
-            enforceSecureChat = false,
-            previewsChat = false,
-            favicon = "data:image/png;base64,$base64EncodedIcon"
-        )
+        val serverStatus = DockyardServer.defaultMotd
 
         Events.dispatch(ServerListPingEvent(serverStatus))
 
