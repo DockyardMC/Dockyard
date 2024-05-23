@@ -4,15 +4,12 @@ import LogType
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerListPingEvent
-import io.github.dockyardmc.extentions.component
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.*
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.scroll.ComponentSerializer
-import io.github.dockyardmc.utils.Branding
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
 import log

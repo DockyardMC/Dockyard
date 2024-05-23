@@ -4,11 +4,10 @@ import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 
-class ClientboundPlayerInfoUpdatePacket(action: Int, numberOfPlayers: Int, updates: MutableList<PlayerInfoUpdate>): ClientboundPacket(0x3C) {
+class ClientboundPlayerInfoUpdatePacket(action: Int, updates: MutableList<PlayerInfoUpdate>): ClientboundPacket(0x3C) {
 
     init {
         data.writeByte(action)
-        data.writeVarInt(numberOfPlayers)
 
         data.writeVarInt(updates.size)
         updates.forEach {

@@ -1,5 +1,7 @@
 package io.github.dockyardmc.location
 
+import io.github.dockyardmc.extentions.truncate
+
 class Location(
     var x: Double,
     var y: Double,
@@ -16,6 +18,6 @@ class Location(
     ): this(x.toDouble(), y.toDouble(), z.toDouble(), yaw, pitch)
 
     override fun toString(): String {
-        return "Location($x, $y, $z, yaw: $yaw, pitch: $pitch)"
+        return "Location(${x.truncate(2)}, ${y.truncate(2)}, ${z.truncate(2)}, yaw: $yaw, pitch: $pitch)"
     }
 }

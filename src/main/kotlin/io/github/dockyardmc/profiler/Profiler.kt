@@ -1,0 +1,36 @@
+package io.github.dockyardmc.profiler
+
+import CustomLogType
+import LogType
+import log
+import java.time.Instant
+
+class Profiler {
+
+    companion object {
+        var TimeLog = CustomLogType("⌛ Profiler", AnsiPair.GRAY)
+    }
+
+    var name = "profiler"
+    private lateinit var startTime: Instant
+    private lateinit var endTime: Instant
+    var onlyLogAbove: Long? = null
+
+    fun start(name: String, onlyLogAbove: Long? = null) {
+        this.name = name
+        this.onlyLogAbove = onlyLogAbove
+        startTime = Instant.now()
+    }
+
+    fun end() {
+        endTime = Instant.now()
+        val overall = endTime.toEpochMilli() - startTime.toEpochMilli()
+        if(onlyLogAbove != null) {
+            if(onlyLogAbove != null && overall > onlyLogAbove!!) {
+                log("Profiler \"$name\" ended. Took ${overall}ms, ${overall - onlyLogAbove!!}ms more than expected", LogType.WARNING)
+            }
+        } else {
+            log("Profiler \"$name\" ended. Took ${overall}ms", TimeLog)
+        }
+    }
+}

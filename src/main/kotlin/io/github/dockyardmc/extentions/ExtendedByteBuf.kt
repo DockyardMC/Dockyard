@@ -1,10 +1,13 @@
 package io.github.dockyardmc.extentions
 
+import LogType
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.player.PlayerUpdateProfileProperty
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.utils.Math
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
+import log
 import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTWriter
@@ -45,6 +48,21 @@ fun ByteBuf.writeProfileProperties(propertyMap: ProfilePropertyMap) {
     }
 }
 
+fun ByteBuf.writeProfileProperties(propertyMap: PlayerUpdateProfileProperty) {
+
+    this.writeUtf(propertyMap.name)
+    this.writeVarInt(propertyMap.properties.size)
+
+    // Properties
+    propertyMap.properties.forEach {
+        this.writeUtf(it.name)
+        this.writeUtf(it.value)
+        this.writeBoolean(it.isSigned)
+        if(it.isSigned && it.signature != null) {
+            this.writeUtf(it.signature)
+        }
+    }
+}
 
 fun ByteBuf.writeByteArray(bs: ByteArray) {
     this.writeVarInt(bs.size)

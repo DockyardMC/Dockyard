@@ -3,6 +3,7 @@ package io.github.dockyardmc
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.ServerStartEvent
+import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.motd.Players
 import io.github.dockyardmc.motd.ServerStatus
@@ -11,12 +12,14 @@ import io.github.dockyardmc.motd.toJson
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
-import io.github.dockyardmc.protocol.PacketDecoder
+import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.github.dockyardmc.scroll.Component
-import io.github.dockyardmc.utils.Branding
+import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.utils.Resources
+import io.github.dockyardmc.utils.VersionToProtocolVersion
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.bootstrap.ServerBootstrap
@@ -38,8 +41,11 @@ class DockyardServer(var port: Int) {
     val workerGroup = NioEventLoopGroup()
 
     // Server ticks
+    val tickProfiler = Profiler()
     val tickTimer = RepeatingTimerAsync(50) {
-
+        tickProfiler.start("Tick", 3)
+        Events.dispatch(ServerTickEvent())
+        tickProfiler.end()
     }
 
     var keepAliveId = 0L
@@ -58,8 +64,10 @@ class DockyardServer(var port: Int) {
     }
 
     fun start() {
-        log("Starting DockyardMC Version $version", LogType.DEBUG)
-        if(version < 1) log("This is development build of DockyardMC. Things will break", LogType.WARNING)
+        versionInfo = Resources.getDockyardVersion()
+
+        log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${versionInfo.minecraftVersion})", LogType.RUNTIME)
+        if(versionInfo.dockyardVersion.toDouble() < 1) log("This is development build of DockyardMC. Things will break", LogType.WARNING)
 
         runPacketServer()
     }
@@ -69,6 +77,8 @@ class DockyardServer(var port: Int) {
     }
 
     private fun load() {
+        val profiler = Profiler()
+        profiler.start("DockyardMC Load")
         tickTimer.run()
         keepAlivePacketTimer.run()
 
@@ -80,24 +90,24 @@ class DockyardServer(var port: Int) {
         val base64EncodedIcon = Base64.getEncoder().encode(File("./icon.png").readBytes()).decodeToString()
         defaultMotd = ServerStatus(
             version = Version(
-                name = "1.20.4",
-                protocol = 765,
+                name = versionInfo.minecraftVersion,
+                protocol = VersionToProtocolVersion.map[versionInfo.minecraftVersion] ?: 0,
             ),
             players = Players(
                 max = 727,
                 online = PlayerManager.players.size,
                 sample = mutableListOf(),
             ),
-            description = "<aqua>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".component(),
+            description = "<aqua>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".toComponent(),
             enforceSecureChat = false,
             previewsChat = false,
             favicon = "data:image/png;base64,$base64EncodedIcon"
         )
         val json = defaultMotd.toJson()
 
-
         log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))
+        profiler.end()
     }
 
     @Throws(Exception::class)
@@ -127,10 +137,21 @@ class DockyardServer(var port: Int) {
     }
 
     companion object {
-        fun broadcastMessage(message: String) { this.broadcastMessage(message.component()) }
+        fun broadcastMessage(message: String) { this.broadcastMessage(message.toComponent()) }
         fun broadcastMessage(component: Component) { PlayerManager.players.sendMessage(component) }
-        fun broadcastActionBar(message: String) { this.broadcastActionBar(message.component()) }
+        fun broadcastActionBar(message: String) { this.broadcastActionBar(message.toComponent()) }
         fun broadcastActionBar(component: Component) { PlayerManager.players.sendActionBar(component) }
         lateinit var defaultMotd: ServerStatus
+        lateinit var versionInfo: Resources.DockyardVersionInfo
+        var allowAnyVersion: Boolean = false
+
+        var tickRate: Float = 20f
+
+        var mutePacketLogs = mutableListOf(
+            "ClientboundSystemChatMessagePacket",
+            "ServerboundSetPlayerPositionPacket",
+            "ServerboundSetPlayerPositionAndRotationPacket",
+            "ServerboundSetPlayerRotationPacket"
+        )
     }
 }

@@ -14,6 +14,4 @@ class PlayerCrypto(
     var playerSession: PlayerSession? = null
 ) {
 
-
-
 }

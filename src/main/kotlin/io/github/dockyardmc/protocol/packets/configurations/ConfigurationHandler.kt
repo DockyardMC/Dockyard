@@ -5,25 +5,17 @@ import io.github.dockyardmc.FeatureFlags
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.ClientConfiguration
-import io.github.dockyardmc.player.GameMode
-import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.login.ClientboundChangeDifficultyPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerSynchronizePositionPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRespawnPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.world.Difficulty
-import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 import log
-import org.jglrxavpok.hephaistos.parser.SNBTParser
-import java.io.FileReader
-
 
 class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(processor) {
 
@@ -44,10 +36,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         Events.dispatch(featureFlagsEvent)
         connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags))
 
-        val parser = SNBTParser(FileReader(Resources.getFile("registry.snbt")))
-        val nbt = parser.parse()
-
-        val registryDataPacket = ClientboundRegistryDataPacket(nbt)
+        val registryDataPacket = ClientboundRegistryDataPacket(Resources.registry)
         connection.sendPacket(registryDataPacket)
 
         val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
@@ -80,6 +69,9 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         processor.player.entityId = entityId
         PlayerManager.playerToEntityIdMap[entityId] = processor.player
 
+        val world = WorldManager.worlds[0]
+        processor.player.world = world
+
         val playPacket = ClientboundPlayPacket(
             entityId,
             false,
@@ -91,8 +83,8 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             true,
             false,
             "overworld",
-            WorldManager.worlds[0].name,
-            WorldManager.worlds[0].seed,
+            world.name,
+            world.seed,
             GameMode.CREATIVE,
             GameMode.SURVIVAL,
             false,
@@ -106,6 +98,8 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         connection.sendPacket(difficultyPacket)
 
         connection.sendPacket(ClientboundRespawnPacket())
-        connection.sendPacket(ClientboundPlayerSynchronizePositionPacket(Location(5.0, 10.0, 309.0), 8743))
+        connection.sendPacket(ClientboundPlayerSynchronizePositionPacket(Location(0, 0, 0), 8743))
+
+        connection.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying = true, allowFlying = true))
     }
 }

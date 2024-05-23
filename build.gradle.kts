@@ -1,14 +1,20 @@
+import java.io.IOException
+
 plugins {
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.serialization") version "1.9.23"
     application
 }
 
-group = "io.github.dockyardmc"
-version = properties["dockyard.version"]!!
-
+val minecraftVersion = "1.20.4"
+val dockyardVersion = properties["dockyard.version"]!!
+val gitBranch = "git rev-parse --abbrev-ref HEAD".runCommand()
+val gitCommit = "git rev-parse --short=8 HEAD".runCommand()
 val githubUsername: String = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USER")
 val githubPassword: String = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+
+group = "io.github.dockyardmc"
+version = "${dockyardVersion}_${gitCommit}@${gitBranch}_mc${minecraftVersion}"
 
 repositories {
     mavenCentral()
@@ -29,7 +35,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:2.3.10")
     implementation("io.ktor:ktor-network:2.3.10")
     implementation("cz.lukynka:pretty-log:1.2.2")
-    implementation("io.github.dockyardmc:scroll:1.0")
+    implementation("io.github.dockyardmc:scroll:1.1")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
@@ -39,6 +45,24 @@ dependencies {
     implementation("com.google.guava:guava:33.2.0-jre")
 }
 
+fun String.runCommand(
+    workingDir: File = File("."),
+    timeoutAmount: Long = 60,
+    timeoutUnit: TimeUnit = TimeUnit.SECONDS
+): String = ProcessBuilder(split("\\s(?=(?:[^'\"`]*(['\"`])[^'\"`]*\\1)*[^'\"`]*$)".toRegex()))
+    .directory(workingDir)
+    .redirectOutput(ProcessBuilder.Redirect.PIPE)
+    .redirectError(ProcessBuilder.Redirect.PIPE)
+    .start()
+    .apply { waitFor(timeoutAmount, timeoutUnit) }
+    .run {
+        val error = errorStream.bufferedReader().readText().trim()
+        if (error.isNotEmpty()) {
+            throw IOException(error)
+        }
+        inputStream.bufferedReader().readText().trim()
+    }
+
 kotlin {
     jvmToolchain(17)
 }
@@ -46,3 +70,19 @@ kotlin {
 application {
     mainClass.set("io.github.dockyard.MainKt")
 }
+
+tasks.register("generateVersionFile") {
+    val outputDir = file("$buildDir/generated/resources/")
+    val outputFile = file("$outputDir/dock.yard")
+    outputs.file(outputFile)
+    doLast {
+        outputDir.mkdirs()
+        outputFile.writeText("${dockyardVersion}|${minecraftVersion}|${gitBranch}|${gitCommit}")
+    }
+}
+
+tasks.named("processResources") {
+    dependsOn("generateVersionFile")
+}
+
+sourceSets["main"].resources.srcDir("$buildDir/generated/resources/")

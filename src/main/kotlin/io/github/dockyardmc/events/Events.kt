@@ -1,6 +1,9 @@
 package io.github.dockyardmc.events
 
+import io.github.dockyardmc.profiler.Profiler
+
 object Events {
+    private val profiler = Profiler()
     val eventMap = mutableMapOf<Class<out Event>, MutableList<ExecutableEvent<Event>>>()
 
     @Suppress("UNCHECKED_CAST")
@@ -11,10 +14,12 @@ object Events {
     }
 
     fun dispatch(event: Event) {
+        profiler.start("Events Dispatch", 5)
         val eventType = event.javaClass
         eventMap[eventType]?.forEach { executableEvent ->
             (executableEvent.function as (Event) -> Unit).invoke(event)
         }
+        profiler.end()
     }
 }
 

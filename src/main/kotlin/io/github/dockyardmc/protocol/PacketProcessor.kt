@@ -1,15 +1,16 @@
 package io.github.dockyardmc.protocol
 
 import LogType
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.TCP
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.events.PlayerDisconnectEvent
 import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.toByteArraySafe
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
@@ -25,15 +26,12 @@ import log
 @Sharable
 class PacketProcessor : ChannelInboundHandlerAdapter() {
 
-    private val hideLogsWith = mutableListOf(
-        "position"
-    )
-
     private var innerState = ProtocolState.HANDSHAKE
     var encrypted = false
 
     lateinit var player: Player
     lateinit var address: String
+    var playerProtocolVersion: Int = 0
 
     var respondedToLastKeepAlive = true
 
@@ -52,11 +50,14 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun channelRead(connection: ChannelHandlerContext, msg: Any) {
+        val profiler = Profiler()
+
         if(!this::address.isInitialized) address = connection.channel().remoteAddress().address
         val buf = msg as ByteBuf
 
         try {
             try {
+                profiler.start("Read Packet Buf", 20)
                 while (buf.isReadable) {
                     buf.markReaderIndex()
                     val packetSize = buf.readVarInt() - 1
@@ -76,7 +77,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                         ?: throw UnknownPacketException("Received unhandled packet with ID $packetId (0x$packetIdByteRep)")
 
                     val className = packet::class.simpleName ?: packet::class.toString()
-                    if(hideLogsWith.firstOrNull { className.contains(it) } != null) {
+                    if(!DockyardServer.mutePacketLogs.contains(className)) {
                         log("-> Received $className (0x${packetIdByteRep})", LogType.NETWORK)
                     }
 
@@ -87,6 +88,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                 buf.clear()
                 buf.release()
                 connection.flush()
+                profiler.end()
             }
         } catch (ex: Exception) {
             handleException(connection, buf, ex)

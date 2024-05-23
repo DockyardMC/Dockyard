@@ -1,10 +1,16 @@
 package io.github.dockyardmc.protocol.packets.play
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerMoveEvent
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.player.AddPlayerInfoUpdateAction
+import io.github.dockyardmc.player.PlayerInfoUpdate
+import io.github.dockyardmc.player.PlayerUpdateProfileProperty
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
+import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
 import io.netty.channel.ChannelHandlerContext
 import log
@@ -12,6 +18,24 @@ import log
 class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
     fun handleTeleportConfirmation(packet: ServerboundTeleportConfirmationPacket, connection: ChannelHandlerContext) {
+        val player = processor.player
+        val playerInfo = PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(PlayerUpdateProfileProperty(player.username, mutableListOf(player.profile!!.properties[0]))))
+        val playerInfoUpdatePacket = ClientboundPlayerInfoUpdatePacket(1, mutableListOf(playerInfo))
+        connection.sendPacket(playerInfoUpdatePacket)
+
+        val worldBorder = player.world!!.worldBorder
+        val worldBorderPacket = ClientboundInitializeWorldBorderPacket(worldBorder.diameter, worldBorder.diameter, 0, worldBorder.warningBlocks, worldBorder.warningTime)
+        connection.sendPacket(worldBorderPacket)
+
+//        val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
+//        connection.sendPacket(tickingStatePacket)
+
+        val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
+        connection.sendPacket(chunkCenterChunkPacket)
+
+        //TODO: add chunks lol
+        val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 0f)
+        connection.sendPacket(gameEventPacket)
     }
 
     fun handlePlayerPositionAndRotationUpdates(packet: ServerboundSetPlayerPositionPacket, connection: ChannelHandlerContext) {
@@ -37,14 +61,6 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
         player.location = location
         player.isOnGround = isOnGround
-
-//        val worldBorder = WorldManager.worlds[0].worldBorder
-//        val packet = ClientboundInitializeWorldBorderPacket(worldBorder.diameter, worldBorder.diameter, 0, worldBorder.warningBlocks, worldBorder.warningTime)
-//        connection.sendPacket(packet)
-
-//        val playerInfo = PlayerInfoUpdate(player.uuid, AddPlayerAction(player.profile!!))
-//        val playerInfoUpdatePacket = ClientboundPlayerInfoUpdatePacket(0x01, 1, mutableListOf(playerInfo))
-//        connection.sendPacket(playerInfoUpdatePacket)
     }
 
     fun handleKeepAlive(packet: ServerboundKeepAlivePacket, connection: ChannelHandlerContext) {

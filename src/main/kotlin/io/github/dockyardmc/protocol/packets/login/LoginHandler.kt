@@ -1,17 +1,25 @@
 package io.github.dockyardmc.protocol.packets.login
 
 import LogType
+import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
+import io.github.dockyardmc.player.kick.KickReason
+import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.protocol.cryptography.PacketDecryptionHandler
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.cryptography.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisconnectPacket
+import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.utils.VersionToProtocolVersion
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
 import log
+import org.jglrxavpok.hephaistos.mca.pack
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import javax.crypto.Cipher
@@ -21,11 +29,22 @@ import javax.crypto.spec.SecretKeySpec
 class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
+        processor.playerProtocolVersion = packet.version
+
         processor.state = ProtocolState.LOGIN
     }
 
     fun handleLoginStart(packet: ServerboundLoginStartPacket, connection: ChannelHandlerContext) {
         log("Received login start packet with name ${packet.name} and UUID ${packet.uuid}", LogType.DEBUG)
+
+        if(!DockyardServer.allowAnyVersion) {
+            val playerVersion = VersionToProtocolVersion.map.reversed()[processor.playerProtocolVersion]
+            val requiredVersion = DockyardServer.versionInfo.protocolVersion
+            if(processor.playerProtocolVersion != requiredVersion) {
+                connection.sendPacket(ClientboundLoginDisconnectPacket(getSystemKickMessage("You are using incompatible version <red>($playerVersion)<gray>. Please use version <yellow>${DockyardServer.versionInfo.minecraftVersion}<gray>", KickReason.INCOMPATIBLE_VERSION.name)))
+                return
+            }
+        }
 
         val generator = KeyPairGenerator.getInstance("RSA")
         generator.initialize(1024)

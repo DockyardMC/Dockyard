@@ -1,16 +1,17 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.extentions.component
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisconnectPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSystemChatMessagePacket
 import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.world.World
 import io.netty.channel.ChannelHandlerContext
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
 
 class Player(
     val username: String,
@@ -28,6 +29,7 @@ class Player(
     var entityId: Int? = null,
     var isSneaking: Boolean = false,
     var isSprinting: Boolean = false,
+    var selectedHotbarSlot: Int = 0
 ) {
 
     // Hold messages client receives before state is PLAY, then send them after state changes to PLAY
@@ -38,11 +40,11 @@ class Player(
     }
 
     override fun toString(): String { return username }
-    fun kick(reason: String) { this.kick(reason.component()) }
+    fun kick(reason: String) { this.kick(reason.toComponent()) }
     fun kick(reason: Component) { connection.sendPacket(ClientboundDisconnectPacket(reason)) }
-    fun sendMessage(message: String) { this.sendMessage(message.component()) }
+    fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
     fun sendMessage(component: Component) { sendSystemMessage(component, false) }
-    fun sendActionBar(message: String) { this.sendActionBar(message.component()) }
+    fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
     fun sendActionBar(component: Component) { sendSystemMessage(component, true) }
 
     private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
@@ -56,4 +58,9 @@ class Player(
         }
     }
 
+    init {
+        Events.on<ServerTickEvent> {
+
+        }
+    }
 }

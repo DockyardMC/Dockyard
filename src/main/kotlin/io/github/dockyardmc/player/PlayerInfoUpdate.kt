@@ -8,7 +8,7 @@ class PlayerInfoUpdate(
     val action: PlayerInfoUpdateAction
 )
 
-class AddPlayerInfoUpdateAction(val profileProperty: ProfilePropertyMap): PlayerInfoUpdateAction()
+class AddPlayerInfoUpdateAction(val profileProperty: PlayerUpdateProfileProperty): PlayerInfoUpdateAction()
 
 //TODO too hard, not doing now lol
 class InitializeChatInfoUpdateAction(): PlayerInfoUpdateAction()
