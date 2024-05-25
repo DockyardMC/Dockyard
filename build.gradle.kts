@@ -43,6 +43,7 @@ dependencies {
     implementation("io.github.jglrxavpok.hephaistos:common:2.2.0")
     implementation("io.github.jglrxavpok.hephaistos:gson:2.2.0")
     implementation("com.google.guava:guava:33.2.0-jre")
+    implementation("it.unimi.dsi:fastutil:8.5.13")
 }
 
 fun String.runCommand(

@@ -1,13 +1,9 @@
 package io.github.dockyardmc.extentions
 
-import LogType
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.PlayerUpdateProfileProperty
-import io.github.dockyardmc.player.ProfilePropertyMap
-import io.github.dockyardmc.utils.Math
+import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
-import log
 import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTWriter
@@ -35,6 +31,16 @@ fun ByteBuf.writeUUID(uuid: UUID) {
 fun ByteBuf.writeByteArray(bs: ByteArray) {
     this.writeVarInt(bs.size)
     this.writeBytes(bs)
+}
+
+fun ByteBuf.writeVarIntArray(array: List<Int>) {
+    this.writeVarInt(array.size)
+    array.forEach { this.writeVarInt(it) }
+}
+
+fun ByteBuf.writeLongArray(array: List<Long>) {
+    this.writeVarInt(array.size)
+    array.forEach { this.writeLong(it) }
 }
 
 fun ByteBuf.readByteArray(): ByteArray {
@@ -70,7 +76,7 @@ fun ByteBuf.writeNBT(nbt: NBT) {
 }
 
 fun ByteBuf.readFixedBitSet(i: Int): BitSet {
-    val bs = ByteArray(Math.positiveCeilDiv(i, 8))
+    val bs = ByteArray(MathUtils.positiveCeilDiv(i, 8))
     this.readBytes(bs)
     return BitSet.valueOf(bs)
 }

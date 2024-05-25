@@ -23,12 +23,12 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val playerInfoUpdatePacket = ClientboundPlayerInfoUpdatePacket(1, mutableListOf(playerInfo))
         connection.sendPacket(playerInfoUpdatePacket)
 
-        val worldBorder = player.world!!.worldBorder
-        val worldBorderPacket = ClientboundInitializeWorldBorderPacket(worldBorder.diameter, worldBorder.diameter, 0, worldBorder.warningBlocks, worldBorder.warningTime)
-        connection.sendPacket(worldBorderPacket)
+//        val worldBorder = player.world!!.worldBorder
+//        val worldBorderPacket = ClientboundInitializeWorldBorderPacket(worldBorder.diameter, worldBorder.diameter, 0, worldBorder.warningBlocks, worldBorder.warningTime)
+//        connection.sendPacket(worldBorderPacket)
 
-//        val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
-//        connection.sendPacket(tickingStatePacket)
+        val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
+        connection.sendPacket(tickingStatePacket)
 
         val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
         connection.sendPacket(chunkCenterChunkPacket)
