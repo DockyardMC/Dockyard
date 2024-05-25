@@ -32,38 +32,6 @@ fun ByteBuf.writeUUID(uuid: UUID) {
     this.writeLong(uuid.leastSignificantBits)
 }
 
-fun ByteBuf.writeProfileProperties(propertyMap: ProfilePropertyMap) {
-
-    this.writeUtf(propertyMap.name)
-    this.writeVarInt(propertyMap.properties.size)
-
-    // Properties
-    propertyMap.properties.forEach {
-        this.writeUtf(it.name)
-        this.writeUtf(it.value)
-        this.writeBoolean(it.isSigned)
-        if(it.isSigned && it.signature != null) {
-            this.writeUtf(it.signature)
-        }
-    }
-}
-
-fun ByteBuf.writeProfileProperties(propertyMap: PlayerUpdateProfileProperty) {
-
-    this.writeUtf(propertyMap.name)
-    this.writeVarInt(propertyMap.properties.size)
-
-    // Properties
-    propertyMap.properties.forEach {
-        this.writeUtf(it.name)
-        this.writeUtf(it.value)
-        this.writeBoolean(it.isSigned)
-        if(it.isSigned && it.signature != null) {
-            this.writeUtf(it.signature)
-        }
-    }
-}
-
 fun ByteBuf.writeByteArray(bs: ByteArray) {
     this.writeVarInt(bs.size)
     this.writeBytes(bs)
