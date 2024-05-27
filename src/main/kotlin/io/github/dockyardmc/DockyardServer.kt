@@ -76,6 +76,7 @@ class DockyardServer(var port: Int) {
 
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     private fun load() {
         val profiler = Profiler()
         profiler.start("DockyardMC Load")
@@ -107,6 +108,7 @@ class DockyardServer(var port: Int) {
 
         log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))
+
         profiler.end()
     }
 

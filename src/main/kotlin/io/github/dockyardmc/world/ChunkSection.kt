@@ -16,12 +16,12 @@ class ChunkSection(
     }
 
     fun clear() {
-        blockPalette.fill(0)
-        biomePalette.fill(0)
+        blockPalette.fill(100)
+        biomePalette.fill(2)
     }
 }
 
-fun ByteBuf.writeSection(section: ChunkSection) {
+fun ByteBuf.writeChunkSection(section: ChunkSection) {
     this.writeShort(section.blockPalette.count())
     this.writePalette(section.blockPalette)
     this.writePalette(section.biomePalette)

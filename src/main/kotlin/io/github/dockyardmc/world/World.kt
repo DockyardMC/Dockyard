@@ -5,6 +5,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
+import log
 
 class World(var name: String = "world", var dimensionType: DimensionType = DimensionType.OVERWORLD, worldSeed: String = "trans rights!!") {
 
@@ -20,6 +21,21 @@ class World(var name: String = "world", var dimensionType: DimensionType = Dimen
     fun sendMessage(component: Component) { players.sendMessage(component) }
     fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
     fun sendActionBar(component: Component) { players.sendActionBar(component) }
+
+    init {
+        repeat(33) { xr ->
+            repeat(33) { zr ->
+                log("${xr-16} | ${zr-16}")
+                val chunk = Chunk(xr - 16, zr - 16, this)
+                chunk.sections.forEach {
+                    it.clear()
+                }
+                chunks.add(chunk)
+            }
+        }
+
+    }
+
 }
 
 enum class DimensionType(val maxY: Int, val minY: Int) {

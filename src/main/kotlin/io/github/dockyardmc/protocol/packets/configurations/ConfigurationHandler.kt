@@ -94,12 +94,22 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         connection.sendPacket(playPacket)
 
-        val difficultyPacket = ClientboundChangeDifficultyPacket(Difficulty.PEACEFUL, false)
-        connection.sendPacket(difficultyPacket)
+//        val difficultyPacket = ClientboundChangeDifficultyPacket(Difficulty.PEACEFUL, false)
+//        connection.sendPacket(difficultyPacket)
 
-        connection.sendPacket(ClientboundRespawnPacket())
+        val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
+        connection.sendPacket(chunkCenterChunkPacket)
+
+        val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
+        connection.sendPacket(gameEventPacket)
+
+        log("chunk packet")
+        processor.player.world!!.chunks.forEach {
+            connection.sendPacket(it.packet)
+        }
+
         connection.sendPacket(ClientboundPlayerSynchronizePositionPacket(Location(0, 0, 0), 8743))
+        connection.sendPacket(ClientboundRespawnPacket())
 
-        connection.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying = true, allowFlying = true))
     }
 }
