@@ -19,7 +19,6 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, section
 
         //Heightmaps
         data.writeMSNBT(heightMap)
-//        log(heightMap.toSNBT())
 
         //Chunk Sections
         val chunkSectionData = Unpooled.buffer()
