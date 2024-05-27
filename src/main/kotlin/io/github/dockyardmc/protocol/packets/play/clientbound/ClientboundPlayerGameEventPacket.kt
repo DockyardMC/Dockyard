@@ -8,7 +8,6 @@ class ClientboundPlayerGameEventPacket(event: GameEvent, value: Float): Clientbo
         data.writeByte(event.ordinal)
         data.writeFloat(value)
     }
-
 }
 
 enum class GameEvent {

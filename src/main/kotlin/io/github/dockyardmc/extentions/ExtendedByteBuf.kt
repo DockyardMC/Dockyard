@@ -1,17 +1,13 @@
 package io.github.dockyardmc.extentions
 
-import LogType
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.PlayerUpdateProfileProperty
-import io.github.dockyardmc.player.ProfilePropertyMap
-import io.github.dockyardmc.utils.Math
+import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
-import log
-import org.jglrxavpok.hephaistos.nbt.CompressedProcesser
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTWriter
+import org.jglrxavpok.hephaistos.nbt.*
 import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.util.*
@@ -37,12 +33,47 @@ fun ByteBuf.writeByteArray(bs: ByteArray) {
     this.writeBytes(bs)
 }
 
+fun ByteBuf.writeVarIntArray(array: List<Int>) {
+    this.writeVarInt(array.size)
+    array.forEach { this.writeVarInt(it) }
+}
+
+fun ByteBuf.writeLongArray(array: LongArray) {
+    this.writeLongArray(array.toList())
+}
+
+fun ByteBuf.writeLongArray(array: List<Long>) {
+    this.writeVarInt(array.size)
+    array.forEach { this.writeLong(it) }
+}
+
 fun ByteBuf.readByteArray(): ByteArray {
     val len = this.readVarInt()
     return readBytes(len).toByteArraySafe()
 }
 
-fun ByteBuf.writeNBT(nbt: NBT) {
+fun ByteBuf.readNBT(): NBT {
+    val buffer = this
+    val nbtReader = NBTReader(object : InputStream() {
+        override fun read(): Int {
+            return buffer.readByte().toInt() and 0xFF
+        }
+
+        override fun available(): Int {
+            return buffer.readableBytes()
+        }
+    }, CompressedProcesser.NONE)
+    return try {
+        val tagId: Byte = buffer.readByte()
+        if (tagId.toInt() == NBTType.TAG_End.ordinal) NBTEnd else nbtReader.readRaw(tagId.toInt())
+    } catch (e: IOException) {
+        throw java.lang.RuntimeException(e)
+    } catch (e: NBTException) {
+        throw java.lang.RuntimeException(e)
+    }
+}
+
+fun ByteBuf.writeNBT(nbt: NBT, truncateRootTag: Boolean = true) {
 
     val outputStream = ByteArrayOutputStream()
     try {
@@ -50,27 +81,32 @@ fun ByteBuf.writeNBT(nbt: NBT) {
         writer.writeNamed("", nbt)
         writer.close()
     } finally {
-        var outData = outputStream.toByteArray()
+        if (truncateRootTag) {
+            var outData = outputStream.toByteArray()
 
-        // Since 1.20.2 (Protocol 764) NBT sent over the network has been updated to exclude the name from the root TAG_COMPOUND
-        // ┌───────────┬────────┬────────────────┬──────────────┬───────────┐
-        // │  Version  │ TypeID │ Length of Name │     Name     │  Payload  │
-        // ├───────────┼────────┼────────────────┼──────────────┼───────────┤
-        // │ < 1.20.2  │ 0x0a   │ 0x00 0x00      │ Empty String │ 0x02 0x09 │
-        // │ >= 1.20.2 │ 0x0a   │ N/A            │ N/A          │ 0x02 0x09 │
-        // └───────────┴────────┴────────────────┴──────────────┴───────────┘
+            // Since 1.20.2 (Protocol 764) NBT sent over the network has been updated to exclude the name from the root TAG_COMPOUND
+            // ┌───────────┬────────┬────────────────┬──────────────┬───────────┐
+            // │  Version  │ TypeID │ Length of Name │     Name     │  Payload  │
+            // ├───────────┼────────┼────────────────┼──────────────┼───────────┤
+            // │ < 1.20.2  │ 0x0a   │ 0x00 0x00      │ Empty String │ 0x02 0x09 │
+            // │ >= 1.20.2 │ 0x0a   │ N/A            │ N/A          │ 0x02 0x09 │
+            // └───────────┴────────┴────────────────┴──────────────┴───────────┘
 
-        // Thanks to Kev (kev_dev) for pointing this out because I think I would have gone mad otherwise
-        val list = outData.toMutableList()
-        list.removeAt(1)
-        list.removeAt(1)
-        outData = list.toByteArray()
-        writeBytes(outData)
+            // Thanks to Kev (kev_dev) for pointing this out because I think I would have gone mad otherwise
+            val list = outData.toMutableList()
+            list.removeAt(1)
+            list.removeAt(1)
+            outData = list.toByteArray()
+            writeBytes(outData)
+//            log(outData.toHexString())
+        } else {
+            writeBytes(outputStream.toByteArray())
+        }
     }
 }
 
 fun ByteBuf.readFixedBitSet(i: Int): BitSet {
-    val bs = ByteArray(Math.positiveCeilDiv(i, 8))
+    val bs = ByteArray(MathUtils.positiveCeilDiv(i, 8))
     this.readBytes(bs)
     return BitSet.valueOf(bs)
 }
