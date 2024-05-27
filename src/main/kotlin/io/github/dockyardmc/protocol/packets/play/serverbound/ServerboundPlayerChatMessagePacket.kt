@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import log
 
-class ServerboundPlayerChatMessagePacket(val message: String): ServerboundPacket {
+class ServerboundPlayerChatMessagePacket(var message: String): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         val event = PlayerChatMessageEvent(message, processor.player)

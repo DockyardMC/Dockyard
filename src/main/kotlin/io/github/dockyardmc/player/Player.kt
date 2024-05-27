@@ -57,10 +57,4 @@ class Player(
             connection.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))
         }
     }
-
-    init {
-        Events.on<ServerTickEvent> {
-
-        }
-    }
 }
