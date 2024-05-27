@@ -13,8 +13,8 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
     val maxSection = (world.dimensionType.minY + world.dimensionType.maxY)/ 16
     private lateinit var cachedPacket: CachedPacket
 
-    val motionBlocking: ImmutableLongArray = ImmutableLongArray(36) { 0 }
-    val worldSurface: ImmutableLongArray = ImmutableLongArray(36) { 0 }
+    val motionBlocking: ImmutableLongArray = ImmutableLongArray(37) { 0 }
+    val worldSurface: ImmutableLongArray = ImmutableLongArray(37) { 0 }
 
     val sections: MutableList<ChunkSection> = mutableListOf()
 

@@ -16,7 +16,7 @@ class ChunkSection(
     }
 
     fun clear() {
-        blockPalette.fill(100)
+        blockPalette.fill(50)
         biomePalette.fill(2)
     }
 }

@@ -28,9 +28,10 @@ class World(var name: String = "world", var dimensionType: DimensionType = Dimen
                 log("${xr-16} | ${zr-16}")
                 val chunk = Chunk(xr - 16, zr - 16, this)
                 chunk.sections.forEach {
-                    it.blockPalette.fill(2555)
-                    it.biomePalette.fill(555)
+                    it.blockPalette.fill(1)
+                    it.biomePalette.fill(3)
                 }
+                chunk.cacheChunkDataPacket()
                 chunks.add(chunk)
             }
         }
