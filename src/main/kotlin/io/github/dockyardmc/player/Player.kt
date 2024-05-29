@@ -4,6 +4,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisconnectPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSystemChatMessagePacket
@@ -29,7 +30,9 @@ class Player(
     var entityId: Int? = null,
     var isSneaking: Boolean = false,
     var isSprinting: Boolean = false,
-    var selectedHotbarSlot: Int = 0
+    var selectedHotbarSlot: Int = 0,
+    val permissions: MutableList<String> = mutableListOf(),
+    var isFullyInitialized: Boolean = false
 ) {
 
     // Hold messages client receives before state is PLAY, then send them after state changes to PLAY
@@ -46,7 +49,6 @@ class Player(
     fun sendMessage(component: Component) { sendSystemMessage(component, false) }
     fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
     fun sendActionBar(component: Component) { sendSystemMessage(component, true) }
-
     private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
         val processor = PlayerManager.playerToProcessorMap[this.uuid]
         processor.let {
@@ -56,5 +58,14 @@ class Player(
             }
             connection.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))
         }
+    }
+
+    fun sendPacket(packet: ClientboundPacket) {
+        connection.sendPacket(packet)
+    }
+
+    fun hasPermission(permission: String): Boolean {
+        if(permission.isEmpty()) return true
+        return permissions.contains(permission)
     }
 }

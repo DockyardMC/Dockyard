@@ -153,7 +153,9 @@ class DockyardServer(var port: Int) {
             "ClientboundSystemChatMessagePacket",
             "ServerboundSetPlayerPositionPacket",
             "ServerboundSetPlayerPositionAndRotationPacket",
-            "ServerboundSetPlayerRotationPacket"
+            "ServerboundSetPlayerRotationPacket",
+            "ClientboundKeepAlivePacket",
+            "ServerboundKeepAlivePacket"
         )
     }
 }

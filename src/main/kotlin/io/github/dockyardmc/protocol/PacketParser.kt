@@ -56,6 +56,7 @@ object PacketParser {
         if(processor.state == ProtocolState.PLAY) {
             outPacket = when(id) {
                 0 -> ServerboundTeleportConfirmationPacket.read(buffer)
+                4 -> ServerboundChatCommandPacket.read(buffer)
                 5 -> ServerboundPlayerChatMessagePacket.read(buffer)
                 6 -> ServerboundPlayerSessionPacket.read(buffer)
                 16 -> ServerboundPlayPluginMessagePacket.read(buffer, size)

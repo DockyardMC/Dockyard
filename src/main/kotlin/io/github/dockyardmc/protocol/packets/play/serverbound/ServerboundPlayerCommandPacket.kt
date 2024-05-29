@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import log
 
-// Note: Do not confuse with commands packets, this is packet that
+// Note: Do not confuse with io.github.dockyardmc.commands packets, this is packet that
 // describes actions of player (if they are sneaking, sprinting etc.)
 // idk why they named it "player command" packet, im just following the standard
 class ServerboundPlayerCommandPacket(val entityId: Int, val action: PlayerAction): ServerboundPacket {

@@ -25,6 +25,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
 
     val packet: ClientboundChunkDataPacket get() {
         if(!this::cachedPacket.isInitialized || !this.cachedPacket.isValid) cacheChunkDataPacket()
+        cacheChunkDataPacket() // always make new one idc
         return cachedPacket.packet as ClientboundChunkDataPacket
     }
 

@@ -163,11 +163,6 @@ fun ByteBuf.writeStringArray(list: MutableList<String>) {
     list.forEach { writeUtf(it) }
 }
 
-fun ByteBuf.writePosition(location: Location) {
-    this.writeInt(location.x.roundToInt())
-    this.writeInt(location.z.roundToInt())
-    this.writeInt(location.y.roundToInt())
-}
 
 fun ByteBuf.writeVarInt(int: Int) {
     var value = int

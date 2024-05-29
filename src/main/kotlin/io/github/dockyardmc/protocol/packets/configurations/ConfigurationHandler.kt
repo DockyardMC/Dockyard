@@ -2,6 +2,7 @@ package io.github.dockyardmc.protocol.packets.configurations
 
 import LogType
 import io.github.dockyardmc.FeatureFlags
+import io.github.dockyardmc.commands.nodes.testCommand
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
@@ -108,8 +109,13 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             connection.sendPacket(it.packet)
         }
 
-        connection.sendPacket(ClientboundPlayerSynchronizePositionPacket(Location(0, 0, 0), 8743))
-        connection.sendPacket(ClientboundRespawnPacket())
+        val spawnLocation = Location(0, 256, 0)
+        processor.player.location = spawnLocation
 
+        connection.sendPacket(ClientboundPlayerSynchronizePositionPacket(spawnLocation, 8743))
+        connection.sendPacket(ClientboundRespawnPacket())
+        processor.player.isFullyInitialized = true
+//        connection.sendPacket(ClientboundCommandsPacket(mutableListOf(testCommand)))
+        Events.dispatch(PlayerJoinEvent(processor.player))
     }
 }

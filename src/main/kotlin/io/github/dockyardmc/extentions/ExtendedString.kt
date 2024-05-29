@@ -5,6 +5,14 @@ import io.netty.util.CharsetUtil
 import java.util.*
 
 
+fun String.isUppercase(): Boolean {
+    return this.uppercase() == this
+}
+
+fun String.isLowercase(): Boolean {
+    return this.lowercase() == this
+}
+
 fun String.byteSize(): Int {
     return this.toByteArray(CharsetUtil.UTF_8).size
 }
