@@ -2,7 +2,6 @@ package io.github.dockyardmc.location
 
 import io.github.dockyardmc.extentions.truncate
 import io.netty.buffer.ByteBuf
-import kotlin.math.roundToInt
 
 class Location(
     var x: Double,

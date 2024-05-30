@@ -6,6 +6,8 @@ import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.player.SwingAnimationHand
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityAnimation
+import io.github.dockyardmc.protocol.packets.play.clientbound.EntityAnimation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -13,6 +15,9 @@ class ServerboundPlayerSwingHandPacket(val hand: SwingAnimationHand): Serverboun
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         Events.dispatch(PlayerSwingHandEvent(processor.player, hand))
+        val animation = if(hand == SwingAnimationHand.MAIN_HAND) EntityAnimation.SWING_MAIN_ARM else EntityAnimation.SWING_OFFHAND
+        val packet = ClientboundEntityAnimation(processor.player, animation)
+        processor.player.viewers.forEach { it.sendPacket(packet) }
     }
 
     companion object {

@@ -28,6 +28,11 @@ fun ByteBuf.writeUUID(uuid: UUID) {
     this.writeLong(uuid.leastSignificantBits)
 }
 
+fun ByteBuf.writeUUIDArray(uuids: List<UUID>) {
+    this.writeVarInt(uuids.size)
+    uuids.forEach { this.writeUUID(it) }
+}
+
 fun ByteBuf.writeByteArray(bs: ByteArray) {
     this.writeVarInt(bs.size)
     this.writeBytes(bs)
@@ -162,6 +167,7 @@ fun ByteBuf.writeStringArray(list: MutableList<String>) {
     writeVarInt(list.size)
     list.forEach { writeUtf(it) }
 }
+
 
 
 fun ByteBuf.writeVarInt(int: Int) {

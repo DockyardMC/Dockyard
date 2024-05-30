@@ -1,12 +1,11 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
 import io.github.dockyardmc.extentions.writeUUID
-import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.utils.Velocity
+import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.writeVelocity
 import java.util.UUID
 
@@ -17,7 +16,7 @@ class ClientboundSpawnEntityPacket(
     location: Location,
     headYaw: Float,
     entityData: Int,
-    velocity: Velocity
+    velocity: Vector3
 ): ClientboundPacket(0x01) {
 
     init {

@@ -21,7 +21,7 @@ class World(var name: String = "world", var dimensionType: DimensionType = Dimen
 
     var chunks: MutableList<Chunk> = mutableListOf()
 
-    val players: MutableList<Player> get() = PlayerManager.players.filter { it.world != null && it.world == this }.toMutableList()
+    val players: MutableList<Player> get() = PlayerManager.players.filter { it.world == this }.toMutableList()
 
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
     fun sendMessage(component: Component) { players.sendMessage(component) }

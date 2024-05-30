@@ -59,6 +59,9 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
         player.location = location
         player.isOnGround = isOnGround
+
+        val packet = ClientboundUpdateEntityPositionPacket(player, oldLocation)
+        player.viewers.forEach { it.sendPacket(packet) }
     }
 
     fun handleKeepAlive(packet: ServerboundKeepAlivePacket, connection: ChannelHandlerContext) {

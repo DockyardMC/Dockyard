@@ -2,6 +2,7 @@ package io.github.dockyardmc.protocol.packets.login
 
 import LogType
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
@@ -13,13 +14,11 @@ import io.github.dockyardmc.protocol.cryptography.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisconnectPacket
-import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.VersionToProtocolVersion
+import io.github.dockyardmc.world.WorldManager
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
 import log
-import org.jglrxavpok.hephaistos.mca.pack
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import javax.crypto.Cipher
@@ -58,9 +57,18 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         // verificationToken.size reports 4 but nextBytes WRITES 8 IN REALITY... WHY???? I HAVE SPENT 2 HOURS DEBUGGING THIS
 
         val playerCrypto = PlayerCrypto(publicKey, privateKey, verificationToken)
-        val player = Player(packet.name, packet.uuid, connection.channel().remoteAddress().address, playerCrypto, connection)
+        val player = Player(
+            username =  packet.name,
+            entityId = EntityManager.entityIdCounter.incrementAndGet(),
+            uuid =  packet.uuid,
+            world = WorldManager.worlds[0],
+            address = connection.channel().remoteAddress().address,
+            crypto = playerCrypto,
+            connection = connection,
+        )
 
         PlayerManager.add(player, processor)
+        EntityManager.entities.add(player)
 
         val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken)
         connection.sendPacket(out)

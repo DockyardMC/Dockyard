@@ -1,7 +1,7 @@
 package io.github.dockyardmc
 
 import CustomLogType
-import io.github.dockyardmc.Entity.EntityRegistry
+import io.github.dockyardmc.entity.EntityType
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
@@ -9,10 +9,7 @@ import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoUpdatePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSpawnEntityPacket
 import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Velocity
 
 val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
 
@@ -30,23 +27,9 @@ fun main(args: Array<String>) {
         // send this player to existing players
         PlayerManager.players.forEach { loopPlayer ->
             if(loopPlayer.username == it.player.username) return@forEach
-
-            val fromInfo = PlayerInfoUpdate(it.player.uuid, AddPlayerInfoUpdateAction(PlayerUpdateProfileProperty(it.player.username, mutableListOf(it.player.profile!!.properties[0]))))
-            val fromPacket = ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(fromInfo))
-            loopPlayer.sendPacket(fromPacket)
-
-            val fromEntitySpawnPacket = ClientboundSpawnEntityPacket(it.player.entityId!!, it.player.uuid, EntityRegistry.PLAYER.id + 2, it.player.location, 0f, 0, Velocity(0, 0, 0))
-            val toEntitySpawnPacket = ClientboundSpawnEntityPacket(loopPlayer.entityId!!, loopPlayer.uuid, EntityRegistry.PLAYER.id + 2, loopPlayer.location, 0f, 0, Velocity(0, 0, 0))
-
-            val toInfo = PlayerInfoUpdate(loopPlayer.uuid, AddPlayerInfoUpdateAction(PlayerUpdateProfileProperty(loopPlayer.username, mutableListOf(loopPlayer.profile!!.properties[0]))))
-            val toPacket = ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(toInfo))
-            it.player.sendPacket(toPacket)
-
-            it.player.sendPacket(toEntitySpawnPacket)
-            loopPlayer.sendPacket(fromEntitySpawnPacket)
+            it.player.addViewer(loopPlayer)
+            loopPlayer.addViewer(it.player)
         }
-
-        // send existing players to this player
     }
 
     Events.on<PlayerLeaveEvent> {

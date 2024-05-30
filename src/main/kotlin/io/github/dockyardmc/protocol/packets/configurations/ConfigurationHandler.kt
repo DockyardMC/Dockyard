@@ -3,6 +3,7 @@ package io.github.dockyardmc.protocol.packets.configurations
 import LogType
 import io.github.dockyardmc.FeatureFlags
 import io.github.dockyardmc.commands.nodes.testCommand
+import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
@@ -63,18 +64,15 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
     fun handleConfigurationFinishAcknowledge(packet: ServerboundFinishConfigurationAcknowledgePacket, connection: ChannelHandlerContext) {
         log("Configuration Finish Acknowledged", LogType.SUCCESS)
+        val player = processor.player
         processor.state = ProtocolState.PLAY
         processor.player.releaseMessagesQueue()
-
-        val entityId = PlayerManager.entityCounter.incrementAndGet()
-        processor.player.entityId = entityId
-        PlayerManager.playerToEntityIdMap[entityId] = processor.player
 
         val world = WorldManager.worlds[0]
         processor.player.world = world
 
         val playPacket = ClientboundPlayPacket(
-            entityId,
+            player.entityId,
             false,
             WorldManager.worlds.map { it.name }.toMutableList(),
             20,
@@ -95,8 +93,8 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         connection.sendPacket(playPacket)
 
-//        val difficultyPacket = ClientboundChangeDifficultyPacket(Difficulty.PEACEFUL, false)
-//        connection.sendPacket(difficultyPacket)
+        val difficultyPacket = ClientboundChangeDifficultyPacket(Difficulty.PEACEFUL, false)
+        connection.sendPacket(difficultyPacket)
 
         val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
         connection.sendPacket(chunkCenterChunkPacket)
@@ -104,8 +102,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
         connection.sendPacket(gameEventPacket)
 
-        log("chunk packet")
-        processor.player.world!!.chunks.forEach {
+        processor.player.world.chunks.forEach {
             connection.sendPacket(it.packet)
         }
 
