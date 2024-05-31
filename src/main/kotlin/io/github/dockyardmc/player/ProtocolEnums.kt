@@ -16,3 +16,30 @@ enum class PlayerAction {
     VEHICLE_INVENTORY_OPEN,
     ELYTRA_FLYING_START
 }
+
+enum class EntityPose {
+    STANDING,
+    FALL_FLYING,
+    SLEEPING,
+    SWIMMING,
+    SPIN_ATTACK,
+    SNEAKING,
+    LONG_JUMPING,
+    DYING,
+    CROAKING,
+    USING_TONGUE,
+    SITTING,
+    ROARING,
+    SNIFFING,
+    EMERGING,
+    DIGGING
+}
+
+enum class Direction {
+    DOWN,
+    UP,
+    NORTH,
+    SOUTH,
+    WEST,
+    EAST
+}

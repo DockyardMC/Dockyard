@@ -2,6 +2,8 @@ package io.github.dockyardmc
 
 import CustomLogType
 import io.github.dockyardmc.commands.nodes.Commands
+import io.github.dockyardmc.commands.nodes.EnumArgument
+import io.github.dockyardmc.commands.nodes.PlayerArgument
 import io.github.dockyardmc.entity.EntityType
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
@@ -15,6 +17,7 @@ import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateEntityPositionPacket
 import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.world.WorldManager
+import log
 
 val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
 
@@ -58,9 +61,15 @@ fun main(args: Array<String>) {
         player.viewers.forEach { it.sendPacket(packet) }
     }
 
-    Commands.add("sync") { command ->
-        command.execute { exec ->
-            PlayerManager.players.forEach { it.teleport(WorldManager.worlds[0].defaultSpawnLocation) }
+    Commands.add("setPose") { command ->
+        command.addChild("player", PlayerArgument())
+        command.addChild("pose", EnumArgument(EntityPose::class))
+        command.execute {
+            val player = command.get<Player>("player")
+            val pose = command.getEnum<EntityPose>("pose")
+
+            player.pose.value = pose
+            it.player!!.sendMessage("<yellow>Set pose of player <lime>$player <yellow>to <aqua>${pose.name}")
         }
     }
 

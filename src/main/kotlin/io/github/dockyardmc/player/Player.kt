@@ -1,7 +1,8 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.entity.EntityType
+import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.bindables.Bindable
+import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
@@ -12,6 +13,7 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.world.World
 import io.netty.channel.ChannelHandlerContext
+import log
 import java.util.UUID
 
 class Player(
@@ -40,12 +42,27 @@ class Player(
     var selectedHotbarSlot: Int = 0,
     val permissions: MutableList<String> = mutableListOf(),
     var isFullyInitialized: Boolean = false,
-): Entity {
-
+    override var metadata: MutableList<EntityMetadata> = mutableListOf(),
+    override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
+    ): Entity {
     override fun addViewer(player: Player) {
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(PlayerUpdateProfileProperty(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(infoUpdatePacket)))
         super.addViewer(player)
+    }
+
+    init {
+        pose.valueChanged { change ->
+            val hasMeta = (metadata.firstOrNull { it.type == EntityMetadataType.POSE } != null)
+            val meta = EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, change.newValue)
+            if(!hasMeta) {
+                metadata.add(meta)
+            } else {
+                val index = metadata.indexOfFirst { it.type == EntityMetadataType.POSE }
+                metadata[index] = meta
+            }
+            sendMetadataUpdatePacket()
+        }
     }
 
     override fun removeViewer(player: Player, isDisconnect: Boolean) {

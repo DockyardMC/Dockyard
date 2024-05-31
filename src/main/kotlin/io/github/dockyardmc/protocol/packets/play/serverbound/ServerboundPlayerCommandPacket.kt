@@ -3,6 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PlayerAction
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.PacketProcessor
@@ -20,8 +21,16 @@ class ServerboundPlayerCommandPacket(val entityId: Int, val action: PlayerAction
         val player = PlayerManager.playerToEntityIdMap[entityId] ?: return
 
             val event = when(action) {
-                PlayerAction.SNEAKING_START -> { player.isSneaking = true; PlayerSneakToggleEvent(player, true) }
-                PlayerAction.SNEAKING_STOP -> { player.isSneaking = false; PlayerSneakToggleEvent(player, true) }
+                PlayerAction.SNEAKING_START -> {
+                    player.isSneaking = true
+                    player.pose.value = EntityPose.SNEAKING
+                    PlayerSneakToggleEvent(player, true)
+                }
+                PlayerAction.SNEAKING_STOP -> {
+                    player.isSneaking = false
+                    player.pose.value = EntityPose.STANDING
+                    PlayerSneakToggleEvent(player, true)
+                }
                 PlayerAction.LEAVE_BED -> PlayerBedLeaveEvent(player)
                 PlayerAction.SPRINTING_START -> { player.isSprinting = true; PlayerSprintToggleEvent(player, true) }
                 PlayerAction.SPRINTING_END -> { player.isSprinting = false; PlayerSprintToggleEvent(player, false) }
