@@ -14,8 +14,8 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
-import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.handshake.HandshakeHandler
+import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.play.PlayHandler
 import io.ktor.util.network.*
 import io.netty.buffer.ByteBuf
@@ -23,6 +23,7 @@ import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import log
+import org.jglrxavpok.hephaistos.mca.pack
 
 @Sharable
 class PacketProcessor : ChannelInboundHandlerAdapter() {
@@ -55,7 +56,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
         if(!this::address.isInitialized) address = connection.channel().remoteAddress().address
         val buf = msg as ByteBuf
-
+        buf.retain()
         try {
             try {
                 profiler.start("Read Packet Buf", 20)
@@ -64,14 +65,18 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                     val packetSize = buf.readVarInt() - 1
                     val packetId = buf.readVarInt()
                     val packetIdByteRep = packetId.toByte().toHexString()
-//                    log("id: $packetId size: $packetSize (0x$packetIdByteRep) (netty readable bytes: ${buf.readableBytes()})")
 
                     if(packetId == 16 && state == ProtocolState.PLAY) {
                         val channel = buf.readUtf()
                         log("Ignoring custom payload packet for $channel", LogType.WARNING)
-                        return
+                        buf.resetReaderIndex()
+                        break
                     }
 
+                    if (buf.readableBytes() < packetSize) {
+                        buf.resetReaderIndex()
+                        break
+                    }
                     val packetData = buf.readBytes(packetSize)
 
                     val packet = PacketParser.parsePacket(packetId, packetData, this, packetSize)
@@ -79,16 +84,13 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
                     val className = packet::class.simpleName ?: packet::class.toString()
                     if(!DockyardServer.mutePacketLogs.contains(className)) {
-                        log("-> Received $className (0x${packetIdByteRep})", LogType.NETWORK)
+                        log("-> Received $className (0x${packetIdByteRep} (${Thread.currentThread().name})", LogType.NETWORK)
                     }
-
                     Events.dispatch(PacketReceivedEvent(packet, connection, packetSize, packetId))
                     packet.handle(this, connection, packetSize, packetId)
                 }
             } finally {
-                buf.clear()
                 buf.release()
-                connection.flush()
                 profiler.end()
             }
         } catch (ex: Exception) {
@@ -98,8 +100,6 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     fun clearBuffer(connection: ChannelHandlerContext, buffer: ByteBuf) {
         buffer.clear()
-        buffer.resetReaderIndex()
-        buffer.release()
         connection.flush()
     }
 
@@ -129,7 +129,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
     }
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-//        cause.printStackTrace()
-//        ctx.close()
+        log(cause as Exception)
+        ctx.close()
     }
 }

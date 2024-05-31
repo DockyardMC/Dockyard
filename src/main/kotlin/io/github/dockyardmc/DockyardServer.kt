@@ -29,21 +29,27 @@ import io.netty.channel.ChannelPipeline
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
+import io.netty.util.concurrent.CompleteFuture
+import io.netty.util.concurrent.DefaultEventExecutorGroup
 import log
 import java.io.File
 import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class DockyardServer(var port: Int) {
 
     lateinit var bootstrap: ServerBootstrap
     lateinit var channelPipeline: ChannelPipeline
-    val bossGroup = NioEventLoopGroup()
+    val bossGroup = NioEventLoopGroup(3)
     val workerGroup = NioEventLoopGroup()
+
 
     // Server ticks
     val tickProfiler = Profiler()
-    val tickTimer = RepeatingTimerAsync(50) {
-        tickProfiler.start("Tick", 3)
+    val tickTimer = RepeatingTimerAsync(50) { //this is just java timer
+        tickProfiler.start("Tick", 5)
         Events.dispatch(ServerTickEvent())
         tickProfiler.end()
     }
@@ -76,7 +82,6 @@ class DockyardServer(var port: Int) {
 
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     private fun load() {
         val profiler = Profiler()
         profiler.start("DockyardMC Load")
@@ -125,6 +130,7 @@ class DockyardServer(var port: Int) {
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)
+                .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
             log("DockyardMC server running on port $port", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent(this))
@@ -146,6 +152,8 @@ class DockyardServer(var port: Int) {
         lateinit var defaultMotd: ServerStatus
         lateinit var versionInfo: Resources.DockyardVersionInfo
         var allowAnyVersion: Boolean = false
+
+        val packetProcessingGroup = DefaultEventExecutorGroup(4)
 
         var tickRate: Float = 20f
 

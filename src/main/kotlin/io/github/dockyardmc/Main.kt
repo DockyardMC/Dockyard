@@ -5,10 +5,13 @@ import io.github.dockyardmc.entity.EntityType
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.extentions.truncate
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.*
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateEntityPositionPacket
 import io.github.dockyardmc.utils.MathUtils
 
 val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
@@ -45,6 +48,12 @@ fun main(args: Array<String>) {
         val fMem = (memoryUsage.toDouble() / 1000000).truncate(1)
         val fMax = (runtime.totalMemory().toDouble() / 1000000).truncate(1)
         DockyardServer.broadcastActionBar("<white>MSPT: <lime>$mspt <dark_gray>| <white>Memory Usage: <#ff6830>$memUsagePercent% <gray>(${fMem}mb / ${fMax}mb)")
+    }
+
+    Events.on<PlayerMoveEvent> { event ->
+        val player = event.player
+        val packet = ClientboundUpdateEntityPositionPacket(player, event.oldLocation)
+        player.viewers.forEach { it.sendPacket(packet) }
     }
 
     Main.instance.start()
