@@ -5,6 +5,7 @@ import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.ServerStartEvent
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.motd.Players
 import io.github.dockyardmc.motd.ServerStatus
 import io.github.dockyardmc.motd.Version
@@ -90,6 +91,7 @@ class DockyardServer(var port: Int) {
 
         val mainWorld = World("world")
         mainWorld.worldBorder.diameter = 1000.0
+        mainWorld.defaultSpawnLocation = Location(0, 256, 0)
         WorldManager.worlds.add(mainWorld)
 
         // Encode the default motd on load so it doesn't encode on first server list ping and take 0.5 - 1s extra
@@ -153,8 +155,6 @@ class DockyardServer(var port: Int) {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         var allowAnyVersion: Boolean = false
 
-        val packetProcessingGroup = DefaultEventExecutorGroup(4)
-
         var tickRate: Float = 20f
 
         var mutePacketLogs = mutableListOf(
@@ -163,7 +163,10 @@ class DockyardServer(var port: Int) {
             "ServerboundSetPlayerPositionAndRotationPacket",
             "ServerboundSetPlayerRotationPacket",
             "ClientboundKeepAlivePacket",
-            "ServerboundKeepAlivePacket"
+            "ServerboundKeepAlivePacket",
+            "ClientboundUpdateEntityPositionPacket",
+            "ClientboundUpdateEntityPositionAndRotationPacket",
+            "ClientboundUpdateEntityRotationPacket"
         )
     }
 }

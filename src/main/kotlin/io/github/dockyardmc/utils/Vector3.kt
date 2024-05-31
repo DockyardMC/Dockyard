@@ -7,6 +7,6 @@ data class Vector3(
 )
 
 data class Vector2(
-    var x: Int,
-    var y: Int,
+    var x: Float,
+    var y: Float,
 )

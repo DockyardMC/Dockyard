@@ -23,10 +23,15 @@ class Location(
     }
 }
 
-fun ByteBuf.writeLocation(location: Location, includingPitchYaw: Boolean = true) {
+fun ByteBuf.writeLocation(location: Location, rotDelta: Boolean = false) {
     this.writeDouble(location.x)
     this.writeDouble(location.y)
     this.writeDouble(location.z)
-    this.writeByte((location.yaw  * 256 / 360).toInt())
-    this.writeByte((location.pitch  * 256 / 360).toInt())
+    if(rotDelta) {
+        this.writeByte((location.yaw  * 256f / 360f).toInt())
+        this.writeByte((location.pitch  * 256f / 360f).toInt())
+    } else {
+        this.writeByte(location.yaw.toInt())
+        this.writeByte(location.pitch.toInt())
+    }
 }

@@ -3,6 +3,7 @@ package io.github.dockyardmc.world
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.scroll.Component
@@ -23,6 +24,8 @@ class World(var name: String = "world", var dimensionType: DimensionType = Dimen
 
     val players: MutableList<Player> get() = PlayerManager.players.filter { it.world == this }.toMutableList()
 
+    var defaultSpawnLocation = Location(0, 0, 0)
+
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
     fun sendMessage(component: Component) { players.sendMessage(component) }
     fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
@@ -32,9 +35,9 @@ class World(var name: String = "world", var dimensionType: DimensionType = Dimen
 
     init {
         // Generate initial chunks
-        val size = Vector2(6, 6)
-        for(xr in (size.x * -1)..size.x) {
-            for(yr in (size.y * -1)..size.y) {
+        val size = Vector2(6f, 6f)
+        for(xr in (size.x.toInt() * -1)..size.x.toInt()) {
+            for(yr in (size.y.toInt() * -1)..size.y.toInt()) {
                 val chunk = Chunk(xr, yr, this)
                 chunk.sections.forEach {
                     it.blockPalette.fill(1)

@@ -3,11 +3,10 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.utils.MathUtils
 
-class ClientboundUpdateEntityPositionPacket(val entity: Entity, previousLocation: Location): ClientboundPacket(0x2C) {
+class ClientboundUpdateEntityPositionAndRotationPacket(val entity: Entity, previousLocation: Location): ClientboundPacket(0x2D) {
 
     init {
         val current = entity.location
@@ -16,6 +15,8 @@ class ClientboundUpdateEntityPositionPacket(val entity: Entity, previousLocation
         data.writeShort(MathUtils.getRelativeCoords(current.x, previousLocation.x))
         data.writeShort(MathUtils.getRelativeCoords(current.y, previousLocation.y))
         data.writeShort(MathUtils.getRelativeCoords(current.z, previousLocation.z))
+        data.writeByte((entity.location.yaw * 256 / 360).toInt())
+        data.writeByte((entity.location.pitch * 256 / 360).toInt())
         data.writeBoolean(entity.isOnGround)
     }
 }

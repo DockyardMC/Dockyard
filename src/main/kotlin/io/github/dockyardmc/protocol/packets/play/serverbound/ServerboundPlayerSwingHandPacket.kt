@@ -19,7 +19,6 @@ class ServerboundPlayerSwingHandPacket(val hand: SwingAnimationHand): Serverboun
         Events.dispatch(PlayerSwingHandEvent(processor.player, hand))
         val animation = if(hand == SwingAnimationHand.MAIN_HAND) EntityAnimation.SWING_MAIN_ARM else EntityAnimation.SWING_OFFHAND
         val packet = ClientboundEntityAnimation(processor.player, animation)
-        DockyardServer.broadcastMessage("<gray>${processor.player} swinged hand")
         processor.player.viewers.forEach { it.connection.sendPacket(packet) }
     }
 

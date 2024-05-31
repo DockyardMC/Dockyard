@@ -7,7 +7,6 @@ import io.github.dockyardmc.world.ChunkSection
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.writeChunkSection
 import io.netty.buffer.Unpooled
-import log
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, sections: MutableList<ChunkSection>, light: Light): ClientboundPacket(0x25) {

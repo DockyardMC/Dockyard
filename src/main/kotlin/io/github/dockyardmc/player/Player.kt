@@ -6,10 +6,7 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisconnectPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoRemovePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoUpdatePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSystemChatMessagePacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Vector3
@@ -36,7 +33,7 @@ class Player(
     var brand: String = "minecraft:vanilla",
     var profile: ProfilePropertyMap? = null,
     var clientConfiguration: ClientConfiguration? = null,
-    var isOnGround: Boolean = false,
+    override var isOnGround: Boolean = true,
     var isFlying: Boolean = false,
     var isSneaking: Boolean = false,
     var isSprinting: Boolean = false,
@@ -88,6 +85,17 @@ class Player(
 
     fun sendPacket(packet: ClientboundPacket) {
         connection.sendPacket(packet)
+    }
+
+    fun sendToViewers(packet: ClientboundPacket) {
+        viewers.sendPacket(packet)
+    }
+
+    fun teleport(location: Location) {
+        this.location = location
+        val teleportPacket = ClientboundPlayerSynchronizePositionPacket(this.location)
+        this.viewers.forEach { it.sendPacket(teleportPacket) }
+        this.sendPacket(teleportPacket)
     }
 
     fun hasPermission(permission: String): Boolean {

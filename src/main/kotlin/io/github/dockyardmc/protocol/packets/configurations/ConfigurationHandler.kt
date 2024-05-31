@@ -1,12 +1,10 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
 import LogType
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
-import io.github.dockyardmc.commands.nodes.testCommand
-import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
@@ -106,13 +104,25 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             connection.sendPacket(it.packet)
         }
 
-        val spawnLocation = Location(0, 256, 0)
-        processor.player.location = spawnLocation
+        processor.player.location = world.defaultSpawnLocation
 
-        connection.sendPacket(ClientboundPlayerSynchronizePositionPacket(spawnLocation, 8743))
         connection.sendPacket(ClientboundRespawnPacket())
+        connection.sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
         processor.player.isFullyInitialized = true
 //        connection.sendPacket(ClientboundCommandsPacket(mutableListOf(testCommand)))
         Events.dispatch(PlayerJoinEvent(processor.player))
+
+        val playerInfo = PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(PlayerUpdateProfileProperty(player.username, mutableListOf(player.profile!!.properties[0]))))
+        val playerInfoUpdatePacket = ClientboundPlayerInfoUpdatePacket(1, mutableListOf(playerInfo))
+        connection.sendPacket(playerInfoUpdatePacket)
+
+//        val worldBorder = player.world!!.worldBorder
+//        val worldBorderPacket = ClientboundInitializeWorldBorderPacket(worldBorder.diameter, worldBorder.diameter, 0, worldBorder.warningBlocks, worldBorder.warningTime)
+//        connection.sendPacket(worldBorderPacket)
+
+//        connection.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying = true, allowFlying = true))
+
+        val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
+        connection.sendPacket(tickingStatePacket)
     }
 }

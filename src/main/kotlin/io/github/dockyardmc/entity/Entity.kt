@@ -21,6 +21,7 @@ interface Entity {
     var hasCollision: Boolean
     var world: World
     var displayName: Component
+    var isOnGround: Boolean
 
     fun addViewer(player: Player) {
         val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id + 2, location, 90f, 0, velocity)

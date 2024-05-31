@@ -12,6 +12,7 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
+import io.github.dockyardmc.utils.Vector2
 import io.netty.channel.ChannelHandlerContext
 import log
 
@@ -19,20 +20,7 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
     fun handleTeleportConfirmation(packet: ServerboundTeleportConfirmationPacket, connection: ChannelHandlerContext) {
         log("Received teleport confirmation packet")
-        val player = processor.player
-        val playerInfo = PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(PlayerUpdateProfileProperty(player.username, mutableListOf(player.profile!!.properties[0]))))
-        val playerInfoUpdatePacket = ClientboundPlayerInfoUpdatePacket(1, mutableListOf(playerInfo))
-        connection.sendPacket(playerInfoUpdatePacket)
-
-//        val worldBorder = player.world!!.worldBorder
-//        val worldBorderPacket = ClientboundInitializeWorldBorderPacket(worldBorder.diameter, worldBorder.diameter, 0, worldBorder.warningBlocks, worldBorder.warningTime)
-//        connection.sendPacket(worldBorderPacket)
-
-//        connection.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying = true, allowFlying = true))
-
-        val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
-        connection.sendPacket(tickingStatePacket)
-    }
+     }
 
     fun handlePlayerPositionAndRotationUpdates(packet: ServerboundSetPlayerPositionPacket, connection: ChannelHandlerContext) {
         val player = processor.player
@@ -58,8 +46,15 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
         player.location = location
         player.isOnGround = isOnGround
 
-        val packet = ClientboundUpdateEntityPositionPacket(player, oldLocation)
-        player.viewers.forEach { it.sendPacket(packet) }
+        if(isOnlyHeadMovement) {
+            val packet = ClientboundUpdateEntityRotationPacket(player, Vector2(player.location.yaw, player.location.pitch))
+            player.sendToViewers(packet)
+        } else {
+            val packet = ClientboundUpdateEntityPositionAndRotationPacket(player, oldLocation)
+            player.sendToViewers(packet)
+        }
+        val headRotPacket = ClientboundSetHeadYawPacket(player)
+        player.sendToViewers(headRotPacket)
     }
 
     fun handleKeepAlive(packet: ServerboundKeepAlivePacket, connection: ChannelHandlerContext) {
