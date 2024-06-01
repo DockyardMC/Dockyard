@@ -15,7 +15,6 @@ import io.github.dockyardmc.protocol.packets.play.serverbound.*
 import io.netty.buffer.ByteBuf
 
 object PacketParser {
-
     fun parsePacket(id: Int, buffer: ByteBuf, processor: PacketProcessor, size: Int): ServerboundPacket? {
 
         var outPacket: ServerboundPacket? = null
@@ -59,14 +58,18 @@ object PacketParser {
                 4 -> ServerboundChatCommandPacket.read(buffer)
                 5 -> ServerboundPlayerChatMessagePacket.read(buffer)
                 6 -> ServerboundPlayerSessionPacket.read(buffer)
+                13 -> ServerboundClickContainerPacket.read(buffer)
+                14 -> ServerboundContainerClosePacket.read(buffer)
                 16 -> ServerboundPlayPluginMessagePacket.read(buffer, size)
                 21 -> ServerboundKeepAlivePacket.read(buffer)
                 23 -> ServerboundSetPlayerPositionPacket.read(buffer)
                 24 -> ServerboundSetPlayerPositionAndRotationPacket.read(buffer)
                 25 -> ServerboundSetPlayerRotationPacket.read(buffer)
                 32 -> ServerboundPlayerAbilitiesPacket.read(buffer)
+                33 -> ServerboundPlayerActionPacket.read(buffer)
                 34 -> ServerboundPlayerCommandPacket.read(buffer)
                 44 -> ServerboundSetPlayerHeldItemPacket.read(buffer)
+                47 -> ServerboundSetCreativeModeSlotPacket.read(buffer)
                 51 -> ServerboundPlayerSwingHandPacket.read(buffer)
                 else -> null
             }

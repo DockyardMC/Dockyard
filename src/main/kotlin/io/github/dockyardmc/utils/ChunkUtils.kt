@@ -1,0 +1,17 @@
+package io.github.dockyardmc.utils
+
+object ChunkUtils {
+
+    fun getChunkCoordinate(xz: Int): Int {
+        return xz shr 4
+    }
+
+    fun sectionRelative(xyz: Int): Int {
+        return xyz and 0xF;
+    }
+
+    fun getChunkIndex(x: Int, z: Int): Long {
+        return x.toLong() shl 32 or (z.toLong() and 0xffffffffL)
+    }
+
+}

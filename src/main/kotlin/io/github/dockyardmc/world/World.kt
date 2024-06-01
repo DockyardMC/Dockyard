@@ -8,6 +8,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.Vector2
 
 class World(var name: String = "world", var dimensionType: DimensionType = DimensionType.OVERWORLD, worldSeed: String = "trans rights!!") {
@@ -32,6 +33,13 @@ class World(var name: String = "world", var dimensionType: DimensionType = Dimen
     fun sendActionBar(component: Component) { players.sendActionBar(component) }
 
 
+    fun getChunkAt(x: Int, z: Int) {
+
+    }
+
+    fun getChunk(chunkX: Int, chunkZ: Int) {
+//        chunks.get(ChunkUtils.getChunkIndex(chunkX, chunkZ))
+    }
 
     init {
         // Generate initial chunks

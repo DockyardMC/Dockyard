@@ -1,6 +1,5 @@
 package io.github.dockyardmc.extentions
 
-import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
@@ -12,7 +11,6 @@ import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.util.*
 import kotlin.experimental.inv
-import kotlin.math.roundToInt
 
 private const val SEGMENT_BITS: Byte = 0x7F
 private const val CONTINUE_BIT = 0x80
@@ -77,6 +75,7 @@ fun ByteBuf.readNBT(): NBT {
         throw java.lang.RuntimeException(e)
     }
 }
+
 
 fun ByteBuf.writeNBT(nbt: NBT, truncateRootTag: Boolean = true) {
 
@@ -147,7 +146,8 @@ fun ByteBuf.readVarLong(): Long {
 fun hasContinuationBit(byte: Byte): Boolean {
     return byte.toInt() and 0x80 == 128
 }
-inline fun <reified T : Enum<T>> ByteBuf.readEnum(): T = T::class.java.enumConstants[readVarInt()]
+inline fun <reified T : Enum<T>> ByteBuf.readVarIntEnum(): T = T::class.java.enumConstants[readVarInt()]
+inline fun <reified T : Enum<T>> ByteBuf.readByteEnum(): T = T::class.java.enumConstants[readByte().toInt()]
 
 fun ByteBuf.readVarInt(): Int {
     var value = 0

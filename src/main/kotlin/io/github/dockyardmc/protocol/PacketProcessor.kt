@@ -23,7 +23,6 @@ import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import log
-import org.jglrxavpok.hephaistos.mca.pack
 
 @Sharable
 class PacketProcessor : ChannelInboundHandlerAdapter() {
@@ -87,11 +86,11 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                         log("-> Received $className (0x${packetIdByteRep} (${Thread.currentThread().name})", LogType.NETWORK)
                     }
                     Events.dispatch(PacketReceivedEvent(packet, connection, packetSize, packetId))
-                    packet.handle(this, connection, packetSize, packetId)
+                            packet.handle(this, connection, packetSize, packetId)
                 }
             } finally {
-                buf.clear()
                 buf.release()
+                buf.clear()
                 profiler.end()
             }
         } catch (ex: Exception) {
@@ -100,6 +99,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
     }
 
     fun clearBuffer(connection: ChannelHandlerContext, buffer: ByteBuf) {
+        buffer.release()
         buffer.clear()
         connection.flush()
     }
@@ -131,6 +131,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
         log(cause as Exception)
+        ctx.flush()
         ctx.close()
     }
 }

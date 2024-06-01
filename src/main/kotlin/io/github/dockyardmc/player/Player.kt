@@ -3,6 +3,7 @@ package io.github.dockyardmc.player
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.inventory.Inventory
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -28,22 +29,25 @@ class Player(
     override var hasCollision: Boolean = true,
     override var world: World,
     override var displayName: String = username,
+    override var metadata: MutableList<EntityMetadata> = mutableListOf(),
+    override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING),
+    override var isOnGround: Boolean = true,
     val address: String,
     val crypto: PlayerCrypto,
     val connection: ChannelHandlerContext,
     var brand: String = "minecraft:vanilla",
     var profile: ProfilePropertyMap? = null,
     var clientConfiguration: ClientConfiguration? = null,
-    override var isOnGround: Boolean = true,
     var isFlying: Boolean = false,
     var isSneaking: Boolean = false,
     var isSprinting: Boolean = false,
     var selectedHotbarSlot: Int = 0,
     val permissions: MutableList<String> = mutableListOf(),
     var isFullyInitialized: Boolean = false,
-    override var metadata: MutableList<EntityMetadata> = mutableListOf(),
-    override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
+    var inventory: Inventory = Inventory(),
+    var gameMode: GameMode = GameMode.SURVIVAL
     ): Entity {
+
     override fun addViewer(player: Player) {
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(PlayerUpdateProfileProperty(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(infoUpdatePacket)))
