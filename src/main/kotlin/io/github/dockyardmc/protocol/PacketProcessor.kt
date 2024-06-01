@@ -77,7 +77,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                         buf.resetReaderIndex()
                         break
                     }
-                    val packetData = buf.readBytes(packetSize)
+                    val packetData = buf.readSlice(packetSize)
 
                     val packet = PacketParser.parsePacket(packetId, packetData, this, packetSize)
                         ?: throw UnknownPacketException("Received unhandled packet with ID $packetId (0x$packetIdByteRep)")
@@ -90,6 +90,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                     packet.handle(this, connection, packetSize, packetId)
                 }
             } finally {
+                buf.clear()
                 buf.release()
                 profiler.end()
             }

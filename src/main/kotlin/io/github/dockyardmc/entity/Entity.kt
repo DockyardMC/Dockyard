@@ -1,5 +1,6 @@
 package io.github.dockyardmc.entity
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
@@ -24,7 +25,7 @@ interface Entity {
     var canBeDamaged: Boolean
     var hasCollision: Boolean
     var world: World
-    var displayName: Component
+    var displayName: String
     var isOnGround: Boolean
     var metadata: MutableList<EntityMetadata>
     var pose: Bindable<EntityPose>
@@ -33,12 +34,14 @@ interface Entity {
         val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id + 2, location, 90f, 0, velocity)
         player.sendPacket(entitySpawnPacket)
         viewers.add(player)
+        DockyardServer.broadcastMessage("<gray>Added viewer for ${this}: <lime>$player")
     }
 
     fun removeViewer(player: Player, isDisconnect: Boolean) {
+        viewers.remove(player)
+        DockyardServer.broadcastMessage("<gray>Removed viewer for ${this}: <red>$player")
         val entityDespawnPacket = ClientboundRemoveEntitiesPacket(this)
         player.sendPacket(entityDespawnPacket)
-        viewers.remove(player)
     }
 
     fun sendMetadataUpdatePacket() {

@@ -1,6 +1,5 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.extentions.sendPacket
@@ -28,7 +27,7 @@ class Player(
     override var canBeDamaged: Boolean = true,
     override var hasCollision: Boolean = true,
     override var world: World,
-    override var displayName: Component = username.toComponent(),
+    override var displayName: String = username,
     val address: String,
     val crypto: PlayerCrypto,
     val connection: ChannelHandlerContext,
@@ -70,6 +69,7 @@ class Player(
             val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this)
             player.sendPacket(playerRemovePacket)
         }
+        viewers.remove(player)
         super.removeViewer(player, isDisconnect)
     }
 
@@ -105,7 +105,10 @@ class Player(
     }
 
     fun sendToViewers(packet: ClientboundPacket) {
-        viewers.sendPacket(packet)
+        viewers.forEach { viewer ->
+            if(PlayerManager.playerToProcessorMap[viewer.uuid]!!.state != ProtocolState.PLAY) return@forEach
+            viewer.sendPacket(packet)
+        }
     }
 
     fun teleport(location: Location) {

@@ -24,7 +24,7 @@ object PlayerManager {
     }
 
     fun remove(player: Player) {
-        player.viewers.toMutableList().forEach { player.removeViewer(it, true) }
+        player.viewers.toMutableList().forEach { player.removeViewer(it, true); it.removeViewer(player, true) }
 
         players.remove(player)
         playerToProcessorMap.remove(player.uuid)

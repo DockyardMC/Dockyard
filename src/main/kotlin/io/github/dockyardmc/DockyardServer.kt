@@ -106,7 +106,7 @@ class DockyardServer(var port: Int) {
                 online = PlayerManager.players.size,
                 sample = mutableListOf(),
             ),
-            description = "<aqua>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".toComponent(),
+            description = "<rainbow|11|1.5f>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".toComponent(),
             enforceSecureChat = false,
             previewsChat = false,
             favicon = "data:image/png;base64,$base64EncodedIcon"
@@ -166,7 +166,8 @@ class DockyardServer(var port: Int) {
             "ServerboundKeepAlivePacket",
             "ClientboundUpdateEntityPositionPacket",
             "ClientboundUpdateEntityPositionAndRotationPacket",
-            "ClientboundUpdateEntityRotationPacket"
+            "ClientboundUpdateEntityRotationPacket",
+            "ClientboundSetHeadYawPacket"
         )
     }
 }
