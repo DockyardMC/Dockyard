@@ -14,4 +14,7 @@ object ChunkUtils {
         return x.toLong() shl 32 or (z.toLong() and 0xffffffffL)
     }
 
+    fun getChunkCoordinate(xz: Double): Int {
+        return getChunkCoordinate(Math.floor(xz).toInt())
+    }
 }

@@ -1,4 +1,5 @@
 import java.io.IOException
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.9.23"
@@ -27,7 +28,6 @@ repositories {
             url = uri("https://maven.pkg.github.com/DockyardMC/Scroll")
             credentials { username = githubUsername; password = githubPassword }
         }
-
     }
 }
 
@@ -44,6 +44,7 @@ dependencies {
     implementation("io.github.jglrxavpok.hephaistos:gson:2.2.0")
     implementation("com.google.guava:guava:33.2.0-jre")
     implementation("it.unimi.dsi:fastutil:8.5.13")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 fun String.runCommand(
@@ -87,3 +88,11 @@ tasks.named("processResources") {
 }
 
 sourceSets["main"].resources.srcDir("$buildDir/generated/resources/")
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+}

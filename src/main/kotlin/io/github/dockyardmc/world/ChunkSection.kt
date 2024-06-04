@@ -1,5 +1,6 @@
 package io.github.dockyardmc.world
 
+import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.world.palette.Palette
 import io.github.dockyardmc.world.palette.writePalette
 import io.netty.buffer.ByteBuf
@@ -11,13 +12,12 @@ class ChunkSection(
 ) {
     companion object {
         fun empty(): ChunkSection {
-            return ChunkSection(Palette.blocks(), Palette.biomes())
+            val defaultBlocks = Palette.blocks()
+            val defaultBiomes = Palette.biomes()
+            defaultBlocks.fill(0)
+            defaultBiomes.fill(Biomes.BASALT_DELTAS.id)
+            return ChunkSection(defaultBlocks, defaultBiomes)
         }
-    }
-
-    fun clear() {
-        blockPalette.fill(50)
-        biomePalette.fill(2)
     }
 }
 

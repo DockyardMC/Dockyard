@@ -1,4 +1,4 @@
-package io.github.dockyardmc.entity
+package io.github.dockyardmc.registry
 
 enum class EntityType(val displayName: String, val tag: String, val id: Int) {
     ALLAY("Allay", "minecraft:allay", 0),

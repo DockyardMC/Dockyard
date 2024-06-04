@@ -9,7 +9,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityMetadataPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRemoveEntitiesPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSpawnEntityPacket
-import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.world.World
 import java.util.UUID

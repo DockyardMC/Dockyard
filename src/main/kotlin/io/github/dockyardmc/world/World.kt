@@ -10,12 +10,23 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.Vector2
+import io.github.dockyardmc.world.generators.FlatWorldGenerator
+import io.github.dockyardmc.world.generators.VanillaIshWorldGenerator
+import io.github.dockyardmc.world.generators.WorldGenerator
+import java.util.UUID
+import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.primaryConstructor
 
-class World(var name: String = "world", var dimensionType: DimensionType = DimensionType.OVERWORLD, worldSeed: String = "trans rights!!") {
+class World(
+    var name: String = "world",
+    var dimensionType: DimensionType = DimensionType.OVERWORLD,
+    worldSeed: String = "trans rights!!"
+) {
 
-    var seed = worldSeed.SHA256Long()
+    var seed: Long = worldSeed.SHA256Long()
     var seedBytes = worldSeed.SHA256String()
     var worldBorder = WorldBorder(this)
+    var generator: WorldGenerator = FlatWorldGenerator(this)
 
     var daylightCycle: Boolean = true
     var time: Long = 1000
@@ -33,28 +44,46 @@ class World(var name: String = "world", var dimensionType: DimensionType = Dimen
     fun sendActionBar(component: Component) { players.sendActionBar(component) }
 
 
-    fun getChunkAt(x: Int, z: Int) {
-
+    fun getChunkAt(x: Int, z: Int): Chunk? {
+        val chunkX = ChunkUtils.getChunkCoordinate(x)
+        val chunkZ = ChunkUtils.getChunkCoordinate(z)
+        return getChunk(chunkX, chunkZ)
     }
 
-    fun getChunk(chunkX: Int, chunkZ: Int) {
-//        chunks.get(ChunkUtils.getChunkIndex(chunkX, chunkZ))
+    fun getChunk(x: Int, z: Int): Chunk? {
+        return chunks.firstOrNull { it.chunkX == x && it.chunkZ == z }
+    }
+
+    fun generateChunks(size: Int, sendToPlayers: Boolean = false) {
+        val vector = Vector2(size.toFloat(), size.toFloat())
+        for (chunkX in (vector.x.toInt() * -1)..vector.x.toInt()) {
+            for (chunkZ in (vector.y.toInt() * -1)..vector.y.toInt()) {
+                val chunk = getChunk(chunkX, chunkZ) ?: Chunk(chunkX, chunkZ, this)
+                // Iterate over every block coordinate within the chunk
+                for (localX in 0..<16) {
+                    for (localZ in 0..<16) {
+                        // Calculate world coordinates
+                        val worldX = chunkX * 16 + localX
+                        val worldZ = chunkZ * 16 + localZ
+
+                        for (y in 0..<256) {
+                            chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ))
+
+                        }
+                    }
+                }
+                if(getChunk(chunkX, chunkZ) == null) chunks.add(chunk)
+                chunk.cacheChunkDataPacket()
+                if(sendToPlayers) {
+                    PlayerManager.players.forEach { it.sendPacket(chunk.packet) }
+                }
+            }
+        }
     }
 
     init {
-        // Generate initial chunks
-        val size = Vector2(6f, 6f)
-        for(xr in (size.x.toInt() * -1)..size.x.toInt()) {
-            for(yr in (size.y.toInt() * -1)..size.y.toInt()) {
-                val chunk = Chunk(xr, yr, this)
-                chunk.sections.forEach {
-                    it.blockPalette.fill(1)
-                    it.biomePalette.fill(3)
-                }
-                chunk.cacheChunkDataPacket()
-                chunks.add(chunk)
-            }
-        }
+
+        generateChunks(6)
 
         // Time
         Events.on<ServerTickEvent> {

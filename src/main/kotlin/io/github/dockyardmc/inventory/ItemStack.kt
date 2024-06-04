@@ -1,12 +1,11 @@
 package io.github.dockyardmc.inventory
 
-import io.github.dockyardmc.material.Material
-import io.github.dockyardmc.material.Materials
+import io.github.dockyardmc.registry.Block
+import io.github.dockyardmc.registry.Blocks
 
-class ItemStack(var material: Material, var amount: Int) {
+class ItemStack(var material: Block, var amount: Int) {
 
     companion object {
-        val air = ItemStack(Materials.AIR, 1)
+        val air = ItemStack(Blocks.AIR, 1)
     }
-
 }

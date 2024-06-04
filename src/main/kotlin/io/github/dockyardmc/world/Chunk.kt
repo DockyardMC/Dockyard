@@ -1,8 +1,8 @@
 package io.github.dockyardmc.world
 
-import io.github.dockyardmc.material.Material
 import io.github.dockyardmc.protocol.CachedPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
+import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.utils.ChunkUtils
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
 import org.jglrxavpok.hephaistos.nbt.NBT
@@ -49,7 +49,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         cacheChunkDataPacket()
     }
 
-    fun setBlock(x: Int, y: Int, z: Int, material: Material) {
+    fun setBlock(x: Int, y: Int, z: Int, material: Block) {
         val section = getSectionAt(y)
 
         val relativeX = ChunkUtils.sectionRelative(x)

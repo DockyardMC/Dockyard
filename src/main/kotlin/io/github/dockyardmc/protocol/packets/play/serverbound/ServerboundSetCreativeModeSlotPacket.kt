@@ -3,13 +3,20 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: SlotData): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
-        DockyardServer.broadcastMessage("<yellow>${processor.player}<gray> clicked slot <lime>$slot<gray> with <aqua>$clickedItem")
+
+        val player = processor.player
+        val correctSlot = MathUtils.toCorrectSlotIndex(slot)
+//        player.inventory.set(correctSlot)
+
+        DockyardServer.broadcastMessage("<yellow>$player<gray> clicked slot <lime>$correctSlot<gray> with <aqua>${clickedItem.itemId}")
+
     }
 
     companion object {

@@ -30,14 +30,9 @@ import io.netty.channel.ChannelPipeline
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import io.netty.util.concurrent.CompleteFuture
-import io.netty.util.concurrent.DefaultEventExecutorGroup
 import log
 import java.io.File
 import java.util.*
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 class DockyardServer(var port: Int) {
 
@@ -49,7 +44,7 @@ class DockyardServer(var port: Int) {
 
     // Server ticks
     val tickProfiler = Profiler()
-    val tickTimer = RepeatingTimerAsync(50) { //this is just java timer
+    val tickTimer = RepeatingTimerAsync(50) {
         tickProfiler.start("Tick", 5)
         Events.dispatch(ServerTickEvent())
         tickProfiler.end()
@@ -60,11 +55,11 @@ class DockyardServer(var port: Int) {
         PlayerManager.players.forEach {
             it.connection.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
             val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
-            if(!processor.respondedToLastKeepAlive) {
-                log("$it failed to respond to keep alive", LogType.WARNING)
-                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
-                return@forEach
-            }
+//            if(!processor.respondedToLastKeepAlive) {
+//                log("$it failed to respond to keep alive", LogType.WARNING)
+//                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
+//                return@forEach
+//            }
             processor.respondedToLastKeepAlive = false
         }
         keepAliveId++
@@ -91,7 +86,7 @@ class DockyardServer(var port: Int) {
 
         val mainWorld = World("world")
         mainWorld.worldBorder.diameter = 1000.0
-        mainWorld.defaultSpawnLocation = Location(0, 256, 0)
+        mainWorld.defaultSpawnLocation = Location(0, 201, 0)
         WorldManager.worlds.add(mainWorld)
 
         // Encode the default motd on load so it doesn't encode on first server list ping and take 0.5 - 1s extra

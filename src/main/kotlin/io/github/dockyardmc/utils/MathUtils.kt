@@ -8,6 +8,24 @@ object MathUtils {
         return ((current * 32 - previous * 32) * 128).toInt()
     }
 
+    fun remap(value: Int, fromMin: Int, fromMax: Int, toMin: Int, toMax: Int): Int {
+        return (value - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin
+    }
+
+    fun remap(value: Double, fromMin: Double, fromMax: Double, toMin: Double, toMax: Double): Double {
+        return (value - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin
+    }
+
+    fun toCorrectSlotIndex(slot: Int): Int {
+        return when (slot) {
+            in 36..44 -> slot - 36
+            in 27..35 -> slot - 18
+            in 18..26 -> slot
+            in 9..17 -> slot + 18
+            else -> 0
+        }
+    }
+
     fun getRelativeLocation(current: Location, previous: Location): Location {
         val x = getRelativeCoords(current.x, previous.x)
         val y = getRelativeCoords(current.y, previous.z)

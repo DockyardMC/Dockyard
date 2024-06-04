@@ -8,12 +8,12 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.world.World
 import io.netty.channel.ChannelHandlerContext
-import log
 import java.util.UUID
 
 class Player(
@@ -45,7 +45,8 @@ class Player(
     val permissions: MutableList<String> = mutableListOf(),
     var isFullyInitialized: Boolean = false,
     var inventory: Inventory = Inventory(),
-    var gameMode: GameMode = GameMode.SURVIVAL
+    var gameMode: GameMode = GameMode.SURVIVAL,
+    var flySpeed: Bindable<Float> = Bindable<Float>(0.05f)
     ): Entity {
 
     override fun addViewer(player: Player) {
@@ -54,7 +55,20 @@ class Player(
         super.addViewer(player)
     }
 
+    //TODO move to bindable
+    fun setSelHotbarSlot(slot: Int) {
+        selectedHotbarSlot = slot
+        val packet = ClientboundSetHeldItemPacket(slot)
+        this.sendPacket(packet)
+    }
+
     init {
+
+        flySpeed.valueChanged {
+            val packet = ClientboundPlayerAbilitiesPacket(isFlying, canBeDamaged, true, it.newValue)
+            this.sendPacket(packet)
+        }
+
         pose.valueChanged { change ->
             val hasMeta = (metadata.firstOrNull { it.type == EntityMetadataType.POSE } != null)
             val meta = EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, change.newValue)
