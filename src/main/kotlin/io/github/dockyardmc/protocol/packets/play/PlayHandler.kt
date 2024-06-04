@@ -1,13 +1,8 @@
 package io.github.dockyardmc.protocol.packets.play
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerMoveEvent
-import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.AddPlayerInfoUpdateAction
-import io.github.dockyardmc.player.PlayerInfoUpdate
-import io.github.dockyardmc.player.PlayerUpdateProfileProperty
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.play.clientbound.*

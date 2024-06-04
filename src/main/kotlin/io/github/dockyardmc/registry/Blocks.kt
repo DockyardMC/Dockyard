@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 // https://github.com/DockyardMC/RegistryClassesGenerators
 
 object Blocks {
-    private val idToBlockMap by lazy {
+    val idToBlockMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
         val blocks = json.decodeFromString<List<Block>>(Resources.getText("./data/blocks.json"))
         blocks.associateBy { it.blockStateId }

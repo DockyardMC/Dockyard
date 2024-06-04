@@ -41,7 +41,6 @@ class DockyardServer(var port: Int) {
     val bossGroup = NioEventLoopGroup(3)
     val workerGroup = NioEventLoopGroup()
 
-
     // Server ticks
     val tickProfiler = Profiler()
     val tickTimer = RepeatingTimerAsync(50) {
@@ -55,11 +54,11 @@ class DockyardServer(var port: Int) {
         PlayerManager.players.forEach {
             it.connection.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
             val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
-//            if(!processor.respondedToLastKeepAlive) {
-//                log("$it failed to respond to keep alive", LogType.WARNING)
-//                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
-//                return@forEach
-//            }
+            if(!processor.respondedToLastKeepAlive) {
+                log("$it failed to respond to keep alive", LogType.WARNING)
+                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
+                return@forEach
+            }
             processor.respondedToLastKeepAlive = false
         }
         keepAliveId++

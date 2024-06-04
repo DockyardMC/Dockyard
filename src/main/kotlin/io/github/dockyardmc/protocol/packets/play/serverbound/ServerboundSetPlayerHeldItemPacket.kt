@@ -12,6 +12,7 @@ import io.netty.channel.ChannelHandlerContext
 class ServerboundSetPlayerHeldItemPacket(val slot: Int): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
+        // Spectator mode scroll for fly speed
         if(processor.player.gameMode == GameMode.SPECTATOR) {
             if(slot == 4) return
             val value = if(slot > 4) -0.1f else 0.1f
@@ -20,6 +21,7 @@ class ServerboundSetPlayerHeldItemPacket(val slot: Int): ServerboundPacket {
             DockyardServer.broadcastMessage("<gray>Fly speed now<yellow>${processor.player.flySpeed.value}")
             return
         }
+        processor.player.selectedHotbarSlot = slot
 
         Events.dispatch(PlayerSelectedHotbarSlotChangeEvent(processor.player, slot))
     }

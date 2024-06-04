@@ -71,6 +71,7 @@ object PacketParser {
                 44 -> ServerboundSetPlayerHeldItemPacket.read(buffer)
                 47 -> ServerboundSetCreativeModeSlotPacket.read(buffer)
                 51 -> ServerboundPlayerSwingHandPacket.read(buffer)
+                53 -> ServerboundUseItemOnPacket.read(buffer)
                 else -> null
             }
         }

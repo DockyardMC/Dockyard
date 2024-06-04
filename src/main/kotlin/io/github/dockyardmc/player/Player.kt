@@ -4,6 +4,7 @@ import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.Inventory
+import io.github.dockyardmc.inventory.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -53,6 +54,11 @@ class Player(
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(PlayerUpdateProfileProperty(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(infoUpdatePacket)))
         super.addViewer(player)
+    }
+
+    fun getHeldItem(hand: PlayerHand): ItemStack {
+        //TODO Offhand hand support
+        return inventory.get(selectedHotbarSlot)
     }
 
     //TODO move to bindable

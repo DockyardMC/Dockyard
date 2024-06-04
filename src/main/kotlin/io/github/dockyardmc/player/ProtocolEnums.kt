@@ -1,6 +1,6 @@
 package io.github.dockyardmc.player
 
-enum class SwingAnimationHand {
+enum class PlayerHand {
     MAIN_HAND,
     OFF_HAND
 }

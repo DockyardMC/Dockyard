@@ -1,6 +1,8 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerBlockBreakEvent
 import io.github.dockyardmc.extentions.readByteEnum
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
@@ -11,6 +13,7 @@ import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.readBlockPosition
+import io.github.dockyardmc.utils.toLocation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -25,11 +28,12 @@ class ServerboundPlayerActionPacket(
         val player = processor.player
         if(action == PlayerAction.START_DIGGING) {
             if(player.gameMode == GameMode.CREATIVE) {
-                DockyardServer.broadcastMessage("$player broke blocc $position (seq $sequence)")
-                val chunk = player.world.getChunkAt(position.x, position.z) ?: return
-                chunk.setBlock(position.x, position.y, position.z, Blocks.AIR)
-                chunk.cacheChunkDataPacket()
-                player.sendPacket(chunk.packet)
+
+                val previousBlock = player.world.getBlock(position)
+                val event = PlayerBlockBreakEvent(player, previousBlock, position.toLocation())
+                Events.dispatch(event)
+
+                player.world.setBlock(event.location, Blocks.AIR)
             }
         }
     }
