@@ -2,6 +2,7 @@ package io.github.dockyardmc.world
 
 import io.github.dockyardmc.protocol.CachedPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
+import io.github.dockyardmc.registry.Biome
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.utils.ChunkUtils
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
@@ -58,6 +59,16 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
 
         section.blockPalette.set(relativeX, relativeY, relativeZ, material.blockStateId)
 
+    }
+
+    fun setBiome(x: Int, y: Int, z: Int, biome: Biome) {
+        val section = getSectionAt(y)
+
+        val relativeX = ChunkUtils.sectionRelative(x)
+        val relativeZ = ChunkUtils.sectionRelative(z)
+        val relativeY = ChunkUtils.sectionRelative(y)
+
+        section.biomePalette.set(relativeX, relativeY, relativeZ, biome.id)
     }
 
     fun getSection(section: Int): ChunkSection {

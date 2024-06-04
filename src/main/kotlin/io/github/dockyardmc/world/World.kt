@@ -59,16 +59,14 @@ class World(
         for (chunkX in (vector.x.toInt() * -1)..vector.x.toInt()) {
             for (chunkZ in (vector.y.toInt() * -1)..vector.y.toInt()) {
                 val chunk = getChunk(chunkX, chunkZ) ?: Chunk(chunkX, chunkZ, this)
-                // Iterate over every block coordinate within the chunk
                 for (localX in 0..<16) {
                     for (localZ in 0..<16) {
-                        // Calculate world coordinates
                         val worldX = chunkX * 16 + localX
                         val worldZ = chunkZ * 16 + localZ
 
                         for (y in 0..<256) {
                             chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ))
-
+                            chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ))
                         }
                     }
                 }

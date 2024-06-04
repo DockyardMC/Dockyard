@@ -1,6 +1,8 @@
 package io.github.dockyardmc.world.generators
 
 import FastNoiseLite
+import io.github.dockyardmc.registry.Biome
+import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.world.World
@@ -50,5 +52,9 @@ class VanillaIshWorldGenerator(override val world: World, var seed: Int = UUID.r
         if(y == surfaceY -1 && block == Blocks.STONE) block = Blocks.GRASS_BLOCK
 
         return block
+    }
+
+    override fun getBiome(x: Int, y: Int, z: Int): Biome {
+        return Biomes.PLAINS
     }
 }
