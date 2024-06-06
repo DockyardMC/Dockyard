@@ -20,8 +20,6 @@ import log
 class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(processor) {
 
     fun handlePluginMessage(packet: ServerboundPluginMessagePacket, connection: ChannelHandlerContext) {
-        log("Received ${processor.player}'s client brand: ${packet.data}", LogType.DEBUG)
-
         val event = PluginMessageReceivedEvent(packet.channel, packet.data)
         Events.dispatch(event)
         processor.player.brand = event.data
@@ -114,10 +112,6 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 //        connection.sendPacket(ClientboundCommandsPacket(mutableListOf(testCommand)))
         Events.dispatch(PlayerJoinEvent(processor.player))
 
-        val playerInfo = PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(PlayerUpdateProfileProperty(player.username, mutableListOf(player.profile!!.properties[0]))))
-        val playerInfoUpdatePacket = ClientboundPlayerInfoUpdatePacket(1, mutableListOf(playerInfo))
-        connection.sendPacket(playerInfoUpdatePacket)
-
 //        val worldBorder = player.world!!.worldBorder
 //        val worldBorderPacket = ClientboundInitializeWorldBorderPacket(worldBorder.diameter, worldBorder.diameter, 0, worldBorder.warningBlocks, worldBorder.warningTime)
 //        connection.sendPacket(worldBorderPacket)
@@ -126,5 +120,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         connection.sendPacket(tickingStatePacket)
+
+//        SkinManager.updateSkinOf(player)
     }
 }

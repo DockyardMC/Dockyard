@@ -13,6 +13,9 @@ import io.github.dockyardmc.motd.toJson
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
+import io.github.dockyardmc.plugins.PluginManager
+import io.github.dockyardmc.plugins.bundled.DockyardCommands
+import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
@@ -49,20 +52,20 @@ class DockyardServer(var port: Int) {
         tickProfiler.end()
     }
 
-    var keepAliveId = 0L
-    val keepAlivePacketTimer = RepeatingTimerAsync(5000) {
-        PlayerManager.players.forEach {
-            it.connection.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
-            val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
-            if(!processor.respondedToLastKeepAlive) {
-                log("$it failed to respond to keep alive", LogType.WARNING)
-                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
-                return@forEach
-            }
-            processor.respondedToLastKeepAlive = false
-        }
-        keepAliveId++
-    }
+//    var keepAliveId = 0L
+//    val keepAlivePacketTimer = RepeatingTimerAsync(5000) {
+//        PlayerManager.players.forEach {
+//            it.connection.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
+//            val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
+//            if(!processor.respondedToLastKeepAlive) {
+//                log("$it failed to respond to keep alive", LogType.WARNING)
+//                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
+//                return@forEach
+//            }
+//            processor.respondedToLastKeepAlive = false
+//        }
+//        keepAliveId++
+//    }
 
     fun start() {
         versionInfo = Resources.getDockyardVersion()
@@ -81,7 +84,7 @@ class DockyardServer(var port: Int) {
         val profiler = Profiler()
         profiler.start("DockyardMC Load")
         tickTimer.run()
-        keepAlivePacketTimer.run()
+//        keepAlivePacketTimer.run()
 
         val mainWorld = World("world")
         mainWorld.worldBorder.diameter = 1000.0
@@ -106,6 +109,9 @@ class DockyardServer(var port: Int) {
             favicon = "data:image/png;base64,$base64EncodedIcon"
         )
         val json = defaultMotd.toJson()
+
+        PluginManager.loadLocal(DockyardCommands())
+        PluginManager.loadLocal(MayaTestPlugin())
 
         log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))

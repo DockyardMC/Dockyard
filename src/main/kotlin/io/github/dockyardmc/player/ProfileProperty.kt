@@ -5,9 +5,9 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.netty.buffer.ByteBuf
 import java.util.*
 
-class ProfileProperty(val name: String, val value: String, val isSigned: Boolean, val signature: String?)
-class ProfilePropertyMap(val name: String, val properties: MutableList<ProfileProperty>)
-class PlayerUpdateProfileProperty(val name: String, val properties: MutableList<ProfileProperty>)
+data class ProfileProperty(val name: String, val value: String, val isSigned: Boolean, val signature: String?)
+data class ProfilePropertyMap(val name: String, val properties: MutableList<ProfileProperty>)
+data class PlayerUpdateProfileProperty(val name: String, val properties: MutableList<ProfileProperty>)
 
 fun ByteBuf.writeProfileProperties(propertyMap: ProfilePropertyMap) {
 

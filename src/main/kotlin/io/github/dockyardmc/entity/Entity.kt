@@ -7,7 +7,7 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityMetadataPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRemoveEntitiesPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityRemovePacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSpawnEntityPacket
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.utils.Vector3
@@ -33,6 +33,7 @@ interface Entity {
     fun addViewer(player: Player) {
         val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id + 2, location, 90f, 0, velocity)
         player.sendPacket(entitySpawnPacket)
+
         viewers.add(player)
         DockyardServer.broadcastMessage("<gray>Added viewer for ${this}: <lime>$player")
     }
@@ -40,11 +41,11 @@ interface Entity {
     fun removeViewer(player: Player, isDisconnect: Boolean) {
         viewers.remove(player)
         DockyardServer.broadcastMessage("<gray>Removed viewer for ${this}: <red>$player")
-        val entityDespawnPacket = ClientboundRemoveEntitiesPacket(this)
+        val entityDespawnPacket = ClientboundEntityRemovePacket(this)
         player.sendPacket(entityDespawnPacket)
     }
 
-    fun sendMetadataUpdatePacket() {
+    fun sendViewersMedataPacket() {
         val packet = ClientboundEntityMetadataPacket(this)
         viewers.sendPacket(packet)
     }

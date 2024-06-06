@@ -10,7 +10,7 @@ class ClientboundEntityMetadataPacket(entity: Entity): ClientboundPacket(0x56) {
     init {
         data.writeVarInt(entity.entityId)
         entity.metadata.forEach {
-            data.writeByte(it.index.ordinal)
+            data.writeByte(it.index.index)
             data.writeMetadata(it)
         }
         // array end byte

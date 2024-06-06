@@ -28,6 +28,8 @@ fun main(args: Array<String>) {
     val port = (args.getOrNull(0) ?: "25565").toInt()
     Main.instance = DockyardServer(port)
 
+
+    //TODO: Move to different class (probably player)
     Events.on<PlayerJoinEvent> {
         DockyardServer.broadcastMessage("<lime>→ <yellow>${it.player}")
 
@@ -39,47 +41,17 @@ fun main(args: Array<String>) {
         }
     }
 
+    //TODO: Move to different class (probably player)
     Events.on<PlayerLeaveEvent> {
         DockyardServer.broadcastMessage("<red>← <yellow>${it.player}")
     }
 
-    Period.on<TickPeriod> {
-        val runtime = Runtime.getRuntime()
-        val mspt = ServerMetrics.millisecondsPerTick
-        val memoryUsage = runtime.totalMemory() - runtime.freeMemory()
-        val memUsagePercent = MathUtils.percent(runtime.totalMemory().toDouble(), memoryUsage.toDouble()).truncate(0)
 
-        val fMem = (memoryUsage.toDouble() / 1000000).truncate(1)
-        val fMax = (runtime.totalMemory().toDouble() / 1000000).truncate(1)
-        DockyardServer.broadcastActionBar("<white>MSPT: <lime>$mspt <dark_gray>| <white>Memory Usage: <#ff6830>$memUsagePercent% <gray>(${fMem}mb / ${fMax}mb)")
-    }
-
+    //TODO: Move to somewhere else (probably player class)
     Events.on<PlayerMoveEvent> { event ->
         val player = event.player
         val packet = ClientboundUpdateEntityPositionPacket(player, event.oldLocation)
         player.viewers.forEach { it.sendPacket(packet) }
-    }
-
-
-    Commands.add("/gamemode") {
-        it.addChild("gamemode", EnumArgument(GameMode::class))
-        it.execute { executor ->
-            if(!executor.isPlayer) return@execute
-            val player = executor.player!!
-            val gamemode = it.getEnum<GameMode>("gamemode")
-
-            player.gameMode = gamemode
-            val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, gamemode.ordinal.toFloat())
-            player.sendPacket(gameEventPacket)
-        }
-    }
-
-    Commands.add("regen") { command ->
-        command.execute {
-            val player = it.player!!
-            val world = player.world
-            world.generateChunks(6, true)
-        }
     }
 
     Main.instance.start()

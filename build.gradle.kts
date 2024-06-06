@@ -28,6 +28,9 @@ repositories {
             url = uri("https://maven.pkg.github.com/DockyardMC/Scroll")
             credentials { username = githubUsername; password = githubPassword }
         }
+        maven {
+            url = uri("https://jitpack.io")
+        }
     }
 }
 

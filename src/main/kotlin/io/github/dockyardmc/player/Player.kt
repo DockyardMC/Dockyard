@@ -1,5 +1,6 @@
 package io.github.dockyardmc.player
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.extentions.sendPacket
@@ -10,6 +11,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityType
+import io.github.dockyardmc.runnables.TickTimer
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Vector3
@@ -47,13 +49,24 @@ class Player(
     var isFullyInitialized: Boolean = false,
     var inventory: Inventory = Inventory(),
     var gameMode: GameMode = GameMode.SURVIVAL,
-    var flySpeed: Bindable<Float> = Bindable<Float>(0.05f)
+    var flySpeed: Bindable<Float> = Bindable<Float>(0.05f),
+    var displayedSkinParts: MutableList<DisplayedSkinPart> = mutableListOf(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     ): Entity {
 
     override fun addViewer(player: Player) {
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(PlayerUpdateProfileProperty(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(infoUpdatePacket)))
+
         super.addViewer(player)
+
+        val packetIn = ClientboundEntityMetadataPacket(player)
+        this.sendPacket(packetIn)
+
+        val packetOut = ClientboundEntityMetadataPacket(this)
+        player.sendPacket(packetOut)
+
+//        sendPacket(ClientboundEntityTeleportPacket(player, player.location))
+//        player.sendPacket(ClientboundEntityTeleportPacket(this, this.location))
     }
 
     fun getHeldItem(hand: PlayerHand): ItemStack {
@@ -68,6 +81,38 @@ class Player(
         this.sendPacket(packet)
     }
 
+    //TODO: Move to BindableList once thats a thing
+    fun updateDisplayedSkinParts() {
+        metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.DISPLAY_SKIN_PARTS, EntityMetadataType.BYTE, displayedSkinParts.getBitMask()))
+        sendViewersMedataPacket()
+        sendSelfMetadataPacket()
+    }
+
+    fun updateSkin() {
+        val removePacket = ClientboundEntityRemovePacket(this)
+        val profile = PlayerUpdateProfileProperty(this.username, mutableListOf(this.profile!!.properties[0]))
+        val playerInfo = PlayerInfoUpdate(this.uuid, AddPlayerInfoUpdateAction(profile))
+        val respawnPacket = ClientboundRespawnPacket()
+        val playerInfoUpdatePacket = ClientboundPlayerInfoUpdatePacket(1, mutableListOf(playerInfo))
+
+
+        val lateRunnerAdd = TickTimer()
+
+        // Update for viewers
+//        viewers.forEach {
+//            it.removeViewer(this, true)
+//            lateRunnerAdd.runLater(20) {
+//                it.addViewer(this)
+//            }
+//        }
+
+        // Update for self
+        sendPacket(removePacket)
+        sendPacket(respawnPacket)
+        sendPacket(playerInfoUpdatePacket)
+
+    }
+
     init {
 
         flySpeed.valueChanged {
@@ -75,6 +120,7 @@ class Player(
             this.sendPacket(packet)
         }
 
+        //TODO: Update with MutableList<EntityMetadata>#addOrUpdate
         pose.valueChanged { change ->
             val hasMeta = (metadata.firstOrNull { it.type == EntityMetadataType.POSE } != null)
             val meta = EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, change.newValue)
@@ -84,7 +130,7 @@ class Player(
                 val index = metadata.indexOfFirst { it.type == EntityMetadataType.POSE }
                 metadata[index] = meta
             }
-            sendMetadataUpdatePacket()
+            sendViewersMedataPacket()
         }
     }
 
@@ -145,5 +191,10 @@ class Player(
     fun hasPermission(permission: String): Boolean {
         if(permission.isEmpty()) return true
         return permissions.contains(permission)
+    }
+
+    fun sendSelfMetadataPacket() {
+        val packet = ClientboundEntityMetadataPacket(this)
+        this.sendPacket(packet)
     }
 }

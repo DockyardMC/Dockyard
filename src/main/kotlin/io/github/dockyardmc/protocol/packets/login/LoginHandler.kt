@@ -14,6 +14,7 @@ import io.github.dockyardmc.protocol.cryptography.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
+import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.VersionToProtocolVersion
 import io.github.dockyardmc.world.WorldManager
 import io.ktor.util.network.*
@@ -101,12 +102,16 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
         val list = mutableListOf<ProfilePropertyMap>()
 
-        val value = "ewogICJ0aW1lc3RhbXAiIDogMTcxNDg1ODE4MzQ4MCwKICAicHJvZmlsZUlkIiA6ICIwYzkxNTFlNDcwODM0MThkYTI5Y2JiYzU4ZjdjNzQxYiIsCiAgInByb2ZpbGVOYW1lIiA6ICJMdWt5bmthQ1pFIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzhiMDIyNDA4YzVmZGQwMTE0NDJmNDY3ZTU1MWMwMWQ4MmI3NTJmMmZlY2VkYTkwY2FlNGI4MmM2MTIxODYwMzIiLAogICAgICAibWV0YWRhdGEiIDogewogICAgICAgICJtb2RlbCIgOiAic2xpbSIKICAgICAgfQogICAgfQogIH0KfQ=="
-        val signature = "a2M9RWfbNsziP1mNoSeDdIjlaKQ5xDoOGiQmSm58pu/4aBg++WJDkMAN8P28F3i1zoQFAaKro++NK5QuLHAY+4hE3ZSDjSXUNqP0QqWELWcnzmTZaLtqG6DPAnX/kzBY6wrdhDdVf2exnHRuIMYt53fjahHoQEebDYPHYAICKBkvdsU5nHWDa9WGX3W7SD720VQBZs8pbNYA/IilyQdM32OwoW4q+6cSx37/gP+l0ayCy90EtB/PlqSwYc4e1JX6tDIBmRxjL0VMCaE0tBo8M7zG7/Pdu6uXnCcvcn6sVuVlIxHiuUSDSjRimU92eaH6pRg6toP/BdFPO9wjXcvFSKHET4pJ6vsCS2cOMCuUljH2tg1dXuyMuoFRVEpdKFyPU+GBIEoXubGmMebf/eZP6u9rSm0C/1J2FR+R9vcFX0p8nkgWtponfo+srr3D3AQLFOHTZUynmN9ehXdc+ImuDTZHSIkkhLwybIy+d+vypHS4WfJqrPSfuVM29krKfAWV9kN5QRtUIBzpoQlMbU48sf/3NK4xYrjb5TDCGKvvONaHww2YZXDm3Z6KyPx3NwKNlyrweQ+Kj71DByubk0CdJpgfYr1jS2jBcyypnlGhJnC11XDnOZGyBs5oa3w6taKJYwweYZXehqwOkmwnSfb5Fe0Q2dkiynS96y0spRwUSEQ="
-        val texturesProperty = ProfileProperty("value", value, true, signature)
+        val texturesProperty = ProfileProperty("textures", "", true, "")
         val texturesPropertyMap = ProfilePropertyMap("textures", mutableListOf(texturesProperty))
         list.add(texturesPropertyMap)
         player.profile = texturesPropertyMap
+
+        // Cache the skin
+//        val runnable = AsyncRunnable {
+//            SkinManager.getSkinOf(player.uuid)
+//        }
+//        runnable.start()
 
         connection.sendPacket(ClientboundLoginCompressionPacket())
         connection.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, list))

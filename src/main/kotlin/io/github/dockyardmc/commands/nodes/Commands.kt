@@ -1,7 +1,5 @@
 package io.github.dockyardmc.commands.nodes
 
-import io.github.dockyardmc.DockyardServer
-
 object Commands {
 
     val commands: MutableMap<String, Command> = mutableMapOf()
@@ -22,22 +20,5 @@ object Commands {
         list.add(sanitizedName)
 
         list.forEach { commands[it] = finalCommand }
-    }
-
-    init {
-        add("version") {
-            it.aliases.add("ver")
-            it.aliases.add("info")
-            it.aliases.add("server")
-            it.aliases.add("dockyard")
-            it.internalExecutorDoNotUse = { executor ->
-                val message = "<aqua>DockyardMC <dark_gray>| <gray>This server is running <yellow>DockyardMC ${DockyardServer.versionInfo.dockyardVersion}<gray>. A custom Minecraft server implementation in Kotlin. <aqua><hover|'<aqua>https://github.com/DockyardMC/Dockyard'><click|open_url|https://github.com/DockyardMC/Dockyard>[Github]<reset>"
-                if(executor.isPlayer) {
-                    executor.player!!.sendMessage(message)
-                } else {
-                    executor.console!!.sendMessage(message)
-                }
-            }
-        }
     }
 }

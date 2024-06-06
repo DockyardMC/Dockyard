@@ -35,6 +35,24 @@ enum class EntityPose {
     DIGGING
 }
 
+
+enum class DisplayedSkinPart(val bit: Int) {
+    CAPE(0x01),
+    JACKET(0x02),
+    LEFT_SLEEVE(0x04),
+    RIGHT_SLEEVE(0x08),
+    LEFT_PANTS(0x10),
+    RIGHT_PANTS(0x20),
+    HAT(0x40),
+    UNUSED(0x80)
+}
+
+fun MutableList<DisplayedSkinPart>.getBitMask(): Int {
+    var out = 0x00
+    this.forEach { out += it.bit }
+    return out
+}
+
 enum class Direction {
     DOWN,
     UP,

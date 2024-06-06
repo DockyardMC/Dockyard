@@ -53,15 +53,16 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
     }
 }
 
-enum class EntityMetaIndex {
-    STATE,
-    AIR_TICKS,
-    CUSTOM_NAME,
-    IS_CUSTOM_NAME_VISIBLE,
-    SILENT,
-    HAS_NO_GRAVITY,
-    POSE,
-    FROZEN_TICKS
+enum class EntityMetaIndex(var index: Int) {
+    STATE(0),
+    AIR_TICKS(1),
+    CUSTOM_NAME(2),
+    IS_CUSTOM_NAME_VISIBLE(3),
+    SILENT(4),
+    HAS_NO_GRAVITY(5),
+    POSE(6),
+    FROZEN_TICKS(7),
+    DISPLAY_SKIN_PARTS(17)
 }
 
 enum class EntityMetadataType {
@@ -93,4 +94,15 @@ enum class EntityMetadataType {
     SNIFFER_STATE,
     VECTOR3,
     QUATERNION
+}
+
+fun MutableList<EntityMetadata>.addOrUpdate(metadata: EntityMetadata) {
+    val hasMeta = (this.firstOrNull { it.type == metadata.type } != null)
+    if(hasMeta) {
+        val index = this.indexOfFirst { it.type == metadata.type }
+        this[index] = metadata
+    } else {
+        this.add(metadata)
+    }
+
 }
