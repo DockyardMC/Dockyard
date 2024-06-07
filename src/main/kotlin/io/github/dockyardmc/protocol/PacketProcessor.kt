@@ -22,7 +22,6 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import log
-import org.jglrxavpok.hephaistos.mca.pack
 
 class PacketProcessor : ChannelInboundHandlerAdapter() {
 
@@ -54,8 +53,6 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
         if (!this::address.isInitialized) address = connection.channel().remoteAddress().address
         val buf = msg as ByteBuf
-        log("Arrived at channel read in PacketProcessor: buf ref count ${msg.refCnt()}", LogType.TRACE)
-        log("Retained in PacketProcessor: buf ref count ${msg.refCnt()}", LogType.TRACE)
         try {
             profiler.start("Read Packet Buf", 20)
             while (buf.isReadable) {
@@ -109,14 +106,11 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
             }
         } catch (ex: Exception) {
-            log("Exception during read. Redirecting to handleException(): buf ref count ${msg.refCnt()}", LogType.TRACE)
             handleException(connection, buf, ex)
         } finally {
             buf.release()  // Release the buffer after processing
             buf.clear()
             profiler.end()
-            log("Buffer released and then cleared at the end of PacketProcessor: buf ref count ${msg.refCnt()}", LogType.TRACE)
-            log("aaaaaaaa", LogType.CRITICAL)
         }
     }
 
@@ -124,7 +118,6 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
         buffer.release()
         buffer.clear()
         connection.flush()
-        log("Buffer released, cleared and ctx flushed in handleException(): buf ref count ${buffer.refCnt()}", LogType.TRACE)
     }
 
     fun handleException(connection: ChannelHandlerContext, buffer: ByteBuf, exception: Exception) {
