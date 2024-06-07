@@ -38,7 +38,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:2.3.10")
     implementation("io.ktor:ktor-network:2.3.10")
     implementation("cz.lukynka:pretty-log:1.2.2")
-    implementation("io.github.dockyardmc:scroll:1.3")
+    implementation("io.github.dockyardmc:scroll:1.4")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
