@@ -9,8 +9,9 @@ class PacketEncryptionHandler(private val playerCrypto: PlayerCrypto): MessageTo
 
     private val encryptionBase = EncryptionBase(EncryptionUtil.getEncryptionCipherInstance(playerCrypto))
     override fun encode(ctx: ChannelHandlerContext, msg: ByteBuf, out: ByteBuf) {
-        if(!playerCrypto.isConnectionEncrypted) { out.writeBytes(msg); return}
+        if(!playerCrypto.isConnectionEncrypted) { out.writeBytes(msg.retain()); return}
 
-        encryptionBase.encrypt(msg, out)
+        encryptionBase.encrypt(msg.retain(), out)
+        msg.release()
     }
 }

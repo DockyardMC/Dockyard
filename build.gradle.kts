@@ -11,8 +11,6 @@ val minecraftVersion = "1.20.4"
 val dockyardVersion = properties["dockyard.version"]!!
 val gitBranch = "git rev-parse --abbrev-ref HEAD".runCommand()
 val gitCommit = "git rev-parse --short=8 HEAD".runCommand()
-val githubUsername: String = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USER")
-val githubPassword: String = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
 
 group = "io.github.dockyardmc"
 version = "${dockyardVersion}_${gitCommit}@${gitBranch}_mc${minecraftVersion}"
@@ -21,12 +19,8 @@ repositories {
     mavenCentral()
     repositories {
         maven {
-            url = uri("https://maven.pkg.github.com/LukynkaCZE/PrettyLog")
-            credentials { username = githubUsername; password = githubPassword }
-        }
-        maven {
-            url = uri("https://maven.pkg.github.com/DockyardMC/Scroll")
-            credentials { username = githubUsername; password = githubPassword }
+            name = "devOSReleases"
+            url = uri("https://mvn.devos.one/releases")
         }
         maven {
             url = uri("https://jitpack.io")
@@ -37,7 +31,7 @@ repositories {
 dependencies {
     implementation("io.ktor:ktor-server-netty:2.3.10")
     implementation("io.ktor:ktor-network:2.3.10")
-    implementation("cz.lukynka:pretty-log:1.2.2")
+    implementation("cz.lukynka:pretty-log:1.3")
     implementation("io.github.dockyardmc:scroll:1.4")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.0")

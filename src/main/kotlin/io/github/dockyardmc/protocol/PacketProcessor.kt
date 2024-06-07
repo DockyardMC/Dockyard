@@ -19,12 +19,10 @@ import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.play.PlayHandler
 import io.ktor.util.network.*
 import io.netty.buffer.ByteBuf
-import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import log
 
-@Sharable
 class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     private var innerState = ProtocolState.HANDSHAKE
@@ -40,7 +38,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
         get() = innerState
         set(value) {
             innerState = value
-            val display = if(this::player.isInitialized) player.username else address
+            val display = if (this::player.isInitialized) player.username else address
             log("Protocol state for $display changed to $value")
         }
 
@@ -53,55 +51,53 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
     override fun channelRead(connection: ChannelHandlerContext, msg: Any) {
         val profiler = Profiler()
 
-        if(!this::address.isInitialized) address = connection.channel().remoteAddress().address
+        if (!this::address.isInitialized) address = connection.channel().remoteAddress().address
         val buf = msg as ByteBuf
         buf.retain()
         try {
-            try {
-                profiler.start("Read Packet Buf", 20)
-                while (buf.isReadable) {
-                    buf.markReaderIndex()
-                    val packetSize = buf.readVarInt() - 1
-                    val packetId = buf.readVarInt()
-                    val packetIdByteRep = packetId.toByte().toHexString()
+            profiler.start("Read Packet Buf", 20)
+            while (buf.isReadable) {
+                buf.markReaderIndex()
+                val packetSize = buf.readVarInt() - 1
+                val packetId = buf.readVarInt()
+                val packetIdByteRep = packetId.toByte().toHexString()
 
-                    if(packetId == 16 && state == ProtocolState.PLAY) {
-                        val channel = buf.readUtf()
-                        log("Ignoring custom payload packet for $channel", LogType.WARNING)
-                        buf.resetReaderIndex()
-                        break
-                    }
-
-                    if (buf.readableBytes() < packetSize) {
-                        buf.resetReaderIndex()
-                        break
-                    }
-                    val packetData = buf.readSlice(packetSize)
-
-                    val packet = PacketParser.parsePacket(packetId, packetData, this, packetSize)
-                        ?: throw UnknownPacketException("Received unhandled packet with ID $packetId (0x$packetIdByteRep)")
-
-                    val className = packet::class.simpleName ?: packet::class.toString()
-                    if(!DockyardServer.mutePacketLogs.contains(className)) {
-                        log("-> Received $className (0x${packetIdByteRep} (${Thread.currentThread().name})", LogType.NETWORK)
-                    }
-
-                    val event = PacketReceivedEvent(packet, connection, packetSize, packetId)
-                    Events.dispatch(event)
-                    if(event.cancelled) {
-                        buf.resetReaderIndex()
-                        break
-                    }
-
-                    event.packet.handle(this, event.connection, event.size, event.id)
+                if (packetId == 16 && state == ProtocolState.PLAY) {
+                    val channel = buf.readUtf()
+                    log("Ignoring custom payload packet for $channel", LogType.WARNING)
+                    buf.resetReaderIndex()
+                    break
                 }
-            } finally {
-                buf.release()
-                buf.clear()
-                profiler.end()
+
+                if (buf.readableBytes() < packetSize) {
+                    buf.resetReaderIndex()
+                    break
+                }
+                val packetData = buf.readSlice(packetSize)
+
+                val packet = PacketParser.parsePacket(packetId, packetData, this, packetSize)
+                    ?: throw UnknownPacketException("Received unhandled packet with ID $packetId (0x$packetIdByteRep)")
+
+                val className = packet::class.simpleName ?: packet::class.toString()
+                if (!DockyardServer.mutePacketLogs.contains(className)) {
+                    log("-> Received $className (0x${packetIdByteRep} (${Thread.currentThread().name})", LogType.NETWORK)
+                }
+
+                val event = PacketReceivedEvent(packet, connection, packetSize, packetId)
+                Events.dispatch(event)
+                if (event.cancelled) {
+                    buf.resetReaderIndex()
+                    break
+                }
+
+                event.packet.handle(this, event.connection, event.size, event.id)
             }
         } catch (ex: Exception) {
             handleException(connection, buf, ex)
+        } finally {
+            buf.release()
+            buf.clear()
+            profiler.end()
         }
     }
 

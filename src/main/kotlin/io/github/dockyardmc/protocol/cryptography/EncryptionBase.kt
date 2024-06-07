@@ -7,6 +7,7 @@ import javax.crypto.Cipher
 class EncryptionBase(private val cipher: Cipher) {
     private var inputBuffer = ByteArray(0)
     private var outputBuffer = ByteArray(0)
+
     private fun nettyBufToByteArray(byteBuf: ByteBuf): ByteArray {
         val readableBytes = byteBuf.readableBytes()
         if (inputBuffer.size < readableBytes) {
@@ -31,7 +32,6 @@ class EncryptionBase(private val cipher: Cipher) {
         if (outputBuffer.size < outputSize) {
             outputBuffer = ByteArray(outputSize)
         }
-//        out.writeBytes(outputBuffer, 0, cipher.update(byteArray, 0, i, outputBuffer))
-        out.writeBytes(this.outputBuffer as ByteArray?, 0, cipher.update(byteArray, 0, i, this.outputBuffer))
+        out.writeBytes(outputBuffer, 0, cipher.update(byteArray, 0, i, outputBuffer))
     }
 }

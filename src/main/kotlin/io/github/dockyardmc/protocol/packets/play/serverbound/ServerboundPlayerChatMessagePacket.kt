@@ -8,7 +8,6 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import log
 
 class ServerboundPlayerChatMessagePacket(var message: String): ServerboundPacket {
 
@@ -22,14 +21,15 @@ class ServerboundPlayerChatMessagePacket(var message: String): ServerboundPacket
     companion object {
         fun read(buf: ByteBuf): ServerboundPlayerChatMessagePacket {
             val text = buf.readUtf(256)
-//            val timestamp = buf.readInstant()
-//            val salt = buf.readLong()
-//            val hasSignature = buf.readBoolean()
-//            if(hasSignature) {
-//                buf.readBytes(256)
-//            }
-//            val msgCount = buf.readVarInt()
-//            val ack = buf.readFixedBitSet(20)
+            val timestamp = buf.readInstant()
+            val salt = buf.readLong()
+            val hasSignature = buf.readBoolean()
+            if(hasSignature) {
+                buf.readBytes(256)
+            }
+            val msgCount = buf.readVarInt()
+            val ack = buf.readFixedBitSet(20)
+            buf.release()
             buf.clear()
 
             return ServerboundPlayerChatMessagePacket(text)
