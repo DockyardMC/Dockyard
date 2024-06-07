@@ -4,6 +4,10 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.PlayerArgument
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerBlockBreakEvent
+import io.github.dockyardmc.events.PlayerBlockPlaceEvent
+import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.periodic.Period
@@ -29,28 +33,6 @@ class MayaTestPlugin: DockyardPlugin {
             val fMem = (memoryUsage.toDouble() / 1000000).truncate(1)
             val fMax = (runtime.totalMemory().toDouble() / 1000000).truncate(1)
             DockyardServer.broadcastActionBar("<white>MSPT: <lime>$mspt <dark_gray>| <white>Memory Usage: <#ff6830>$memUsagePercent% <gray>(${fMem}mb / ${fMax}mb)")
-//                PlayerManager.players.filter { it.getProcessor() != null && it.getProcessor()!!.state == ProtocolState.PLAY }.forEach { it.spawnParticle(it.location, Particles.FLAME, speed = 0f) }
-        }
-
-        Commands.add("/skin") {
-            it.execute { exec ->
-                exec.player!!.updateSkin()
-                exec.player.updateDisplayedSkinParts()
-            }
-        }
-
-        Commands.add("/boom") {
-            it.permission = "commands.troll"
-            it.addArgument("target", PlayerArgument())
-            it.execute { exec ->
-                if(!exec.isPlayer) exec.console.sendMessage("<red>Only players can execut this command!")
-                val player = exec.player!!
-                val target = it.get<Player>("target")
-                player.spawnParticle(target.location, Particles.EXPLOSION_EMITTER, speed = 0f, count = 3)
-                player.spawnParticle(target.location, Particles.SMOKE, speed = 0.2f, count = 10)
-                player.spawnParticle(target.location, Particles.FLAME, speed = 0.2f, count = 10)
-                target.sendMessage("<red>you got totally exploded by <yellow>$player<red>!!!")
-            }
         }
     }
 

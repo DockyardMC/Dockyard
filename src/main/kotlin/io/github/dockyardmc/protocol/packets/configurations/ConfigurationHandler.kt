@@ -67,7 +67,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         val world = WorldManager.worlds[0]
         processor.player.world = world
 
-        player.gameMode = GameMode.CREATIVE
+        player.gameMode.value = GameMode.CREATIVE
 
         val playPacket = ClientboundPlayPacket(
             player.entityId,
@@ -82,7 +82,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             "overworld",
             world.name,
             world.seed,
-            player.gameMode,
+            player.gameMode.value,
             GameMode.SURVIVAL,
             false,
             true,

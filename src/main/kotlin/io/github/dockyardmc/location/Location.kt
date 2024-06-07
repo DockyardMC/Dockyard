@@ -3,6 +3,7 @@ package io.github.dockyardmc.location
 import io.github.dockyardmc.extentions.truncate
 import io.netty.buffer.ByteBuf
 
+//TODO Add world
 class Location(
     var x: Double,
     var y: Double,
@@ -38,5 +39,4 @@ fun ByteBuf.writeLocationWithoutRot(location: Location) {
     this.writeDouble(location.x)
     this.writeDouble(location.y)
     this.writeDouble(location.z)
-
 }

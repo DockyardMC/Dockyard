@@ -38,9 +38,7 @@ class DockyardCommands: DockyardPlugin {
                 val player = executor.player!!
                 val gamemode = it.getEnum<GameMode>("gamemode")
 
-                player.gameMode = gamemode
-                val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, gamemode.ordinal.toFloat())
-                player.sendPacket(gameEventPacket)
+                player.gameMode.value = gamemode
             }
         }
     }

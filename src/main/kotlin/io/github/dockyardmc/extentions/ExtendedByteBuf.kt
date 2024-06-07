@@ -102,7 +102,6 @@ fun ByteBuf.writeNBT(nbt: NBT, truncateRootTag: Boolean = true) {
             list.removeAt(1)
             outData = list.toByteArray()
             writeBytes(outData)
-//            log(outData.toHexString())
         } else {
             writeBytes(outputStream.toByteArray())
         }

@@ -12,6 +12,10 @@ class Bindable<T>(initialValue: T) {
             bindableValue = value
         }
 
+    fun setSilently(value: T) {
+        bindableValue = value
+    }
+
     fun valueChanged(function: (event: ValueChangedEvent<T>) -> Unit) {
         changeListeners.add(ValueChangeListener<T>(function))
     }

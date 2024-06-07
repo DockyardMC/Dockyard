@@ -9,13 +9,14 @@ import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.Console
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 class ServerboundChatCommandPacket(val command: String): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
-        CommandHandler.handleCommand(command, CommandExecutor(player = processor.player))
+        CommandHandler.handleCommand(command, CommandExecutor(player = processor.player, console = Console))
 //        DockyardServer.broadcastMessage("<yellow>${processor.player} executed <lime>/$command")
     }
 

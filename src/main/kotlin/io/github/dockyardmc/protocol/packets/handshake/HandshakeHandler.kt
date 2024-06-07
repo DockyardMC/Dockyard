@@ -47,8 +47,7 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
             players.add(ServerListPlayer(it.username, it.uuid.toString()))
         }
 
-        val serverStatus = DockyardServer.defaultMotd
-
+        val serverStatus = defaultMotd
         Events.dispatch(ServerListPingEvent(serverStatus))
 
         val json = serverStatus.toJson()

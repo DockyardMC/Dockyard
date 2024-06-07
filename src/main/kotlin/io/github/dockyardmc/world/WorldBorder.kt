@@ -11,10 +11,7 @@ class WorldBorder(val world: World) {
     var warningTime: Int = 1
 
     fun setSize(diameter: Double, speed: Long) {
-        val event = BorderSizeChangeEvent(this.diameter, diameter, speed, world)
-        Events.dispatch(event)
-
-        val packet = ClientboundInitializeWorldBorderPacket(event.oldValue, event.newValue, event.speed, warningBlocks, warningTime)
+        val packet = ClientboundInitializeWorldBorderPacket(this.diameter, diameter, speed, warningBlocks, warningTime)
         PlayerManager.sendToEveryoneInWorld(world, packet)
     }
 }

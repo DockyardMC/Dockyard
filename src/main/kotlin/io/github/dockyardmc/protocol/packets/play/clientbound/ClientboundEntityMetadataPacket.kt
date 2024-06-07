@@ -9,7 +9,7 @@ class ClientboundEntityMetadataPacket(entity: Entity): ClientboundPacket(0x56) {
 
     init {
         data.writeVarInt(entity.entityId)
-        entity.metadata.forEach {
+        entity.metadata.values.forEach {
             data.writeByte(it.index.index)
             data.writeMetadata(it)
         }

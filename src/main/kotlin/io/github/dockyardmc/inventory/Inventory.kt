@@ -17,6 +17,7 @@ class Inventory {
         slots.clear()
     }
 
+    //TODO
     fun sendInventoryUpdate() {
 
     }

@@ -47,7 +47,7 @@ enum class DisplayedSkinPart(val bit: Int) {
     UNUSED(0x80)
 }
 
-fun MutableList<DisplayedSkinPart>.getBitMask(): Int {
+fun List<DisplayedSkinPart>.getBitMask(): Int {
     var out = 0x00
     this.forEach { out += it.bit }
     return out

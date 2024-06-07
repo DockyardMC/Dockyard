@@ -53,6 +53,7 @@ class DockyardServer(var port: Int) {
         tickProfiler.end()
     }
 
+    //TODO rewrite and make good
 //    var keepAliveId = 0L
 //    val keepAlivePacketTimer = RepeatingTimerAsync(5000) {
 //        PlayerManager.players.forEach {
@@ -83,36 +84,21 @@ class DockyardServer(var port: Int) {
 
     private fun load() {
         val profiler = Profiler()
+        val innerProfiler = Profiler()
         profiler.start("DockyardMC Load")
         tickTimer.run()
-//        keepAlivePacketTimer.run()
 
+        innerProfiler.start("Load World")
         val mainWorld = World("world")
         mainWorld.worldBorder.diameter = 1000.0
         mainWorld.defaultSpawnLocation = Location(0, 201, 0)
         WorldManager.worlds.add(mainWorld)
+        innerProfiler.end()
 
-        // Encode the default motd on load so it doesn't encode on first server list ping and take 0.5 - 1s extra
-        val base64EncodedIcon = Base64.getEncoder().encode(File("./icon.png").readBytes()).decodeToString()
-        defaultMotd = ServerStatus(
-            version = Version(
-                name = versionInfo.minecraftVersion,
-                protocol = VersionToProtocolVersion.map[versionInfo.minecraftVersion] ?: 0,
-            ),
-            players = Players(
-                max = 727,
-                online = PlayerManager.players.size,
-                sample = mutableListOf(),
-            ),
-            description = "<rainbow|11|1.5f>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".toComponent(),
-            enforceSecureChat = false,
-            previewsChat = false,
-            favicon = "data:image/png;base64,$base64EncodedIcon"
-        )
-        val json = defaultMotd.toJson()
-
+        innerProfiler.start("Load Plugins")
         PluginManager.loadLocal(DockyardCommands())
         PluginManager.loadLocal(MayaTestPlugin())
+        innerProfiler.end()
 
         log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))
@@ -152,7 +138,6 @@ class DockyardServer(var port: Int) {
         fun broadcastMessage(component: Component) { PlayerManager.players.sendMessage(component); Console.sendMessage(component.stripStyling()) }
         fun broadcastActionBar(message: String) { this.broadcastActionBar(message.toComponent()) }
         fun broadcastActionBar(component: Component) { PlayerManager.players.sendActionBar(component) }
-        lateinit var defaultMotd: ServerStatus
         lateinit var versionInfo: Resources.DockyardVersionInfo
         var allowAnyVersion: Boolean = false
 

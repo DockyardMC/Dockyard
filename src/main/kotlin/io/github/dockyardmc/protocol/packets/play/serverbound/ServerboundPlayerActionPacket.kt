@@ -27,7 +27,7 @@ class ServerboundPlayerActionPacket(
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         if(action == PlayerAction.START_DIGGING) {
-            if(player.gameMode == GameMode.CREATIVE) {
+            if(player.gameMode.value == GameMode.CREATIVE) {
 
                 val previousBlock = player.world.getBlock(position)
 

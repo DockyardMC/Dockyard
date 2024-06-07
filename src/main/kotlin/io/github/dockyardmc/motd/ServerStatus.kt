@@ -1,10 +1,34 @@
 package io.github.dockyardmc.motd
 
+import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.utils.VersionToProtocolVersion
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import java.io.File
+import java.util.*
+
+val base64EncodedIcon = Base64.getEncoder().encode(File("./icon.png").readBytes()).decodeToString()
+val defaultMotd = ServerStatus(
+    version = Version(
+        name = DockyardServer.versionInfo.minecraftVersion,
+        protocol = VersionToProtocolVersion.map[DockyardServer.versionInfo.minecraftVersion] ?: 0,
+    ),
+    players = Players(
+        max = 727,
+        online = PlayerManager.players.size,
+        sample = mutableListOf(),
+    ),
+    description = "<rainbow|11|1.5f>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".toComponent(),
+    enforceSecureChat = false,
+    previewsChat = false,
+    favicon = "data:image/png;base64,$base64EncodedIcon"
+)
+val json = defaultMotd.toJson()
 
 fun ServerStatus.toJson(): String {
     return Json.encodeToString<ServerStatus>(this)

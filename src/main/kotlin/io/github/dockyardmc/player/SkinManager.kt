@@ -45,8 +45,6 @@ object SkinManager {
         }
         asyncRunnable.runAfterFinished = {
             DockyardServer.broadcastMessage("<lime>Updated skin of $player")
-//            player.updateSkin()
-            player.updateDisplayedSkinParts()
         }
 
         asyncRunnable.start()
