@@ -32,7 +32,7 @@ class DockyardCommands: DockyardPlugin {
         }
 
         Commands.add("/gamemode") {
-            it.addChild("gamemode", EnumArgument(GameMode::class))
+            it.addArgument("gamemode", EnumArgument(GameMode::class))
             it.execute { executor ->
                 if(!executor.isPlayer) return@execute
                 val player = executor.player!!

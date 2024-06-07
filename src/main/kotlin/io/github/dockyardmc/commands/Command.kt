@@ -8,32 +8,32 @@ import kotlin.reflect.KClass
 @Suppress("UNCHECKED_CAST")
 class Command(): Cloneable {
     lateinit var internalExecutorDoNotUse: (CommandExecutor) -> Unit
-    var children: MutableMap<String, CommandChildData> = mutableMapOf()
+    var arguments: MutableMap<String, CommandArgumentData> = mutableMapOf()
     var permission = ""
     var aliases = mutableListOf<String>()
 
-    fun <T> get(childName: String): T {
-        if(children[childName] == null) throw Exception("Child with name $childName does not exist")
+    fun <T> get(argumentName: String): T {
+        if(arguments[argumentName] == null) throw Exception("Argument with name $argumentName does not exist")
 
-        return children[childName]!!.returnedValue as T
+        return arguments[argumentName]!!.returnedValue as T
     }
 
-    inline fun <reified T : Enum<T>> getEnum(childName: String): T {
-        val value = get<String>(childName)
+    inline fun <reified T : Enum<T>> getEnum(argumentName: String): T {
+        val value = get<String>(argumentName)
         return T::class.java.enumConstants.firstOrNull { it.name == value.uppercase() } ?: throw Exception("Enum ${T::class.simpleName} does not contain \"${value.uppercase()}\"")
     }
 
-    fun <T> getOrNull(childName: String): T? {
-        if(children[childName] == null) return null
-        return children[childName]!!.returnedValue as T
+    fun <T> getOrNull(argumentName: String): T? {
+        if(arguments[argumentName] == null) return null
+        return arguments[argumentName]!!.returnedValue as T
     }
 
-    fun addChild(name: String, child: CommandChild) {
-        children[name] = CommandChildData(child, false, expectedReturnValueType = child.expectedType)
+    fun addArgument(name: String, argument: CommandArgument) {
+        arguments[name] = CommandArgumentData(argument, false, expectedReturnValueType = argument.expectedType)
     }
 
-    fun addOptionalChild(name: String, child: CommandChild) {
-        children[name] = CommandChildData(child, true, expectedReturnValueType = child.expectedType)
+    fun addOptionalArgument(name: String, argument: CommandArgument) {
+        arguments[name] = CommandArgumentData(argument, true, expectedReturnValueType = argument.expectedType)
     }
 
     fun execute(function: (CommandExecutor) -> Unit) {
@@ -45,46 +45,46 @@ class Command(): Cloneable {
     }
 }
 
-interface CommandChild {
+interface CommandArgument {
     var expectedType: KClass<*>
 }
 
 class StringArgument(
     val staticCompletions: MutableList<String> = mutableListOf(),
     override var expectedType: KClass<*> = String::class,
-): CommandChild
+): CommandArgument
 
 class PlayerArgument(
     override var expectedType: KClass<*> = Player::class,
-): CommandChild
+): CommandArgument
 
 class IntArgument(
     var staticCompletions: MutableList<Int> = mutableListOf(),
     override var expectedType: KClass<*> = Int::class,
-): CommandChild
+): CommandArgument
 
 class DoubleArgument(
     val staticCompletions: MutableList<Double> = mutableListOf(),
     override var expectedType: KClass<*> = Double::class,
-): CommandChild
+): CommandArgument
 
 class LongArgument(
     val staticCompletions: MutableList<Long> = mutableListOf(),
     override var expectedType: KClass<*> = Long::class,
-): CommandChild
+): CommandArgument
 
 class UUIDArgument(
     override var expectedType: KClass<*> = UUID::class,
-): CommandChild
+): CommandArgument
 
 class EnumArgument(
     val enumType: KClass<*>,
     override var expectedType: KClass<*> = String::class,
-): CommandChild
+): CommandArgument
 
 
-class CommandChildData(
-    val child: CommandChild,
+class CommandArgumentData(
+    val argument: CommandArgument,
     val optional: Boolean = false,
     var returnedValue: Any? = null,
     var expectedReturnValueType: KClass<*>

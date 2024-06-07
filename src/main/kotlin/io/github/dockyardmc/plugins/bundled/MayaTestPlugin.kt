@@ -9,15 +9,9 @@ import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.player.PlayerManager.getProcessor
-import io.github.dockyardmc.player.SkinManager
 import io.github.dockyardmc.plugins.DockyardPlugin
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Vector3f
-import log
 
 class MayaTestPlugin: DockyardPlugin {
     override var name: String = "MayaTestPlugin"
@@ -47,7 +41,7 @@ class MayaTestPlugin: DockyardPlugin {
 
         Commands.add("/boom") {
             it.permission = "commands.troll"
-            it.addChild("target", PlayerArgument())
+            it.addArgument("target", PlayerArgument())
             it.execute { exec ->
                 if(!exec.isPlayer) exec.console.sendMessage("<red>Only players can execut this command!")
                 val player = exec.player!!

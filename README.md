@@ -50,7 +50,7 @@ You can create commands quickly and easily with the DockyardMC command API
 ```kotlin
 Commands.add("/boom") {
     it.permission = "commands.troll"
-    it.addChild("target", PlayerArgument())
+    it.addArgument("target", PlayerArgument())
     it.execute { exec ->
         if(!exec.isPlayer) exec.console.sendMessage("<red>Only players can execute this command!")
         val player = exec.player!!

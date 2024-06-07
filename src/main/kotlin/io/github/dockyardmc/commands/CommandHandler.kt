@@ -26,7 +26,7 @@ object CommandHandler {
             if(executor.isPlayer && (!executor.player!!.hasPermission(command.permission))) throw Exception("You do not have enough perms! lol loser")
 
             var i = 0
-            command.children.forEach { (key, value) ->
+            command.arguments.forEach { (key, value) ->
                 i++
                 if(tokens.getOrNull(i) == null && !value.optional) {
                     throw Exception("Parameter \"$key\" must be specified!")
@@ -35,11 +35,11 @@ object CommandHandler {
 
             tokens.forEachIndexed { index, value ->
                 if(index == 0) return@forEachIndexed
-                if(index > command.children.size) return@forEachIndexed
+                if(index > command.arguments.size) return@forEachIndexed
 
-                val childData = command.children.values.toList()[index - 1]
+                val argumentData = command.arguments.values.toList()[index - 1]
 
-                childData.returnedValue = when(childData.expectedReturnValueType) {
+                argumentData.returnedValue = when(argumentData.expectedReturnValueType) {
                     String::class -> value
                     Player::class -> PlayerManager.players.firstOrNull { it.username == value }
                     Int::class -> value.toIntOrNull() ?: throw Exception("\"$value\" is not of type Int")
@@ -59,7 +59,7 @@ object CommandHandler {
             if(event.cancelled) return
 
             command.internalExecutorDoNotUse.invoke(executor)
-            command.children.values.forEach { it.returnedValue = null }
+            command.arguments.values.forEach { it.returnedValue = null }
 
         } catch (ex: Exception) {
             val message = "<dark_red>Error <dark_gray>| <red>${ex.message}"
