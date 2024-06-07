@@ -22,6 +22,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import log
+import org.jglrxavpok.hephaistos.mca.pack
 
 class PacketProcessor : ChannelInboundHandlerAdapter() {
 
@@ -53,51 +54,69 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
         if (!this::address.isInitialized) address = connection.channel().remoteAddress().address
         val buf = msg as ByteBuf
-        buf.retain()
+        log("Arrived at channel read in PacketProcessor: buf ref count ${msg.refCnt()}", LogType.TRACE)
+        log("Retained in PacketProcessor: buf ref count ${msg.refCnt()}", LogType.TRACE)
         try {
             profiler.start("Read Packet Buf", 20)
             while (buf.isReadable) {
+                buf.retain()
+
                 buf.markReaderIndex()
                 val packetSize = buf.readVarInt() - 1
                 val packetId = buf.readVarInt()
                 val packetIdByteRep = packetId.toByte().toHexString()
 
+
                 if (packetId == 16 && state == ProtocolState.PLAY) {
                     val channel = buf.readUtf()
                     log("Ignoring custom payload packet for $channel", LogType.WARNING)
-                    buf.resetReaderIndex()
+                    buf.discardReadBytes()
                     break
                 }
 
                 if (buf.readableBytes() < packetSize) {
-                    buf.resetReaderIndex()
+                    buf.discardReadBytes()
+                    log("Received packet which has less readable bytes than packet size specified (${buf.readableBytes()} < ${packetSize})", LogType.ERROR)
                     break
                 }
                 val packetData = buf.readSlice(packetSize)
+                try {
+                    val packet = PacketParser.parsePacket(packetId, packetData, this, packetSize)
 
-                val packet = PacketParser.parsePacket(packetId, packetData, this, packetSize)
-                    ?: throw UnknownPacketException("Received unhandled packet with ID $packetId (0x$packetIdByteRep)")
+                    if(packet == null) {
+                        buf.discardReadBytes()
+                        log("Received unknow packet with id $packetId (could also be buffer overflow)", LogType.ERROR)
+                        break
+                    }
 
-                val className = packet::class.simpleName ?: packet::class.toString()
-                if (!DockyardServer.mutePacketLogs.contains(className)) {
-                    log("-> Received $className (0x${packetIdByteRep} (${Thread.currentThread().name})", LogType.NETWORK)
+                    val className = packet::class.simpleName ?: packet::class.toString()
+                    if (!DockyardServer.mutePacketLogs.contains(className)) {
+                        log("-> Received $className (0x${packetIdByteRep}) (${Thread.currentThread().name})", LogType.NETWORK)
+                    }
+
+                    val event = PacketReceivedEvent(packet, connection, packetSize, packetId)
+                    Events.dispatch(event)
+                    if (event.cancelled) {
+                        buf.discardReadBytes()
+                        break
+                    }
+
+
+                    event.packet.handle(this, event.connection, event.size, event.id)
+                } finally {
+                    packetData.release()
                 }
 
-                val event = PacketReceivedEvent(packet, connection, packetSize, packetId)
-                Events.dispatch(event)
-                if (event.cancelled) {
-                    buf.resetReaderIndex()
-                    break
-                }
-
-                event.packet.handle(this, event.connection, event.size, event.id)
             }
         } catch (ex: Exception) {
+            log("Exception during read. Redirecting to handleException(): buf ref count ${msg.refCnt()}", LogType.TRACE)
             handleException(connection, buf, ex)
         } finally {
-            buf.release()
+            buf.release()  // Release the buffer after processing
             buf.clear()
             profiler.end()
+            log("Buffer released and then cleared at the end of PacketProcessor: buf ref count ${msg.refCnt()}", LogType.TRACE)
+            log("aaaaaaaa", LogType.CRITICAL)
         }
     }
 
@@ -105,6 +124,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
         buffer.release()
         buffer.clear()
         connection.flush()
+        log("Buffer released, cleared and ctx flushed in handleException(): buf ref count ${buffer.refCnt()}", LogType.TRACE)
     }
 
     fun handleException(connection: ChannelHandlerContext, buffer: ByteBuf, exception: Exception) {

@@ -5,6 +5,7 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
+import log
 
 class ServerboundEncryptionResponsePacket(var sharedSecret: ByteArray, var verifyToken: ByteArray): ServerboundPacket {
 
@@ -14,7 +15,12 @@ class ServerboundEncryptionResponsePacket(var sharedSecret: ByteArray, var verif
 
     companion object {
         fun read(byteBuf: ByteBuf): ServerboundEncryptionResponsePacket {
-            return ServerboundEncryptionResponsePacket(byteBuf.readByteArray(), byteBuf.readByteArray())
+            log("reading buf in packet.read() (ServerboundEncryptionResponsePacket): buf ref count ${byteBuf.refCnt()}", LogType.TRACE)
+            log("Readable bytes left: ${byteBuf.readableBytes()}")
+            val packet = ServerboundEncryptionResponsePacket(byteBuf.readByteArray().clone(), byteBuf.readByteArray().clone())
+            log("after reading: buf ref count ${byteBuf.refCnt()}", LogType.TRACE)
+            log("Readable bytes left after reading: ${byteBuf.readableBytes()}")
+            return packet
         }
     }
 }

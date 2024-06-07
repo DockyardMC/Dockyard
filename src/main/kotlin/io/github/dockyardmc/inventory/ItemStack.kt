@@ -7,8 +7,6 @@ import io.github.dockyardmc.registry.Items
 
 class ItemStack(var material: Item, var amount: Int) {
 
-    //TODO Add nbt and stuff
-
     companion object {
         val air = ItemStack(Items.AIR, 1)
     }

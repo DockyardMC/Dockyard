@@ -1,11 +1,13 @@
 package io.github.dockyardmc.protocol.packets.login
 
 import io.github.dockyardmc.extentions.readUUID
+import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.extentions.readUtfAndLength
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
+import log
 import java.util.UUID
 
 class ServerboundLoginStartPacket(val name: String, val uuid: UUID): ServerboundPacket {
@@ -16,16 +18,15 @@ class ServerboundLoginStartPacket(val name: String, val uuid: UUID): Serverbound
 
     companion object {
         fun read(byteBuf: ByteBuf): ServerboundLoginStartPacket {
+            log("reading buf in packet.read() (ServerboundLoginStartPacket): buf ref count ${byteBuf.refCnt()}", LogType.TRACE)
+            log("Readable bytes left: ${byteBuf.readableBytes()}")
 
-            val pair = byteBuf.readUtfAndLength()
-            val name = pair.first
-            val spacing = 4 - pair.second
-
-//            if(name == "LukynkaCZE") {
-//                byteBuf.readByte()
-//            }
+            val name = byteBuf.readUtf(16)
+            log("read string from the buf: buf ref count ${byteBuf.refCnt()}", LogType.TRACE)
 
             val uuid = byteBuf.readUUID()
+            log("read UUID from the buf: buf ref count ${byteBuf.refCnt()}", LogType.TRACE)
+            log("Readable bytes left after reading: ${byteBuf.readableBytes()}")
 
             return ServerboundLoginStartPacket(name, uuid)
         }

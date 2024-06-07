@@ -2,6 +2,7 @@ package io.github.dockyardmc.protocol.cryptography
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
+import log
 import javax.crypto.Cipher
 
 class EncryptionBase(private val cipher: Cipher) {
@@ -20,7 +21,7 @@ class EncryptionBase(private val cipher: Cipher) {
     fun decrypt(channelHandlerContext: ChannelHandlerContext, buf: ByteBuf): ByteBuf {
         val readableBytes = buf.readableBytes()
         val byteArray = nettyBufToByteArray(buf)
-        val outputBuf = channelHandlerContext.alloc().heapBuffer(cipher.getOutputSize(readableBytes))
+        val outputBuf = channelHandlerContext.alloc().heapBuffer(cipher.getOutputSize(readableBytes)).asByteBuf()
         outputBuf.writerIndex(cipher.update(byteArray, 0, readableBytes, outputBuf.array(), outputBuf.arrayOffset()))
         return outputBuf
     }

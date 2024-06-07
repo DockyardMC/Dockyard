@@ -8,6 +8,7 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
+import log
 
 class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: SlotData): ServerboundPacket {
 
@@ -24,14 +25,19 @@ class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: SlotD
         player.inventory.set(correctSlot, ItemStack(Items.getItemById(clickedItem.itemId!!), clickedItem.itemCount!!))
 
         DockyardServer.broadcastMessage("<yellow>$player<gray> clicked slot <lime>$correctSlot<gray> with <aqua>${clickedItem.itemId}")
-
     }
 
     companion object {
         fun read(buf: ByteBuf): ServerboundSetCreativeModeSlotPacket {
-            val packet = ServerboundSetCreativeModeSlotPacket(buf.readShort().toInt(), buf.readSlotData());
-            buf.clear()
-            return packet
+            log("reading buf in packet.read(): buf ref count ${buf.refCnt()}", LogType.TRACE)
+
+            val slot = buf.readShort().toInt()
+            log("slot read: buf ref count ${buf.refCnt()}", LogType.TRACE)
+
+            val clickedItem = buf.readSlotData()
+            log("slot data read: buf ref count ${buf.refCnt()}", LogType.TRACE)
+
+            return ServerboundSetCreativeModeSlotPacket(slot, clickedItem)
         }
     }
 }

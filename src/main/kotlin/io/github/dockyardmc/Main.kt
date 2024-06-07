@@ -12,6 +12,7 @@ import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerGameEventPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateEntityPositionPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.GameEvent
+import io.netty.util.ResourceLeakDetector
 
 val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
 
@@ -21,6 +22,7 @@ object Main {
 
 fun main(args: Array<String>) {
     val port = (args.getOrNull(0) ?: "25565").toInt()
+//    ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED)
     Main.instance = DockyardServer(port)
 
 

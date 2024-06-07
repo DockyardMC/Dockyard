@@ -28,6 +28,7 @@ import io.github.dockyardmc.utils.VersionToProtocolVersion
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.bootstrap.ServerBootstrap
+import io.netty.buffer.PooledByteBufAllocator
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
 import io.netty.channel.ChannelPipeline
@@ -121,6 +122,8 @@ class DockyardServer(var port: Int) {
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
             log("DockyardMC server running on port $port", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent(this))
             load()

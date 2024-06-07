@@ -29,8 +29,6 @@ class ServerboundPlayerChatMessagePacket(var message: String): ServerboundPacket
             }
             val msgCount = buf.readVarInt()
             val ack = buf.readFixedBitSet(20)
-            buf.release()
-            buf.clear()
 
             return ServerboundPlayerChatMessagePacket(text)
         }
