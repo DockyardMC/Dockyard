@@ -4,8 +4,7 @@
 DockyardMC open-source, fast and lightweight Minecraft server software that's written from scratch in Kotlin without any code from Mojang. It is focused on making development easy, unlike PaperMC which still uses some really old bukkit APIs, Dockyard has very easy to use and modern API
 
 
-⚠️ _**This project is currently undear heavy development and it is not even nearly production ready**_
-
+⚠️ _**This project is currently under heavy development and it is NOT production ready**_
 
 ## Features
 
@@ -13,7 +12,6 @@ DockyardMC open-source, fast and lightweight Minecraft server software that's wr
 - Ability to take full control over every aspect of the server
 - Lightweight
 - uhhh there will be more stuff here later
-
 
 ## API Examples
 
@@ -43,6 +41,32 @@ Events.on<PlayerMoveEvent> {
     }
 }
 ```
+---
+
+#### Commands API
+You can create commands quickly and easily with the DockyardMC command API
+
+
+```kotlin
+Commands.add("/boom") {
+    it.permission = "commands.troll"
+    it.addChild("target", PlayerArgument())
+    it.execute { exec ->
+        if(!exec.isPlayer) exec.console.sendMessage("<red>Only players can execute this command!")
+        val player = exec.player!!
+        val target = it.get<Player>("target")
+        val world = target.world
+        world.spawnParticle(target.location, Particles.EXPLOSION_EMITTER, speed = 0f, count = 3)
+        world.spawnParticle(target.location, Particles.SMOKE, speed = 0.2f, count = 10)
+        world.spawnParticle(target.location, Particles.FLAME, speed = 0.2f, count = 10)
+        world.playSound(Sounds.EXPLOSION, volume = 2f, pitch = 0.5f)
+        target.sendMessage("<red>you got totally exploded by <yellow>$player<red>!!!")
+    }
+}
+```
+⚠️ _Brigadier support is planned for the future releases_
+
+---
 
 #### Periodical Events
 
@@ -53,8 +77,11 @@ Period.on<HourPeriod> {
 }
 ```
 
+---
+
 _there will be more later_
 
+---
 
 ## Run Locally
 
@@ -81,3 +108,4 @@ Contributions are always welcome! Please always check branches to see if the fea
 
 - [@KevDev](https://github.com/TrasherMC)
 - [@BluSpring](https://github.com/BluSpring)
+- Twitch chat who watches me code this! <3

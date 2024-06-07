@@ -3,10 +3,12 @@ package io.github.dockyardmc.plugins.bundled
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.player.SkinManager
@@ -14,6 +16,7 @@ import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.Vector3f
 import log
 
 class MayaTestPlugin: DockyardPlugin {
@@ -42,10 +45,17 @@ class MayaTestPlugin: DockyardPlugin {
             }
         }
 
-        Commands.add("/particle") {
+        Commands.add("/boom") {
+            it.permission = "commands.troll"
+            it.addChild("target", PlayerArgument())
             it.execute { exec ->
+                if(!exec.isPlayer) exec.console.sendMessage("<red>Only players can execut this command!")
                 val player = exec.player!!
-                player.spawnParticle(player.location, Particles.CLOUD, speed = 0.2f, count = 10)
+                val target = it.get<Player>("target")
+                player.spawnParticle(target.location, Particles.EXPLOSION_EMITTER, speed = 0f, count = 3)
+                player.spawnParticle(target.location, Particles.SMOKE, speed = 0.2f, count = 10)
+                player.spawnParticle(target.location, Particles.FLAME, speed = 0.2f, count = 10)
+                target.sendMessage("<red>you got totally exploded by <yellow>$player<red>!!!")
             }
         }
     }
