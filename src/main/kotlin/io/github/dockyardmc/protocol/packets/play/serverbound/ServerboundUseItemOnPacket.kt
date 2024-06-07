@@ -51,6 +51,10 @@ class ServerboundUseItemOnPacket(
             val block = Blocks.getBlockById(item.material.blockId!!)
             val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation())
             Events.dispatch(blockPlaceEvent)
+            if(blockPlaceEvent.cancelled) {
+                player.world.getChunkAt(newPos.x, newPos.z)?.let { player.sendPacket(it.packet) }
+                return
+            }
 
             player.world.setBlock(blockPlaceEvent.location, blockPlaceEvent.block)
         }

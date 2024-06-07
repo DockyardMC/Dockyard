@@ -1,4 +1,4 @@
-package io.github.dockyardmc.commands.nodes
+package io.github.dockyardmc.commands
 
 object Commands {
 

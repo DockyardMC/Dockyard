@@ -1,8 +1,8 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.commands.nodes.CommandExecutor
-import io.github.dockyardmc.commands.nodes.CommandHandler
+import io.github.dockyardmc.commands.CommandExecutor
+import io.github.dockyardmc.commands.CommandHandler
 import io.github.dockyardmc.extentions.readFixedBitSet
 import io.github.dockyardmc.extentions.readInstant
 import io.github.dockyardmc.extentions.readUtf

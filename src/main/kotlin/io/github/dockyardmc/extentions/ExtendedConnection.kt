@@ -9,7 +9,11 @@ import io.netty.channel.ChannelHandlerContext
 import log
 
 fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket) {
-    Events.dispatch(PacketSentEvent(packet))
+
+    val event = PacketSentEvent(packet, this)
+    Events.dispatch(event)
+    if(event.cancelled) return
+
     this.writeAndFlush(packet.asByteBuf())
 
     val className = packet::class.simpleName

@@ -1,9 +1,15 @@
-package io.github.dockyardmc.commands.nodes
+package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.events.CommandExecuteEvent
+import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.isUppercase
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.registry.Block
+import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.Item
+import io.github.dockyardmc.registry.Items
 import java.util.*
 
 object CommandHandler {
@@ -40,11 +46,17 @@ object CommandHandler {
                     Double::class -> value.toDoubleOrNull() ?: throw Exception("\"$value\" is not of type Double")
                     Long::class -> value.toLongOrNull() ?: throw Exception("\"$value\" is not of type Long")
                     UUID::class -> UUID.fromString(value)
-                    // material (block, item)
-                    // brigadier selectors
+                    Item::class -> Items.idToItemMap.values.firstOrNull { it.namespace == value } ?: throw Exception("\"$value\" is not of type Item")
+                    Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.namespace == value } ?: throw Exception("\"$value\" is not of type Block")
+
+                    //TODO: brigadier selectors @a @e @s @p @n
                     else -> null
                 }
             }
+
+            val event = CommandExecuteEvent(inputCommand, command, executor)
+            Events.dispatch(event)
+            if(event.cancelled) return
 
             command.internalExecutorDoNotUse.invoke(executor)
             command.children.values.forEach { it.returnedValue = null }

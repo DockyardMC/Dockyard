@@ -5,4 +5,4 @@ import io.github.dockyardmc.player.Player
 
 
 @EventDocumentation("when player changes their held slot", true)
-class PlayerSelectedHotbarSlotChangeEvent(val player: Player, val slot: Int): Event
+class PlayerSelectedHotbarSlotChangeEvent(val player: Player, val slot: Int): CancellableEvent()

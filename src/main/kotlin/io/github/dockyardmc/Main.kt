@@ -1,9 +1,9 @@
 package io.github.dockyardmc
 
 import CustomLogType
-import io.github.dockyardmc.commands.nodes.Commands
-import io.github.dockyardmc.commands.nodes.EnumArgument
-import io.github.dockyardmc.commands.nodes.PlayerArgument
+import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.EnumArgument
+import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent

@@ -85,8 +85,15 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                     if(!DockyardServer.mutePacketLogs.contains(className)) {
                         log("-> Received $className (0x${packetIdByteRep} (${Thread.currentThread().name})", LogType.NETWORK)
                     }
-                    Events.dispatch(PacketReceivedEvent(packet, connection, packetSize, packetId))
-                            packet.handle(this, connection, packetSize, packetId)
+
+                    val event = PacketReceivedEvent(packet, connection, packetSize, packetId)
+                    Events.dispatch(event)
+                    if(event.cancelled) {
+                        buf.resetReaderIndex()
+                        break
+                    }
+
+                    event.packet.handle(this, event.connection, event.size, event.id)
                 }
             } finally {
                 buf.release()

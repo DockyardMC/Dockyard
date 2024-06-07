@@ -2,6 +2,10 @@ package io.github.dockyardmc.entity
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
+import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.events.EntityViewerAddEvent
+import io.github.dockyardmc.events.EntityViewerRemoveEvent
+import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
@@ -27,10 +31,15 @@ interface Entity {
     var world: World
     var displayName: String
     var isOnGround: Boolean
-    var metadata: MutableList<EntityMetadata>
+    var metadata: BindableMutableList<EntityMetadata>
     var pose: Bindable<EntityPose>
 
     fun addViewer(player: Player) {
+
+        val event = EntityViewerAddEvent(this, player)
+        Events.dispatch(event)
+        if(event.cancelled) return
+
         val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id + 2, location, 90f, 0, velocity)
         player.sendPacket(entitySpawnPacket)
 
@@ -39,6 +48,11 @@ interface Entity {
     }
 
     fun removeViewer(player: Player, isDisconnect: Boolean) {
+
+        val event = EntityViewerRemoveEvent(this, player)
+        Events.dispatch(event)
+        if(event.cancelled) return
+
         viewers.remove(player)
         DockyardServer.broadcastMessage("<gray>Removed viewer for ${this}: <red>$player")
         val entityDespawnPacket = ClientboundEntityRemovePacket(this)

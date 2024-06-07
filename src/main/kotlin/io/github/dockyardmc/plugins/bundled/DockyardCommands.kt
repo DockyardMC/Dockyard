@@ -1,8 +1,8 @@
 package io.github.dockyardmc.plugins.bundled
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.commands.nodes.Commands
-import io.github.dockyardmc.commands.nodes.EnumArgument
+import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.EnumArgument
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerGameEventPacket

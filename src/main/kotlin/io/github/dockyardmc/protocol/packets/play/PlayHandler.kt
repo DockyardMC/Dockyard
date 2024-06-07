@@ -37,6 +37,10 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
         val event = PlayerMoveEvent(oldLocation, location, player, isOnlyHeadMovement)
         Events.dispatch(event)
+        if(event.cancelled) {
+            player.teleport(oldLocation)
+            return
+        }
 
         player.location = location
         player.isOnGround = isOnGround

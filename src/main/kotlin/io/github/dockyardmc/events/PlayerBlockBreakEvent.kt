@@ -6,4 +6,4 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Block
 
 @EventDocumentation("when player breaks a block", true)
-class PlayerBlockBreakEvent(val player: Player, var block: Block, var location: Location): Event
+class PlayerBlockBreakEvent(val player: Player, var block: Block, var location: Location): CancellableEvent()

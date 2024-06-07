@@ -1,4 +1,3 @@
 package io.github.dockyardmc.events
 
-interface Event {
-}
+interface Event {}

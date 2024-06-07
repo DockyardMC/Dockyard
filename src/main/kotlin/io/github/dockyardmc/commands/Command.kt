@@ -1,6 +1,7 @@
-package io.github.dockyardmc.commands.nodes
+package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.utils.Console
 import java.util.UUID
 import kotlin.reflect.KClass
 
@@ -10,7 +11,6 @@ class Command(): Cloneable {
     var children: MutableMap<String, CommandChildData> = mutableMapOf()
     var permission = ""
     var aliases = mutableListOf<String>()
-
 
     fun <T> get(childName: String): T {
         if(children[childName] == null) throw Exception("Child with name $childName does not exist")
@@ -92,12 +92,10 @@ class CommandChildData(
 
 data class CommandExecutor(
     val player: Player? = null,
-    val console: ConsoleExecutor? = null,
-    val isPlayer: Boolean = player != null
-)
-
-class ConsoleExecutor() {
+    val console: Console,
+    val isPlayer: Boolean = player != null,
+) {
     fun sendMessage(message: String) {
-        // bla bla only to console
+        if(this.isPlayer) this.player!!.sendMessage(message) else this.console.sendMessage(message)
     }
 }

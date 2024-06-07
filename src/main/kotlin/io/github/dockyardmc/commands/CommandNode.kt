@@ -1,4 +1,4 @@
-package io.github.dockyardmc.commands.nodes
+package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarIntArray
@@ -17,7 +17,8 @@ data class CommandNode(
 
 val testCommand = CommandNode(0x00, mutableListOf(
     CommandNode(0x05, mutableListOf(), null, "test", type = CommandNodeType.ROOT)
-), type = CommandNodeType.ROOT)
+), type = CommandNodeType.ROOT
+)
 
 fun ByteBuf.writeCommandNode(node: CommandNode) {
     this.writeByte(node.flags)

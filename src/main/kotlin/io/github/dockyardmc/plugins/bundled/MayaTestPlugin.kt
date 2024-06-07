@@ -2,7 +2,7 @@ package io.github.dockyardmc.plugins.bundled
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.ServerMetrics
-import io.github.dockyardmc.commands.nodes.Commands
+import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.periodic.Period

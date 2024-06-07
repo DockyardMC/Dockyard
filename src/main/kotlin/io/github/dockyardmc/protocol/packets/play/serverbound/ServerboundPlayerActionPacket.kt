@@ -30,8 +30,13 @@ class ServerboundPlayerActionPacket(
             if(player.gameMode == GameMode.CREATIVE) {
 
                 val previousBlock = player.world.getBlock(position)
+
                 val event = PlayerBlockBreakEvent(player, previousBlock, position.toLocation())
                 Events.dispatch(event)
+                if(event.cancelled) {
+                    player.world.getChunkAt(position.x, position.z)?.let { player.sendPacket(it.packet) }
+                    return
+                }
 
                 player.world.setBlock(event.location, Blocks.AIR)
             }

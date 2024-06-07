@@ -13,6 +13,7 @@ class ServerboundSetPlayerHeldItemPacket(val slot: Int): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         // Spectator mode scroll for fly speed
+        val beforeSlot = processor.player.selectedHotbarSlot
         if(processor.player.gameMode == GameMode.SPECTATOR) {
             if(slot == 4) return
             val value = if(slot > 4) -0.1f else 0.1f
@@ -23,7 +24,13 @@ class ServerboundSetPlayerHeldItemPacket(val slot: Int): ServerboundPacket {
         }
         processor.player.selectedHotbarSlot = slot
 
-        Events.dispatch(PlayerSelectedHotbarSlotChangeEvent(processor.player, slot))
+        val event = PlayerSelectedHotbarSlotChangeEvent(processor.player, slot)
+        Events.dispatch(event)
+
+        if(event.cancelled) {
+            processor.player.setSelHotbarSlot(beforeSlot)
+            return
+        }
     }
 
     companion object {

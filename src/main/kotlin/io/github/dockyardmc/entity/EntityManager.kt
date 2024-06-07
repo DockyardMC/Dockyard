@@ -7,5 +7,4 @@ object EntityManager {
     var entityIdCounter = AtomicInteger()
     val entities: MutableList<Entity> = mutableListOf()
 
-
 }

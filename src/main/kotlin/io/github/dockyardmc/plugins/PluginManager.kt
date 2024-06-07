@@ -2,7 +2,7 @@ package io.github.dockyardmc.plugins
 
 import LogType
 import io.github.dockyardmc.Main
-import io.github.dockyardmc.commands.nodes.Commands
+import io.github.dockyardmc.commands.Commands
 import log
 import java.io.File
 

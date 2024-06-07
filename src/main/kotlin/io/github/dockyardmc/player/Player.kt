@@ -2,6 +2,7 @@ package io.github.dockyardmc.player
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
+import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.Inventory
@@ -32,7 +33,7 @@ class Player(
     override var hasCollision: Boolean = true,
     override var world: World,
     override var displayName: String = username,
-    override var metadata: MutableList<EntityMetadata> = mutableListOf(),
+    override var metadata: BindableMutableList<EntityMetadata> = BindableMutableList(),
     override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING),
     override var isOnGround: Boolean = true,
     val address: String,
@@ -184,7 +185,6 @@ class Player(
     fun teleport(location: Location) {
         this.location = location
         val teleportPacket = ClientboundPlayerSynchronizePositionPacket(this.location)
-        this.viewers.forEach { it.sendPacket(teleportPacket) }
         this.sendPacket(teleportPacket)
     }
 

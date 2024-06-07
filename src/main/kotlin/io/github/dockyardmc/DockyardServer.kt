@@ -22,6 +22,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAli
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.utils.Console
 import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.utils.VersionToProtocolVersion
 import io.github.dockyardmc.world.World
@@ -148,7 +149,7 @@ class DockyardServer(var port: Int) {
 
     companion object {
         fun broadcastMessage(message: String) { this.broadcastMessage(message.toComponent()) }
-        fun broadcastMessage(component: Component) { PlayerManager.players.sendMessage(component) }
+        fun broadcastMessage(component: Component) { PlayerManager.players.sendMessage(component); Console.sendMessage(component.stripStyling()) }
         fun broadcastActionBar(message: String) { this.broadcastActionBar(message.toComponent()) }
         fun broadcastActionBar(component: Component) { PlayerManager.players.sendActionBar(component) }
         lateinit var defaultMotd: ServerStatus

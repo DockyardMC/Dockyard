@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 // https://github.com/DockyardMC/RegistryClassesGenerators
 
 object Items {
-    private val idToItemMap by lazy {
+    val idToItemMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
         val items = json.decodeFromString<List<Item>>(Resources.getText("./data/items.json"))
         items.forEach { item ->
