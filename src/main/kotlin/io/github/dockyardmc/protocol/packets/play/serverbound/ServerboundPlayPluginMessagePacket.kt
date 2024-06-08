@@ -1,13 +1,16 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.extentions.toByteArraySafe
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import log
 
+@ServerboundPacketInfo(16, ProtocolState.PLAY)
 class ServerboundPlayPluginMessagePacket(val channel: String, val data: ByteArray): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

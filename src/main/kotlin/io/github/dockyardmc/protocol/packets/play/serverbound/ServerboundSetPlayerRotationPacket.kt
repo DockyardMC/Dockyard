@@ -1,10 +1,13 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
+@ServerboundPacketInfo(25, ProtocolState.PLAY)
 class ServerboundSetPlayerRotationPacket(var yaw: Float, var pitch: Float, var isOnGround: Boolean): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

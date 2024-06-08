@@ -1,17 +1,20 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerSwingHandEvent
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityAnimation
 import io.github.dockyardmc.protocol.packets.play.clientbound.EntityAnimation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
+@ServerboundPacketInfo(51, ProtocolState.PLAY)
 class ServerboundPlayerSwingHandPacket(val hand: PlayerHand): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

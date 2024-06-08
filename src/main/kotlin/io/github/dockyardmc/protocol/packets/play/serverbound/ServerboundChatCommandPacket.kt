@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.commands.CommandExecutor
 import io.github.dockyardmc.commands.CommandHandler
 import io.github.dockyardmc.extentions.readFixedBitSet
@@ -8,11 +9,13 @@ import io.github.dockyardmc.extentions.readInstant
 import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.Console
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
+@ServerboundPacketInfo(4, ProtocolState.PLAY)
 class ServerboundChatCommandPacket(val command: String): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

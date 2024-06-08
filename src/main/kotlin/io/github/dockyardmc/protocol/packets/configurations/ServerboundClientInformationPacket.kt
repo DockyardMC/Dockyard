@@ -1,12 +1,15 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
+import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
+@ServerboundPacketInfo(0, ProtocolState.CONFIGURATION)
 class ServerboundClientInformationPacket(
     var locale: String,
     var viewDistance: Int,

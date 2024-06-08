@@ -2,88 +2,24 @@ package io.github.dockyardmc.protocol
 
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
-import io.github.dockyardmc.protocol.packets.configurations.ServerboundClientInformationPacket
-import io.github.dockyardmc.protocol.packets.configurations.ServerboundFinishConfigurationAcknowledgePacket
-import io.github.dockyardmc.protocol.packets.configurations.ServerboundPluginMessagePacket
-import io.github.dockyardmc.protocol.packets.login.ServerboundEncryptionResponsePacket
-import io.github.dockyardmc.protocol.packets.login.ServerboundLoginStartPacket
-import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
-import io.github.dockyardmc.protocol.packets.handshake.ServerboundPingRequestPacket
-import io.github.dockyardmc.protocol.packets.handshake.ServerboundStatusRequestPacket
-import io.github.dockyardmc.protocol.packets.login.ServerboundLoginAcknowledgedPacket
-import io.github.dockyardmc.protocol.packets.play.serverbound.*
 import io.netty.buffer.ByteBuf
-import log
+import kotlin.reflect.KClass
+import kotlin.reflect.full.companionObject
+import kotlin.reflect.full.declaredMemberFunctions
 
 object PacketParser {
-    fun parsePacket(id: Int, buffer: ByteBuf, processor: PacketProcessor, size: Int): ServerboundPacket? {
 
-        try {
-            var outPacket: ServerboundPacket? = null
+    var idAndStatePairToPacketClass = mutableMapOf<Pair<Int, ProtocolState>, KClass<*>>()
 
-            if (processor.state == ProtocolState.HANDSHAKE) {
-                outPacket = when (id) {
-                    0 -> ServerboundHandshakePacket.read(buffer)
-                    else -> null
-                }
-            }
+    // Gets data from annotation in each ServerboundPackets class
+    // This is way better and easier approach than listing all the packets here in when() or in a map
 
-            if (processor.state == ProtocolState.STATUS) {
-                outPacket = when (id) {
-                    0 -> ServerboundStatusRequestPacket.read(buffer)
-                    1 -> ServerboundPingRequestPacket.read(buffer)
-                    else -> null
-                }
-            }
+    // It does this process in MainKt, and reads actual annotations using reflection in AnnotationProcessor.getServerboundPacketClassInfo()
+    fun parse(id: Int, buffer: ByteBuf, processor: PacketProcessor, size: Int): ServerboundPacket? {
+        val packetClass = idAndStatePairToPacketClass[Pair(id, processor.state)] ?: return null
+        val companionObject = packetClass.companionObject ?: return null
+        val readFunction = companionObject.declaredMemberFunctions.find { it.name == "read" } ?: return null
 
-            if (processor.state == ProtocolState.LOGIN) {
-                outPacket = when (id) {
-                    0 -> ServerboundLoginStartPacket.read(buffer)
-                    1 -> ServerboundEncryptionResponsePacket.read(buffer)
-                    3 -> ServerboundLoginAcknowledgedPacket()
-                    else -> null
-                }
-            }
-
-            if (processor.state == ProtocolState.CONFIGURATION) {
-                outPacket = when (id) {
-                    0 -> ServerboundClientInformationPacket.read(buffer)
-                    1 -> ServerboundPluginMessagePacket.read(buffer, size)
-                    2 -> ServerboundFinishConfigurationAcknowledgePacket()
-                    else -> null
-                }
-            }
-
-            if (processor.state == ProtocolState.PLAY) {
-                outPacket = when (id) {
-                    0 -> ServerboundTeleportConfirmationPacket.read(buffer)
-                    4 -> ServerboundChatCommandPacket.read(buffer)
-                    5 -> ServerboundPlayerChatMessagePacket.read(buffer)
-                    6 -> ServerboundPlayerSessionPacket.read(buffer)
-                    13 -> ServerboundClickContainerPacket.read(buffer)
-                    14 -> ServerboundContainerClosePacket.read(buffer)
-                    16 -> ServerboundPlayPluginMessagePacket.read(buffer, size)
-                    21 -> ServerboundKeepAlivePacket.read(buffer)
-                    23 -> ServerboundSetPlayerPositionPacket.read(buffer)
-                    24 -> ServerboundSetPlayerPositionAndRotationPacket.read(buffer)
-                    25 -> ServerboundSetPlayerRotationPacket.read(buffer)
-                    32 -> ServerboundPlayerAbilitiesPacket.read(buffer)
-                    33 -> ServerboundPlayerActionPacket.read(buffer)
-                    34 -> ServerboundPlayerCommandPacket.read(buffer)
-                    44 -> ServerboundSetPlayerHeldItemPacket.read(buffer)
-                    47 -> ServerboundSetCreativeModeSlotPacket.read(buffer)
-                    51 -> ServerboundPlayerSwingHandPacket.read(buffer)
-                    53 -> ServerboundUseItemOnPacket.read(buffer)
-                    else -> null
-                }
-            }
-
-//        log("Returning $outPacket for id $id")
-            return outPacket
-        } catch (exception: Exception) {
-            log(exception)
-            return null
-        }
+        return readFunction.call(companionObject.objectInstance,  buffer) as ServerboundPacket
     }
-
 }

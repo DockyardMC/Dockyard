@@ -1,17 +1,20 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.extentions.readNBT
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.inventory.TempItemStack
 import io.github.dockyardmc.inventory.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import org.jglrxavpok.hephaistos.nbt.NBT
 
+@ServerboundPacketInfo(13, ProtocolState.PLAY)
 class ServerboundClickContainerPacket(
     var windowId: Int,
     var stateId: Int,

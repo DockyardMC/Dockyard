@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.blocks.GeneralBlockPlacementRules
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockInteractEvent
@@ -9,6 +10,7 @@ import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
@@ -18,6 +20,7 @@ import io.github.dockyardmc.utils.toLocation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
+@ServerboundPacketInfo(53, ProtocolState.PLAY)
 class ServerboundUseItemOnPacket(
     var hand: PlayerHand,
     var pos: Vector3,

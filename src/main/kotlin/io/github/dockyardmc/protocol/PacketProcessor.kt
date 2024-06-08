@@ -78,7 +78,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                 }
                 val packetData = buf.readSlice(packetSize)
                 try {
-                    val packet = PacketParser.parsePacket(packetId, packetData, this, packetSize)
+                    val packet = PacketParser.parse(packetId, packetData, this, packetSize)
 
                     if(packet == null) {
                         buf.discardReadBytes()

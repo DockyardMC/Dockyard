@@ -1,18 +1,14 @@
 package io.github.dockyardmc
 
 import CustomLogType
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.EnumArgument
+import io.github.dockyardmc.annotations.AnnotationProcessor
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerGameEventPacket
+import io.github.dockyardmc.protocol.PacketParser
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateEntityPositionPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.GameEvent
-import io.netty.util.ResourceLeakDetector
 
 val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
 
@@ -23,6 +19,10 @@ object Main {
 fun main(args: Array<String>) {
     val port = (args.getOrNull(0) ?: "25565").toInt()
 //    ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED)
+
+    val packetClasses = AnnotationProcessor.getServerboundPacketClassInfo()
+    PacketParser.idAndStatePairToPacketClass = packetClasses
+
     Main.instance = DockyardServer(port)
 
 

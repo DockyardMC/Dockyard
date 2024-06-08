@@ -108,4 +108,5 @@ Contributions are always welcome! Please always check branches to see if the fea
 
 - [@KevDev](https://github.com/TrasherMC)
 - [@BluSpring](https://github.com/BluSpring)
+- [@Asoji](https://github.com/asoji)
 - Twitch chat who watches me code this! <3
