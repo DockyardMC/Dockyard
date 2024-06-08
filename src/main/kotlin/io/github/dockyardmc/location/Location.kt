@@ -1,9 +1,13 @@
 package io.github.dockyardmc.location
 
 import io.github.dockyardmc.extentions.truncate
+import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.Vector2
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
 import io.netty.buffer.ByteBuf
+import kotlin.math.atan
+import kotlin.math.atan2
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -13,14 +17,14 @@ class Location(
     var y: Double,
     var z: Double,
     var yaw: Float = 0f,
-    var pitch: Float = 0f
+    var pitch: Float = 0f,
 ) {
     constructor(
         x: Int,
         y: Int,
         z: Int,
         yaw: Float = 0f,
-        pitch: Float = 0f
+        pitch: Float = 0f,
     ): this(x.toDouble(), y.toDouble(), z.toDouble(), yaw, pitch)
 
     override fun toString(): String {
@@ -49,6 +53,39 @@ class Location(
     fun centerBlockLocation(): Location {
         return this.apply { x += 0.5; y += 0.5; z += 0.5 }
     }
+
+    fun getRotation(): Vector2 {
+        return Vector2(yaw, pitch)
+    }
+
+
+    //TODO Rewrite this, temp stolen from bukkit
+
+    fun setDirection(vector: Vector3f): Location {
+        val _2PI = 6.283185307179586
+        val x: Double = vector.x.toDouble()
+        val z: Double = vector.z.toDouble()
+        if (x == 0.0 && z == 0.0) {
+            this.yaw = if (vector.y.toDouble() > 0.0) -90.0f else 90.0f
+            return this
+        } else {
+            val theta = atan2(-x, z)
+            this.pitch = Math.toDegrees((theta + _2PI) % _2PI).toFloat()
+            val x2: Double = MathUtils.square(x)
+            val z2: Double = MathUtils.square(z)
+            val xz = sqrt(x2 + z2)
+            this.yaw = Math.toDegrees(atan(-vector.y.toDouble() / xz)).toFloat()
+            return this
+        }
+    }
+
+    fun subtract(vec: Location): Location {
+        this.x -= vec.x
+        this.y -= vec.y
+        this.z -= vec.z
+        return this
+    }
+
 }
 
 

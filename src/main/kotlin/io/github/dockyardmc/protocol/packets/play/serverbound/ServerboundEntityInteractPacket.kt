@@ -1,8 +1,9 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
-import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.entity.EntityManager
+import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.events.PlayerInteractAtEntityEvent
@@ -10,13 +11,13 @@ import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.player.PlayerHand
+import io.github.dockyardmc.plugins.bundled.DockyardExtras.DockyardExtras
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.Vector3f
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import log
 
 @ServerboundPacketInfo(19, ProtocolState.PLAY)
 class ServerboundEntityInteractPacket(
@@ -61,7 +62,11 @@ class ServerboundEntityInteractPacket(
         fun read(buf: ByteBuf): ServerboundEntityInteractPacket {
 
             val entityId = buf.readVarInt()
-            val entity = EntityManager.entities.firstOrNull { it.entityId == entityId } ?: throw Exception("Entity with id $entityId was not found")
+            val entity = EntityManager.entities.firstOrNull { it.entityId == entityId }
+            if(entity == null) {
+                DockyardServer.broadcastMessage("<red>Entity with id $entityId does not exist")
+                throw Exception("Entity with id $entityId was not found")
+            }
             val type = buf.readVarIntEnum<EntityInteractionType>()
             var targetX: Float? = null
             var targetY: Float? = null

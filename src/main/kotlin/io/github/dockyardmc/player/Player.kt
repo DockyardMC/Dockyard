@@ -2,7 +2,7 @@ package io.github.dockyardmc.player
 
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMutableList
-import io.github.dockyardmc.entity.*
+import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.Inventory
 import io.github.dockyardmc.inventory.ItemStack

@@ -1,4 +1,4 @@
-package io.github.dockyardmc.entity
+package io.github.dockyardmc.entities
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
@@ -10,11 +10,11 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityMetadataPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityRemovePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSpawnEntityPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.toVector3
+import io.github.dockyardmc.utils.toVector3f
 import io.github.dockyardmc.world.World
 import java.util.UUID
 
@@ -56,6 +56,15 @@ interface Entity {
         DockyardServer.broadcastMessage("<gray>Removed viewer for ${this}: <red>$player")
         val entityDespawnPacket = ClientboundEntityRemovePacket(this)
         player.sendPacket(entityDespawnPacket)
+    }
+
+    fun lookAt(target: Entity) {
+        val newLoc = this.location.setDirection(target.location.subtract(this.location).toVector3f())
+        this.location = newLoc
+
+        this.location.yaw = (newLoc.yaw % 360) * 256 / 360
+        val packet = ClientboundEntityTeleportPacket(this)
+        viewers.sendPacket(packet)
     }
 
     fun sendViewersMedataPacket() {

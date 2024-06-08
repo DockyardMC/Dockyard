@@ -9,7 +9,9 @@ data class Vector3(
     var x: Int,
     var y: Int,
     var z: Int,
-)
+) {
+    constructor() : this(0, 0, 0)
+}
 
 data class Vector3f(
     var x: Float,

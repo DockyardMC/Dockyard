@@ -16,6 +16,10 @@ object MathUtils {
         return (value - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin
     }
 
+    fun square(num: Double): Double {
+        return num * num
+    }
+
     fun toCorrectSlotIndex(slot: Int): Int {
         return when (slot) {
             in 36..44 -> slot - 36

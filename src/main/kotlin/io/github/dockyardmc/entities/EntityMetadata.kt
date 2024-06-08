@@ -1,4 +1,4 @@
-package io.github.dockyardmc.entity
+package io.github.dockyardmc.entities
 
 import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.extentions.*

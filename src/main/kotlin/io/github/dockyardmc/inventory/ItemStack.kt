@@ -13,6 +13,10 @@ class ItemStack(var material: Item, var amount: Int) {
     companion object {
         val air = ItemStack(Items.AIR, 1)
     }
+
+    override fun toString(): String {
+        return "ItemStack(${material.namespace}, $amount)"
+    }
 }
 
 

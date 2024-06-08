@@ -35,7 +35,6 @@ class ServerboundUseItemOnPacket(
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         val item = player.getHeldItem(hand)
-        player.sendMessage("<gray>Used item <lime>${item.material.name}<gray> on <aqua>$pos")
 
         val newPos = pos.copy()
         when(face) {

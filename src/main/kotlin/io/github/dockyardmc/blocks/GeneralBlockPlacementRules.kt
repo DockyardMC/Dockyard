@@ -1,6 +1,6 @@
 package io.github.dockyardmc.blocks
 
-import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Block

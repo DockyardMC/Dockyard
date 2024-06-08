@@ -1,7 +1,7 @@
 package io.github.dockyardmc.world
 
-import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.entity.EntityManager
+import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*

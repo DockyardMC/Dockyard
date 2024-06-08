@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.login
 
 import LogType
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.entity.EntityManager
+import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
