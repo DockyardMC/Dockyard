@@ -68,6 +68,12 @@ class DoubleArgument(
     override var expectedType: KClass<*> = Double::class,
 ): CommandArgument
 
+class FloatArgument(
+    val staticCompletions: MutableList<Float> = mutableListOf(),
+    override var expectedType: KClass<*> = Float::class,
+): CommandArgument
+
+
 class LongArgument(
     val staticCompletions: MutableList<Long> = mutableListOf(),
     override var expectedType: KClass<*> = Long::class,

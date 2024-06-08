@@ -44,6 +44,7 @@ object CommandHandler {
                     Player::class -> PlayerManager.players.firstOrNull { it.username == value }
                     Int::class -> value.toIntOrNull() ?: throw Exception("\"$value\" is not of type Int")
                     Double::class -> value.toDoubleOrNull() ?: throw Exception("\"$value\" is not of type Double")
+                    Float::class -> value.toFloatOrNull() ?: throw Exception("\"$value\" is not of type Float")
                     Long::class -> value.toLongOrNull() ?: throw Exception("\"$value\" is not of type Long")
                     UUID::class -> UUID.fromString(value)
                     Item::class -> Items.idToItemMap.values.firstOrNull { it.namespace == value } ?: throw Exception("\"$value\" is not of type Item")

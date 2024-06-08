@@ -3,7 +3,9 @@ package io.github.dockyardmc.plugins.bundled
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.FloatArgument
 import io.github.dockyardmc.commands.PlayerArgument
+import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockBreakEvent
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
@@ -18,8 +20,10 @@ import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.SkinManager
 import io.github.dockyardmc.plugins.DockyardPlugin
+import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.scroll.RGB
+import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
@@ -49,13 +53,22 @@ class MayaTestPlugin: DockyardPlugin {
             DockyardServer.broadcastActionBar("<white>MSPT: <lime>$mspt <dark_gray>| <white>Memory Usage: <#ff6830>$memUsagePercent% <gray>(${fMem}mb / ${fMax}mb)")
         }
 
-        Commands.add("/skin") {
+        Commands.add("/sound") {
+            it.addArgument("sound", StringArgument())
+            it.addOptionalArgument("volume", FloatArgument())
+            it.addOptionalArgument("pitch", FloatArgument())
             it.execute { exec ->
-                SkinManager.updateSkinOf(exec.player!!)
+                if(!exec.isPlayer) return@execute
+                val player = exec.player!!
+
+                val sound = it.get<String>("sound")
+                val volume = it.getOrNull<Float>("volume") ?: 0.5f
+                val pitch = it.getOrNull<Float>("pitch") ?: 1.0f
+
+                player.playSound(sound, player.location, volume, pitch, category = SoundCategory.RECORDS)
+                player.sendMessage("<yellow>Played <lime>$sound <yellow>with volume <aqua>$volume <yellow>and pitch <pink>$pitch")
             }
         }
-
-
     }
 
     override fun unload(server: DockyardServer) {
