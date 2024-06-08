@@ -148,6 +148,15 @@ fun hasContinuationBit(byte: Byte): Boolean {
 inline fun <reified T : Enum<T>> ByteBuf.readVarIntEnum(): T = T::class.java.enumConstants[readVarInt()]
 inline fun <reified T : Enum<T>> ByteBuf.readByteEnum(): T = T::class.java.enumConstants[readByte().toInt()]
 
+fun <T : Enum<T>> ByteBuf.writeVarIntEnum(value: T) {
+    this.writeVarInt(value.ordinal)
+}
+
+fun <T : Enum<T>> ByteBuf.writeByteEnum(value: T) {
+    this.writeByte(value.ordinal)
+}
+
+
 fun ByteBuf.readVarInt(): Int {
     var value = 0
     var position = 0

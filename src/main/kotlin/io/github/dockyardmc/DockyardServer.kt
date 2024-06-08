@@ -156,7 +156,8 @@ class DockyardServer(var port: Int) {
             "ClientboundUpdateEntityPositionPacket",
             "ClientboundUpdateEntityPositionAndRotationPacket",
             "ClientboundUpdateEntityRotationPacket",
-            "ClientboundSetHeadYawPacket"
+            "ClientboundSetHeadYawPacket",
+            "ClientboundSendParticlePacket"
         )
     }
 }

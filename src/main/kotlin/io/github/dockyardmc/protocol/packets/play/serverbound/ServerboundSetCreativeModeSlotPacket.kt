@@ -2,6 +2,8 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.inventory.ItemStack
+import io.github.dockyardmc.inventory.TempItemStack
+import io.github.dockyardmc.inventory.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Items
@@ -10,7 +12,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import log
 
-class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: SlotData): ServerboundPacket {
+class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: TempItemStack): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
 
@@ -34,7 +36,7 @@ class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: SlotD
             val slot = buf.readShort().toInt()
             log("slot read: buf ref count ${buf.refCnt()}", LogType.TRACE)
 
-            val clickedItem = buf.readSlotData()
+            val clickedItem = buf.readItemStack()
             log("slot data read: buf ref count ${buf.refCnt()}", LogType.TRACE)
 
             return ServerboundSetCreativeModeSlotPacket(slot, clickedItem)

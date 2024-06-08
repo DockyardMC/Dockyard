@@ -4,6 +4,8 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.extentions.readNBT
 import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.inventory.TempItemStack
+import io.github.dockyardmc.inventory.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
@@ -16,8 +18,8 @@ class ServerboundClickContainerPacket(
     var slot: Int,
     var button: Int,
     var mode: ContainerClickMode,
-    var changedSlots: MutableMap<Int, SlotData>,
-    var carriedItem: SlotData
+    var changedSlots: MutableMap<Int, TempItemStack>,
+    var carriedItem: TempItemStack
 ): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
@@ -32,16 +34,16 @@ class ServerboundClickContainerPacket(
             val slot = buf.readShort().toInt()
             val button = buf.readByte().toInt()
             val mode = buf.readVarIntEnum<ContainerClickMode>()
-            val changedSlots = mutableMapOf<Int, SlotData>()
+            val changedSlots = mutableMapOf<Int, TempItemStack>()
 
             val arraySize = buf.readVarInt()
             repeat(arraySize) {
                 val slotNumber = buf.readShort().toInt()
-                val slotData = buf.readSlotData()
+                val slotData = buf.readItemStack()
                 changedSlots[slotNumber] = slotData
             }
 
-            val carriedItem = buf.readSlotData()
+            val carriedItem = buf.readItemStack()
 
             return ServerboundClickContainerPacket(windowsId, stateId, slot, button, mode, changedSlots, carriedItem)
         }
@@ -95,22 +97,4 @@ enum class DragButtonAction(button: Int, outsideInv: Boolean = false) {
 enum class DoubleClickButtonAction(button: Int, outsideInv: Boolean = false) {
     DOUBLE_CLICK(0),
     PICKUP_ALL(1)
-}
-
-data class SlotData(
-    val present: Boolean,
-    var itemId: Int? = null,
-    var itemCount: Int? = null,
-    var nbt: NBT? = null
-)
-
-fun ByteBuf.readSlotData(): SlotData {
-    val present = this.readBoolean()
-    val slotData = SlotData(present)
-    if(present) {
-        slotData.itemId = this.readVarInt()
-        slotData.itemCount = this.readByte().toInt()
-        slotData.nbt = this.readNBT()
-    }
-    return slotData
 }

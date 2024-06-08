@@ -1,0 +1,31 @@
+package io.github.dockyardmc.particles
+
+import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.extentions.writeVarIntEnum
+import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.writeVector3
+import io.netty.buffer.ByteBuf
+
+class VibrationParticleData(val vibrationSource: VibrationSource, val pos: Vector3, val entityId: Int, val entityEyeHeight: Float, val ticks: Int): ParticleData {
+
+    override var id: Int = Particles.VIBRATION.id
+
+    override fun write(byteBuf: ByteBuf) {
+        byteBuf.writeVarIntEnum<VibrationSource>(vibrationSource)
+        if(vibrationSource == VibrationSource.BLOCK) {
+            byteBuf.writeVector3(pos)
+            byteBuf.writeVarInt(ticks)
+        } else {
+            byteBuf.writeVarInt(entityId)
+            byteBuf.writeFloat(entityEyeHeight)
+            byteBuf.writeVarInt(ticks)
+        }
+    }
+
+}
+
+enum class VibrationSource {
+    BLOCK,
+    ENTITY
+}

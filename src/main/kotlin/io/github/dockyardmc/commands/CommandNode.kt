@@ -10,7 +10,6 @@ data class CommandNode(
     var redirectNode: Int? = null,
     var name: String? = null,
     var parserId: Int? = null,
-    // Properties? (any type)
     var suggestionType: String? = null,
     var type: CommandNodeType,
 )
