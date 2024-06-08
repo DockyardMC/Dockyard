@@ -2,9 +2,13 @@ import java.io.IOException
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.23"
-    kotlin("plugin.serialization") version "2.0.0"
+    kotlin("jvm") version "1.9.22"
+    kotlin("plugin.serialization") version "1.9.22"
     application
+}
+
+application {
+    mainClass.set("MainKt")
 }
 
 val minecraftVersion = "1.20.4"
@@ -63,8 +67,13 @@ fun String.runCommand(
         inputStream.bufferedReader().readText().trim()
     }
 
-kotlin {
-    jvmToolchain(17)
+tasks {
+    compileKotlin {
+        kotlinOptions.jvmTarget = "17"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "17"
+    }
 }
 
 application {
@@ -85,12 +94,10 @@ tasks.named("processResources") {
     dependsOn("generateVersionFile")
 }
 
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "io.github.dockyardmc.MainKt"
+    }
+}
+
 sourceSets["main"].resources.srcDir("$buildDir/generated/resources/")
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-    jvmTarget = "1.8"
-}

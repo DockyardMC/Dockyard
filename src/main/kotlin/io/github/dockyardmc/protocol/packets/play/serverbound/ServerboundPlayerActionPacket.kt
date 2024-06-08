@@ -7,13 +7,19 @@ import io.github.dockyardmc.events.PlayerBlockBreakEvent
 import io.github.dockyardmc.extentions.readByteEnum
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.particles.BlockParticleData
+import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSendParticlePacket
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.utils.readBlockPosition
 import io.github.dockyardmc.utils.toLocation
 import io.netty.buffer.ByteBuf
@@ -42,6 +48,7 @@ class ServerboundPlayerActionPacket(
                 }
 
                 player.world.setBlock(event.location, Blocks.AIR)
+                player.world.players.filter { it != player }.spawnParticle(event.location.centerBlockLocation(), Particles.BLOCK, count = 50, offset = Vector3f(0.3f), particleData = BlockParticleData(previousBlock))
             }
         }
     }

@@ -15,7 +15,9 @@ data class Vector3f(
     var x: Float,
     var y: Float,
     var z: Float,
-)
+) {
+    constructor(single: Float) : this(single, single, single)
+}
 
 fun ByteBuf.writeVector3f(vector3: Vector3f) {
     this.writeFloat(vector3.x)

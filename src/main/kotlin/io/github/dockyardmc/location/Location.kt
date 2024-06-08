@@ -45,6 +45,10 @@ class Location(
         //surly its not just me that pronounces it "squirt"
         return sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0))
     }
+
+    fun centerBlockLocation(): Location {
+        return this.apply { x += 0.5; y += 0.5; z += 0.5 }
+    }
 }
 
 

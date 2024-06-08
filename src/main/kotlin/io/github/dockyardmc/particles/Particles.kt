@@ -16,7 +16,6 @@ fun Player.spawnParticle(location: Location, particle: Particle, offset: Vector3
     this.sendPacket(packet)
 }
 
-fun MutableList<Player>.spawnParticle(location: Location, particle: Particle, offset: Vector3f = Vector3f(0f, 0f, 0f), speed: Float = 0.5f, count: Int = 1, longDistance: Boolean = false, particleData: ParticleData? = null) {
+fun List<Player>.spawnParticle(location: Location, particle: Particle, offset: Vector3f = Vector3f(0f, 0f, 0f), speed: Float = 0.5f, count: Int = 1, longDistance: Boolean = false, particleData: ParticleData? = null) {
     this.forEach { it.spawnParticle(location, particle, offset, speed, count, longDistance, particleData) }
 }
-
