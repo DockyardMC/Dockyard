@@ -40,7 +40,7 @@ interface Entity {
         Events.dispatch(event)
         if(event.cancelled) return
 
-        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id + 2, location, 90f, 0, velocity)
+        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, 90f, 0, velocity)
         player.sendPacket(entitySpawnPacket)
 
         viewers.add(player)
@@ -48,7 +48,6 @@ interface Entity {
     }
 
     fun removeViewer(player: Player, isDisconnect: Boolean) {
-
         val event = EntityViewerRemoveEvent(this, player)
         Events.dispatch(event)
         if(event.cancelled) return

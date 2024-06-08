@@ -38,5 +38,4 @@ class DockyardCommands: DockyardPlugin {
     override fun unload(server: DockyardServer) {
         TODO("Not yet implemented")
     }
-
 }

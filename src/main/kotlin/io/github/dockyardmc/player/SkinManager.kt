@@ -2,7 +2,9 @@ package io.github.dockyardmc.player
 
 import LogType
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.runnables.AsyncRunnable
+import io.github.dockyardmc.runnables.TickTimer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -44,7 +46,17 @@ object SkinManager {
             player.profile!!.properties[0] = skin
         }
         asyncRunnable.runAfterFinished = {
-            DockyardServer.broadcastMessage("<lime>Updated skin of $player")
+            //done
+            player.sendPacket(ClientboundPlayerInfoRemovePacket(player))
+            player.sendPacket(ClientboundPlayerInfoUpdatePacket(1, mutableListOf(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!)))))
+
+            player.sendToViewers(ClientboundPlayerInfoRemovePacket(player))
+            player.sendToViewers(ClientboundEntityRemovePacket(player))
+            player.sendToViewers(ClientboundPlayerInfoUpdatePacket(1, mutableListOf(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!)))))
+            player.sendToViewers(ClientboundSpawnEntityPacket(player.entityId, player.uuid, player.type.id, player.location, player.location.yaw, 0, player.velocity))
+            player.displayedSkinParts.triggerUpdate()
+
+            player.sendMessage("<#ff85be>Updated your skin!")
         }
 
         asyncRunnable.start()

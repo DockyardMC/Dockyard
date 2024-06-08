@@ -121,6 +121,6 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         connection.sendPacket(tickingStatePacket)
 
-//        SkinManager.updateSkinOf(player)
+        SkinManager.updateSkinOf(player)
     }
 }

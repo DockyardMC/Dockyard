@@ -14,6 +14,7 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.plugins.PluginManager
+import io.github.dockyardmc.plugins.bundled.CoolParticles.CoolParticles
 import io.github.dockyardmc.plugins.bundled.DockyardCommands
 import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.profiler.Profiler
@@ -99,6 +100,7 @@ class DockyardServer(var port: Int) {
         innerProfiler.start("Load Plugins")
         PluginManager.loadLocal(DockyardCommands())
         PluginManager.loadLocal(MayaTestPlugin())
+        PluginManager.loadLocal(CoolParticles())
         innerProfiler.end()
 
         log("DockyardMC finished loading", LogType.SUCCESS)

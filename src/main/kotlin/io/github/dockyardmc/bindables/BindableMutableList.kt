@@ -33,7 +33,7 @@ class BindableMutableList<T>(vararg list: T) {
         changeListener.forEach { it.unit.invoke(BindableListItemChangeEvent<T>(item)) }
     }
 
-    class BindableListUpdateEvent<T>(val item: T)
+    class BindableListUpdateEvent<T>(val item: T?)
     class BindableListItemChangeEvent<T>(val item: T)
     class BindableListItemAddEvent<T>(val item: T)
     class BindableListItemRemovedEvent<T>(val item: T)
@@ -52,6 +52,10 @@ class BindableMutableList<T>(vararg list: T) {
 
     fun listUpdated(function: (event: BindableListUpdateEvent<T>) -> Unit) {
         updateListener.add(BindableListUpdateListener(function))
+    }
+
+    fun triggerUpdate() {
+        updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(null)) }
     }
 
 

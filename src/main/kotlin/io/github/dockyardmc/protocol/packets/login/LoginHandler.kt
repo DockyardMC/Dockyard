@@ -6,6 +6,7 @@ import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
+import io.github.dockyardmc.player.SkinManager.getSkinOf
 import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.protocol.cryptography.PacketDecryptionHandler
@@ -71,6 +72,11 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         PlayerManager.add(player, processor)
         EntityManager.entities.add(player)
 
+        val asyncRunnable = AsyncRunnable {
+            val skin = getSkinOf(player.uuid)
+        }
+        asyncRunnable.start()
+
         val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken)
         connection.sendPacket(out)
     }
@@ -103,15 +109,9 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val list = mutableListOf<ProfilePropertyMap>()
 
         val texturesProperty = ProfileProperty("textures", "", true, "")
-        val texturesPropertyMap = ProfilePropertyMap("textures", mutableListOf(texturesProperty))
+        val texturesPropertyMap = ProfilePropertyMap(player.username, mutableListOf(texturesProperty))
         list.add(texturesPropertyMap)
         player.profile = texturesPropertyMap
-
-        // Cache the skin
-//        val runnable = AsyncRunnable {
-//            SkinManager.getSkinOf(player.uuid)
-//        }
-//        runnable.start()
 
         connection.sendPacket(ClientboundLoginCompressionPacket())
         connection.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, list))
