@@ -1,9 +1,14 @@
 package io.github.dockyardmc.registry
+import LogType
+import io.github.dockyardmc.blocks.BlockDataHelper
 import io.github.dockyardmc.utils.Resources
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import log
+
 // THIS CLASS IS AUTO-GENERATED
 // DATA FROM MINECRAFT 1.20.4
 // https://github.com/DockyardMC/RegistryClassesGenerators
@@ -11,12 +16,14 @@ import kotlinx.serialization.Serializable
 object Blocks {
     val idToBlockMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
-        val blocks = json.decodeFromString<List<Block>>(Resources.getText("./data/blocks.json"))
+        val blocks = json.decodeFromString<List<Block>>(Resources.getText("./data/blocks.json")).toMutableList()
         blocks.associateBy { it.blockStateId }
     }
+
     fun getBlockById(id: Int): Block {
         return idToBlockMap[id] ?: error("Block ID $id not found")
     }
+
     val AIR = getBlockById(0)
     val STONE = getBlockById(1)
     val GRANITE = getBlockById(2)
@@ -1075,7 +1082,16 @@ object Blocks {
     val DECORATED_POT = getBlockById(26583)
     val CRAFTER = getBlockById(26635)
     val TRIAL_SPAWNER = getBlockById(26638)
+
+    init {
+        idToBlockMap.values.forEach {
+            val clickable = BlockDataHelper.isClickable(it)
+            it.isClickable = clickable
+        }
+    }
 }
+
+
 @Serializable
 data class Block(
     @SerialName("defaultState")
@@ -1093,5 +1109,8 @@ data class Block(
     @SerialName("minStateId")
     var minState: Int,
     @SerialName("maxStateId")
-    var maxState: Int
+    var maxState: Int,
+    var boundingBox: String,
+    @Transient
+    var isClickable: Boolean = false
 )

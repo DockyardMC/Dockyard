@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.blocks.GeneralBlockPlacementRules
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockInteractEvent
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
@@ -47,11 +48,16 @@ class ServerboundUseItemOnPacket(
         Events.dispatch(event)
 
         if(item.material.isBlock && item.material != Items.AIR) {
-
             val block = Blocks.getBlockById(item.material.blockId!!)
+            var cancelled = false
+
+            if(!GeneralBlockPlacementRules.canBePlaced(pos.toLocation(), newPos.toLocation(), block, player)) cancelled = true
+
             val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation())
             Events.dispatch(blockPlaceEvent)
-            if(blockPlaceEvent.cancelled) {
+            if(blockPlaceEvent.cancelled) cancelled = true
+
+            if(cancelled) {
                 player.world.getChunkAt(newPos.x, newPos.z)?.let { player.sendPacket(it.packet) }
                 return
             }

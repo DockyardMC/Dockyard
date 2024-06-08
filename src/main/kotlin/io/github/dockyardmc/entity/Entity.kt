@@ -63,4 +63,26 @@ interface Entity {
         val packet = ClientboundEntityMetadataPacket(this)
         viewers.sendPacket(packet)
     }
+
+    fun calculateBoundingBox(): BoundingBox {
+        val width = type.width
+        val height = type.height
+        return BoundingBox(
+            location.x - width / 2,
+            location.x + width / 2,
+            location.y - height / 2,
+            location.y + height /2,
+            location.z - width / 2,
+            location.z + width / 2
+        )
+    }
+
+    data class BoundingBox(
+        val minX: Double,
+        val maxX: Double,
+        val minY: Double,
+        val maxY: Double,
+        val minZ: Double,
+        val maxZ: Double
+    )
 }

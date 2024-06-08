@@ -10,6 +10,7 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.registry.Entities
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -18,7 +19,7 @@ import io.github.dockyardmc.world.World
 import io.netty.channel.ChannelHandlerContext
 import java.util.UUID
 
-class Player(val username: String, override var entityId: Int, override var uuid: UUID, override var type: EntityType = EntityType.PLAYER, override var location: Location = Location(0, 256, 0), override var world: World, val connection: ChannelHandlerContext, val address: String, val crypto: PlayerCrypto): Entity {
+class Player(val username: String, override var entityId: Int, override var uuid: UUID, override var type: EntityType = Entities.PLAYER, override var location: Location = Location(0, 256, 0), override var world: World, val connection: ChannelHandlerContext, val address: String, val crypto: PlayerCrypto): Entity {
 
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var viewers: MutableList<Player> = mutableListOf()

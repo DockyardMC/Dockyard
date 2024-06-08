@@ -1,5 +1,7 @@
 package io.github.dockyardmc.world
 
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
@@ -35,6 +37,7 @@ class World(
     var chunks: MutableList<Chunk> = mutableListOf()
 
     val players: MutableList<Player> get() = PlayerManager.players.filter { it.world == this }.toMutableList()
+    val entities: MutableList<Entity> get() = EntityManager.entities.filter { it.world == this }.toMutableList()
 
     var defaultSpawnLocation = Location(0, 0, 0)
 
