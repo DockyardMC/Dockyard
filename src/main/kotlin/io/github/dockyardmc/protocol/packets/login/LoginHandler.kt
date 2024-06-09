@@ -75,7 +75,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val asyncRunnable = AsyncRunnable {
             val skin = getSkinOf(player.uuid)
         }
-        asyncRunnable.start()
+        asyncRunnable.execute()
 
         val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken)
         connection.sendPacket(out)

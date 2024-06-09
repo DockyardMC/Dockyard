@@ -31,12 +31,4 @@ class Pig(
     override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
 ) : Entity {
 
-    init {
-        Events.on<PlayerMoveEvent> {
-            val dist = it.player.location.distance(location)
-            if(dist < 6) {
-                lookAt(it.player)
-            }
-        }
-    }
 }

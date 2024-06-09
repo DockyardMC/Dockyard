@@ -22,6 +22,7 @@ import io.github.dockyardmc.player.SkinManager
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
 import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.scroll.RGB
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.MathUtils
@@ -29,6 +30,7 @@ import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
+import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -67,6 +69,22 @@ class MayaTestPlugin: DockyardPlugin {
 
                 player.playSound(sound, player.location, volume, pitch, category = SoundCategory.RECORDS)
                 player.sendMessage("<yellow>Played <lime>$sound <yellow>with volume <aqua>$volume <yellow>and pitch <pink>$pitch")
+            }
+        }
+
+        Commands.add("/threadtest") {
+            it.execute { exec ->
+                DockyardServer.broadcastMessage("Running on ${Thread.currentThread()}")
+                val runnable = AsyncRunnable() {
+                    DockyardServer.broadcastMessage("(runnable) Running on ${Thread.currentThread()}")
+                    delay(5000)
+                }
+                runnable.callback = {
+                    DockyardServer.broadcastMessage("ran after 5s (non blocking)")
+                    DockyardServer.broadcastMessage("(callback) Running on ${Thread.currentThread()}")
+                }
+
+                runnable.execute() // GUESS WHO FORGOT TO ADD THIS LINE
             }
         }
     }

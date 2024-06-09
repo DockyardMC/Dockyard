@@ -45,7 +45,7 @@ object SkinManager {
             val skin = getSkinOf(player.uuid)
             player.profile!!.properties[0] = skin
         }
-        asyncRunnable.runAfterFinished = {
+        asyncRunnable.callback = {
             //done
             player.sendPacket(ClientboundPlayerInfoRemovePacket(player))
             player.sendPacket(ClientboundPlayerInfoUpdatePacket(1, mutableListOf(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!)))))
@@ -59,7 +59,7 @@ object SkinManager {
             player.sendMessage("<#ff85be>Updated your skin!")
         }
 
-        asyncRunnable.start()
+        asyncRunnable.execute()
     }
 }
 

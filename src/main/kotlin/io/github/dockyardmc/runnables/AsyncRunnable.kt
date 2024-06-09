@@ -1,29 +1,26 @@
 package io.github.dockyardmc.runnables
 
-import log
+import kotlinx.coroutines.*
+import java.util.concurrent.Executors
 
-class AsyncRunnable(val code: () -> Unit) {
+class AsyncRunnable(
+    private val task: suspend () -> Unit
+) {
+    var callback: (() -> Unit)? = null
+    private val executorService = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
-    var runAfterFinished: (() -> Unit)? = null
-    val asyncThread = Thread("AsyncRunnableThread")
-    val currentThread = Thread.currentThread()
-
-    fun start() {
-        asyncThread.run {
-            code.invoke()
-            runAfterFinished()
+    fun execute() {
+        CoroutineScope(executorService).launch {
+            try {
+                task()
+                withContext(Dispatchers.Default) {
+                    callback?.invoke()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                executorService.close()
+            }
         }
-        asyncThread.start()
-    }
-
-    fun runAfterFinished() {
-        if(runAfterFinished == null) return
-        currentThread.run {
-            runAfterFinished!!.invoke()
-        }
-    }
-
-    fun stop() {
-        asyncThread.stop()
     }
 }

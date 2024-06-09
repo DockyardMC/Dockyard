@@ -1,6 +1,5 @@
 package io.github.dockyardmc.entities
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.world.World
 import java.util.concurrent.atomic.AtomicInteger

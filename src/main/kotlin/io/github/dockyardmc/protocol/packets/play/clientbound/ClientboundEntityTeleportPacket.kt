@@ -12,7 +12,7 @@ class ClientboundEntityTeleportPacket(entity: Entity, location: Location): Clien
 
     init {
         data.writeVarInt(entity.entityId)
-        data.writeLocation(location, true)
+        data.writeLocation(location, false)
         data.writeBoolean(entity.isOnGround)
     }
 }

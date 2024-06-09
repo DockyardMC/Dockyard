@@ -47,6 +47,8 @@ dependencies {
     implementation("it.unimi.dsi:fastutil:8.5.13")
     implementation("org.reflections:reflections:0.9.12")
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+
 }
 
 fun String.runCommand(
