@@ -15,7 +15,7 @@ object Commands {
         command(builder)
         val finalCommand = builder.build()
 
-        // add aliases as well
+        // add command aliases to the list as well as well
         val list = finalCommand.aliases
         list.add(sanitizedName)
 

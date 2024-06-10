@@ -6,7 +6,7 @@ import java.util.UUID
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-class Command(): Cloneable {
+class Command: Cloneable {
     lateinit var internalExecutorDoNotUse: (CommandExecutor) -> Unit
     var arguments: MutableMap<String, CommandArgumentData> = mutableMapOf()
     var permission = ""

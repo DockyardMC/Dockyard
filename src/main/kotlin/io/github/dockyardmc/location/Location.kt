@@ -31,7 +31,6 @@ class Location(
         return "Location(${x.truncate(2)}, ${y.truncate(2)}, ${z.truncate(2)}, yaw: $yaw, pitch: $pitch)"
     }
 
-    // Method to add a Vector3f to this Location
     fun add(vector: Vector3f): Location {
         return Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch)
     }
@@ -40,13 +39,12 @@ class Location(
         return Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch)
     }
 
-    // Method to clone the Location
     fun clone(): Location {
         return Location(this.x, this.y, this.z, this.yaw, this.pitch)
     }
 
     fun distance(other: Location): Double {
-        //surly its not just me that pronounces it "squirt"
+        //surly it's not just me that pronounces it "squirt"
         return sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0))
     }
 

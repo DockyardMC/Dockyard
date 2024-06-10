@@ -2,9 +2,8 @@ package io.github.dockyardmc.world.palette
 
 import io.github.dockyardmc.world.palette.Palette.EntryConsumer
 
-/**
- * Palette containing a single value. Useful for both empty and full palettes.
- */
+
+ //Palette containing a single value. Useful for both empty and full palettes.
 internal data class FilledPalette(val dim: Byte, val value: Int) : SpecializedPalette.Immutable {
     override fun get(x: Int, y: Int, z: Int): Int {
         return value

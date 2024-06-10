@@ -46,7 +46,6 @@ object SkinManager {
             player.profile!!.properties[0] = skin
         }
         asyncRunnable.callback = {
-            //done
             player.sendPacket(ClientboundPlayerInfoRemovePacket(player))
             player.sendPacket(ClientboundPlayerInfoUpdatePacket(1, mutableListOf(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!)))))
 

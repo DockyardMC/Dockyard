@@ -12,6 +12,4 @@ class PlayerCrypto(
     var sharedSecret: SecretKey? = null,
     var isConnectionEncrypted: Boolean = false,
     var playerSession: PlayerSession? = null
-) {
-
-}
+)

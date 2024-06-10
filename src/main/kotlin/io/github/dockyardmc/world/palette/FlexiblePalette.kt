@@ -9,9 +9,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.IntUnaryOperator
 
-/**
- * Palette able to take any value anywhere. May consume more memory than required.
- */
+//Palette able to take any value anywhere. May consume more memory than required.
 internal class FlexiblePalette @JvmOverloads constructor(// Specific to this palette type
     private val adaptivePalette: AdaptivePalette, private var bitsPerEntry: Byte = adaptivePalette.defaultBitsPerEntry
 ) :
@@ -41,8 +39,7 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
         val valuesPerLong = 64 / bitsPerEntry
         val index = sectionIndex / valuesPerLong
         val bitIndex = (sectionIndex - index * valuesPerLong) * bitsPerEntry
-        val value = (values!![index] shr bitIndex).toInt() and (1 shl bitsPerEntry) - 1
-        // Change to palette value and return
+        val value = (values[index] shr bitIndex).toInt() and (1 shl bitsPerEntry) - 1
         return if (hasPalette()) paletteToValueList.getInt(value) else value
     }
 
@@ -59,7 +56,6 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
         modValue = getPaletteIndex(modValue)
         val bitsPerEntry = bitsPerEntry.toInt()
         val values = values
-        // Change to palette value
         val valuesPerLong = 64 / bitsPerEntry
         val sectionIndex = getSectionIndex(dimension(), x, y, z)
         val index = sectionIndex / valuesPerLong
@@ -68,7 +64,6 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
         val clear = (1L shl bitsPerEntry) - 1L
         val oldBlock = block shr bitIndex and clear
         values[index] = block and (clear shl bitIndex).inv() or (modValue.toLong() shl bitIndex)
-        // Check if block count needs to be updated
         val currentAir = oldBlock == 0L
         if (currentAir != (modValue == 0)) count += if (currentAir) 1 else -1
     }
@@ -101,7 +96,6 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
             for (z in 0..<dimension) {
                 for (x in 0..<dimension) {
                     var value = supplier[x, y, z]
-                    // Support for fill fast exit if the supplier returns a constant value
                     if (fillValue != -2) {
                         if (fillValue == -1) {
                             fillValue = value
@@ -109,7 +103,6 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
                             fillValue = -2
                         }
                     }
-                    // Set value in cache
                     if (value != 0) {
                         value = getPaletteIndex(value)
                         count++
@@ -119,7 +112,6 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
             }
         }
         assert(index == maxSize())
-        // Update palette content
         if (fillValue < 0) {
             updateAll(cache)
             this.count = count
@@ -146,7 +138,6 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
             if (newValue != 0) count.plain = count.getPlain() + 1
         }
         assert(arrayIndex.getPlain() == maxSize())
-        // Update palette content
         updateAll(cache)
         this.count = count.getPlain()
     }
@@ -250,7 +241,7 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
         val lastPaletteIndex = paletteToValueList.size
         val bpe = bitsPerEntry
         if (lastPaletteIndex >= maxPaletteSize(bpe.toInt())) {
-            // Palette is full, must resize
+            // resize if full
             resize((bpe + 1).toByte())
             return getPaletteIndex(value)
         }

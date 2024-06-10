@@ -58,6 +58,7 @@ interface Entity {
         player.sendPacket(entityDespawnPacket)
     }
 
+    //TODO make this work
     fun lookAt(target: Entity) {
         val newLoc = this.location.setDirection(target.location.subtract(this.location).toVector3f())
         this.location = newLoc

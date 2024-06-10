@@ -1,7 +1,5 @@
 package io.github.dockyardmc.world
 
-import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.CachedPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.registry.Biome
@@ -71,7 +69,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
 
-        section.biomePalette.set(relativeX, relativeY, relativeZ, biome.id)
+        section.biomePalette[relativeX, relativeY, relativeZ] = biome.id
     }
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
@@ -85,7 +83,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
     }
 
     fun getSection(section: Int): ChunkSection {
-        return sections.get(section - minSection)
+        return sections[section - minSection]
     }
 
     fun getSectionAt(y: Int): ChunkSection {

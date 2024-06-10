@@ -1,5 +1,7 @@
 package io.github.dockyardmc.utils
 
+import kotlin.math.floor
+
 object ChunkUtils {
 
     fun getChunkCoordinate(xz: Int): Int {
@@ -15,6 +17,6 @@ object ChunkUtils {
     }
 
     fun getChunkCoordinate(xz: Double): Int {
-        return getChunkCoordinate(Math.floor(xz).toInt())
+        return getChunkCoordinate(floor(xz).toInt())
     }
 }

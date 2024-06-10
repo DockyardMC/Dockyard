@@ -6,13 +6,7 @@ import io.github.dockyardmc.events.ServerStartEvent
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.motd.Players
-import io.github.dockyardmc.motd.ServerStatus
-import io.github.dockyardmc.motd.Version
-import io.github.dockyardmc.motd.toJson
 import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.player.kick.KickReason
-import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.plugins.PluginManager
 import io.github.dockyardmc.plugins.bundled.CoolParticles.CoolParticles
 import io.github.dockyardmc.plugins.bundled.DockyardCommands
@@ -20,13 +14,11 @@ import io.github.dockyardmc.plugins.bundled.DockyardExtras.DockyardExtras
 import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.PacketProcessor
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Console
 import io.github.dockyardmc.utils.Resources
-import io.github.dockyardmc.utils.VersionToProtocolVersion
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.bootstrap.ServerBootstrap
@@ -38,7 +30,6 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import log
-import java.io.File
 import java.util.*
 
 class DockyardServer(var port: Int) {
@@ -79,10 +70,6 @@ class DockyardServer(var port: Int) {
         if(versionInfo.dockyardVersion.toDouble() < 1) log("This is development build of DockyardMC. Things will break", LogType.WARNING)
 
         runPacketServer()
-    }
-
-    fun stop() {
-
     }
 
     private fun load() {

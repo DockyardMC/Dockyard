@@ -2,12 +2,6 @@ package io.github.dockyardmc.world.palette
 
 import java.util.function.IntUnaryOperator
 
-/**
- * Represents a palette used to store blocks and biomes.
- *
- *
- * 0 is the default value.
- */
 interface Palette {
     operator fun get(x: Int, y: Int, z: Int): Int
     fun getAll(consumer: EntryConsumer)
@@ -18,21 +12,12 @@ interface Palette {
     fun replace(x: Int, y: Int, z: Int, operator: IntUnaryOperator)
     fun replaceAll(function: EntryFunction)
 
-    /**
-     * Returns the number of entries in this palette.
-     */
     fun count(): Int
 
-    /**
-     * Returns the number of bits used per entry.
-     */
     fun bitsPerEntry(): Int
     fun maxBitsPerEntry(): Int
     fun dimension(): Int
 
-    /**
-     * Returns the maximum number of entries in this palette.
-     */
     fun maxSize(): Int {
         val dimension = dimension()
         return dimension * dimension * dimension

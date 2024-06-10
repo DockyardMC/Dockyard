@@ -3,6 +3,7 @@ package io.github.dockyardmc.blocks
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 
+//TODO Make this better this is pretty ugly, but idk where this info is actually stored in minecraft to make it data-driven
 object BlockDataHelper {
 
     fun isClickable(block: Block): Boolean {

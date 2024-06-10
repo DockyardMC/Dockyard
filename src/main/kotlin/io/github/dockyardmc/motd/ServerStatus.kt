@@ -23,7 +23,7 @@ val defaultMotd = ServerStatus(
         online = PlayerManager.players.size,
         sample = mutableListOf(),
     ),
-    description = "<rainbow|11|1.5f>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".toComponent(),
+    description = "<rainbow|11|1.4f>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".toComponent(),
     enforceSecureChat = false,
     previewsChat = false,
     favicon = "data:image/png;base64,$base64EncodedIcon"

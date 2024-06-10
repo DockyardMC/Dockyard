@@ -2,6 +2,7 @@ package io.github.dockyardmc.utils
 
 import io.netty.buffer.ByteBuf
 
+// I hate quaternions whoever invented this should think about themselves
 data class Quaternion(
     val x: Float,
     val y: Float,

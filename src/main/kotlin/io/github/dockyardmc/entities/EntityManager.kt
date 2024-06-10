@@ -9,6 +9,8 @@ object EntityManager {
     var entityIdCounter = AtomicInteger()
     val entities: MutableList<Entity> = mutableListOf()
 
+    //TODO Add way to have fully client-side entities
+
     fun World.spawnEntity(entity: Entity) {
         this@EntityManager.entities.add(entity)
         PlayerManager.players.forEach { loopPlayer ->

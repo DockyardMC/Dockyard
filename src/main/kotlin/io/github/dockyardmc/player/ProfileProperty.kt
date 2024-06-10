@@ -13,7 +13,6 @@ fun ByteBuf.writeProfileProperties(propertyMap: ProfilePropertyMap) {
     this.writeUtf(propertyMap.name)
     this.writeVarInt(propertyMap.properties.size)
 
-    // Properties
     propertyMap.properties.forEach {
         this.writeUtf(it.name)
         this.writeUtf(it.value)

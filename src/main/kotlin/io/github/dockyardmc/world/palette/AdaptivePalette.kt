@@ -7,9 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntSet
 import java.util.function.IntUnaryOperator
 
-/**
- * Palette that switches between its backend based on the use case.
- */
+//switches palette type depending on the use case
 internal class AdaptivePalette(var dimension: Byte, var maxBitsPerEntry: Byte, var bitsPerEntry: Byte) : Palette, Cloneable {
     val defaultBitsPerEntry: Byte
     var palette: SpecializedPalette
@@ -98,7 +96,7 @@ internal class AdaptivePalette(var dimension: Byte, var maxBitsPerEntry: Byte, v
                     )
                 }
                 val currentBitsPerEntry = currentPalette.bitsPerEntry()
-                var bitsPerEntry: Int = 0
+                var bitsPerEntry = 0
                 if (entries.size == 1) {
                     return FilledPalette(dimension, entries.iterator().nextInt())
                 } else if (currentBitsPerEntry > defaultBitsPerEntry &&
@@ -115,7 +113,7 @@ internal class AdaptivePalette(var dimension: Byte, var maxBitsPerEntry: Byte, v
     fun flexiblePalette(): Palette {
         var currentPalette = palette
         if (currentPalette is FilledPalette) {
-            val filledPalette = currentPalette as FilledPalette
+            val filledPalette = currentPalette
             currentPalette = FlexiblePalette(this)
             currentPalette.fill(filledPalette.value)
             palette = currentPalette

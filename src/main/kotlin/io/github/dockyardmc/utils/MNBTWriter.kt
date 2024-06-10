@@ -5,7 +5,7 @@ import org.jglrxavpok.hephaistos.nbt.*
 import java.io.IOException
 import java.io.OutputStream
 
-
+// yoinked from minestom cause mine didnt work and icba to figure it out lol
 fun ByteBuf.writeMSNBT(value: NBT) {
     val buffer = this
     val nbtWriter = NBTWriter(object : OutputStream() {

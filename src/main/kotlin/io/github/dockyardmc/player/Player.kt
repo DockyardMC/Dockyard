@@ -7,6 +7,7 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.Inventory
 import io.github.dockyardmc.inventory.ItemStack
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
@@ -42,7 +43,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
     var isFullyInitialized: Boolean = false
     var inventory: Inventory = Inventory()
     var gameMode: Bindable<GameMode> = Bindable(GameMode.ADVENTURE)
-    var flySpeed: Bindable<Float> = Bindable<Float>(0.05f)
+    var flySpeed: Bindable<Float> = Bindable<Float>(0.05f) // 0.05 is the default fly speed in vanilla minecraft
     var displayedSkinParts: BindableMutableList<DisplayedSkinPart> = BindableMutableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
 
     init {
@@ -79,7 +80,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
     }
 
     fun getHeldItem(hand: PlayerHand): ItemStack {
-        //TODO Offhand hand support
+        //TODO Add off-hand support
         return inventory.get(selectedHotbarSlot.value)
     }
 
@@ -93,6 +94,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
     }
 
     // Hold messages client receives before state is PLAY, then send them after state changes to PLAY
+    // TODO do this on packet level with all PLAY packets instead of just chat messages
     private var queuedMessages = mutableListOf<Pair<Component, Boolean>>()
     fun releaseMessagesQueue() {
         queuedMessages.forEach { sendSystemMessage(it.first, it.second) }
@@ -107,7 +109,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
     fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
     fun sendActionBar(component: Component) { sendSystemMessage(component, true) }
     private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
-        val processor = PlayerManager.playerToProcessorMap[this.uuid]
+        val processor = this.getProcessor()
         processor.let {
             if(processor!!.state != ProtocolState.PLAY) {
                 queuedMessages.add(Pair(component, isActionBar))
@@ -123,7 +125,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
 
     fun sendToViewers(packet: ClientboundPacket) {
         viewers.forEach { viewer ->
-            if(PlayerManager.playerToProcessorMap[viewer.uuid]!!.state != ProtocolState.PLAY) return@forEach
+            if(viewer.getProcessor()!!.state != ProtocolState.PLAY) return@forEach
             viewer.sendPacket(packet)
         }
     }
