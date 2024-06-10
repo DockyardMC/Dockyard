@@ -13,6 +13,7 @@ class DockyardExtras: DockyardPlugin {
     override fun load(server: DockyardServer) {
 
         SpawnEggImplementation()
+        JoinLeaveMessages().register()
 
     }
 

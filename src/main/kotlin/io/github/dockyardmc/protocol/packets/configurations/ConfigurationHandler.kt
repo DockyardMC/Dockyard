@@ -109,14 +109,27 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         connection.sendPacket(ClientboundRespawnPacket())
         connection.sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
         processor.player.isFullyInitialized = true
+
+        //TODO Send command completion packets
 //        connection.sendPacket(ClientboundCommandsPacket(mutableListOf(testCommand)))
+
+
         Events.dispatch(PlayerJoinEvent(processor.player))
 
+        // Make player visibile to all other players by default
+        PlayerManager.players.forEach { loopPlayer ->
+            if(loopPlayer.username == player.username) return@forEach
+            player.addViewer(loopPlayer)
+            loopPlayer.addViewer(player)
+        }
+
+        //TODO add multi-world support and send this stuff when joining world
 //        val worldBorder = player.world!!.worldBorder
 //        val worldBorderPacket = ClientboundInitializeWorldBorderPacket(worldBorder.diameter, worldBorder.diameter, 0, worldBorder.warningBlocks, worldBorder.warningTime)
 //        connection.sendPacket(worldBorderPacket)
 
 //        connection.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying = true, allowFlying = true))
+
 
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         connection.sendPacket(tickingStatePacket)
