@@ -2,10 +2,13 @@ package io.github.dockyardmc.plugins.bundled
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.ServerMetrics
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.plugins.DockyardPlugin
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.utils.MathUtils
 
 class MayaTestPlugin: DockyardPlugin {
@@ -24,6 +27,11 @@ class MayaTestPlugin: DockyardPlugin {
             val fMem = (memoryUsage.toDouble() / 1000000).truncate(1)
             val fMax = (runtime.totalMemory().toDouble() / 1000000).truncate(1)
             DockyardServer.broadcastActionBar("<white>MSPT: <lime>$mspt <dark_gray>| <white>Memory Usage: <#ff6830>$memUsagePercent% <gray>(${fMem}mb / ${fMax}mb)")
+        }
+
+        Events.on<PlayerJoinEvent> {
+            val packet = ClientboundEntityEffectPacket(it.player, 15, 1, 99999, 0x00)
+            it.player.sendPacket(packet)
         }
     }
 

@@ -120,6 +120,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
     }
 
     fun sendPacket(packet: ClientboundPacket) {
+        if(packet.state != this.getProcessor()!!.state) return
         connection.sendPacket(packet)
     }
 

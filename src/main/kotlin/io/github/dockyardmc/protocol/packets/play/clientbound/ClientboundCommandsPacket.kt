@@ -4,8 +4,9 @@ import io.github.dockyardmc.commands.CommandNode
 import io.github.dockyardmc.commands.writeCommandNode
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.packets.ProtocolState
 
-class ClientboundCommandsPacket(nodes: MutableList<CommandNode>): ClientboundPacket(0x11) {
+class ClientboundCommandsPacket(nodes: MutableList<CommandNode>): ClientboundPacket(0x11, ProtocolState.PLAY) {
 
     init {
         data.writeVarInt(nodes.size)

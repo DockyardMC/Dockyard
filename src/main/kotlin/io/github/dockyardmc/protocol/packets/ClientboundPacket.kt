@@ -4,7 +4,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 
-open class ClientboundPacket(val id: Int) {
+open class ClientboundPacket(val id: Int, val state: ProtocolState) {
 
     val data: ByteBuf = Unpooled.buffer()
 

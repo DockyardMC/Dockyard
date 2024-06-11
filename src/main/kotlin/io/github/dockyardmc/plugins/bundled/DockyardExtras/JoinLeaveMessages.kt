@@ -12,7 +12,6 @@ class JoinLeaveMessages {
             DockyardServer.broadcastMessage("<lime>→ <yellow>${it.player}")
         }
 
-
         Events.on<PlayerLeaveEvent> {
             DockyardServer.broadcastMessage("<red>← <yellow>${it.player}")
         }

@@ -1,9 +1,9 @@
 import java.io.IOException
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.serialization") version "1.9.22"
+    id("io.ktor.plugin") version "2.2.3"
     application
 }
 
@@ -48,6 +48,8 @@ dependencies {
     implementation("org.reflections:reflections:0.9.12")
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    implementation("com.akuleshov7:ktoml-core:0.5.1")
+    implementation("com.akuleshov7:ktoml-file:0.5.1")
 
 }
 

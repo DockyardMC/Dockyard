@@ -6,6 +6,7 @@ import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.location.writeLocationWithoutRot
 import io.github.dockyardmc.particles.ParticleData
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.registry.Particle
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.utils.Vector3f
@@ -19,7 +20,7 @@ class ClientboundSendParticlePacket(
     count: Int,
     longDistance: Boolean = false,
     particleData: ParticleData?
-): ClientboundPacket(0x27) {
+): ClientboundPacket(0x27, ProtocolState.PLAY) {
 
     init {
         if(particleData != null && particleData.id != particle.id) throw Exception("Particle data ${particleData::class.simpleName} is not valid for particle ${particle.namespace}")
