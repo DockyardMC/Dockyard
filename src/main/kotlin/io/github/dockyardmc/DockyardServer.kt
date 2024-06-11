@@ -1,5 +1,6 @@
 package io.github.dockyardmc
 
+import cz.lukynka.prettylog.LogType
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
@@ -33,7 +34,8 @@ import io.netty.channel.ChannelPipeline
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import log
+import cz.lukynka.prettylog.log
+import java.net.InetSocketAddress
 import java.util.*
 
 class DockyardServer(var port: Int) {
@@ -121,11 +123,11 @@ class DockyardServer(var port: Int) {
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-            log("DockyardMC server running on port $port", LogType.SUCCESS)
+            log("DockyardMC server running on ${ConfigManager.currentConfig.ip}:$port", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent(this))
             load()
 
-            val future = bootstrap.bind(port).sync()
+            val future = bootstrap.bind(InetSocketAddress(ConfigManager.currentConfig.ip, port)).sync()
             future.channel().closeFuture().sync()
         } finally {
             bossGroup.shutdownGracefully()

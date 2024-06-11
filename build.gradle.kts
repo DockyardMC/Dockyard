@@ -8,7 +8,7 @@ plugins {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("io.github.dockyardmc.MainKt")
 }
 
 val minecraftVersion = "1.20.4"
@@ -35,7 +35,7 @@ repositories {
 dependencies {
     implementation("io.ktor:ktor-server-netty:2.3.10")
     implementation("io.ktor:ktor-network:2.3.10")
-    implementation("cz.lukynka:pretty-log:1.3")
+    implementation("cz.lukynka:pretty-log:1.4")
     implementation("io.github.dockyardmc:scroll:1.4")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.0")
@@ -80,10 +80,6 @@ tasks {
     }
 }
 
-application {
-    mainClass.set("io.github.dockyard.MainKt")
-}
-
 tasks.register("generateVersionFile") {
     val outputDir = file("$buildDir/generated/resources/")
     val outputFile = file("$outputDir/dock.yard")
@@ -96,12 +92,6 @@ tasks.register("generateVersionFile") {
 
 tasks.named("processResources") {
     dependsOn("generateVersionFile")
-}
-
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = "io.github.dockyardmc.MainKt"
-    }
 }
 
 sourceSets["main"].resources.srcDir("$buildDir/generated/resources/")

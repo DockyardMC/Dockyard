@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
-import LogType
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
 import io.github.dockyardmc.events.*
@@ -15,7 +16,6 @@ import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.world.Difficulty
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
-import log
 
 class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(processor) {
 
@@ -59,7 +59,6 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
     }
 
     fun handleConfigurationFinishAcknowledge(packet: ServerboundFinishConfigurationAcknowledgePacket, connection: ChannelHandlerContext) {
-        log("Configuration Finish Acknowledged", LogType.SUCCESS)
         val player = processor.player
         processor.state = ProtocolState.PLAY
         processor.player.releaseMessagesQueue()

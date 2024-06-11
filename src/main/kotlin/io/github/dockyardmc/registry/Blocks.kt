@@ -1,5 +1,4 @@
 package io.github.dockyardmc.registry
-import LogType
 import io.github.dockyardmc.blocks.BlockDataHelper
 import io.github.dockyardmc.utils.Resources
 import kotlinx.serialization.decodeFromString
@@ -7,7 +6,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import log
 
 // THIS CLASS IS AUTO-GENERATED
 // DATA FROM MINECRAFT 1.20.4
@@ -16,7 +14,7 @@ import log
 object Blocks {
     val idToBlockMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
-        val blocks = json.decodeFromString<List<Block>>(Resources.getText("./data/blocks.json")).toMutableList()
+        val blocks = json.decodeFromString<List<Block>>(Resources.getFile("data/blocks.json")).toMutableList()
         blocks.associateBy { it.blockStateId }
     }
 

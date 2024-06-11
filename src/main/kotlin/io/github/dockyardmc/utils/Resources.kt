@@ -4,17 +4,19 @@ import org.jglrxavpok.hephaistos.parser.SNBTParser
 import java.io.File
 import java.io.FileReader
 import java.io.InputStream
+import java.io.StringReader
 
 object Resources {
 
-    val registry = SNBTParser(FileReader(getFile("registry.snbt"))).parse()
+    val registry = SNBTParser(StringReader(getFile("registry.snbt"))).parse()
 
-    fun getFile(path: String): File {
-        return File(ClassLoader.getSystemResource(path).file)
+    fun getFile(path: String): String {
+        return ClassLoader.getSystemResource(path).readText()
     }
 
+    @Deprecated("please use getFile()", ReplaceWith("getFile(path)", "io.github.dockyardmc.utils.Resources.getFile"))
     fun getText(path: String): String {
-        return getFile(path).readText()
+        return getFile(path)
     }
 
     private fun readVersion(): String {

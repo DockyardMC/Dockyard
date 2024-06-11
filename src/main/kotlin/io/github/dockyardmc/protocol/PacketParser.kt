@@ -2,11 +2,8 @@ package io.github.dockyardmc.protocol
 
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
-import io.ktor.server.engine.*
 import io.netty.buffer.ByteBuf
-import log
 import java.lang.Exception
-import kotlin.math.log
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.declaredMemberFunctions
@@ -27,7 +24,6 @@ object PacketParser {
 
             return readFunction.call(companionObject.objectInstance,  buffer) as ServerboundPacket
         } catch (ex: Exception) {
-            log(ex)
             return null
         }
     }

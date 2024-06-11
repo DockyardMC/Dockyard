@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.location.Location
@@ -9,7 +10,6 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
 import io.github.dockyardmc.utils.Vector2
 import io.netty.channel.ChannelHandlerContext
-import log
 
 class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
 

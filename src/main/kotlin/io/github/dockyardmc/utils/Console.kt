@@ -1,8 +1,9 @@
 package io.github.dockyardmc.utils
 
-import CustomLogType
+import cz.lukynka.prettylog.AnsiPair
+import cz.lukynka.prettylog.CustomLogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
-import log
 
 object Console {
     private val chatLog = CustomLogType("\uD83D\uDCAC Chat", AnsiPair.WHITE)

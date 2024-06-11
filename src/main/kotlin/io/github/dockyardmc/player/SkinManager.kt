@@ -1,14 +1,12 @@
 package io.github.dockyardmc.player
 
-import LogType
-import io.github.dockyardmc.DockyardServer
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.runnables.AsyncRunnable
-import io.github.dockyardmc.runnables.TickTimer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import log
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest

@@ -1,10 +1,11 @@
 package io.github.dockyardmc.config
 
 import com.akuleshov7.ktoml.Toml
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import log
 import java.io.File
 import java.lang.Exception
 
@@ -14,7 +15,8 @@ object ConfigManager {
         true,
         25565,
         20f,
-        true
+        true,
+        "0.0.0.0"
     )
 
     val configFile = File("./dockyard.toml")
@@ -47,5 +49,6 @@ data class DockyardConfig(
     val includeDockyardExtras: Boolean,
     val port: Int,
     val defaultTickRate: Float,
-    val keepAliveEnabled: Boolean
+    val keepAliveEnabled: Boolean,
+    val ip: String,
 )

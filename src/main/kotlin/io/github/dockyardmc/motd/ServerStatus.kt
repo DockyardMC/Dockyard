@@ -12,7 +12,8 @@ import kotlinx.serialization.json.JsonObject
 import java.io.File
 import java.util.*
 
-val base64EncodedIcon = Base64.getEncoder().encode(File("./icon.png").readBytes()).decodeToString()
+private val iconFile = File("./icon.png")
+val base64EncodedIcon = if(iconFile.exists()) Base64.getEncoder().encode(File("./icon.png").readBytes()).decodeToString() else ""
 val defaultMotd = ServerStatus(
     version = Version(
         name = DockyardServer.versionInfo.minecraftVersion,

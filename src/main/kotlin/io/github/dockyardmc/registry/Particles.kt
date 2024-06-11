@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 object Particles {
     private val idToParticleMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
-        val particles = json.decodeFromString<MutableList<Particle>>(Resources.getText("./data/particles.json"))
+        val particles = json.decodeFromString<MutableList<Particle>>(Resources.getText("data/particles.json"))
         particles.associateBy { it.id }
     }
     fun getParticleById(id: Int): Particle {

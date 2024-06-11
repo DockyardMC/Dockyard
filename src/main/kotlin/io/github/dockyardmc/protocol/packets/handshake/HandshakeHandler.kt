@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.handshake
 
-import LogType
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerListPingEvent
@@ -12,7 +13,6 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
-import log
 import java.io.File
 import java.time.Instant
 import java.util.*

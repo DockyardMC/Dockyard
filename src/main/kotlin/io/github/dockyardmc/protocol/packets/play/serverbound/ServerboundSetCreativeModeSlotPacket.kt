@@ -1,5 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.inventory.ItemStack
@@ -12,7 +14,6 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import log
 
 @ServerboundPacketInfo(47, ProtocolState.PLAY)
 class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: TempItemStack): ServerboundPacket {
