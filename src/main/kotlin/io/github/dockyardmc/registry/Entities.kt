@@ -15,7 +15,7 @@ import kotlinx.serialization.Transient
 object Entities {
     private val idToEntityMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
-        val entities = json.decodeFromString<List<EntityType>>(Resources.getText("./data/entities.json"))
+        val entities = json.decodeFromString<List<EntityType>>(Resources.getText("data/entities.json"))
         entities.associateBy { it.id }
     }
     fun getEntityById(id: Int): EntityType {

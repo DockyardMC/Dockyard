@@ -1,9 +1,9 @@
 package io.github.dockyardmc.plugins
 
-import LogType
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.Main
 import io.github.dockyardmc.commands.Commands
-import log
 import java.io.File
 
 object PluginManager {

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol
 
-import LogType
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.TCP
 import io.github.dockyardmc.events.Events
@@ -21,7 +22,6 @@ import io.ktor.util.network.*
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
-import log
 
 class PacketProcessor : ChannelInboundHandlerAdapter() {
 
@@ -65,8 +65,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
 
                 if (packetId == 16 && state == ProtocolState.PLAY) {
-                    val channel = buf.readUtf()
-                    log("Ignoring custom payload packet for $channel", LogType.WARNING)
+                    log("Ignoring custom payload packet", LogType.WARNING)
                     buf.discardReadBytes()
                     break
                 }
@@ -97,8 +96,6 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                         buf.discardReadBytes()
                         break
                     }
-
-
                     event.packet.handle(this, event.connection, event.size, event.id)
                 } finally {
                     packetData.release()

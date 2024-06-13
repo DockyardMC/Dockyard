@@ -1,9 +1,8 @@
 package io.github.dockyardmc.runnables
 
-import LogType
-import log
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import java.util.Timer
-import kotlin.concurrent.schedule
 import kotlin.concurrent.scheduleAtFixedRate
 
 class RepeatingTimerAsync(var milliseconds: Long, var action: () -> Unit) {

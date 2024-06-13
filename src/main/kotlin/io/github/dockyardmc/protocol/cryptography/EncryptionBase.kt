@@ -2,7 +2,6 @@ package io.github.dockyardmc.protocol.cryptography
 
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import log
 import javax.crypto.Cipher
 
 class EncryptionBase(private val cipher: Cipher) {

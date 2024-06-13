@@ -1,5 +1,7 @@
 package io.github.dockyardmc.player
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.entities.*
@@ -46,6 +48,9 @@ class Player(val username: String, override var entityId: Int, override var uuid
     var flySpeed: Bindable<Float> = Bindable<Float>(0.05f) // 0.05 is the default fly speed in vanilla minecraft
     var displayedSkinParts: BindableMutableList<DisplayedSkinPart> = BindableMutableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
 
+    //for debugging
+    lateinit var lastSentPacket: ClientboundPacket
+
     init {
         selectedHotbarSlot.valueChanged { this.sendPacket(ClientboundSetHeldItemPacket(it.newValue)) }
         isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, canBeDamaged, canFly.value, flySpeed.value)) }
@@ -67,16 +72,16 @@ class Player(val username: String, override var entityId: Int, override var uuid
     }
 
     override fun addViewer(player: Player) {
-        val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(infoUpdatePacket)))
-
-        super.addViewer(player)
-
-        val packetIn = ClientboundEntityMetadataPacket(player)
-        this.sendPacket(packetIn)
-
-        val packetOut = ClientboundEntityMetadataPacket(this)
-        player.sendPacket(packetOut)
+//        val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
+//        player.sendPacket(ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(infoUpdatePacket)))
+//
+//        super.addViewer(player)
+//
+//        val packetIn = ClientboundEntityMetadataPacket(player)
+//        this.sendPacket(packetIn)
+//
+//        val packetOut = ClientboundEntityMetadataPacket(this)
+//        player.sendPacket(packetOut)
     }
 
     fun getHeldItem(hand: PlayerHand): ItemStack {
@@ -115,12 +120,15 @@ class Player(val username: String, override var entityId: Int, override var uuid
                 queuedMessages.add(Pair(component, isActionBar))
                 return
             }
-            connection.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))
+//            connection.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))
         }
     }
 
     fun sendPacket(packet: ClientboundPacket) {
+        if(packet.state != this.getProcessor()!!.state) return
         connection.sendPacket(packet)
+        lastSentPacket = packet
+        log("<- Sent ${packet::class.simpleName} to ${this.username}", LogType.NETWORK)
     }
 
     fun sendToViewers(packet: ClientboundPacket) {

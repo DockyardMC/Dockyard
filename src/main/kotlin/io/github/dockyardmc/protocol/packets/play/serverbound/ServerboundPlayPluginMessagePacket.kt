@@ -8,7 +8,6 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import log
 
 @ServerboundPacketInfo(16, ProtocolState.PLAY)
 class ServerboundPlayPluginMessagePacket(val channel: String, val data: ByteArray): ServerboundPacket {

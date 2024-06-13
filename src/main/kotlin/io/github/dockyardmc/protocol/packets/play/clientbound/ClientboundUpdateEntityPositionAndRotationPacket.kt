@@ -4,9 +4,10 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.utils.MathUtils
 
-class ClientboundUpdateEntityPositionAndRotationPacket(val entity: Entity, previousLocation: Location): ClientboundPacket(0x2D) {
+class ClientboundUpdateEntityPositionAndRotationPacket(val entity: Entity, previousLocation: Location): ClientboundPacket(0x2D, ProtocolState.PLAY) {
 
     init {
         val current = entity.location

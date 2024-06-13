@@ -1,5 +1,7 @@
 package io.github.dockyardmc
 
+import cz.lukynka.prettylog.LogType
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.ServerStartEvent
@@ -7,6 +9,8 @@ import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.player.kick.KickReason
+import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.plugins.PluginManager
 import io.github.dockyardmc.plugins.bundled.CoolParticles.CoolParticles
 import io.github.dockyardmc.plugins.bundled.DockyardCommands
@@ -14,6 +18,7 @@ import io.github.dockyardmc.plugins.bundled.DockyardExtras.DockyardExtras
 import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -29,7 +34,8 @@ import io.netty.channel.ChannelPipeline
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import log
+import cz.lukynka.prettylog.log
+import java.net.InetSocketAddress
 import java.util.*
 
 class DockyardServer(var port: Int) {
@@ -48,20 +54,21 @@ class DockyardServer(var port: Int) {
     }
 
     //TODO rewrite and make good
-//    var keepAliveId = 0L
-//    val keepAlivePacketTimer = RepeatingTimerAsync(5000) {
-//        PlayerManager.players.forEach {
-//            it.connection.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
-//            val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
-//            if(!processor.respondedToLastKeepAlive) {
-//                log("$it failed to respond to keep alive", LogType.WARNING)
-//                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
-//                return@forEach
-//            }
-//            processor.respondedToLastKeepAlive = false
-//        }
-//        keepAliveId++
-//    }
+    var keepAliveId = 0L
+    val keepAlivePacketTimer = RepeatingTimerAsync(5000) {
+        if(!ConfigManager.currentConfig.keepAliveEnabled) return@RepeatingTimerAsync
+        PlayerManager.players.forEach {
+            it.connection.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
+            val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
+            if(!processor.respondedToLastKeepAlive) {
+                log("$it failed to respond to keep alive", LogType.WARNING)
+                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
+                return@forEach
+            }
+            processor.respondedToLastKeepAlive = false
+        }
+        keepAliveId++
+    }
 
     fun start() {
         versionInfo = Resources.getDockyardVersion()
@@ -116,11 +123,11 @@ class DockyardServer(var port: Int) {
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-            log("DockyardMC server running on port $port", LogType.SUCCESS)
+            log("DockyardMC server running on ${ConfigManager.currentConfig.ip}:$port", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent(this))
             load()
 
-            val future = bootstrap.bind(port).sync()
+            val future = bootstrap.bind(InetSocketAddress(ConfigManager.currentConfig.ip, port)).sync()
             future.channel().closeFuture().sync()
         } finally {
             bossGroup.shutdownGracefully()
@@ -136,7 +143,7 @@ class DockyardServer(var port: Int) {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         var allowAnyVersion: Boolean = false
 
-        var tickRate: Float = 20f
+        var tickRate: Float = ConfigManager.currentConfig.defaultTickRate
 
         var mutePacketLogs = mutableListOf(
             "ClientboundSystemChatMessagePacket",

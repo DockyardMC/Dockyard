@@ -3,6 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.packets.ProtocolState
 
 class ClientboundRespawnPacket(
 //    val dimensionType: String,
@@ -17,7 +18,7 @@ class ClientboundRespawnPacket(
     //null
     //0 (int)
     //data kept (byte)
-): ClientboundPacket(69) {
+): ClientboundPacket(69, ProtocolState.PLAY) { //nice
     init {
         data.writeUtf("minecraft:overworld")
         data.writeUtf("world")

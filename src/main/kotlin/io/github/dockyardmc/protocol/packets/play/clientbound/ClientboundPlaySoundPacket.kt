@@ -3,11 +3,11 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.extentions.writeVarIntEnum
-import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.sounds.Sound
 
-class ClientboundPlaySoundPacket(sound: Sound): ClientboundPacket(0x66) {
+class ClientboundPlaySoundPacket(sound: Sound): ClientboundPacket(0x66, ProtocolState.PLAY) {
 
     init {
         data.writeVarInt(0)

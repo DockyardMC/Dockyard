@@ -1,12 +1,12 @@
 package io.github.dockyardmc.extentions
 
-import LogType
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketSentEvent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.netty.channel.ChannelHandlerContext
-import log
 
 fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket) {
 
@@ -18,5 +18,4 @@ fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket) {
 
     val className = packet::class.simpleName
     if(DockyardServer.mutePacketLogs.contains(className)) return
-    log("<- Sent $className", LogType.NETWORK)
 }

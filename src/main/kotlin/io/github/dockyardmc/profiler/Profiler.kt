@@ -1,8 +1,9 @@
 package io.github.dockyardmc.profiler
 
-import CustomLogType
-import LogType
-import log
+import cz.lukynka.prettylog.AnsiPair
+import cz.lukynka.prettylog.CustomLogType
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import java.time.Instant
 
 class Profiler {

@@ -4,8 +4,9 @@ import io.github.dockyardmc.FeatureFlag
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.packets.ProtocolState
 
-class ClientboundFeatureFlagsPacket(featureFlags: MutableList<FeatureFlag>): ClientboundPacket(8) {
+class ClientboundFeatureFlagsPacket(featureFlags: MutableList<FeatureFlag>): ClientboundPacket(8, ProtocolState.CONFIGURATION) {
 
     init {
         data.writeVarInt(featureFlags.size)

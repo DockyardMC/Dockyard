@@ -5,8 +5,9 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.packets.ProtocolState
 
-class ClientboundEntityTeleportPacket(entity: Entity, location: Location): ClientboundPacket(0x6D) {
+class ClientboundEntityTeleportPacket(entity: Entity, location: Location): ClientboundPacket(0x6D, ProtocolState.PLAY) {
 
     constructor(entity: Entity) : this(entity, entity.location)
 

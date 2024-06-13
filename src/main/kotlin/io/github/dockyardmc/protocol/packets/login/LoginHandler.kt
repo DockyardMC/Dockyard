@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.login
 
-import LogType
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.extentions.reversed
@@ -20,7 +21,6 @@ import io.github.dockyardmc.utils.VersionToProtocolVersion
 import io.github.dockyardmc.world.WorldManager
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
-import log
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import javax.crypto.Cipher
@@ -92,13 +92,10 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
         if(!verifyToken.contentEquals(processor.player.crypto.verifyToken)) log("Verify Token of player ${processor.player.username} does not match!", LogType.ERROR)
 
-        log("Shared Secret: ${sharedSecret.toHexString()}", LogType.DEBUG)
-        log("Verify Token: ${verifyToken.toHexString()} (MATCHES)", LogType.DEBUG)
 
         processor.player.crypto.sharedSecret = SecretKeySpec(sharedSecret, "AES")
         processor.player.crypto.isConnectionEncrypted = true
         processor.encrypted = true
-        log("Encryption Enabled", LogType.SUCCESS)
 
         val pipeline = connection.channel().pipeline()
         pipeline.addBefore("processor", "decryptor", PacketDecryptionHandler(processor.player.crypto))

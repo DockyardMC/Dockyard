@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 object Biomes {
     private val idToBiomeMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
-        val biomes = json.decodeFromString<BiomesSerializable>(Resources.getText("./data/biomes.json")).biomeList.value
+        val biomes = json.decodeFromString<BiomesSerializable>(Resources.getText("data/biomes.json")).biomeList.value
         biomes.associateBy { it.id }
     }
     fun getBiomeById(id: Int): Biome {

@@ -7,7 +7,6 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import log
 
 @ServerboundPacketInfo(1, ProtocolState.CONFIGURATION)
 class ServerboundPluginMessagePacket(var channel: String, var data: String): ServerboundPacket {

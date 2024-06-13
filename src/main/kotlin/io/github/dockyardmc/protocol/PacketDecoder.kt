@@ -1,12 +1,12 @@
 @file:OptIn(ExperimentalStdlibApi::class)
 package io.github.dockyardmc.protocol
 
-import LogType
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.protocol.packets.UnprocessedPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import log
 
 @OptIn(ExperimentalStdlibApi::class)
 object PacketDecoder {

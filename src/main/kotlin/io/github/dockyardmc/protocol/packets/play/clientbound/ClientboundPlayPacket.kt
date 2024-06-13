@@ -5,6 +5,7 @@ import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.packets.ProtocolState
 
 class ClientboundPlayPacket(
     entityId: Int,
@@ -24,7 +25,7 @@ class ClientboundPlayPacket(
     isDebug: Boolean,
     isFlat: Boolean,
     portalCooldown: Int,
-): ClientboundPacket(0x29) {
+): ClientboundPacket(0x29, ProtocolState.PLAY) {
 
     init {
         data.writeInt(entityId)
