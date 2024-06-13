@@ -77,7 +77,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         }
         asyncRunnable.execute()
 
-        val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken)
+        val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken, true)
         connection.sendPacket(out)
     }
 

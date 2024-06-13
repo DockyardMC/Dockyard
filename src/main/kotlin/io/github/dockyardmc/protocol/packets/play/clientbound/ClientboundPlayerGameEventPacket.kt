@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
-class ClientboundPlayerGameEventPacket(event: GameEvent, value: Float): ClientboundPacket(0x20, ProtocolState.PLAY) {
+class ClientboundPlayerGamceEventPacket(event: GameEvent, value: Float): ClientboundPacket(0x22, ProtocolState.PLAY) {
 
     init {
         data.writeByte(event.ordinal)

@@ -18,4 +18,5 @@ fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket) {
 
     val className = packet::class.simpleName
     if(DockyardServer.mutePacketLogs.contains(className)) return
+    log("<- Sent ${packet::class.simpleName} (${packet.id})", LogType.NETWORK)
 }

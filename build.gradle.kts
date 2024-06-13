@@ -7,7 +7,7 @@ plugins {
     application
 }
 
-val minecraftVersion = "1.20.4"
+val minecraftVersion = "1.21"
 val dockyardVersion = properties["dockyard.version"]!!
 val gitBranch = "git rev-parse --abbrev-ref HEAD".runCommand()
 val gitCommit = "git rev-parse --short=8 HEAD".runCommand()
@@ -48,7 +48,7 @@ dependencies {
 
     // Logging
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
-    implementation("cz.lukynka:pretty-log:1.3")
+    implementation("cz.lukynka:pretty-log:1.4")
 
     // Other
     implementation("org.reflections:reflections:0.9.12")
@@ -78,7 +78,7 @@ fun String.runCommand(
     }
 
 task("generateVersionFile") {
-    val outputDir = file("${layout.buildDirectory}/generated/resources/")
+    val outputDir = file("$buildDir/generated/resources/")
     val outputFile = file("$outputDir/dock.yard")
     outputs.file(outputFile)
 
@@ -92,4 +92,4 @@ tasks.processResources {
     dependsOn("generateVersionFile")
 }
 
-sourceSets["main"].resources.srcDir("${layout.buildDirectory}/generated/resources/")
+sourceSets["main"].resources.srcDir("${buildDir}/generated/resources/")

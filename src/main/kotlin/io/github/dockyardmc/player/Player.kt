@@ -128,7 +128,6 @@ class Player(val username: String, override var entityId: Int, override var uuid
         if(packet.state != this.getProcessor()!!.state) return
         connection.sendPacket(packet)
         lastSentPacket = packet
-        log("<- Sent ${packet::class.simpleName} to ${this.username}", LogType.NETWORK)
     }
 
     fun sendToViewers(packet: ClientboundPacket) {

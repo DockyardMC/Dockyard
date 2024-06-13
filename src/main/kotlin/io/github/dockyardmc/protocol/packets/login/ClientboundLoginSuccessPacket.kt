@@ -12,7 +12,7 @@ class ClientboundLoginSuccessPacket(uuid: UUID, username: String, properties: Mu
         data.writeUUID(uuid)
         data.writeUtf(username)
         data.writeVarInt(0)
-
+        data.writeBoolean(false)
 //        properties.forEach(data::writeProfileProperties)
     }
 }

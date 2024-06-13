@@ -5,11 +5,12 @@ import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
-class ClientboundEncryptionRequestPacket(serverID: String, pubKey: ByteArray, verToken: ByteArray): ClientboundPacket(1, ProtocolState.LOGIN) {
+class ClientboundEncryptionRequestPacket(serverID: String, pubKey: ByteArray, verToken: ByteArray, shouldAuthenticate: Boolean): ClientboundPacket(1, ProtocolState.LOGIN) {
 
     init {
         data.writeUtf(serverID)
         data.writeByteArray(pubKey)
         data.writeByteArray(verToken)
+        data.writeBoolean(shouldAuthenticate)
     }
 }
