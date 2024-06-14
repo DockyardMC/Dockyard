@@ -1,11 +1,16 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
-class ClientboundPlayerInfoUpdatePacket(action: Int, updates: MutableList<PlayerInfoUpdate>): ClientboundPacket(0x3C, ProtocolState.PLAY) {
+@WikiVGEntry("Player Info Update")
+class ClientboundPlayerInfoUpdatePacket(
+    action: Int,
+    updates: MutableList<PlayerInfoUpdate>,
+): ClientboundPacket(0x3E, ProtocolState.PLAY) {
 
     init {
         data.writeByte(action)

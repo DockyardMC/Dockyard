@@ -41,6 +41,7 @@ dependencies {
     implementation("io.github.jglrxavpok.hephaistos:common:2.2.0")
     implementation("io.github.jglrxavpok.hephaistos:gson:2.2.0")
     implementation("io.github.dockyardmc:scroll:1.4")
+    implementation("io.github.dockyardmc:wikivg-datagen:1.0")
 
     // Networking
     implementation("io.ktor:ktor-server-netty:2.3.10")

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeStringArray
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
@@ -7,7 +8,8 @@ import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
-class ClientboundPlayPacket(
+@WikiVGEntry("Login (player)")
+class ClientboundLoginPlayPacket(
     entityId: Int,
     isHardcore: Boolean,
     dimensionNames: MutableList<String>,
@@ -25,7 +27,7 @@ class ClientboundPlayPacket(
     isDebug: Boolean,
     isFlat: Boolean,
     portalCooldown: Int,
-): ClientboundPacket(0x29, ProtocolState.PLAY) {
+): ClientboundPacket(0x2B, ProtocolState.PLAY) {
 
     init {
         data.writeInt(entityId)
@@ -50,5 +52,6 @@ class ClientboundPlayPacket(
 //        data.writePosition(Location(0, 0, 0)) // death location
 
         data.writeVarInt(portalCooldown)
+        data.writeBoolean(false)
     }
 }

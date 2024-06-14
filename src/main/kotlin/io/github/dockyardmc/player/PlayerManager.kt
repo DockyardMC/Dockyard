@@ -15,8 +15,8 @@ object PlayerManager {
     val playerToProcessorMap = mutableMapOf<UUID, PacketProcessor>()
     val playerToEntityIdMap = mutableMapOf<Int, Player>()
 
-    fun Player.getProcessor(): PacketProcessor? {
-        return playerToProcessorMap[this.uuid]
+    fun Player.getProcessor(): PacketProcessor {
+        return playerToProcessorMap[this.uuid]!!
     }
 
     fun add(player: Player, processor: PacketProcessor) {
@@ -28,6 +28,7 @@ object PlayerManager {
     }
 
     fun remove(player: Player) {
+        player.isConnected = false
         player.viewers.toMutableList().forEach { player.removeViewer(it, true); it.removeViewer(player, true) }
 
         players.remove(player)

@@ -5,10 +5,12 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketSentEvent
+import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.netty.channel.ChannelHandlerContext
 
-fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket) {
+fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket, player: Player? = null) {
 
     val event = PacketSentEvent(packet, this)
     Events.dispatch(event)
@@ -18,5 +20,9 @@ fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket) {
 
     val className = packet::class.simpleName
     if(DockyardServer.mutePacketLogs.contains(className)) return
-    log("<- Sent ${packet::class.simpleName} (${packet.id})", LogType.NETWORK)
+    var message = "<- Sent ${packet::class.simpleName}"
+    if(player != null) message += " to $player [${player.getProcessor().state}]"
+
+    message += " (id: ${packet.id})"
+    log(message, LogType.NETWORK)
 }

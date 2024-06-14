@@ -1,9 +1,14 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
-class ClientboundPlayerGameEventPacket(event: GameEvent, value: Float): ClientboundPacket(0x22, ProtocolState.PLAY) {
+@WikiVGEntry("Game Event")
+class ClientboundPlayerGameEventPacket(
+    event: GameEvent,
+    value: Float,
+): ClientboundPacket(0x22, ProtocolState.PLAY) {
 
     init {
         data.writeByte(event.ordinal)

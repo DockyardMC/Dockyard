@@ -3,6 +3,7 @@ package io.github.dockyardmc.protocol.packets.login
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.readUUID
 import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.protocol.PacketProcessor
@@ -12,7 +13,8 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import java.util.UUID
 
-@ServerboundPacketInfo(0, ProtocolState.LOGIN)
+@WikiVGEntry("Login Start")
+@ServerboundPacketInfo(0x00, ProtocolState.LOGIN)
 class ServerboundLoginStartPacket(val name: String, val uuid: UUID): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

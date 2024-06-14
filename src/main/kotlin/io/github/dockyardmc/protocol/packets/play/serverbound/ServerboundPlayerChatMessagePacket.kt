@@ -2,6 +2,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerChatMessageEvent
 import io.github.dockyardmc.extentions.*
@@ -11,7 +12,8 @@ import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-@ServerboundPacketInfo(5, ProtocolState.PLAY)
+@WikiVGEntry("Chat Message")
+@ServerboundPacketInfo(6, ProtocolState.PLAY)
 class ServerboundPlayerChatMessagePacket(var message: String): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.blocks.GeneralBlockPlacementRules
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockInteractEvent
@@ -20,7 +21,8 @@ import io.github.dockyardmc.utils.toLocation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-@ServerboundPacketInfo(53, ProtocolState.PLAY)
+@WikiVGEntry("Use Item On")
+@ServerboundPacketInfo(56, ProtocolState.PLAY)
 class ServerboundUseItemOnPacket(
     var hand: PlayerHand,
     var pos: Vector3,

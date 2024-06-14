@@ -6,6 +6,7 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.AnnotationProcessor
 import io.github.dockyardmc.config.ConfigManager
+import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.protocol.PacketParser
 
 val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
@@ -15,6 +16,12 @@ object Main {
 }
 
 fun main(args: Array<String>) {
+
+    if(args.contains("validate-packets")) {
+        VerifyPacketIds()
+        return
+    }
+
     //ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED)
     var argsString = ""
     args.forEach { argsString += it }

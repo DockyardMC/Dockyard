@@ -5,7 +5,13 @@ import io.github.dockyardmc.extentions.writeVarLong
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
-class ClientboundInitializeWorldBorderPacket(oldDiameter: Double, newDiameter: Double, speed: Long, warningBlocks: Int, warningTime: Int): ClientboundPacket(0x23, ProtocolState.PLAY) {
+class ClientboundInitializeWorldBorderPacket(
+    oldDiameter: Double,
+    newDiameter: Double,
+    speed: Long,
+    warningBlocks: Int,
+    warningTime: Int,
+): ClientboundPacket(0x25, ProtocolState.PLAY) {
 
     init {
         data.writeDouble(10.0)

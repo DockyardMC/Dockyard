@@ -1,11 +1,13 @@
 package io.github.dockyardmc.protocol.packets.login
 
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeByteArray
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
-class ClientboundEncryptionRequestPacket(serverID: String, pubKey: ByteArray, verToken: ByteArray, shouldAuthenticate: Boolean): ClientboundPacket(1, ProtocolState.LOGIN) {
+@WikiVGEntry("Encryption Request")
+class ClientboundEncryptionRequestPacket(serverID: String, pubKey: ByteArray, verToken: ByteArray, shouldAuthenticate: Boolean): ClientboundPacket(0x01, ProtocolState.LOGIN) {
 
     init {
         data.writeUtf(serverID)

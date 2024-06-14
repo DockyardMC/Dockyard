@@ -110,8 +110,8 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         list.add(texturesPropertyMap)
         player.profile = texturesPropertyMap
 
-        connection.sendPacket(ClientboundLoginCompressionPacket())
-        connection.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, list))
+        player.sendPacket(ClientboundSetCompressionPacket(-1))
+        player.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, list))
     }
 
     fun handleLoginAcknowledge(packet: ServerboundLoginAcknowledgedPacket, connection: ChannelHandlerContext) {

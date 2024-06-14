@@ -2,6 +2,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.Events
@@ -19,7 +20,8 @@ import io.github.dockyardmc.utils.Vector3f
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-@ServerboundPacketInfo(19, ProtocolState.PLAY)
+@WikiVGEntry("Interact")
+@ServerboundPacketInfo(22, ProtocolState.PLAY)
 class ServerboundEntityInteractPacket(
     val entity: Entity,
     val interactionType: EntityInteractionType,

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.extentions.readVarInt
@@ -16,7 +17,8 @@ import io.netty.channel.ChannelHandlerContext
 // Note: Do not confuse with io.github.dockyardmc.commands packets, this is packet that
 // describes actions of player (if they are sneaking, sprinting etc.)
 // idk why they named it "player command" packet, im just following the standard
-@ServerboundPacketInfo(34, ProtocolState.PLAY)
+@WikiVGEntry("Player Command")
+@ServerboundPacketInfo(37, ProtocolState.PLAY)
 class ServerboundPlayerCommandPacket(val entityId: Int, val action: PlayerAction): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

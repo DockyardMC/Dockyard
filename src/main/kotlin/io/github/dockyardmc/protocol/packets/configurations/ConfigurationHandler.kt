@@ -1,7 +1,5 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
 import io.github.dockyardmc.events.*
@@ -10,9 +8,8 @@ import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.protocol.packets.login.ClientboundChangeDifficultyPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChangeDifficultyPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.world.Difficulty
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
@@ -34,8 +31,20 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         Events.dispatch(featureFlagsEvent)
         connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags))
 
-        val registryDataPacket = ClientboundRegistryDataPacket(Resources.registry)
-        connection.sendPacket(registryDataPacket)
+//        val registryDataPacket = ClientboundRegistryDataPacket(Resources.registry)
+//        connection.sendPacket(registryDataPacket)
+
+        val list = mutableListOf(
+            KnownPack("minecraft:trim_material", "0", "1.21"),
+            KnownPack("minecraft:banner_pattern", "1", "1.21"),
+            KnownPack("minecraft:worldgen/biome", "2", "1.21"),
+            KnownPack("minecraft:chat_type", "3", "1.21"),
+            KnownPack("minecraft:damage_type", "4", "1.21"),
+            KnownPack("minecraft:dimension_type", "5", "1.21"),
+        )
+
+        val knownPacksPackets = ClientboundKnownPacksPackets(list)
+        connection.sendPacket(knownPacksPackets)
 
         val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
         connection.sendPacket(finishConfigurationPacket)
@@ -68,7 +77,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         player.gameMode.value = GameMode.CREATIVE
 
-        val playPacket = ClientboundPlayPacket(
+        val playPacket = ClientboundLoginPlayPacket(
             player.entityId,
             false,
             WorldManager.worlds.map { it.name }.toMutableList(),
@@ -88,25 +97,25 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             0
         )
 
-        connection.sendPacket(playPacket)
+        player.sendPacket(playPacket)
 
         val difficultyPacket = ClientboundChangeDifficultyPacket(Difficulty.PEACEFUL, false)
-        connection.sendPacket(difficultyPacket)
+        player.sendPacket(difficultyPacket)
 
         val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
-        connection.sendPacket(chunkCenterChunkPacket)
+        player.sendPacket(chunkCenterChunkPacket)
 
         val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
-        connection.sendPacket(gameEventPacket)
+        player.sendPacket(gameEventPacket)
 
         processor.player.world.chunks.forEach {
-            connection.sendPacket(it.packet)
+            player.sendPacket(it.packet)
         }
 
         processor.player.location = world.defaultSpawnLocation
 
-        connection.sendPacket(ClientboundRespawnPacket())
-        connection.sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
+        player.sendPacket(ClientboundRespawnPacket())
+        player.sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
         processor.player.isFullyInitialized = true
 
         //TODO Send command completion packets
@@ -131,7 +140,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
 
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
-        connection.sendPacket(tickingStatePacket)
+        player.sendPacket(tickingStatePacket)
 
         SkinManager.updateSkinOf(player)
     }

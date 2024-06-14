@@ -1,7 +1,5 @@
 package io.github.dockyardmc.player
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.entities.*
@@ -47,6 +45,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
     var gameMode: Bindable<GameMode> = Bindable(GameMode.ADVENTURE)
     var flySpeed: Bindable<Float> = Bindable<Float>(0.05f) // 0.05 is the default fly speed in vanilla minecraft
     var displayedSkinParts: BindableMutableList<DisplayedSkinPart> = BindableMutableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
+    var isConnected: Boolean = true
 
     //for debugging
     lateinit var lastSentPacket: ClientboundPacket
@@ -56,7 +55,9 @@ class Player(val username: String, override var entityId: Int, override var uuid
         isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, canBeDamaged, canFly.value, flySpeed.value)) }
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, canBeDamaged, it.newValue, flySpeed.value)) }
         flySpeed.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, canBeDamaged, canFly.value, it.newValue)) }
-        gameMode.valueChanged { this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat())) }
+
+        //TODO Fix
+//        gameMode.valueChanged { this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat())) }
 
         pose.valueChanged {
             metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
@@ -99,7 +100,6 @@ class Player(val username: String, override var entityId: Int, override var uuid
     }
 
     // Hold messages client receives before state is PLAY, then send them after state changes to PLAY
-    // TODO do this on packet level with all PLAY packets instead of just chat messages
     private var queuedMessages = mutableListOf<Pair<Component, Boolean>>()
     fun releaseMessagesQueue() {
         queuedMessages.forEach { sendSystemMessage(it.first, it.second) }
@@ -114,25 +114,26 @@ class Player(val username: String, override var entityId: Int, override var uuid
     fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
     fun sendActionBar(component: Component) { sendSystemMessage(component, true) }
     private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
+        if(!isConnected) return
         val processor = this.getProcessor()
         processor.let {
-            if(processor!!.state != ProtocolState.PLAY) {
+            if(processor.state != ProtocolState.PLAY) {
                 queuedMessages.add(Pair(component, isActionBar))
                 return
             }
-//            connection.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))
         }
     }
 
     fun sendPacket(packet: ClientboundPacket) {
-        if(packet.state != this.getProcessor()!!.state) return
-        connection.sendPacket(packet)
+        if(!isConnected) return
+        if(packet.state != this.getProcessor().state) return
+        connection.sendPacket(packet, this)
         lastSentPacket = packet
     }
 
     fun sendToViewers(packet: ClientboundPacket) {
         viewers.forEach { viewer ->
-            if(viewer.getProcessor()!!.state != ProtocolState.PLAY) return@forEach
+            if(viewer.getProcessor().state != ProtocolState.PLAY) return@forEach
             viewer.sendPacket(packet)
         }
     }

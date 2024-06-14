@@ -1,19 +1,19 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
+@WikiVGEntry("Entity Effect")
 class ClientboundEntityEffectPacket(
-    val entity: Entity,
-    val effectId: Int, //TODO Make list
-    val amplifier: Int,
-    val duration: Int,
-    val flags: Int,
-//    val hasFactorData: Boolean,
-//    val factorCodec: NBT
-): ClientboundPacket(0x72, ProtocolState.PLAY) {
+    entity: Entity,
+    effectId: Int, //TODO Make list
+    amplifier: Int,
+    duration: Int,
+    flags: Int,
+): ClientboundPacket(0x76, ProtocolState.PLAY) {
 
     init {
         data.writeVarInt(entity.entityId)

@@ -2,6 +2,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
+import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockBreakEvent
 import io.github.dockyardmc.extentions.readByteEnum
@@ -25,7 +26,8 @@ import io.github.dockyardmc.utils.toLocation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-@ServerboundPacketInfo(33, ProtocolState.PLAY)
+@WikiVGEntry("Player Action")
+@ServerboundPacketInfo(36, ProtocolState.PLAY)
 class ServerboundPlayerActionPacket(
     var action: PlayerAction,
     var position: Vector3,
