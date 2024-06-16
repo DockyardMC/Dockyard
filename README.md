@@ -1,3 +1,4 @@
+[![wakatime](https://wakatime.com/badge/github/DockyardMC/Dockyard.svg)](https://wakatime.com/badge/github/DockyardMC/Dockyard)
 
 # 🏗️ DockyardMC 🚢
 
