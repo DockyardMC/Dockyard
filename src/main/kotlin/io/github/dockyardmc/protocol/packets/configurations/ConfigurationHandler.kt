@@ -35,12 +35,15 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 //        connection.sendPacket(registryDataPacket)
 
         val list = mutableListOf(
-            KnownPack("minecraft:trim_material", "0", "1.21"),
-            KnownPack("minecraft:banner_pattern", "1", "1.21"),
-            KnownPack("minecraft:worldgen/biome", "2", "1.21"),
-            KnownPack("minecraft:chat_type", "3", "1.21"),
-            KnownPack("minecraft:damage_type", "4", "1.21"),
-            KnownPack("minecraft:dimension_type", "5", "1.21"),
+            KnownPack("minecraft", "trim_material", "1.21"),
+            KnownPack("minecraft", "banner_pattern", "1.21"),
+            KnownPack("minecraft", "chat_type", "1.21"),
+            KnownPack("minecraft", "damage_type", "1.21"),
+            KnownPack("minecraft", "dimension_type", "1.21"),
+            KnownPack("minecraft", "worldgen/biome", "1.21"),
+            KnownPack("minecraft", "core", "1.21"),
+            KnownPack("minecraft", "vanilla", "1.21"),
+            KnownPack("minecraft", "root", "1.21"),
         )
 
         val knownPacksPackets = ClientboundKnownPacksPackets(list)

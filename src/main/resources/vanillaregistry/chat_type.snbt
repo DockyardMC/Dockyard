@@ -1,0 +1,16 @@
+minecraft:chat;{chat:{parameters:["sender","content"],translation_key:"chat.type.text"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+minecraft:emote_command;{chat:{parameters:["sender","content"],translation_key:"chat.type.emote"},narration:{parameters:["sender","content"],translation_key:"chat.type.emote"}}
+minecraft:msg_command_incoming;{chat:{parameters:["sender","content"],style:{color:"gray",italic:1b},translation_key:"commands.message.display.incoming"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+minecraft:msg_command_outgoing;{chat:{parameters:["target","content"],style:{color:"gray",italic:1b},translation_key:"commands.message.display.outgoing"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+paper:raw;{chat:{parameters:["content"],translation_key:"%s"},narration:{parameters:["content"],translation_key:"%s"}}
+minecraft:say_command;{chat:{parameters:["sender","content"],translation_key:"chat.type.announcement"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+minecraft:team_msg_command_incoming;{chat:{parameters:["target","sender","content"],translation_key:"chat.type.team.text"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+minecraft:team_msg_command_outgoing;{chat:{parameters:["target","sender","content"],translation_key:"chat.type.team.sent"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+minecraft:chat;{chat:{parameters:["sender","content"],translation_key:"chat.type.text"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+minecraft:emote_command;{chat:{parameters:["sender","content"],translation_key:"chat.type.emote"},narration:{parameters:["sender","content"],translation_key:"chat.type.emote"}}
+minecraft:msg_command_incoming;{chat:{parameters:["sender","content"],style:{color:"gray",italic:1b},translation_key:"commands.message.display.incoming"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+minecraft:msg_command_outgoing;{chat:{parameters:["target","content"],style:{color:"gray",italic:1b},translation_key:"commands.message.display.outgoing"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+paper:raw;{chat:{parameters:["content"],translation_key:"%s"},narration:{parameters:["content"],translation_key:"%s"}}
+minecraft:say_command;{chat:{parameters:["sender","content"],translation_key:"chat.type.announcement"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+minecraft:team_msg_command_incoming;{chat:{parameters:["target","sender","content"],translation_key:"chat.type.team.text"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}
+minecraft:team_msg_command_outgoing;{chat:{parameters:["target","sender","content"],translation_key:"chat.type.team.sent"},narration:{parameters:["sender","content"],translation_key:"chat.type.text.narrate"}}

@@ -17,7 +17,6 @@ class ClientboundKnownPacksPackets(knowPackets: MutableList<KnownPack>): Clientb
             data.writeUtf(it.version)
         }
     }
-
 }
 
 data class KnownPack(
