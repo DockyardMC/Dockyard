@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry
 
+import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.utils.Resources

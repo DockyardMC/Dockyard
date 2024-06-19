@@ -39,7 +39,8 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             DamageTypes.registryCache,
             DimensionTypes.registryCache,
             PaintingVariants.registryCache,
-            WolfVariants.registryCache
+            WolfVariants.registryCache,
+            Biomes.registryCache
         )
 
         registryPackets.forEach {
