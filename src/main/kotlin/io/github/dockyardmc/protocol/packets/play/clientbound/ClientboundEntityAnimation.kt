@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeVarInt
@@ -8,7 +9,8 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 
 
 @WikiVGEntry("Entity Animation")
-class ClientboundEntityAnimation(entity: Entity, animation: EntityAnimation): ClientboundPacket(0x03, ProtocolState.PLAY) {
+@ClientboundPacketInfo(0x03, ProtocolState.PLAY)
+class ClientboundEntityAnimation(entity: Entity, animation: EntityAnimation): ClientboundPacket() {
 
     init {
         data.writeVarInt(entity.entityId)

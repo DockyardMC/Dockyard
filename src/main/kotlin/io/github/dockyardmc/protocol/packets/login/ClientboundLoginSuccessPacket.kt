@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.login
 
+import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.ProfileProperty
@@ -9,7 +10,8 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import java.util.UUID
 
 @WikiVGEntry("Login Success")
-class ClientboundLoginSuccessPacket(uuid: UUID, username: String, properties: MutableList<ProfilePropertyMap>): ClientboundPacket(0x02, ProtocolState.LOGIN) {
+@ClientboundPacketInfo(0x02, ProtocolState.LOGIN)
+class ClientboundLoginSuccessPacket(uuid: UUID, username: String, properties: MutableList<ProfilePropertyMap>): ClientboundPacket() {
     init {
         data.writeUUID(uuid)
         data.writeUtf(username)

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.writeMetadata
@@ -8,7 +9,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Set Entity Metadata")
-class ClientboundEntityMetadataPacket(entity: Entity): ClientboundPacket(0x56, ProtocolState.PLAY) {
+@ClientboundPacketInfo(0x58, ProtocolState.PLAY)
+class ClientboundEntityMetadataPacket(entity: Entity): ClientboundPacket() {
 
     init {
         data.writeVarInt(entity.entityId)
@@ -17,6 +19,6 @@ class ClientboundEntityMetadataPacket(entity: Entity): ClientboundPacket(0x56, P
             data.writeMetadata(it)
         }
         // array end byte
-        data.writeByte(0x58)
+        data.writeByte(0xff)
     }
 }

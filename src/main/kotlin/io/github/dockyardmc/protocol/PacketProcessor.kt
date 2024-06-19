@@ -130,6 +130,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
     override fun handlerRemoved(ctx: ChannelHandlerContext) {
         log("TCP Handler Removed <-> ${ctx.channel().remoteAddress().address}", TCP)
         if(this::player.isInitialized) {
+            player.isConnected = false
             PlayerManager.remove(player)
             Events.dispatch(PlayerDisconnectEvent(player))
             if(player.isFullyInitialized) {

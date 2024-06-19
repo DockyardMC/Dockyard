@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeStringArray
 import io.github.dockyardmc.extentions.writeUtf
@@ -9,6 +10,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Login (player)")
+@ClientboundPacketInfo(0x2B, ProtocolState.PLAY)
 class ClientboundLoginPlayPacket(
     entityId: Int,
     isHardcore: Boolean,
@@ -27,7 +29,7 @@ class ClientboundLoginPlayPacket(
     isDebug: Boolean,
     isFlat: Boolean,
     portalCooldown: Int,
-): ClientboundPacket(0x2B, ProtocolState.PLAY) {
+): ClientboundPacket() {
 
     init {
         data.writeInt(entityId)

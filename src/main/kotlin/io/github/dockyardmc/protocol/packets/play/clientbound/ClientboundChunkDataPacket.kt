@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
@@ -12,7 +13,8 @@ import io.netty.buffer.Unpooled
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 @WikiVGEntry("Chunk Data and Update Light")
-class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, sections: MutableList<ChunkSection>, light: Light): ClientboundPacket(0x27, ProtocolState.PLAY) {
+@ClientboundPacketInfo(0x27, ProtocolState.PLAY)
+class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, sections: MutableList<ChunkSection>, light: Light): ClientboundPacket() {
 
     init {
         //X Z

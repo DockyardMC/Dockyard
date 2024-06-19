@@ -103,7 +103,6 @@ object Biomes {
         val entries = mutableListOf<RegistryEntry>()
         map.forEach {
             entries.add(RegistryEntry(it.key, it.value.toNBT()))
-            log("${it.key};${it.value.toNBT().toSNBT()}")
         }
         registryCache = Registry("minecraft:worldgen/biome", entries)
     }

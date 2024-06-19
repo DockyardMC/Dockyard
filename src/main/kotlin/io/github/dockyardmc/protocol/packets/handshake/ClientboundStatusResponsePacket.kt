@@ -1,12 +1,14 @@
 package io.github.dockyardmc.protocol.packets.handshake
 
+import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Status Response")
-class ClientboundStatusResponsePacket(statusJson: String): ClientboundPacket(0x00, ProtocolState.HANDSHAKE) {
+@ClientboundPacketInfo(0x00, ProtocolState.HANDSHAKE)
+class ClientboundStatusResponsePacket(statusJson: String): ClientboundPacket() {
 
     init {
         data.writeUtf(statusJson)

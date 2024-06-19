@@ -32,7 +32,9 @@ fun main(args: Array<String>) {
     val packetClasses = AnnotationProcessor.getServerboundPacketClassInfo()
     PacketParser.idAndStatePairToPacketClass = packetClasses
 
-    var port = ConfigManager.currentConfig.port
+    AnnotationProcessor.addIdsToClientboundPackets()
+
+    val port = ConfigManager.currentConfig.port
     // make sure if you call server with port arg it uses that instead of config port
 //    if(args.getOrNull(0) != null) port = args[0].toInt()
 

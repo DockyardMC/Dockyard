@@ -5,5 +5,5 @@ enum class ProtocolState {
     STATUS,
     LOGIN,
     CONFIGURATION,
-    PLAY
+    PLAY,
 }

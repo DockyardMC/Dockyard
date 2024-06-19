@@ -1,17 +1,19 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Player Abilities (clientbound)")
+@ClientboundPacketInfo(0x38, ProtocolState.PLAY)
 class ClientboundPlayerAbilitiesPacket(
     isFlying: Boolean = false,
     isInvulnerable: Boolean = false,
     allowFlying: Boolean = false,
     flyingSpeed: Float = 0.05f,
     fovModifier: Float = 0.1f,
-): ClientboundPacket(0x38, ProtocolState.PLAY) {
+): ClientboundPacket() {
 
     init {
         var mask = 0

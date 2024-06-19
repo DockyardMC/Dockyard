@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeVarInt
@@ -8,10 +9,11 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.utils.Vector2
 
 @WikiVGEntry("Update Entity Rotation")
+@ClientboundPacketInfo(0x30, ProtocolState.PLAY)
 class ClientboundUpdateEntityRotationPacket(
     entity: Entity,
     rotation: Vector2,
-): ClientboundPacket(0x30, ProtocolState.PLAY) {
+): ClientboundPacket() {
 
     init {
         data.writeVarInt(entity.entityId)
