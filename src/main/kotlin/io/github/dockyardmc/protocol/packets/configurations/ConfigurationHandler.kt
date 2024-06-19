@@ -10,6 +10,7 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChangeDifficultyPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.world.Difficulty
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
@@ -31,23 +32,19 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         Events.dispatch(featureFlagsEvent)
         connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags))
 
-//        val registryDataPacket = ClientboundRegistryDataPacket(Resources.registry)
-//        connection.sendPacket(registryDataPacket)
-
-        val list = mutableListOf(
-            KnownPack("minecraft", "trim_material", "1.21"),
-            KnownPack("minecraft", "banner_pattern", "1.21"),
-            KnownPack("minecraft", "chat_type", "1.21"),
-            KnownPack("minecraft", "damage_type", "1.21"),
-            KnownPack("minecraft", "dimension_type", "1.21"),
-            KnownPack("minecraft", "worldgen/biome", "1.21"),
-            KnownPack("minecraft", "core", "1.21"),
-            KnownPack("minecraft", "vanilla", "1.21"),
-            KnownPack("minecraft", "root", "1.21"),
+        // Send registries
+        val registryPackets: MutableList<Registry> = mutableListOf(
+            BannerPatterns.registryCache,
+            ChatTypes.registryCache,
+            DamageTypes.registryCache,
+            DimensionTypes.registryCache,
+            PaintingVariants.registryCache,
+            WolfVariants.registryCache
         )
 
-        val knownPacksPackets = ClientboundKnownPacksPackets(list)
-        connection.sendPacket(knownPacksPackets)
+        registryPackets.forEach {
+            connection.sendPacket(ClientboundRegistryDataPacket(it))
+        }
 
         val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
         connection.sendPacket(finishConfigurationPacket)

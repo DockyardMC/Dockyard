@@ -1,1 +1,10 @@
-minecraft:pale;{angry_texture:"entity/wolf/wolf_angry",biomes:[],tame_texture:"entity/wolf/wolf_tame",wild_texture:"entity/wolf/wolf"}
+minecraft:pale
+minecraft:ashen
+minecraft:black
+minecraft:chestnut
+minecraft:pale
+minecraft:rusty
+minecraft:snowy
+minecraft:spotted;
+minecraft:striped;
+minecraft:woods;

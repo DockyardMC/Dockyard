@@ -1,4 +1,4 @@
-package io.github.dockyardmc.registry.vanilla
+package io.github.dockyardmc.registry
 
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.extentions.writeUtf
@@ -7,8 +7,8 @@ import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBT
 
 data class Registry(
-    var identifier: String,
-    var entries: MutableList<RegistryEntry>
+    val identifier: String,
+    val list: MutableList<RegistryEntry>
 )
 
 data class RegistryEntry(
@@ -18,12 +18,11 @@ data class RegistryEntry(
 
 fun ByteBuf.writeRegistry(registry: Registry) {
     this.writeUtf(registry.identifier)
-    this.writeVarInt(registry.entries.size)
-    registry.entries.forEach {
+    this.writeVarInt(registry.list.size)
+    registry.list.forEach {
         this.writeUtf(it.identifier)
-        this.writeBoolean(it.data != null)
-        if(it.data != null) {
-            this.writeNBT(it.data)
-        }
+        val isDataPresent = it.data != null
+        this.writeBoolean(isDataPresent)
+        if(isDataPresent) this.writeNBT(it.data!!)
     }
 }

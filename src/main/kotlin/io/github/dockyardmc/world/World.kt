@@ -10,6 +10,8 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.DimensionType
+import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.ChunkUtils
@@ -18,12 +20,14 @@ import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
+import java.util.UUID
 
 class World(
     var name: String = "world",
-    var dimensionType: DimensionType = DimensionType.OVERWORLD,
-    worldSeed: String = "trans rights!!"
+    var dimensionType: DimensionType = DimensionTypes.OVERWORLD,
 ) {
+
+    val worldSeed = UUID.randomUUID().leastSignificantBits.toString()
 
     var seed: Long = worldSeed.SHA256Long()
     var seedBytes = worldSeed.SHA256String()
@@ -121,7 +125,6 @@ class World(
 
         generateChunks(6)
 
-        // Time
         Events.on<ServerTickEvent> {
             worldAge++
             if(!daylightCycle) return@on
@@ -132,10 +135,4 @@ class World(
             }
         }
     }
-}
-
-enum class DimensionType(val maxY: Int, val minY: Int) {
-    OVERWORLD(320, -64),
-    NETHER(255, 0),
-    THE_END(255, 0)
 }
