@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.utils.Resources
 import org.jglrxavpok.hephaistos.nbt.NBT
@@ -100,7 +101,10 @@ object Biomes {
 
     fun cacheRegistry() {
         val entries = mutableListOf<RegistryEntry>()
-        map.forEach { entries.add(RegistryEntry(it.key, it.value.toNBT())) }
+        map.forEach {
+            entries.add(RegistryEntry(it.key, it.value.toNBT()))
+            log("${it.key};${it.value.toNBT().toSNBT()}")
+        }
         registryCache = Registry("minecraft:worldgen/biome", entries)
     }
 
@@ -141,12 +145,46 @@ data class Music(
     }
 }
 
+data class AdditionsSound(
+    val sound: String,
+    val tickChance: Double
+) {
+    fun toNBT(): NBTCompound {
+        return NBT.Compound {
+            it.put("sound", sound)
+            it.put("tick_chance", tickChance)
+        }
+    }
+}
+
+data class BiomeParticle(
+    val options: ParticleOptions,
+    val probability: Float
+) {
+    fun toNBT(): NBTCompound {
+        return NBT.Compound {
+            it.put("options", NBT.Compound { oc ->
+                oc.put("type", options.type)
+            })
+            it.put("probability", probability)
+        }
+    }
+}
+
+data class ParticleOptions(
+    val type: String
+)
+
 data class Effects(
     val fogColor: Int?,
     val foliageColor: Int?,
     val grassColor: Int?,
+    val grassColorModifier: String?,
     val moodSound: MoodSound,
     val music: Music?,
+    val additionsSound: AdditionsSound?,
+    val ambientSound: String?,
+    val particle: BiomeParticle?,
     val skyColor: Int,
     val waterColor: Int,
     val waterFogColor: Int
@@ -156,8 +194,12 @@ data class Effects(
             it.put("fog_color", fogColor)
             it.put("foliage_color", foliageColor)
             it.put("grass_color", grassColor)
+            if(grassColorModifier != null) it.put("grass_color_modifier", grassColorModifier)
             it.put("mood_sound", moodSound.toNBT())
             if(music != null) it.put("music", music.toNBT())
+            if(additionsSound != null) it.put("additions_sound", additionsSound.toNBT())
+            if(particle != null) it.put("particle", particle.toNBT())
+            if(ambientSound != null) it.put("ambient_sound", ambientSound)
             it.put("sky_color", skyColor)
             it.put("water_color", waterColor)
             it.put("water_fog_color", waterFogColor)
@@ -170,16 +212,17 @@ data class Biome(
     val downfall: Float,
     val effects: Effects,
     val hasPrecipitation: Boolean,
-    val temperature: Float
+    val temperature: Float,
+    val temperatureModifier: String?
 ) {
 
     fun toNBT(): NBTCompound {
         return NBT.Compound {
-            it.put("identifier", identifier)
             it.put("downfall", downfall)
             it.put("effects", effects.toNBT())
             it.put("has_precipitation", hasPrecipitation)
             it.put("temperature", temperature)
+            if(temperatureModifier != null) it.put("temperature_modifier", temperatureModifier)
         }
     }
 
@@ -190,6 +233,7 @@ data class Biome(
             val downfall = nbt.getFloat("downfall")!!
             val temperature = nbt.getFloat("temperature")!!
             val hasPrecipitation = nbt.getBoolean("has_precipitation")!!
+            val temperatureModifier = nbt.getString("temperature_modifier")
 
             val effectsNBT = nbt.getCompound("effects")!!
             val fogColor = effectsNBT.getInt("fog_color")
@@ -215,15 +259,37 @@ data class Biome(
                 sound = musicNBT.getString("sound")!!
             ) else null
 
+            val additionsSoundNBT = effectsNBT.getCompound("additions_sound")
+            val additionsSound = if(additionsSoundNBT != null) AdditionsSound(
+                additionsSoundNBT.getString("sound")!!,
+                additionsSoundNBT.getAsDouble("tick_chance")!!
+            ) else null
+
+            val particleNBT = effectsNBT.getCompound("particle")
+            val particle = if(particleNBT != null) BiomeParticle(
+                options = ParticleOptions(
+                    type = particleNBT.getCompound("options")!!.getString("type")!!
+                ),
+                probability = particleNBT.getFloat("probability")!!
+            ) else null
+
+            val grassColorModifier = effectsNBT.getString("grass_color_modifier")
+
+            val ambientSound = effectsNBT.getString("ambient_sound")
+
             val effects = Effects(
                 fogColor = fogColor,
                 foliageColor = foliageColor,
+                grassColorModifier = grassColorModifier,
                 grassColor = grassColor,
                 moodSound = moodSound,
                 music = music,
+                additionsSound = additionsSound,
+                particle = particle,
                 skyColor = skyColor,
                 waterColor = waterColor,
-                waterFogColor = waterFogColor
+                waterFogColor = waterFogColor,
+                ambientSound = ambientSound
             )
 
             return Biome(
@@ -231,7 +297,8 @@ data class Biome(
                 downfall = downfall,
                 effects = effects,
                 hasPrecipitation = hasPrecipitation,
-                temperature = temperature
+                temperature = temperature,
+                temperatureModifier = temperatureModifier
             )
         }
     }
