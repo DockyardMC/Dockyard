@@ -88,7 +88,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             false,
             true,
             false,
-            "overworld",
+            DimensionTypes.OVERWORLD.id,
             world.name,
             world.seed,
             player.gameMode.value,

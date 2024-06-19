@@ -19,7 +19,7 @@ class ClientboundLoginPlayPacket(
     reducedDebugInfo: Boolean,
     enableRespawnScreen: Boolean,
     doLimitedCrafting: Boolean,
-    dimensionType: String,
+    dimensionType: Int,
     dimensionName: String,
     hashedSeed: Long,
     gameMode: GameMode,
@@ -39,7 +39,7 @@ class ClientboundLoginPlayPacket(
         data.writeBoolean(reducedDebugInfo)
         data.writeBoolean(enableRespawnScreen)
         data.writeBoolean(doLimitedCrafting)
-        data.writeUtf(dimensionType)
+        data.writeVarInt(dimensionType)
         data.writeUtf(dimensionName)
         data.writeLong(hashedSeed)
         data.writeByte(gameMode.ordinal)

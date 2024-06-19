@@ -8,7 +8,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound
 object DimensionTypes {
 
     var map = mutableMapOf<String, DimensionType>(
-        "minecraft:overworld" to DimensionType(0.0f, true, 1.0, "minecraft:overworld", false, true ,true, 384, "#minecraft:infiniburn_overworld", 384, -64, 0, MonsterSpawnLightLevel(7, 0, "minecraft:uniform"), true, true, false, false),
+        "minecraft:overworld" to DimensionType(0.0f, true, 1.0, "minecraft:overworld", false, true ,true, 384, "#minecraft:infiniburn_overworld", 384, -64, 0, MonsterSpawnLightLevel(7, 0, "minecraft:uniform"), true, false, false, false),
         "minecraft:overworld_caves" to DimensionType(0.0f, true, 1.0, "minecraft:overworld", true, true, true, 384, "#minecraft:infiniburn_overworld", 384, -64, 0, MonsterSpawnLightLevel(7, 0, "minecraft:uniform"), true, false, false, false),
         "minecraft:the_end" to DimensionType(0.0f, false, 1.0, "minecraft:the_end", false, true, false, 256, "#minecraft:infiniburn_end", 256, 0, 0, MonsterSpawnLightLevel(7, 0, "minecraft:uniform"), false, false, false, false, 6000L),
         "minecraft:the_nether" to DimensionType(0.1f, false, 8.0, "minecraft:the_nether", true, false, false, 256, "#minecraft:infiniburn_nether", 128, 0, 15, MonsterSpawnLightLevel(7, 7, "minecraft:uniform"), false, true, true, true, 18000L)
@@ -53,6 +53,8 @@ data class DimensionType(
     val ultraWarm: Boolean,
     val fixedTime: Long? = null
 ) {
+
+    val id: Int get() = DimensionTypes.map.values.indexOf(this)
 
     fun toNBT(): NBTCompound {
         return NBT.Compound {
