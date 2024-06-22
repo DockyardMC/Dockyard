@@ -4,9 +4,8 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.readVarIntEnum
-import io.github.dockyardmc.extentions.readNBT
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.inventory.TempItemStack
+import io.github.dockyardmc.inventory.ItemStack
 import io.github.dockyardmc.inventory.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -23,8 +22,8 @@ class ServerboundClickContainerPacket(
     var slot: Int,
     var button: Int,
     var mode: ContainerClickMode,
-    var changedSlots: MutableMap<Int, TempItemStack>,
-    var carriedItem: TempItemStack
+    var changedSlots: MutableMap<Int, ItemStack>,
+    var carriedItem: ItemStack
 ): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
@@ -39,7 +38,7 @@ class ServerboundClickContainerPacket(
             val slot = buf.readShort().toInt()
             val button = buf.readByte().toInt()
             val mode = buf.readVarIntEnum<ContainerClickMode>()
-            val changedSlots = mutableMapOf<Int, TempItemStack>()
+            val changedSlots = mutableMapOf<Int, ItemStack>()
 
             val arraySize = buf.readVarInt()
             repeat(arraySize) {

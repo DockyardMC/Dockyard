@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.commands.CommandExecutor
@@ -26,17 +27,7 @@ class ServerboundChatCommandPacket(val command: String): ServerboundPacket {
     companion object {
         fun read(buf: ByteBuf): ServerboundChatCommandPacket {
 
-            val command = buf.readUtf(256)
-            val timestamp = buf.readInstant()
-            val salt = buf.readLong()
-
-            val arrLength = buf.readVarInt()
-            repeat(arrLength) {
-                val argumentName = buf.readUtf()
-                val argumentSignature = buf.readBytes(256)
-            }
-            val messageCount = buf.readVarInt()
-            val ack = buf.readFixedBitSet(20)
+            val command = buf.readUtf(32767)
 
             return ServerboundChatCommandPacket(command)
         }

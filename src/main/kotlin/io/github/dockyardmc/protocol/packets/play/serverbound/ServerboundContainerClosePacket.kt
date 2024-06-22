@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 @WikiVGEntry("Close Container")
-@ServerboundPacketInfo(14, ProtocolState.PLAY)
+@ServerboundPacketInfo(18, ProtocolState.PLAY)
 class ServerboundContainerClosePacket(val windowId: Int): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

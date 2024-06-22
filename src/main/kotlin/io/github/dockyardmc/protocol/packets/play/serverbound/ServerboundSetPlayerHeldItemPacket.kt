@@ -13,7 +13,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 @WikiVGEntry("Set Held Item (serverbound)")
-@ServerboundPacketInfo(44, ProtocolState.PLAY)
+@ServerboundPacketInfo(47, ProtocolState.PLAY)
 class ServerboundSetPlayerHeldItemPacket(val slot: Int): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

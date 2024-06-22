@@ -1,27 +1,24 @@
 package io.github.dockyardmc.registry
-import io.github.dockyardmc.blocks.BlockDataHelper
 import io.github.dockyardmc.utils.Resources
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-
+import io.github.dockyardmc.blocks.BlockDataHelper
 // THIS CLASS IS AUTO-GENERATED
-// DATA FROM MINECRAFT 1.20.4
+// DATA FROM MINECRAFT 1.21
 // https://github.com/DockyardMC/RegistryClassesGenerators
 
 object Blocks {
     val idToBlockMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
-        val blocks = json.decodeFromString<List<Block>>(Resources.getFile("data/blocks.json")).toMutableList()
+        val blocks = json.decodeFromString<List<Block>>(Resources.getText("./data/blocks.json"))
         blocks.associateBy { it.blockStateId }
     }
-
     fun getBlockById(id: Int): Block {
         return idToBlockMap[id] ?: error("Block ID $id not found")
     }
-
     val AIR = getBlockById(0)
     val STONE = getBlockById(1)
     val GRANITE = getBlockById(2)
@@ -1079,7 +1076,9 @@ object Blocks {
     val REINFORCED_DEEPSLATE = getBlockById(26573)
     val DECORATED_POT = getBlockById(26583)
     val CRAFTER = getBlockById(26635)
-    val TRIAL_SPAWNER = getBlockById(26638)
+    val TRIAL_SPAWNER = getBlockById(26644)
+    val VAULT = getBlockById(26654)
+    val HEAVY_CORE = getBlockById(26683)
 
     init {
         idToBlockMap.values.forEach {

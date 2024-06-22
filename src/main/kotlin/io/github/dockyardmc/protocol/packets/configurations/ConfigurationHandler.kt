@@ -122,10 +122,9 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         //TODO Send command completion packets
 //        connection.sendPacket(ClientboundCommandsPacket(mutableListOf(testCommand)))
 
-
         Events.dispatch(PlayerJoinEvent(processor.player))
 
-        // Make player visibile to all other players by default
+        // Make player visible to all other players by default
         PlayerManager.players.forEach { loopPlayer ->
             if(loopPlayer.username == player.username) return@forEach
             player.addViewer(loopPlayer)

@@ -23,6 +23,5 @@ class ClientboundEntityEffectPacket(
         data.writeByte(amplifier)
         data.writeVarInt(duration)
         data.writeByte(flags)
-        data.writeBoolean(false) //TODO factor stuff
     }
 }

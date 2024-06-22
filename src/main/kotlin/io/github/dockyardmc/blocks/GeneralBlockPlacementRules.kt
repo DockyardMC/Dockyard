@@ -35,8 +35,8 @@ object GeneralBlockPlacementRules {
 //        DockyardServer.broadcastMessage(" ")
 //        DockyardServer.broadcastMessage("<gray>new block is clickable: <aqua>${newBlock.isClickable}")
 //        DockyardServer.broadcastMessage("<gray>new block bounding box: <aqua>${newBlock.boundingBox}")
-
-
+//
+//
 //        if(!canBePlaced.canBePlaced) DockyardServer.broadcastMessage("<red>${canBePlaced.reason}")
         return canBePlaced.canBePlaced
     }

@@ -16,7 +16,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 @WikiVGEntry("Swing Arm")
-@ServerboundPacketInfo(51, ProtocolState.PLAY)
+@ServerboundPacketInfo(54, ProtocolState.PLAY)
 class ServerboundPlayerSwingHandPacket(val hand: PlayerHand): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 @WikiVGEntry("Player Abilities (serverbound)")
-@ServerboundPacketInfo(32, ProtocolState.PLAY)
+@ServerboundPacketInfo(35, ProtocolState.PLAY)
 class ServerboundPlayerAbilitiesPacket(val flying: Boolean): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {

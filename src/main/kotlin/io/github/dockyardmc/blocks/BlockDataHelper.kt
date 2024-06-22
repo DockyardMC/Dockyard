@@ -7,6 +7,8 @@ import io.github.dockyardmc.registry.Blocks
 object BlockDataHelper {
 
     fun isClickable(block: Block): Boolean {
+        if(block.namespace.contains("shulker_box")) return true
+        if(block.namespace.contains("door")) return true
         return when(block) {
             Blocks.CHISELED_BOOKSHELF -> true
             Blocks.DECORATED_POT -> true
@@ -36,6 +38,7 @@ object BlockDataHelper {
             Blocks.CARTOGRAPHY_TABLE -> true
             Blocks.LECTERN -> true
             Blocks.JUKEBOX -> true
+            Blocks.BEACON -> true
             Blocks.BEEHIVE -> true
             Blocks.BEE_NEST -> true
             Blocks.DAYLIGHT_DETECTOR -> true
@@ -63,17 +66,6 @@ object BlockDataHelper {
             Blocks.MANGROVE_BUTTON -> true
             Blocks.BAMBOO_BUTTON -> true
             Blocks.CHERRY_BUTTON -> true
-            Blocks.OAK_PRESSURE_PLATE -> true
-            Blocks.SPRUCE_PRESSURE_PLATE -> true
-            Blocks.BIRCH_PRESSURE_PLATE -> true
-            Blocks.JUNGLE_PRESSURE_PLATE -> true
-            Blocks.ACACIA_PRESSURE_PLATE -> true
-            Blocks.DARK_OAK_PRESSURE_PLATE -> true
-            Blocks.CRIMSON_PRESSURE_PLATE -> true
-            Blocks.WARPED_PRESSURE_PLATE -> true
-            Blocks.MANGROVE_PRESSURE_PLATE -> true
-            Blocks.BAMBOO_PRESSURE_PLATE -> true
-            Blocks.CHERRY_PRESSURE_PLATE -> true
             Blocks.OAK_DOOR -> true
             Blocks.SPRUCE_DOOR -> true
             Blocks.BIRCH_DOOR -> true
@@ -107,6 +99,23 @@ object BlockDataHelper {
             Blocks.MANGROVE_FENCE_GATE -> true
             Blocks.BAMBOO_FENCE_GATE -> true
             Blocks.CHERRY_FENCE_GATE -> true
+            Blocks.COPPER_TRAPDOOR -> true
+            Blocks.EXPOSED_COPPER_TRAPDOOR -> true
+            Blocks.WEATHERED_COPPER_TRAPDOOR -> true
+            Blocks.OXIDIZED_COPPER_TRAPDOOR -> true
+            Blocks.WAXED_COPPER_TRAPDOOR -> true
+            Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR -> true
+            Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR -> true
+            Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR -> true
+            Blocks.COPPER_DOOR -> true
+            Blocks.EXPOSED_COPPER_DOOR -> true
+            Blocks.WEATHERED_COPPER_DOOR -> true
+            Blocks.OXIDIZED_COPPER_DOOR -> true
+            Blocks.WAXED_COPPER_DOOR -> true
+            Blocks.WAXED_EXPOSED_COPPER_DOOR -> true
+            Blocks.WAXED_WEATHERED_COPPER_DOOR -> true
+            Blocks.WAXED_OXIDIZED_COPPER_DOOR -> true
+            Blocks.TRIAL_SPAWNER -> true
             else -> false
         }
     }

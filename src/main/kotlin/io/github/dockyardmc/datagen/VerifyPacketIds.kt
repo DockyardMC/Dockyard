@@ -1,5 +1,6 @@
 package io.github.dockyardmc.datagen
 
+import Packet
 import WikiVGDataGenerator
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
@@ -9,7 +10,7 @@ import io.github.dockyardmc.annotations.WikiVGEntry
 
 class VerifyPacketIds {
 
-    val packets: MutableList<HTMLParser.Packet>
+    val packets: MutableList<Packet>
 
     init {
         val data = WikiVGDataGenerator()
@@ -31,7 +32,9 @@ class VerifyPacketIds {
             val id = serverboundAnnotation.id
             val header = wikivgAnnotation.header
 
+//            log(loopClass.simpleName, LogType.TRACE)
             val packet = packets.firstOrNull { it.header == header } ?: return@forEach
+//            log("${loopClass.simpleName} $id - ${Integer.decode(packet.id)}")
             if(Integer.decode(packet.id) != id) {
                 log("Packet ${loopClass.simpleName} does not have up-to-date id: $id should be ${Integer.decode(packet.id)}", LogType.WARNING)
             }
@@ -43,7 +46,9 @@ class VerifyPacketIds {
             val id = clientboundPacketInfo.id
             val header = wikivgAnnotation.header
 
+
             val packet = packets.firstOrNull { it.header == header } ?: return@forEach
+//            log("${loopClass.simpleName} $id - ${Integer.decode(packet.id)}")
             if(Integer.decode(packet.id) != id) {
                 log("Packet ${loopClass.simpleName} does not have up-to-date id: $id should be ${Integer.decode(packet.id)}", LogType.WARNING)
             }

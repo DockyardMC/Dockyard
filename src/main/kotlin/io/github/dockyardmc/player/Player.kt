@@ -116,12 +116,11 @@ class Player(val username: String, override var entityId: Int, override var uuid
     private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
         if(!isConnected) return
         val processor = this.getProcessor()
-        processor.let {
-            if(processor.state != ProtocolState.PLAY) {
-                queuedMessages.add(Pair(component, isActionBar))
-                return
-            }
+        if(processor.state != ProtocolState.PLAY) {
+            queuedMessages.add(Pair(component, isActionBar))
+            return
         }
+        this.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))
     }
 
     fun sendPacket(packet: ClientboundPacket) {

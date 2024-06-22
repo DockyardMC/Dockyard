@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.blocks.GeneralBlockPlacementRules
@@ -51,6 +52,7 @@ class ServerboundUseItemOnPacket(
         val event = PlayerBlockInteractEvent(player, item, player.world.getBlock(pos), face, pos.toLocation())
         Events.dispatch(event)
 
+        DockyardServer.broadcastMessage(item.material.toString())
         if(item.material.isBlock && item.material != Items.AIR) {
             val block = Blocks.getBlockById(item.material.blockId!!)
             var cancelled = false
@@ -59,6 +61,7 @@ class ServerboundUseItemOnPacket(
 
             val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation())
             Events.dispatch(blockPlaceEvent)
+
             if(blockPlaceEvent.cancelled) cancelled = true
 
             if(cancelled) {
