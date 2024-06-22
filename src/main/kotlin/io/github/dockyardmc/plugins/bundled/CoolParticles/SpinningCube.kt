@@ -43,6 +43,7 @@ class SpinningCube {
     fun register() {
 
         Commands.add("/cube") {
+            it.description = "Toggles visibility of spinning particle cube at spawn"
             it.execute { exec ->
                 enabled = !enabled
                 val message = when(enabled) {

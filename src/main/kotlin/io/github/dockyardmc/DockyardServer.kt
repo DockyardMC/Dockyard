@@ -13,7 +13,7 @@ import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.plugins.PluginManager
 import io.github.dockyardmc.plugins.bundled.CoolParticles.CoolParticles
-import io.github.dockyardmc.plugins.bundled.DockyardCommands
+import io.github.dockyardmc.plugins.bundled.DockyardCommands.DockyardCommands
 import io.github.dockyardmc.plugins.bundled.DockyardExtras.DockyardExtras
 import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.profiler.Profiler

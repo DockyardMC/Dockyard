@@ -15,10 +15,12 @@ object Commands {
         command(builder)
         val finalCommand = builder.build()
 
-        // add command aliases to the list as well as well
-        val list = finalCommand.aliases
-        list.add(sanitizedName)
-
-        list.forEach { commands[it] = finalCommand }
+        // Make sure alias commands have "isAlias"
+        commands[sanitizedName] = finalCommand
+        val aliasCommand = finalCommand.clone()
+        aliasCommand.isAlias = true
+        finalCommand.aliases.forEach {
+            commands[it] = aliasCommand
+        }
     }
 }

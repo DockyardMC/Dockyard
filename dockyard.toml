@@ -2,4 +2,5 @@ includeDockyardExtras = true
 port = 25565
 defaultTickRate = 20.0
 keepAliveEnabled = true
+includeDefaultCommands = true
 ip = "0.0.0.0"

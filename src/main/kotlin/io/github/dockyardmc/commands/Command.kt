@@ -10,6 +10,8 @@ class Command: Cloneable {
     lateinit var internalExecutorDoNotUse: (CommandExecutor) -> Unit
     var arguments: MutableMap<String, CommandArgumentData> = mutableMapOf()
     var permission = ""
+    var description = ""
+    var isAlias = false
     var aliases = mutableListOf<String>()
 
     fun <T> get(argumentName: String): T {
@@ -43,6 +45,17 @@ class Command: Cloneable {
     fun build(): Command {
         return this
     }
+
+    public override fun clone(): Command {
+        val cloned = super.clone() as Command
+        cloned.arguments = arguments.toMutableMap()
+        cloned.aliases = aliases.toMutableList()
+        cloned.description = description
+        cloned.internalExecutorDoNotUse = internalExecutorDoNotUse
+        cloned.permission = permission
+        cloned.isAlias = isAlias
+        return cloned
+    }
 }
 
 interface CommandArgument {
@@ -73,6 +86,10 @@ class FloatArgument(
     override var expectedType: KClass<*> = Float::class,
 ): CommandArgument
 
+class BooleanArgument(
+    val staticCompletions: MutableList<Boolean> = mutableListOf(true, false),
+    override var expectedType: KClass<*> = Boolean::class,
+): CommandArgument
 
 class LongArgument(
     val staticCompletions: MutableList<Long> = mutableListOf(),
@@ -103,5 +120,9 @@ data class CommandExecutor(
 ) {
     fun sendMessage(message: String) {
         if(this.isPlayer) this.player!!.sendMessage(message) else this.console.sendMessage(message)
+    }
+
+    fun hasPermission(permission: String): Boolean {
+        return if(this.isPlayer) this.player!!.hasPermission(permission) else true
     }
 }

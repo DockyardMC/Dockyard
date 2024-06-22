@@ -12,11 +12,12 @@ import java.lang.Exception
 object ConfigManager {
 
     val defaultConfig = DockyardConfig(
-        true,
-        25565,
-        20f,
-        true,
-        "0.0.0.0"
+        includeDockyardExtras = true,
+        port = 25565,
+        defaultTickRate = 20f,
+        keepAliveEnabled = true,
+        includeDefaultCommands = true,
+        ip = "0.0.0.0"
     )
 
     val configFile = File("./dockyard.toml")
@@ -50,5 +51,6 @@ data class DockyardConfig(
     val port: Int,
     val defaultTickRate: Float,
     val keepAliveEnabled: Boolean,
+    val includeDefaultCommands: Boolean,
     val ip: String,
 )

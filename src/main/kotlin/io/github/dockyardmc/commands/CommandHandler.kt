@@ -1,5 +1,6 @@
 package io.github.dockyardmc.commands
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
@@ -25,11 +26,18 @@ object CommandHandler {
             val command = Commands.commands[commandName]!!
             if(executor.isPlayer && (!executor.player!!.hasPermission(command.permission))) throw Exception("You do not have enough perms! lol loser")
 
+            var fullCommandString = "/$commandName "
+            command.arguments.forEach { argument ->
+                fullCommandString += "\\<${argument.key}"
+                if(argument.value.optional) fullCommandString += "?"
+                fullCommandString += "> "
+            }
+
             var i = 0
             command.arguments.forEach { (key, value) ->
                 i++
                 if(tokens.getOrNull(i) == null && !value.optional) {
-                    throw Exception("Parameter \"$key\" must be specified!")
+                    throw Exception("Missing argument<orange> \\<$key><red> in <yellow>$fullCommandString")
                 }
             }
 
