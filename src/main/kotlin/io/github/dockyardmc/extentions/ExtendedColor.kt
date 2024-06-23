@@ -7,7 +7,6 @@ fun Color.toRGB(): RGB {
     return RGB(this.red, this.alpha, this.blue)
 }
 
-
 fun hexToRGB(hex: String): RGB {
     val cleanedHex = hex.removePrefix("#")
 

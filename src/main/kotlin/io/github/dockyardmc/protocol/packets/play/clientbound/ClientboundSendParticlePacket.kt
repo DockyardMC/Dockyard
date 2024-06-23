@@ -30,12 +30,12 @@ class ClientboundSendParticlePacket(
         if(particleData != null && particleData.id != particle.id) throw Exception("Particle data ${particleData::class.simpleName} is not valid for particle ${particle.namespace}")
         if(particleData == null && ParticleData.requiresData(particle.id)) throw Exception("Particle ${particle.namespace} requires particle data")
 
-        data.writeVarInt(particle.id)
         data.writeBoolean(longDistance)
         data.writeLocationWithoutRot(location)
         data.writeVector3f(offset)
         data.writeFloat(speed)
         data.writeInt(count)
+        data.writeVarInt(particle.id)
         particleData?.write(data)
     }
 }
