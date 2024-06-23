@@ -7,7 +7,6 @@ import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.player.SkinManager.getSkinOf
 import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.protocol.cryptography.PacketDecryptionHandler
@@ -17,6 +16,7 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
 import io.github.dockyardmc.runnables.AsyncRunnable
+import io.github.dockyardmc.utils.MojangUtil
 import io.github.dockyardmc.utils.VersionToProtocolVersion
 import io.github.dockyardmc.world.WorldManager
 import io.ktor.util.network.*
@@ -73,7 +73,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         EntityManager.entities.add(player)
 
         val asyncRunnable = AsyncRunnable {
-            val skin = getSkinOf(player.uuid)
+            val skin = MojangUtil.getSkinFromUUID(player.uuid)
         }
         asyncRunnable.execute()
 

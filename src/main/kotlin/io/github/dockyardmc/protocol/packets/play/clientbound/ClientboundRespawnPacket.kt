@@ -10,7 +10,7 @@ import io.github.dockyardmc.registry.DimensionTypes
 
 @WikiVGEntry("Respawn")
 @ClientboundPacketInfo(0x47, ProtocolState.PLAY)
-class ClientboundRespawnPacket : ClientboundPacket() { //nice
+class ClientboundRespawnPacket(dataKept: RespawnDataKept = RespawnDataKept.NO_DATA_KEPT) : ClientboundPacket() { //nice
     init {
         data.writeVarInt(DimensionTypes.OVERWORLD.id)
         data.writeUtf("world")
@@ -21,7 +21,14 @@ class ClientboundRespawnPacket : ClientboundPacket() { //nice
         data.writeBoolean(true)
         data.writeBoolean(false)
         data.writeVarInt(0)
-        data.writeByte(1)
+        data.writeByte(dataKept.bitMask)
+    }
+
+    enum class RespawnDataKept(val bitMask: Int) {
+        NO_DATA_KEPT(0x00),
+        KEEP_ATTRIBUTES(0x01),
+        KEEP_METADATA(0x02),
+        KEEP_ALL(0x03)
     }
 }
 

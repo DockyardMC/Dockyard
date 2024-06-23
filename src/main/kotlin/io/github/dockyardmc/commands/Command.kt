@@ -12,6 +12,7 @@ class Command: Cloneable {
     var permission = ""
     var description = ""
     var isAlias = false
+    var name = ""
     var aliases = mutableListOf<String>()
 
     fun <T> get(argumentName: String): T {
@@ -54,6 +55,7 @@ class Command: Cloneable {
         cloned.internalExecutorDoNotUse = internalExecutorDoNotUse
         cloned.permission = permission
         cloned.isAlias = isAlias
+        cloned.name = name
         return cloned
     }
 }

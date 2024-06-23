@@ -115,7 +115,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         processor.player.location = world.defaultSpawnLocation
 
-        player.sendPacket(ClientboundRespawnPacket())
+        player.sendPacket(ClientboundRespawnPacket(ClientboundRespawnPacket.RespawnDataKept.NO_DATA_KEPT))
         player.sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
         processor.player.isFullyInitialized = true
 
@@ -142,6 +142,6 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         player.sendPacket(tickingStatePacket)
 
-        SkinManager.updateSkinOf(player)
+        SkinManager.setSkinOf(player, player.uuid)
     }
 }

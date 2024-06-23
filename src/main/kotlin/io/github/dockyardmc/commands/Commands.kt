@@ -14,8 +14,8 @@ object Commands {
         val builder = Command()
         command(builder)
         val finalCommand = builder.build()
+        finalCommand.name = name
 
-        // Make sure alias commands have "isAlias"
         commands[sanitizedName] = finalCommand
         val aliasCommand = finalCommand.clone()
         aliasCommand.isAlias = true

@@ -1,50 +1,37 @@
 package io.github.dockyardmc.player
 
-import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.runnables.AsyncRunnable
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
+import io.github.dockyardmc.utils.MojangUtil
 import java.util.*
 
 object SkinManager {
 
     val skinCache = mutableMapOf<UUID, ProfileProperty>()
-    private val httpClient: HttpClient = HttpClient.newHttpClient()
 
-    fun getSkinOf(uuid: UUID, forceUpdate: Boolean = false): ProfileProperty {
+    // Get UUID of username first
+    fun setSkinOf(player: Player, username: String) {
 
-        if(skinCache.containsKey(uuid) && !forceUpdate) return skinCache[uuid]!!
-
-        val request = HttpRequest.newBuilder()
-            .uri(URI("https://sessionserver.mojang.com/session/minecraft/profile/$uuid?unsigned=false"))
-            .GET()
-            .build()
-
-        log("Requesting skin of $uuid from mojang servers..", LogType.DEBUG)
-        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
-        val json = Json { ignoreUnknownKeys = true }
-        val decodedResponse = json.decodeFromString<Root>(response.body())
-
-        log(decodedResponse.toString())
-        val property = ProfileProperty("textures", decodedResponse.properties[0].value, true, decodedResponse.properties[0].signature)
-        skinCache[uuid] = property
-        return property
+        var uuid: UUID? = null
+        val asyncRunnable = AsyncRunnable {
+            uuid = MojangUtil.getUUIDFromUsername(username)
+        }
+        asyncRunnable.callback = {
+            uuid?.let { setSkinOf(player, it) }
+        }
+        asyncRunnable.execute()
     }
 
-    fun updateSkinOf(player: Player) {
+    fun setSkinOf(player: Player, uuid: UUID) {
         val asyncRunnable = AsyncRunnable {
-            val skin = getSkinOf(player.uuid)
+            val skin = MojangUtil.getSkinFromUUID(uuid)
             player.profile!!.properties[0] = skin
+            log(skin.toString())
         }
         asyncRunnable.callback = {
             player.sendPacket(ClientboundPlayerInfoRemovePacket(player))
+            player.sendPacket(ClientboundRespawnPacket(ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
             player.sendPacket(ClientboundPlayerInfoUpdatePacket(1, mutableListOf(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!)))))
 
             player.sendToViewers(ClientboundPlayerInfoRemovePacket(player))
@@ -53,23 +40,10 @@ object SkinManager {
             player.sendToViewers(ClientboundSpawnEntityPacket(player.entityId, player.uuid, player.type.id, player.location, player.location.yaw, 0, player.velocity))
             player.displayedSkinParts.triggerUpdate()
 
-            player.sendMessage("<#ff85be>Updated your skin!")
+            //TODO Retain effects on respawn
+            val packet = ClientboundEntityEffectPacket(player, 15, 1, 99999, 0x00)
+            player.sendPacket(packet)
         }
-
         asyncRunnable.execute()
     }
 }
-
-@Serializable
-private data class Root(
-    val id: String,
-    val name: String,
-    val properties: List<Property>,
-)
-
-@Serializable
-private data class Property(
-    val name: String,
-    val value: String,
-    val signature: String
-)
