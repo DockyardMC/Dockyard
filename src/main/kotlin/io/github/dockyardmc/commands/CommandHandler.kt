@@ -1,5 +1,6 @@
 package io.github.dockyardmc.commands
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
@@ -23,6 +24,7 @@ object CommandHandler {
                 throw Exception(message)
             }
             val command = Commands.commands[commandName]!!
+            executor.command = command.name
             if(executor.isPlayer && (!executor.player!!.hasPermission(command.permission))) throw Exception("You do not have enough perms! lol loser")
 
             var fullCommandString = "/$commandName "

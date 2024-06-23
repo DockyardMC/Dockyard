@@ -1,5 +1,7 @@
 package io.github.dockyardmc.commands
 
+import cz.lukynka.prettylog.log
+
 object Commands {
 
     val commands: MutableMap<String, Command> = mutableMapOf()
@@ -17,10 +19,13 @@ object Commands {
         finalCommand.name = name
 
         commands[sanitizedName] = finalCommand
-        val aliasCommand = finalCommand.clone()
-        aliasCommand.isAlias = true
         finalCommand.aliases.forEach {
+
+            val aliasCommand = finalCommand.clone()
+            aliasCommand.isAlias = true
+            aliasCommand.name = it
             commands[it] = aliasCommand
+            log("Added command /$it - ${aliasCommand.name}")
         }
     }
 }

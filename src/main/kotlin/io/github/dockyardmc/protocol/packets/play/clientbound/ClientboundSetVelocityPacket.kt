@@ -1,0 +1,22 @@
+package io.github.dockyardmc.protocol.packets.play.clientbound
+
+import io.github.dockyardmc.annotations.ClientboundPacketInfo
+import io.github.dockyardmc.annotations.WikiVGEntry
+import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.writeShortVector3
+import io.github.dockyardmc.utils.writeVector3
+
+@WikiVGEntry("Set Entity Velocity")
+@ClientboundPacketInfo(0x5A, ProtocolState.PLAY)
+class ClientboundSetVelocityPacket(entity: Entity, velocity: Vector3): ClientboundPacket() {
+
+    init {
+        data.writeVarInt(entity.entityId)
+        data.writeShortVector3(velocity)
+    }
+
+}

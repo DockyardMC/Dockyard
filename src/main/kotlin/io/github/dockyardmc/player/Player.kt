@@ -56,8 +56,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, canBeDamaged, it.newValue, flySpeed.value)) }
         flySpeed.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, canBeDamaged, canFly.value, it.newValue)) }
 
-        //TODO Fix
-//        gameMode.valueChanged { this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat())) }
+        gameMode.valueChanged { this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat())) }
 
         pose.valueChanged {
             metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
@@ -73,16 +72,16 @@ class Player(val username: String, override var entityId: Int, override var uuid
     }
 
     override fun addViewer(player: Player) {
-//        val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
-//        player.sendPacket(ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(infoUpdatePacket)))
-//
-//        super.addViewer(player)
-//
-//        val packetIn = ClientboundEntityMetadataPacket(player)
-//        this.sendPacket(packetIn)
-//
-//        val packetOut = ClientboundEntityMetadataPacket(this)
-//        player.sendPacket(packetOut)
+        val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
+        player.sendPacket(ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(infoUpdatePacket)))
+
+        super.addViewer(player)
+
+        val packetIn = ClientboundEntityMetadataPacket(player)
+        this.sendPacket(packetIn)
+
+        val packetOut = ClientboundEntityMetadataPacket(this)
+        player.sendPacket(packetOut)
     }
 
     fun getHeldItem(hand: PlayerHand): ItemStack {

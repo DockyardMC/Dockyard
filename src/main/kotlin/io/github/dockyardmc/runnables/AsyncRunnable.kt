@@ -24,3 +24,18 @@ class AsyncRunnable(
         }
     }
 }
+
+@OptIn(DelicateCoroutinesApi::class)
+fun runAsync(unit: () -> Unit): Deferred<Unit> {
+    return GlobalScope.async {
+        unit.invoke()
+    }
+}
+
+@OptIn(DelicateCoroutinesApi::class)
+fun Deferred<Unit>.later(callback: () -> Unit) {
+    GlobalScope.launch {
+        this@later.await()
+        callback.invoke()
+    }
+}

@@ -21,6 +21,12 @@ data class Vector3f(
     constructor(single: Float) : this(single, single, single)
 }
 
+fun ByteBuf.writeShortVector3(vector3: Vector3) {
+    this.writeShort(vector3.x)
+    this.writeShort(vector3.y)
+    this.writeShort(vector3.z)
+}
+
 fun ByteBuf.writeVector3f(vector3: Vector3f) {
     this.writeFloat(vector3.x)
     this.writeFloat(vector3.y)

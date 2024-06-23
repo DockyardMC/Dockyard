@@ -12,6 +12,7 @@ class CoolParticles: DockyardPlugin {
     override fun load(server: DockyardServer) {
 
         SpinningCube().register()
+        DoubleJump()
 
     }
 

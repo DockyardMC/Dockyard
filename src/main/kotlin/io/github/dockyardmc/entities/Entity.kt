@@ -10,10 +10,10 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.utils.Vector3
-import io.github.dockyardmc.utils.toVector3
 import io.github.dockyardmc.utils.toVector3f
 import io.github.dockyardmc.world.World
 import java.util.UUID
@@ -58,6 +58,14 @@ interface Entity {
         player.sendPacket(entityDespawnPacket)
     }
 
+    //TODO move to bindable
+    fun setEntityVelocity(velocity: Vector3) {
+        val packet = ClientboundSetVelocityPacket(this, velocity)
+        viewers.sendPacket(packet)
+        sendSelfPacketIfPlayer(packet)
+
+    }
+
     //TODO make this work
     fun lookAt(target: Entity) {
         val newLoc = this.location.setDirection(target.location.subtract(this.location).toVector3f())
@@ -94,4 +102,8 @@ interface Entity {
         val minZ: Double,
         val maxZ: Double
     )
+
+    private fun sendSelfPacketIfPlayer(packet: ClientboundPacket) {
+        if(this is Player) this.sendPacket(packet)
+    }
 }

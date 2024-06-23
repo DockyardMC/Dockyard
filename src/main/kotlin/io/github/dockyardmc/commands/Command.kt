@@ -118,6 +118,7 @@ class CommandArgumentData(
 data class CommandExecutor(
     val player: Player? = null,
     val console: Console,
+    var command: String = "",
     val isPlayer: Boolean = player != null,
 ) {
     fun sendMessage(message: String) {

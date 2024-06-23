@@ -11,7 +11,6 @@ class PlayerInfoUpdate(
 class AddPlayerInfoUpdateAction(val profileProperty: ProfilePropertyMap): PlayerInfoUpdateAction()
 
 //TODO too hard, not doing now lol
-@Deprecated("look im never gonna add this, dont use this. Its here just cause all others are there")
 class InitializeChatInfoUpdateAction(): PlayerInfoUpdateAction()
 
 class UpdateGamemodeInfoUpdateAction(val gameMode: GameMode): PlayerInfoUpdateAction()
