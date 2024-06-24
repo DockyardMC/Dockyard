@@ -1,6 +1,12 @@
 package io.github.dockyardmc.bindables
 
-class BindableMutableList<T>(vararg list: T) {
+import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import java.util.*
+
+class BindableMutableList<T>(list: List<T>) {
+
+    constructor(vararg list: T): this(list.toList())
 
     private var innerList: MutableList<T> = mutableListOf()
     private var addListeners = mutableListOf<BindableListItemAddListener<T>>()
@@ -21,6 +27,14 @@ class BindableMutableList<T>(vararg list: T) {
         updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(item)) }
     }
 
+    fun addIfNotPresent(item: T) {
+        if(!values.contains(item)) add(item)
+    }
+
+    fun removeIfPresent(item: T) {
+        if(values.contains(item)) remove(item)
+    }
+
     fun remove(item: T) {
         innerList.remove(item)
         updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(item)) }
@@ -31,6 +45,10 @@ class BindableMutableList<T>(vararg list: T) {
         innerList[index] = item
         updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(item)) }
         changeListener.forEach { it.unit.invoke(BindableListItemChangeEvent<T>(item)) }
+    }
+
+    fun contains(target: T): Boolean {
+        return values.contains(target)
     }
 
     class BindableListUpdateEvent<T>(val item: T?)
@@ -58,10 +76,17 @@ class BindableMutableList<T>(vararg list: T) {
         updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(null)) }
     }
 
-
-
     class BindableListItemAddListener<T>(val unit: (list: BindableListItemAddEvent<T>) -> Unit)
     class BindableListItemRemoveListener<T>(val unit: (list: BindableListItemRemovedEvent<T>) -> Unit)
     class BindableListItemChangeListener<T>(val unit: (list: BindableListItemChangeEvent<T>) -> Unit)
     class BindableListUpdateListener<T>(val unit: (list: BindableListUpdateEvent<T>) -> Unit)
 }
+
+
+fun BindableMutableList<UUID>.sendPacket(packet: ClientboundPacket) {
+    this.values.forEach { uuid ->
+        val player = PlayerManager.players.firstOrNull { uuid == it.uuid } ?: return@forEach
+        player.sendPacket(packet)
+    }
+}
+

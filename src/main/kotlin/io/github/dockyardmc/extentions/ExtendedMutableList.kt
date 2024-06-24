@@ -23,3 +23,11 @@ fun MutableList<Player>.sendActionBar(message: String) {
 fun MutableList<Player>.sendActionBar(message: Component) {
     this.forEach { it.sendActionBar(message) }
 }
+
+fun <E> MutableList<E>.addIfNotPresent(target: E) {
+    if(!this.contains(target)) this.add(target)
+}
+
+fun <E> MutableList<E>.removeIfPresent(target: E) {
+    if(this.contains(target)) this.remove(target)
+}

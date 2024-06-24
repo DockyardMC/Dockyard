@@ -8,7 +8,6 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.world.World
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
 
 object PlayerManager {
 
