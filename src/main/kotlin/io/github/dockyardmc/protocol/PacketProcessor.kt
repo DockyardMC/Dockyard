@@ -81,7 +81,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
                     if(packet == null) {
                         buf.discardReadBytes()
-                        log("Received unknow packet with id $packetId (could also be buffer overflow)", LogType.ERROR)
+                        log("Received unknown packet with id $packetId (could also be buffer overflow)", LogType.ERROR)
                         break
                     }
 
