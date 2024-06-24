@@ -47,6 +47,14 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             connection.sendPacket(ClientboundRegistryDataPacket(it))
         }
 
+        connection.sendPacket(ClientboundConfigurationServerLinksPacket(
+            listOf(
+                CommonLink(LinkType.BUG_REPORT, "https://github.com/DockyardMC/Dockyard/issues/new"),
+                CustomLink("GitHub", "https://github.com/DockyardMC/Dockyard"),
+                CustomLink("Discord", "https://discord.com/invite/SA9nmfMkdc")
+           )
+        ))
+
         val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
         connection.sendPacket(finishConfigurationPacket)
     }
