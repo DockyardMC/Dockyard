@@ -54,6 +54,13 @@ fun BindableMutableList<PersistentPlayer>.contains(target: Player): Boolean {
     return this.values.contains(target.toPersistent())
 }
 
+fun BindableMutableList<PersistentPlayer>.addIfNotPresent(target: Player) {
+    this.addIfNotPresent(target.toPersistent())
+}
+fun BindableMutableList<PersistentPlayer>.removeIfPresent(target: Player) {
+    this.removeIfPresent(target.toPersistent())
+}
+
 fun Player.toPersistent(): PersistentPlayer {
     return PersistentPlayer(this.uuid)
 }
