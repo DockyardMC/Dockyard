@@ -83,7 +83,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
 
     override fun addViewer(player: Player) {
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(infoUpdatePacket)))
+        player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
 
         super.addViewer(player)
 

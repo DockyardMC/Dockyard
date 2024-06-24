@@ -6,45 +6,28 @@ import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.scroll.extensions.toComponent
 
 @WikiVGEntry("Player Info Update")
 @ClientboundPacketInfo(0x3E, ProtocolState.PLAY)
-class ClientboundPlayerInfoUpdatePacket(
-    action: Int,
-    updates: MutableList<PlayerInfoUpdate>,
-): ClientboundPacket() {
+class ClientboundPlayerInfoUpdatePacket(vararg updates: PlayerInfoUpdate): ClientboundPacket() {
 
     init {
-        data.writeByte(action)
-
+        //TODO Figure out why this wont send with multiple update actions
+        var bitMask = 0
+        updates.forEach { bitMask += it.action.bitMask }
+        data.writeByte(bitMask)
         data.writeVarInt(updates.size)
         updates.forEach {
             data.writeUUID(it.uuid)
-            when(it.action::class) {
-                AddPlayerInfoUpdateAction::class -> {
-                    val addAction = it.action as AddPlayerInfoUpdateAction
-                    data.writeProfileProperties(addAction.profileProperty)
-                }
-
-                UpdateGamemodeInfoUpdateAction::class -> {
-                    val updateAction = it.action as UpdateGamemodeInfoUpdateAction
-                    data.writeVarInt(updateAction.gameMode.ordinal)
-                }
-
-                UpdateListedInfoUpdateAction::class -> {
-                    val updateAction = it.action as UpdateListedInfoUpdateAction
-                    data.writeBoolean(updateAction.listed)
-                }
-
-                UpdateLatencyInfoUpdateAction::class -> {
-                    val updateAction = it.action as UpdateLatencyInfoUpdateAction
-                    data.writeVarInt(updateAction.latency)
-                }
-
-                UpdateDisplayNameInfoUpdateAction::class -> {
-                    val updateAction = it.action as UpdateDisplayNameInfoUpdateAction
+            when(val updateAction = it.action) {
+                is AddPlayerInfoUpdateAction -> data.writeProfileProperties(updateAction.profileProperty)
+                is UpdateGamemodeInfoUpdateAction -> data.writeVarInt(updateAction.gameMode.ordinal)
+                is SetListedInfoUpdateAction -> data.writeBoolean(updateAction.listed)
+                is UpdateLatencyInfoUpdateAction -> data.writeVarInt(updateAction.ping)
+                is SetDisplayNameInfoUpdateAction -> {
                     data.writeBoolean(updateAction.hasDisplayName)
-                    data.writeNBT(updateAction.displayName.toNBT())
+                    if(updateAction.hasDisplayName) data.writeNBT(updateAction.displayName!!.toComponent().toNBT())
                 }
             }
         }

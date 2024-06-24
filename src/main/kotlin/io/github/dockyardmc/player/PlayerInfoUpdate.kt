@@ -1,6 +1,5 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.scroll.Component
 import java.util.UUID
 
 class PlayerInfoUpdate(
@@ -8,17 +7,52 @@ class PlayerInfoUpdate(
     val action: PlayerInfoUpdateAction
 )
 
-class AddPlayerInfoUpdateAction(val profileProperty: ProfilePropertyMap): PlayerInfoUpdateAction()
+interface PlayerInfoUpdateAction {
+    val bitMask: Int
+}
 
-//TODO too hard, not doing now lol
-class InitializeChatInfoUpdateAction(): PlayerInfoUpdateAction()
+class AddPlayerInfoUpdateAction(
 
-class UpdateGamemodeInfoUpdateAction(val gameMode: GameMode): PlayerInfoUpdateAction()
+    val profileProperty: ProfilePropertyMap,
+    override val bitMask: Int = 0x01
 
-class UpdateListedInfoUpdateAction(val listed: Boolean): PlayerInfoUpdateAction()
+): PlayerInfoUpdateAction
 
-class UpdateLatencyInfoUpdateAction(val latency: Int): PlayerInfoUpdateAction()
+class UpdateGamemodeInfoUpdateAction(
 
-class UpdateDisplayNameInfoUpdateAction(val hasDisplayName: Boolean, val displayName: Component): PlayerInfoUpdateAction()
+    val gameMode: GameMode,
+    override val bitMask: Int = 0x04
 
-open class PlayerInfoUpdateAction()
+): PlayerInfoUpdateAction
+
+class SetListedInfoUpdateAction(
+
+    val listed: Boolean,
+    override val bitMask: Int = 0x08
+
+): PlayerInfoUpdateAction
+
+class UpdateLatencyInfoUpdateAction(
+
+    val ping: Int,
+    override val bitMask: Int = 0x10
+
+): PlayerInfoUpdateAction
+
+class SetDisplayNameInfoUpdateAction(
+
+    val hasDisplayName: Boolean,
+    val displayName: String?,
+    override val bitMask: Int = 0x20
+
+): PlayerInfoUpdateAction
+
+
+//class UpdateGamemodeInfoUpdateAction(val gameMode: GameMode): PlayerInfoUpdateAction()
+//
+//class UpdateListedInfoUpdateAction(val listed: Boolean): PlayerInfoUpdateAction()
+//
+//class UpdateLatencyInfoUpdateAction(val latency: Int): PlayerInfoUpdateAction()
+//
+//class UpdateDisplayNameInfoUpdateAction(val hasDisplayName: Boolean, val displayName: Component): PlayerInfoUpdateAction()
+//
