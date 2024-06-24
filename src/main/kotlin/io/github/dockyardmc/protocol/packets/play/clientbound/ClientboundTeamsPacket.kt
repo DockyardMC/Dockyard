@@ -13,6 +13,16 @@ import io.github.dockyardmc.scoreboard.team.Team
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.netty.buffer.ByteBuf
 
+private fun writeTeamInfo(buffer: ByteBuf, team: Team) {
+    buffer.writeNBT(team.displayName.value.toNBT())
+    buffer.writeByte(team.flags.value)
+    buffer.writeUtf(team.nameTagVisibility.value.value)
+    buffer.writeUtf(team.collisionRule.value.value)
+    buffer.writeVarInt(team.color.value)
+    buffer.writeNBT((team.prefix.value ?: "".toComponent()).toNBT())
+    buffer.writeNBT((team.suffix.value ?: "".toComponent()).toNBT())
+}
+
 sealed class Action(val team: Team) {
     abstract val id: Int
 
@@ -23,13 +33,7 @@ class CreateTeam(team: Team): Action(team) {
     override val id: Int = 0x00
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeNBT(team.displayName.toNBT())
-        buffer.writeByte(team.flags)
-        buffer.writeUtf(team.nameTagVisibility.value)
-        buffer.writeUtf(team.collisionRule.value)
-        buffer.writeVarInt(team.color)
-        buffer.writeNBT(team.prefix.toNBT())
-        buffer.writeNBT(team.suffix.toNBT())
+        writeTeamInfo(buffer, team)
         buffer.writeStringArray(team.mapEntities())
     }
 }
@@ -46,13 +50,7 @@ class UpdateTeam(team: Team): Action(team) {
     override val id = 0x02
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeNBT(team.displayName.toNBT())
-        buffer.writeByte(team.flags)
-        buffer.writeUtf(team.nameTagVisibility.value)
-        buffer.writeUtf(team.collisionRule.value)
-        buffer.writeVarInt(team.color)
-        buffer.writeNBT(team.prefix.toNBT())
-        buffer.writeNBT(team.suffix.toNBT())
+        writeTeamInfo(buffer, team)
     }
 }
 
@@ -60,8 +58,8 @@ class AddEntities(team: Team, val entities: Collection<Entity>): Action(team) {
     override val id = 0x03
 
     init {
-        if (entities.any { it in team.entities.values }) {
-            throw IllegalArgumentException("This entity is already in the team!")
+        if (entities.any { it !in team.entities.values }) {
+            throw IllegalArgumentException("This entity is not in the team!")
         }
     }
 
@@ -74,8 +72,8 @@ class RemoveEntities(team: Team, val entities: Collection<Entity>): Action(team)
     override val id = 0x04
 
     init {
-        if (team.entities.values.containsAll(entities)) {
-            throw IllegalArgumentException("These entities aren't in the team!")
+        if (entities.any { it in team.entities.values }) {
+            throw IllegalArgumentException("These entities are still in the team!")
         }
     }
 

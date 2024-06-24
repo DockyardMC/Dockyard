@@ -19,7 +19,9 @@ class ServerboundPlayerChatMessagePacket(var message: String): ServerboundPacket
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         val event = PlayerChatMessageEvent(message, processor.player)
         Events.dispatch(event)
-        if(event.cancelled) return
+        if (event.cancelled) return
+
+        // TODO: add prefix and suffix to chat
         DockyardServer.broadcastMessage("<white>${event.player}: <white>${event.message}")
     }
 

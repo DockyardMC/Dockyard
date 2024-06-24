@@ -12,9 +12,9 @@ object TeamManager {
 
     init {
         teams.itemAdded { event ->
-            if (teams.values.any { it.name == event.item.name }) {
-                throw IllegalArgumentException("This team already exists!")
-            }
+//            if (teams.values.any { it.name == event.item.name }) {
+//                throw IllegalArgumentException("This team already exists!")
+//            }
 
             val packet = ClientboundTeamsPacket(CreateTeam(event.item))
             PlayerManager.players.sendPacket(packet)
