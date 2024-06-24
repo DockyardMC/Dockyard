@@ -11,6 +11,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChangeDifficultyPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.scoreboard.ScoreboardManager
 import io.github.dockyardmc.world.Difficulty
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
@@ -113,6 +114,10 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             player.sendPacket(it.packet)
         }
 
+        ScoreboardManager.scoreboards.values.forEach {
+            player.sendPacket(ClientboundUpdateObjectivePacket(CreateObjective(it)))
+        }
+
         processor.player.location = world.defaultSpawnLocation
 
         player.sendPacket(ClientboundRespawnPacket(ClientboundRespawnPacket.RespawnDataKept.NO_DATA_KEPT))
@@ -126,7 +131,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         // Make player visible to all other players by default
         PlayerManager.players.forEach { loopPlayer ->
-            if(loopPlayer.username == player.username) return@forEach
+            if (loopPlayer.username == player.username) return@forEach
             player.addViewer(loopPlayer)
             loopPlayer.addViewer(player)
         }

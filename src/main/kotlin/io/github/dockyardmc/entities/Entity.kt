@@ -34,6 +34,10 @@ interface Entity {
     var metadata: BindableMutableList<EntityMetadata>
     var pose: Bindable<EntityPose>
 
+    fun usernameOrUUID(): String {
+        return if (this is Player) username else uuid.toString()
+    }
+
     fun addViewer(player: Player) {
 
         val event = EntityViewerAddEvent(this, player)
