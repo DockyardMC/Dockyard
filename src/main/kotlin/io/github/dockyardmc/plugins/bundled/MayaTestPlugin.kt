@@ -2,7 +2,6 @@ package io.github.dockyardmc.plugins.bundled
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.ServerMetrics
-import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.toggle
 import io.github.dockyardmc.bossbar.Bossbar
 import io.github.dockyardmc.bossbar.BossbarColor
@@ -15,12 +14,13 @@ import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.plugins.DockyardPlugin
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisplayObjectivePacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
+import io.github.dockyardmc.scoreboard.Display
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.registry.Particles
-import io.github.dockyardmc.runnables.ticks
-import io.github.dockyardmc.runnables.timedSequenceAsync
-import io.github.dockyardmc.scroll.RGB
+import io.github.dockyardmc.scoreboard.Entry
+import io.github.dockyardmc.scoreboard.Scoreboard
+import io.github.dockyardmc.scoreboard.ScoreboardManager
 import io.github.dockyardmc.utils.MathUtils
 
 class MayaTestPlugin: DockyardPlugin {
@@ -28,7 +28,10 @@ class MayaTestPlugin: DockyardPlugin {
     override var author: String = "LukynkaCZE"
     override var version: String = DockyardServer.versionInfo.dockyardVersion
 
+    private val scoreboard = Scoreboard("scoreboard")
+
     override fun load(server: DockyardServer) {
+        ScoreboardManager.scoreboards.add(scoreboard)
 
         Period.on<TickPeriod> {
             val runtime = Runtime.getRuntime()
@@ -47,6 +50,16 @@ class MayaTestPlugin: DockyardPlugin {
             it.player.sendPacket(effectPacket)
             it.player.tabListHeader.value = "\n  <dark_gray><s>        <r>  <aqua>DockyardMC<r>  <dark_gray><s>        <r>  \n".toComponent()
             it.player.tabListFooter.value = "\n  <dark_gray><s>                                   <r>  \n".toComponent()
+
+            it.player.sendPacket(ClientboundDisplayObjectivePacket(
+                scoreboard,
+                Display.SIDEBAR
+            ))
+            scoreboard.updateScore(Entry(
+                69,
+                it.player,
+                "<rainbow>Hello ${it.player.username}".toComponent()
+            ))
         }
 
         Commands.add("/bar") {
@@ -66,6 +79,6 @@ class MayaTestPlugin: DockyardPlugin {
     }
 
     override fun unload(server: DockyardServer) {
-        TODO("Not yet implemented")
+        ScoreboardManager.scoreboards.remove(scoreboard)
     }
 }
