@@ -43,9 +43,11 @@ class Player(val username: String, override var entityId: Int, override var uuid
     var isFullyInitialized: Boolean = false
     var inventory: Inventory = Inventory()
     var gameMode: Bindable<GameMode> = Bindable(GameMode.ADVENTURE)
-    var flySpeed: Bindable<Float> = Bindable<Float>(0.05f) // 0.05 is the default fly speed in vanilla minecraft
+    var flySpeed: Bindable<Float> = Bindable(0.05f) // 0.05 is the default fly speed in vanilla minecraft
     var displayedSkinParts: BindableMutableList<DisplayedSkinPart> = BindableMutableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     var isConnected: Boolean = true
+    val tabListHeader: Bindable<Component> = Bindable("".toComponent())
+    val tabListFooter: Bindable<Component> = Bindable("".toComponent())
 
     //for debugging
     lateinit var lastSentPacket: ClientboundPacket
@@ -68,6 +70,14 @@ class Player(val username: String, override var entityId: Int, override var uuid
             metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.DISPLAY_SKIN_PARTS, EntityMetadataType.BYTE, displayedSkinParts.values.getBitMask()))
             sendViewersMedataPacket()
             sendSelfMetadataPacket()
+        }
+
+        tabListHeader.valueChanged {
+            sendPacket(ClientboundTabListPacket(it.newValue, tabListFooter.value))
+        }
+
+        tabListFooter.valueChanged {
+            sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue))
         }
     }
 

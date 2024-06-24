@@ -9,23 +9,18 @@ import io.github.dockyardmc.bossbar.BossbarNotches
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.extentions.hexToRGB
 import io.github.dockyardmc.extentions.truncate
-import io.github.dockyardmc.particles.DustParticleData
-import io.github.dockyardmc.particles.DustTransitionParticleData
-import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
+import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.runnables.ticks
 import io.github.dockyardmc.runnables.timedSequenceAsync
 import io.github.dockyardmc.scroll.RGB
 import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Vector3f
-import java.awt.Color
 
 class MayaTestPlugin: DockyardPlugin {
     override var name: String = "MayaTestPlugin"
@@ -47,8 +42,10 @@ class MayaTestPlugin: DockyardPlugin {
         }
 
         Events.on<PlayerJoinEvent> {
-            val packet = ClientboundEntityEffectPacket(it.player, 15, 1, 99999, 0x00)
-            it.player.sendPacket(packet)
+            val effectPacket = ClientboundEntityEffectPacket(it.player, 15, 1, 99999, 0x00)
+            it.player.sendPacket(effectPacket)
+            it.player.tabListHeader.value = "\n  <dark_gray><s>        <r>  <aqua>DockyardMC<r>  <dark_gray><s>        <r>  \n".toComponent()
+            it.player.tabListFooter.value = "\n  <dark_gray><s>                                   <r>  \n".toComponent()
         }
 
         Commands.add("/bar") {
