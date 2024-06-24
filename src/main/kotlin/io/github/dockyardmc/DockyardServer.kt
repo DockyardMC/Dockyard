@@ -35,6 +35,7 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.plugins.bundled.MudkipTestPlugin
 import java.net.InetSocketAddress
 import java.util.*
 
@@ -96,6 +97,7 @@ class DockyardServer(var port: Int) {
         innerProfiler.start("Load Plugins")
         PluginManager.loadLocal(DockyardCommands())
         PluginManager.loadLocal(MayaTestPlugin())
+        PluginManager.loadLocal(MudkipTestPlugin())
         PluginManager.loadLocal(CoolParticles())
         PluginManager.loadLocal(DockyardExtras())
         innerProfiler.end()

@@ -21,6 +21,9 @@ class BindableMutableList<T>(list: List<T>) {
     val values: List<T>
         get() = innerList.toList()
 
+    val size: Int
+        get() = innerList.size
+
     fun add(item: T) {
         innerList.add(item)
         addListeners.forEach { it.unit.invoke(BindableListItemAddEvent<T>(item)) }

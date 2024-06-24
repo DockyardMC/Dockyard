@@ -13,29 +13,41 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityType
+import io.github.dockyardmc.scoreboard.team.Team
+import io.github.dockyardmc.scoreboard.team.TeamManager
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.toVector3f
 import io.github.dockyardmc.world.World
 import java.util.UUID
 
-interface Entity {
-    var entityId: Int
-    var uuid: UUID
-    var type: EntityType
-    var location: Location
-    var velocity: Vector3
-    var viewers: MutableList<Player>
-    var hasGravity: Boolean
-    var canBeDamaged: Boolean
-    var hasCollision: Boolean
-    var world: World
-    var displayName: String
-    var isOnGround: Boolean
-    var metadata: BindableMutableList<EntityMetadata>
-    var pose: Bindable<EntityPose>
+abstract class Entity {
+    abstract var entityId: Int
+    abstract var uuid: UUID
+    abstract var type: EntityType
+    abstract var location: Location
+    abstract var velocity: Vector3
+    abstract var viewers: MutableList<Player>
+    abstract var hasGravity: Boolean
+    abstract var canBeDamaged: Boolean
+    abstract var hasCollision: Boolean
+    abstract var world: World
+    abstract var displayName: String
+    abstract var isOnGround: Boolean
+    abstract var metadata: BindableMutableList<EntityMetadata>
+    abstract var pose: Bindable<EntityPose>
 
-    fun addViewer(player: Player) {
+    var team: Team? = null
+        set(value) {
+            if (value !in TeamManager.teams.values) {
+                throw IllegalArgumentException("This team is not registered!")
+            }
 
+            this.team?.entities?.remove(this)
+            field = value
+            value?.entities?.addIfNotPresent(this)
+        }
+
+    open fun addViewer(player: Player) {
         val event = EntityViewerAddEvent(this, player)
         Events.dispatch(event)
         if(event.cancelled) return
@@ -47,7 +59,7 @@ interface Entity {
         DockyardServer.broadcastMessage("<gray>Added viewer for ${this}: <lime>$player")
     }
 
-    fun removeViewer(player: Player, isDisconnect: Boolean) {
+    open fun removeViewer(player: Player, isDisconnect: Boolean) {
         val event = EntityViewerRemoveEvent(this, player)
         Events.dispatch(event)
         if(event.cancelled) return
@@ -59,7 +71,7 @@ interface Entity {
     }
 
     //TODO move to bindable
-    fun setEntityVelocity(velocity: Vector3) {
+    open fun setEntityVelocity(velocity: Vector3) {
         val packet = ClientboundSetVelocityPacket(this, velocity)
         viewers.sendPacket(packet)
         sendSelfPacketIfPlayer(packet)
@@ -67,7 +79,7 @@ interface Entity {
     }
 
     //TODO make this work
-    fun lookAt(target: Entity) {
+    open fun lookAt(target: Entity) {
         val newLoc = this.location.setDirection(target.location.subtract(this.location).toVector3f())
         this.location = newLoc
 
@@ -76,12 +88,12 @@ interface Entity {
         viewers.sendPacket(packet)
     }
 
-    fun sendViewersMedataPacket() {
+    open fun sendMetadataPacketToViewers() {
         val packet = ClientboundEntityMetadataPacket(this)
         viewers.sendPacket(packet)
     }
 
-    fun calculateBoundingBox(): BoundingBox {
+    open fun calculateBoundingBox(): BoundingBox {
         val width = type.width
         val height = type.height
         return BoundingBox(

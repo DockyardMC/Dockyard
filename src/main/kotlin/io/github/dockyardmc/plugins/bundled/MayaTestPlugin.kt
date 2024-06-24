@@ -17,16 +17,12 @@ import io.github.dockyardmc.player.add
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.registry.Particles
-import io.github.dockyardmc.runnables.ticks
-import io.github.dockyardmc.runnables.timedSequenceAsync
-import io.github.dockyardmc.scroll.RGB
 import io.github.dockyardmc.utils.MathUtils
 
 class MayaTestPlugin: DockyardPlugin {
-    override var name: String = "MayaTestPlugin"
-    override var author: String = "LukynkaCZE"
-    override var version: String = DockyardServer.versionInfo.dockyardVersion
+    override val name: String = "MayaTestPlugin"
+    override val author: String = "LukynkaCZE"
+    override val version: String = DockyardServer.versionInfo.dockyardVersion
 
     override fun load(server: DockyardServer) {
 

@@ -29,6 +29,4 @@ class Pig(
     override var isOnGround: Boolean = true,
     override var metadata: BindableMutableList<EntityMetadata> = BindableMutableList(),
     override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
-) : Entity {
-
-}
+) : Entity()
