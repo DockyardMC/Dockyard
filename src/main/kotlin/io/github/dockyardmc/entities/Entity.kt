@@ -13,8 +13,8 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityType
-import io.github.dockyardmc.scoreboard.team.Team
-import io.github.dockyardmc.scoreboard.team.TeamManager
+import io.github.dockyardmc.team.Team
+import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.toVector3f
 import io.github.dockyardmc.world.World

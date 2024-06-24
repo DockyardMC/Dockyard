@@ -11,7 +11,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChangeDifficultyPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
-import io.github.dockyardmc.scoreboard.team.TeamManager
+import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.world.Difficulty
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext

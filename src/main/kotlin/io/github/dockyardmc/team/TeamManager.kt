@@ -1,4 +1,4 @@
-package io.github.dockyardmc.scoreboard.team
+package io.github.dockyardmc.team
 
 import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.extentions.sendPacket

@@ -7,8 +7,8 @@ import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.plugins.DockyardPlugin
-import io.github.dockyardmc.scoreboard.team.Team
-import io.github.dockyardmc.scoreboard.team.TeamManager
+import io.github.dockyardmc.team.Team
+import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.scroll.extensions.toComponent
 
 class MudkipTestPlugin: DockyardPlugin {
