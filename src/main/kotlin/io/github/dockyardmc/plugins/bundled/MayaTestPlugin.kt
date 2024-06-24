@@ -16,6 +16,7 @@ import io.github.dockyardmc.particles.DustTransitionParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod
+import io.github.dockyardmc.player.add
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.registry.Particles
@@ -47,6 +48,13 @@ class MayaTestPlugin: DockyardPlugin {
         Events.on<PlayerJoinEvent> {
             val packet = ClientboundEntityEffectPacket(it.player, 15, 1, 99999, 0x00)
             it.player.sendPacket(packet)
+        }
+
+        Commands.add("/bar") {
+            it.execute { exec ->
+                val bar = Bossbar("<yellow> hello chat :3", 1f, BossbarColor.YELLOW, BossbarNotches.SIX)
+                bar.viewers.add(exec.player!!)
+            }
         }
     }
 

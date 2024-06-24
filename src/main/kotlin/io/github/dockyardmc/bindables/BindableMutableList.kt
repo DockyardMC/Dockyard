@@ -1,9 +1,12 @@
 package io.github.dockyardmc.bindables
 
-import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import java.util.*
 
-class BindableMutableList<T>(vararg list: T) {
+class BindableMutableList<T>(list: List<T>) {
+
+    constructor(vararg list: T): this(list.toList())
 
     private var innerList: MutableList<T> = mutableListOf()
     private var addListeners = mutableListOf<BindableListItemAddListener<T>>()
@@ -34,6 +37,10 @@ class BindableMutableList<T>(vararg list: T) {
         innerList[index] = item
         updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(item)) }
         changeListener.forEach { it.unit.invoke(BindableListItemChangeEvent<T>(item)) }
+    }
+
+    fun contains(target: T): Boolean {
+        return values.contains(target)
     }
 
     class BindableListUpdateEvent<T>(val item: T?)
@@ -67,8 +74,10 @@ class BindableMutableList<T>(vararg list: T) {
     class BindableListUpdateListener<T>(val unit: (list: BindableListUpdateEvent<T>) -> Unit)
 }
 
-fun BindableMutableList<Player>.sendPacket(packet: ClientboundPacket) {
-    this.values.forEach {
-        it.sendPacket(packet)
+
+fun BindableMutableList<UUID>.sendPacket(packet: ClientboundPacket) {
+    this.values.forEach { uuid ->
+        val player = PlayerManager.players.firstOrNull { uuid == it.uuid } ?: return@forEach
+        player.sendPacket(packet)
     }
 }

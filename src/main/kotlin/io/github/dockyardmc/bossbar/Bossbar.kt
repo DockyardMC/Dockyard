@@ -1,21 +1,37 @@
 package io.github.dockyardmc.bossbar
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMutableList
-import io.github.dockyardmc.bindables.sendPacket
-import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.BossbarPacketAction
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundBossbarPacket
 import java.util.UUID
 
 class Bossbar(
-    val id: String,
-    val title: Bindable<String> = Bindable(id),
+    val title: Bindable<String> = Bindable(""),
     val progress: Bindable<Float> = Bindable(0f),
     val color: Bindable<BossbarColor> = Bindable(BossbarColor.WHITE),
     val notches: Bindable<BossbarNotches> = Bindable(BossbarNotches.NO_NOTCHES),
-    val viewers: BindableMutableList<Player> = BindableMutableList(),
+    val viewers: BindableMutableList<PersistentPlayer> = BindableMutableList(),
 ) {
+
+    constructor(
+        title: String = "",
+        progress: Float = 0f,
+        color: BossbarColor = BossbarColor.WHITE,
+        notches: BossbarNotches = BossbarNotches.NO_NOTCHES,
+        viewers: MutableList<Player> = mutableListOf(),
+    ):
+            this(
+                Bindable(title),
+                Bindable(progress),
+                Bindable(color),
+                Bindable(notches),
+                BindableMutableList(viewers.toPersistent())
+            )
 
     val uuid: UUID = UUID.randomUUID()
 
@@ -35,6 +51,15 @@ class Bossbar(
         viewers.itemRemoved {
             val removePacket = ClientboundBossbarPacket(BossbarPacketAction.REMOVE, this)
             it.item.sendPacket(removePacket)
+        }
+
+        // if player joins and is part of viewers, the bossbar should show for them
+        Events.on<PlayerJoinEvent> {
+            if(viewers.contains(it.player)) {
+                DockyardServer.broadcastMessage("${it.player}")
+                val createPacket = ClientboundBossbarPacket(BossbarPacketAction.ADD, this)
+                it.player.sendPacket(createPacket)
+            }
         }
     }
 }
