@@ -43,6 +43,7 @@ class MayaTestPlugin: DockyardPlugin {
             val fMem = (memoryUsage.toDouble() / 1000000).truncate(1)
             val fMax = (runtime.totalMemory().toDouble() / 1000000).truncate(1)
             DockyardServer.broadcastActionBar("<white>MSPT: <lime>$mspt <dark_gray>| <white>Memory Usage: <#ff6830>$memUsagePercent% <gray>(${fMem}mb / ${fMax}mb)")
+
         }
 
         Events.on<PlayerJoinEvent> {

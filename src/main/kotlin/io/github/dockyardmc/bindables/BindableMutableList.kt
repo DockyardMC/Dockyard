@@ -27,6 +27,14 @@ class BindableMutableList<T>(list: List<T>) {
         updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(item)) }
     }
 
+    fun addIfNotPresent(item: T) {
+        if(!values.contains(item)) add(item)
+    }
+
+    fun removeIfPresent(item: T) {
+        if(values.contains(item)) remove(item)
+    }
+
     fun remove(item: T) {
         innerList.remove(item)
         updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(item)) }
@@ -81,3 +89,4 @@ fun BindableMutableList<UUID>.sendPacket(packet: ClientboundPacket) {
         player.sendPacket(packet)
     }
 }
+
