@@ -1,5 +1,6 @@
 package io.github.dockyardmc.player
 
+import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerConnectEvent
 import io.github.dockyardmc.extentions.sendPacket
@@ -34,6 +35,7 @@ object PlayerManager {
         players.remove(player)
         playerToProcessorMap.remove(player.uuid)
         playerToEntityIdMap.remove(player.entityId)
+        EntityManager.entities.remove(player)
     }
 
     fun sendToEveryoneInWorld(world: World, packet: ClientboundPacket) {
