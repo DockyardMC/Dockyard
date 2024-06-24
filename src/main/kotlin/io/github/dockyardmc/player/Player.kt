@@ -18,6 +18,7 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.world.World
 import io.netty.channel.ChannelHandlerContext
+import org.jglrxavpok.hephaistos.mca.pack
 import java.util.UUID
 
 class Player(val username: String, override var entityId: Int, override var uuid: UUID, override var type: EntityType = Entities.PLAYER, override var location: Location = Location(0, 256, 0), override var world: World, val connection: ChannelHandlerContext, val address: String, val crypto: PlayerCrypto): Entity {
@@ -48,6 +49,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
     var isConnected: Boolean = true
     val tabListHeader: Bindable<Component> = Bindable("".toComponent())
     val tabListFooter: Bindable<Component> = Bindable("".toComponent())
+    val isListed: Bindable<Boolean> = Bindable(true)
 
     //for debugging
     lateinit var lastSentPacket: ClientboundPacket
@@ -57,8 +59,9 @@ class Player(val username: String, override var entityId: Int, override var uuid
         isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, canBeDamaged, canFly.value, flySpeed.value)) }
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, canBeDamaged, it.newValue, flySpeed.value)) }
         flySpeed.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, canBeDamaged, canFly.value, it.newValue)) }
-
         gameMode.valueChanged { this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat())) }
+        tabListHeader.valueChanged { sendPacket(ClientboundTabListPacket(it.newValue, tabListFooter.value)) }
+        tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
 
         pose.valueChanged {
             metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
@@ -72,18 +75,17 @@ class Player(val username: String, override var entityId: Int, override var uuid
             sendSelfMetadataPacket()
         }
 
-        tabListHeader.valueChanged {
-            sendPacket(ClientboundTabListPacket(it.newValue, tabListFooter.value))
-        }
-
-        tabListFooter.valueChanged {
-            sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue))
+        isListed.valueChanged {
+            val update = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(it.newValue))
+            val packet = ClientboundPlayerInfoUpdatePacket(update)
+            sendToViewers(packet)
+            sendPacket(packet)
         }
     }
 
     override fun addViewer(player: Player) {
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(0x01, mutableListOf(infoUpdatePacket)))
+        player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
 
         super.addViewer(player)
 

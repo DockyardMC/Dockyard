@@ -3,6 +3,7 @@ package io.github.dockyardmc.plugins.bundled
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.bindables.Bindable
+import io.github.dockyardmc.bindables.toggle
 import io.github.dockyardmc.bossbar.Bossbar
 import io.github.dockyardmc.bossbar.BossbarColor
 import io.github.dockyardmc.bossbar.BossbarNotches
@@ -52,6 +53,14 @@ class MayaTestPlugin: DockyardPlugin {
             it.execute { exec ->
                 val bar = Bossbar("<yellow> hello chat :3", 1f, BossbarColor.YELLOW, BossbarNotches.SIX)
                 bar.viewers.add(exec.player!!)
+            }
+        }
+
+        Commands.add("/listed") {
+            it.execute { exec ->
+                val player = exec.player!!
+                player.isListed.toggle()
+                player.sendMessage("<yellow>Toggled your tablist listing!")
             }
         }
     }

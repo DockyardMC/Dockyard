@@ -32,11 +32,16 @@ object SkinManager {
         asyncRunnable.callback = {
             player.sendPacket(ClientboundPlayerInfoRemovePacket(player))
             player.sendPacket(ClientboundRespawnPacket(ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
-            player.sendPacket(ClientboundPlayerInfoUpdatePacket(1, mutableListOf(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!)))))
+            val addPlayerUpdate = PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!))
+            val setListedUpdate = PlayerInfoUpdate(player.uuid, SetListedInfoUpdateAction(true))
+            player.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
+            player.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
 
             player.sendToViewers(ClientboundPlayerInfoRemovePacket(player))
             player.sendToViewers(ClientboundEntityRemovePacket(player))
-            player.sendToViewers(ClientboundPlayerInfoUpdatePacket(1, mutableListOf(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!)))))
+            player.sendToViewers(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
+            player.sendToViewers(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
+            player.sendToViewers(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!))))
             player.sendToViewers(ClientboundSpawnEntityPacket(player.entityId, player.uuid, player.type.id, player.location, player.location.yaw, 0, player.velocity))
             player.displayedSkinParts.triggerUpdate()
 
