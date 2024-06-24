@@ -175,4 +175,8 @@ class Player(val username: String, override var entityId: Int, override var uuid
             sendPacket(ClientboundSubtitlePacket(title.subtitle))
         }
     }
+
+    fun clearTitle(reset: Boolean) {
+        sendPacket(ClientboundClearTitlePacket(reset))
+    }
 }
