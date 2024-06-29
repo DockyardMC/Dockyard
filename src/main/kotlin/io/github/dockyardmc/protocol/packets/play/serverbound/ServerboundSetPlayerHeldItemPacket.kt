@@ -5,6 +5,7 @@ import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerSelectedHotbarSlotChangeEvent
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState

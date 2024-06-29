@@ -136,10 +136,6 @@ class DockyardServer(var port: Int) {
     }
 
     companion object {
-        fun broadcastMessage(message: String) { this.broadcastMessage(message.toComponent()) }
-        fun broadcastMessage(component: Component) { PlayerManager.players.sendMessage(component); Console.sendMessage(component.stripStyling()) }
-        fun broadcastActionBar(message: String) { this.broadcastActionBar(message.toComponent()) }
-        fun broadcastActionBar(component: Component) { PlayerManager.players.sendActionBar(component) }
         lateinit var versionInfo: Resources.DockyardVersionInfo
         var allowAnyVersion: Boolean = false
 

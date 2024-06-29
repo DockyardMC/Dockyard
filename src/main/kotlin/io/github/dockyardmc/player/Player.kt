@@ -13,13 +13,17 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.Entities
 import io.github.dockyardmc.registry.EntityType
+import io.github.dockyardmc.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.utils.Title
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.world.World
 import io.netty.channel.ChannelHandlerContext
 import java.util.UUID
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class Player(val username: String, override var entityId: Int, override var uuid: UUID, override var type: EntityType = Entities.PLAYER, override var location: Location = Location(0, 256, 0), override var world: World, val connection: ChannelHandlerContext, val address: String, val crypto: PlayerCrypto): Entity {
 
@@ -164,19 +168,23 @@ class Player(val username: String, override var entityId: Int, override var uuid
         this.sendPacket(packet)
     }
 
-    fun showTitle(title: Title) {
-        sendPacket(title.buildTimesPacket())
+    fun sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
+        val packets = mutableListOf(
+            ClientboundSubtitlePacket(subtitle.toComponent()),
+            ClientboundTitleTimesPacket(fadeIn, stay, fadeOut),
+            ClientboundSetTitlePacket(title.toComponent()),
+        )
 
-        if (title.title != null) {
-            sendPacket(ClientboundSetTitlePacket(title.title))
-        }
-
-        if (title.subtitle != null) {
-            sendPacket(ClientboundSubtitlePacket(title.subtitle))
+        packets.forEach {
+            this.sendPacket(it)
         }
     }
 
     fun clearTitle(reset: Boolean) {
         sendPacket(ClientboundClearTitlePacket(reset))
     }
+}
+
+fun Int.toTicks(): Int {
+    return this * 20
 }
