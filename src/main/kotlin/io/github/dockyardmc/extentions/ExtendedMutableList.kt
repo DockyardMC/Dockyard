@@ -7,6 +7,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
+import java.util.UUID
 
 fun List<Player>.sendMessage(message: String) {
     this.forEach { it.sendMessage(message) }
@@ -58,6 +59,14 @@ fun List<Entity>.removeViewer(player: Player, isDisconnect: Boolean = false) {
 
 fun List<Player>.setCanFly(canFly: Boolean) {
     this.forEach { it.canFly.value = canFly }
+}
+
+fun List<Player>.setSkin(uuid: UUID) {
+    this.forEach { it.setSkin(uuid) }
+}
+
+fun List<Player>.setSkin(username: String) {
+    this.forEach { it.setSkin(username) }
 }
 
 fun List<Player>.setIsFlying(isFlying: Boolean) {

@@ -163,6 +163,10 @@ class Player(val username: String, override var entityId: Int, override var uuid
         this.sendPacket(packet)
     }
 
+    fun clearTitle(reset: Boolean) {
+        sendPacket(ClientboundClearTitlePacket(reset))
+    }
+
     fun sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
         val packets = mutableListOf(
             ClientboundSubtitlePacket(subtitle.toComponent()),
@@ -173,19 +177,5 @@ class Player(val username: String, override var entityId: Int, override var uuid
         packets.forEach {
             this.sendPacket(it)
         }
-    }
-
-
-    //TODO
-    fun give(itemStack: ItemStack) {
-
-    }
-
-    fun clearInventory() {
-        this.inventory.clear()
-    }
-
-    fun clearTitle(reset: Boolean) {
-        sendPacket(ClientboundClearTitlePacket(reset))
     }
 }
