@@ -52,3 +52,16 @@ object SkinManager {
         asyncRunnable.execute()
     }
 }
+
+fun Player.setSkin(uuid: UUID) {
+    SkinManager.setSkinOf(this, uuid)
+}
+
+fun Player.setSkin(username: String) {
+    SkinManager.setSkinOf(this, username)
+}
+
+fun Player.updateSkin() {
+    SkinManager.skinCache.remove(this.uuid)
+    setSkin(this.uuid)
+}
