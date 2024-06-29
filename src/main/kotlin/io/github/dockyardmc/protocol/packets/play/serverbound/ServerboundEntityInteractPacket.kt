@@ -13,7 +13,6 @@ import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.player.PlayerHand
-import io.github.dockyardmc.plugins.bundled.DockyardExtras.DockyardExtras
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket

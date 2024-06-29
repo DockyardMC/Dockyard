@@ -8,8 +8,9 @@ import it.unimi.dsi.fastutil.ints.IntArrayList
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.IntUnaryOperator
+import kotlin.math.min
 
-//Palette able to take any value anywhere. May consume more memory than required.
+//Palette able to take any value anywhere. May use more memory than required.
 internal class FlexiblePalette @JvmOverloads constructor(// Specific to this palette type
     private val adaptivePalette: AdaptivePalette, private var bitsPerEntry: Byte = adaptivePalette.defaultBitsPerEntry
 ) :
@@ -17,10 +18,8 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
     private var count = 0
     var values: LongArray
 
-    // palette index = value
     var paletteToValueList: IntArrayList
 
-    // value = palette index
     private var valueToPaletteMap: Int2IntOpenHashMap
 
     init {
@@ -142,21 +141,13 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
         this.count = count.getPlain()
     }
 
-    override fun count(): Int {
-        return count
-    }
+    override fun count(): Int = count
 
-    override fun bitsPerEntry(): Int {
-        return bitsPerEntry.toInt()
-    }
+    override fun bitsPerEntry(): Int = bitsPerEntry.toInt()
 
-    override fun maxBitsPerEntry(): Int {
-        return adaptivePalette.maxBitsPerEntry()
-    }
+    override fun maxBitsPerEntry(): Int = adaptivePalette.maxBitsPerEntry()
 
-    override fun dimension(): Int {
-        return adaptivePalette.dimension()
-    }
+    override fun dimension(): Int = adaptivePalette.dimension()
 
     override fun clone(): SpecializedPalette {
         return try {
@@ -186,7 +177,7 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
         for (i in values.indices) {
             val value = values[i]
             val startIndex = i * valuesPerLong
-            val endIndex = Math.min(startIndex + valuesPerLong, size)
+            val endIndex = min(startIndex + valuesPerLong, size)
             for (index in startIndex..<endIndex) {
                 val bitIndex = (index - startIndex) * bitsPerEntry
                 val paletteIndex = (value shr bitIndex and magicMask.toLong()).toInt()
@@ -211,7 +202,7 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
         for (i in values.indices) {
             var block = values[i]
             val startIndex = i * valuesPerLong
-            val endIndex = Math.min(startIndex + valuesPerLong, size)
+            val endIndex = min(startIndex + valuesPerLong, size)
             for (index in startIndex until endIndex) {
                 val bitIndex = (index - startIndex) * bitsPerEntry
                 block = block and (clear shl bitIndex).inv() or (paletteValues[index].toLong() shl bitIndex)
@@ -252,9 +243,7 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
         return lastPaletteIndex
     }
 
-    fun hasPalette(): Boolean {
-        return bitsPerEntry <= maxBitsPerEntry()
-    }
+    fun hasPalette(): Boolean = bitsPerEntry <= maxBitsPerEntry()
 
     companion object {
         private val WRITE_CACHE = ThreadLocal.withInitial { IntArray(4096) }
@@ -266,8 +255,6 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
                     (x and dimensionMask)
         }
 
-        fun maxPaletteSize(bitsPerEntry: Int): Int {
-            return 1 shl bitsPerEntry
-        }
+        fun maxPaletteSize(bitsPerEntry: Int): Int = 1 shl bitsPerEntry
     }
 }

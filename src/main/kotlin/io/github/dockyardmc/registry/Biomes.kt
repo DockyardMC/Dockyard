@@ -1,6 +1,5 @@
 package io.github.dockyardmc.registry
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.utils.Resources
 import org.jglrxavpok.hephaistos.nbt.NBT
@@ -24,9 +23,8 @@ object Biomes {
         list.associateBy { it.identifier }
     }
 
-    fun getNewBiome(identifier: String): Biome {
-        return map[identifier] ?: error("Biome with identifier $identifier not found")
-    }
+    fun getNewBiome(identifier: String): Biome =
+        map[identifier] ?: error("Biome with identifier $identifier not found")
 
     fun getNewBiome(id: Int): Biome {
         return map.values.toList().getOrNull(id) ?: error("Biome with identifier $id not found")

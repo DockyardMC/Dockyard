@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.ints.IntSet
 import java.util.function.IntUnaryOperator
 
 //switches palette type depending on the use case
-internal class AdaptivePalette(var dimension: Byte, var maxBitsPerEntry: Byte, var bitsPerEntry: Byte) : Palette, Cloneable {
+internal class AdaptivePalette(var dimension: Byte, var maxBitsPerEntry: Byte, bitsPerEntry: Byte) : Palette, Cloneable {
     val defaultBitsPerEntry: Byte
     var palette: SpecializedPalette
 
@@ -55,21 +55,13 @@ internal class AdaptivePalette(var dimension: Byte, var maxBitsPerEntry: Byte, v
         flexiblePalette().replaceAll(function)
     }
 
-    override fun count(): Int {
-        return palette.count()
-    }
+    override fun count(): Int = palette.count()
 
-    override fun bitsPerEntry(): Int {
-        return palette.bitsPerEntry()
-    }
+    override fun bitsPerEntry(): Int = palette.bitsPerEntry()
 
-    override fun maxBitsPerEntry(): Int {
-        return maxBitsPerEntry.toInt()
-    }
+    override fun maxBitsPerEntry(): Int = maxBitsPerEntry.toInt()
 
-    override fun dimension(): Int {
-        return dimension.toInt()
-    }
+    override fun dimension(): Int = dimension.toInt()
 
     override fun clone(): Palette {
         return try {
@@ -87,24 +79,23 @@ internal class AdaptivePalette(var dimension: Byte, var maxBitsPerEntry: Byte, v
             val count = currentPalette.count()
             if (count == 0) {
                 return FilledPalette(dimension, 0)
-            } else {
-                // Find all entries and compress the palette
-                val entries: IntSet = IntOpenHashSet(currentPalette.paletteToValueList.size)
-                currentPalette.getAll { x: Int, y: Int, z: Int, value: Int ->
-                    entries.add(
-                        value
-                    )
-                }
-                val currentBitsPerEntry = currentPalette.bitsPerEntry()
-                var bitsPerEntry = 0
-                if (entries.size == 1) {
-                    return FilledPalette(dimension, entries.iterator().nextInt())
-                } else if (currentBitsPerEntry > defaultBitsPerEntry &&
-                    bitsToRepresent(entries.size - 1).also { bitsPerEntry = it } < currentBitsPerEntry
-                ) {
-                    currentPalette.resize(bitsPerEntry.toByte())
-                    return currentPalette
-                }
+            }
+            // Find all entries and compress the palette
+            val entries: IntSet = IntOpenHashSet(currentPalette.paletteToValueList.size)
+            currentPalette.getAll { x: Int, y: Int, z: Int, value: Int ->
+                entries.add(
+                    value
+                )
+            }
+            val currentBitsPerEntry = currentPalette.bitsPerEntry()
+            var bitsPerEntry = 0
+            if (entries.size == 1) {
+                return FilledPalette(dimension, entries.iterator().nextInt())
+            } else if (currentBitsPerEntry > defaultBitsPerEntry &&
+                bitsToRepresent(entries.size - 1).also { bitsPerEntry = it } < currentBitsPerEntry
+            ) {
+                currentPalette.resize(bitsPerEntry.toByte())
+                return currentPalette
             }
         }
         return currentPalette

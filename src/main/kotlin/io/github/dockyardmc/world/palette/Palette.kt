@@ -38,16 +38,11 @@ interface Palette {
     }
 
     companion object {
-        fun blocks(): Palette {
-            return newPalette(16, 8, 4)
-        }
+        fun blocks(): Palette = newPalette(16, 8, 4)
 
-        fun biomes(): Palette {
-            return newPalette(4, 3, 1)
-        }
+        fun biomes(): Palette = newPalette(4, 3, 1)
 
-        fun newPalette(dimension: Int, maxBitsPerEntry: Int, bitsPerEntry: Int): Palette {
-            return AdaptivePalette(dimension.toByte(), maxBitsPerEntry.toByte(), bitsPerEntry.toByte())
-        }
+        fun newPalette(dimension: Int, maxBitsPerEntry: Int, bitsPerEntry: Int): Palette =
+            AdaptivePalette(dimension.toByte(), maxBitsPerEntry.toByte(), bitsPerEntry.toByte())
     }
 }

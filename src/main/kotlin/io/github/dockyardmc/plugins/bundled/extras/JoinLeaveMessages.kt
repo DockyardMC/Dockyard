@@ -1,4 +1,4 @@
-package io.github.dockyardmc.plugins.bundled.DockyardExtras
+package io.github.dockyardmc.plugins.bundled.extras
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log

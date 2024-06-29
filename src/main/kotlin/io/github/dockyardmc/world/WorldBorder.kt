@@ -1,6 +1,5 @@
 package io.github.dockyardmc.world
 
-import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundInitializeWorldBorderPacket
 

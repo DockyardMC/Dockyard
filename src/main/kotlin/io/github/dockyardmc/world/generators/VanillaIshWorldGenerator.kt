@@ -54,7 +54,5 @@ class VanillaIshWorldGenerator(override val world: World, var seed: Int = UUID.r
         return block
     }
 
-    override fun getBiome(x: Int, y: Int, z: Int): Biome {
-        return Biomes.PLAINS
-    }
+    override fun getBiome(x: Int, y: Int, z: Int): Biome = Biomes.PLAINS
 }

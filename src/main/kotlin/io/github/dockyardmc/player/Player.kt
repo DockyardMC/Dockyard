@@ -95,10 +95,8 @@ class Player(val username: String, override var entityId: Int, override var uuid
         player.sendPacket(packetOut)
     }
 
-    fun getHeldItem(hand: PlayerHand): ItemStack {
-        //TODO Add off-hand support
-        return inventory.get(selectedHotbarSlot.value)
-    }
+    //TODO Add off-hand support
+    fun getHeldItem(hand: PlayerHand): ItemStack = inventory[selectedHotbarSlot.value]
 
     override fun removeViewer(player: Player, isDisconnect: Boolean) {
         if(isDisconnect) {
@@ -116,7 +114,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
         queuedMessages.clear()
     }
 
-    override fun toString(): String { return username }
+    override fun toString(): String = username
     fun kick(reason: String) { this.kick(reason.toComponent()) }
     fun kick(reason: Component) { connection.sendPacket(ClientboundDisconnectPacket(reason)) }
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
@@ -127,7 +125,7 @@ class Player(val username: String, override var entityId: Int, override var uuid
         if(!isConnected) return
         val processor = this.getProcessor()
         if(processor.state != ProtocolState.PLAY) {
-            queuedMessages.add(Pair(component, isActionBar))
+            queuedMessages.add(component to isActionBar)
             return
         }
         this.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))

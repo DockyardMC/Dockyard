@@ -8,7 +8,6 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.events.PlayerDisconnectEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
-import io.github.dockyardmc.extentions.readUtf
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager

@@ -82,12 +82,8 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         return Blocks.getBlockById(section.blockPalette[relativeX, relativeY, relativeZ])
     }
 
-    fun getSection(section: Int): ChunkSection {
-        return sections[section - minSection]
-    }
+    fun getSection(section: Int): ChunkSection = sections[section - minSection]
 
-    fun getSectionAt(y: Int): ChunkSection {
-        return getSection(ChunkUtils.getChunkCoordinate(y))
-    }
+    fun getSectionAt(y: Int): ChunkSection = getSection(ChunkUtils.getChunkCoordinate(y))
 
 }

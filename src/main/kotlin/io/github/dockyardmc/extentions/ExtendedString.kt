@@ -5,26 +5,17 @@ import io.netty.util.CharsetUtil
 import java.util.*
 
 
-fun String.isUppercase(): Boolean {
-    return this.uppercase() == this
-}
+fun String.isUppercase(): Boolean = this.uppercase() == this
 
-fun String.isLowercase(): Boolean {
-    return this.lowercase() == this
-}
+fun String.isLowercase(): Boolean = this.lowercase() == this
 
-fun String.byteSize(): Int {
-    return this.toByteArray(CharsetUtil.UTF_8).size
-}
+fun String.byteSize(): Int = this.toByteArray(CharsetUtil.UTF_8).size
 
-fun String.properStrictCase(): String {
-    return this.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-}
+fun String.properStrictCase(): String =
+    this.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
-fun String.SHA256Long(): Long {
-    return Hashing.sha256().hashString(this, CharsetUtil.UTF_8).asLong()
-}
+@Suppress("FunctionName")
+fun String.SHA256Long(): Long = Hashing.sha256().hashString(this, CharsetUtil.UTF_8).asLong()
 
-fun String.SHA256String(): String {
-    return Hashing.sha256().hashString(this, CharsetUtil.UTF_8).toString()
-}
+@Suppress("FunctionName")
+fun String.SHA256String(): String = Hashing.sha256().hashString(this, CharsetUtil.UTF_8).toString()

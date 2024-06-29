@@ -23,21 +23,6 @@ object GeneralBlockPlacementRules {
         if(WorldManager.worlds[0].getBlock(originalClickedBlock).boundingBox != "block") canBePlaced = CancelReason(false, "Block is not full block")
         if(existingBlock.isClickable && !placer.isSneaking) canBePlaced = CancelReason(false, "Block is clickable and player is not sneaking")
 
-//        repeat(10) {
-//            DockyardServer.broadcastMessage(" ")
-//        }
-//        DockyardServer.broadcastMessage("<gray>existing: <lime>${existingBlock.name}")
-//        DockyardServer.broadcastMessage("<gray>new location: <yellow>${placementLocation.name}")
-//        DockyardServer.broadcastMessage("<gray>existing location bounding box: <white>${existingBlock.boundingBox}")
-//        DockyardServer.broadcastMessage("<gray>new location boundingBox: <white>${placementLocation.boundingBox}")
-//        DockyardServer.broadcastMessage("<gray>actual is clickable: <white>${existingBlock.isClickable}")
-//        DockyardServer.broadcastMessage("<gray>new location is clickable: <white>${placementLocation.isClickable}")
-//        DockyardServer.broadcastMessage(" ")
-//        DockyardServer.broadcastMessage("<gray>new block is clickable: <aqua>${newBlock.isClickable}")
-//        DockyardServer.broadcastMessage("<gray>new block bounding box: <aqua>${newBlock.boundingBox}")
-//
-//
-//        if(!canBePlaced.canBePlaced) DockyardServer.broadcastMessage("<red>${canBePlaced.reason}")
         return canBePlaced.canBePlaced
     }
 
@@ -47,7 +32,7 @@ object GeneralBlockPlacementRules {
     )
 
     //TODO Update entities to be stored inside chunk instead of all in the world and then check only the entities in the chunk
-    fun isLocationInsideBoundingBox(location: Location, entities: List<Entity>, toleranceY: Double = 0.2): Boolean {
+    private fun isLocationInsideBoundingBox(location: Location, entities: List<Entity>, toleranceY: Double = 0.2): Boolean {
         for (entity in entities) {
             val entityBoundingBox = entity.calculateBoundingBox()
             val insideX = entityBoundingBox.maxX > location.x && entityBoundingBox.minX < location.x + 1

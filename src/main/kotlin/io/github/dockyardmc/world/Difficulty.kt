@@ -1,7 +1,6 @@
 package io.github.dockyardmc.world
 
 import io.github.dockyardmc.extentions.properStrictCase
-import java.util.*
 
 enum class Difficulty {
     PEACEFUL,
@@ -9,8 +8,6 @@ enum class Difficulty {
     NORMAL,
     HARD;
 
-    override fun toString(): String {
-        return this.name.properStrictCase()
-    }
+    override fun toString(): String = this.name.properStrictCase()
 }
 

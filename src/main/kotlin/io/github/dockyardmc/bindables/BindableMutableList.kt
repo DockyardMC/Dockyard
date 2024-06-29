@@ -15,7 +15,7 @@ class BindableMutableList<T>(list: List<T>) {
     private var updateListener = mutableListOf<BindableListUpdateListener<T>>()
 
     init {
-        list.forEach { innerList.add(it) }
+        list.forEach(innerList::add)
     }
 
     val values: List<T>
@@ -47,9 +47,7 @@ class BindableMutableList<T>(list: List<T>) {
         changeListener.forEach { it.unit.invoke(BindableListItemChangeEvent<T>(item)) }
     }
 
-    fun contains(target: T): Boolean {
-        return values.contains(target)
-    }
+    operator fun contains(target: T): Boolean = values.contains(target)
 
     class BindableListUpdateEvent<T>(val item: T?)
     class BindableListItemChangeEvent<T>(val item: T)

@@ -56,9 +56,7 @@ class World(
         return getChunk(chunkX, chunkZ)
     }
 
-    fun getChunk(x: Int, z: Int): Chunk? {
-        return chunks.firstOrNull { it.chunkX == x && it.chunkZ == z }
-    }
+    fun getChunk(x: Int, z: Int): Chunk? = chunks.firstOrNull { it.chunkX == x && it.chunkZ == z }
 
     fun setBlock(x: Int, y: Int, z: Int, block: Block) {
         val chunk = getChunkAt(x, z) ?: return
@@ -71,18 +69,11 @@ class World(
         return chunk.getBlock(x, y, z)
     }
 
-    fun getBlock(location: Location): Block {
-        return this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
-    }
+    fun getBlock(location: Location): Block = this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
 
-    fun getBlock(vector: Vector3f): Block {
-        return this.getBlock(vector.x.toInt(), vector.y.toInt(), vector.z.toInt())
-    }
+    fun getBlock(vector: Vector3f): Block = this.getBlock(vector.x.toInt(), vector.y.toInt(), vector.z.toInt())
 
-    fun getBlock(vector: Vector3): Block {
-        return this.getBlock(vector.x, vector.y, vector.z)
-    }
-
+    fun getBlock(vector: Vector3): Block = this.getBlock(vector.x, vector.y, vector.z)
 
     fun setBlock(location: Location, block: Block) {
         this.setBlock(location.x.toInt(), location.y.toInt(), location.z.toInt(), block)
