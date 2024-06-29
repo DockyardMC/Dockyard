@@ -4,15 +4,17 @@ import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.protocol.packets.play.clientbound.Link
-import io.github.dockyardmc.protocol.packets.play.clientbound.writeLinks
+import io.github.dockyardmc.serverlinks.ServerLink
+import io.github.dockyardmc.serverlinks.writeServerLinks
 
 @WikiVGEntry("Server Links (configuration)")
 @ClientboundPacketInfo(0x10, ProtocolState.CONFIGURATION)
 class ClientboundConfigurationServerLinksPacket(
-    links: Collection<Link>
+    serverLinks: MutableList<ServerLink>
 ): ClientboundPacket() {
+
     init {
-        writeLinks(links, data)
+        data.writeServerLinks(serverLinks)
     }
+
 }
