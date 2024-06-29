@@ -17,7 +17,7 @@ object AnnotationProcessor {
             val annotation = loopClass.getAnnotation(ServerboundPacketInfo::class.java)
             val id = annotation.id
             val state = annotation.state
-            annotationValues[Pair(id, state)] = loopClass.kotlin
+            annotationValues[id to state] = loopClass.kotlin
         }
         return annotationValues
     }
@@ -31,7 +31,7 @@ object AnnotationProcessor {
             val id = annotation.id
             val state = annotation.state
 
-            clientboundPacketMap[loopClass.kotlin.simpleName!!] = Pair(id, state)
+            clientboundPacketMap[loopClass.kotlin.simpleName!!] = id to state
         }
     }
 }

@@ -15,9 +15,7 @@ object PlayerManager {
     val playerToProcessorMap = mutableMapOf<UUID, PacketProcessor>()
     val playerToEntityIdMap = mutableMapOf<Int, Player>()
 
-    fun Player.getProcessor(): PacketProcessor {
-        return playerToProcessorMap[this.uuid]!!
-    }
+    fun Player.getProcessor(): PacketProcessor = playerToProcessorMap[this.uuid]!!
 
     fun add(player: Player, processor: PacketProcessor) {
         players.add(player)

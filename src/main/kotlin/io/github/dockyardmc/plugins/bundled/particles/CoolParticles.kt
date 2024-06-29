@@ -1,4 +1,4 @@
-package io.github.dockyardmc.plugins.bundled.CoolParticles
+package io.github.dockyardmc.plugins.bundled.particles
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.plugins.DockyardPlugin

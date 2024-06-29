@@ -18,7 +18,6 @@ class VerifyPacketIds {
         getServerboundAnnotatedClasses()
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     fun getServerboundAnnotatedClasses() {
         val packageToScan = "io.github.dockyardmc"
 
@@ -32,9 +31,7 @@ class VerifyPacketIds {
             val id = serverboundAnnotation.id
             val header = wikivgAnnotation.header
 
-//            log(loopClass.simpleName, LogType.TRACE)
             val packet = packets.firstOrNull { it.header == header } ?: return@forEach
-//            log("${loopClass.simpleName} $id - ${Integer.decode(packet.id)}")
             if(Integer.decode(packet.id) != id) {
                 log("Packet ${loopClass.simpleName} does not have up-to-date id: $id should be ${Integer.decode(packet.id)}", LogType.WARNING)
             }
@@ -48,7 +45,6 @@ class VerifyPacketIds {
 
 
             val packet = packets.firstOrNull { it.header == header } ?: return@forEach
-//            log("${loopClass.simpleName} $id - ${Integer.decode(packet.id)}")
             if(Integer.decode(packet.id) != id) {
                 log("Packet ${loopClass.simpleName} does not have up-to-date id: $id should be ${Integer.decode(packet.id)}", LogType.WARNING)
             }

@@ -27,54 +27,43 @@ class Location(
         pitch: Float = 0f,
     ): this(x.toDouble(), y.toDouble(), z.toDouble(), yaw, pitch)
 
-    override fun toString(): String {
-        return "Location(${x.truncate(2)}, ${y.truncate(2)}, ${z.truncate(2)}, yaw: $yaw, pitch: $pitch)"
-    }
+    override fun toString(): String =
+        "Location(${x.truncate(2)}, ${y.truncate(2)}, ${z.truncate(2)}, yaw: $yaw, pitch: $pitch)"
 
-    fun add(vector: Vector3f): Location {
-        return Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch)
-    }
+    fun add(vector: Vector3f): Location =
+        Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch)
 
-    fun add(vector: Vector3): Location {
-        return Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch)
-    }
+    fun add(vector: Vector3): Location =
+        Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch)
 
-    fun clone(): Location {
-        return Location(this.x, this.y, this.z, this.yaw, this.pitch)
-    }
+    fun clone(): Location = Location(this.x, this.y, this.z, this.yaw, this.pitch)
 
-    fun distance(other: Location): Double {
+    fun distance(other: Location): Double =
         //surly it's not just me that pronounces it "squirt"
-        return sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0))
-    }
+        sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0))
 
-    fun centerBlockLocation(): Location {
-        return this.apply { x += 0.5; y += 0.5; z += 0.5 }
-    }
+    fun centerBlockLocation(): Location = this.apply { x += 0.5; y += 0.5; z += 0.5 }
 
-    fun getRotation(): Vector2 {
-        return Vector2(yaw, pitch)
-    }
+    fun getRotation(): Vector2 = Vector2(yaw, pitch)
 
 
     //TODO Rewrite this, temp stolen from bukkit
 
     fun setDirection(vector: Vector3f): Location {
-        val _2PI = 6.283185307179586
+        val pi2 = 6.283185307179586
         val x: Double = vector.x.toDouble()
         val z: Double = vector.z.toDouble()
         if (x == 0.0 && z == 0.0) {
             this.yaw = if (vector.y.toDouble() > 0.0) -90.0f else 90.0f
             return this
-        } else {
-            val theta = atan2(-x, z)
-            this.pitch = Math.toDegrees((theta + _2PI) % _2PI).toFloat()
-            val x2: Double = MathUtils.square(x)
-            val z2: Double = MathUtils.square(z)
-            val xz = sqrt(x2 + z2)
-            this.yaw = Math.toDegrees(atan(-vector.y.toDouble() / xz)).toFloat()
-            return this
         }
+        val theta = atan2(-x, z)
+        this.pitch = Math.toDegrees((theta + pi2) % pi2).toFloat()
+        val x2: Double = MathUtils.square(x)
+        val z2: Double = MathUtils.square(z)
+        val xz = sqrt(x2 + z2)
+        this.yaw = Math.toDegrees(atan(-vector.y.toDouble() / xz)).toFloat()
+        return this
     }
 
     fun subtract(vec: Location): Location {

@@ -18,7 +18,7 @@ object PacketParser {
     // It does this process in MainKt, and reads actual annotations using reflection in AnnotationProcessor.getServerboundPacketClassInfo()
     fun parse(id: Int, buffer: ByteBuf, processor: PacketProcessor, size: Int): ServerboundPacket? {
         try {
-            val packetClass = idAndStatePairToPacketClass[Pair(id, processor.state)] ?: return null
+            val packetClass = idAndStatePairToPacketClass[id to processor.state] ?: return null
             val companionObject = packetClass.companionObject ?: return null
             val readFunction = companionObject.declaredMemberFunctions.find { it.name == "read" } ?: return null
 

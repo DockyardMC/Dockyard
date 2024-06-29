@@ -1,4 +1,4 @@
-package io.github.dockyardmc.plugins.bundled.DockyardExtras.items
+package io.github.dockyardmc.plugins.bundled.extras.items
 
 import io.github.dockyardmc.entities.EntityManager.despawnEntity
 import io.github.dockyardmc.entities.EntityManager.spawnEntity

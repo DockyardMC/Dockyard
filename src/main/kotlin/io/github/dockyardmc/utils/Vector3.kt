@@ -33,21 +33,13 @@ fun ByteBuf.writeVector3f(vector3: Vector3f) {
     this.writeFloat(vector3.z)
 }
 
-fun Vector3.toLocation(): Location {
-    return Location(this.x, this.y, this.z)
-}
+fun Vector3.toLocation(): Location = Location(this.x, this.y, this.z)
 
-fun Vector3f.toLocation(): Location {
-    return Location(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
-}
+fun Vector3f.toLocation(): Location = Location(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
 
-fun Location.toVector3(): Vector3 {
-    return Vector3(this.x.toInt(), this.y.toInt(), this.z.toInt())
-}
+fun Location.toVector3(): Vector3 = Vector3(this.x.toInt(), this.y.toInt(), this.z.toInt())
 
-fun Location.toVector3f(): Vector3f {
-    return Vector3f(this.x.toFloat(), this.y.toFloat(), this.z.toFloat())
-}
+fun Location.toVector3f(): Vector3f = Vector3f(this.x.toFloat(), this.y.toFloat(), this.z.toFloat())
 
 
 fun ByteBuf.writeVector3(vector3: Vector3) {
@@ -56,9 +48,7 @@ fun ByteBuf.writeVector3(vector3: Vector3) {
     this.writeVarInt(vector3.z)
 }
 
-fun ByteBuf.readVector3(): Vector3 {
-    return Vector3(this.readVarInt(), this.readVarInt(), this.readVarInt())
-}
+fun ByteBuf.readVector3(): Vector3 = Vector3(this.readVarInt(), this.readVarInt(), this.readVarInt())
 
 fun ByteBuf.readBlockPosition(): Vector3 {
     val value: Long = this.readLong()

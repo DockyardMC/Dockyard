@@ -50,8 +50,6 @@ object BlockDataHelper {
             Blocks.STONE_BUTTON -> true
             Blocks.COMPARATOR -> true
             Blocks.REPEATER -> true
-            Blocks.DAYLIGHT_DETECTOR -> true
-            Blocks.TRAPPED_CHEST -> true
             Blocks.DISPENSER -> true
             Blocks.DROPPER -> true
             Blocks.HOPPER -> true

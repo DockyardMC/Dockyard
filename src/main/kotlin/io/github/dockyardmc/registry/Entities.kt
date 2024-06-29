@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry
 import io.github.dockyardmc.utils.Resources
+import io.github.dockyardmc.utils.Resources.getFile
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.SerialName
@@ -11,12 +12,11 @@ import kotlinx.serialization.Serializable
 object Entities {
     private val idToEntityMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
-        val entities = json.decodeFromString<List<EntityType>>(Resources.getText("./data/entities.json"))
+        val entities = json.decodeFromString<List<EntityType>>(getFile("./data/entities.json"))
         entities.associateBy { it.id }
     }
-    fun getEntityById(id: Int): EntityType {
-        return idToEntityMap[id] ?: error("Entity ID $id not found")
-    }
+    fun getEntityById(id: Int): EntityType = idToEntityMap[id] ?: error("Entity ID $id not found")
+
     val ALLAY = getEntityById(0)
     val AREA_EFFECT_CLOUD = getEntityById(1)
     val ARMADILLO = getEntityById(2)

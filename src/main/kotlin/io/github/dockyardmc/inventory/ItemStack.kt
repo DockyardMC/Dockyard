@@ -1,12 +1,10 @@
 package io.github.dockyardmc.inventory
 
-import io.github.dockyardmc.extentions.readNBT
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBT
 
 class ItemStack(var material: Item, var amount: Int) {
 
@@ -14,9 +12,7 @@ class ItemStack(var material: Item, var amount: Int) {
         val air = ItemStack(Items.AIR, 1)
     }
 
-    override fun toString(): String {
-        return "ItemStack(${material.namespace}, $amount)"
-    }
+    override fun toString(): String = "ItemStack(${material.namespace}, $amount)"
 }
 
 

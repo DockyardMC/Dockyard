@@ -17,7 +17,7 @@ object Events {
         profiler.start("Events Dispatch", 5)
         val eventType = event.javaClass
         eventMap[eventType]?.forEach { executableEvent ->
-            (executableEvent.function as (Event) -> Unit).invoke(event)
+            executableEvent.function.invoke(event)
         }
         profiler.end()
     }

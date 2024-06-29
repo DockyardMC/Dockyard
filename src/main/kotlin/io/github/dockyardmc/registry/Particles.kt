@@ -1,5 +1,5 @@
 package io.github.dockyardmc.registry
-import io.github.dockyardmc.utils.Resources
+import io.github.dockyardmc.utils.Resources.getFile
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.SerialName
@@ -11,12 +11,10 @@ import kotlinx.serialization.Serializable
 object Particles {
     private val idToParticleMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
-        val particles = json.decodeFromString<MutableList<Particle>>(Resources.getText("./data/particles.json"))
+        val particles = json.decodeFromString<MutableList<Particle>>(getFile("./data/particles.json"))
         particles.associateBy { it.id }
     }
-    fun getParticleById(id: Int): Particle {
-        return idToParticleMap[id] ?: error("Particle ID $id not found")
-    }
+    fun getParticleById(id: Int): Particle = idToParticleMap[id] ?: error("Particle ID $id not found")
     val ANGRY_VILLAGER = getParticleById(0)
     val BLOCK = getParticleById(1)
     val BLOCK_MARKER = getParticleById(2)

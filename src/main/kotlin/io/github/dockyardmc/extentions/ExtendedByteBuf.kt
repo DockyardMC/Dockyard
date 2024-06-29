@@ -58,13 +58,10 @@ fun ByteBuf.readByteArray(): ByteArray {
 fun ByteBuf.readNBT(): NBT {
     val buffer = this
     val nbtReader = NBTReader(object : InputStream() {
-        override fun read(): Int {
-            return buffer.readByte().toInt() and 0xFF
-        }
 
-        override fun available(): Int {
-            return buffer.readableBytes()
-        }
+        override fun read(): Int = buffer.readByte().toInt() and 0xFF
+        override fun available(): Int = buffer.readableBytes()
+
     }, CompressedProcesser.NONE)
     return try {
         val tagId: Byte = buffer.readByte()
@@ -114,9 +111,7 @@ fun ByteBuf.readFixedBitSet(i: Int): BitSet {
     return BitSet.valueOf(bs)
 }
 
-fun ByteBuf.readInstant(): Instant {
-    return Instant.ofEpochMilli(this.readLong())
-}
+fun ByteBuf.readInstant(): Instant = Instant.ofEpochMilli(this.readLong())
 
 fun ByteBuf.writeVarLong(long: Long): ByteBuf {
     var modLong = long
@@ -142,9 +137,8 @@ fun ByteBuf.readVarLong(): Long {
     return long
 }
 
-fun hasContinuationBit(byte: Byte): Boolean {
-    return byte.toInt() and 0x80 == 128
-}
+fun hasContinuationBit(byte: Byte): Boolean = byte.toInt() and 0x80 == 128
+
 inline fun <reified T : Enum<T>> ByteBuf.readVarIntEnum(): T = T::class.java.enumConstants[readVarInt()]
 inline fun <reified T : Enum<T>> ByteBuf.readByteEnum(): T = T::class.java.enumConstants[readByte().toInt()]
 
@@ -211,7 +205,7 @@ fun ByteBuf.readUtfAndLength(i: Int): Pair<String, Int> {
     val string = this.toString(this.readerIndex(), size, StandardCharsets.UTF_8)
     this.readerIndex(this.readerIndex() + size)
     if (string.length > i) throw DecoderException("The received string was longer than the allowed (${string.length} > $i)")
-    return Pair(string, size)
+    return string to size
 }
 
 fun ByteBuf.writeUtf(text: String) {

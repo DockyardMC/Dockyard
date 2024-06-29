@@ -1,7 +1,5 @@
 package io.github.dockyardmc.registry
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.utils.Resources
 import org.jglrxavpok.hephaistos.nbt.NBT
@@ -25,9 +23,8 @@ object BannerPatterns {
         list.associateBy { it.identifier }
     }
 
-    fun getBannerPattern(identifier: String): BannerPattern {
-        return map[identifier] ?: error("Banner Pattern with identifier $identifier not found")
-    }
+    fun getBannerPattern(identifier: String): BannerPattern =
+        map[identifier] ?: error("Banner Pattern with identifier $identifier not found")
 
     val BASE = getBannerPattern("minecraft:base")
     val SQUARE_BOTTOM_LEFT = getBannerPattern("minecraft:square_bottom_left")

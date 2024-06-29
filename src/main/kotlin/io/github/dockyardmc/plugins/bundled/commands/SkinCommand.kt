@@ -1,9 +1,11 @@
-package io.github.dockyardmc.plugins.bundled.DockyardCommands
+package io.github.dockyardmc.plugins.bundled.commands
 
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.setSkin
+import io.github.dockyardmc.player.updateSkin
 
 class SkinCommand {
 

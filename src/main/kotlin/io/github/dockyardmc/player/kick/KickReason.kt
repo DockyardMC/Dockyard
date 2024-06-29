@@ -11,9 +11,7 @@ enum class KickReason(val description: String) {
     INCOMPATIBLE_VERSION("You are trying to join on unsupported version")
 }
 
-fun getSystemKickMessage(kickReason: KickReason): Component {
-    return getSystemKickMessage(kickReason.description, kickReason.name)
-}
+fun getSystemKickMessage(kickReason: KickReason): Component = getSystemKickMessage(kickReason.description, kickReason.name)
 
 fun getSystemKickMessage(kickReason: String, enum: String? = null): Component {
     val message = buildString {
