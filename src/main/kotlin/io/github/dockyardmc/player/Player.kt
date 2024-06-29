@@ -15,10 +15,10 @@ import io.github.dockyardmc.registry.Entities
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.utils.Title
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.world.World
 import io.netty.channel.ChannelHandlerContext
-import org.jglrxavpok.hephaistos.mca.pack
 import java.util.UUID
 
 class Player(val username: String, override var entityId: Int, override var uuid: UUID, override var type: EntityType = Entities.PLAYER, override var location: Location = Location(0, 256, 0), override var world: World, val connection: ChannelHandlerContext, val address: String, val crypto: PlayerCrypto): Entity {
@@ -162,5 +162,21 @@ class Player(val username: String, override var entityId: Int, override var uuid
     fun sendSelfMetadataPacket() {
         val packet = ClientboundEntityMetadataPacket(this)
         this.sendPacket(packet)
+    }
+
+    fun showTitle(title: Title) {
+        sendPacket(title.buildTimesPacket())
+
+        if (title.title != null) {
+            sendPacket(ClientboundSetTitlePacket(title.title))
+        }
+
+        if (title.subtitle != null) {
+            sendPacket(ClientboundSubtitlePacket(title.subtitle))
+        }
+    }
+
+    fun clearTitle(reset: Boolean) {
+        sendPacket(ClientboundClearTitlePacket(reset))
     }
 }
