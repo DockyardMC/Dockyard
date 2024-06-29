@@ -4,8 +4,12 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.bossbar.Bossbar
 import io.github.dockyardmc.bossbar.BossbarColor
+import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.IntArgument
+import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.extentions.broadcastActionBar
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod
@@ -42,9 +46,12 @@ class MayaTestPlugin: DockyardPlugin {
         Events.on<PlayerJoinEvent> {
             val effectPacket = ClientboundEntityEffectPacket(it.player, 15, 1, 99999, 0x00)
             it.player.sendPacket(effectPacket)
+
             it.player.tabListHeader.value = "\n  <dark_gray><s>        <r>  <aqua>DockyardMC<r>  <dark_gray><s>        <r>  \n".toComponent()
             it.player.tabListFooter.value = "\n  <dark_gray><s>                                   <r>  \n".toComponent()
             serverBar.viewers.addIfNotPresent(it.player)
+
+            it.player.sendTitle("<yellow>Welcome", "<aqua>to my minecraft server")
         }
 
         ServerLinks.links.add(CustomServerLink("<aqua>Github", "https://github.com/DockyardMC/Dockyard"))

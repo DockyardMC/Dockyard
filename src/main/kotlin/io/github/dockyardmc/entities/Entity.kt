@@ -6,6 +6,7 @@ import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.events.EntityViewerAddEvent
 import io.github.dockyardmc.events.EntityViewerRemoveEvent
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
