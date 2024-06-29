@@ -175,11 +175,17 @@ class Player(val username: String, override var entityId: Int, override var uuid
         }
     }
 
+
+    //TODO
+    fun give(itemStack: ItemStack) {
+
+    }
+
+    fun clearInventory() {
+        this.inventory.clear()
+    }
+
     fun clearTitle(reset: Boolean) {
         sendPacket(ClientboundClearTitlePacket(reset))
     }
-}
-
-fun Int.toTicks(): Int {
-    return this * 20
 }
