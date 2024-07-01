@@ -21,9 +21,9 @@ import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.utils.MathUtils
 
 class MayaTestPlugin: DockyardPlugin {
-    override var name: String = "MayaTestPlugin"
-    override var author: String = "LukynkaCZE"
-    override var version: String = DockyardServer.versionInfo.dockyardVersion
+    override val name: String = "MayaTestPlugin"
+    override val author: String = "LukynkaCZE"
+    override val version: String = DockyardServer.versionInfo.dockyardVersion
 
     override fun load(server: DockyardServer) {
 

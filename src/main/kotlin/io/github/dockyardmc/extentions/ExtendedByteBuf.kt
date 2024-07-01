@@ -165,7 +165,7 @@ fun ByteBuf.readVarInt(): Int {
     return value
 }
 
-fun ByteBuf.writeStringArray(list: MutableList<String>) {
+fun ByteBuf.writeStringArray(list: Collection<String>) {
     writeVarInt(list.size)
     list.forEach { writeUtf(it) }
 }

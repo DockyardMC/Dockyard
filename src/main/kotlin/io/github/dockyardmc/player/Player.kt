@@ -20,8 +20,17 @@ import io.github.dockyardmc.world.World
 import io.netty.channel.ChannelHandlerContext
 import java.util.UUID
 
-class Player(val username: String, override var entityId: Int, override var uuid: UUID, override var type: EntityType = Entities.PLAYER, override var location: Location = Location(0, 256, 0), override var world: World, val connection: ChannelHandlerContext, val address: String, val crypto: PlayerCrypto): Entity {
-
+class Player(
+    val username: String,
+    override var entityId: Int,
+    override var uuid: UUID,
+    override var type: EntityType = Entities.PLAYER,
+    override var location: Location = Location(0, 256, 0),
+    override var world: World,
+    val connection: ChannelHandlerContext,
+    val address: String,
+    val crypto: PlayerCrypto
+): Entity() {
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var viewers: MutableList<Player> = mutableListOf()
     override var hasGravity: Boolean = true
@@ -64,13 +73,13 @@ class Player(val username: String, override var entityId: Int, override var uuid
 
         pose.valueChanged {
             metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
-            sendViewersMedataPacket()
+            sendMetadataPacketToViewers()
             sendSelfMetadataPacket()
         }
 
         displayedSkinParts.listUpdated {
             metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.DISPLAY_SKIN_PARTS, EntityMetadataType.BYTE, displayedSkinParts.values.getBitMask()))
-            sendViewersMedataPacket()
+            sendMetadataPacketToViewers()
             sendSelfMetadataPacket()
         }
 

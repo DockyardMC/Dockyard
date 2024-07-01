@@ -11,6 +11,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChangeDifficultyPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.world.Difficulty
 import io.github.dockyardmc.world.WorldManager
@@ -134,6 +135,10 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         player.sendPacket(tickingStatePacket)
+
+        TeamManager.teams.values.forEach {
+            player.sendPacket(ClientboundTeamsPacket(CreateTeam(it)))
+        }
 
         SkinManager.setSkinOf(player, player.uuid)
     }
