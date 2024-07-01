@@ -104,10 +104,8 @@ class Player(
         player.sendPacket(packetOut)
     }
 
-    fun getHeldItem(hand: PlayerHand): ItemStack {
-        //TODO Add off-hand support
-        return inventory.get(selectedHotbarSlot.value)
-    }
+    //TODO Add off-hand support
+    fun getHeldItem(hand: PlayerHand): ItemStack = inventory[selectedHotbarSlot.value]
 
     override fun removeViewer(player: Player, isDisconnect: Boolean) {
         if(isDisconnect) {
@@ -125,7 +123,7 @@ class Player(
         queuedMessages.clear()
     }
 
-    override fun toString(): String { return username }
+    override fun toString(): String = username
     fun kick(reason: String) { this.kick(reason.toComponent()) }
     fun kick(reason: Component) { connection.sendPacket(ClientboundDisconnectPacket(reason)) }
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
@@ -136,7 +134,7 @@ class Player(
         if(!isConnected) return
         val processor = this.getProcessor()
         if(processor.state != ProtocolState.PLAY) {
-            queuedMessages.add(Pair(component, isActionBar))
+            queuedMessages.add(component to isActionBar)
             return
         }
         this.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))
@@ -170,5 +168,21 @@ class Player(
     fun sendSelfMetadataPacket() {
         val packet = ClientboundEntityMetadataPacket(this)
         this.sendPacket(packet)
+    }
+
+    fun clearTitle(reset: Boolean) {
+        sendPacket(ClientboundClearTitlePacket(reset))
+    }
+
+    fun sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
+        val packets = mutableListOf(
+            ClientboundSubtitlePacket(subtitle.toComponent()),
+            ClientboundTitleTimesPacket(fadeIn, stay, fadeOut),
+            ClientboundSetTitlePacket(title.toComponent()),
+        )
+
+        packets.forEach {
+            this.sendPacket(it)
+        }
     }
 }

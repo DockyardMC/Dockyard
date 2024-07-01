@@ -1,5 +1,3 @@
 package io.github.dockyardmc.extentions
 
-fun Double.truncate(decimals: Int): String {
-    return String.format("%.${decimals}f", this)
-}
+fun Double.truncate(decimals: Int): String = String.format("%.${decimals}f", this)

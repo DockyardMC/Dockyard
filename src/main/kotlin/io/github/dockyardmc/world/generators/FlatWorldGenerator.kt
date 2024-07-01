@@ -17,7 +17,5 @@ class FlatWorldGenerator(override val world: World) : WorldGenerator {
         }
     }
 
-    override fun getBiome(x: Int, y: Int, z: Int): Biome {
-        return Biomes.SUNFLOWER_PLAINS
-    }
+    override fun getBiome(x: Int, y: Int, z: Int): Biome = Biomes.SUNFLOWER_PLAINS
 }

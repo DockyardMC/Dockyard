@@ -1,9 +1,9 @@
 package io.github.dockyardmc.commands
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.isUppercase
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager

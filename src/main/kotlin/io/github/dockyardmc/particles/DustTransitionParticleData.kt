@@ -1,11 +1,9 @@
 package io.github.dockyardmc.particles
 
 import io.github.dockyardmc.extentions.hexToRGB
-import io.github.dockyardmc.extentions.toRGB
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.scroll.RGB
 import io.netty.buffer.ByteBuf
-import java.awt.Color
 
 class DustTransitionParticleData(val rgbFrom: RGB, val rgbTo: RGB, val scale: Float = 1f): ParticleData {
 

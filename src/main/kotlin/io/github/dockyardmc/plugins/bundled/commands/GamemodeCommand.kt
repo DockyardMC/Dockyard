@@ -1,4 +1,4 @@
-package io.github.dockyardmc.plugins.bundled.DockyardCommands
+package io.github.dockyardmc.plugins.bundled.commands
 
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.EnumArgument

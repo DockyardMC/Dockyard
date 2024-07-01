@@ -1,15 +1,7 @@
-package io.github.dockyardmc.plugins.bundled.DockyardCommands
+package io.github.dockyardmc.plugins.bundled.commands
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.EnumArgument
-import io.github.dockyardmc.commands.PlayerArgument
-import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.player.GameMode
-import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.SkinManager
 import io.github.dockyardmc.plugins.DockyardPlugin
-import io.github.dockyardmc.plugins.PluginManager.loadedPlugins
 
 class DockyardCommands: DockyardPlugin {
 

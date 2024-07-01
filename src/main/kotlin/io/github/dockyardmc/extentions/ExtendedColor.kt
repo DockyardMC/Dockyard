@@ -3,9 +3,7 @@ package io.github.dockyardmc.extentions
 import io.github.dockyardmc.scroll.RGB
 import java.awt.Color
 
-fun Color.toRGB(): RGB {
-    return RGB(this.red, this.alpha, this.blue)
-}
+fun Color.toRGB(): RGB = RGB(this.red, this.alpha, this.blue)
 
 fun hexToRGB(hex: String): RGB {
     val cleanedHex = hex.removePrefix("#")

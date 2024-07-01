@@ -8,7 +8,6 @@ import io.github.dockyardmc.utils.VersionToProtocolVersion
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import java.io.File
 import java.util.*
 
@@ -31,9 +30,7 @@ val defaultMotd = ServerStatus(
 )
 val json = defaultMotd.toJson()
 
-fun ServerStatus.toJson(): String {
-    return Json.encodeToString<ServerStatus>(this)
-}
+fun ServerStatus.toJson(): String = Json.encodeToString<ServerStatus>(this)
 
 @Serializable
 data class ServerStatus(

@@ -3,7 +3,6 @@ package io.github.dockyardmc.player
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
 import io.netty.buffer.ByteBuf
-import java.util.*
 
 data class ProfileProperty(val name: String, val value: String, val isSigned: Boolean, val signature: String?)
 data class ProfilePropertyMap(val name: String, val properties: MutableList<ProfileProperty>)

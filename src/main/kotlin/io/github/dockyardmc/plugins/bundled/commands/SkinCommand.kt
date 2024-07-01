@@ -1,10 +1,11 @@
-package io.github.dockyardmc.plugins.bundled.DockyardCommands
+package io.github.dockyardmc.plugins.bundled.commands
 
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.SkinManager
+import io.github.dockyardmc.player.setSkin
+import io.github.dockyardmc.player.updateSkin
 
 class SkinCommand {
 
@@ -21,16 +22,16 @@ class SkinCommand {
                 val action = it.get<String>("action")
                 val newSkin = it.getOrNull<String>("new skin")
 
-                var message = ""
+                val message: String
                 when(action) {
 
                     "update" -> {
-                        SkinManager.setSkinOf(player, player.uuid)
+                        player.updateSkin()
                         message = "Updated skin of <yellow>$player<gray>!"
                     }
                     "set" -> {
                         if(newSkin == null) throw Exception("New skin must be specified!")
-                        SkinManager.setSkinOf(player, newSkin)
+                        player.setSkin(newSkin)
                         message = "Set skin of <yellow>$player<gray> to <aqua>$newSkin!"
                     }
                     else -> throw Exception("Invalid action, only available are update/set")
@@ -38,7 +39,5 @@ class SkinCommand {
                 executor.sendMessage("<#f54295>Skins <dark_gray>| <gray>$message")
             }
         }
-
     }
-
 }

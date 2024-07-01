@@ -1,4 +1,4 @@
-package io.github.dockyardmc.plugins.bundled.CoolParticles
+package io.github.dockyardmc.plugins.bundled.particles
 
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.events.Events
@@ -35,9 +35,9 @@ class SpinningCube {
     var angleY = 0.0
 
     val edges = arrayOf(
-        Pair(0, 1), Pair(1, 2), Pair(2, 3), Pair(3, 0), // bottom
-        Pair(4, 5), Pair(5, 6), Pair(6, 7), Pair(7, 4), // top
-        Pair(0, 4), Pair(1, 5), Pair(2, 6), Pair(3, 7)  // verticla
+        0 to 1, 1 to 2, 2 to 3, 3 to 0, // bottom
+        4 to 5, 5 to 6, 6 to 7, 7 to 4, // top
+        0 to 4, 1 to 5, 2 to 6, 3 to 7  // vertical
     )
 
     fun register() {

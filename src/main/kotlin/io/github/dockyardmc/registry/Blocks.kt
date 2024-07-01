@@ -16,9 +16,9 @@ object Blocks {
         val blocks = json.decodeFromString<List<Block>>(Resources.getText("./data/blocks.json"))
         blocks.associateBy { it.blockStateId }
     }
-    fun getBlockById(id: Int): Block {
-        return idToBlockMap[id] ?: error("Block ID $id not found")
-    }
+    fun getBlockById(id: Int): Block =
+        idToBlockMap[id] ?: error("Block ID $id not found")
+
     val AIR = getBlockById(0)
     val STONE = getBlockById(1)
     val GRANITE = getBlockById(2)

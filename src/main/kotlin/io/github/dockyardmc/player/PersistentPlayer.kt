@@ -8,10 +8,8 @@ import java.util.UUID
 data class PersistentPlayer(
     val uuid: UUID
 ) {
-    fun toPlayer(): Player {
-        //TODO micro-optimization: make uuid to player map
-        return PlayerManager.players.first { it.uuid == uuid }
-    }
+    //TODO micro-optimization: make uuid to player map
+    fun toPlayer(): Player = PlayerManager.players.first { it.uuid == uuid }
 }
 
 fun MutableList<Player>.toPersistent(): MutableList<PersistentPlayer> {
@@ -50,9 +48,8 @@ fun PersistentPlayer.sendPacket(packet: ClientboundPacket) {
     this.toPlayer().sendPacket(packet)
 }
 
-fun BindableMutableList<PersistentPlayer>.contains(target: Player): Boolean {
-    return this.values.contains(target.toPersistent())
-}
+operator fun BindableMutableList<PersistentPlayer>.contains(target: Player): Boolean =
+    this.values.contains(target.toPersistent())
 
 fun BindableMutableList<PersistentPlayer>.addIfNotPresent(target: Player) {
     this.addIfNotPresent(target.toPersistent())
@@ -61,9 +58,7 @@ fun BindableMutableList<PersistentPlayer>.removeIfPresent(target: Player) {
     this.removeIfPresent(target.toPersistent())
 }
 
-fun Player.toPersistent(): PersistentPlayer {
-    return PersistentPlayer(this.uuid)
-}
+fun Player.toPersistent(): PersistentPlayer = PersistentPlayer(this.uuid)
 
 fun BindableMutableList<PersistentPlayer>.add(target: Player) {
     this.add(target.toPersistent())

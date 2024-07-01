@@ -5,12 +5,9 @@ import cz.lukynka.prettylog.CustomLogType
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.AnnotationProcessor
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.protocol.PacketParser
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundCommandsPacket
 
 val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
 

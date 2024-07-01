@@ -8,10 +8,84 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound
 object DimensionTypes {
 
     var map = mutableMapOf<String, DimensionType>(
-        "minecraft:overworld" to DimensionType(0.0f, true, 1.0, "minecraft:overworld", false, true ,true, 384, "#minecraft:infiniburn_overworld", 384, -64, 0, MonsterSpawnLightLevel(7, 0, "minecraft:uniform"), true, false, false, false),
-        "minecraft:overworld_caves" to DimensionType(0.0f, true, 1.0, "minecraft:overworld", true, true, true, 384, "#minecraft:infiniburn_overworld", 384, -64, 0, MonsterSpawnLightLevel(7, 0, "minecraft:uniform"), true, false, false, false),
-        "minecraft:the_end" to DimensionType(0.0f, false, 1.0, "minecraft:the_end", false, true, false, 256, "#minecraft:infiniburn_end", 256, 0, 0, MonsterSpawnLightLevel(7, 0, "minecraft:uniform"), false, false, false, false, 6000L),
-        "minecraft:the_nether" to DimensionType(0.1f, false, 8.0, "minecraft:the_nether", true, false, false, 256, "#minecraft:infiniburn_nether", 128, 0, 15, MonsterSpawnLightLevel(7, 7, "minecraft:uniform"), false, true, true, true, 18000L)
+        "minecraft:overworld" to DimensionType(
+            ambientLight = 0.0f,
+            bedWorks = true,
+            coordinateScale = 1.0,
+            effects = "minecraft:overworld",
+            hasCeiling = false,
+            hasRaids = true,
+            hasSkylight = true,
+            height = 384,
+            infiniburn = "#minecraft:infiniburn_overworld",
+            logicalHeight = 384,
+            minY = -64,
+            monsterSpawnBlockLightLimit = 0,
+            monsterSpawnLightLevel = MonsterSpawnLightLevel(7, 0, "minecraft:uniform"),
+            natural = true,
+            piglinSafe = false,
+            respawnAnchorWorks = false,
+            ultraWarm = false
+        ),
+        "minecraft:overworld_caves" to DimensionType(
+            ambientLight = 0.0f,
+            bedWorks = true,
+            coordinateScale = 1.0,
+            effects = "minecraft:overworld",
+            hasCeiling = true,
+            hasRaids = true,
+            hasSkylight = true,
+            height = 384,
+            infiniburn = "#minecraft:infiniburn_overworld",
+            logicalHeight = 384,
+            minY = -64,
+            monsterSpawnBlockLightLimit = 0,
+            monsterSpawnLightLevel = MonsterSpawnLightLevel(7, 0, "minecraft:uniform"),
+            natural = true,
+            piglinSafe = false,
+            respawnAnchorWorks = false,
+            ultraWarm = false
+        ),
+        "minecraft:the_end" to DimensionType(
+            ambientLight = 0.0f,
+            bedWorks = false,
+            coordinateScale = 1.0,
+            effects = "minecraft:the_end",
+            hasCeiling = false,
+            hasRaids = true,
+            hasSkylight = false,
+            height = 256,
+            infiniburn = "#minecraft:infiniburn_end",
+            logicalHeight = 256,
+            minY = 0,
+            monsterSpawnBlockLightLimit = 0,
+            monsterSpawnLightLevel = MonsterSpawnLightLevel(7, 0, "minecraft:uniform"),
+            natural = false,
+            piglinSafe = false,
+            respawnAnchorWorks = false,
+            ultraWarm = false,
+            fixedTime = 6000L
+        ),
+        "minecraft:the_nether" to DimensionType(
+            ambientLight = 0.1f,
+            bedWorks = false,
+            coordinateScale = 8.0,
+            effects = "minecraft:the_nether",
+            hasCeiling = true,
+            hasRaids = false,
+            hasSkylight = false,
+            height = 256,
+            infiniburn = "#minecraft:infiniburn_nether",
+            logicalHeight = 128,
+            minY = 0,
+            monsterSpawnBlockLightLimit = 15,
+            monsterSpawnLightLevel = MonsterSpawnLightLevel(7, 7, "minecraft:uniform"),
+            natural = false,
+            piglinSafe = true,
+            respawnAnchorWorks = true,
+            ultraWarm = true,
+            fixedTime = 18000L
+        )
     )
 
     val OVERWORLD =  map["minecraft:overworld"]!!

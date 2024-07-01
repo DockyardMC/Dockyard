@@ -1,4 +1,4 @@
-package io.github.dockyardmc.plugins.bundled.CoolParticles
+package io.github.dockyardmc.plugins.bundled.particles
 
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerFlightToggleEvent

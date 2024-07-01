@@ -1,10 +1,7 @@
 package io.github.dockyardmc.entities
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMutableList
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player

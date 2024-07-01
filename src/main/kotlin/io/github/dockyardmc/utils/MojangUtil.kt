@@ -80,7 +80,6 @@ object MojangUtil {
 
     // I'm going to quote Swordington here:
     // "Is this code bad? Yes, Do I care? Not really"
-    private fun getFullUUIDFromTrimmedUUID(uuid: String): String {
-        return "${uuid.subSequence(0, 8)}-${uuid.subSequence(8, 12)}-${uuid.subSequence(12, 16)}-${uuid.subSequence(16, 20)}-${uuid.substring(20)}"
-    }
+    private fun getFullUUIDFromTrimmedUUID(uuid: String): String =
+        "${uuid.subSequence(0, 8)}-${uuid.subSequence(8, 12)}-${uuid.subSequence(12, 16)}-${uuid.subSequence(16, 20)}-${uuid.substring(20)}"
 }

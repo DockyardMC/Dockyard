@@ -8,7 +8,5 @@ enum class GameMode {
     ADVENTURE,
     SPECTATOR;
 
-    override fun toString(): String {
-        return this.name.properStrictCase()
-    }
+    override fun toString(): String = this.name.properStrictCase()
 }

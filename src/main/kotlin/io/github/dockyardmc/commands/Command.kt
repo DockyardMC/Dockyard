@@ -15,7 +15,7 @@ class Command: Cloneable {
     var name = ""
     var aliases = mutableListOf<String>()
 
-    fun <T> get(argumentName: String): T {
+    operator fun <T> get(argumentName: String): T {
         if(arguments[argumentName] == null) throw Exception("Argument with name $argumentName does not exist")
 
         return arguments[argumentName]!!.returnedValue as T
@@ -43,9 +43,7 @@ class Command: Cloneable {
         internalExecutorDoNotUse = function
     }
 
-    fun build(): Command {
-        return this
-    }
+    fun build(): Command = this
 
     public override fun clone(): Command {
         val cloned = super.clone() as Command
@@ -125,7 +123,6 @@ data class CommandExecutor(
         if(this.isPlayer) this.player!!.sendMessage(message) else this.console.sendMessage(message)
     }
 
-    fun hasPermission(permission: String): Boolean {
-        return if(this.isPlayer) this.player!!.hasPermission(permission) else true
-    }
+    fun hasPermission(permission: String): Boolean =
+        if(this.isPlayer) this.player!!.hasPermission(permission) else true
 }

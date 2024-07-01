@@ -1,4 +1,4 @@
-package io.github.dockyardmc.plugins.bundled.DockyardExtras
+package io.github.dockyardmc.plugins.bundled.extras
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
@@ -6,6 +6,7 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.extentions.broadcastMessage
 
 class JoinLeaveMessages {
 

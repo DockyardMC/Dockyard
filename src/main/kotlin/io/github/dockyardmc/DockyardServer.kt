@@ -12,17 +12,14 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.plugins.PluginManager
-import io.github.dockyardmc.plugins.bundled.CoolParticles.CoolParticles
-import io.github.dockyardmc.plugins.bundled.DockyardCommands.DockyardCommands
-import io.github.dockyardmc.plugins.bundled.DockyardExtras.DockyardExtras
+import io.github.dockyardmc.plugins.bundled.particles.CoolParticles
+import io.github.dockyardmc.plugins.bundled.commands.DockyardCommands
+import io.github.dockyardmc.plugins.bundled.extras.DockyardExtras
 import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
-import io.github.dockyardmc.scroll.Component
-import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.utils.Console
 import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
@@ -138,10 +135,6 @@ class DockyardServer(var port: Int) {
     }
 
     companion object {
-        fun broadcastMessage(message: String) { this.broadcastMessage(message.toComponent()) }
-        fun broadcastMessage(component: Component) { PlayerManager.players.sendMessage(component); Console.sendMessage(component.stripStyling()) }
-        fun broadcastActionBar(message: String) { this.broadcastActionBar(message.toComponent()) }
-        fun broadcastActionBar(component: Component) { PlayerManager.players.sendActionBar(component) }
         lateinit var versionInfo: Resources.DockyardVersionInfo
         var allowAnyVersion: Boolean = false
 

@@ -27,7 +27,7 @@ class Profiler {
         endTime = Instant.now()
         val overall = endTime.toEpochMilli() - startTime.toEpochMilli()
         if(onlyLogAbove != null) {
-            if(onlyLogAbove != null && overall > onlyLogAbove!!) {
+            if(overall > onlyLogAbove!!) {
                 log("Profiler \"$name\" ended. Took ${overall}ms, ${overall - onlyLogAbove!!}ms more than expected", LogType.WARNING)
             }
         } else {

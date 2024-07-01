@@ -1,8 +1,8 @@
-package io.github.dockyardmc.plugins.bundled.DockyardExtras
+package io.github.dockyardmc.plugins.bundled.extras
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.plugins.DockyardPlugin
-import io.github.dockyardmc.plugins.bundled.DockyardExtras.items.SpawnEggImplementation
+import io.github.dockyardmc.plugins.bundled.extras.items.SpawnEggImplementation
 
 class DockyardExtras: DockyardPlugin {
 

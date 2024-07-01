@@ -4,21 +4,15 @@ import io.github.dockyardmc.location.Location
 
 object MathUtils {
 
-    fun getRelativeCoords(current: Double, previous: Double): Int {
-        return ((current * 32 - previous * 32) * 128).toInt()
-    }
+    fun getRelativeCoords(current: Double, previous: Double): Int = ((current * 32 - previous * 32) * 128).toInt()
 
-    fun remap(value: Int, fromMin: Int, fromMax: Int, toMin: Int, toMax: Int): Int {
-        return (value - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin
-    }
+    fun remap(value: Int, fromMin: Int, fromMax: Int, toMin: Int, toMax: Int): Int =
+        (value - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin
 
-    fun remap(value: Double, fromMin: Double, fromMax: Double, toMin: Double, toMax: Double): Double {
-        return (value - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin
-    }
+    fun remap(value: Double, fromMin: Double, fromMax: Double, toMin: Double, toMax: Double): Double =
+        (value - fromMin) * (toMax - toMin) / (fromMax - fromMin) + toMin
 
-    fun square(num: Double): Double {
-        return num * num
-    }
+    fun square(num: Double): Double = num * num
 
     fun toCorrectSlotIndex(slot: Int): Int {
         return when (slot) {
@@ -37,13 +31,9 @@ object MathUtils {
         return Location(x, y, z)
     }
 
-    fun percent(max: Double, part: Double): Double {
-        return (part / max) * 100
-    }
+    fun percent(max: Double, part: Double): Double = (part / max) * 100
 
-    fun positiveCeilDiv(i: Int, j: Int): Int {
-        return -Math.floorDiv(-i, j)
-    }
+    fun positiveCeilDiv(i: Int, j: Int): Int = -Math.floorDiv(-i, j)
 
     fun bitsToRepresent(n: Int): Int {
         if(n < 1) throw Exception("n must be greater than 0")

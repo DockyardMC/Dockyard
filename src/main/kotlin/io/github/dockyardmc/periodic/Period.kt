@@ -17,7 +17,7 @@ object Period {
     fun dispatch(event: Periodic) {
         val eventType = event.javaClass
         periodMap[eventType]?.forEach { executablePeriodic ->
-            (executablePeriodic.function as (Periodic) -> Unit).invoke(event)
+            executablePeriodic.function.invoke(event)
         }
     }
 

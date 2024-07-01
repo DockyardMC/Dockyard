@@ -12,6 +12,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChangeD
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.team.TeamManager
+import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.world.Difficulty
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
@@ -47,6 +48,8 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         registryPackets.forEach {
             connection.sendPacket(ClientboundRegistryDataPacket(it))
         }
+
+        connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links))
 
         val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
         connection.sendPacket(finishConfigurationPacket)
@@ -120,8 +123,6 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         player.sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
         processor.player.isFullyInitialized = true
 
-        //TODO Send command completion packets
-//        connection.sendPacket(ClientboundCommandsPacket(mutableListOf(testCommand)))
 
         Events.dispatch(PlayerJoinEvent(processor.player))
 
@@ -131,14 +132,6 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             player.addViewer(loopPlayer)
             loopPlayer.addViewer(player)
         }
-
-        //TODO add multi-world support and send this stuff when joining world
-//        val worldBorder = player.world!!.worldBorder
-//        val worldBorderPacket = ClientboundInitializeWorldBorderPacket(worldBorder.diameter, worldBorder.diameter, 0, worldBorder.warningBlocks, worldBorder.warningTime)
-//        connection.sendPacket(worldBorderPacket)
-
-//        connection.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying = true, allowFlying = true))
-
 
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         player.sendPacket(tickingStatePacket)
