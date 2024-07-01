@@ -4,25 +4,26 @@ import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundTeamsPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.CreateTeam
-import io.github.dockyardmc.protocol.packets.play.clientbound.RemoveTeam
+import io.github.dockyardmc.protocol.packets.play.clientbound.CreateTeamPacketAction
+import io.github.dockyardmc.protocol.packets.play.clientbound.RemoveTeamPacketAction
 
 object TeamManager {
     val teams = BindableMutableList<Team>()
 
     init {
         teams.itemAdded { event ->
-//            if (teams.values.any { it.name == event.item.name }) {
-//                throw IllegalArgumentException("This team already exists!")
-//            }
+            require(teams[event.item.name] != null) { "This team already exists!" }
 
-            val packet = ClientboundTeamsPacket(CreateTeam(event.item))
+            val packet = ClientboundTeamsPacket(CreateTeamPacketAction(event.item))
             PlayerManager.players.sendPacket(packet)
         }
 
         teams.itemRemoved { event ->
-            val packet = ClientboundTeamsPacket(RemoveTeam(event.item))
+            val packet = ClientboundTeamsPacket(RemoveTeamPacketAction(event.item))
             PlayerManager.players.sendPacket(packet)
         }
+
     }
+
+    operator fun BindableMutableList<Team>.get(name: String): Team? = this.values.firstOrNull { it.name == name }
 }

@@ -137,7 +137,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         player.sendPacket(tickingStatePacket)
 
         TeamManager.teams.values.forEach {
-            player.sendPacket(ClientboundTeamsPacket(CreateTeam(it)))
+            player.sendPacket(ClientboundTeamsPacket(CreateTeamPacketAction(it)))
         }
 
         SkinManager.setSkinOf(player, player.uuid)

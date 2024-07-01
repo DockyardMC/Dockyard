@@ -7,9 +7,11 @@ import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.plugins.DockyardPlugin
+import io.github.dockyardmc.scroll.TextColor
 import io.github.dockyardmc.team.Team
+import io.github.dockyardmc.team.TeamCollisionRule
 import io.github.dockyardmc.team.TeamManager
-import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.team.TeamNameTagVisibility
 
 class MudkipTestPlugin: DockyardPlugin {
     override val name = "MudkipTestPlugin"
@@ -18,9 +20,13 @@ class MudkipTestPlugin: DockyardPlugin {
 
     private val team = Team(
         "admins",
-        color = Bindable(15),
-        prefix = Bindable("<red>[PREFIX] ".toComponent()),
-        suffix = Bindable(" <aqua>[SUFFIX]".toComponent())
+        "Admins",
+        0x00,
+        TeamNameTagVisibility.VISIBLE,
+        TeamCollisionRule.ALWAYS,
+        TextColor.LIME,
+        "<#9e54ff>[Dev] ",
+        ""
     )
 
     override fun load(server: DockyardServer) {
