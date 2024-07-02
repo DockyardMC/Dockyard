@@ -13,7 +13,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.AddEntitiesTeamPac
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundTeamsPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.UpdateTeamPacketAction
 import io.github.dockyardmc.scroll.Component
-import io.github.dockyardmc.scroll.TextColor
+import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.netty.buffer.ByteBuf
 
@@ -37,7 +37,7 @@ class Team(
     val flags: Bindable<Int> = Bindable(0x00),
     val teamNameTagVisibility: Bindable<TeamNameTagVisibility> = Bindable(TeamNameTagVisibility.VISIBLE),
     val teamCollisionRule: Bindable<TeamCollisionRule> = Bindable(TeamCollisionRule.ALWAYS),
-    val color: Bindable<Int> = Bindable(15),
+    val color: Bindable<LegacyTextColor> = Bindable(LegacyTextColor.WHITE),
     val prefix: Bindable<Component?> = Bindable(null),
     val suffix: Bindable<Component?> = Bindable(null)
 ) {
@@ -48,7 +48,7 @@ class Team(
         flags: Int,
         teamNameTagVisibility: TeamNameTagVisibility,
         teamCollisionRule: TeamCollisionRule,
-        color: TextColor,
+        color: LegacyTextColor,
         prefix: String? = null,
         suffix: String? = null
     ): this(
@@ -57,7 +57,7 @@ class Team(
         Bindable<Int>(flags),
         Bindable<TeamNameTagVisibility>(teamNameTagVisibility),
         Bindable<TeamCollisionRule>(teamCollisionRule),
-        Bindable<Int>(color.ordinal),
+        Bindable<LegacyTextColor>(color),
         Bindable<Component?>(prefix?.toComponent()),
         Bindable<Component?>(suffix?.toComponent())
     )
@@ -107,7 +107,7 @@ fun ByteBuf.writeTeamInfo(team: Team) {
     this.writeByte(team.flags.value)
     this.writeUtf(team.teamNameTagVisibility.value.value)
     this.writeUtf(team.teamCollisionRule.value.value)
-    this.writeVarInt(team.color.value)
+    this.writeVarInt(team.color.value.ordinal)
     this.writeNBT((team.prefix.value ?: "".toComponent()).toNBT())
     this.writeNBT((team.suffix.value ?: "".toComponent()).toNBT())
 }

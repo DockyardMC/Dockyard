@@ -1,13 +1,12 @@
 package io.github.dockyardmc.plugins.bundled
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.IntArgument
+import io.github.dockyardmc.commands.EnumArgument
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.plugins.DockyardPlugin
-import io.github.dockyardmc.scroll.TextColor
+import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamCollisionRule
 import io.github.dockyardmc.team.TeamManager
@@ -24,7 +23,7 @@ class MudkipTestPlugin: DockyardPlugin {
         0x00,
         TeamNameTagVisibility.VISIBLE,
         TeamCollisionRule.ALWAYS,
-        TextColor.LIME,
+        LegacyTextColor.PINK,
         "<#9e54ff>[Dev] ",
         ""
     )
@@ -37,10 +36,10 @@ class MudkipTestPlugin: DockyardPlugin {
         }
 
         Commands.add("/color") {
-            it.addArgument("color", IntArgument())
+            it.addArgument("color", EnumArgument(LegacyTextColor::class))
 
             it.execute { executor ->
-                val color = it.get<Int>("color")
+                val color = it.get<LegacyTextColor>("color")
                 val team = executor.player?.team
 
                 if (team != null) {

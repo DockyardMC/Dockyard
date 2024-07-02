@@ -1,20 +1,19 @@
 package io.github.dockyardmc.particles
 
-import io.github.dockyardmc.extentions.hexToRGB
 import io.github.dockyardmc.registry.Particles
-import io.github.dockyardmc.scroll.RGB
+import io.github.dockyardmc.scroll.CustomColor
 import io.netty.buffer.ByteBuf
 
-class DustParticleData(val rgb: RGB, val scale: Float = 1f): ParticleData {
+class DustParticleData(val color: CustomColor, val scale: Float = 1f): ParticleData {
 
-    constructor(hex: String, scale: Float = 1f): this(hexToRGB(hex), scale)
+    constructor(hex: String, scale: Float = 1f): this(CustomColor.fromHex(hex), scale)
 
     override var id: Int = Particles.DUST.id
 
     override fun write(byteBuf: ByteBuf) {
-        byteBuf.writeFloat(rgb.r / 255f)
-        byteBuf.writeFloat(rgb.g / 255f)
-        byteBuf.writeFloat(rgb.b / 255f)
+        byteBuf.writeFloat(color.r / 255f)
+        byteBuf.writeFloat(color.g / 255f)
+        byteBuf.writeFloat(color.b / 255f)
         byteBuf.writeFloat(scale)
     }
 }
