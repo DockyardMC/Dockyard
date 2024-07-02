@@ -5,10 +5,9 @@ import io.github.dockyardmc.registry.Biome
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.world.World
 import java.util.*
 
-class VanillaIshWorldGenerator(override val world: World, var seed: Int = UUID.randomUUID().mostSignificantBits.toInt()) : WorldGenerator {
+class VanillaIshWorldGenerator(var seed: Int = UUID.randomUUID().mostSignificantBits.toInt()) : WorldGenerator {
 
     val baseNoiseGenerator = FastNoiseLite()
     val surfaceNoiseGenerator = FastNoiseLite()

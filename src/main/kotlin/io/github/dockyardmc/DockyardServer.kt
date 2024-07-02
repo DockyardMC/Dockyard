@@ -33,6 +33,7 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.plugins.bundled.MudkipTestPlugin
+import io.github.dockyardmc.world.generators.FlatWorldGenerator
 import java.net.InetSocketAddress
 import java.util.*
 
@@ -84,7 +85,7 @@ class DockyardServer(var port: Int) {
         tickTimer.run()
 
         innerProfiler.start("Load World")
-        val mainWorld = World("world")
+        val mainWorld = World(name = "world", generator = FlatWorldGenerator())
         mainWorld.worldBorder.diameter = 1000.0
         mainWorld.defaultSpawnLocation = Location(0, 201, 0)
         WorldManager.worlds.add(mainWorld)
