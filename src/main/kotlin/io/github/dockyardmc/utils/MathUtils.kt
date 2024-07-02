@@ -1,6 +1,7 @@
 package io.github.dockyardmc.utils
 
 import io.github.dockyardmc.location.Location
+import kotlin.random.Random
 
 object MathUtils {
 
@@ -39,4 +40,6 @@ object MathUtils {
         if(n < 1) throw Exception("n must be greater than 0")
         return Integer.SIZE - Integer.numberOfLeadingZeros(n)
     }
+
+    fun randomInt(min: Int, max: Int): Int = (min..max).shuffled().last()
 }

@@ -1,19 +1,20 @@
 package io.github.dockyardmc.world
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionType
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.runnables.AsyncRunnable
-import io.github.dockyardmc.runnables.runAsync
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.ChunkUtils
@@ -24,9 +25,9 @@ import io.github.dockyardmc.world.generators.WorldGenerator
 import java.util.UUID
 
 class World(
-    var name: String = "world",
-    var dimensionType: DimensionType = DimensionTypes.OVERWORLD,
-    var generator: WorldGenerator
+    var name: String,
+    var generator: WorldGenerator,
+    var dimensionType: DimensionType
 ) {
     val worldSeed = UUID.randomUUID().leastSignificantBits.toString()
 
@@ -42,6 +43,61 @@ class World(
 
     val players: BindableMutableList<Player> = BindableMutableList()
     val entities: BindableMutableList<Entity> = BindableMutableList()
+
+    val joinQueue: MutableList<Player> = mutableListOf()
+
+    fun join(player: Player) {
+        if(player.world == this && player.isFullyInitialized) return
+        if(!canBeJoined && !joinQueue.contains(player)) {
+            joinQueue.addIfNotPresent(player)
+            return
+        }
+
+        player.world.players.removeIfPresent(player)
+        player.world = this
+        players.add(player)
+        entities.add(player)
+
+        joinQueue.removeIfPresent(player)
+
+        player.sendPacket(ClientboundRespawnPacket(player, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
+        val difficultyPacket = ClientboundChangeDifficultyPacket(Difficulty.PEACEFUL, false)
+        player.sendPacket(difficultyPacket)
+
+        val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
+        player.sendPacket(gameEventPacket)
+
+        chunks.forEach {
+            player.sendPacket(it.packet)
+        }
+
+        player.location = this.defaultSpawnLocation
+
+        player.sendPacket(ClientboundPlayerSynchronizePositionPacket(this.defaultSpawnLocation))
+
+        player.isFullyInitialized = true
+    }
+
+    init {
+
+        val runnable = AsyncRunnable {
+            generateChunks(6)
+        }
+
+        runnable.callback = {
+            canBeJoined = true
+            log("Loaded chunks for world ${this.name}")
+            joinQueue.forEach {
+                join(it)
+            }
+        }
+        runnable.execute()
+
+        Events.on<ServerTickEvent> {
+            worldAge++
+        }
+    }
+
 
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
     fun sendMessage(component: Component) { players.values.sendMessage(component) }
@@ -104,22 +160,6 @@ class World(
                 if(getChunk(chunkX, chunkZ) == null) chunks.add(chunk)
                 chunk.cacheChunkDataPacket()
             }
-        }
-    }
-
-    init {
-
-        val runnable = AsyncRunnable {
-            generateChunks(6)
-        }
-
-        runnable.callback = {
-            this.canBeJoined = true
-        }
-        runnable.execute()
-
-        Events.on<ServerTickEvent> {
-            worldAge++
         }
     }
 }

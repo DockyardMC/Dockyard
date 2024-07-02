@@ -21,7 +21,6 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.github.dockyardmc.utils.Resources
-import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.buffer.PooledByteBufAllocator
@@ -33,7 +32,10 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.plugins.bundled.MudkipTestPlugin
+import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
+import io.github.dockyardmc.world.generators.NetherLikeGenerator
+import io.github.dockyardmc.world.generators.VanillaIshWorldGenerator
 import java.net.InetSocketAddress
 import java.util.*
 
@@ -85,10 +87,16 @@ class DockyardServer(var port: Int) {
         tickTimer.run()
 
         innerProfiler.start("Load World")
-        val mainWorld = World(name = "world", generator = FlatWorldGenerator())
+        val mainWorld = WorldManager.create("main", VanillaIshWorldGenerator(), DimensionTypes.OVERWORLD)
         mainWorld.worldBorder.diameter = 1000.0
-        mainWorld.defaultSpawnLocation = Location(0, 201, 0)
-        WorldManager.worlds.add(mainWorld)
+        mainWorld.defaultSpawnLocation = Location(0, 125, 0)
+
+        val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
+        testWorld.defaultSpawnLocation = Location(0, 201, 0)
+
+        val netherWorld = WorldManager.create("nether", NetherLikeGenerator(), DimensionTypes.NETHER)
+        netherWorld.defaultSpawnLocation = Location(0, 201, 0)
+
         innerProfiler.end()
 
         //TODO Load plugins from "/plugins" folder
