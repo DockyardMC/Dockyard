@@ -8,7 +8,7 @@ import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.World
 
 fun World.spawnParticle(location: Location, particle: Particle, offset: Vector3f = Vector3f(0f, 0f, 0f), speed: Float = 0.5f, count: Int = 1, longDistance: Boolean = false, particleData: ParticleData? = null) {
-    this.players.spawnParticle(location, particle, offset, speed, count, longDistance, particleData)
+    this.players.values.spawnParticle(location, particle, offset, speed, count, longDistance, particleData)
 }
 
 fun Player.spawnParticle(location: Location, particle: Particle, offset: Vector3f = Vector3f(0f, 0f, 0f), speed: Float = 0.5f, count: Int = 1, longDistance: Boolean = false, particleData: ParticleData? = null) {

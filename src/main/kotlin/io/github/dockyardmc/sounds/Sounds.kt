@@ -35,7 +35,7 @@ fun List<Player>.playSound(identifier: String, location: Location, volume: Float
 }
 
 fun World.playSound(sound: Sound) {
-    this.players.playSound(sound)
+    this.players.values.playSound(sound)
 }
 
 fun World.playSound(identifier: String, location: Location, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {

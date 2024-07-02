@@ -1,7 +1,7 @@
 package io.github.dockyardmc.world
 
+import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
@@ -12,43 +12,41 @@ import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionType
 import io.github.dockyardmc.registry.DimensionTypes
+import io.github.dockyardmc.runnables.AsyncRunnable
+import io.github.dockyardmc.runnables.runAsync
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.Vector2
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
-import io.github.dockyardmc.world.generators.FlatWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 import java.util.UUID
 
 class World(
     var name: String = "world",
     var dimensionType: DimensionType = DimensionTypes.OVERWORLD,
+    var generator: WorldGenerator
 ) {
-
     val worldSeed = UUID.randomUUID().leastSignificantBits.toString()
 
     var seed: Long = worldSeed.SHA256Long()
-    var seedBytes = worldSeed.SHA256String()
     var worldBorder = WorldBorder(this)
-    var generator: WorldGenerator = FlatWorldGenerator(this)
 
-    var daylightCycle: Boolean = true
     var time: Long = 1000
     var worldAge: Long = 0
 
     var chunks: MutableList<Chunk> = mutableListOf()
-
-    val players: MutableList<Player> get() = PlayerManager.players.filter { it.world == this }.toMutableList()
-    val entities: MutableList<Entity> get() = EntityManager.entities.filter { it.world == this }.toMutableList()
-
+    var canBeJoined: Boolean = false
     var defaultSpawnLocation = Location(0, 0, 0)
 
+    val players: BindableMutableList<Player> = BindableMutableList()
+    val entities: BindableMutableList<Entity> = BindableMutableList()
+
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
-    fun sendMessage(component: Component) { players.sendMessage(component) }
+    fun sendMessage(component: Component) { players.values.sendMessage(component) }
     fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
-    fun sendActionBar(component: Component) { players.sendActionBar(component) }
+    fun sendActionBar(component: Component) { players.values.sendActionBar(component) }
 
     fun getChunkAt(x: Int, z: Int): Chunk? {
         val chunkX = ChunkUtils.getChunkCoordinate(x)
@@ -61,7 +59,7 @@ class World(
     fun setBlock(x: Int, y: Int, z: Int, block: Block) {
         val chunk = getChunkAt(x, z) ?: return
         chunk.setBlock(x, y, z, block, true)
-        players.forEach { it.sendPacket(chunk.packet) }
+        players.values.forEach { it.sendPacket(chunk.packet) }
     }
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
@@ -87,7 +85,7 @@ class World(
         this.setBlock(vector3.x.toInt(), vector3.y.toInt(), vector3.z.toInt(), block)
     }
 
-    fun generateChunks(size: Int, sendToPlayers: Boolean = false) {
+    fun generateChunks(size: Int) {
         val vector = Vector2(size.toFloat(), size.toFloat())
         for (chunkX in (vector.x.toInt() * -1)..vector.x.toInt()) {
             for (chunkZ in (vector.y.toInt() * -1)..vector.y.toInt()) {
@@ -105,25 +103,23 @@ class World(
                 }
                 if(getChunk(chunkX, chunkZ) == null) chunks.add(chunk)
                 chunk.cacheChunkDataPacket()
-                if(sendToPlayers) {
-                    PlayerManager.players.forEach { it.sendPacket(chunk.packet) }
-                }
             }
         }
     }
 
     init {
 
-        generateChunks(6)
+        val runnable = AsyncRunnable {
+            generateChunks(6)
+        }
+
+        runnable.callback = {
+            this.canBeJoined = true
+        }
+        runnable.execute()
 
         Events.on<ServerTickEvent> {
             worldAge++
-            if(!daylightCycle) return@on
-            if(time > 24000) {
-                time = 0
-            } else {
-                time++
-            }
         }
     }
 }
