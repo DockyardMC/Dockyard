@@ -14,6 +14,7 @@ import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.periodic.Period
+import io.github.dockyardmc.periodic.SecondPeriod
 import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.addIfNotPresent
@@ -58,7 +59,14 @@ class MayaTestPlugin: DockyardPlugin {
             it.player.tabListFooter.value = "\n  <dark_gray><s>                                   <r>  \n".toComponent()
             serverBar.viewers.addIfNotPresent(it.player)
 
-//            it.player.sendTitle("<yellow>Welcome", "<aqua>to my minecraft server")
+            it.player.experienceBar.value = 1f
+            it.player.experienceLevel.value= 0
+        }
+
+        var seconds: Int = 0
+        Period.on<SecondPeriod> {
+            seconds++
+            PlayerManager.players.forEach { it.experienceLevel.value = seconds }
         }
 
         ServerLinks.links.add(CustomServerLink("<aqua>Github", "https://github.com/DockyardMC/Dockyard"))
