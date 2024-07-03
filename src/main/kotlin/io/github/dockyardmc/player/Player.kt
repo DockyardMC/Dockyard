@@ -75,6 +75,8 @@ class Player(
     val freezeTicks: Bindable<Int> = Bindable(0)
     val saturation: Bindable<Float> = Bindable(0f)
     val food: Bindable<Int> = Bindable(20)
+    val experienceLevel: Bindable<Int> = Bindable(0)
+    val experienceBar: Bindable<Float> = Bindable(0f)
 
     //for debugging
     lateinit var lastSentPacket: ClientboundPacket
@@ -129,11 +131,18 @@ class Player(
             sendToViewers(packet)
             sendPacket(packet)
         }
-    }
 
+        experienceBar.valueChanged { sendUpdateExperiencePacket() }
+        experienceLevel.valueChanged { sendUpdateExperiencePacket() }
+    }
 
     fun sendHealthUpdatePacket() {
         val packet = ClientboundSetHealthPacket(health.value, food.value, saturation.value)
+        sendPacket(packet)
+    }
+
+    fun sendUpdateExperiencePacket() {
+        val packet = ClientboundSetExperiencePacket(experienceBar.value, experienceLevel.value)
         sendPacket(packet)
     }
 
@@ -288,12 +297,15 @@ class Player(
         //TODO update pose
         refreshAbilities()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
-
-
     }
 
     fun refreshAbilities() {
         val packet = ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, 0.1f)
         sendPacket(packet)
+    }
+
+    fun resetExperience() {
+        experienceLevel.value = 0
+        experienceBar.value = 0f
     }
 }
