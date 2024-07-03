@@ -297,12 +297,15 @@ class Player(
         //TODO update pose
         refreshAbilities()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
-
-
     }
 
     fun refreshAbilities() {
         val packet = ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, 0.1f)
         sendPacket(packet)
+    }
+
+    fun resetExperience() {
+        experienceLevel.value = 0
+        experienceBar.value = 0f
     }
 }
