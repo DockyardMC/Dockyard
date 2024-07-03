@@ -29,7 +29,7 @@ abstract class Entity {
     abstract var velocity: Vector3
     abstract var viewers: MutableList<Player>
     abstract var hasGravity: Boolean
-    abstract var canBeDamaged: Boolean
+    abstract var isInvulnerable: Boolean
     abstract var hasCollision: Boolean
     abstract var world: World
     abstract var displayName: String

@@ -34,7 +34,7 @@ class Player(
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var viewers: MutableList<Player> = mutableListOf()
     override var hasGravity: Boolean = true
-    override var canBeDamaged: Boolean = true
+    override var isInvulnerable: Boolean = true
     override var hasCollision: Boolean = true
     override var displayName: String = username
     override var metadata: BindableMutableList<EntityMetadata> = BindableMutableList()
@@ -58,16 +58,40 @@ class Player(
     val tabListHeader: Bindable<Component> = Bindable("".toComponent())
     val tabListFooter: Bindable<Component> = Bindable("".toComponent())
     val isListed: Bindable<Boolean> = Bindable(true)
+    //TODO Implement
+    val isOnFire: Bindable<Boolean> = Bindable(false)
+    //TODO Implement
+    val fireTicks: Bindable<Int> = Bindable(0)
+    //TODO Implement
+    val freezeTicks: Bindable<Int> = Bindable(0)
+
 
     //for debugging
     lateinit var lastSentPacket: ClientboundPacket
 
     init {
         selectedHotbarSlot.valueChanged { this.sendPacket(ClientboundSetHeldItemPacket(it.newValue)) }
-        isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, canBeDamaged, canFly.value, flySpeed.value)) }
-        canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, canBeDamaged, it.newValue, flySpeed.value)) }
-        flySpeed.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, canBeDamaged, canFly.value, it.newValue)) }
-        gameMode.valueChanged { this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat())) }
+        isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value)) }
+        canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
+        flySpeed.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, it.newValue)) }
+        gameMode.valueChanged {
+            this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat()))
+            when(it.newValue) {
+                GameMode.SPECTATOR,
+                GameMode.CREATIVE -> {
+                    canFly.value = true
+                    isFlying.value = isFlying.value
+                }
+
+                GameMode.ADVENTURE,
+                GameMode.SURVIVAL -> {
+                    if(it.oldValue == GameMode.CREATIVE || it.oldValue == GameMode.SPECTATOR) {
+                        canFly.value = false
+                        isFlying.value = false
+                    }
+                }
+            }
+        }
         tabListHeader.valueChanged { sendPacket(ClientboundTabListPacket(it.newValue, tabListFooter.value)) }
         tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
 
@@ -184,5 +208,37 @@ class Player(
         packets.forEach {
             this.sendPacket(it)
         }
+    }
+
+    fun respawn() {
+        fireTicks.value = 0
+        isOnFire.value = false
+        //TODO health
+
+        sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
+        location = this.world.defaultSpawnLocation
+
+        this.world.chunks.forEach {
+            sendPacket(it.packet)
+        }
+        refreshClientStateAfterRespawn()
+
+        //TODO event
+    }
+
+    fun refreshClientStateAfterRespawn() {
+        sendPacket(ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f))
+        sendPacket(ClientboundChangeDifficultyPacket(world.difficulty.value, true))
+        gameMode.value = gameMode.value
+        //TODO health update packet
+        //TODO experience
+
+        refreshAbilities()
+        sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
+    }
+
+    fun refreshAbilities() {
+        val packet = ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, 0.1f)
+        sendPacket(packet)
     }
 }

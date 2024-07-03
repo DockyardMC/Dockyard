@@ -19,7 +19,7 @@ class Pig(
     override var velocity: Vector3 = Vector3(),
     override var viewers: MutableList<Player> = mutableListOf(),
     override var hasGravity: Boolean = true,
-    override var canBeDamaged: Boolean = true,
+    override var isInvulnerable: Boolean = true,
     override var hasCollision: Boolean = true,
     override var world: World,
     override var displayName: String = "",
