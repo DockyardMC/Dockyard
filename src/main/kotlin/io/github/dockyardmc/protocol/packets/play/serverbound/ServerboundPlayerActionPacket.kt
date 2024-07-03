@@ -1,6 +1,5 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.events.Events
@@ -8,7 +7,6 @@ import io.github.dockyardmc.events.PlayerBlockBreakEvent
 import io.github.dockyardmc.extentions.readByteEnum
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
-import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.particles.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Direction
@@ -16,7 +14,6 @@ import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSendParticlePacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.utils.Vector3
@@ -42,7 +39,7 @@ class ServerboundPlayerActionPacket(
 
                 val previousBlock = player.world.getBlock(position)
 
-                val event = PlayerBlockBreakEvent(player, previousBlock, position.toLocation())
+                val event = PlayerBlockBreakEvent(player, previousBlock, position.toLocation(player.world))
                 Events.dispatch(event)
                 if(event.cancelled) {
                     player.world.getChunkAt(position.x, position.z)?.let { player.sendPacket(it.packet) }
@@ -56,9 +53,8 @@ class ServerboundPlayerActionPacket(
     }
 
     companion object {
-        fun read(buf: ByteBuf): ServerboundPlayerActionPacket {
-            return ServerboundPlayerActionPacket(buf.readVarIntEnum<PlayerAction>(), buf.readBlockPosition(), buf.readByteEnum<Direction>(), buf.readVarInt())
-        }
+        fun read(buf: ByteBuf): ServerboundPlayerActionPacket =
+            ServerboundPlayerActionPacket(buf.readVarIntEnum<PlayerAction>(), buf.readBlockPosition(), buf.readByteEnum<Direction>(), buf.readVarInt())
     }
 }
 

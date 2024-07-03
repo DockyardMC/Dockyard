@@ -1,8 +1,12 @@
 package io.github.dockyardmc.player
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.entities.*
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerRespawnEvent
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.Inventory
 import io.github.dockyardmc.inventory.ItemStack
@@ -11,12 +15,14 @@ import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import io.github.dockyardmc.registry.Entities
+import io.github.dockyardmc.registry.DamageType
+import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.world.World
+import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 import java.util.UUID
 
@@ -24,8 +30,8 @@ class Player(
     val username: String,
     override var entityId: Int,
     override var uuid: UUID,
-    override var type: EntityType = Entities.PLAYER,
-    override var location: Location = Location(0, 256, 0),
+    override var type: EntityType = EntityTypes.PLAYER,
+    override var location: Location = Location(0, 0, 0, WorldManager.worlds.values.first()),
     override var world: World,
     val connection: ChannelHandlerContext,
     val address: String,
@@ -40,6 +46,7 @@ class Player(
     override var metadata: BindableMutableList<EntityMetadata> = BindableMutableList()
     override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     override var isOnGround: Boolean = true
+    override var health: Bindable<Float> = Bindable(20f)
     var brand: String = "minecraft:vanilla"
     var profile: ProfilePropertyMap? = null
     var clientConfiguration: ClientConfiguration? = null
@@ -64,7 +71,8 @@ class Player(
     val fireTicks: Bindable<Int> = Bindable(0)
     //TODO Implement
     val freezeTicks: Bindable<Int> = Bindable(0)
-
+    val saturation: Bindable<Float> = Bindable(0f)
+    val food: Bindable<Int> = Bindable(20)
 
     //for debugging
     lateinit var lastSentPacket: ClientboundPacket
@@ -81,17 +89,23 @@ class Player(
                 GameMode.CREATIVE -> {
                     canFly.value = true
                     isFlying.value = isFlying.value
+                    isInvulnerable = true
                 }
-
                 GameMode.ADVENTURE,
                 GameMode.SURVIVAL -> {
                     if(it.oldValue == GameMode.CREATIVE || it.oldValue == GameMode.SPECTATOR) {
                         canFly.value = false
                         isFlying.value = false
+                        isInvulnerable = false
                     }
                 }
             }
         }
+
+        health.valueChanged { sendHealthUpdatePacket() }
+        food.valueChanged { sendHealthUpdatePacket() }
+        saturation.valueChanged { sendHealthUpdatePacket() }
+
         tabListHeader.valueChanged { sendPacket(ClientboundTabListPacket(it.newValue, tabListFooter.value)) }
         tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
 
@@ -113,6 +127,32 @@ class Player(
             sendToViewers(packet)
             sendPacket(packet)
         }
+    }
+
+
+    fun sendHealthUpdatePacket() {
+        val packet = ClientboundSetHealthPacket(health.value, food.value, saturation.value)
+        sendPacket(packet)
+    }
+
+    //TODO figure out why directional damage does not work
+    fun damage(damage: Float, damageType: DamageType, attacker: Entity? = null, projectile: Entity? = null) {
+        var location: Location? = null
+        if(attacker != null) location = attacker.location
+        if(projectile != null) location = projectile.location
+        if(damage > 0) {
+            if(!isInvulnerable) {
+                DockyardServer.broadcastMessage("<dark_red>-${damage}")
+                health.value -= damage
+                DockyardServer.broadcastMessage("<red>${health.value}")
+                if(health.value <= 0) {
+                    //bro dead :skull:
+                    DockyardServer.broadcastMessage("<red>$this died lol <yellow>(helth: ${health.value})")
+                }
+            }
+        }
+        val packet = ClientboundDamageEventPacket(this, damageType, attacker, projectile, location)
+        sendPacket(packet)
     }
 
     override fun addViewer(player: Player) {
@@ -210,10 +250,10 @@ class Player(
         }
     }
 
-    fun respawn() {
+    fun respawn(isBecauseDeath: Boolean = false) {
         fireTicks.value = 0
         isOnFire.value = false
-        //TODO health
+        health.value = 20f
 
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
@@ -223,18 +263,21 @@ class Player(
         }
         refreshClientStateAfterRespawn()
 
-        //TODO event
+        if(isBecauseDeath) Events.dispatch(PlayerRespawnEvent(this))
     }
 
     fun refreshClientStateAfterRespawn() {
         sendPacket(ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f))
         sendPacket(ClientboundChangeDifficultyPacket(world.difficulty.value, true))
         gameMode.value = gameMode.value
-        //TODO health update packet
+        sendHealthUpdatePacket()
         //TODO experience
 
+        //TODO update pose
         refreshAbilities()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
+
+
     }
 
     fun refreshAbilities() {

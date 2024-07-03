@@ -5,7 +5,6 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.world.WorldManager
 
 object GeneralBlockPlacementRules {
 
@@ -13,14 +12,14 @@ object GeneralBlockPlacementRules {
 
         var canBePlaced = CancelReason(true, "")
 
-        val world = WorldManager.worlds[0]
+        val world = originalClickedBlock.world
 
         val existingBlock = world.getBlock(originalClickedBlock)
         val placementLocation = world.getBlock(where)
 
         if(placementLocation != Blocks.AIR) canBePlaced = CancelReason(false, "Block at new location is not air")
         if(isLocationInsideBoundingBox(where, placer.world.entities.values) && newBlock.boundingBox == "block") canBePlaced = CancelReason(false, "Block collides with entity")
-        if(WorldManager.worlds[0].getBlock(originalClickedBlock).boundingBox != "block") canBePlaced = CancelReason(false, "Block is not full block")
+        if(world.getBlock(originalClickedBlock).boundingBox != "block") canBePlaced = CancelReason(false, "Block is not full block")
         if(existingBlock.isClickable && !placer.isSneaking) canBePlaced = CancelReason(false, "Block is clickable and player is not sneaking")
 
         return canBePlaced.canBePlaced

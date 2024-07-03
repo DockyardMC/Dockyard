@@ -14,7 +14,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 class ClientboundLoginPlayPacket(
     entityId: Int,
     isHardcore: Boolean,
-    dimensionNames: MutableList<String>,
+    dimensionNames: Collection<String>,
     maxPlayers: Int,
     viewDistance: Int,
     simulationDistance: Int,

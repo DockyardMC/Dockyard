@@ -14,7 +14,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
 
     val id: UUID = UUID.randomUUID()
     val minSection = world.dimensionType.minY / 16
-    val maxSection = (world.dimensionType.minY + world.dimensionType.height)/ 16
+    val maxSection = world.dimensionType.height / 16
     private lateinit var cachedPacket: CachedPacket
 
     val motionBlocking: ImmutableLongArray = ImmutableLongArray(37) { 0 }

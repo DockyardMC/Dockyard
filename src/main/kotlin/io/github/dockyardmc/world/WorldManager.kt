@@ -1,18 +1,20 @@
 package io.github.dockyardmc.world
 
-import io.github.dockyardmc.extentions.addIfNotPresent
 import io.github.dockyardmc.registry.DimensionType
 import io.github.dockyardmc.world.generators.WorldGenerator
 
 object WorldManager {
 
-    val worlds: MutableList<World> = mutableListOf()
+    val worlds: MutableMap<String, World> = mutableMapOf()
 
     fun create(name: String, generator: WorldGenerator, dimensionType: DimensionType): World {
-        require(worlds.firstOrNull { it.name == name } == null) { "World with that name already exists!" }
+        require(!worlds.keys.contains(name)) { "World with name $name already exists!" }
+
         val world = World(name, generator, dimensionType)
 
-        worlds.addIfNotPresent(world)
+        worlds[name] = world
         return world
     }
+
+    fun getOrThrow(world: String): World = worlds[world] ?: throw Exception("World with name $world does not exist!")
 }

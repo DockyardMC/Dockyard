@@ -3,6 +3,7 @@ package io.github.dockyardmc.utils
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 
 data class Vector3(
@@ -33,9 +34,9 @@ fun ByteBuf.writeVector3f(vector3: Vector3f) {
     this.writeFloat(vector3.z)
 }
 
-fun Vector3.toLocation(): Location = Location(this.x, this.y, this.z)
+fun Vector3.toLocation(world: World): Location = Location(this.x, this.y, this.z, world)
 
-fun Vector3f.toLocation(): Location = Location(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
+fun Vector3f.toLocation(world: World): Location = Location(this.x.toDouble(), this.y.toDouble(), this.z.toDouble(), world)
 
 fun Location.toVector3(): Vector3 = Vector3(this.x.toInt(), this.y.toInt(), this.z.toInt())
 

@@ -26,10 +26,11 @@ object MathUtils {
     }
 
     fun getRelativeLocation(current: Location, previous: Location): Location {
+        require(current.world == previous.world) { "The two locations need to be in the same world!" }
         val x = getRelativeCoords(current.x, previous.x)
         val y = getRelativeCoords(current.y, previous.z)
         val z = getRelativeCoords(current.y, previous.z)
-        return Location(x, y, z)
+        return Location(x, y, z, current.world)
     }
 
     fun percent(max: Double, part: Double): Double = (part / max) * 100

@@ -87,15 +87,12 @@ class DockyardServer(var port: Int) {
         tickTimer.run()
 
         innerProfiler.start("Load World")
-        val mainWorld = WorldManager.create("main", VanillaIshWorldGenerator(), DimensionTypes.OVERWORLD)
-        mainWorld.worldBorder.diameter = 1000.0
-        mainWorld.defaultSpawnLocation = Location(0, 125, 0)
 
         val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
-        testWorld.defaultSpawnLocation = Location(0, 201, 0)
+        testWorld.defaultSpawnLocation = Location(0, 201, 0, testWorld)
 
         val netherWorld = WorldManager.create("nether", NetherLikeGenerator(), DimensionTypes.NETHER)
-        netherWorld.defaultSpawnLocation = Location(0, 201, 0)
+        netherWorld.defaultSpawnLocation = Location(0, 125, 0, netherWorld)
 
         innerProfiler.end()
 

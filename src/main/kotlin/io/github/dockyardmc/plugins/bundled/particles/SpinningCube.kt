@@ -16,8 +16,8 @@ class SpinningCube {
 
     var enabled = false
 
-    val spinningCubeCenter = Location(0, 207, 0)
-    val world = WorldManager.worlds[0]
+    val world = WorldManager.getOrThrow("test")
+    val spinningCubeCenter = Location(0, 207, 0, world)
 
     val cubeSize = 3.0f
     val vertices = arrayOf(

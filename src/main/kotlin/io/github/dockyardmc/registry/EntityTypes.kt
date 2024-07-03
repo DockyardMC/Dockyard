@@ -1,5 +1,4 @@
 package io.github.dockyardmc.registry
-import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.utils.Resources.getFile
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -9,7 +8,7 @@ import kotlinx.serialization.Serializable
 // DATA FROM MINECRAFT 1.21
 // https://github.com/DockyardMC/RegistryClassesGenerators
 
-object Entities {
+object EntityTypes {
     private val idToEntityMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
         val entities = json.decodeFromString<List<EntityType>>(getFile("./data/entities.json"))

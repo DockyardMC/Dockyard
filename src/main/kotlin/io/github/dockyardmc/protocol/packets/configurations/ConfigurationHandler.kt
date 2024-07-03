@@ -75,7 +75,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         processor.state = ProtocolState.PLAY
         processor.player.releaseMessagesQueue()
 
-        val world = WorldManager.worlds[0]
+        val world = WorldManager.worlds.values.first()
         processor.player.world = world
 
         player.gameMode.value = GameMode.CREATIVE
@@ -89,7 +89,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         val playPacket = ClientboundLoginPlayPacket(
             entityId = player.entityId,
             isHardcore = false,
-            dimensionNames = WorldManager.worlds.map { it.name }.toMutableList(),
+            dimensionNames = WorldManager.worlds.keys,
             maxPlayers = 20,
             viewDistance = 16,
             simulationDistance = 16,

@@ -50,7 +50,7 @@ class ServerboundUseItemOnPacket(
             Direction.NORTH -> newPos.z += -1
         }
 
-        val event = PlayerBlockInteractEvent(player, item, player.world.getBlock(pos), face, pos.toLocation())
+        val event = PlayerBlockInteractEvent(player, item, player.world.getBlock(pos), face, pos.toLocation(player.world))
         Events.dispatch(event)
 
         DockyardServer.broadcastMessage(item.material.toString())
@@ -58,9 +58,9 @@ class ServerboundUseItemOnPacket(
             val block = Blocks.getBlockById(item.material.blockId!!)
             var cancelled = false
 
-            if(!GeneralBlockPlacementRules.canBePlaced(pos.toLocation(), newPos.toLocation(), block, player)) cancelled = true
+            if(!GeneralBlockPlacementRules.canBePlaced(pos.toLocation(player.world), newPos.toLocation(player.world), block, player)) cancelled = true
 
-            val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation())
+            val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation(player.world))
             Events.dispatch(blockPlaceEvent)
 
             if(blockPlaceEvent.cancelled) cancelled = true

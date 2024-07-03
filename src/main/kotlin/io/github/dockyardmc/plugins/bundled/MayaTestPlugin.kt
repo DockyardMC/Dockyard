@@ -5,25 +5,34 @@ import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.bossbar.Bossbar
 import io.github.dockyardmc.bossbar.BossbarColor
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.FloatArgument
+import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.commands.StringArgument
+import io.github.dockyardmc.entities.EntityManager
+import io.github.dockyardmc.entities.Pig
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.extentions.broadcastActionBar
 import io.github.dockyardmc.extentions.truncate
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.addIfNotPresent
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
+import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.DamageTypes
+import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.DefaultServerLink
 import io.github.dockyardmc.serverlinks.CustomServerLink
 import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.WorldManager
-import java.lang.Exception
+import java.util.*
 
 class MayaTestPlugin: DockyardPlugin {
     override val name: String = "MayaTestPlugin"
@@ -62,13 +71,30 @@ class MayaTestPlugin: DockyardPlugin {
         ServerLinks.links.add(CustomServerLink("<aqua>Discord", "https://discord.gg/SA9nmfMkdc"))
         ServerLinks.links.add(DefaultServerLink(DefaultServerLinkType.BUG_REPORT, "https://github.com/DockyardMC/Dockyard/issues"))
 
-
         Commands.add("/world") { cmd ->
             cmd.addArgument("world", StringArgument())
             cmd.execute { executor ->
                 val player = executor.player!!
-                val world = WorldManager.worlds.firstOrNull { it.name == cmd.get<String>("world") } ?: throw Exception("world with that name does not exist!")
+                val world = WorldManager.getOrThrow(cmd.get<String>("world"))
                 world.join(player)
+            }
+        }
+
+        var damageLocation = Location(0, 0, 0, WorldManager.getOrThrow("test"))
+
+        Commands.add("damage") {
+            it.addArgument("damage", FloatArgument())
+            it.execute { exec ->
+                val player = exec.player!!
+                val damage = it.get<Float>("damage")
+                player.damage(damage, DamageTypes.GENERIC)
+            }
+        }
+
+        Commands.add("/setdmgloc") {
+            it.execute { exec ->
+                val player = exec.player!!
+                damageLocation = player.location
             }
         }
     }

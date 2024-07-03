@@ -102,6 +102,8 @@ data class DamageType(
         }
     }
 
+    val id: Int get() = DamageTypes.map.values.indexOf(this)
+
     companion object {
         fun read(identifier: String, nbt: NBTCompound): DamageType {
             return DamageType(
