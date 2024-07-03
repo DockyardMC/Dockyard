@@ -138,25 +138,26 @@ class Player(
     }
 
     //TODO figure out why directional damage does not work
-    fun damage(damage: Float, damageType: DamageType, attacker: Entity? = null, projectile: Entity? = null) {
-        var location: Location? = null
-        if(attacker != null) location = attacker.location
-        if(projectile != null) location = projectile.location
+    override fun damage(damage: Float, damageType: DamageType, attacker: Entity?, projectile: Entity?) {
 
-        val event = PlayerDamageEvent(this, damageType, attacker, projectile)
+        val event = PlayerDamageEvent(this, damage, damageType, attacker, projectile)
         Events.dispatch(event)
         if(event.cancelled) return
 
-        if(damage > 0) {
+        var location: Location? = null
+        if(event.attacker != null) location = event.attacker!!.location
+        if(event.projectile != null) location = event.projectile!!.location
+
+        if(event.damage > 0) {
             if(!isInvulnerable) {
-                if(health.value - damage <= 0) kill() else health.value -= damage
+                if(health.value - event.damage <= 0) kill() else health.value -= event.damage
             }
         }
-        val packet = ClientboundDamageEventPacket(this, damageType, attacker, projectile, location)
+        val packet = ClientboundDamageEventPacket(this, event.damageType, event.attacker, event.projectile, location)
         sendPacket(packet)
     }
 
-    fun kill() {
+    override fun kill() {
         val event = PlayerDeathEvent(this)
         Events.dispatch(event)
         if(event.cancelled) {

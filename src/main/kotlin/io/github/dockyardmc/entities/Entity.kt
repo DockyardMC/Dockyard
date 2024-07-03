@@ -3,9 +3,7 @@ package io.github.dockyardmc.entities
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMutableList
-import io.github.dockyardmc.events.EntityViewerAddEvent
-import io.github.dockyardmc.events.EntityViewerRemoveEvent
-import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
@@ -14,6 +12,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.Block
+import io.github.dockyardmc.registry.DamageType
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
@@ -105,6 +104,35 @@ abstract class Entity {
             location.z - width / 2,
             location.z + width / 2
         )
+    }
+
+    open fun damage(damage: Float, damageType: DamageType, attacker: Entity? = null, projectile: Entity? = null) {
+        val event = EntityDamageEvent(this, damage, damageType, attacker, projectile)
+        Events.dispatch(event)
+        if(event.cancelled) return
+
+        var location: Location? = null
+        if(attacker != null) location = attacker.location
+        if(projectile != null) location = projectile.location
+
+        if(event.damage > 0) {
+            if(!isInvulnerable) {
+                if(health.value - event.damage <= 0) kill() else health.value -= event.damage
+            }
+        }
+
+        val packet = ClientboundDamageEventPacket(this, event.damageType, event.attacker, event.projectile, location)
+        viewers.sendPacket(packet)
+    }
+
+    open fun kill() {
+        val event = EntityDeathEvent(this)
+        Events.dispatch(event)
+        if(event.cancelled) {
+            health.value = 0.1f
+            return
+        }
+        health.value = 0f;
     }
 
     data class BoundingBox(
