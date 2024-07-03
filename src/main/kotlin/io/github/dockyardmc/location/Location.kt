@@ -1,23 +1,22 @@
 package io.github.dockyardmc.location
 
 import io.github.dockyardmc.extentions.truncate
-import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector2
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
+import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
-import kotlin.math.atan
 import kotlin.math.atan2
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-//TODO Add world
 class Location(
     var x: Double,
     var y: Double,
     var z: Double,
     var yaw: Float = 0f,
     var pitch: Float = 0f,
+    var world: World
 ) {
     constructor(
         x: Int,
@@ -25,18 +24,33 @@ class Location(
         z: Int,
         yaw: Float = 0f,
         pitch: Float = 0f,
-    ): this(x.toDouble(), y.toDouble(), z.toDouble(), yaw, pitch)
+        world: World
+    ): this(x.toDouble(), y.toDouble(), z.toDouble(), yaw, pitch, world)
+
+    constructor(
+        x: Int,
+        y: Int,
+        z: Int,
+        world: World
+    ): this(x.toDouble(), y.toDouble(), z.toDouble(), 0f, 0f, world)
+
+    constructor(
+        x: Double,
+        y: Double,
+        z: Double,
+        world: World
+    ): this(x, y, z, 0f, 0f, world)
 
     override fun toString(): String =
-        "Location(${x.truncate(2)}, ${y.truncate(2)}, ${z.truncate(2)}, yaw: $yaw, pitch: $pitch)"
+        "Location(${x.truncate(2)}, ${y.truncate(2)}, ${z.truncate(2)}, yaw: $yaw, pitch: $pitch, world: ${world.name})"
 
     fun add(vector: Vector3f): Location =
-        Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch)
+        Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch, this.world)
 
     fun add(vector: Vector3): Location =
-        Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch)
+        Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch, this.world)
 
-    fun clone(): Location = Location(this.x, this.y, this.z, this.yaw, this.pitch)
+    fun clone(): Location = Location(this.x, this.y, this.z, this.yaw, this.pitch, this.world)
 
     fun distance(other: Location): Double =
         //surly it's not just me that pronounces it "squirt"
@@ -46,36 +60,62 @@ class Location(
 
     fun getRotation(): Vector2 = Vector2(yaw, pitch)
 
-
-    //TODO Rewrite this, temp stolen from bukkit
-
     fun setDirection(vector: Vector3f): Location {
-        val pi2 = 6.283185307179586
-        val x: Double = vector.x.toDouble()
-        val z: Double = vector.z.toDouble()
+        val loc = this.clone()
+        val x = vector.x.toDouble()
+        val y = vector.y.toDouble()
+        val z = vector.z.toDouble()
+
         if (x == 0.0 && z == 0.0) {
-            this.yaw = if (vector.y.toDouble() > 0.0) -90.0f else 90.0f
-            return this
+            loc.yaw = if (y > 0.0) -90.0f else 90.0f
+            return loc
         }
-        val theta = atan2(-x, z)
-        this.pitch = Math.toDegrees((theta + pi2) % pi2).toFloat()
-        val x2: Double = MathUtils.square(x)
-        val z2: Double = MathUtils.square(z)
-        val xz = sqrt(x2 + z2)
-        this.yaw = Math.toDegrees(atan(-vector.y.toDouble() / xz)).toFloat()
-        return this
+
+        loc.pitch = Math.toDegrees(atan2(-x, z)).toFloat()
+        loc.yaw = Math.toDegrees(atan2(-y, sqrt(x * x + z * z))).toFloat()
+        return loc
     }
 
     fun subtract(vec: Location): Location {
-        this.x -= vec.x
-        this.y -= vec.y
-        this.z -= vec.z
-        return this
+        val loc = this.clone()
+        loc.x -= vec.x
+        loc.y -= vec.y
+        loc.z -= vec.z
+        return loc
     }
 
+    fun subtract(vector: Vector3f): Location {
+        val loc = this.clone()
+        loc.x -= vector.x
+        loc.y -= vector.y
+        loc.z -= vector.z
+        return loc
+    }
+
+    fun subtract(vector: Vector3): Location {
+        val loc = this.clone()
+        loc.x -= vector.x
+        loc.y -= vector.y
+        loc.z -= vector.z
+        return loc
+    }
+
+    fun subtract(x: Double, y: Double, z: Double): Location {
+        val loc = this.clone()
+        loc.x -= x
+        loc.y -= y
+        loc.z -= z
+        return loc
+    }
+
+    fun subtract(x: Int, y: Int, z: Int): Location {
+        val loc = this.clone()
+        loc.x -= x
+        loc.y -= y
+        loc.z -= z
+        return loc
+    }
 }
-
-
 
 fun ByteBuf.writeLocation(location: Location, rotDelta: Boolean = false) {
     this.writeLocationWithoutRot(location)

@@ -13,6 +13,7 @@ import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
@@ -29,19 +30,18 @@ abstract class Entity {
     abstract var velocity: Vector3
     abstract var viewers: MutableList<Player>
     abstract var hasGravity: Boolean
-    abstract var canBeDamaged: Boolean
+    abstract var isInvulnerable: Boolean
     abstract var hasCollision: Boolean
     abstract var world: World
     abstract var displayName: String
     abstract var isOnGround: Boolean
     abstract var metadata: BindableMutableList<EntityMetadata>
     abstract var pose: Bindable<EntityPose>
+    abstract var health: Bindable<Float>
 
     var team: Team? = null
         set(value) {
-            if (value !in TeamManager.teams.values) {
-                throw IllegalArgumentException("This team is not registered!")
-            }
+            require(value in TeamManager.teams.values) { "This team is not registered!" }
 
             this.team?.entities?.remove(this)
             field = value
@@ -119,4 +119,18 @@ abstract class Entity {
     private fun sendSelfPacketIfPlayer(packet: ClientboundPacket) {
         if(this is Player) this.sendPacket(packet)
     }
+
+    fun placeBlock(location: Location, block: Block) {
+
+    }
+
+    fun interact() {
+
+    }
+
+    fun breakBlock() {
+
+    }
+
+
 }

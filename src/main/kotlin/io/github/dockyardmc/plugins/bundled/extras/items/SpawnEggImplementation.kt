@@ -9,7 +9,7 @@ import io.github.dockyardmc.events.PlayerBlockInteractEvent
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.PlayerHand
-import io.github.dockyardmc.registry.Entities
+import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.sounds.playSound
@@ -40,7 +40,7 @@ class SpawnEggImplementation {
             val heldItem = player.getHeldItem(PlayerHand.MAIN_HAND)
             if(heldItem.material != Items.DEBUG_STICK) return@on
             if(!player.isSneaking) return@on
-            if(it.entity.type == Entities.PLAYER) return@on
+            if(it.entity.type == EntityTypes.PLAYER) return@on
 
             player.world.despawnEntity(it.entity)
             player.playSound("entity.mooshroom.convert", player.location, 0.2f, 2f)

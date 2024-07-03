@@ -26,7 +26,6 @@ import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
-@OptIn(ExperimentalStdlibApi::class)
 class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
@@ -63,7 +62,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
             username =  packet.name,
             entityId = EntityManager.entityIdCounter.incrementAndGet(),
             uuid =  packet.uuid,
-            world = WorldManager.worlds[0],
+            world = WorldManager.worlds.values.first(),
             address = connection.channel().remoteAddress().address,
             crypto = playerCrypto,
             connection = connection,

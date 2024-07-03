@@ -8,8 +8,9 @@ class Bindable<T>(initialValue: T) {
     var value: T
         get() = bindableValue
         set(value) {
-            changeListeners.forEach { it.unit.invoke(ValueChangedEvent<T>(bindableValue, value)) }
+            val oldValue = bindableValue
             bindableValue = value
+            changeListeners.forEach { it.unit.invoke(ValueChangedEvent<T>(oldValue, value)) }
         }
 
     fun setSilently(value: T) {

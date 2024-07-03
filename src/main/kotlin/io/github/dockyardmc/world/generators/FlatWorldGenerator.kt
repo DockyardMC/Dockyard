@@ -4,9 +4,8 @@ import io.github.dockyardmc.registry.Biome
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.world.World
 
-class FlatWorldGenerator(override val world: World) : WorldGenerator {
+class FlatWorldGenerator() : WorldGenerator {
 
     override fun getBlock(x: Int, y: Int, z: Int): Block {
         return when {

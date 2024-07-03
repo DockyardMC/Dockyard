@@ -9,12 +9,12 @@ import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
-@WikiVGEntry("Login (player)")
+@WikiVGEntry("Login (play)")
 @ClientboundPacketInfo(0x2B, ProtocolState.PLAY)
 class ClientboundLoginPlayPacket(
     entityId: Int,
     isHardcore: Boolean,
-    dimensionNames: MutableList<String>,
+    dimensionNames: Collection<String>,
     maxPlayers: Int,
     viewDistance: Int,
     simulationDistance: Int,

@@ -33,6 +33,8 @@ object PlayerManager {
         playerToProcessorMap.remove(player.uuid)
         playerToEntityIdMap.remove(player.entityId)
         EntityManager.entities.remove(player)
+        player.world.players.removeIfPresent(player)
+        player.world.entities.removeIfPresent(player)
     }
 
     fun sendToEveryoneInWorld(world: World, packet: ClientboundPacket) {
