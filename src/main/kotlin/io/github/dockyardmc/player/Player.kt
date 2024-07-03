@@ -5,6 +5,8 @@ import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerDamageEvent
+import io.github.dockyardmc.events.PlayerDeathEvent
 import io.github.dockyardmc.events.PlayerRespawnEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
@@ -136,23 +138,33 @@ class Player(
     }
 
     //TODO figure out why directional damage does not work
-    fun damage(damage: Float, damageType: DamageType, attacker: Entity? = null, projectile: Entity? = null) {
+    override fun damage(damage: Float, damageType: DamageType, attacker: Entity?, projectile: Entity?) {
+
+        val event = PlayerDamageEvent(this, damage, damageType, attacker, projectile)
+        Events.dispatch(event)
+        if(event.cancelled) return
+
         var location: Location? = null
-        if(attacker != null) location = attacker.location
-        if(projectile != null) location = projectile.location
-        if(damage > 0) {
+        if(event.attacker != null) location = event.attacker!!.location
+        if(event.projectile != null) location = event.projectile!!.location
+
+        if(event.damage > 0) {
             if(!isInvulnerable) {
-                DockyardServer.broadcastMessage("<dark_red>-${damage}")
-                health.value -= damage
-                DockyardServer.broadcastMessage("<red>${health.value}")
-                if(health.value <= 0) {
-                    //bro dead :skull:
-                    DockyardServer.broadcastMessage("<red>$this died lol <yellow>(helth: ${health.value})")
-                }
+                if(health.value - event.damage <= 0) kill() else health.value -= event.damage
             }
         }
-        val packet = ClientboundDamageEventPacket(this, damageType, attacker, projectile, location)
+        val packet = ClientboundDamageEventPacket(this, event.damageType, event.attacker, event.projectile, location)
         sendPacket(packet)
+    }
+
+    override fun kill() {
+        val event = PlayerDeathEvent(this)
+        Events.dispatch(event)
+        if(event.cancelled) {
+            health.value = 0.1f
+            return
+        }
+        health.value = 0f;
     }
 
     override fun addViewer(player: Player) {
