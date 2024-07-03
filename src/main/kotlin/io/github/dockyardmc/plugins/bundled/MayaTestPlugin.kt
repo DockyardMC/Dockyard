@@ -11,6 +11,7 @@ import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.entities.Pig
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerDamageEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.location.Location
@@ -80,21 +81,12 @@ class MayaTestPlugin: DockyardPlugin {
             }
         }
 
-        var damageLocation = Location(0, 0, 0, WorldManager.getOrThrow("test"))
-
         Commands.add("damage") {
             it.addArgument("damage", FloatArgument())
             it.execute { exec ->
                 val player = exec.player!!
                 val damage = it.get<Float>("damage")
                 player.damage(damage, DamageTypes.GENERIC)
-            }
-        }
-
-        Commands.add("/setdmgloc") {
-            it.execute { exec ->
-                val player = exec.player!!
-                damageLocation = player.location
             }
         }
     }
