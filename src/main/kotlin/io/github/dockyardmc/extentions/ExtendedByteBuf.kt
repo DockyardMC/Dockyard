@@ -1,9 +1,14 @@
 package io.github.dockyardmc.extentions
 
+import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.writeItemStack
+import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
 import org.jglrxavpok.hephaistos.nbt.*
+import java.awt.TextComponent
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -14,6 +19,31 @@ import kotlin.experimental.inv
 
 private const val SEGMENT_BITS: Byte = 0x7F
 private const val CONTINUE_BIT = 0x80
+
+fun ByteBuf.writeOptional(item: Any?, unit: (ByteBuf) -> Unit) {
+    val isPresent = item != null
+    this.writeBoolean(isPresent)
+    if(isPresent) {
+        unit.invoke(this)
+    }
+}
+
+fun ByteBuf.writeTextComponent(component: Component) {
+    this.writeNBT(component.toNBT())
+}
+
+fun ByteBuf.writeTextComponent(text: String) {
+    this.writeNBT(text.toComponent().toNBT())
+}
+
+fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
+    this.writeVarInt(list.size)
+    list.forEach {
+        this.writeItemStack(it)
+    }
+}
+
+
 
 fun ByteBuf.readUUID(): UUID {
     val most = this.readLong()
@@ -142,7 +172,7 @@ fun hasContinuationBit(byte: Byte): Boolean = byte.toInt() and 0x80 == 128
 inline fun <reified T : Enum<T>> ByteBuf.readVarIntEnum(): T = T::class.java.enumConstants[readVarInt()]
 inline fun <reified T : Enum<T>> ByteBuf.readByteEnum(): T = T::class.java.enumConstants[readByte().toInt()]
 
-fun <T : Enum<T>> ByteBuf.writeVarIntEnum(value: T) {
+inline fun <reified T : Enum<T>> ByteBuf.writeVarIntEnum(value: T) {
     this.writeVarInt(value.ordinal)
 }
 

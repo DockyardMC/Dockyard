@@ -1,5 +1,8 @@
 package io.github.dockyardmc.item
 
+import io.github.dockyardmc.extentions.writeOptional
+import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.registry.BannerPattern
@@ -7,7 +10,9 @@ import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.DimensionType
 import io.github.dockyardmc.registry.Effects
 import io.github.dockyardmc.scroll.CustomColor
+import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
+import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTString
 import java.util.UUID
@@ -66,7 +71,7 @@ data class EnchantmentsItemComponent(
     override val id: Int = 9
 ): ItemComponent
 
-data class CanPlaceOnItemComponent(
+data class CanBePlacedOnItemComponent(
     var blocks: MutableList<Block>,
     var showInTooltip: Boolean = true,
     override val id: Int = 10
@@ -243,7 +248,7 @@ data class NoteBlockInstrumentItemComponent(
     override val id: Int = 40
 ): ItemComponent
 
-data class OminousBottleAmplifier(
+data class OminousBottleAmplifierItemComponent(
     var amplifier: Int,
     override val id: Int = 41
 ): ItemComponent
@@ -252,9 +257,9 @@ data class JukeboxPlayableItemComponent(
     var directMode: Boolean,
     var jukeboxSongName: String,
     var sound: Sound,
-    var description: String?,
+    var description: String,
     var duration: Float,
-    var output: Int?,
+    var output: Int = 15,
     var showInTooltip: Boolean,
     override val id: Int = 42
 ): ItemComponent
@@ -300,7 +305,7 @@ data class BannerPatternsItemComponent(
 ): ItemComponent
 
 data class BannerShieldBaseColorItemComponent(
-    var color: CustomColor,
+    var color: LegacyTextColor,
     override val id: Int = 50
 ): ItemComponent
 
@@ -353,6 +358,16 @@ data class BookPage(
     var rawContent: String,
     var filteredContent: String? = null
 )
+
+fun ByteBuf.writeBookPages(pages: Collection<BookPage>) {
+    this.writeVarInt(pages.size)
+    pages.forEach {
+        this.writeUtf(it.rawContent)
+        this.writeOptional(it.filteredContent) { op ->
+            op.writeUtf(it.filteredContent!!)
+        }
+    }
+}
 
 data class ToolRule(
     val blocks: Collection<Block>,

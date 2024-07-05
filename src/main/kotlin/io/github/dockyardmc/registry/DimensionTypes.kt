@@ -129,6 +129,14 @@ data class DimensionType(
 ) {
 
     val id: Int get() = DimensionTypes.map.values.indexOf(this)
+    val identifier: String get() {
+        DimensionTypes.map.forEach {
+            if(it.value == this) {
+                return it.key
+            }
+        }
+        return "dockyard:null"
+    }
 
     fun toNBT(): NBTCompound {
         return NBT.Compound {
