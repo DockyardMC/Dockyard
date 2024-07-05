@@ -1,5 +1,6 @@
 package io.github.dockyardmc.inventory
 
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 
 class Inventory {

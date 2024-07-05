@@ -1,6 +1,5 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.entities.*
@@ -8,10 +7,9 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEvent
 import io.github.dockyardmc.events.PlayerDeathEvent
 import io.github.dockyardmc.events.PlayerRespawnEvent
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.Inventory
-import io.github.dockyardmc.inventory.ItemStack
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.packets.ClientboundPacket

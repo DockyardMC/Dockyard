@@ -1,7 +1,7 @@
 package io.github.dockyardmc.extentions
 
 import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.inventory.ItemStack
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.GameMode

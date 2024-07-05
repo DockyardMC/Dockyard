@@ -6,14 +6,13 @@ import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.inventory.ItemStack
-import io.github.dockyardmc.inventory.readItemStack
+import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import org.jglrxavpok.hephaistos.nbt.NBT
 
 @WikiVGEntry("Click Container")
 @ServerboundPacketInfo(14, ProtocolState.PLAY)

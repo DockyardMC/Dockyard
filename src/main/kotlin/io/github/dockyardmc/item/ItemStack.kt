@@ -1,4 +1,4 @@
-package io.github.dockyardmc.inventory
+package io.github.dockyardmc.item
 
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt

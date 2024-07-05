@@ -4,8 +4,8 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.inventory.ItemStack
-import io.github.dockyardmc.inventory.readItemStack
+import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
