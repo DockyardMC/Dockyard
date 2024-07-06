@@ -25,7 +25,8 @@ class Pig(
     override var displayName: String = "",
     override var isOnGround: Boolean = true,
     override var metadata: BindableList<EntityMetadata> = BindableList(),
-    override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
+    override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING),
+    override var inventorySize: Int = 0
 ) : Entity() {
     override var health: Bindable<Float> = Bindable(20f)
 }

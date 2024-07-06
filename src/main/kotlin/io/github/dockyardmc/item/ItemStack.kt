@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf
 class ItemStack(var material: Item, var amount: Int = 1) {
 
     val components: BindableList<ItemComponent> = BindableList()
-    val displayName: Bindable<String> = Bindable("")
+    val displayName: Bindable<String> = Bindable(material.name)
     val lore: BindableList<String> = BindableList()
     val customModelData: Bindable<Int> = Bindable(0)
     //TODO nice easy custom data api not like persistent containers or whatever the complicated fuck spigot uses

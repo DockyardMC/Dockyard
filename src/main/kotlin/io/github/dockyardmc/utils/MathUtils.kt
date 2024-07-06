@@ -21,6 +21,11 @@ object MathUtils {
             in 27..35 -> slot - 18
             in 18..26 -> slot
             in 9..17 -> slot + 18
+            5 -> 36
+            6 -> 37
+            7 -> 38
+            8 -> 39
+            45 -> 40
             else -> 0
         }
     }
@@ -31,6 +36,11 @@ object MathUtils {
             in 9..17 -> correctedSlot + 18
             in 18..26 -> correctedSlot
             in 27..35 -> correctedSlot - 18
+            36 -> 5
+            37 -> 6
+            38 -> 7
+            39 -> 8
+            45 -> 40
             else -> 0
         }
     }

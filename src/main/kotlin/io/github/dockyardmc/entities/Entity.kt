@@ -37,6 +37,7 @@ abstract class Entity {
     abstract var metadata: BindableList<EntityMetadata>
     abstract var pose: Bindable<EntityPose>
     abstract var health: Bindable<Float>
+    abstract var inventorySize: Int
 
     var team: Team? = null
         set(value) {

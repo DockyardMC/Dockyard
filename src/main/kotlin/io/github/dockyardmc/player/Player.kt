@@ -47,6 +47,7 @@ class Player(
     override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     override var isOnGround: Boolean = true
     override var health: Bindable<Float> = Bindable(20f)
+    override var inventorySize: Int = 35
     var brand: String = "minecraft:vanilla"
     var profile: ProfilePropertyMap? = null
     var clientConfiguration: ClientConfiguration? = null
