@@ -22,9 +22,7 @@ class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: ItemS
         val player = processor.player
         val correctSlot = MathUtils.toCorrectSlotIndex(slot)
 
-        player.inventory.set(correctSlot, clickedItem)
-
-        DockyardServer.broadcastMessage("<yellow>$player<gray> clicked slot <lime>$correctSlot<gray> with <aqua>${clickedItem}")
+        player.inventory.updateServerSlotData(correctSlot, clickedItem)
     }
 
     companion object {

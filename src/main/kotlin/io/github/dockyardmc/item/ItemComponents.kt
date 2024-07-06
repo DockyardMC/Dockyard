@@ -1,5 +1,6 @@
 package io.github.dockyardmc.item
 
+import io.github.dockyardmc.bindables.BindableMutableList
 import io.github.dockyardmc.extentions.writeOptional
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
@@ -16,6 +17,7 @@ import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTString
 import java.util.UUID
+import kotlin.reflect.KClass
 
 interface ItemComponent {
     val id: Int
@@ -57,7 +59,7 @@ data class ItemNameItemComponent(
 ): ItemComponent
 
 data class LoreItemComponent(
-    var lines: MutableList<String>,
+    var lines: Collection<String>,
     override val id: Int = 7
 ): ItemComponent
 
@@ -72,13 +74,13 @@ data class EnchantmentsItemComponent(
 ): ItemComponent
 
 data class CanBePlacedOnItemComponent(
-    var blocks: MutableList<Block>,
+    var blocks: Collection<Block>,
     var showInTooltip: Boolean = true,
     override val id: Int = 10
 ): ItemComponent
 
 data class CanBreakItemComponent(
-    var blocks: MutableList<Block>,
+    var blocks: Collection<Block>,
     var showInTooltip: Boolean = true,
     override val id: Int = 11
 ): ItemComponent
@@ -129,7 +131,7 @@ data class FoodItemComponent(
     var saturation: Boolean = false,
     var canAlwaysEat: Boolean = true,
     var secondsToEat: Float = 2f,
-    var potionEffects: MutableList<Effects>,
+    var potionEffects: MutableList<Effects> = mutableListOf(),
     override val id: Int = 20
 ): ItemComponent
 
@@ -368,6 +370,20 @@ fun ByteBuf.writeBookPages(pages: Collection<BookPage>) {
         }
     }
 }
+
+fun BindableMutableList<ItemComponent>.addOrUpdate(newComponent: ItemComponent) {
+    if(this.values.firstOrNull { it::class == newComponent::class } != null) {
+        val index = this.values.indexOfFirst { it::class == newComponent::class }
+        this.setIndex(index, newComponent)
+    } else {
+        this.add(newComponent)
+    }
+}
+
+fun BindableMutableList<ItemComponent>.removeByType(type: KClass<*>) {
+    this.values.forEach { if (it::class == type) this.remove(it) }
+}
+
 
 data class ToolRule(
     val blocks: Collection<Block>,

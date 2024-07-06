@@ -57,7 +57,7 @@ class Player(
     var selectedHotbarSlot: Bindable<Int> = Bindable(0)
     val permissions: MutableList<String> = mutableListOf()
     var isFullyInitialized: Boolean = false
-    var inventory: Inventory = Inventory()
+    var inventory: Inventory = Inventory(this)
     var gameMode: Bindable<GameMode> = Bindable(GameMode.ADVENTURE)
     var flySpeed: Bindable<Float> = Bindable(0.05f) // 0.05 is the default fly speed in vanilla minecraft
     var displayedSkinParts: BindableMutableList<DisplayedSkinPart> = BindableMutableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)

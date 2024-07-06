@@ -25,6 +25,16 @@ object MathUtils {
         }
     }
 
+    fun toOriginalSlotIndex(correctedSlot: Int): Int {
+        return when (correctedSlot) {
+            in 0..8 -> correctedSlot + 36
+            in 9..17 -> correctedSlot + 18
+            in 18..26 -> correctedSlot
+            in 27..35 -> correctedSlot - 18
+            else -> 0
+        }
+    }
+
     fun getRelativeLocation(current: Location, previous: Location): Location {
         require(current.world == previous.world) { "The two locations need to be in the same world!" }
         val x = getRelativeCoords(current.x, previous.x)

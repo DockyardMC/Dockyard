@@ -13,6 +13,8 @@ import io.github.dockyardmc.events.PlayerDamageEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.truncate
+import io.github.dockyardmc.item.FoodItemComponent
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.SecondPeriod
 import io.github.dockyardmc.periodic.TickPeriod
@@ -21,6 +23,7 @@ import io.github.dockyardmc.player.addIfNotPresent
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.registry.DamageTypes
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.DefaultServerLink
@@ -98,6 +101,24 @@ class MayaTestPlugin: DockyardPlugin {
 
         Events.on<EntityDamageEvent> {
             DockyardServer.broadcastMessage("${it.entity} damage ${it.damage}")
+        }
+
+        Commands.add("/item") {
+            it.execute { exec ->
+                val player = exec.player!!
+                val item = ItemStack(Items.AMETHYST_SHARD, 999)
+                item.displayName.value = "<pink><underline>Woooah Magical Shaaarddddd"
+                item.customModelData.value = 1
+                item.unbreakable.value = true
+                item.maxStackSize.value = 999
+                item.lore.add(" ")
+                item.lore.add("<gray>This is very <lime><i>very <gray></i>magical shard.")
+                item.lore.add(" ")
+                item.lore.add("<orange>⭐ <yellow>This item is edible!")
+                item.lore.add("<orange>⭐ <yellow>Max stack size is 999")
+                item.lore.add(" ")
+                player.inventory[0] = item
+            }
         }
     }
 

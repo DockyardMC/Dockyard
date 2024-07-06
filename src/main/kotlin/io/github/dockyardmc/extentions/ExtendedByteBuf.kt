@@ -29,11 +29,12 @@ fun ByteBuf.writeOptional(item: Any?, unit: (ByteBuf) -> Unit) {
 }
 
 fun ByteBuf.writeTextComponent(component: Component) {
+    component.italic = false
     this.writeNBT(component.toNBT())
 }
 
 fun ByteBuf.writeTextComponent(text: String) {
-    this.writeNBT(text.toComponent().toNBT())
+    this.writeTextComponent(text.toComponent())
 }
 
 fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {

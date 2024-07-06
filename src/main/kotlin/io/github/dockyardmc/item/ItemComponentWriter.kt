@@ -9,6 +9,7 @@ import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBT
 
 fun ByteBuf.writeItemComponent(comp: ItemComponent) {
+    this.writeVarInt(comp.id)
     when(comp) {
         is CustomDataItemComponent -> {
             this.writeNBT(comp.data)
@@ -26,14 +27,14 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
             this.writeBoolean(comp.showInTooltip)
         }
         is CustomNameItemComponent -> {
-            this.writeNBT(comp.name.toComponent().toNBT())
+            this.writeTextComponent(comp.name)
         }
         is ItemNameItemComponent -> {
             this.writeNBT(comp.name.toComponent().toNBT())
         }
         is LoreItemComponent -> {
             this.writeVarInt(comp.lines.size)
-            comp.lines.forEach { this.writeNBT(it.toComponent().toNBT()) }
+            comp.lines.forEach { this.writeTextComponent(it) }
         }
         is RarityItemComponent -> {
             this.writeVarIntEnum<ItemRarity>(comp.rarity)
