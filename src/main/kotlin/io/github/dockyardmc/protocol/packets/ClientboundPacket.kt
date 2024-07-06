@@ -1,6 +1,5 @@
 package io.github.dockyardmc.protocol.packets
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.AnnotationProcessor
 import io.github.dockyardmc.extentions.writeVarInt
 import io.netty.buffer.ByteBuf

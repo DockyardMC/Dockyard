@@ -53,7 +53,7 @@ class ServerboundUseItemOnPacket(
         val event = PlayerBlockInteractEvent(player, item, player.world.getBlock(pos), face, pos.toLocation(player.world))
         Events.dispatch(event)
 
-        DockyardServer.broadcastMessage(item.material.toString())
+        DockyardServer.broadcastMessage(item.toString())
         if(item.material.isBlock && item.material != Items.AIR) {
             val block = Blocks.getBlockById(item.material.blockId!!)
             var cancelled = false

@@ -6,6 +6,7 @@ import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.scroll.extensions.stripComponentTags
 import io.netty.buffer.ByteBuf
 
 class ItemStack(var material: Item, var amount: Int = 1) {
@@ -30,7 +31,7 @@ class ItemStack(var material: Item, var amount: Int = 1) {
         val air = ItemStack(Items.AIR, 1)
     }
 
-    override fun toString(): String = "ItemStack(${material.namespace}, $amount)"
+    override fun toString(): String = "ItemStack(${material.identifier}, ${components.values}, $amount)".stripComponentTags()
 }
 
 

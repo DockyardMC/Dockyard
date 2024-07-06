@@ -22,7 +22,7 @@ class SpawnEggImplementation {
             val player = it.player
             val heldItem = player.getHeldItem(PlayerHand.MAIN_HAND)
 
-            if(!heldItem.material.namespace.contains("spawn_egg")) return@on
+            if(!heldItem.material.identifier.contains("spawn_egg")) return@on
 
             val spawnLoc = it.location.apply { y += 1 }
 

@@ -2,6 +2,7 @@ package io.github.dockyardmc.item
 
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.writeProfileProperties
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.writeSoundEvent
@@ -73,10 +74,13 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
         }
         is FoodItemComponent -> {
             this.writeVarInt(comp.nutrition)
-            this.writeBoolean(comp.saturation)
+//            this.writeBoolean(comp.saturation)
+            this.writeFloat(0f)
             this.writeBoolean(comp.canAlwaysEat)
             this.writeFloat(comp.secondsToEat)
+            this.writeItemStack(ItemStack(Items.AIR, 1))
             //TODO Potion Effects
+            this.writeVarInt(0) //temp: 0 effects
         }
 
         is FireResistantItemComponent -> {} // Empty

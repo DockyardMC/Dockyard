@@ -117,6 +117,7 @@ class MayaTestPlugin: DockyardPlugin {
                 item.lore.add("<orange>⭐ <yellow>This item is edible!")
                 item.lore.add("<orange>⭐ <yellow>Max stack size is 999")
                 item.lore.add(" ")
+                item.components.add(FoodItemComponent(1))
                 player.inventory[0] = item
             }
         }
