@@ -2,7 +2,7 @@ package io.github.dockyardmc.entities
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
@@ -34,7 +34,7 @@ abstract class Entity {
     abstract var world: World
     abstract var displayName: String
     abstract var isOnGround: Boolean
-    abstract var metadata: BindableMutableList<EntityMetadata>
+    abstract var metadata: BindableList<EntityMetadata>
     abstract var pose: Bindable<EntityPose>
     abstract var health: Bindable<Float>
 

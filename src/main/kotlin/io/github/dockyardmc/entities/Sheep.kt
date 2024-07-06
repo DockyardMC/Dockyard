@@ -1,7 +1,7 @@
 package io.github.dockyardmc.entities
 
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
@@ -24,7 +24,7 @@ class Sheep(
     override var world: World,
     override var displayName: String = "",
     override var isOnGround: Boolean = true,
-    override var metadata: BindableMutableList<EntityMetadata> = BindableMutableList(),
+    override var metadata: BindableList<EntityMetadata> = BindableList(),
     override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
 ) : Entity() {
     override var health: Bindable<Float> = Bindable(20f)

@@ -1,7 +1,7 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item
@@ -11,9 +11,9 @@ import io.netty.buffer.ByteBuf
 
 class ItemStack(var material: Item, var amount: Int = 1) {
 
-    val components: BindableMutableList<ItemComponent> = BindableMutableList()
+    val components: BindableList<ItemComponent> = BindableList()
     val displayName: Bindable<String> = Bindable("")
-    val lore: BindableMutableList<String> = BindableMutableList()
+    val lore: BindableList<String> = BindableList()
     val customModelData: Bindable<Int> = Bindable(0)
     //TODO nice easy custom data api not like persistent containers or whatever the complicated fuck spigot uses
     val maxStackSize: Bindable<Int> = Bindable(64)
@@ -28,7 +28,7 @@ class ItemStack(var material: Item, var amount: Int = 1) {
     }
 
     companion object {
-        val air = ItemStack(Items.AIR, 1)
+        val air = ItemStack(Items.AIR, 0)
     }
 
     override fun toString(): String = "ItemStack(${material.identifier}, ${components.values}, $amount)".stripComponentTags()

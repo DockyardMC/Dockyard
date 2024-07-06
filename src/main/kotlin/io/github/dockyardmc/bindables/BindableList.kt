@@ -4,7 +4,7 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import java.util.*
 
-class BindableMutableList<T>(list: List<T>) {
+class BindableList<T>(list: List<T>) {
 
     constructor(vararg list: T): this(list.toList())
 
@@ -84,7 +84,7 @@ class BindableMutableList<T>(list: List<T>) {
 }
 
 
-fun BindableMutableList<UUID>.sendPacket(packet: ClientboundPacket) {
+fun BindableList<UUID>.sendPacket(packet: ClientboundPacket) {
     this.values.forEach { uuid ->
         val player = PlayerManager.players.firstOrNull { uuid == it.uuid } ?: return@forEach
         player.sendPacket(packet)

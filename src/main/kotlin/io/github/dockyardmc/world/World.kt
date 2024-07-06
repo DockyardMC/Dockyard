@@ -1,7 +1,7 @@
 package io.github.dockyardmc.world
 
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerChangeWorldEvent
@@ -41,8 +41,8 @@ class World(
     var canBeJoined: Boolean = false
     var defaultSpawnLocation = Location(0, 0, 0, this)
 
-    val players: BindableMutableList<Player> = BindableMutableList()
-    val entities: BindableMutableList<Entity> = BindableMutableList()
+    val players: BindableList<Player> = BindableList()
+    val entities: BindableList<Entity> = BindableList()
 
     val joinQueue: MutableList<Player> = mutableListOf()
 

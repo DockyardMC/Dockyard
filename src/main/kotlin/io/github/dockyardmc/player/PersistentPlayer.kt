@@ -1,6 +1,6 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import java.util.UUID
 
@@ -24,19 +24,19 @@ fun MutableList<PersistentPlayer>.toPlayer(): MutableList<Player> {
     return arrOut
 }
 
-fun BindableMutableList<Player>.toPersistent(): BindableMutableList<PersistentPlayer> {
+fun BindableList<Player>.toPersistent(): BindableList<PersistentPlayer> {
     val arrOut = mutableListOf<PersistentPlayer>()
     this.values.forEach { arrOut.add(PersistentPlayer(it.uuid)) }
-    return BindableMutableList<PersistentPlayer>(arrOut)
+    return BindableList<PersistentPlayer>(arrOut)
 }
 
-fun BindableMutableList<PersistentPlayer>.toPlayer(): BindableMutableList<Player> {
+fun BindableList<PersistentPlayer>.toPlayer(): BindableList<Player> {
     val arrOut = mutableListOf<Player>()
     this.values.forEach { arrOut.add(it.toPlayer()) }
-    return BindableMutableList<Player>(arrOut)
+    return BindableList<Player>(arrOut)
 }
 
-fun BindableMutableList<PersistentPlayer>.sendPacket(packet: ClientboundPacket) {
+fun BindableList<PersistentPlayer>.sendPacket(packet: ClientboundPacket) {
     this.values.forEach { it.toPlayer().sendPacket(packet) }
 }
 
@@ -48,18 +48,18 @@ fun PersistentPlayer.sendPacket(packet: ClientboundPacket) {
     this.toPlayer().sendPacket(packet)
 }
 
-operator fun BindableMutableList<PersistentPlayer>.contains(target: Player): Boolean =
+operator fun BindableList<PersistentPlayer>.contains(target: Player): Boolean =
     this.values.contains(target.toPersistent())
 
-fun BindableMutableList<PersistentPlayer>.addIfNotPresent(target: Player) {
+fun BindableList<PersistentPlayer>.addIfNotPresent(target: Player) {
     this.addIfNotPresent(target.toPersistent())
 }
-fun BindableMutableList<PersistentPlayer>.removeIfPresent(target: Player) {
+fun BindableList<PersistentPlayer>.removeIfPresent(target: Player) {
     this.removeIfPresent(target.toPersistent())
 }
 
 fun Player.toPersistent(): PersistentPlayer = PersistentPlayer(this.uuid)
 
-fun BindableMutableList<PersistentPlayer>.add(target: Player) {
+fun BindableList<PersistentPlayer>.add(target: Player) {
     this.add(target.toPersistent())
 }

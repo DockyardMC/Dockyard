@@ -1,7 +1,7 @@
 package io.github.dockyardmc.player
 
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEvent
@@ -43,7 +43,7 @@ class Player(
     override var isInvulnerable: Boolean = true
     override var hasCollision: Boolean = true
     override var displayName: String = username
-    override var metadata: BindableMutableList<EntityMetadata> = BindableMutableList()
+    override var metadata: BindableList<EntityMetadata> = BindableList()
     override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     override var isOnGround: Boolean = true
     override var health: Bindable<Float> = Bindable(20f)
@@ -60,7 +60,7 @@ class Player(
     var inventory: Inventory = Inventory(this)
     var gameMode: Bindable<GameMode> = Bindable(GameMode.ADVENTURE)
     var flySpeed: Bindable<Float> = Bindable(0.05f) // 0.05 is the default fly speed in vanilla minecraft
-    var displayedSkinParts: BindableMutableList<DisplayedSkinPart> = BindableMutableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
+    var displayedSkinParts: BindableList<DisplayedSkinPart> = BindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     var isConnected: Boolean = true
     val tabListHeader: Bindable<Component> = Bindable("".toComponent())
     val tabListFooter: Bindable<Component> = Bindable("".toComponent())

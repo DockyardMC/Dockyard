@@ -1,6 +1,6 @@
 package io.github.dockyardmc.item
 
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.extentions.writeOptional
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
@@ -371,7 +371,7 @@ fun ByteBuf.writeBookPages(pages: Collection<BookPage>) {
     }
 }
 
-fun BindableMutableList<ItemComponent>.addOrUpdate(newComponent: ItemComponent) {
+fun BindableList<ItemComponent>.addOrUpdate(newComponent: ItemComponent) {
     if(this.values.firstOrNull { it::class == newComponent::class } != null) {
         val index = this.values.indexOfFirst { it::class == newComponent::class }
         this.setIndex(index, newComponent)
@@ -380,7 +380,7 @@ fun BindableMutableList<ItemComponent>.addOrUpdate(newComponent: ItemComponent) 
     }
 }
 
-fun BindableMutableList<ItemComponent>.removeByType(type: KClass<*>) {
+fun BindableList<ItemComponent>.removeByType(type: KClass<*>) {
     this.values.forEach { if (it::class == type) this.remove(it) }
 }
 

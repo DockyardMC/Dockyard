@@ -1,6 +1,6 @@
 package io.github.dockyardmc.team
 
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundTeamsPacket
@@ -8,7 +8,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.CreateTeamPacketAc
 import io.github.dockyardmc.protocol.packets.play.clientbound.RemoveTeamPacketAction
 
 object TeamManager {
-    val teams = BindableMutableList<Team>()
+    val teams = BindableList<Team>()
 
     init {
         teams.itemAdded { event ->
@@ -25,5 +25,5 @@ object TeamManager {
 
     }
 
-    operator fun BindableMutableList<Team>.get(name: String): Team? = this.values.firstOrNull { it.name == name }
+    operator fun BindableList<Team>.get(name: String): Team? = this.values.firstOrNull { it.name == name }
 }
