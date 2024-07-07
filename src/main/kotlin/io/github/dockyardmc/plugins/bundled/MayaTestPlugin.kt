@@ -18,12 +18,14 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.SecondPeriod
 import io.github.dockyardmc.periodic.TickPeriod
+import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.addIfNotPresent
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.registry.DamageTypes
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.runnables.runLater
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.DefaultServerLink
@@ -64,6 +66,16 @@ class MayaTestPlugin: DockyardPlugin {
 
             it.player.experienceBar.value = 1f
             it.player.experienceLevel.value= 0
+
+            runLater(10) {
+                it.player.gameMode.value = GameMode.SURVIVAL
+                it.player.inventory[0] = ItemStack(Items.AMETHYST_SHARD)
+                it.player.inventory[1] = ItemStack(Items.POTATO)
+                it.player.inventory[2] = ItemStack(Items.STICK)
+                it.player.inventory[3] = ItemStack(Items.ECHO_SHARD)
+                it.player.inventory[4] = ItemStack(Items.POTATO)
+                it.player.inventory[5] = ItemStack(Items.COBBLESTONE, 32)
+            }
         }
 
         var seconds: Int = 0

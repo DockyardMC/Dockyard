@@ -76,9 +76,7 @@ class World(
 
         runnable.callback = {
             canBeJoined = true
-            joinQueue.forEach {
-                join(it)
-            }
+            joinQueue.forEach(::join)
         }
         runnable.execute()
 

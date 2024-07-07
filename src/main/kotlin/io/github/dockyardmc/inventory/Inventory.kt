@@ -11,6 +11,7 @@ class Inventory(var entity: Entity) {
     val name: String = "Inventory"
     val size = entity.inventorySize
     val slots: BindableMap<Int, ItemStack> = BindableMap()
+    var carriedItem: ItemStack = ItemStack.air
 
     init {
         slots.itemSet { (entity as? Player)?.sendInventoryUpdate(it.key) }

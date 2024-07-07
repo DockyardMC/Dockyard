@@ -11,6 +11,7 @@ import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -23,12 +24,50 @@ class ServerboundClickContainerPacket(
     var button: Int,
     var mode: ContainerClickMode,
     var changedSlots: MutableMap<Int, ItemStack>,
-    var carriedItem: ItemStack
+    var item: ItemStack
 ): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
-        DockyardServer.broadcastMessage("<yellow>$player <gray>clicked slot $slot in mode ${mode.name}")
+        val properSlot = MathUtils.toCorrectSlotIndex(slot)
+        DockyardServer.broadcastMessage("<dark_gray>${item.material.identifier} $properSlot ($slot) [${mode.name}]")
+
+        // If windowId is 0 that means it's the players inventory
+        if(mode == ContainerClickMode.NORMAL) {
+            val action = NormalButtonAction.entries.find { it.button == button }
+            if(action == null) {
+                player.sendMessage("<red>action is null!")
+                return
+            }
+
+            player.sendMessage("<yellow>${action.name}")
+            val clickedItem = player.inventory[properSlot]
+            val empty = ItemStack.air
+
+            if(clickedItem == ItemStack.air) {
+                if(player.inventory.carriedItem != empty) {
+                    player.inventory[properSlot] = player.inventory.carriedItem
+                    player.inventory.carriedItem = empty
+                    player.sendMessage("<aqua>Updated carried item to ${player.inventory.carriedItem}")
+                    return
+                }
+            } else {
+                if(action == NormalButtonAction.LEFT_MOUSE_CLICK) {
+                    // Set carried slot to what player clicks on item with no carried
+                    if(player.inventory.carriedItem == empty) {
+                        player.inventory.carriedItem = item
+                        player.inventory[properSlot] = empty
+                    }
+                    if(player.inventory.carriedItem != empty) {
+                        if(clickedItem.material == item.material) {
+                            player.inventory[properSlot] = player.inventory[properSlot].apply { amount += player.inventory.carriedItem.amount }
+                            player.inventory.carriedItem = empty
+                            player.sendMessage("<orange>Combined item stack to ${player.inventory[properSlot]}")
+                        }
+                    }
+                }
+            }
+        }
     }
 
     companion object {
@@ -64,11 +103,23 @@ enum class ContainerClickMode {
     DOUBLE_CLICK
 }
 
-enum class NormalButtonAction(button: Int, outsideInv: Boolean = false) {
+enum class NormalButtonAction(val button: Int, val outsideInv: Boolean = false) {
     LEFT_MOUSE_CLICK(0),
     RIGHT_MOUSE_CLICK(1),
     LEFT_CLICK_OUTSIDE_INVENTORY(0, true),
     RIGHT_CLICK_OUTSIDE_INVENTORY(1, true),
+}
+
+enum class DragButtonAction(button: Int, outsideInv: Boolean = false) {
+    STARTING_LEFT_MOUSE_DRAG(0, true),
+    STARTING_RIGHT_MOUSE_DRAG(4, true),
+    STARTING_MIDDLE_MOUSE_DRAG(8, true),
+    ADD_SLOT_FOR_LEFT_MOUSE_DRAG(1),
+    ADD_SLOT_FOR_RIGHT_MOUSE_DRAG(5),
+    ADD_SLOT_FOR_MIDDLE_MOUSE_DRAG(9),
+    ENDING_LEFT_MOUSE_DRAG(2, true),
+    ENDING_RIGHT_MOUSE_DRAG(6, true),
+    ENDING_MIDDLE_MOUSE_DRAG(10, true)
 }
 
 enum class NormalShiftButtonAction(button: Int, outsideInv: Boolean = false) {
@@ -84,18 +135,6 @@ enum class HotkeyButtonAction {
 enum class DropButtonAction(button: Int, outsideInv: Boolean = false) {
     DROP(0),
     CONTROL_DROP(1)
-}
-
-enum class DragButtonAction(button: Int, outsideInv: Boolean = false) {
-    STARTING_LEFT_MOUSE_DRAG(0, true),
-    STARTING_RIGHT_MOUSE_DRAG(4, true),
-    STARTING_MIDDLE_MOUSE_DRAG(8, true),
-    ADD_SLOT_FOR_LEFT_MOUSE_DRAG(1),
-    ADD_SLOT_FOR_RIGHT_MOUSE_DRAG(5),
-    ADD_SLOT_FOR_MIDDLE_MOUSE_DRAG(9),
-    ENDING_LEFT_MOUSE_DRAG(2, true),
-    ENDING_RIGHT_MOUSE_DRAG(6, true),
-    ENDING_MIDDLE_MOUSE_DRAG(10, true)
 }
 
 enum class DoubleClickButtonAction(button: Int, outsideInv: Boolean = false) {
