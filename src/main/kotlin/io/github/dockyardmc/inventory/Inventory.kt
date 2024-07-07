@@ -4,6 +4,7 @@ import io.github.dockyardmc.bindables.BindableMap
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetContainerContentPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.utils.MathUtils
 
@@ -14,8 +15,8 @@ class Inventory(var entity: Entity) {
     var carriedItem: ItemStack = ItemStack.air
 
     init {
-        slots.itemSet { (entity as? Player)?.sendInventoryUpdate(it.key) }
-        slots.itemRemoved { (entity as? Player)?.sendInventoryUpdate(it.key) }
+        slots.itemSet { sendInventoryUpdate(it.key) }
+        slots.itemRemoved { sendInventoryUpdate(it.key) }
     }
 
     operator fun set(slot: Int, item: ItemStack) {
@@ -37,9 +38,10 @@ class Inventory(var entity: Entity) {
         this@Inventory.clear()
     }
 
-    fun Player.sendInventoryUpdate(slot: Int) {
+    fun sendInventoryUpdate(slot: Int) {
+        val player = entity as Player
         val clientSlot =  MathUtils.toOriginalSlotIndex(slot)
         val packet = ClientboundSetInventorySlotPacket(0, 0, clientSlot, slots[slot] ?: ItemStack.air)
-        this.sendPacket(packet)
+        player.sendPacket(packet)
     }
 }

@@ -7,6 +7,8 @@ import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.clone
+import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -44,26 +46,40 @@ class ServerboundClickContainerPacket(
             val clickedItem = player.inventory[properSlot]
             val empty = ItemStack.air
 
-            if(clickedItem == ItemStack.air) {
-                if(player.inventory.carriedItem != empty) {
-                    player.inventory[properSlot] = player.inventory.carriedItem
-                    player.inventory.carriedItem = empty
-                    player.sendMessage("<aqua>Updated carried item to ${player.inventory.carriedItem}")
-                    return
-                }
-            } else {
-                if(action == NormalButtonAction.LEFT_MOUSE_CLICK) {
+            if(action == NormalButtonAction.LEFT_MOUSE_CLICK) {
+
+                // Set carried item to what player clicked
+                if(clickedItem == empty) {
+                    if (player.inventory.carriedItem != empty) {
+                        player.inventory[properSlot] = player.inventory.carriedItem
+                        player.inventory.carriedItem = empty
+                        return
+                    }
+
+                } else {
+
                     // Set carried slot to what player clicks on item with no carried
                     if(player.inventory.carriedItem == empty) {
-                        player.inventory.carriedItem = item
+                        val before = player.inventory[properSlot].clone()
+                        player.inventory.carriedItem = before
                         player.inventory[properSlot] = empty
+                        return
                     }
+
+                    // Combine items
                     if(player.inventory.carriedItem != empty) {
-                        if(clickedItem.material == item.material) {
+                        if(player.inventory.carriedItem.isSameAs(clickedItem)) {
                             player.inventory[properSlot] = player.inventory[properSlot].apply { amount += player.inventory.carriedItem.amount }
                             player.inventory.carriedItem = empty
-                            player.sendMessage("<orange>Combined item stack to ${player.inventory[properSlot]}")
+                            player.sendMessage("<orange>combined")
+                            return
                         }
+                        // Swap the items if not true
+                        val before = player.inventory[properSlot].clone()
+                        player.inventory[properSlot] = player.inventory.carriedItem
+                        player.inventory.carriedItem = before
+                        player.sendMessage("<lime>swapped")
+                        return
                     }
                 }
             }

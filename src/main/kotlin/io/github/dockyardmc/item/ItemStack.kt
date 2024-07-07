@@ -1,7 +1,9 @@
 package io.github.dockyardmc.item
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableList
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item
@@ -56,4 +58,17 @@ fun ByteBuf.writeItemStack(itemStack: ItemStack) {
     this.writeVarInt(itemStack.components.size)
     this.writeVarInt(0)
     itemStack.components.values.forEach(this::writeItemComponent)
+}
+
+fun ItemStack.clone(): ItemStack {
+    val itemStack = ItemStack(this.material, this.amount)
+    itemStack.components.setValues(this.components.values.toMutableList())
+
+    return itemStack
+}
+
+fun ItemStack.isSameAs(other: ItemStack): Boolean {
+    DockyardServer.broadcastMessage("$this")
+    DockyardServer.broadcastMessage("$other")
+    return this.toString() == other.toString()
 }

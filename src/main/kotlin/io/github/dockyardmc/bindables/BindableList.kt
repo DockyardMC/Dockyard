@@ -77,6 +77,11 @@ class BindableList<T>(list: List<T>) {
         updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(null)) }
     }
 
+    fun setValues(values: Collection<T>) {
+        innerList = values.toMutableList()
+        updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(null)) }
+    }
+
     class BindableListItemAddListener<T>(val unit: (list: BindableListItemAddEvent<T>) -> Unit)
     class BindableListItemRemoveListener<T>(val unit: (list: BindableListItemRemovedEvent<T>) -> Unit)
     class BindableListItemChangeListener<T>(val unit: (list: BindableListItemChangeEvent<T>) -> Unit)
