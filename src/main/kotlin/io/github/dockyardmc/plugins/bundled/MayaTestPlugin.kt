@@ -81,7 +81,7 @@ class MayaTestPlugin: DockyardPlugin {
                 it.player.inventory[4] = ItemStack(Items.POTATO)
                 it.player.inventory[5] = ItemStack(Items.COBBLESTONE, 32)
                 it.player.inventory[6] = ItemStack(Items.CARROT, 1)
-                it.player.inventory[7] = carrot
+//                it.player.inventory[7] = carrot
             }
         }
 

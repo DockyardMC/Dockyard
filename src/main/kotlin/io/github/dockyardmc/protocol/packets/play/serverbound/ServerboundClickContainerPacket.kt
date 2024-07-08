@@ -119,11 +119,23 @@ class ServerboundClickContainerPacket(
                         player.inventory.carriedItem = newItem
                         return
                     }
-                    val before = player.inventory[properSlot].clone()
-                    player.inventory[properSlot] = player.inventory.carriedItem
-                    player.inventory.carriedItem = before
-                    player.sendMessage("<lime>swapped")
-                    return
+
+                    if(player.inventory.carriedItem.isSameAs(empty)) {
+                        val before = player.inventory[properSlot].clone()
+
+                        var half = before.amount.div(2)
+                        if(half == 0) half = 1
+
+                        val newSlotAmount = before.amount - half
+
+                        val newSlotItem = if(newSlotAmount == 0) empty else before.clone().apply { amount = newSlotAmount }
+
+                        player.inventory[properSlot] = newSlotItem
+                        player.inventory.carriedItem = before.clone().apply { amount = half }
+
+                        player.sendMessage("<aqua>take half")
+                        return
+                    }
                 }
             }
         }
@@ -146,8 +158,13 @@ class ServerboundClickContainerPacket(
             }
 
             val carriedItem = buf.readItemStack()
+
+
+
+
+            val rest = buf.readableBytes()
+            buf.readBytes(rest)
             buf.clear()
-            buf.resetReaderIndex()
 
             return ServerboundClickContainerPacket(windowsId, stateId, slot, button, mode, changedSlots, carriedItem)
         }
