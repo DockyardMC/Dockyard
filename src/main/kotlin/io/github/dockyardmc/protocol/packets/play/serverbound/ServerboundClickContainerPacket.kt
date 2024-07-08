@@ -34,6 +34,10 @@ class ServerboundClickContainerPacket(
         val properSlot = MathUtils.toCorrectSlotIndex(slot)
         DockyardServer.broadcastMessage("<dark_gray>${item.material.identifier} $properSlot ($slot) [${mode.name}]")
 
+
+        val clickedSlotItem = player.inventory[properSlot].clone()
+        val empty = ItemStack.air
+
         // If windowId is 0 that means it's the players inventory
         if(mode == ContainerClickMode.NORMAL) {
             val action = NormalButtonAction.entries.find { it.button == button }
@@ -41,12 +45,17 @@ class ServerboundClickContainerPacket(
                 player.sendMessage("<red>action is null!")
                 return
             }
-
             player.sendMessage("<yellow>${action.name}")
-            val clickedSlotItem = player.inventory[properSlot].clone()
-            val empty = ItemStack.air
 
             if(action == NormalButtonAction.LEFT_MOUSE_CLICK) {
+
+                // drop
+                if(slot == -999) {
+                    player.inventory.drop(player.inventory.carriedItem)
+                    player.inventory.carriedItem = empty
+                    player.sendMessage("<red>drop")
+                    return
+                }
 
                 if(clickedSlotItem.isSameAs(empty) && player.inventory.carriedItem.isSameAs(empty)) {
                     player.inventory[properSlot] = empty
@@ -89,15 +98,17 @@ class ServerboundClickContainerPacket(
                 }
             }
 
-            if(action == NormalButtonAction.LEFT_CLICK_OUTSIDE_INVENTORY) {
-                //TODO drop
-            }
-
-            if(action == NormalButtonAction.RIGHT_CLICK_OUTSIDE_INVENTORY) {
-                //TODO drop one
-            }
-
             if(action == NormalButtonAction.RIGHT_MOUSE_CLICK) {
+
+                if(slot == -999) {
+                    player.inventory.drop(player.inventory.carriedItem.clone().apply { amount = 1 })
+                    val item = player.inventory.carriedItem.clone().apply { amount -= 1 }
+                    val newItem = if(item.amount == 0) empty else item
+                    player.inventory.carriedItem = newItem
+                    player.sendMessage("<red>drop 1")
+                    return
+                }
+
                 if(clickedSlotItem.isSameAs(empty)) {
 
                     // put 1 to new slot
@@ -146,6 +157,40 @@ class ServerboundClickContainerPacket(
                         player.sendMessage("<aqua>take half")
                         return
                     }
+                }
+            }
+        }
+        if(mode == ContainerClickMode.NORMAL_SHIFT) {
+            val action = NormalShiftButtonAction.entries.find { it.button == button }
+            if(action == null) {
+                player.sendMessage("<red>action is null!")
+                return
+            }
+
+            if(action == NormalShiftButtonAction.SHIFT_LEFT_MOUSE_CLICK) {
+
+                // Move from hotbar if more than 9, else move to hotbar
+                val suitableSlotIndex = if (properSlot <= 9) {
+                    (27..35).firstOrNull { player.inventory[it] == empty || player.inventory[it].isSameAs(clickedSlotItem) } ?: (0..26).firstOrNull { player.inventory[it] == empty || player.inventory[it].isSameAs(clickedSlotItem) }
+                } else {
+                    (0..8).firstOrNull { player.inventory[it] == empty || player.inventory[it].isSameAs(clickedSlotItem) }
+                }
+
+                if(suitableSlotIndex == null) return
+                val existingItem = player.inventory[suitableSlotIndex]
+
+                if(existingItem != empty && existingItem.isSameAs(clickedSlotItem)) {
+                    val totalAmount = existingItem.amount + clickedSlotItem.amount
+                    if(totalAmount <= existingItem.maxStackSize.value) {
+                        player.inventory[suitableSlotIndex] = existingItem.clone().apply { amount = totalAmount }
+                        player.inventory[properSlot] = empty
+                    } else {
+                        player.inventory[suitableSlotIndex] = existingItem.clone().apply { existingItem.amount = existingItem.maxStackSize.value }
+                        player.inventory[properSlot] = clickedSlotItem.clone().apply { clickedSlotItem.amount = (totalAmount - existingItem.maxStackSize.value) }
+                    }
+                } else {
+                    player.inventory[suitableSlotIndex] = clickedSlotItem.clone()
+                    player.inventory[properSlot] = empty
                 }
             }
         }
@@ -210,7 +255,7 @@ enum class DragButtonAction(button: Int, outsideInv: Boolean = false) {
     ENDING_MIDDLE_MOUSE_DRAG(10, true)
 }
 
-enum class NormalShiftButtonAction(button: Int, outsideInv: Boolean = false) {
+enum class NormalShiftButtonAction(val button: Int, val outsideInv: Boolean = false) {
     SHIFT_LEFT_MOUSE_CLICK(0),
     SHIFT_RIGHT_MOUSE_CLICK(1),
 }
