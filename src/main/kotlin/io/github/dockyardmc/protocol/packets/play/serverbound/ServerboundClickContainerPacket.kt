@@ -76,14 +76,14 @@ class ServerboundClickContainerPacket(
                         if(player.inventory.carriedItem.isSameAs(clickedSlotItem)) {
                             player.inventory[properSlot] = player.inventory[properSlot].clone().apply { amount += player.inventory.carriedItem.amount }
                             player.inventory.carriedItem = empty
-                            player.sendMessage("<orange>combined")
+                            player.sendMessage("<yellow>combined")
                             return
                         }
                         // Swap the items if they are not the same item stack
                         val before = player.inventory[properSlot].clone()
                         player.inventory[properSlot] = player.inventory.carriedItem
                         player.inventory.carriedItem = before
-                        player.sendMessage("<lime>swapped")
+                        player.sendMessage("<orange>swap")
                         return
                     }
                 }
@@ -106,6 +106,7 @@ class ServerboundClickContainerPacket(
                         val newCarried = player.inventory.carriedItem.clone().apply { amount -= 1 }
                         val newItem = if(newCarried.amount == 0) empty else newCarried
                         player.inventory.carriedItem = newItem
+                        player.sendMessage("<lime>put")
                         return
                     }
 
@@ -118,6 +119,15 @@ class ServerboundClickContainerPacket(
                         val newItem = if(newCarried.amount == 0) empty else newCarried
                         player.inventory.carriedItem = newItem
                         return
+                    } else {
+                        // make sure its item not nothing
+                        if(!player.inventory.carriedItem.isSameAs(empty)) {
+                            val before = player.inventory[properSlot].clone()
+
+                            player.inventory[properSlot] = player.inventory.carriedItem
+                            player.inventory.carriedItem = before
+                            player.sendMessage("<orange>swap")
+                        }
                     }
 
                     if(player.inventory.carriedItem.isSameAs(empty)) {
