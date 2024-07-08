@@ -1,9 +1,7 @@
 package io.github.dockyardmc.item
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableList
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item
@@ -67,8 +65,6 @@ fun ItemStack.clone(): ItemStack {
     return itemStack
 }
 
-fun ItemStack.isSameAs(other: ItemStack): Boolean {
-    DockyardServer.broadcastMessage("$this")
-    DockyardServer.broadcastMessage("$other")
-    return this.toString() == other.toString()
-}
+fun ItemStack.toComparisonString(): String = "ItemStack(${this.components.values};${this.material.identifier})".stripComponentTags()
+
+fun ItemStack.isSameAs(other: ItemStack): Boolean = this.toComparisonString() == other.toComparisonString()
