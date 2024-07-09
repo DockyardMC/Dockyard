@@ -194,11 +194,27 @@ class ServerboundClickContainerPacket(
                     player.inventory[properSlot] = empty
                     player.inventory[suitableSlotIndex] = clickedSlotItem.clone()
                 }
+                // cause fuck you idk desync bugs
                 player.inventory.sendFullInventoryUpdate()
             }
         }
         if(mode == ContainerClickMode.HOTKEY) {
+            val action = if(button == 40) HotkeyButtonAction.OFFHAND_SWAP else HotkeyButtonAction.CHANGE_TO_SLOT
 
+            if(action == HotkeyButtonAction.CHANGE_TO_SLOT) {
+                val existingItem = player.inventory[properSlot].clone()
+                val swappedItem = player.inventory[button].clone()
+
+                player.inventory[properSlot] = swappedItem
+                player.inventory[button] = existingItem
+            }
+            if(action == HotkeyButtonAction.OFFHAND_SWAP) {
+                val existingItem = player.inventory[properSlot].clone()
+                val swappedItem = player.inventory[40].clone()
+
+                player.inventory[properSlot] = swappedItem
+                player.inventory[40] = existingItem
+            }
         }
     }
 
@@ -263,9 +279,9 @@ enum class NormalShiftButtonAction(val button: Int, val outsideInv: Boolean = fa
     SHIFT_RIGHT_MOUSE_CLICK(1),
 }
 
-enum class HotkeyButtonAction {
-    CHANGE_TO_SLOT,
-    OFFHAND_SWAP
+enum class HotkeyButtonAction(val button: Int) {
+    CHANGE_TO_SLOT(0),
+    OFFHAND_SWAP(40)
 }
 
 enum class DropButtonAction(button: Int, outsideInv: Boolean = false) {
