@@ -7,10 +7,12 @@ import io.github.dockyardmc.events.PlayerBlockBreakEvent
 import io.github.dockyardmc.extentions.readByteEnum
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.item.*
 import io.github.dockyardmc.particles.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.GameMode
+import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -50,6 +52,16 @@ class ServerboundPlayerActionPacket(
                 player.world.players.values.filter { it != player }.spawnParticle(event.location.centerBlockLocation(), Particles.BLOCK, count = 50, offset = Vector3f(0.3f), particleData = BlockParticleData(previousBlock))
             }
         }
+
+        if(action == PlayerAction.HELD_ITEM_UPDATE) {
+
+            //TODO Add multi hand support
+            val item = player.getHeldItem(PlayerHand.MAIN_HAND)
+            val isFood = item.components.hasType(FoodItemComponent::class)
+            if(isFood) {
+                player.itemInUse = null
+            }
+        }
     }
 
     companion object {
@@ -61,8 +73,9 @@ class ServerboundPlayerActionPacket(
 enum class PlayerAction {
     START_DIGGING,
     CANCELLED_DIGGING,
+    FINISHED_DIGGING,
     DROP_ITEM_STACK,
     DROP_ITEM,
-    HELD_ITE_UPDATE,
+    HELD_ITEM_UPDATE,
     SWAP_ITEM
 }

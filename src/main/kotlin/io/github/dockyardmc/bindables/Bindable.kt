@@ -29,6 +29,8 @@ class Bindable<T>(initialValue: T) {
         val oldValue: T,
         val newValue: T
     )
+
+    override fun toString(): String = value.toString()
 }
 
 fun Bindable<Boolean>.toggle() {

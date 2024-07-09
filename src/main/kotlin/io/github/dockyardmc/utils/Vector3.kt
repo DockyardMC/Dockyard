@@ -5,6 +5,8 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
+import kotlin.math.cos
+import kotlin.math.sin
 
 data class Vector3(
     var x: Int,

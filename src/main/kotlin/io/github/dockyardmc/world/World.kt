@@ -20,6 +20,7 @@ import io.github.dockyardmc.utils.Vector2
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.generators.WorldGenerator
+import java.util.Random
 import java.util.UUID
 
 class World(
@@ -148,4 +149,6 @@ class World(
             }
         }
     }
+
+    fun getRandom(): Random = Random(seed)
 }

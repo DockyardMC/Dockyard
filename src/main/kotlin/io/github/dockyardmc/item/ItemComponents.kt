@@ -384,6 +384,15 @@ fun BindableList<ItemComponent>.removeByType(type: KClass<*>) {
     this.values.forEach { if (it::class == type) this.remove(it) }
 }
 
+fun BindableList<ItemComponent>.hasType(type: KClass<*>): Boolean =
+    this.values.firstOrNull { it::class == type } != null
+
+@Suppress("UNCHECKED_CAST")
+fun <T> BindableList<ItemComponent>.firstOrNullByType(type: KClass<*>): T? {
+    val value = this.values.firstOrNull { it::class == type } ?: return null
+    return value as T
+}
+
 
 data class ToolRule(
     val blocks: Collection<Block>,

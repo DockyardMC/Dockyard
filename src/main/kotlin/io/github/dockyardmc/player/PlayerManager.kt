@@ -3,6 +3,7 @@ package io.github.dockyardmc.player
 import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerConnectEvent
+import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
@@ -16,6 +17,12 @@ object PlayerManager {
     val playerToEntityIdMap = mutableMapOf<Int, Player>()
 
     fun Player.getProcessor(): PacketProcessor = playerToProcessorMap[this.uuid]!!
+
+    init {
+        Events.on<ServerTickEvent> {
+            players.forEach(Player::tick)
+        }
+    }
 
     fun add(player: Player, processor: PacketProcessor) {
         players.add(player)

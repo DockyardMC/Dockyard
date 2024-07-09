@@ -63,7 +63,8 @@ enum class EntityMetaIndex(var index: Int) {
     HAS_NO_GRAVITY(5),
     POSE(6),
     FROZEN_TICKS(7),
-    DISPLAY_SKIN_PARTS(17)
+    DISPLAY_SKIN_PARTS(17),
+    MAIN_HAND(18)
 }
 
 enum class EntityMetadataType {

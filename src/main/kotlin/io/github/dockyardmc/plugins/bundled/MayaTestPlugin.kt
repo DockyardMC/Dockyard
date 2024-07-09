@@ -52,8 +52,7 @@ class MayaTestPlugin: DockyardPlugin {
             val fMem = (memoryUsage.toDouble() / 1000000).truncate(1)
             val fMax = (runtime.totalMemory().toDouble() / 1000000).truncate(1)
             PlayerManager.players.forEach {
-//                it.sendActionBar("<white>MSPT: <lime>$mspt <dark_gray>| <white>Memory Usage: <#ff6830>$memUsagePercent% <gray>(${fMem}mb / ${fMax}mb) <dark_gray>| <white>World: <#f224a7>${it.world.name} <gray>(${it.world.players.values.size})")
-                it.sendActionBar(it.inventory.carriedItem.toString())
+                it.sendActionBar("<white>MSPT: <lime>$mspt <dark_gray>| <white>Memory Usage: <#ff6830>$memUsagePercent% <gray>(${fMem}mb / ${fMax}mb) <dark_gray>| <white>World: <#f224a7>${it.world.name} <gray>(${it.world.players.values.size})")
             }
         }
 
@@ -74,7 +73,7 @@ class MayaTestPlugin: DockyardPlugin {
                 carrot.unbreakable.value = true
 
                 it.player.gameMode.value = GameMode.SURVIVAL
-                it.player.inventory[0] = ItemStack(Items.AMETHYST_SHARD)
+                it.player.inventory[0] = ItemStack(Items.AMETHYST_SHARD, 727).apply { components.add(FoodItemComponent(5)) }
                 it.player.inventory[1] = ItemStack(Items.POTATO)
                 it.player.inventory[2] = ItemStack(Items.STICK)
                 it.player.inventory[3] = ItemStack(Items.ECHO_SHARD)

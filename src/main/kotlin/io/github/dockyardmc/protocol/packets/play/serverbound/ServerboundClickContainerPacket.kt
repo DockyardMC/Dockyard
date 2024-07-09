@@ -11,7 +11,6 @@ import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
-import io.github.dockyardmc.runnables.runLater
 import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -31,8 +30,6 @@ class ServerboundClickContainerPacket(
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         val properSlot = MathUtils.toCorrectSlotIndex(slot)
-//        DockyardServer.broadcastMessage("<dark_gray>${item.material.identifier} $properSlot ($slot) [${mode.name}]")
-
 
         val clickedSlotItem = player.inventory[properSlot].clone()
         val empty = ItemStack.air
@@ -40,18 +37,14 @@ class ServerboundClickContainerPacket(
         if(mode == ContainerClickMode.NORMAL) {
             val action = NormalButtonAction.entries.find { it.button == button }
             if(action == null) {
-                player.sendMessage("<red>action is null!")
                 return
             }
-            player.sendMessage("<yellow>${action.name}")
-
             if(action == NormalButtonAction.LEFT_MOUSE_CLICK) {
 
                 // drop
                 if(slot == -999) {
                     player.inventory.drop(player.inventory.carriedItem.value)
                     player.inventory.carriedItem.value = empty
-                    player.sendMessage("<red>drop")
                     return
                 }
 
@@ -83,14 +76,12 @@ class ServerboundClickContainerPacket(
                         if(player.inventory.carriedItem.value.isSameAs(clickedSlotItem)) {
                             player.inventory[properSlot] = player.inventory[properSlot].clone().apply { amount += player.inventory.carriedItem.value.amount }
                             player.inventory.carriedItem.value = empty
-                            player.sendMessage("<yellow>combined")
                             return
                         }
                         // Swap the items if they are not the same item stack
                         val before = player.inventory[properSlot].clone()
                         player.inventory[properSlot] = player.inventory.carriedItem.value
                         player.inventory.carriedItem.value = before
-                        player.sendMessage("<orange>swap")
                         return
                     }
                 }
@@ -103,7 +94,6 @@ class ServerboundClickContainerPacket(
                     val item = player.inventory.carriedItem.value.clone().apply { amount -= 1 }
                     val newItem = if(item.amount == 0) empty else item
                     player.inventory.carriedItem.value = newItem
-                    player.sendMessage("<red>drop 1")
                     return
                 }
 
@@ -115,7 +105,6 @@ class ServerboundClickContainerPacket(
                         val newCarried = player.inventory.carriedItem.value.clone().apply { amount -= 1 }
                         val newItem = if(newCarried.amount == 0) empty else newCarried
                         player.inventory.carriedItem.value = newItem
-                        player.sendMessage("<lime>put")
                         return
                     }
 
@@ -135,7 +124,6 @@ class ServerboundClickContainerPacket(
 
                             player.inventory[properSlot] = player.inventory.carriedItem.value
                             player.inventory.carriedItem.value = before
-                            player.sendMessage("<orange>swap")
                         }
                     }
 
@@ -152,7 +140,6 @@ class ServerboundClickContainerPacket(
                         player.inventory[properSlot] = newSlotItem
                         player.inventory.carriedItem.value = before.clone().apply { amount = half }
 
-                        player.sendMessage("<aqua>take half")
                         return
                     }
                 }
@@ -161,11 +148,9 @@ class ServerboundClickContainerPacket(
         if(mode == ContainerClickMode.NORMAL_SHIFT) {
             val action = NormalShiftButtonAction.entries.find { it.button == button }
             if(action == null) {
-                player.sendMessage("<red>action is null!")
                 return
             }
 
-            player.sendMessage("<aqua>Shift clicking")
             if(action == NormalShiftButtonAction.SHIFT_LEFT_MOUSE_CLICK || action == NormalShiftButtonAction.SHIFT_RIGHT_MOUSE_CLICK) {
 
                 // Move from hotbar if more than 9, else move to hotbar
@@ -219,7 +204,6 @@ class ServerboundClickContainerPacket(
         if(mode == ContainerClickMode.DROP) {
             val action = DropButtonAction.entries.find { it.button == button }
             if(action == null) {
-                player.sendMessage("<red>action is null!")
                 return
             }
 

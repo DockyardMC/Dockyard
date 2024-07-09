@@ -63,4 +63,9 @@ object MathUtils {
     }
 
     fun randomInt(min: Int, max: Int): Int = (min..max).shuffled().last()
+    fun randomFloat(min: Float, max: Float): Float {
+        val random = java.util.Random()
+        return min + random.nextFloat() * (max - min)
+    }
+
 }

@@ -9,22 +9,28 @@ import io.github.dockyardmc.events.PlayerDeathEvent
 import io.github.dockyardmc.events.PlayerRespawnEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.Inventory
-import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.particles.ItemParticleData
+import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.DamageType
-import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.EntityType
+import io.github.dockyardmc.registry.EntityTypes
+import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.sounds.playSound
+import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
-import java.util.UUID
+import java.util.*
 
 class Player(
     val username: String,
@@ -35,7 +41,7 @@ class Player(
     override var world: World,
     val connection: ChannelHandlerContext,
     val address: String,
-    val crypto: PlayerCrypto
+    val crypto: PlayerCrypto,
 ): Entity() {
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var viewers: MutableList<Player> = mutableListOf()
@@ -77,8 +83,45 @@ class Player(
     val experienceLevel: Bindable<Int> = Bindable(0)
     val experienceBar: Bindable<Float> = Bindable(0f)
 
+    var itemInUse: ItemInUse? = null
+
     //for debugging
     lateinit var lastSentPacket: ClientboundPacket
+
+    fun tick() {
+        if(itemInUse != null) {
+            val item = itemInUse!!.item
+            val isFood = item.components.hasType(FoodItemComponent::class)
+            if(isFood) {
+
+                if((world.worldAge % 5) == 0L) {
+                    val viewers = world.players.values.toMutableList().filter { it != this }
+                    viewers.playSound("minecraft:entity.generic.eat", location, 1f, MathUtils.randomFloat(0.9f, 1.3f))
+                    viewers.spawnParticle(location.clone().apply { y += 1.5 }, Particles.ITEM, Vector3f(0.2f), 0.05f, 6, false, ItemParticleData(item))
+                }
+
+                if(world.worldAge - itemInUse!!.startTime >= itemInUse!!.time && itemInUse!!.time > 0) {
+                    world.playSound("minecraft:entity.player.burp", location)
+                    val component = item.components.firstOrNullByType<FoodItemComponent>(FoodItemComponent::class)!!
+                    food.value += component.nutrition
+
+                    // notify the client that eating is finished
+                    sendPacket(ClientboundEntityEventPacket(this, EntityEvent.PLAYER_ITEM_USE_FINISHED))
+
+                    val newItem = if(item.amount == 1) ItemStack.air else item.clone().apply { amount -= 1 }
+                    inventory[selectedHotbarSlot.value] = newItem
+
+                    // if new item is air, stop eating, if not, reset eating time
+                    if(!newItem.isSameAs(ItemStack.air)) {
+                        itemInUse!!.startTime = world.worldAge
+                        itemInUse!!.item = newItem
+                    } else {
+                        itemInUse = null
+                    }
+                }
+            }
+        }
+    }
 
     init {
         selectedHotbarSlot.valueChanged { this.sendPacket(ClientboundSetHeldItemPacket(it.newValue)) }
@@ -89,14 +132,16 @@ class Player(
             this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat()))
             when(it.newValue) {
                 GameMode.SPECTATOR,
-                GameMode.CREATIVE -> {
+                GameMode.CREATIVE,
+                -> {
                     canFly.value = true
                     isFlying.value = isFlying.value
                     isInvulnerable = true
                 }
                 GameMode.ADVENTURE,
-                GameMode.SURVIVAL -> {
-                    if(it.oldValue == GameMode.CREATIVE || it.oldValue == GameMode.SPECTATOR) {
+                GameMode.SURVIVAL,
+                -> {
+                    if (it.oldValue == GameMode.CREATIVE || it.oldValue == GameMode.SPECTATOR) {
                         canFly.value = false
                         isFlying.value = false
                         isInvulnerable = false
