@@ -165,6 +165,7 @@ class ServerboundClickContainerPacket(
                 return
             }
 
+            player.sendMessage("<aqua>Shift clicking")
             if(action == NormalShiftButtonAction.SHIFT_LEFT_MOUSE_CLICK || action == NormalShiftButtonAction.SHIFT_RIGHT_MOUSE_CLICK) {
 
                 // Move from hotbar if more than 9, else move to hotbar
@@ -174,10 +175,11 @@ class ServerboundClickContainerPacket(
                     (0..8).firstOrNull { player.inventory[it] == empty || player.inventory[it].isSameAs(clickedSlotItem) }
                 }
 
+                player.sendMessage("<pink>$suitableSlotIndex")
                 if(suitableSlotIndex == null) return
                 val existingItem = player.inventory[suitableSlotIndex].clone()
 
-                if(existingItem.isSameAs(empty)) return
+                if(player.inventory[properSlot].isSameAs(empty)) return
 
                 if(!existingItem.isSameAs(empty) && existingItem.isSameAs(clickedSlotItem)) {
                     val totalAmount = existingItem.amount + clickedSlotItem.amount
@@ -193,8 +195,6 @@ class ServerboundClickContainerPacket(
                     player.inventory[properSlot] = empty
                     player.inventory[suitableSlotIndex] = clickedSlotItem.clone()
                 }
-                // cause fuck you idk desync bugs
-                player.inventory.sendFullInventoryUpdate()
             }
         }
 
@@ -284,6 +284,7 @@ class ServerboundClickContainerPacket(
 
             player.inventory.sendFullInventoryUpdate()
         }
+        player.inventory.sendFullInventoryUpdate()
     }
 
     companion object {
