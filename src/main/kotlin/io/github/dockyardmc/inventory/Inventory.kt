@@ -60,6 +60,5 @@ class Inventory(var entity: Entity) {
         val loc = entity.location
         val drop = ItemDropEntity(loc)
         loc.world.spawnEntity(drop)
-
     }
 }

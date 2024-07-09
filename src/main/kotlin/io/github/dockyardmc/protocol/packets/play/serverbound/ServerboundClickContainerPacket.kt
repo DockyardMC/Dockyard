@@ -216,6 +216,29 @@ class ServerboundClickContainerPacket(
                 player.inventory[40] = existingItem
             }
         }
+        if(mode == ContainerClickMode.DROP) {
+            val action = DropButtonAction.entries.find { it.button == button }
+            if(action == null) {
+                player.sendMessage("<red>action is null!")
+                return
+            }
+
+            if(action == DropButtonAction.DROP) {
+                val existingItem = player.inventory[properSlot].clone()
+                if(existingItem.isSameAs(empty)) return
+
+                val newItem = if(existingItem.amount == 1) empty else existingItem.clone().apply { amount -= 1 }
+                player.inventory.drop(existingItem.apply { amount = 1 })
+                player.inventory[properSlot] = newItem
+            }
+            if(action == DropButtonAction.CONTROL_DROP) {
+                val existingItem = player.inventory[properSlot].clone()
+                if(existingItem.isSameAs(empty)) return
+
+                player.inventory.drop(existingItem)
+                player.inventory[properSlot] = empty
+            }
+        }
     }
 
     companion object {
@@ -284,7 +307,7 @@ enum class HotkeyButtonAction(val button: Int) {
     OFFHAND_SWAP(40)
 }
 
-enum class DropButtonAction(button: Int, outsideInv: Boolean = false) {
+enum class DropButtonAction(val button: Int, val outsideInv: Boolean = false) {
     DROP(0),
     CONTROL_DROP(1)
 }
