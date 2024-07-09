@@ -97,15 +97,13 @@ class Player(
             this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat()))
             when(it.newValue) {
                 GameMode.SPECTATOR,
-                GameMode.CREATIVE,
-                -> {
+                GameMode.CREATIVE -> {
                     canFly.value = true
                     isFlying.value = isFlying.value
                     isInvulnerable = true
                 }
                 GameMode.ADVENTURE,
-                GameMode.SURVIVAL,
-                -> {
+                GameMode.SURVIVAL -> {
                     if (it.oldValue == GameMode.CREATIVE || it.oldValue == GameMode.SPECTATOR) {
                         canFly.value = false
                         isFlying.value = false
@@ -148,6 +146,12 @@ class Player(
     fun tick() {
         if(itemInUse != null) {
             val item = itemInUse!!.item
+
+            if(!item.isSameAs(getHeldItem(PlayerHand.MAIN_HAND))) {
+                itemInUse = null
+                return
+            }
+
             val isFood = item.components.hasType(FoodItemComponent::class)
             if(isFood) {
 
@@ -225,7 +229,7 @@ class Player(
             health.value = 0.1f
             return
         }
-        health.value = 0f;
+        health.value = 0f
     }
 
     override fun addViewer(player: Player) {
