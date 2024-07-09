@@ -1,5 +1,6 @@
 package io.github.dockyardmc.inventory
 
+import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMap
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
@@ -14,11 +15,14 @@ class Inventory(var entity: Entity) {
     val name: String = "Inventory"
     val size = entity.inventorySize
     val slots: BindableMap<Int, ItemStack> = BindableMap()
-    var carriedItem: ItemStack = ItemStack.air
+    var carriedItem: Bindable<ItemStack> = Bindable(ItemStack.air)
+
+    var dragData: DragButtonInventoryActionData? = null
 
     init {
         slots.itemSet { sendInventoryUpdate(it.key) }
         slots.itemRemoved { sendInventoryUpdate(it.key) }
+        carriedItem.valueChanged { sendInventoryUpdate(-1) }
     }
 
     operator fun set(slot: Int, item: ItemStack) {
@@ -46,14 +50,19 @@ class Inventory(var entity: Entity) {
     fun sendInventoryUpdate(slot: Int) {
         val player = entity as Player
         val clientSlot =  MathUtils.toOriginalSlotIndex(slot)
-        val packet = ClientboundSetInventorySlotPacket(0, 0, clientSlot, slots[slot] ?: ItemStack.air)
+        val item = if(slot == -1) carriedItem.value else slots[slot]
+        val windowId = if(slot == -1) -1 else 0
+        val packet = ClientboundSetInventorySlotPacket(windowId, 0, clientSlot, item ?: ItemStack.air)
         player.sendPacket(packet)
     }
 
     fun sendFullInventoryUpdate() {
+        sendInventoryUpdate(-1)
         repeat(size) {
             sendInventoryUpdate(it)
         }
+        sendInventoryUpdate(size +1)
+        sendInventoryUpdate(size)
     }
 
     fun drop(itemStack: ItemStack) {
@@ -61,4 +70,16 @@ class Inventory(var entity: Entity) {
         val drop = ItemDropEntity(loc)
         loc.world.spawnEntity(drop)
     }
+}
+
+data class DragButtonInventoryActionData(
+    val type: DragButtonInventoryAction,
+    val item: ItemStack,
+    val slots: MutableList<Int> = mutableListOf()
+)
+
+enum class DragButtonInventoryAction {
+    LEFT,
+    RIGHT,
+    MIDDLE
 }

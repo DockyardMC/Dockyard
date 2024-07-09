@@ -303,6 +303,10 @@ class Player(
         sendPacket(packet)
     }
 
+    fun closeInventory() {
+        sendPacket(ClientboundCloseInventoryPacket(0))
+    }
+
     fun resetExperience() {
         experienceLevel.value = 0
         experienceBar.value = 0f
