@@ -103,7 +103,15 @@ class Player(
                 if(world.worldAge - itemInUse!!.startTime >= itemInUse!!.time && itemInUse!!.time > 0) {
                     world.playSound("minecraft:entity.player.burp", location)
                     val component = item.components.firstOrNullByType<FoodItemComponent>(FoodItemComponent::class)!!
-                    food.value += component.nutrition
+
+                    val foodToAdd = component.nutrition + food.value
+                    if(foodToAdd > 20) {
+                        val saturationToAdd = food.value - 20
+                        food.value = 20
+                        saturation.value = saturationToAdd.toFloat()
+                    } else {
+                        food.value = foodToAdd
+                    }
 
                     // notify the client that eating is finished
                     sendPacket(ClientboundEntityEventPacket(this, EntityEvent.PLAYER_ITEM_USE_FINISHED))

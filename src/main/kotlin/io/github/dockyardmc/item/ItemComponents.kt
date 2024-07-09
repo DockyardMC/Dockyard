@@ -128,7 +128,7 @@ data class IntangibleProjectileItemComponent(
 //TODO Potion effects
 data class FoodItemComponent(
     var nutrition: Int = 0,
-    var saturation: Boolean = false,
+    var giveSaturation: Boolean = false,
     var canAlwaysEat: Boolean = true,
     var secondsToEat: Float = 2f,
     var potionEffects: MutableList<Effects> = mutableListOf(),
