@@ -50,6 +50,12 @@ class Inventory(var entity: Entity) {
         player.sendPacket(packet)
     }
 
+    fun sendFullInventoryUpdate() {
+        repeat(size) {
+            sendInventoryUpdate(it)
+        }
+    }
+
     fun drop(itemStack: ItemStack) {
         val loc = entity.location
         val drop = ItemDropEntity(loc)
