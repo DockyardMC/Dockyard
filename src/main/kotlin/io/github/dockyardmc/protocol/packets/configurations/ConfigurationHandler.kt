@@ -80,7 +80,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         val world = WorldManager.worlds.values.first()
         processor.player.world = world
 
-        player.gameMode.value = GameMode.CREATIVE
+        player.gameMode.value = GameMode.ADVENTURE
 
         if(world.canBeJoined.value) {
             acceptPlayer(player, world)
@@ -101,7 +101,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         val playPacket = ClientboundLoginPlayPacket(
             entityId = player.entityId,
-            isHardcore = false,
+            isHardcore = world.isHardcore,
             dimensionNames = WorldManager.worlds.keys,
             maxPlayers = 20,
             viewDistance = 16,
@@ -109,7 +109,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             reducedDebugInfo = false,
             enableRespawnScreen = true,
             doLimitedCrafting = false,
-            dimensionType = DimensionTypes.OVERWORLD.id,
+            dimensionType = world.dimensionType.id,
             dimensionName = world.name,
             hashedSeed = world.seed,
             gameMode = player.gameMode.value,

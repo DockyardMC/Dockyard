@@ -48,6 +48,9 @@ class World(
     var canBeJoined: Bindable<Boolean> = Bindable(false)
     val joinQueue: MutableList<Player> = mutableListOf()
 
+    var isHardcore: Boolean = false
+
+
     fun join(player: Player) {
         if(player.world == this && player.isFullyInitialized) return
         if(!canBeJoined.value && !joinQueue.contains(player)) {
