@@ -11,6 +11,7 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.runnables.runLater
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.world.World
@@ -122,7 +123,9 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         world.join(player)
 
-        Events.dispatch(PlayerJoinEvent(processor.player))
+        runLater(1) {
+            Events.dispatch(PlayerJoinEvent(processor.player))
+        }
 
         // Make player visible to all other players by default
         PlayerManager.players.forEach { loopPlayer ->
