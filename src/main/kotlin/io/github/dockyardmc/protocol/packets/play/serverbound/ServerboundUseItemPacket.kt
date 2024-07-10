@@ -2,6 +2,8 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerRightClickWithItemEvent
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.item.*
@@ -20,6 +22,11 @@ class ServerboundUseItemPacket(val hand: PlayerHand, val sequence: Int, val yaw:
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         val item = player.getHeldItem(PlayerHand.MAIN_HAND)
+
+        val event = PlayerRightClickWithItemEvent(player, item)
+        Events.dispatch(event)
+        if(event.cancelled) return
+
         val isFood = item.components.hasType(FoodItemComponent::class)
         if(isFood) {
             if(player.itemInUse != null) return
