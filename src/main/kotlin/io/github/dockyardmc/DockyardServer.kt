@@ -35,7 +35,6 @@ import io.github.dockyardmc.plugins.bundled.MudkipTestPlugin
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
 import io.github.dockyardmc.world.generators.NetherLikeGenerator
-import io.github.dockyardmc.world.generators.VanillaIshWorldGenerator
 import java.net.InetSocketAddress
 import java.util.*
 

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.player
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.entities.*
@@ -334,9 +335,11 @@ class Player(
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
 
+        log("Respawned $this")
         this.world.chunks.forEach {
             sendPacket(it.packet)
         }
+
         refreshClientStateAfterRespawn()
 
         if(isBecauseDeath) Events.dispatch(PlayerRespawnEvent(this))

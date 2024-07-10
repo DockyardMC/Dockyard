@@ -67,21 +67,18 @@ class MayaTestPlugin: DockyardPlugin {
             it.player.experienceBar.value = 1f
             it.player.experienceLevel.value= 0
 
-            runLater(10) {
-                val carrot = ItemStack(Items.CARROT, 1)
-                carrot.displayName.value = "<lime>The bunny carrot"
-                carrot.unbreakable.value = true
+            val carrot = ItemStack(Items.CARROT, 1)
+            carrot.displayName.value = "<lime>The bunny carrot"
+            carrot.unbreakable.value = true
 
-                it.player.gameMode.value = GameMode.SURVIVAL
-                it.player.inventory[0] = ItemStack(Items.AMETHYST_SHARD, 727).apply { components.add(FoodItemComponent(5)) }
-                it.player.inventory[1] = ItemStack(Items.POTATO)
-                it.player.inventory[2] = ItemStack(Items.STICK)
-                it.player.inventory[3] = ItemStack(Items.ECHO_SHARD)
-                it.player.inventory[4] = ItemStack(Items.POTATO)
-                it.player.inventory[5] = ItemStack(Items.COBBLESTONE, 32)
-                it.player.inventory[6] = ItemStack(Items.CARROT, 1)
-//                it.player.inventory[7] = carrot
-            }
+            it.player.gameMode.value = GameMode.SURVIVAL
+            it.player.inventory[0] = ItemStack(Items.AMETHYST_SHARD, 727).apply { components.add(FoodItemComponent(5)) }
+            it.player.inventory[1] = ItemStack(Items.POTATO)
+            it.player.inventory[2] = ItemStack(Items.STICK)
+            it.player.inventory[3] = ItemStack(Items.ECHO_SHARD)
+            it.player.inventory[4] = ItemStack(Items.POTATO)
+            it.player.inventory[5] = ItemStack(Items.COBBLESTONE, 32)
+            it.player.inventory[6] = ItemStack(Items.CARROT, 1)
         }
 
         var seconds: Int = 0

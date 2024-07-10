@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
 import io.github.dockyardmc.events.*
@@ -10,8 +11,10 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.runnables.runLater
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.serverlinks.ServerLinks
+import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 
@@ -78,7 +81,18 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         val world = WorldManager.worlds.values.first()
         processor.player.world = world
 
-        player.gameMode.value = GameMode.CREATIVE
+        player.gameMode.value = GameMode.ADVENTURE
+
+        if(world.canBeJoined.value) {
+            acceptPlayer(player, world)
+        } else {
+            world.canBeJoined.valueChanged {
+                if(it.newValue) acceptPlayer(player, world)
+            }
+        }
+    }
+
+    fun acceptPlayer(player: Player, world: World) {
 
         val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
         player.sendPacket(chunkCenterChunkPacket)
@@ -88,7 +102,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         val playPacket = ClientboundLoginPlayPacket(
             entityId = player.entityId,
-            isHardcore = false,
+            isHardcore = world.isHardcore,
             dimensionNames = WorldManager.worlds.keys,
             maxPlayers = 20,
             viewDistance = 16,
@@ -96,7 +110,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             reducedDebugInfo = false,
             enableRespawnScreen = true,
             doLimitedCrafting = false,
-            dimensionType = DimensionTypes.OVERWORLD.id,
+            dimensionType = world.dimensionType.id,
             dimensionName = world.name,
             hashedSeed = world.seed,
             gameMode = player.gameMode.value,
@@ -106,9 +120,12 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             portalCooldown = 0
         )
         player.sendPacket(playPacket)
+
         world.join(player)
 
-        Events.dispatch(PlayerJoinEvent(processor.player))
+        runLater(1) {
+            Events.dispatch(PlayerJoinEvent(processor.player))
+        }
 
         // Make player visible to all other players by default
         PlayerManager.players.forEach { loopPlayer ->
@@ -120,10 +137,10 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         player.sendPacket(tickingStatePacket)
 
-        TeamManager.teams.values.forEach {
-            player.sendPacket(ClientboundTeamsPacket(CreateTeamPacketAction(it)))
+        TeamManager.teams.values.forEach { team ->
+            player.sendPacket(ClientboundTeamsPacket(CreateTeamPacketAction(team)))
         }
 
-        SkinManager.setSkinOf(player, player.uuid)
+        player.setSkin(player.uuid)
     }
 }
