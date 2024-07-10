@@ -14,3 +14,10 @@ fun CustomColor.toRgbInt(): Int {
 
     return -0x1000000 or r or g or b
 }
+
+fun CustomColor.Companion.fromRGBInt(color: Int): CustomColor {
+    val red = (color shr 16) and 0xFF
+    val green = (color shr 8) and 0xFF
+    val blue = color and 0xFF
+    return CustomColor(red, green, blue)
+}

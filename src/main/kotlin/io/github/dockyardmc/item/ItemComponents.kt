@@ -1,9 +1,7 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.bindables.BindableList
-import io.github.dockyardmc.extentions.writeOptional
-import io.github.dockyardmc.extentions.writeUtf
-import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.registry.BannerPattern
@@ -13,6 +11,7 @@ import io.github.dockyardmc.registry.Effects
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
+import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTString
@@ -244,7 +243,7 @@ data class BlockEntityDataItemComponent(
 ): ItemComponent
 
 data class NoteBlockInstrumentItemComponent(
-    var instrument: Sound,
+    var instrument: String,
     var maxSoundRange: Float,
     var currentRange: Float,
     override val id: Int = 40
@@ -257,11 +256,10 @@ data class OminousBottleAmplifierItemComponent(
 
 data class JukeboxPlayableItemComponent(
     var directMode: Boolean,
-    var jukeboxSongName: String,
-    var sound: Sound,
-    var description: String,
-    var duration: Float,
-    var output: Int = 15,
+    var sound: String?,
+    var description: String?,
+    var duration: Float?,
+    var output: Int? = 15,
     var showInTooltip: Boolean,
     override val id: Int = 42
 ): ItemComponent
@@ -273,7 +271,7 @@ data class RecipesItemComponent(
 
 data class LodestoneTrackerItemComponent(
     var hasGlobalPosition: Boolean,
-    var dimension: DimensionType,
+    var dimension: World,
     var position: Location,
     var tracked: Boolean,
     override val id: Int = 44
@@ -297,7 +295,7 @@ data class PlayerHeadProfileItemComponent(
 ): ItemComponent
 
 data class NoteBlockSoundItemComponent(
-    var sound: Sound,
+    var sound: String,
     override val id: Int = 48
 ): ItemComponent
 
@@ -333,7 +331,7 @@ data class BeesItemComponent(
 ): ItemComponent
 
 data class LockItemComponent(
-    var key: NBTString,
+    var key: NBTCompound,
     override val id: Int = 55
 ): ItemComponent
 
@@ -369,6 +367,17 @@ fun ByteBuf.writeBookPages(pages: Collection<BookPage>) {
             op.writeUtf(it.filteredContent!!)
         }
     }
+}
+
+fun ByteBuf.readBookPages(): List<BookPage> {
+    val pages = mutableListOf<BookPage>()
+    val size = this.readVarInt()
+    for (i in 0 until size) {
+        val content = this.readUtf()
+        val filteredContent = if(this.readBoolean()) this.readUtf() else null
+        pages.add(BookPage(content, filteredContent))
+    }
+    return pages
 }
 
 fun BindableList<ItemComponent>.addOrUpdate(newComponent: ItemComponent) {

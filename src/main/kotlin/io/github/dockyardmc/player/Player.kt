@@ -202,7 +202,6 @@ class Player(
         sendPacket(packet)
     }
 
-    //TODO figure out why directional damage does not work
     override fun damage(damage: Float, damageType: DamageType, attacker: Entity?, projectile: Entity?) {
 
         val event = PlayerDamageEvent(this, damage, damageType, attacker, projectile)
@@ -348,9 +347,11 @@ class Player(
         sendPacket(ClientboundChangeDifficultyPacket(world.difficulty.value, true))
         gameMode.value = gameMode.value
         sendHealthUpdatePacket()
-        //TODO experience
+        experienceBar.triggerUpdate()
+        experienceLevel.triggerUpdate()
+        inventory.sendFullInventoryUpdate()
 
-        //TODO update pose
+        pose.triggerUpdate()
         refreshAbilities()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
     }

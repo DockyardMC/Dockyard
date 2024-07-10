@@ -1,9 +1,7 @@
 package io.github.dockyardmc.sounds
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.extentions.writeStringArray
-import io.github.dockyardmc.extentions.writeUtf
-import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
@@ -56,8 +54,18 @@ fun DockyardServer.playSound(identifier: String, location: Location, volume: Flo
     this.playSound(sound)
 }
 
-fun ByteBuf.writeSoundEvent(sound: Sound) {
+fun ByteBuf.writeSoundEvent(sound: String) {
     this.writeVarInt(0)
-    this.writeUtf(sound.identifier)
+    this.writeUtf(sound)
     this.writeBoolean(false)
+}
+
+fun ByteBuf.readSoundEvent(): String {
+    val type = this.readVarInt()
+    val identifier = this.readUtf()
+    val hasFixedRange = this.readBoolean()
+    if(hasFixedRange) {
+        val fixedRange = this.readFloat()
+    }
+    return identifier
 }

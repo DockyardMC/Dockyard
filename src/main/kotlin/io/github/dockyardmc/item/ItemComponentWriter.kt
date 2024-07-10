@@ -159,13 +159,13 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
         is JukeboxPlayableItemComponent -> {
             this.writeBoolean(comp.directMode)
             if(!comp.directMode) {
-                this.writeUtf(comp.sound.identifier)
+                this.writeUtf(comp.sound!!)
             } else {
                 this.writeVarInt(0)
-                this.writeSoundEvent(comp.sound)
-                this.writeTextComponent(comp.description)
-                this.writeFloat(comp.duration)
-                this.writeVarInt(comp.output)
+                this.writeSoundEvent(comp.sound!!)
+                this.writeTextComponent(comp.description!!)
+                this.writeFloat(comp.duration!!)
+                this.writeVarInt(comp.output!!)
             }
             this.writeBoolean(comp.showInTooltip)
         }
@@ -174,7 +174,7 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
         }
         is LodestoneTrackerItemComponent -> {
             this.writeBoolean(comp.hasGlobalPosition)
-            this.writeUtf(comp.dimension.identifier)
+            this.writeUtf(comp.dimension.name)
             //TODO Position
             this.writeBoolean(comp.tracked)
         }
@@ -187,7 +187,7 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
         }
 
         is NoteBlockSoundItemComponent -> {
-            this.writeUtf(comp.sound.identifier)
+            this.writeUtf(comp.sound)
         }
         //TODO Banner Patterns
         is BannerShieldBaseColorItemComponent -> {

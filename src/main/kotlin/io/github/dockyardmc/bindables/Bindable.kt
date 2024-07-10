@@ -30,6 +30,10 @@ class Bindable<T>(initialValue: T) {
         val newValue: T
     )
 
+    fun triggerUpdate() {
+        changeListeners.forEach { it.unit.invoke(ValueChangedEvent<T>(value, value)) }
+    }
+
     override fun toString(): String = value.toString()
 }
 
