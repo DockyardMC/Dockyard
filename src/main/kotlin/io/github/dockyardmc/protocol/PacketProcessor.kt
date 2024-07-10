@@ -71,7 +71,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
                 if (buf.readableBytes() < packetSize) {
                     buf.discardReadBytes()
-                    log("Received packet which has less readable bytes than packet size specified (${buf.readableBytes()} < ${packetSize})", LogType.ERROR)
+                    log("Received packet (${packetId} - $packetIdByteRep) which has less readable bytes than packet size specified (${buf.readableBytes()} < ${packetSize})", LogType.ERROR)
                     break
                 }
                 val packetData = buf.readSlice(packetSize)

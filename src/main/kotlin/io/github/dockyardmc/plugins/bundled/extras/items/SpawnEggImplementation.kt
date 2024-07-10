@@ -2,8 +2,8 @@ package io.github.dockyardmc.plugins.bundled.extras.items
 
 import io.github.dockyardmc.entities.EntityManager.despawnEntity
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
-import io.github.dockyardmc.entities.Pig
-import io.github.dockyardmc.entities.Sheep
+import io.github.dockyardmc.entities.vanilla.Pig
+import io.github.dockyardmc.entities.vanilla.Sheep
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockInteractEvent
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
@@ -22,7 +22,7 @@ class SpawnEggImplementation {
             val player = it.player
             val heldItem = player.getHeldItem(PlayerHand.MAIN_HAND)
 
-            if(!heldItem.material.namespace.contains("spawn_egg")) return@on
+            if(!heldItem.material.identifier.contains("spawn_egg")) return@on
 
             val spawnLoc = it.location.apply { y += 1 }
 

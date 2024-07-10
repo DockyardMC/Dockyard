@@ -1,7 +1,7 @@
 package io.github.dockyardmc.team
 
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.extentions.writeNBT
@@ -62,7 +62,7 @@ class Team(
         Bindable<Component?>(suffix?.toComponent())
     )
 
-    val entities = BindableMutableList<Entity>()
+    val entities = BindableList<Entity>()
 
     companion object {
         const val ALLOW_FRIENDLY_FIRE = 0x01

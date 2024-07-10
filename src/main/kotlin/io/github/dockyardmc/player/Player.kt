@@ -1,32 +1,36 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEvent
 import io.github.dockyardmc.events.PlayerDeathEvent
 import io.github.dockyardmc.events.PlayerRespawnEvent
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.Inventory
-import io.github.dockyardmc.inventory.ItemStack
+import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.particles.ItemParticleData
+import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.DamageType
-import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.EntityType
+import io.github.dockyardmc.registry.EntityTypes
+import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.sounds.playSound
+import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
-import java.util.UUID
+import java.util.*
 
 class Player(
     val username: String,
@@ -37,7 +41,7 @@ class Player(
     override var world: World,
     val connection: ChannelHandlerContext,
     val address: String,
-    val crypto: PlayerCrypto
+    val crypto: PlayerCrypto,
 ): Entity() {
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var viewers: MutableList<Player> = mutableListOf()
@@ -45,10 +49,11 @@ class Player(
     override var isInvulnerable: Boolean = true
     override var hasCollision: Boolean = true
     override var displayName: String = username
-    override var metadata: BindableMutableList<EntityMetadata> = BindableMutableList()
+    override var metadata: BindableList<EntityMetadata> = BindableList()
     override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     override var isOnGround: Boolean = true
     override var health: Bindable<Float> = Bindable(20f)
+    override var inventorySize: Int = 35
     var brand: String = "minecraft:vanilla"
     var profile: ProfilePropertyMap? = null
     var clientConfiguration: ClientConfiguration? = null
@@ -59,10 +64,10 @@ class Player(
     var selectedHotbarSlot: Bindable<Int> = Bindable(0)
     val permissions: MutableList<String> = mutableListOf()
     var isFullyInitialized: Boolean = false
-    var inventory: Inventory = Inventory()
+    var inventory: Inventory = Inventory(this)
     var gameMode: Bindable<GameMode> = Bindable(GameMode.ADVENTURE)
     var flySpeed: Bindable<Float> = Bindable(0.05f) // 0.05 is the default fly speed in vanilla minecraft
-    var displayedSkinParts: BindableMutableList<DisplayedSkinPart> = BindableMutableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
+    var displayedSkinParts: BindableList<DisplayedSkinPart> = BindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     var isConnected: Boolean = true
     val tabListHeader: Bindable<Component> = Bindable("".toComponent())
     val tabListFooter: Bindable<Component> = Bindable("".toComponent())
@@ -77,6 +82,8 @@ class Player(
     val food: Bindable<Int> = Bindable(20)
     val experienceLevel: Bindable<Int> = Bindable(0)
     val experienceBar: Bindable<Float> = Bindable(0f)
+
+    var itemInUse: ItemInUse? = null
 
     //for debugging
     lateinit var lastSentPacket: ClientboundPacket
@@ -97,7 +104,7 @@ class Player(
                 }
                 GameMode.ADVENTURE,
                 GameMode.SURVIVAL -> {
-                    if(it.oldValue == GameMode.CREATIVE || it.oldValue == GameMode.SPECTATOR) {
+                    if (it.oldValue == GameMode.CREATIVE || it.oldValue == GameMode.SPECTATOR) {
                         canFly.value = false
                         isFlying.value = false
                         isInvulnerable = false
@@ -136,6 +143,55 @@ class Player(
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
     }
 
+    fun tick() {
+        if(itemInUse != null) {
+            val item = itemInUse!!.item
+
+            if(!item.isSameAs(getHeldItem(PlayerHand.MAIN_HAND))) {
+                itemInUse = null
+                return
+            }
+
+            val isFood = item.components.hasType(FoodItemComponent::class)
+            if(isFood) {
+
+                if((world.worldAge % 5) == 0L) {
+                    val viewers = world.players.values.toMutableList().filter { it != this }
+                    viewers.playSound("minecraft:entity.generic.eat", location, 1f, MathUtils.randomFloat(0.9f, 1.3f))
+                    viewers.spawnParticle(location.clone().apply { y += 1.5 }, Particles.ITEM, Vector3f(0.2f), 0.05f, 6, false, ItemParticleData(item))
+                }
+
+                if(world.worldAge - itemInUse!!.startTime >= itemInUse!!.time && itemInUse!!.time > 0) {
+                    world.playSound("minecraft:entity.player.burp", location)
+                    val component = item.components.firstOrNullByType<FoodItemComponent>(FoodItemComponent::class)!!
+
+                    val foodToAdd = component.nutrition + food.value
+                    if(foodToAdd > 20) {
+                        val saturationToAdd = food.value - 20
+                        food.value = 20
+                        saturation.value = saturationToAdd.toFloat()
+                    } else {
+                        food.value = foodToAdd
+                    }
+
+                    // notify the client that eating is finished
+                    sendPacket(ClientboundEntityEventPacket(this, EntityEvent.PLAYER_ITEM_USE_FINISHED))
+
+                    val newItem = if(item.amount == 1) ItemStack.air else item.clone().apply { amount -= 1 }
+                    inventory[selectedHotbarSlot.value] = newItem
+
+                    // if new item is air, stop eating, if not, reset eating time
+                    if(!newItem.isSameAs(ItemStack.air)) {
+                        itemInUse!!.startTime = world.worldAge
+                        itemInUse!!.item = newItem
+                    } else {
+                        itemInUse = null
+                    }
+                }
+            }
+        }
+    }
+
     fun sendHealthUpdatePacket() {
         val packet = ClientboundSetHealthPacket(health.value, food.value, saturation.value)
         sendPacket(packet)
@@ -146,7 +202,6 @@ class Player(
         sendPacket(packet)
     }
 
-    //TODO figure out why directional damage does not work
     override fun damage(damage: Float, damageType: DamageType, attacker: Entity?, projectile: Entity?) {
 
         val event = PlayerDamageEvent(this, damage, damageType, attacker, projectile)
@@ -173,7 +228,7 @@ class Player(
             health.value = 0.1f
             return
         }
-        health.value = 0f;
+        health.value = 0f
     }
 
     override fun addViewer(player: Player) {
@@ -292,9 +347,11 @@ class Player(
         sendPacket(ClientboundChangeDifficultyPacket(world.difficulty.value, true))
         gameMode.value = gameMode.value
         sendHealthUpdatePacket()
-        //TODO experience
+        experienceBar.triggerUpdate()
+        experienceLevel.triggerUpdate()
+        inventory.sendFullInventoryUpdate()
 
-        //TODO update pose
+        pose.triggerUpdate()
         refreshAbilities()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
     }
@@ -302,6 +359,10 @@ class Player(
     fun refreshAbilities() {
         val packet = ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, 0.1f)
         sendPacket(packet)
+    }
+
+    fun closeInventory() {
+        sendPacket(ClientboundCloseInventoryPacket(0))
     }
 
     fun resetExperience() {

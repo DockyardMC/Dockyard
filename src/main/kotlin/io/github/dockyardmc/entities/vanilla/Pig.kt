@@ -1,7 +1,10 @@
-package io.github.dockyardmc.entities
+package io.github.dockyardmc.entities.vanilla
 
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
+import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entities.EntityManager
+import io.github.dockyardmc.entities.EntityMetadata
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
@@ -24,8 +27,9 @@ class Pig(
     override var world: World,
     override var displayName: String = "",
     override var isOnGround: Boolean = true,
-    override var metadata: BindableMutableList<EntityMetadata> = BindableMutableList(),
-    override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
+    override var metadata: BindableList<EntityMetadata> = BindableList(),
+    override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING),
+    override var inventorySize: Int = 0
 ) : Entity() {
     override var health: Bindable<Float> = Bindable(20f)
 }

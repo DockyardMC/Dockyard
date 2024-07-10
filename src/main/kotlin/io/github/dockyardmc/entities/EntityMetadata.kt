@@ -1,6 +1,6 @@
 package io.github.dockyardmc.entities
 
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
@@ -63,7 +63,8 @@ enum class EntityMetaIndex(var index: Int) {
     HAS_NO_GRAVITY(5),
     POSE(6),
     FROZEN_TICKS(7),
-    DISPLAY_SKIN_PARTS(17)
+    DISPLAY_SKIN_PARTS(17),
+    MAIN_HAND(18)
 }
 
 enum class EntityMetadataType {
@@ -97,7 +98,7 @@ enum class EntityMetadataType {
     QUATERNION
 }
 
-fun BindableMutableList<EntityMetadata>.addOrUpdate(metadata: EntityMetadata) {
+fun BindableList<EntityMetadata>.addOrUpdate(metadata: EntityMetadata) {
     val hasMeta = (this.values.firstOrNull { it.type == metadata.type } != null)
     if(hasMeta) {
         val index = this.values.indexOfFirst { it.type == metadata.type }
