@@ -1,5 +1,6 @@
 package io.github.dockyardmc.world
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.entities.Entity
@@ -39,21 +40,23 @@ class World(
     var worldAge: Long = 0
 
     var chunks: MutableList<Chunk> = mutableListOf()
-    var canBeJoined: Boolean = false
     var defaultSpawnLocation = Location(0, 0, 0, this)
 
     val players: BindableList<Player> = BindableList()
     val entities: BindableList<Entity> = BindableList()
 
+    var canBeJoined: Bindable<Boolean> = Bindable(false)
     val joinQueue: MutableList<Player> = mutableListOf()
 
     fun join(player: Player) {
         if(player.world == this && player.isFullyInitialized) return
-        if(!canBeJoined && !joinQueue.contains(player)) {
+        if(!canBeJoined.value && !joinQueue.contains(player)) {
             joinQueue.addIfNotPresent(player)
+            log("$player joined before world $name is loaded, added to joinQueue")
             return
         }
 
+        log("Logged in $player")
         val oldWorld = player.world
 
         player.world.players.removeIfPresent(player)
@@ -76,7 +79,9 @@ class World(
         }
 
         runnable.callback = {
-            canBeJoined = true
+            log("World $name is read to be joined!")
+            log("Joining following players: $joinQueue")
+            canBeJoined.value = true
             joinQueue.forEach(::join)
         }
         runnable.execute()
