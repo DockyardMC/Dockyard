@@ -102,7 +102,7 @@ class DockyardServer(var port: Int) {
         PluginManager.loadLocal(MudkipTestPlugin())
         PluginManager.loadLocal(CoolParticles())
         PluginManager.loadLocal(DockyardExtras())
-//        PluginManager.loadLocal(PianoPlugin())
+//        PluginManager.loadLocal(PianoPlugin()) // dw Harper the piano WILL be back
         innerProfiler.end()
 
         log("DockyardMC finished loading", LogType.SUCCESS)
