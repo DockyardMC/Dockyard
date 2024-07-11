@@ -123,7 +123,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         world.join(player)
 
-        runLater(1) {
+        runLater(4) {
             Events.dispatch(PlayerJoinEvent(processor.player))
         }
 

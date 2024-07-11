@@ -374,7 +374,7 @@ class Player(
         experienceBar.value = 0f
     }
 
-    fun openDrawableScreen(cookieClickerScreen: DrawableContainerScreen) {
-
+    fun openDrawableScreen(screen: DrawableContainerScreen) {
+        screen.open(this)
     }
 }

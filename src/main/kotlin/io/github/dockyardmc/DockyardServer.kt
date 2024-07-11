@@ -32,7 +32,6 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.plugins.bundled.MudkipTestPlugin
-import io.github.dockyardmc.plugins.bundled.piano.PianoPlugin
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
 import io.github.dockyardmc.world.generators.NetherLikeGenerator
@@ -103,7 +102,7 @@ class DockyardServer(var port: Int) {
         PluginManager.loadLocal(MudkipTestPlugin())
         PluginManager.loadLocal(CoolParticles())
         PluginManager.loadLocal(DockyardExtras())
-        PluginManager.loadLocal(PianoPlugin())
+//        PluginManager.loadLocal(PianoPlugin())
         innerProfiler.end()
 
         log("DockyardMC finished loading", LogType.SUCCESS)

@@ -2,20 +2,41 @@ package io.github.dockyardmc.ui
 
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindablePairMap
+import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
 import io.github.dockyardmc.item.ItemComponent
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundOpenContainerPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.InventoryType
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.sounds.playSound
 
-open class DrawableContainerScreen() {
-    open val name: String = "Inventory"
-    open val rows: Int? = 6
+open class DrawableContainerScreen: ContainerInventory {
+    override val name: String = "Inventory"
+    override val rows: Int = 6
+    override var innerContainerContents: MutableMap<Int, ItemStack> = mutableMapOf()
     val slots: BindablePairMap<Int, DrawableItemStack> = BindablePairMap()
     private var closeListener: ((Player) -> Unit)? = null
     private var openListener: ((Player) -> Unit)? = null
+
+    override fun open(player: Player) {
+        player.sendPacket(ClientboundOpenContainerPacket(InventoryType.valueOf("GENERIC_9X$rows"), name))
+        openListener?.invoke(player)
+    }
+
+    init {
+        slots.mapUpdated {
+            innerContainerContents = slots.values.mapValues { it.value.itemStack.value }
+                .mapKeys { getSlotIndexFromVector2(it.key.first, it.key.second) }.toMutableMap()
+        }
+    }
+
+    fun getSlotIndexFromVector2(x: Int, y: Int): Int {
+        require(!(x < 0 || y < 0)) { "Coordinates cannot be negative" }
+        return y * rows + x
+    }
 
     fun <T> setReactive(bindable: Bindable<T>, unit: (Bindable.ValueChangedEvent<T>) -> Unit) {
         bindable.valueChanged {

@@ -39,10 +39,27 @@ fun ByteBuf.readItemStack(): ItemStack {
     val count = this.readVarInt()
     if(count <= 0) return ItemStack.air
 
-    return ItemStack(
-        Items.getItemById(this.readVarInt()),
-        count
-    ) }
+    val itemId = this.readVarInt()
+    val componentsToAdd = this.readVarInt()
+    val componentsToRemove = this.readVarInt()
+
+    val components: MutableList<ItemComponent> = mutableListOf()
+
+    for (i in 0 until componentsToAdd) {
+        val type = this.readVarInt()
+        val component = this.readComponent(type)
+        components.add(component)
+    }
+    for (i in 0 until componentsToRemove) {
+        val type = this.readVarInt()
+        var component = this.readComponent(type)
+    }
+
+    val item = ItemStack(Items.getItemById(itemId), count)
+    components.forEach { item.components.add(it) }
+
+    return item
+}
 
 
 fun ByteBuf.writeItemStack(itemStack: ItemStack) {
