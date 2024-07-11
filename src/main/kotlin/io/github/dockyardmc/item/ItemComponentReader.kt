@@ -36,9 +36,19 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         }
         8 -> RarityItemComponent(this.readVarIntEnum<ItemRarity>())
         //TODO 9 -> Enchantments
+        9 -> {
+            val size = this.readVarInt()
+            this.readBoolean()
+            return EnchantmentsItemComponent()
+        }
         //TODO 10 -> return CanBePlacedOnItemComponent()
         //TODO 11 -> return CanBePlacedOnItemComponent()
-        //TODO 12 -> return CanBePlacedOnItemComponent()
+        //TODO 12 -> return Attreibute Modifiyingers
+        12 -> {
+            val size = this.readVarInt()
+            val showInTooltip = this.readBoolean()
+            return AttributeModifiersItemComponent()
+        }
         13 -> CustomModelDataItemComponent(this.readVarInt())
         14 -> HideAdditionalTooltipItemComponent()
         15 -> HideTooltipItemComponent()
