@@ -41,7 +41,6 @@ abstract class Entity {
 
     init {
         pose.valueChanged {
-            DockyardServer.broadcastMessage("Updating pose for ${this::class.simpleName}")
             metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
