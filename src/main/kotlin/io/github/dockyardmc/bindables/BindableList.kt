@@ -82,6 +82,8 @@ class BindableList<T>(list: List<T>) {
         updateListener.forEach { it.unit.invoke(BindableListUpdateEvent<T>(null)) }
     }
 
+    override fun toString(): String = values.toString()
+
     class BindableListItemAddListener<T>(val unit: (list: BindableListItemAddEvent<T>) -> Unit)
     class BindableListItemRemoveListener<T>(val unit: (list: BindableListItemRemovedEvent<T>) -> Unit)
     class BindableListItemChangeListener<T>(val unit: (list: BindableListItemChangeEvent<T>) -> Unit)
