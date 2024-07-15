@@ -11,6 +11,7 @@ import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.scroll.extensions.scrollSanitized
 import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -29,14 +30,14 @@ class ServerboundClickContainerPacket(
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
-        val properSlot = MathUtils.toCorrectSlotIndex(slot)
+        val properSlot = if(player.currentOpenInventory.value == null) MathUtils.playerInventoryCorrectSlot(slot) else slot
 
         val clickedSlotItem = player.inventory[properSlot].clone()
         val empty = ItemStack.air
-        player.sendMessage("<dark_gray>Clicked $properSlot ($slot)")
-        val isSame = clickedSlotItem.isSameAs(item)
-        val message = if(isSame) "<lime>Received Item IS Same as server item" else "<red>Received item is NOT same as server item\n${clickedSlotItem} - $item"
-        player.sendMessage(message)
+//        player.sendMessage("<dark_gray>Clicked $properSlot ($slot) [ ${player.currentOpenInventory.value?.name?.scrollSanitized()} ]")
+        if(player.currentOpenInventory.value != null) player.currentOpenInventory.value!!.click(properSlot, player)
+
+
 
         if(windowId == 0) {
             if(mode == ContainerClickMode.NORMAL) {

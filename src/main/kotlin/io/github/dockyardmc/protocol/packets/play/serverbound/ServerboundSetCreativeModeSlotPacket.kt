@@ -18,7 +18,7 @@ class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: ItemS
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
 
         val player = processor.player
-        val correctSlot = MathUtils.toCorrectSlotIndex(slot)
+        val correctSlot = MathUtils.playerInventoryCorrectSlot(slot)
         player.sendMessage("<dark_gray>${clickedItem.material.identifier} $correctSlot ($slot)")
         player.inventory[correctSlot] = clickedItem
     }

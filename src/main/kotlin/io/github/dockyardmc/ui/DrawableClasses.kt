@@ -3,39 +3,49 @@ package io.github.dockyardmc.ui
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindablePairMap
 import io.github.dockyardmc.inventory.ContainerInventory
-import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
 import io.github.dockyardmc.item.ItemComponent
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.MaxStackSizeItemComponent
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundOpenContainerPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.InventoryType
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.sounds.playSound
 
-open class DrawableContainerScreen: ContainerInventory {
+open class DrawableContainerScreen(): ContainerInventory {
+    var player: Player? = null
     override val name: String = "Inventory"
     override val rows: Int = 6
     override var innerContainerContents: MutableMap<Int, ItemStack> = mutableMapOf()
     val slots: BindablePairMap<Int, DrawableItemStack> = BindablePairMap()
-    private var closeListener: ((Player) -> Unit)? = null
-    private var openListener: ((Player) -> Unit)? = null
+    var closeListener: ((Player) -> Unit)? = null
+    var openListener: ((Player) -> Unit)? = null
 
     override fun open(player: Player) {
+        this.player = player
         player.sendPacket(ClientboundOpenContainerPacket(InventoryType.valueOf("GENERIC_9X$rows"), name))
         openListener?.invoke(player)
+        player.currentOpenInventory.value = this
+        slots.triggerUpdate()
     }
 
     init {
         slots.mapUpdated {
             innerContainerContents = slots.values.mapValues { it.value.itemStack.value }
                 .mapKeys { getSlotIndexFromVector2(it.key.first, it.key.second) }.toMutableMap()
+            slots.values.forEach {
+                val index = getSlotIndexFromVector2(it.key.first, it.key.second)
+                val packet = ClientboundSetInventorySlotPacket(1, 0, index, it.value.itemStack.value)
+                player?.sendPacket(packet)
+            }
         }
     }
 
     fun getSlotIndexFromVector2(x: Int, y: Int): Int {
         require(!(x < 0 || y < 0)) { "Coordinates cannot be negative" }
-        return y * rows + x
+        return x + (y * 9)
     }
 
     fun <T> setReactive(bindable: Bindable<T>, unit: (Bindable.ValueChangedEvent<T>) -> Unit) {
@@ -45,6 +55,16 @@ open class DrawableContainerScreen: ContainerInventory {
         bindable.triggerUpdate()
     }
 
+    fun click(slot: Int, player: Player) {
+        slots.values.forEach {
+            val slotIndex = getSlotIndexFromVector2(it.key.first, it.key.second)
+            if(slotIndex != slot) return@forEach
+            val listeners = it.value.clickListeners
+            if(listeners.isEmpty()) return@forEach
+            listeners.forEach { listener -> listener.unit.invoke(DrawableClickEvent(DrawableClickType.LEFT_CLICK, it.value.itemStack.value, player)) }
+        }
+    }
+
     fun onClose(unit: (Player) -> Unit) {
         closeListener = unit
     }
@@ -52,9 +72,6 @@ open class DrawableContainerScreen: ContainerInventory {
     fun onOpen(unit: (Player) -> Unit) {
         openListener = unit
     }
-
-    fun drawableItemStack(itemStack: ItemStack): DrawableItemStack = DrawableItemStack(Bindable(itemStack))
-    fun drawableItemStack(item: Item, count: Int = 1): DrawableItemStack = DrawableItemStack(Bindable(ItemStack(item, 1)))
 
     fun fill(from: Vector2, to: Vector2, item: DrawableItemStack) {
         for (x in from.x..to.x) {
@@ -84,6 +101,8 @@ enum class DrawableClickType {
 data class DrawableItemStack(
     val itemStack: Bindable<ItemStack> = Bindable(ItemStack.air),
 ) {
+    constructor(itemStack: ItemStack): this(Bindable(itemStack))
+    constructor(item: Item, count: Int = 1): this(Bindable(ItemStack(item, count)))
 
     val name: String get() = itemStack.value.displayName.value
     val lore: List<String> get() = itemStack.value.lore.values
@@ -113,8 +132,8 @@ data class DrawableItemStack(
     }
 }
 
-class CookieClickerScreen: DrawableContainerScreen() {
-    override val name: String = "<orange>Cookie Clicker"
+class CookieClickerScreen(): DrawableContainerScreen() {
+    override val name: String = "<black><bold>Cookie Clicker"
     override val rows: Int = 3
 
     val cookies = Bindable<Int>(0)
@@ -124,15 +143,15 @@ class CookieClickerScreen: DrawableContainerScreen() {
         onOpen { it.playSound("minecraft:block.wooden_button.click_on") }
         onClose { it.playSound("minecraft:block.wooden_button.click_off") }
 
-        fill(Vector2(0, 0), Vector2(8, 3), drawableItemStack(Items.BLACK_STAINED_GLASS_PANE))
+        fill(Vector2(0, 0), Vector2(8, 2), DrawableItemStack(Items.BLACK_STAINED_GLASS_PANE))
 
         setReactive<Int>(cookies) { update ->
-            slots[4, 1] = drawableItemStack(Items.COOKIE, update.newValue)
+            slots[4, 1] = DrawableItemStack(Items.COOKIE, update.newValue)
                 .withName("<yellow><bold>CLICK! <white>The Cookie")
                 .addLoreLine("")
                 .addLoreLine("<gray>You currently have <aqua>${update.newValue} cookies<gray>!")
                 .addLoreLine("")
-                .withComponent(EnchantmentGlintOverrideItemComponent(true))
+                .withComponent(MaxStackSizeItemComponent(255))
                 .onClick { click ->
                     cookies.value++
                     click.player.playSound("minecraft:entity.generic.eat")

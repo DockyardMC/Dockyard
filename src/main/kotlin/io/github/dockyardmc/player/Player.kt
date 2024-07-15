@@ -84,6 +84,7 @@ class Player(
     val food: Bindable<Int> = Bindable(20)
     val experienceLevel: Bindable<Int> = Bindable(0)
     val experienceBar: Bindable<Float> = Bindable(0f)
+    val currentOpenInventory: Bindable<DrawableContainerScreen?> = Bindable(null)
 
     var itemInUse: ItemInUse? = null
 

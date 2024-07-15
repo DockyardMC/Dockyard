@@ -1,9 +1,7 @@
 package io.github.dockyardmc.item
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableList
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item
@@ -27,6 +25,7 @@ class ItemStack(var material: Item, var amount: Int = 1) {
         customModelData.valueChanged { components.addOrUpdate(CustomModelDataItemComponent(it.newValue)) }
         maxStackSize.valueChanged { components.addOrUpdate(MaxStackSizeItemComponent(it.newValue)) }
         unbreakable.valueChanged { components.addOrUpdate(UnbreakableItemComponent(true)) }
+        if(amount <= 0) amount = 1
     }
 
     companion object {
@@ -62,7 +61,7 @@ fun ByteBuf.readItemStack(): ItemStack {
     val item = ItemStack(Items.getItemById(itemId), count)
     components.forEach { item.components.add(it) }
 
-    DockyardServer.broadcastMessage("bytes left: ${this.readableBytes()}")
+//    DockyardServer.broadcastMessage("bytes left: ${this.readableBytes()}")
     val left = this.readableBytes()
     this.readBytes(left)
 
