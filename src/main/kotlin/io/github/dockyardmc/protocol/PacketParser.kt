@@ -1,5 +1,7 @@
 package io.github.dockyardmc.protocol
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
@@ -24,6 +26,7 @@ object PacketParser {
 
             return readFunction.call(companionObject.objectInstance,  buffer) as ServerboundPacket
         } catch (ex: Exception) {
+            log("Failed to read packet: $ex", LogType.WARNING)
             return null
         }
     }

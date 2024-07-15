@@ -1,16 +1,13 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.clone
 import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.item.readItemStack
-import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -38,7 +35,7 @@ class ServerboundClickContainerPacket(
         val empty = ItemStack.air
         player.sendMessage("<dark_gray>Clicked $properSlot ($slot)")
         val isSame = clickedSlotItem.isSameAs(item)
-        val message = if(isSame) "<lime>Received Item IS Same as server item" else "<red>Received item is NOT same as server item"
+        val message = if(isSame) "<lime>Received Item IS Same as server item" else "<red>Received item is NOT same as server item\n${clickedSlotItem} - $item"
         player.sendMessage(message)
 
         if(windowId == 0) {
@@ -290,7 +287,7 @@ class ServerboundClickContainerPacket(
             val changedSlots = mutableMapOf<Int, ItemStack>()
 
             val arraySize = buf.readVarInt()
-            repeat(arraySize) {
+            for (i in 0 until arraySize) {
                 val slotNumber = buf.readShort().toInt()
                 val slotData = buf.readItemStack()
                 changedSlots[slotNumber] = slotData

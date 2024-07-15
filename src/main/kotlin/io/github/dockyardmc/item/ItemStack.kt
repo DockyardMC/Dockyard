@@ -1,7 +1,9 @@
 package io.github.dockyardmc.item
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableList
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item
@@ -44,6 +46,7 @@ fun ByteBuf.readItemStack(): ItemStack {
     val componentsToRemove = this.readVarInt()
 
     val components: MutableList<ItemComponent> = mutableListOf()
+    val removeComponents: MutableList<ItemComponent> = mutableListOf()
 
     for (i in 0 until componentsToAdd) {
         val type = this.readVarInt()
@@ -52,11 +55,16 @@ fun ByteBuf.readItemStack(): ItemStack {
     }
     for (i in 0 until componentsToRemove) {
         val type = this.readVarInt()
-        var component = this.readComponent(type)
+        val component = this.readComponent(type)
+        removeComponents.add(component)
     }
 
     val item = ItemStack(Items.getItemById(itemId), count)
     components.forEach { item.components.add(it) }
+
+    DockyardServer.broadcastMessage("bytes left: ${this.readableBytes()}")
+    val left = this.readableBytes()
+    this.readBytes(left)
 
     return item
 }

@@ -18,7 +18,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         4 -> UnbreakableItemComponent(this.readBoolean())
         //TODO 5 -> return NBT to COMPONENT
         5 -> {
-            this.readNBT()
+            val nbt = this.readNBT()
             return CustomNameItemComponent("TODO")
         }
         //TODO 6 -> return NBT to COMPONENT
@@ -54,7 +54,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         15 -> HideTooltipItemComponent()
         16 -> RepairCostItemComponent(this.readVarInt())
         17 -> CreativeSlotLockItemComponent()
-        18 -> EnchantmentGlintOverrideItemComponent(this.readVarInt().toBoolean())
+        18 -> EnchantmentGlintOverrideItemComponent(this.readBoolean())
         19 -> IntangibleProjectileItemComponent()
         20 -> {
 
