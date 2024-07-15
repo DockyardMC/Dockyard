@@ -12,13 +12,17 @@ import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.util.*
 
-class EntityMetadata(
+data class EntityMetadata(
     val index: EntityMetaIndex,
     val type: EntityMetadataType,
     val value: Any?
-)
+) {
+    override fun toString(): String =
+        "EntityMetadata(${index.name}[${index.index}, ${type.name}[${type.ordinal}], $value)"
+}
 
 fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
+    this.writeByte(metadata.index.index)
     this.writeVarInt(metadata.type.ordinal)
     val valuePresent = metadata.value != null
     val v = metadata.value
@@ -51,6 +55,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetadataType.SNIFFER_STATE -> this.writeVarInt(v as Int)
         EntityMetadataType.VECTOR3 -> this.writeVector3f(v as Vector3f)
         EntityMetadataType.QUATERNION -> this.writeQuaternion(v as Quaternion)
+        else -> throw Exception("noop in entity meta")
     }
 }
 
@@ -63,6 +68,9 @@ enum class EntityMetaIndex(var index: Int) {
     HAS_NO_GRAVITY(5),
     POSE(6),
     FROZEN_TICKS(7),
+    HAND_STATE(8),
+    MOB(16),
+    WARDEN_ANGER_LEVEL(16),
     DISPLAY_SKIN_PARTS(17),
     MAIN_HAND(18)
 }
@@ -86,6 +94,7 @@ enum class EntityMetadataType {
     OPTIONAL_BLOCK_STATE,
     NBT,
     PARTICLE,
+    PARTICLE_LIST,
     VILLAGER_DATA,
     OPTIONAL_VAR_INT,
     POSE,
@@ -94,6 +103,7 @@ enum class EntityMetadataType {
     OPTIONAL_GLOBAL_POSITION,
     PAINTING_VARIANT,
     SNIFFER_STATE,
+    ARMADILLO_STATE,
     VECTOR3,
     QUATERNION
 }
