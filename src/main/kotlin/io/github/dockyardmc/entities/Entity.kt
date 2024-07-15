@@ -22,22 +22,34 @@ import io.github.dockyardmc.world.World
 import java.util.UUID
 
 abstract class Entity {
-    abstract var entityId: Int
-    abstract var uuid: UUID
+    open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
+    open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
     abstract var location: Location
-    abstract var velocity: Vector3
-    abstract var viewers: MutableList<Player>
-    abstract var hasGravity: Boolean
-    abstract var isInvulnerable: Boolean
-    abstract var hasCollision: Boolean
+    open var velocity: Vector3 = Vector3()
+    val viewers: MutableList<Player> = mutableListOf()
+    open var hasGravity: Boolean = true
+    open var isInvulnerable: Boolean = false
+    open var hasCollision: Boolean = true
     abstract var world: World
-    abstract var displayName: String
-    abstract var isOnGround: Boolean
-    abstract var metadata: BindableList<EntityMetadata>
-    abstract var pose: Bindable<EntityPose>
+    open var displayName: String = ""
+    open var isOnGround: Boolean = true
+    val metadata: BindableList<EntityMetadata> = BindableList()
+    val pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     abstract var health: Bindable<Float>
     abstract var inventorySize: Int
+
+    init {
+        pose.valueChanged {
+            DockyardServer.broadcastMessage("Updating pose for ${this::class.simpleName}")
+            metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
+            sendMetadataPacketToViewers()
+            sendSelfMetadataIfPlayer()
+        }
+        metadata.listUpdated {
+            DockyardServer.broadcastMessage("$metadata")
+        }
+    }
 
     var team: Team? = null
         set(value) {
@@ -54,10 +66,12 @@ abstract class Entity {
         if(event.cancelled) return
 
         val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, 90f, 0, velocity)
-        player.sendPacket(entitySpawnPacket)
+        val metadataPacket = ClientboundSetEntityMetadataPacket(this)
 
         viewers.add(player)
-        DockyardServer.broadcastMessage("<gray>Added viewer for ${this}: <lime>$player")
+        player.sendPacket(entitySpawnPacket)
+        player.sendPacket(metadataPacket)
+        sendMetadataPacketToViewers()
     }
 
     open fun removeViewer(player: Player, isDisconnect: Boolean) {
@@ -90,7 +104,7 @@ abstract class Entity {
     }
 
     open fun sendMetadataPacketToViewers() {
-        val packet = ClientboundEntityMetadataPacket(this)
+        val packet = ClientboundSetEntityMetadataPacket(this)
         viewers.sendPacket(packet)
     }
 
@@ -148,6 +162,11 @@ abstract class Entity {
     private fun sendSelfPacketIfPlayer(packet: ClientboundPacket) {
         if(this is Player) this.sendPacket(packet)
     }
+
+    private fun sendSelfMetadataIfPlayer() {
+        if(this is Player) this.sendPacket(ClientboundSetEntityMetadataPacket(this))
+    }
+
 
     fun placeBlock(location: Location, block: Block) {
 
