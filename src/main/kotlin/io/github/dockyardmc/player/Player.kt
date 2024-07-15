@@ -46,13 +46,10 @@ class Player(
     val crypto: PlayerCrypto,
 ): Entity() {
     override var velocity: Vector3 = Vector3(0, 0, 0)
-    override var viewers: MutableList<Player> = mutableListOf()
     override var hasGravity: Boolean = true
     override var isInvulnerable: Boolean = true
     override var hasCollision: Boolean = true
     override var displayName: String = username
-    override var metadata: BindableList<EntityMetadata> = BindableList()
-    override var pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     override var isOnGround: Boolean = true
     override var health: Bindable<Float> = Bindable(20f)
     override var inventorySize: Int = 35
@@ -240,10 +237,10 @@ class Player(
 
         super.addViewer(player)
 
-        val packetIn = ClientboundEntityMetadataPacket(player)
+        val packetIn = ClientboundSetEntityMetadataPacket(player)
         this.sendPacket(packetIn)
 
-        val packetOut = ClientboundEntityMetadataPacket(this)
+        val packetOut = ClientboundSetEntityMetadataPacket(this)
         player.sendPacket(packetOut)
     }
 
@@ -309,7 +306,7 @@ class Player(
     }
 
     fun sendSelfMetadataPacket() {
-        val packet = ClientboundEntityMetadataPacket(this)
+        val packet = ClientboundSetEntityMetadataPacket(this)
         this.sendPacket(packet)
     }
 
