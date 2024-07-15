@@ -16,6 +16,8 @@ class ClientboundEntityEventPacket(entity: Entity, event: EntityEvent): Clientbo
 }
 
 enum class EntityEvent(val id: Int) {
+    ENTITY_DIE(3),
+    WARDEN_ATTACK(4),
     PLAYER_ITEM_USE_FINISHED(9),
     PLAYER_ENABLE_DEBUG_SCREEN(23),
     PLAYER_DISABLE_DEBUG_SCREEN(22),
@@ -24,4 +26,6 @@ enum class EntityEvent(val id: Int) {
     PLAYER_SET_OP_PERMISSION_LEVEL_2(26),
     PLAYER_SET_OP_PERMISSION_LEVEL_3(27),
     PLAYER_SET_OP_PERMISSION_LEVEL_4(28),
+    WARDEN_TENDRIL_SHAKING(61),
+    WARDEN_SONIC_BOOM(62),
 }
