@@ -2,8 +2,8 @@ package io.github.dockyardmc.plugins.bundled.extras.items
 
 import io.github.dockyardmc.entities.EntityManager.despawnEntity
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
-import io.github.dockyardmc.entities.vanilla.Pig
-import io.github.dockyardmc.entities.vanilla.Sheep
+import io.github.dockyardmc.entities.Pig
+import io.github.dockyardmc.entities.Sheep
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerDamageEntityEvent

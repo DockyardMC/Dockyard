@@ -45,9 +45,6 @@ abstract class Entity {
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
         }
-        metadata.listUpdated {
-            DockyardServer.broadcastMessage("$metadata")
-        }
     }
 
     var team: Team? = null
@@ -64,7 +61,7 @@ abstract class Entity {
         Events.dispatch(event)
         if(event.cancelled) return
 
-        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, 90f, 0, velocity)
+        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, location.yaw, 0, velocity)
         val metadataPacket = ClientboundSetEntityMetadataPacket(this)
 
         viewers.add(player)
@@ -79,7 +76,6 @@ abstract class Entity {
         if(event.cancelled) return
 
         viewers.remove(player)
-        DockyardServer.broadcastMessage("<gray>Removed viewer for ${this}: <red>$player")
         val entityDespawnPacket = ClientboundEntityRemovePacket(this)
         player.sendPacket(entityDespawnPacket)
     }

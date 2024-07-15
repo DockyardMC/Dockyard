@@ -1,50 +1,10 @@
 package io.github.dockyardmc.plugins.bundled.emberseeker.entities
 
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.entities.*
-import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.EntityPose
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEventPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEvent
-import io.github.dockyardmc.registry.EntityType
-import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.world.World
 
-class EmberSeekerWarden(override var location: Location, override var world: World): Entity() {
-    override var type: EntityType = EntityTypes.WARDEN
-    override var health: Bindable<Float> = Bindable(500f)
-    override var inventorySize: Int = 0
+class EmberSeekerWarden(override var location: Location, override var world: World): Warden(location, world) {
 
-    val angerLevel: Bindable<Int> = Bindable(0)
-
-    init {
-        angerLevel.valueChanged {
-            metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.WARDEN_ANGER_LEVEL, EntityMetadataType.VAR_INT, it.newValue))
-        }
-    }
-
-    fun playAnimation(animation: WardenAnimation) {
-
-        when(animation) {
-            WardenAnimation.EMERGE -> pose.value = EntityPose.EMERGING
-            WardenAnimation.ROAR -> pose.value = EntityPose.ROARING
-            WardenAnimation.SNIFF -> pose.value = EntityPose.SNIFFING
-            WardenAnimation.DIGGING -> pose.value = EntityPose.DIGGING
-            WardenAnimation.ATTACK -> viewers.sendPacket(ClientboundEntityEventPacket(this, EntityEvent.WARDEN_ATTACK))
-            WardenAnimation.SONIC_BOOM -> viewers.sendPacket(ClientboundEntityEventPacket(this, EntityEvent.WARDEN_SONIC_BOOM))
-            WardenAnimation.TENDRIL_SHAKE -> viewers.sendPacket(ClientboundEntityEventPacket(this, EntityEvent.WARDEN_TENDRIL_SHAKING))
-        }
-    }
 }
 
-enum class WardenAnimation {
-    EMERGE,
-    ROAR,
-    SNIFF,
-    DIGGING,
-    ATTACK,
-    SONIC_BOOM,
-    TENDRIL_SHAKE
-}
 

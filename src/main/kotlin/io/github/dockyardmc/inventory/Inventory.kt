@@ -4,7 +4,7 @@ import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableMap
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
-import io.github.dockyardmc.entities.vanilla.ItemDropEntity
+import io.github.dockyardmc.entities.ItemDropEntity
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket

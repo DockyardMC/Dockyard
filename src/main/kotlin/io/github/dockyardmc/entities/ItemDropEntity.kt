@@ -1,8 +1,6 @@
-package io.github.dockyardmc.entities.vanilla
+package io.github.dockyardmc.entities
 
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
