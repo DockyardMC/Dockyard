@@ -61,7 +61,7 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
         }
         is CreativeSlotLockItemComponent -> {} // Empty
         is EnchantmentGlintOverrideItemComponent -> {
-            this.writeVarInt(comp.hasGlint.toInt())
+            this.writeBoolean(comp.hasGlint)
         }
 
         //The Notchian client utilizes the codec meant for

@@ -7,12 +7,10 @@ import io.github.dockyardmc.bossbar.BossbarColor
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.FloatArgument
 import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.events.EntityDamageEvent
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerDamageEvent
-import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.truncate
+import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
 import io.github.dockyardmc.item.FoodItemComponent
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.periodic.Period
@@ -31,11 +29,12 @@ import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.DefaultServerLink
 import io.github.dockyardmc.serverlinks.CustomServerLink
 import io.github.dockyardmc.serverlinks.ServerLinks
+import io.github.dockyardmc.ui.CookieClickerScreen
 import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.world.WorldManager
 
 class MayaTestPlugin: DockyardPlugin {
-    override val name: String = "MayaTestPlugin"
+    override var name: String = "MayaTestPlugin"
     override val author: String = "LukynkaCZE"
     override val version: String = DockyardServer.versionInfo.dockyardVersion
 
@@ -67,18 +66,14 @@ class MayaTestPlugin: DockyardPlugin {
             it.player.experienceBar.value = 1f
             it.player.experienceLevel.value= 0
 
-            val carrot = ItemStack(Items.CARROT, 1)
-            carrot.displayName.value = "<lime>The bunny carrot"
-            carrot.unbreakable.value = true
-
             it.player.gameMode.value = GameMode.SURVIVAL
-            it.player.inventory[0] = ItemStack(Items.AMETHYST_SHARD, 727).apply { components.add(FoodItemComponent(5)) }
-            it.player.inventory[1] = ItemStack(Items.POTATO)
-            it.player.inventory[2] = ItemStack(Items.STICK)
-            it.player.inventory[3] = ItemStack(Items.ECHO_SHARD)
-            it.player.inventory[4] = ItemStack(Items.POTATO)
-            it.player.inventory[5] = ItemStack(Items.COBBLESTONE, 32)
-            it.player.inventory[6] = ItemStack(Items.CARROT, 1)
+            it.player.inventory[0] = ItemStack(Items.COOKIE).apply { displayName.value = "<orange><u>Cookie Clicker<r> <gray>(Right-Click)"; components.add(EnchantmentGlintOverrideItemComponent(true)) }
+        }
+
+        Events.on<PlayerRightClickWithItemEvent> {
+            if(it.item.displayName.value != "<orange><u>Cookie Clicker<r> <gray>(Right-Click)") return@on
+            it.player.sendMessage("<orange>Cookie Clicker <dark_gray>| <gray>Opening the cookie clicker menu..")
+            it.player.openDrawableScreen(CookieClickerScreen())
         }
 
         var seconds: Int = 0

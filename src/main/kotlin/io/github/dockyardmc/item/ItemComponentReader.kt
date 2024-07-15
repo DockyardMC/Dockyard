@@ -9,69 +9,100 @@ import io.github.dockyardmc.world.WorldManager
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
-fun ByteBuf.readComponent(id: Int, buf: ByteBuf): ItemComponent {
+fun ByteBuf.readComponent(id: Int): ItemComponent {
     return when (id) {
-        0 -> CustomDataItemComponent(buf.readNBT() as NBTCompound)
-        1 -> MaxStackSizeItemComponent(buf.readVarInt())
-        2 -> MaxDamageItemComponent(buf.readVarInt())
-        3 -> DamageItemComponent(buf.readVarInt())
-        4 -> UnbreakableItemComponent(buf.readBoolean())
+        0 -> CustomDataItemComponent(this.readNBT() as NBTCompound)
+        1 -> MaxStackSizeItemComponent(this.readVarInt())
+        2 -> MaxDamageItemComponent(this.readVarInt())
+        3 -> DamageItemComponent(this.readVarInt())
+        4 -> UnbreakableItemComponent(this.readBoolean())
         //TODO 5 -> return NBT to COMPONENT
+        5 -> {
+            val nbt = this.readNBT()
+            return CustomNameItemComponent("TODO")
+        }
         //TODO 6 -> return NBT to COMPONENT
+        6 -> {
+            this.readNBT()
+            return ItemNameItemComponent("TODO")
+        }
         //TODO 7 -> return list of NBT to COMPONENT
-        8 -> RarityItemComponent(buf.readVarIntEnum<ItemRarity>())
+        7 -> {
+            val size = this.readVarInt()
+            for (i in 0 until size) {
+                this.readNBT()
+            }
+            return LoreItemComponent(mutableListOf())
+        }
+        8 -> RarityItemComponent(this.readVarIntEnum<ItemRarity>())
         //TODO 9 -> Enchantments
+        9 -> {
+            val size = this.readVarInt()
+            this.readBoolean()
+            return EnchantmentsItemComponent()
+        }
         //TODO 10 -> return CanBePlacedOnItemComponent()
         //TODO 11 -> return CanBePlacedOnItemComponent()
-        //TODO 12 -> return CanBePlacedOnItemComponent()
-        13 -> CustomModelDataItemComponent(buf.readVarInt())
+        //TODO 12 -> return Attreibute Modifiyingers
+        12 -> {
+            val size = this.readVarInt()
+            val showInTooltip = this.readBoolean()
+            return AttributeModifiersItemComponent()
+        }
+        13 -> CustomModelDataItemComponent(this.readVarInt())
         14 -> HideAdditionalTooltipItemComponent()
         15 -> HideTooltipItemComponent()
-        16 -> RepairCostItemComponent(buf.readVarInt())
+        16 -> RepairCostItemComponent(this.readVarInt())
         17 -> CreativeSlotLockItemComponent()
-        18 -> EnchantmentGlintOverrideItemComponent(buf.readVarInt().toBoolean())
+        18 -> EnchantmentGlintOverrideItemComponent(this.readBoolean())
         19 -> IntangibleProjectileItemComponent()
-        20 -> FoodItemComponent(buf.readVarInt(), true, buf.readBoolean(), buf.readFloat()) //TODO Potion Effects
+        20 -> {
+
+            val food = this.readVarInt()
+            val saturation = this.readFloat() // memory leak was here!!
+
+            return FoodItemComponent(food, true, this.readBoolean(), this.readFloat())
+        } //TODO Potion Effects
         21 -> FireResistantItemComponent()
         22 -> {
             val rules = mutableListOf<ToolRule>()
-            val size = buf.readVarInt()
+            val size = this.readVarInt()
             for (i in 0 until size) {
                 //TODO Block Set read
-                val speed = if (buf.readBoolean()) buf.readFloat() else null
-                val correctDropForBlocks = if (buf.readBoolean()) buf.readBoolean() else null
+                val speed = if (this.readBoolean()) this.readFloat() else null
+                val correctDropForBlocks = if (this.readBoolean()) this.readBoolean() else null
                 rules.add(ToolRule(listOf(), speed, correctDropForBlocks))
             }
-            val defaultMiningSpeed = buf.readFloat()
-            val damagePerBlock = buf.readVarInt()
+            val defaultMiningSpeed = this.readFloat()
+            val damagePerBlock = this.readVarInt()
             ToolItemComponent(rules, defaultMiningSpeed, damagePerBlock)
         }
         //TODO 23 -> Enchantment
-        24 -> DyedColorItemComponent(CustomColor.fromRGBInt(buf.readInt()), buf.readBoolean())
-        25 -> MapColorItemComponent(CustomColor.fromRGBInt(buf.readInt()))
-        26 -> MapIdItemComponent(buf.readVarInt())
-        27 -> MapDecorationsItemComponent(buf.readNBT() as NBTCompound)
-        28 -> MapPostProcessingItemComponent(buf.readVarIntEnum<MapPostProcessing>())
+        24 -> DyedColorItemComponent(CustomColor.fromRGBInt(this.readInt()), this.readBoolean())
+        25 -> MapColorItemComponent(CustomColor.fromRGBInt(this.readInt()))
+        26 -> MapIdItemComponent(this.readVarInt())
+        27 -> MapDecorationsItemComponent(this.readNBT() as NBTCompound)
+        28 -> MapPostProcessingItemComponent(this.readVarIntEnum<MapPostProcessing>())
         29 -> {
             val projectiles = mutableListOf<ItemStack>()
-            val size = buf.readVarInt()
+            val size = this.readVarInt()
             for (i in 0 until size) {
-                projectiles.add(buf.readItemStack())
+                projectiles.add(this.readItemStack())
             }
             ChargedProjectilesItemComponent(projectiles)
         }
 
         30 -> {
             val bundleContents = mutableListOf<ItemStack>()
-            val size = buf.readVarInt()
+            val size = this.readVarInt()
             for (i in 0 until size) {
-                bundleContents.add(buf.readItemStack())
+                bundleContents.add(this.readItemStack())
             }
             BundleContentsItemComponent(bundleContents)
         }
         //TODO 31 -> PotionsContent
         //TODO 32 -> Sus stew
-        33 -> WritableBookContentItemComponent(buf.readBookPages())
+        33 -> WritableBookContentItemComponent(this.readBookPages())
         34 -> {
             val title = this.readUtf()
             val filteredTitle = if (this.readBoolean()) this.readUtf() else null
@@ -82,13 +113,13 @@ fun ByteBuf.readComponent(id: Int, buf: ByteBuf): ItemComponent {
             WrittenBookContentItemComponent(title, filteredTitle, author, generation, pages)
         }
         //TODO 35 -> trims
-        36 -> DebugStickItemComponent(buf.readNBT() as NBTCompound)
-        37 -> EntityDataItemComponent(buf.readNBT() as NBTCompound)
-        38 -> BucketEntityDataItemComponent(buf.readNBT() as NBTCompound)
-        39 -> BlockEntityDataItemComponent(buf.readNBT() as NBTCompound)
+        36 -> DebugStickItemComponent(this.readNBT() as NBTCompound)
+        37 -> EntityDataItemComponent(this.readNBT() as NBTCompound)
+        38 -> BucketEntityDataItemComponent(this.readNBT() as NBTCompound)
+        39 -> BlockEntityDataItemComponent(this.readNBT() as NBTCompound)
         40 -> {
-            val type = buf.readVarInt()
-            NoteBlockInstrumentItemComponent(buf.readSoundEvent(), buf.readFloat(), buf.readFloat())
+            val type = this.readVarInt()
+            NoteBlockInstrumentItemComponent(this.readSoundEvent(), this.readFloat(), this.readFloat())
         }
 
         41 -> OminousBottleAmplifierItemComponent(this.readVarInt())
@@ -101,7 +132,7 @@ fun ByteBuf.readComponent(id: Int, buf: ByteBuf): ItemComponent {
             val duration = if (directMode) this.readFloat() else null
             val output = if (directMode) this.readVarInt() else null
 
-            val showInTooltip = buf.readBoolean()
+            val showInTooltip = this.readBoolean()
             JukeboxPlayableItemComponent(directMode, identifier, "", duration, output, showInTooltip)
         }
 
@@ -120,33 +151,33 @@ fun ByteBuf.readComponent(id: Int, buf: ByteBuf): ItemComponent {
         //TODO 45 -> Firework Explosion Data
         //TODO 46 -> Firework Data
         //TODO 47 -> PlayerHeadProfileItemComponent()
-        48 -> NoteBlockSoundItemComponent(buf.readUtf())
+        48 -> NoteBlockSoundItemComponent(this.readUtf())
         //TODO 49 -> Banner Patterns
-        50 -> BannerShieldBaseColorItemComponent(buf.readVarIntEnum<LegacyTextColor>())
+        50 -> BannerShieldBaseColorItemComponent(this.readVarIntEnum<LegacyTextColor>())
         //TODO 51 -> Pot Decorations
         52 -> {
             val containerItems = mutableListOf<ItemStack>()
-            val size = buf.readVarInt()
+            val size = this.readVarInt()
             for (i in 0 until size) {
-                containerItems.add(buf.readItemStack())
+                containerItems.add(this.readItemStack())
             }
             ContainerItemComponent(containerItems)
         }
         //TODO 53 -> Block State Component
         54 -> {
             val bees = mutableListOf<BeeInsideBeehive>()
-            val size = buf.readVarInt()
+            val size = this.readVarInt()
             for (i in 0 until size) {
-                val data = buf.readNBT() as NBTCompound
-                val ticksInHive = buf.readVarInt()
-                val minTicksInHive = buf.readVarInt()
+                val data = this.readNBT() as NBTCompound
+                val ticksInHive = this.readVarInt()
+                val minTicksInHive = this.readVarInt()
                 bees.add(BeeInsideBeehive(data, ticksInHive, minTicksInHive))
             }
             BeesItemComponent(bees)
         }
 
-        55 -> LockItemComponent(buf.readNBT() as NBTCompound)
-        56 -> ContainerLootItemComponent(buf.readNBT() as NBTCompound)
+        55 -> LockItemComponent(this.readNBT() as NBTCompound)
+        56 -> ContainerLootItemComponent(this.readNBT() as NBTCompound)
         else -> throw Exception("Tried to read item component with id $id but that id does not exist or is not implement yet!")
     }
 }

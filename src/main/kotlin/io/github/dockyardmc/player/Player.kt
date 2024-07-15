@@ -25,6 +25,7 @@ import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
+import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
@@ -83,6 +84,7 @@ class Player(
     val food: Bindable<Int> = Bindable(20)
     val experienceLevel: Bindable<Int> = Bindable(0)
     val experienceBar: Bindable<Float> = Bindable(0f)
+    val currentOpenInventory: Bindable<DrawableContainerScreen?> = Bindable(null)
 
     var itemInUse: ItemInUse? = null
 
@@ -371,5 +373,9 @@ class Player(
     fun resetExperience() {
         experienceLevel.value = 0
         experienceBar.value = 0f
+    }
+
+    fun openDrawableScreen(screen: DrawableContainerScreen) {
+        screen.open(this)
     }
 }

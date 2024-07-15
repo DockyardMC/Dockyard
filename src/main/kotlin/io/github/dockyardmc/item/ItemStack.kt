@@ -25,6 +25,7 @@ class ItemStack(var material: Item, var amount: Int = 1) {
         customModelData.valueChanged { components.addOrUpdate(CustomModelDataItemComponent(it.newValue)) }
         maxStackSize.valueChanged { components.addOrUpdate(MaxStackSizeItemComponent(it.newValue)) }
         unbreakable.valueChanged { components.addOrUpdate(UnbreakableItemComponent(true)) }
+        if(amount <= 0) amount = 1
     }
 
     companion object {
@@ -39,10 +40,33 @@ fun ByteBuf.readItemStack(): ItemStack {
     val count = this.readVarInt()
     if(count <= 0) return ItemStack.air
 
-    return ItemStack(
-        Items.getItemById(this.readVarInt()),
-        count
-    ) }
+    val itemId = this.readVarInt()
+    val componentsToAdd = this.readVarInt()
+    val componentsToRemove = this.readVarInt()
+
+    val components: MutableList<ItemComponent> = mutableListOf()
+    val removeComponents: MutableList<ItemComponent> = mutableListOf()
+
+    for (i in 0 until componentsToAdd) {
+        val type = this.readVarInt()
+        val component = this.readComponent(type)
+        components.add(component)
+    }
+    for (i in 0 until componentsToRemove) {
+        val type = this.readVarInt()
+        val component = this.readComponent(type)
+        removeComponents.add(component)
+    }
+
+    val item = ItemStack(Items.getItemById(itemId), count)
+    components.forEach { item.components.add(it) }
+
+//    DockyardServer.broadcastMessage("bytes left: ${this.readableBytes()}")
+    val left = this.readableBytes()
+    this.readBytes(left)
+
+    return item
+}
 
 
 fun ByteBuf.writeItemStack(itemStack: ItemStack) {

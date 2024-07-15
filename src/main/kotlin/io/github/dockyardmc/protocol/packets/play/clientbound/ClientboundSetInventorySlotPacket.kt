@@ -18,5 +18,4 @@ class ClientboundSetInventorySlotPacket(windowId: Int, stateId: Int, slot: Int, 
         data.writeShort(slot)
         data.writeItemStack(itemStack)
     }
-
 }

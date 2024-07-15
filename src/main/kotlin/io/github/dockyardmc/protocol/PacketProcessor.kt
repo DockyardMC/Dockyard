@@ -107,6 +107,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
             buf.release()  // Release the buffer after processing
             buf.clear()
             profiler.end()
+            connection.flush()
         }
     }
 
