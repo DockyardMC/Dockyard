@@ -62,6 +62,12 @@ class World(
         log("Logged in $player")
         val oldWorld = player.world
 
+        oldWorld.entities.values.filter { it != player }.forEach { it.removeViewer(player, false) }
+        oldWorld.players.values.filter { it != player }.forEach {
+            it.removeViewer(player, false)
+            player.removeViewer(it, false)
+        }
+
         player.world.players.removeIfPresent(player)
         player.world = this
         players.add(player)
@@ -71,6 +77,13 @@ class World(
 
         joinQueue.removeIfPresent(player)
         player.respawn()
+
+        players.values.filter { it != player }.forEach {
+            it.addViewer(player)
+            player.addViewer(it)
+        }
+
+        entities.values.filter { it != player }.forEach { it.addViewer(player) }
 
         player.isFullyInitialized = true
     }
