@@ -1,9 +1,6 @@
 package io.github.dockyardmc.extentions
 
 import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.inventory.ItemStack
-import io.github.dockyardmc.inventory.clearInventory
-import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.setSkin
@@ -76,13 +73,13 @@ fun List<Player>.setIsFlying(isFlying: Boolean) {
     this.forEach { it.isFlying.value = isFlying }
 }
 
-fun List<Player>.give(itemStack: ItemStack) {
-    this.forEach { it.give(itemStack) }
-}
-
-fun List<Player>.clearInventory() {
-    this.forEach { it.clearInventory() }
-}
+//fun List<Player>.give(itemStack: ItemStack) {
+//    this.forEach { it.give(itemStack) }
+//}
+//
+//fun List<Player>.clearInventory() {
+//    this.forEach { it.clearInventory() }
+//}
 
 fun <E> MutableList<E>.addIfNotPresent(target: E) {
     if(!this.contains(target)) this.add(target)

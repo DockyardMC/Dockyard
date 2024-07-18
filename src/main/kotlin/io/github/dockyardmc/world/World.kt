@@ -1,7 +1,8 @@
 package io.github.dockyardmc.world
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerChangeWorldEvent
@@ -20,6 +21,7 @@ import io.github.dockyardmc.utils.Vector2
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.generators.WorldGenerator
+import java.util.Random
 import java.util.UUID
 
 class World(
@@ -38,22 +40,33 @@ class World(
     var worldAge: Long = 0
 
     var chunks: MutableList<Chunk> = mutableListOf()
-    var canBeJoined: Boolean = false
     var defaultSpawnLocation = Location(0, 0, 0, this)
 
-    val players: BindableMutableList<Player> = BindableMutableList()
-    val entities: BindableMutableList<Entity> = BindableMutableList()
+    val players: BindableList<Player> = BindableList()
+    val entities: BindableList<Entity> = BindableList()
 
+    var canBeJoined: Bindable<Boolean> = Bindable(false)
     val joinQueue: MutableList<Player> = mutableListOf()
+
+    var isHardcore: Boolean = false
+
 
     fun join(player: Player) {
         if(player.world == this && player.isFullyInitialized) return
-        if(!canBeJoined && !joinQueue.contains(player)) {
+        if(!canBeJoined.value && !joinQueue.contains(player)) {
             joinQueue.addIfNotPresent(player)
+            log("$player joined before world $name is loaded, added to joinQueue")
             return
         }
 
+        log("Logged in $player")
         val oldWorld = player.world
+
+        oldWorld.entities.values.filter { it != player }.forEach { it.removeViewer(player, false) }
+        oldWorld.players.values.filter { it != player }.forEach {
+            it.removeViewer(player, false)
+            player.removeViewer(it, false)
+        }
 
         player.world.players.removeIfPresent(player)
         player.world = this
@@ -65,6 +78,13 @@ class World(
         joinQueue.removeIfPresent(player)
         player.respawn()
 
+        players.values.filter { it != player }.forEach {
+            it.addViewer(player)
+            player.addViewer(it)
+        }
+
+        entities.values.filter { it != player }.forEach { it.addViewer(player) }
+
         player.isFullyInitialized = true
     }
 
@@ -75,10 +95,10 @@ class World(
         }
 
         runnable.callback = {
-            canBeJoined = true
-            joinQueue.forEach {
-                join(it)
-            }
+            log("World $name is read to be joined!")
+            log("Joining following players: $joinQueue")
+            canBeJoined.value = true
+            joinQueue.forEach(::join)
         }
         runnable.execute()
 
@@ -150,4 +170,6 @@ class World(
             }
         }
     }
+
+    fun getRandom(): Random = Random(seed)
 }

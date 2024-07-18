@@ -119,6 +119,12 @@ data class CommandExecutor(
     var command: String = "",
     val isPlayer: Boolean = player != null,
 ) {
+
+    fun playerOrThrow(): Player {
+        if(player == null) throw Exception("Command was not executed by player")
+        return player
+    }
+
     fun sendMessage(message: String) {
         if(this.isPlayer) this.player!!.sendMessage(message) else this.console.sendMessage(message)
     }

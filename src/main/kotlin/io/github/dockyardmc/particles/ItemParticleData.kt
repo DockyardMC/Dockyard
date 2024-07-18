@@ -1,7 +1,7 @@
 package io.github.dockyardmc.particles
 
-import io.github.dockyardmc.inventory.ItemStack
-import io.github.dockyardmc.inventory.writeItemStack
+import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.writeItemStack
 import io.github.dockyardmc.registry.Particles
 import io.netty.buffer.ByteBuf
 

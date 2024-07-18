@@ -13,6 +13,7 @@ object EntityManager {
 
     fun World.spawnEntity(entity: Entity) {
         this@EntityManager.entities.add(entity)
+        this.entities.add(entity)
         PlayerManager.players.forEach { loopPlayer ->
             entity.addViewer(loopPlayer)
         }
@@ -23,5 +24,6 @@ object EntityManager {
         PlayerManager.players.forEach {
             entity.removeViewer(it, false)
         }
+//        this.entities.remove(entity)
     }
 }

@@ -6,36 +6,34 @@ import io.github.dockyardmc.bossbar.Bossbar
 import io.github.dockyardmc.bossbar.BossbarColor
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.FloatArgument
-import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.entities.EntityManager
-import io.github.dockyardmc.entities.Pig
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.events.*
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.truncate
-import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
+import io.github.dockyardmc.item.FoodItemComponent
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.periodic.Period
+import io.github.dockyardmc.periodic.SecondPeriod
 import io.github.dockyardmc.periodic.TickPeriod
+import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.addIfNotPresent
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
-import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DamageTypes
-import io.github.dockyardmc.registry.EntityTypes
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.DefaultServerLink
 import io.github.dockyardmc.serverlinks.CustomServerLink
 import io.github.dockyardmc.serverlinks.ServerLinks
+import io.github.dockyardmc.ui.CookieClickerScreen
 import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Vector3
-import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.WorldManager
-import java.util.*
 
 class MayaTestPlugin: DockyardPlugin {
-    override val name: String = "MayaTestPlugin"
+    override var name: String = "MayaTestPlugin"
     override val author: String = "LukynkaCZE"
     override val version: String = DockyardServer.versionInfo.dockyardVersion
 
@@ -64,7 +62,23 @@ class MayaTestPlugin: DockyardPlugin {
             it.player.tabListFooter.value = "\n  <dark_gray><s>                                   <r>  \n".toComponent()
             serverBar.viewers.addIfNotPresent(it.player)
 
-//            it.player.sendTitle("<yellow>Welcome", "<aqua>to my minecraft server")
+            it.player.experienceBar.value = 1f
+            it.player.experienceLevel.value= 0
+
+            it.player.gameMode.value = GameMode.SURVIVAL
+            it.player.inventory[0] = ItemStack(Items.COOKIE).apply { displayName.value = "<orange><u>Cookie Clicker<r> <gray>(Right-Click)"; components.add(EnchantmentGlintOverrideItemComponent(true)) }
+        }
+
+        Events.on<PlayerRightClickWithItemEvent> {
+            if(it.item.displayName.value != "<orange><u>Cookie Clicker<r> <gray>(Right-Click)") return@on
+            it.player.sendMessage("<orange>Cookie Clicker <dark_gray>| <gray>Opening the cookie clicker menu..")
+            it.player.openDrawableScreen(CookieClickerScreen())
+        }
+
+        var seconds: Int = 0
+        Period.on<SecondPeriod> {
+            seconds++
+            PlayerManager.players.forEach { it.experienceLevel.value = seconds }
         }
 
         ServerLinks.links.add(CustomServerLink("<aqua>Github", "https://github.com/DockyardMC/Dockyard"))
@@ -80,8 +94,6 @@ class MayaTestPlugin: DockyardPlugin {
             }
         }
 
-        var damageLocation = Location(0, 0, 0, WorldManager.getOrThrow("test"))
-
         Commands.add("damage") {
             it.addArgument("damage", FloatArgument())
             it.execute { exec ->
@@ -91,10 +103,31 @@ class MayaTestPlugin: DockyardPlugin {
             }
         }
 
-        Commands.add("/setdmgloc") {
+        Events.on<PlayerDamageEvent> {
+            it.damage = 20f
+            DockyardServer.broadcastMessage("${it.player} damage ${it.damage}")
+        }
+
+        Events.on<EntityDamageEvent> {
+            DockyardServer.broadcastMessage("${it.entity} damage ${it.damage}")
+        }
+
+        Commands.add("/item") {
             it.execute { exec ->
                 val player = exec.player!!
-                damageLocation = player.location
+                val item = ItemStack(Items.AMETHYST_SHARD, 999)
+                item.displayName.value = "<pink><underline>Woooah Magical Shaaarddddd"
+                item.customModelData.value = 1
+                item.unbreakable.value = true
+                item.maxStackSize.value = 999
+                item.lore.add(" ")
+                item.lore.add("<gray>This is very <lime><i>very <gray></i>magical shard.")
+                item.lore.add(" ")
+                item.lore.add("<orange>⭐ <yellow>This item is edible!")
+                item.lore.add("<orange>⭐ <yellow>Max stack size is 999")
+                item.lore.add(" ")
+                item.components.add(FoodItemComponent(1))
+                player.inventory[0] = item
             }
         }
     }

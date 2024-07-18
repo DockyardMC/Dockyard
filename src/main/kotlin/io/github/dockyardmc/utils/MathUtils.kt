@@ -1,7 +1,6 @@
 package io.github.dockyardmc.utils
 
 import io.github.dockyardmc.location.Location
-import kotlin.random.Random
 
 object MathUtils {
 
@@ -15,12 +14,33 @@ object MathUtils {
 
     fun square(num: Double): Double = num * num
 
-    fun toCorrectSlotIndex(slot: Int): Int {
+    fun playerInventoryCorrectSlot(slot: Int): Int {
         return when (slot) {
             in 36..44 -> slot - 36
             in 27..35 -> slot - 18
             in 18..26 -> slot
             in 9..17 -> slot + 18
+            5 -> 36
+            6 -> 37
+            7 -> 38
+            8 -> 39
+            45 -> 40
+            else -> 0
+        }
+    }
+
+
+    fun toOriginalSlotIndex(correctedSlot: Int): Int {
+        return when (correctedSlot) {
+            in 0..8 -> correctedSlot + 36
+            in 9..17 -> correctedSlot + 18
+            in 18..26 -> correctedSlot
+            in 27..35 -> correctedSlot - 18
+            36 -> 5
+            37 -> 6
+            38 -> 7
+            39 -> 8
+            45 -> 40
             else -> 0
         }
     }
@@ -43,4 +63,9 @@ object MathUtils {
     }
 
     fun randomInt(min: Int, max: Int): Int = (min..max).shuffled().last()
+    fun randomFloat(min: Float, max: Float): Float {
+        val random = java.util.Random()
+        return min + random.nextFloat() * (max - min)
+    }
+
 }

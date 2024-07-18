@@ -2,7 +2,7 @@ package io.github.dockyardmc.bossbar
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
+import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -16,7 +16,7 @@ class Bossbar(
     val progress: Bindable<Float> = Bindable(0f),
     val color: Bindable<BossbarColor> = Bindable(BossbarColor.WHITE),
     val notches: Bindable<BossbarNotches> = Bindable(BossbarNotches.NO_NOTCHES),
-    val viewers: BindableMutableList<PersistentPlayer> = BindableMutableList(),
+    val viewers: BindableList<PersistentPlayer> = BindableList(),
 ) {
 
     constructor(
@@ -31,7 +31,7 @@ class Bossbar(
                 Bindable(progress),
                 Bindable(color),
                 Bindable(notches),
-                BindableMutableList(viewers.toPersistent())
+                BindableList(viewers.toPersistent())
             )
 
     val uuid: UUID = UUID.randomUUID()

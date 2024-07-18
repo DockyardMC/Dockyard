@@ -14,7 +14,7 @@ object Items {
         val json = Json { ignoreUnknownKeys = true }
         val items = json.decodeFromString<List<Item>>(Resources.getText("./data/items.json"))
         items.forEach { item ->
-            val block = Blocks.idToBlockMap.values.firstOrNull { item.namespace == it.namespace } ?: return@forEach
+            val block = Blocks.idToBlockMap.values.firstOrNull { item.identifier == it.namespace } ?: return@forEach
             item.isBlock = true
             item.blockId = block.blockStateId
         }
@@ -1363,7 +1363,7 @@ data class Item(
     @SerialName("displayName")
     val name: String,
     @SerialName("name")
-    val namespace: String,
+    val identifier: String,
     val stackSize: Int,
     @Transient
     var isBlock: Boolean = false,

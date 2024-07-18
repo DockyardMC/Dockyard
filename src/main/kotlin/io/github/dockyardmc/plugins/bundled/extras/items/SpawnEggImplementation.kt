@@ -5,7 +5,7 @@ import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.entities.Pig
 import io.github.dockyardmc.entities.Sheep
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerBlockInteractEvent
+import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.PlayerHand
@@ -18,11 +18,11 @@ import io.github.dockyardmc.utils.Vector3f
 class SpawnEggImplementation {
 
     init {
-        Events.on<PlayerBlockInteractEvent> {
+        Events.on<PlayerBlockRightClickEvent> {
             val player = it.player
             val heldItem = player.getHeldItem(PlayerHand.MAIN_HAND)
 
-            if(!heldItem.material.namespace.contains("spawn_egg")) return@on
+            if(!heldItem.material.identifier.contains("spawn_egg")) return@on
 
             val spawnLoc = it.location.apply { y += 1 }
 

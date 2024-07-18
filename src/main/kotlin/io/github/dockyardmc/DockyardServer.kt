@@ -9,13 +9,9 @@ import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.player.kick.KickReason
-import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.plugins.PluginManager
-import io.github.dockyardmc.plugins.bundled.particles.CoolParticles
 import io.github.dockyardmc.plugins.bundled.commands.DockyardCommands
 import io.github.dockyardmc.plugins.bundled.extras.DockyardExtras
-import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
@@ -31,20 +27,23 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.plugins.bundled.MudkipTestPlugin
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
 import io.github.dockyardmc.world.generators.NetherLikeGenerator
-import io.github.dockyardmc.world.generators.VanillaIshWorldGenerator
 import java.net.InetSocketAddress
 import java.util.*
 
-class DockyardServer(var port: Int) {
+class DockyardServer {
 
     lateinit var bootstrap: ServerBootstrap
     lateinit var channelPipeline: ChannelPipeline
     val bossGroup = NioEventLoopGroup(3)
     val workerGroup = NioEventLoopGroup()
+
+    val ip = ConfigManager.currentConfig.serverConfig.ip
+    val port = ConfigManager.currentConfig.serverConfig.port
 
     // Server ticks
     val tickProfiler = Profiler()
@@ -57,13 +56,12 @@ class DockyardServer(var port: Int) {
     //TODO rewrite and make good
     var keepAliveId = 0L
     val keepAlivePacketTimer = RepeatingTimerAsync(5000) {
-        if(!ConfigManager.currentConfig.keepAliveEnabled) return@RepeatingTimerAsync
         PlayerManager.players.forEach {
             it.connection.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
             val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
             if(!processor.respondedToLastKeepAlive) {
                 log("$it failed to respond to keep alive", LogType.WARNING)
-                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
+//                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
                 return@forEach
             }
             processor.respondedToLastKeepAlive = false
@@ -73,9 +71,8 @@ class DockyardServer(var port: Int) {
 
     fun start() {
         versionInfo = Resources.getDockyardVersion()
-
         log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${versionInfo.minecraftVersion})", LogType.RUNTIME)
-        if(versionInfo.dockyardVersion.toDouble() < 1) log("This is development build of DockyardMC. Things will break", LogType.WARNING)
+        if(debug) log("This is development build of DockyardMC. Things will break", LogType.FATAL)
 
         runPacketServer()
     }
@@ -98,15 +95,17 @@ class DockyardServer(var port: Int) {
 
         //TODO Load plugins from "/plugins" folder
         innerProfiler.start("Load Plugins")
-        PluginManager.loadLocal(DockyardCommands())
-        PluginManager.loadLocal(MayaTestPlugin())
-        PluginManager.loadLocal(MudkipTestPlugin())
-        PluginManager.loadLocal(CoolParticles())
-        PluginManager.loadLocal(DockyardExtras())
+        val pluginConfig = ConfigManager.currentConfig.bundledPlugins
+        if(pluginConfig.dockyardCommands) PluginManager.loadLocal(DockyardCommands())
+        if(pluginConfig.dockyardExtras) PluginManager.loadLocal(DockyardExtras())
+        if(pluginConfig.mayaTestPlugin) PluginManager.loadLocal(MayaTestPlugin())
+        if(pluginConfig.mudkipTestPlugin) PluginManager.loadLocal(MudkipTestPlugin())
+
         innerProfiler.end()
 
         log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))
+        keepAlivePacketTimer.run()
 
         profiler.end()
     }
@@ -128,11 +127,11 @@ class DockyardServer(var port: Int) {
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-            log("DockyardMC server running on ${ConfigManager.currentConfig.ip}:$port", LogType.SUCCESS)
+            log("DockyardMC server running on $ip:$port", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent(this))
             load()
 
-            val future = bootstrap.bind(InetSocketAddress(ConfigManager.currentConfig.ip, port)).sync()
+            val future = bootstrap.bind(InetSocketAddress(ip, port)).sync()
             future.channel().closeFuture().sync()
         } finally {
             bossGroup.shutdownGracefully()
@@ -144,7 +143,8 @@ class DockyardServer(var port: Int) {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         var allowAnyVersion: Boolean = false
 
-        var tickRate: Float = ConfigManager.currentConfig.defaultTickRate
+        var tickRate: Int = 20
+        val debug = ConfigManager.currentConfig.serverConfig.debug
 
         var mutePacketLogs = mutableListOf(
             "ClientboundSystemChatMessagePacket",

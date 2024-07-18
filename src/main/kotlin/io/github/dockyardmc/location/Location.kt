@@ -120,8 +120,8 @@ class Location(
 fun ByteBuf.writeLocation(location: Location, rotDelta: Boolean = false) {
     this.writeLocationWithoutRot(location)
     if(rotDelta) {
-        this.writeByte((location.yaw  * 256f / 360f).toInt())
         this.writeByte((location.pitch  * 256f / 360f).toInt())
+        this.writeByte((location.yaw  * 256f / 360f).toInt())
     } else {
         this.writeByte(location.yaw.toInt())
         this.writeByte(location.pitch.toInt())

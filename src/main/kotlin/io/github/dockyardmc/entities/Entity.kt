@@ -2,10 +2,8 @@ package io.github.dockyardmc.entities
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMutableList
-import io.github.dockyardmc.events.EntityViewerAddEvent
-import io.github.dockyardmc.events.EntityViewerRemoveEvent
-import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.bindables.BindableList
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
@@ -14,6 +12,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.Block
+import io.github.dockyardmc.registry.DamageType
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
@@ -23,21 +22,30 @@ import io.github.dockyardmc.world.World
 import java.util.UUID
 
 abstract class Entity {
-    abstract var entityId: Int
-    abstract var uuid: UUID
+    open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
+    open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
     abstract var location: Location
-    abstract var velocity: Vector3
-    abstract var viewers: MutableList<Player>
-    abstract var hasGravity: Boolean
-    abstract var isInvulnerable: Boolean
-    abstract var hasCollision: Boolean
+    open var velocity: Vector3 = Vector3()
+    val viewers: MutableList<Player> = mutableListOf()
+    open var hasGravity: Boolean = true
+    open var isInvulnerable: Boolean = false
+    open var hasCollision: Boolean = true
     abstract var world: World
-    abstract var displayName: String
-    abstract var isOnGround: Boolean
-    abstract var metadata: BindableMutableList<EntityMetadata>
-    abstract var pose: Bindable<EntityPose>
+    open var displayName: String = ""
+    open var isOnGround: Boolean = true
+    val metadata: BindableList<EntityMetadata> = BindableList()
+    val pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     abstract var health: Bindable<Float>
+    abstract var inventorySize: Int
+
+    init {
+        pose.valueChanged {
+            metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
+            sendMetadataPacketToViewers()
+            sendSelfMetadataIfPlayer()
+        }
+    }
 
     var team: Team? = null
         set(value) {
@@ -53,11 +61,13 @@ abstract class Entity {
         Events.dispatch(event)
         if(event.cancelled) return
 
-        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, 90f, 0, velocity)
-        player.sendPacket(entitySpawnPacket)
+        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, location.yaw, 0, velocity)
+        val metadataPacket = ClientboundSetEntityMetadataPacket(this)
 
         viewers.add(player)
-        DockyardServer.broadcastMessage("<gray>Added viewer for ${this}: <lime>$player")
+        player.sendPacket(entitySpawnPacket)
+        player.sendPacket(metadataPacket)
+        sendMetadataPacketToViewers()
     }
 
     open fun removeViewer(player: Player, isDisconnect: Boolean) {
@@ -66,7 +76,6 @@ abstract class Entity {
         if(event.cancelled) return
 
         viewers.remove(player)
-        DockyardServer.broadcastMessage("<gray>Removed viewer for ${this}: <red>$player")
         val entityDespawnPacket = ClientboundEntityRemovePacket(this)
         player.sendPacket(entityDespawnPacket)
     }
@@ -90,7 +99,7 @@ abstract class Entity {
     }
 
     open fun sendMetadataPacketToViewers() {
-        val packet = ClientboundEntityMetadataPacket(this)
+        val packet = ClientboundSetEntityMetadataPacket(this)
         viewers.sendPacket(packet)
     }
 
@@ -107,6 +116,35 @@ abstract class Entity {
         )
     }
 
+    open fun damage(damage: Float, damageType: DamageType, attacker: Entity? = null, projectile: Entity? = null) {
+        val event = EntityDamageEvent(this, damage, damageType, attacker, projectile)
+        Events.dispatch(event)
+        if(event.cancelled) return
+
+        var location: Location? = null
+        if(attacker != null) location = attacker.location
+        if(projectile != null) location = projectile.location
+
+        if(event.damage > 0) {
+            if(!isInvulnerable) {
+                if(health.value - event.damage <= 0) kill() else health.value -= event.damage
+            }
+        }
+
+        val packet = ClientboundDamageEventPacket(this, event.damageType, event.attacker, event.projectile, location)
+        viewers.sendPacket(packet)
+    }
+
+    open fun kill() {
+        val event = EntityDeathEvent(this)
+        Events.dispatch(event)
+        if(event.cancelled) {
+            health.value = 0.1f
+            return
+        }
+        health.value = 0f;
+    }
+
     data class BoundingBox(
         val minX: Double,
         val maxX: Double,
@@ -119,6 +157,11 @@ abstract class Entity {
     private fun sendSelfPacketIfPlayer(packet: ClientboundPacket) {
         if(this is Player) this.sendPacket(packet)
     }
+
+    private fun sendSelfMetadataIfPlayer() {
+        if(this is Player) this.sendPacket(ClientboundSetEntityMetadataPacket(this))
+    }
+
 
     fun placeBlock(location: Location, block: Block) {
 

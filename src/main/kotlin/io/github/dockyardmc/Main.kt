@@ -21,7 +21,6 @@ fun main(args: Array<String>) {
         VerifyPacketIds()
         return
     }
-
     //ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED)
     var argsString = ""
     args.forEach { argsString += it }
@@ -34,11 +33,7 @@ fun main(args: Array<String>) {
 
     AnnotationProcessor.addIdsToClientboundPackets()
 
-    val port = ConfigManager.currentConfig.port
-    // make sure if you call server with port arg it uses that instead of config port
-//    if(args.getOrNull(0) != null) port = args[0].toInt()
-
-    Main.instance = DockyardServer(port)
+    Main.instance = DockyardServer()
     Main.instance.start()
 }
 

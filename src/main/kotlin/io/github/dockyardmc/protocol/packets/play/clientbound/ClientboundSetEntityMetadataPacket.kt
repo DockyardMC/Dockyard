@@ -10,15 +10,14 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Set Entity Metadata")
 @ClientboundPacketInfo(0x58, ProtocolState.PLAY)
-class ClientboundEntityMetadataPacket(entity: Entity): ClientboundPacket() {
+class ClientboundSetEntityMetadataPacket(entity: Entity): ClientboundPacket() {
 
     init {
         data.writeVarInt(entity.entityId)
         entity.metadata.values.forEach {
-            data.writeByte(it.index.index)
             data.writeMetadata(it)
         }
         // array end byte
-        data.writeByte(0xff)
+        data.writeByte(0xFF)
     }
 }

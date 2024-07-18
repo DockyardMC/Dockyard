@@ -5,8 +5,9 @@ import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.blocks.GeneralBlockPlacementRules
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerBlockInteractEvent
+import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
+import io.github.dockyardmc.events.PlayerRightClickWithItemEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
@@ -40,6 +41,8 @@ class ServerboundUseItemOnPacket(
         val player = processor.player
         val item = player.getHeldItem(hand)
 
+        var cancelled = false
+
         val newPos = pos.copy()
         when(face) {
             Direction.UP -> newPos.y += 1
@@ -50,13 +53,16 @@ class ServerboundUseItemOnPacket(
             Direction.NORTH -> newPos.z += -1
         }
 
-        val event = PlayerBlockInteractEvent(player, item, player.world.getBlock(pos), face, pos.toLocation(player.world))
+        val event = PlayerBlockRightClickEvent(player, item, player.world.getBlock(pos), face, pos.toLocation(player.world))
+        if(event.cancelled) cancelled = true
         Events.dispatch(event)
 
-        DockyardServer.broadcastMessage(item.material.toString())
+        val rightClickEvent = PlayerRightClickWithItemEvent(player, item)
+        Events.dispatch(event)
+        if(rightClickEvent.cancelled) cancelled = true
+
         if(item.material.isBlock && item.material != Items.AIR) {
             val block = Blocks.getBlockById(item.material.blockId!!)
-            var cancelled = false
 
             if(!GeneralBlockPlacementRules.canBePlaced(pos.toLocation(player.world), newPos.toLocation(player.world), block, player)) cancelled = true
 
