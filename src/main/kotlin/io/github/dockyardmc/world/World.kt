@@ -119,6 +119,8 @@ class World(
         return getChunk(chunkX, chunkZ)
     }
 
+    fun getChunkFromIndex(index: Long): Chunk? = chunks[index]
+
     fun getChunk(x: Int, z: Int): Chunk? = chunks[ChunkUtils.getChunkIndex(x, z)]
 
     fun setBlock(x: Int, y: Int, z: Int, block: Block) {

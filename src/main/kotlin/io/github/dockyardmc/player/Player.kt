@@ -1,6 +1,5 @@
 package io.github.dockyardmc.player
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.bindables.Bindable
 import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.entities.*
@@ -29,6 +28,7 @@ import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
+import io.github.dockyardmc.world.ConcurrentChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
@@ -84,6 +84,8 @@ class Player(
     val currentOpenInventory: Bindable<DrawableContainerScreen?> = Bindable(null)
     var hasSkin = false
     var itemInUse: ItemInUse? = null
+
+    val chunkEngine = ConcurrentChunkEngine(this)
 
     //for debugging
     lateinit var lastSentPacket: ClientboundPacket

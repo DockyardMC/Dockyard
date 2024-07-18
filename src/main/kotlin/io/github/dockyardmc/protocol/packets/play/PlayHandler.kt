@@ -9,6 +9,7 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
 import io.github.dockyardmc.utils.Vector2
+import io.github.dockyardmc.world.ConcurrentChunkEngine
 import io.netty.channel.ChannelHandlerContext
 
 class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
@@ -43,6 +44,7 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
             return
         }
 
+
         player.location = location
         player.isOnGround = isOnGround
 
@@ -55,6 +57,8 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
         }
         val headRotPacket = ClientboundSetHeadYawPacket(player)
         player.sendToViewers(headRotPacket)
+
+        player.chunkEngine.update()
     }
 
     fun handleKeepAlive(packet: ServerboundKeepAlivePacket, connection: ChannelHandlerContext) {

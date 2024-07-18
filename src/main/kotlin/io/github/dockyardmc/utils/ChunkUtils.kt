@@ -19,5 +19,5 @@ object ChunkUtils {
 
     fun getChunkZ(index: Long): Int = index.toInt()
 
-    fun getChunkCoords(index: Long): Pair<Int, Int> = getChunkX(index) to getChunkZ(index)
+    fun getChunkCoordsFromIndex(index: Long): Pair<Int, Int> = getChunkX(index) to getChunkZ(index)
 }
