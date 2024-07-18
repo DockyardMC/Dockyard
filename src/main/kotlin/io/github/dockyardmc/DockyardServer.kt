@@ -72,7 +72,7 @@ class DockyardServer {
     fun start() {
         versionInfo = Resources.getDockyardVersion()
         log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${versionInfo.minecraftVersion})", LogType.RUNTIME)
-        if(versionInfo.dockyardVersion.toDouble() < 1) log("This is development build of DockyardMC. Things will break", LogType.WARNING)
+        if(debug) log("This is development build of DockyardMC. Things will break", LogType.FATAL)
 
         runPacketServer()
     }
@@ -144,6 +144,7 @@ class DockyardServer {
         var allowAnyVersion: Boolean = false
 
         var tickRate: Int = 20
+        val debug = ConfigManager.currentConfig.serverConfig.debug
 
         var mutePacketLogs = mutableListOf(
             "ClientboundSystemChatMessagePacket",
