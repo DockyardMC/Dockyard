@@ -12,12 +12,24 @@ import java.lang.Exception
 object ConfigManager {
 
     val defaultConfig = DockyardConfig(
-        includeDockyardExtras = true,
-        port = 25565,
-        defaultTickRate = 20f,
-        keepAliveEnabled = true,
-        includeDefaultCommands = true,
-        ip = "0.0.0.0"
+        serverConfig = ServerConfig(
+            ip = "0.0.0.0",
+            port = 25565,
+            networkCompressionThreshold = 256,
+            debug = false
+        ),
+        chunkEngine = ChunkEngine(
+            async = true,
+            threadPerNewChunk = true,
+            maxThreads = 25
+        ),
+        bundledPlugins = BundledPlugins(
+            dockyardCommands = false,
+            dockyardExtras = false,
+            mayaTestPlugin = false,
+            mudkipTestPlugin = false,
+            emberSeeker = false
+        )
     )
 
     val configFile = File("./dockyard.toml")
@@ -47,10 +59,31 @@ object ConfigManager {
 
 @Serializable
 data class DockyardConfig(
-    val includeDockyardExtras: Boolean,
-    val port: Int,
-    val defaultTickRate: Float,
-    val keepAliveEnabled: Boolean,
-    val includeDefaultCommands: Boolean,
+    val serverConfig: ServerConfig,
+    val chunkEngine: ChunkEngine,
+    val bundledPlugins: BundledPlugins
+)
+
+@Serializable
+data class ServerConfig(
     val ip: String,
+    val port: Int,
+    val networkCompressionThreshold: Int,
+    val debug: Boolean
+)
+
+@Serializable
+data class ChunkEngine(
+    val async: Boolean,
+    val threadPerNewChunk: Boolean,
+    val maxThreads: Int
+)
+
+@Serializable
+data class BundledPlugins(
+    var dockyardCommands: Boolean,
+    var dockyardExtras: Boolean,
+    var mayaTestPlugin: Boolean,
+    var mudkipTestPlugin: Boolean,
+    var emberSeeker: Boolean
 )

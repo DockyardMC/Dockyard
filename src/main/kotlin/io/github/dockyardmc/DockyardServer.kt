@@ -9,8 +9,6 @@ import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.player.kick.KickReason
-import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.plugins.PluginManager
 import io.github.dockyardmc.plugins.bundled.commands.DockyardCommands
 import io.github.dockyardmc.plugins.bundled.extras.DockyardExtras
@@ -31,19 +29,21 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.plugins.bundled.MudkipTestPlugin
-import io.github.dockyardmc.plugins.bundled.emberseeker.EmberSeekerPlugin
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
 import io.github.dockyardmc.world.generators.NetherLikeGenerator
 import java.net.InetSocketAddress
 import java.util.*
 
-class DockyardServer(var port: Int) {
+class DockyardServer {
 
     lateinit var bootstrap: ServerBootstrap
     lateinit var channelPipeline: ChannelPipeline
     val bossGroup = NioEventLoopGroup(3)
     val workerGroup = NioEventLoopGroup()
+
+    val ip = ConfigManager.currentConfig.serverConfig.ip
+    val port = ConfigManager.currentConfig.serverConfig.port
 
     // Server ticks
     val tickProfiler = Profiler()
@@ -56,7 +56,6 @@ class DockyardServer(var port: Int) {
     //TODO rewrite and make good
     var keepAliveId = 0L
     val keepAlivePacketTimer = RepeatingTimerAsync(5000) {
-        if(!ConfigManager.currentConfig.keepAliveEnabled) return@RepeatingTimerAsync
         PlayerManager.players.forEach {
             it.connection.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
             val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
@@ -69,7 +68,6 @@ class DockyardServer(var port: Int) {
         }
         keepAliveId++
     }
-
 
     fun start() {
         versionInfo = Resources.getDockyardVersion()
@@ -97,10 +95,11 @@ class DockyardServer(var port: Int) {
 
         //TODO Load plugins from "/plugins" folder
         innerProfiler.start("Load Plugins")
-        PluginManager.loadLocal(DockyardCommands())
-        PluginManager.loadLocal(DockyardExtras())
-        PluginManager.loadLocal(MayaTestPlugin())
-        PluginManager.loadLocal(MudkipTestPlugin())
+        val pluginConfig = ConfigManager.currentConfig.bundledPlugins
+        if(pluginConfig.dockyardCommands) PluginManager.loadLocal(DockyardCommands())
+        if(pluginConfig.dockyardExtras) PluginManager.loadLocal(DockyardExtras())
+        if(pluginConfig.mayaTestPlugin) PluginManager.loadLocal(MayaTestPlugin())
+        if(pluginConfig.mudkipTestPlugin) PluginManager.loadLocal(MudkipTestPlugin())
 
         innerProfiler.end()
 
@@ -128,11 +127,11 @@ class DockyardServer(var port: Int) {
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-            log("DockyardMC server running on ${ConfigManager.currentConfig.ip}:$port", LogType.SUCCESS)
+            log("DockyardMC server running on $ip:$port", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent(this))
             load()
 
-            val future = bootstrap.bind(InetSocketAddress(ConfigManager.currentConfig.ip, port)).sync()
+            val future = bootstrap.bind(InetSocketAddress(ip, port)).sync()
             future.channel().closeFuture().sync()
         } finally {
             bossGroup.shutdownGracefully()
@@ -144,7 +143,7 @@ class DockyardServer(var port: Int) {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         var allowAnyVersion: Boolean = false
 
-        var tickRate: Float = ConfigManager.currentConfig.defaultTickRate
+        var tickRate: Int = 20
 
         var mutePacketLogs = mutableListOf(
             "ClientboundSystemChatMessagePacket",

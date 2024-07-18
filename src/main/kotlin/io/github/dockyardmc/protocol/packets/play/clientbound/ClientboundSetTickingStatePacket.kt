@@ -8,12 +8,12 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 @WikiVGEntry("Set Ticking State")
 @ClientboundPacketInfo(0x71, ProtocolState.PLAY)
 class ClientboundSetTickingStatePacket(
-    tickRate: Float,
+    tickRate: Int,
     isFrozen: Boolean,
 ): ClientboundPacket() {
 
     init {
-        data.writeFloat(tickRate)
+        data.writeFloat(tickRate.toFloat())
         data.writeBoolean(isFrozen)
     }
 

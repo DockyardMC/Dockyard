@@ -1,6 +1,5 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
 import io.github.dockyardmc.events.*
@@ -11,7 +10,7 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
-import io.github.dockyardmc.runnables.runLater
+import io.github.dockyardmc.runnables.runLaterAsync
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.world.World
@@ -46,9 +45,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             Biomes.registryCache
         )
 
-        registryPackets.forEach {
-            connection.sendPacket(ClientboundRegistryDataPacket(it))
-        }
+        registryPackets.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it)) }
 
         connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links))
 
@@ -92,7 +89,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         }
     }
 
-    fun acceptPlayer(player: Player, world: World) {
+    private fun acceptPlayer(player: Player, world: World) {
 
         val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
         player.sendPacket(chunkCenterChunkPacket)
@@ -114,7 +111,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             dimensionName = world.name,
             hashedSeed = world.seed,
             gameMode = player.gameMode.value,
-            previousGameMode = GameMode.SURVIVAL,
+            previousGameMode = player.gameMode.value,
             isDebug = false,
             isFlat = true,
             portalCooldown = 0
@@ -123,15 +120,8 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         world.join(player)
 
-        runLater(4) {
+        runLaterAsync(5) {
             Events.dispatch(PlayerJoinEvent(processor.player))
-        }
-
-        // Make player visible to all other players by default
-        PlayerManager.players.forEach { loopPlayer ->
-            if(loopPlayer.username == player.username) return@forEach
-            player.addViewer(loopPlayer)
-            loopPlayer.addViewer(player)
         }
 
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
