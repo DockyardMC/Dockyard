@@ -1,5 +1,6 @@
 package io.github.dockyardmc.utils
 
+import io.github.dockyardmc.world.Chunk
 import kotlin.math.floor
 
 object ChunkUtils {
@@ -8,7 +9,15 @@ object ChunkUtils {
 
     fun sectionRelative(xyz: Int): Int = xyz and 0xF
 
-    fun getChunkIndex(x: Int, z: Int): Long = x.toLong() shl 32 or (z.toLong() and 0xffffffffL)
+    fun getChunkIndex(chunk: Chunk): Long = getChunkIndex(chunk.chunkX, chunk.chunkZ)
 
     fun getChunkCoordinate(xz: Double): Int = getChunkCoordinate(floor(xz).toInt())
+
+    fun getChunkIndex(chunkX: Int, chunkZ: Int): Long = ((chunkX.toLong()) shl 32) or (chunkZ.toLong() and 0xffffffffL)
+
+    fun getChunkX(index: Long): Int = (index shr 32).toInt()
+
+    fun getChunkZ(index: Long): Int = index.toInt()
+
+    fun getChunkCoords(index: Long): Pair<Int, Int> = getChunkX(index) to getChunkZ(index)
 }

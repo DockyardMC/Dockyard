@@ -11,7 +11,6 @@ import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
-import io.github.dockyardmc.scroll.extensions.scrollSanitized
 import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -36,8 +35,6 @@ class ServerboundClickContainerPacket(
         val empty = ItemStack.air
 //        player.sendMessage("<dark_gray>Clicked $properSlot ($slot) [ ${player.currentOpenInventory.value?.name?.scrollSanitized()} ]")
         if(player.currentOpenInventory.value != null) player.currentOpenInventory.value!!.click(properSlot, player)
-
-
 
         if(windowId == 0) {
             if(mode == ContainerClickMode.NORMAL) {
@@ -166,7 +163,7 @@ class ServerboundClickContainerPacket(
                         (0..8).firstOrNull { player.inventory[it] == empty || player.inventory[it].isSameAs(clickedSlotItem) }
                     }
 
-                    player.sendMessage("<pink>$suitableSlotIndex")
+//                    player.sendMessage("<pink>$suitableSlotIndex")
                     if(suitableSlotIndex == null) return
                     val existingItem = player.inventory[suitableSlotIndex].clone()
 

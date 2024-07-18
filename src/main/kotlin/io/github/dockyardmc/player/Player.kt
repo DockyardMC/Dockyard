@@ -334,8 +334,7 @@ class Player(
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
 
-        log("Respawned $this")
-        this.world.chunks.forEach {
+        this.world.chunks.values.forEach {
             sendPacket(it.packet)
         }
 
