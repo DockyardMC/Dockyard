@@ -82,7 +82,7 @@ class Player(
     val experienceLevel: Bindable<Int> = Bindable(0)
     val experienceBar: Bindable<Float> = Bindable(0f)
     val currentOpenInventory: Bindable<DrawableContainerScreen?> = Bindable(null)
-
+    var hasSkin = false
     var itemInUse: ItemInUse? = null
 
     //for debugging

@@ -18,14 +18,14 @@ class MudkipTestPlugin: DockyardPlugin {
     override val version = "1.0.0"
 
     private val team = Team(
-        "admins",
-        "Admins",
-        0x00,
-        TeamNameTagVisibility.VISIBLE,
-        TeamCollisionRule.ALWAYS,
-        LegacyTextColor.PINK,
-        "<#9e54ff>[Dev] ",
-        ""
+        name = "admins",
+        displayName = "Admins",
+        flags = 0x00,
+        teamNameTagVisibility = TeamNameTagVisibility.VISIBLE,
+        teamCollisionRule = TeamCollisionRule.ALWAYS,
+        color = LegacyTextColor.PINK,
+        prefix = "<#9e54ff>[Dev] ",
+        suffix = ""
     )
 
     override fun load(server: DockyardServer) {
@@ -33,19 +33,6 @@ class MudkipTestPlugin: DockyardPlugin {
 
         Events.on<PlayerJoinEvent> {
             it.player.team = team
-        }
-
-        Commands.add("/color") {
-            it.addArgument("color", EnumArgument(LegacyTextColor::class))
-
-            it.execute { executor ->
-                val color = it.get<LegacyTextColor>("color")
-                val team = executor.player?.team
-
-                if (team != null) {
-                    team.color.value = color
-                }
-            }
         }
     }
 

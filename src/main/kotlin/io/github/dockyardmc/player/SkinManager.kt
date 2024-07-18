@@ -31,7 +31,7 @@ object SkinManager {
         }
         asyncRunnable.callback = {
             player.sendPacket(ClientboundPlayerInfoRemovePacket(player))
-            player.sendPacket(ClientboundRespawnPacket(player, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
+            player.respawn(false)
             val addPlayerUpdate = PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!))
             val setListedUpdate = PlayerInfoUpdate(player.uuid, SetListedInfoUpdateAction(true))
             player.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))

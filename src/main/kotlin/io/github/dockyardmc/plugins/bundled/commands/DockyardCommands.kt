@@ -5,7 +5,7 @@ import io.github.dockyardmc.plugins.DockyardPlugin
 
 class DockyardCommands: DockyardPlugin {
 
-    override var name: String = "DockyardCommands"
+    override var name: String = "Dockyard Commands"
     override var version: String = DockyardServer.versionInfo.dockyardVersion
     override var author: String = "LukynkaCZE"
 
