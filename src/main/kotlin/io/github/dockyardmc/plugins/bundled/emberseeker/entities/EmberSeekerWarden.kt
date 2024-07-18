@@ -32,6 +32,6 @@ class EmberSeekerWarden(override var location: Location, override var world: Wor
     }
 
     fun angerAt(player: Player) {
-        ai.memory["target"] = ShortTermMemory<Player>(200, player)
+        ai.memory["target"] = ShortTermMemory<Player>(300, player)
     }
 }

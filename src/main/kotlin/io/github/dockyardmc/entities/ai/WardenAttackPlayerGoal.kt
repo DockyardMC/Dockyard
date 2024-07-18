@@ -34,7 +34,7 @@ class WardenAttackPlayerGoal(override var entity: Entity, override var priority:
         warden.ai.forget("target")
     }
 
-    override fun endCondition(): Boolean = angered <= 0
+    override fun endCondition(): Boolean = angered <= 0 || warden.ai.getMemory<Player>("target") == null
 
     override fun tick() {
         val memory = warden.ai.getMemory<Player>("target")!!

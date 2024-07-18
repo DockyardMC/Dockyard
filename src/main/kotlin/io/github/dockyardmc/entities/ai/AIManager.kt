@@ -80,39 +80,30 @@ class AIManager(val entity: Entity) {
                 goal.isRunning = false
                 currentGoal = null
             } else if(goal.isRunning) {
+                val scheduledRemove = mutableListOf<String>()
+                memory.forEach memoryLoop@{
+                    if(it.value is ShortTermMemory<*>) {
+                        val shortTermMemory = it.value as ShortTermMemory<*>
+                        if(shortTermMemory.forgetAfter <= 0) {
+                            scheduledRemove.add(it.key)
+                            return@memoryLoop
+                        }
+                        shortTermMemory.forgetAfter--
+                    }
+                }
+                scheduledRemove.forEach(memory::remove)
+                if(scheduledRemove.size > 0) DockyardServer.broadcastMessage("<orange>forgot $scheduledRemove")
                 goal.tick()
             }
         }
     }
-
-//    fun tick() {
-//        goals.forEach { goal ->
-//            if(!goal.isRunning && goal.cooldown > 0) {
-//                goal.cooldown--
-//                return@forEach
-//            }
-//            if(!goal.isRunning && goal.startCondition() && goal.cooldown <= 0) {
-//                val higherPriorityRunning = goals.any { it.isRunning && it.priority > goal.priority}
-//                if(!higherPriorityRunning) {
-//                    goal.start()
-//                    goal.isRunning = true
-//                    return
-//                }
-//            } else if(goal.isRunning && goal.endCondition()) {
-//                goal.end()
-//                goal.isRunning = false
-//            } else if(goal.isRunning) {
-//                goal.tick()
-//            }
-//        }
-//    }
 }
 
 interface AIMemory<T> {
     val value: T
 }
 
-data class ShortTermMemory<T>(val forgetAfter: Int, override val value: T): AIMemory<T>
+data class ShortTermMemory<T>(var forgetAfter: Int, override val value: T): AIMemory<T>
 data class LongTermMemory<T>(override val value: T): AIMemory<T>
 
 abstract class AIGoal {
