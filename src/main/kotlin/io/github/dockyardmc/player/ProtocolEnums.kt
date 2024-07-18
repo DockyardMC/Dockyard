@@ -32,7 +32,10 @@ enum class EntityPose {
     ROARING,
     SNIFFING,
     EMERGING,
-    DIGGING
+    DIGGING,
+    SLIDING,
+    SHOOTING,
+    INHALING;
 }
 
 

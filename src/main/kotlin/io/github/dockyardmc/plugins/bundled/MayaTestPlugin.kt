@@ -23,7 +23,6 @@ import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.registry.DamageTypes
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.runnables.runLater
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.DefaultServerLink
