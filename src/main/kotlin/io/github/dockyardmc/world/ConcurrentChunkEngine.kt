@@ -35,12 +35,10 @@ class ConcurrentChunkEngine(val player: Player) {
 
     fun loadChunk(chunkIndex: Long, world: World) {
         if (world.chunks.containsKey(chunkIndex)) {
-            // Chunk is already generated
             player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
             player.sendMessage("<lime>Loading ${ChunkUtils.getChunkCoordsFromIndex(chunkIndex)}")
             loadedChunks.add(chunkIndex)
         } else {
-            // Generate chunk asynchronously
             val (x, z) = ChunkUtils.getChunkCoordsFromIndex(chunkIndex)
             AsyncRunnable {
                 world.generateChunk(x, z)
@@ -69,5 +67,5 @@ class ConcurrentChunkEngine(val player: Player) {
         }.toSet()
     }
 
-    private fun getChunkIndex(x: Int, z: Int): Long = ChunkUtils.getChunkIndex(x, z) // Use your existing method
+    private fun getChunkIndex(x: Int, z: Int): Long = ChunkUtils.getChunkIndex(x, z)
 }
