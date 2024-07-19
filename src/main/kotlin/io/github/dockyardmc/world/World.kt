@@ -152,33 +152,37 @@ class World(
         this.setBlock(vector3.x.toInt(), vector3.y.toInt(), vector3.z.toInt(), block)
     }
 
+
+    fun generateChunk(x: Int, z: Int) {
+        val chunk = getChunk(x, z) ?: Chunk(x, z, this)
+        // Special case for void world generator for fast void world loading. //TODO optimizations to rest of the world generators
+        if(generator is VoidWorldGenerator) {
+            chunk.sections.forEach { section ->
+                section.biomePalette.fill(Biomes.THE_VOID.id)
+                section.blockPalette.fill(Blocks.AIR.blockStateId)
+            }
+        } else {
+            for (localX in 0..<16) {
+                for (localZ in 0..<16) {
+                    val worldX = x * 16 + localX
+                    val worldZ = z * 16 + localZ
+
+                    for (y in 0..<dimensionType.height) {
+                        chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ), false)
+                        chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ))
+                    }
+                }
+            }
+        }
+        chunk.cacheChunkDataPacket()
+        if(getChunk(x, z) == null) chunks[ChunkUtils.getChunkIndex(x, z)] = (chunk)
+    }
+
     fun generateChunks(size: Int) {
         val vector = Vector2(size.toFloat(), size.toFloat())
         ((vector.x.toInt() * -1)..vector.x.toInt()).forEach chunkLoop@{ chunkX ->
             for (chunkZ in (vector.y.toInt() * -1)..vector.y.toInt()) {
-                val chunk = getChunk(chunkX, chunkZ) ?: Chunk(chunkX, chunkZ, this)
-
-                // Special case for void world generator for fast void world loading. //TODO optimizations to rest of the world generators
-                if(generator is VoidWorldGenerator) {
-                    chunk.sections.forEach { section ->
-                        section.biomePalette.fill(Biomes.THE_VOID.id)
-                        section.blockPalette.fill(Blocks.AIR.blockStateId)
-                    }
-                } else {
-                    for (localX in 0..<16) {
-                        for (localZ in 0..<16) {
-                            val worldX = chunkX * 16 + localX
-                            val worldZ = chunkZ * 16 + localZ
-
-                            for (y in 0..<dimensionType.height) {
-                                chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ), false)
-                                chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ))
-                            }
-                        }
-                    }
-                }
-                if(getChunk(chunkX, chunkZ) == null) chunks[ChunkUtils.getChunkIndex(chunkX, chunkZ)] = (chunk)
-                chunk.cacheChunkDataPacket()
+                generateChunk(chunkX, chunkZ)
             }
         }
     }

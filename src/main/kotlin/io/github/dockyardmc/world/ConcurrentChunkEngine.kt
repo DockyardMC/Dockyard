@@ -1,54 +1,73 @@
 package io.github.dockyardmc.world
 
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
+import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.ChunkUtils
 
 class ConcurrentChunkEngine(val player: Player) {
 
-    val loadedChunks: MutableList<Long> = mutableListOf()
-    val chunkRenderDistance = 2
+    val loadedChunks: MutableSet<Long> = mutableSetOf()
+    val chunkRenderDistance = 8
+    var lastChunkIndex: Long = 0L
 
     fun update() {
         val world = player.world
+        val currentChunkIndex = getChunkIndex(player.location.x.toInt(), player.location.z.toInt())
 
-        val currentChunkX = ChunkUtils.getChunkCoordinate(player.location.x.toInt())
-        val currentChunkZ = ChunkUtils.getChunkCoordinate(player.location.z.toInt())
+        if (currentChunkIndex != lastChunkIndex) {
+            lastChunkIndex = currentChunkIndex
 
-        val chunksInRange = mutableSetOf<Long>()
+            val chunksInRange = getChunksInRange(currentChunkIndex)
 
-        for (x in currentChunkX - chunkRenderDistance..currentChunkX + chunkRenderDistance) {
-            for (z in currentChunkZ - chunkRenderDistance..currentChunkZ + chunkRenderDistance) {
-                chunksInRange.add(ChunkUtils.getChunkIndex(x, z))
+            val chunksToLoad = chunksInRange - loadedChunks
+            val chunksToUnload = loadedChunks - chunksInRange
+
+            chunksToLoad.forEach { chunkIndex ->
+                loadChunk(chunkIndex, world)
+            }
+
+            chunksToUnload.forEach { chunkIndex ->
+                unloadChunk(chunkIndex, world)
             }
         }
-
-
-        val chunksToLoad = chunksInRange.filter { !loadedChunks.contains(it) }
-        val chunksToUnload = loadedChunks.filter { !chunksInRange.contains(it) }
-
-        player.sendMessage("+<lime>${chunksToLoad.size}")
-        player.sendMessage("=<yellow>${chunksInRange.size}")
-        player.sendMessage("-<red>${chunksToLoad.size}")
-
-        chunksToLoad.forEach { chunkIndex ->
-            if(world.chunks[chunkIndex] != null) {
-                player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
-            } else {
-                //generate chunk
-                log("TODO: generate new chunk at index ${ChunkUtils.getChunkCoordsFromIndex(chunkIndex)}")
-            }
-        }
-
-        chunksToUnload.forEach { chunkIndex ->
-            val chunkCoords = ChunkUtils.getChunkCoordsFromIndex(chunkIndex)
-            player.sendPacket(ClientboundUnloadChunkPacket(chunkCoords.first, chunkCoords.second))
-        }
-
-        loadedChunks.addAll(chunksToLoad)
-        loadedChunks.removeAll(chunksToUnload)
     }
 
+    fun loadChunk(chunkIndex: Long, world: World) {
+        if (world.chunks.containsKey(chunkIndex)) {
+            // Chunk is already generated
+            player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
+            player.sendMessage("<lime>Loading ${ChunkUtils.getChunkCoordsFromIndex(chunkIndex)}")
+            loadedChunks.add(chunkIndex)
+        } else {
+            // Generate chunk asynchronously
+            val (x, z) = ChunkUtils.getChunkCoordsFromIndex(chunkIndex)
+            AsyncRunnable {
+                world.generateChunk(x, z)
+            }.apply {
+                callback = {
+                    player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
+                    loadedChunks.add(chunkIndex)
+                }
+            }.execute()
+        }
+    }
+
+    fun unloadChunk(chunkIndex: Long, world: World) {
+        val (x, z) = ChunkUtils.getChunkCoordsFromIndex(chunkIndex)
+        player.sendPacket(ClientboundUnloadChunkPacket(x, z))
+        loadedChunks.remove(chunkIndex)
+        player.sendMessage("<red>Unloading ${ChunkUtils.getChunkCoordsFromIndex(chunkIndex)}")
+    }
+
+    fun getChunksInRange(centerChunkIndex: Long): Set<Long> {
+        val (centerX, centerZ) = ChunkUtils.getChunkCoordsFromIndex(centerChunkIndex)
+        return (-chunkRenderDistance..chunkRenderDistance).flatMap { x ->
+            (-chunkRenderDistance..chunkRenderDistance).map { z ->
+                getChunkIndex(centerX + x, centerZ + z)
+            }
+        }.toSet()
+    }
+
+    private fun getChunkIndex(x: Int, z: Int): Long = ChunkUtils.getChunkIndex(x, z) // Use your existing method
 }

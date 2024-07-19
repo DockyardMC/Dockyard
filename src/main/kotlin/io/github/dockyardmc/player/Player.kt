@@ -25,6 +25,7 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableContainerScreen
+import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
@@ -337,7 +338,7 @@ class Player(
         location = this.world.defaultSpawnLocation
 
         this.world.chunks.values.forEach {
-            sendPacket(it.packet)
+            chunkEngine.loadChunk(ChunkUtils.getChunkIndex(it), world)
         }
 
         refreshClientStateAfterRespawn()
