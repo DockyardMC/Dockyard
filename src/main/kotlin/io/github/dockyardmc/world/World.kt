@@ -1,8 +1,8 @@
 package io.github.dockyardmc.world
 
+import cz.lukynka.Bindable
+import cz.lukynka.BindableList
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerChangeWorldEvent

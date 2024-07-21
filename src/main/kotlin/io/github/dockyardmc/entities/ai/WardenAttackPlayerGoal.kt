@@ -6,7 +6,7 @@ import io.github.dockyardmc.particles.VibrationSource
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.plugins.bundled.emberseeker.entities.EmberSeekerWarden
-import io.github.dockyardmc.plugins.bundled.emberseeker.entities.WardenAnimation
+import io.github.dockyardmc.entities.WardenAnimation
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.MathUtils

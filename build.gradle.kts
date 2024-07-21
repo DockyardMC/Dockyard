@@ -56,6 +56,7 @@ dependencies {
     implementation("com.google.guava:guava:33.2.0-jre")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("it.unimi.dsi:fastutil:8.5.13")
+    implementation("cz.lukynka:kotlin-bindables:1.1")
 }
 
 fun String.runCommand(

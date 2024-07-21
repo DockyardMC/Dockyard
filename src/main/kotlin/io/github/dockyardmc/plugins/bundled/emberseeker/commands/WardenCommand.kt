@@ -3,7 +3,7 @@ package io.github.dockyardmc.plugins.bundled.emberseeker.commands
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.plugins.bundled.emberseeker.entities.EmberSeekerWarden
-import io.github.dockyardmc.plugins.bundled.emberseeker.entities.WardenAnimation
+import io.github.dockyardmc.entities.WardenAnimation
 
 class WardenCommand {
 

@@ -1,10 +1,8 @@
 package io.github.dockyardmc.entities
 
-import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableList
+import cz.lukynka.Bindable
+import cz.lukynka.BindableList
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
@@ -174,6 +172,5 @@ abstract class Entity {
     fun breakBlock() {
 
     }
-
 
 }

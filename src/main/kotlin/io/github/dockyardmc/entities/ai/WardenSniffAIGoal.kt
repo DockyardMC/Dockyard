@@ -2,7 +2,7 @@ package io.github.dockyardmc.entities.ai
 
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.plugins.bundled.emberseeker.entities.EmberSeekerWarden
-import io.github.dockyardmc.plugins.bundled.emberseeker.entities.WardenAnimation
+import io.github.dockyardmc.entities.WardenAnimation
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.MathUtils
 

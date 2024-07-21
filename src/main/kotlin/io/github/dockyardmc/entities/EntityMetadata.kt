@@ -1,6 +1,6 @@
 package io.github.dockyardmc.entities
 
-import io.github.dockyardmc.bindables.BindableList
+import cz.lukynka.BindableList
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation

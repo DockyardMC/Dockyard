@@ -1,6 +1,6 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.bindables.BindableList
+import cz.lukynka.BindableList
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import java.util.UUID
 

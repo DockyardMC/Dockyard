@@ -1,7 +1,7 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableList
+import cz.lukynka.Bindable
+import cz.lukynka.BindableList
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEvent

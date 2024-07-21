@@ -31,7 +31,7 @@ object GeneralBlockPlacementRules {
     )
 
     //TODO Update entities to be stored inside chunk instead of all in the world and then check only the entities in the chunk
-    private fun isLocationInsideBoundingBox(location: Location, entities: List<Entity>, toleranceY: Double = 0.2): Boolean {
+    private fun isLocationInsideBoundingBox(location: Location, entities: Collection<Entity>, toleranceY: Double = 0.2): Boolean {
         for (entity in entities) {
             val entityBoundingBox = entity.calculateBoundingBox()
             val insideX = entityBoundingBox.maxX > location.x && entityBoundingBox.minX < location.x + 1

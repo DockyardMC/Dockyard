@@ -1,20 +1,17 @@
 package io.github.dockyardmc.item
 
-import io.github.dockyardmc.bindables.BindableList
+import cz.lukynka.BindableList
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.registry.BannerPattern
 import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.DimensionType
 import io.github.dockyardmc.registry.Effects
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.LegacyTextColor
-import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import org.jglrxavpok.hephaistos.nbt.NBTString
 import java.util.UUID
 import kotlin.reflect.KClass
 

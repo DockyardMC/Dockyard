@@ -1,5 +1,7 @@
 package io.github.dockyardmc.plugins.bundled.emberseeker.entities
 
+import io.github.dockyardmc.entities.Warden
+import io.github.dockyardmc.entities.WardenAnimation
 import io.github.dockyardmc.entities.ai.AIManager
 import io.github.dockyardmc.entities.ai.ShortTermMemory
 import io.github.dockyardmc.entities.ai.WardenAttackPlayerGoal
