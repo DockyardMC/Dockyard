@@ -1,5 +1,7 @@
 package io.github.dockyardmc.world
 
+import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
 import io.github.dockyardmc.runnables.AsyncRunnable
@@ -13,22 +15,36 @@ class ConcurrentChunkEngine(val player: Player) {
 
     fun update() {
         val world = player.world
-        val currentChunkIndex = getChunkIndex(player.location.x.toInt(), player.location.z.toInt())
+        val currentChunkX = ChunkUtils.getChunkCoordinate(player.location.x)
+        val currentChunkZ = ChunkUtils.getChunkCoordinate(player.location.z)
+
+        val currentChunkIndex = ChunkUtils.getChunkIndex(currentChunkX, currentChunkZ)
 
         if (currentChunkIndex != lastChunkIndex) {
             lastChunkIndex = currentChunkIndex
 
-            val chunksInRange = getChunksInRange(currentChunkIndex)
+            val chunksInRange = getChunksInRange(currentChunkIndex, world)
 
-            val chunksToLoad = chunksInRange - loadedChunks
-            val chunksToUnload = loadedChunks - chunksInRange
+            val chunksToLoad = mutableListOf<Long>()
+            val chunksToUnload = mutableListOf<Long>()
+
+            chunksInRange.forEach {
+                if(loadedChunks.contains(it)) return@forEach
+                chunksToLoad.add(it)
+            }
+
+            loadedChunks.forEach {
+                if(chunksInRange.contains(it)) return@forEach
+                chunksToLoad.add(it)
+            }
 
             chunksToLoad.forEach { chunkIndex ->
                 loadChunk(chunkIndex, world)
             }
 
             chunksToUnload.forEach { chunkIndex ->
-                unloadChunk(chunkIndex, world)
+                val chunk = world.getChunkFromIndex(chunkIndex) ?: return@forEach
+                unloadChunk(chunk)
             }
         }
     }
@@ -36,36 +52,43 @@ class ConcurrentChunkEngine(val player: Player) {
     fun loadChunk(chunkIndex: Long, world: World) {
         if (world.chunks.containsKey(chunkIndex)) {
             player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
-            player.sendMessage("<lime>Loading ${ChunkUtils.getChunkCoordsFromIndex(chunkIndex)}")
             loadedChunks.add(chunkIndex)
         } else {
             val (x, z) = ChunkUtils.getChunkCoordsFromIndex(chunkIndex)
             AsyncRunnable {
-                world.generateChunk(x, z)
+                try {
+                    world.generateChunk(x, z)
+                } catch (exception: Exception) {
+                    throw exception
+                }
             }.apply {
                 callback = {
                     player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
                     loadedChunks.add(chunkIndex)
+                    DockyardServer.broadcastMessage("<pink>generated chunk $x $z")
                 }
             }.execute()
         }
     }
 
-    fun unloadChunk(chunkIndex: Long, world: World) {
-        val (x, z) = ChunkUtils.getChunkCoordsFromIndex(chunkIndex)
-        player.sendPacket(ClientboundUnloadChunkPacket(x, z))
-        loadedChunks.remove(chunkIndex)
-        player.sendMessage("<red>Unloading ${ChunkUtils.getChunkCoordsFromIndex(chunkIndex)}")
+    fun unloadChunk(chunk: Chunk) {
+        player.sendPacket(ClientboundUnloadChunkPacket(chunk.chunkX, chunk.chunkZ))
+        loadedChunks.remove(chunk.getIndex())
     }
 
-    fun getChunksInRange(centerChunkIndex: Long): Set<Long> {
-        val (centerX, centerZ) = ChunkUtils.getChunkCoordsFromIndex(centerChunkIndex)
-        return (-chunkRenderDistance..chunkRenderDistance).flatMap { x ->
-            (-chunkRenderDistance..chunkRenderDistance).map { z ->
-                getChunkIndex(centerX + x, centerZ + z)
+    fun getChunksInRange(index: Long, world: World): MutableList<Long> {
+        val viewDistance = chunkRenderDistance + 1
+        val (chunkX, chunkZ) = ChunkUtils.getChunkCoordsFromIndex(index)
+
+        val list = mutableListOf<Long>()
+        for (x in chunkX - viewDistance..chunkX + viewDistance) {
+            for(z in chunkZ - viewDistance..chunkZ + viewDistance) {
+                val distanceSqrt = (x - chunkX) * (x - chunkX) + (z - chunkZ) * (z - chunkZ)
+                if(distanceSqrt <= viewDistance * viewDistance) {
+                    list.add(ChunkUtils.getChunkIndex(x, z))
+                }
             }
-        }.toSet()
+        }
+        return list
     }
-
-    private fun getChunkIndex(x: Int, z: Int): Long = ChunkUtils.getChunkIndex(x, z)
 }
