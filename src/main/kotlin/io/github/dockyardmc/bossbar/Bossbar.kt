@@ -57,7 +57,6 @@ class Bossbar(
         // if player joins and is part of viewers, the bossbar should show for them
         Events.on<PlayerJoinEvent> {
             if(viewers.contains(it.player)) {
-                DockyardServer.broadcastMessage("${it.player}")
                 val createPacket = ClientboundBossbarPacket(BossbarPacketAction.ADD, this)
                 it.player.sendPacket(createPacket)
             }

@@ -5,7 +5,6 @@ import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.bossbar.Bossbar
 import io.github.dockyardmc.bossbar.BossbarColor
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.FloatArgument
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -21,13 +20,13 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.addIfNotPresent
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
-import io.github.dockyardmc.registry.DamageTypes
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.DefaultServerLink
 import io.github.dockyardmc.serverlinks.CustomServerLink
 import io.github.dockyardmc.serverlinks.ServerLinks
+import io.github.dockyardmc.sidebar.Sidebar
 import io.github.dockyardmc.ui.CookieClickerScreen
 import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.world.WorldManager
@@ -40,6 +39,14 @@ class MayaTestPlugin: DockyardPlugin {
     override fun load(server: DockyardServer) {
 
         val serverBar = Bossbar("<aqua>DockyardMC <dark_gray>| <gray>Version ${DockyardServer.versionInfo.dockyardVersion} (${DockyardServer.versionInfo.gitBranch})", 1f, BossbarColor.BLUE)
+
+        val sidebar = Sidebar("<aqua><bold>DockyardMC") {
+            setGlobalLine("")
+            setPlayerLine{ "Hello, <yellow>${it.username}<white>!" }
+            setGlobalLine("Welcome to DockyardMC!")
+            setGlobalLine(" ")
+            setGlobalLine("<white>Server uptime: <lime>0")
+        }
 
         Period.on<TickPeriod> {
             val runtime = Runtime.getRuntime()
@@ -67,6 +74,8 @@ class MayaTestPlugin: DockyardPlugin {
 
             it.player.gameMode.value = GameMode.SURVIVAL
             it.player.inventory[0] = ItemStack(Items.COOKIE).apply { displayName.value = "<orange><u>Cookie Clicker<r> <gray>(Right-Click)"; components.add(EnchantmentGlintOverrideItemComponent(true)) }
+
+            sidebar.viewers.addIfNotPresent(it.player)
         }
 
         Events.on<PlayerRightClickWithItemEvent> {
@@ -79,6 +88,7 @@ class MayaTestPlugin: DockyardPlugin {
         Period.on<SecondPeriod> {
             seconds++
             PlayerManager.players.forEach { it.experienceLevel.value = seconds }
+            sidebar.setGlobalLine(12, "<white>Server uptime: <lime>$seconds")
         }
 
         ServerLinks.links.add(CustomServerLink("<aqua>Github", "https://github.com/DockyardMC/Dockyard"))
@@ -91,15 +101,6 @@ class MayaTestPlugin: DockyardPlugin {
                 val player = executor.player!!
                 val world = WorldManager.getOrThrow(cmd.get<String>("world"))
                 world.join(player)
-            }
-        }
-
-        Commands.add("damage") {
-            it.addArgument("damage", FloatArgument())
-            it.execute { exec ->
-                val player = exec.player!!
-                val damage = it.get<Float>("damage")
-                player.damage(damage, DamageTypes.GENERIC)
             }
         }
 
