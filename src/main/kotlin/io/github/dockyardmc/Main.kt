@@ -14,7 +14,6 @@ val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
 
 object Main {
     lateinit var instance: DockyardServer
-    lateinit var customBiome: Biome
 }
 
 fun main(args: Array<String>) {
