@@ -2,6 +2,7 @@ package io.github.dockyardmc.world
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.events.Events
@@ -56,11 +57,10 @@ class World(
         if(player.world == this && player.isFullyInitialized) return
         if(!canBeJoined.value && !joinQueue.contains(player)) {
             joinQueue.addIfNotPresent(player)
-            log("$player joined before world $name is loaded, added to joinQueue")
+            log("$player joined before world $name is loaded, added to joinQueue", LogType.DEBUG)
             return
         }
 
-        log("Logged in $player")
         val oldWorld = player.world
 
         oldWorld.entities.values.filter { it != player }.forEach { it.removeViewer(player, false) }
@@ -78,6 +78,7 @@ class World(
 
         joinQueue.removeIfPresent(player)
         player.respawn()
+        player.chunkEngine.loadedChunks.clear()
 
         players.values.filter { it != player }.forEach {
             it.addViewer(player)
@@ -92,12 +93,11 @@ class World(
     init {
 
         val runnable = AsyncRunnable {
-            generateChunks(6)
+            generateBaseChunks(6)
         }
 
         runnable.callback = {
-            log("World $name is read to be joined!")
-            log("Joining following players: $joinQueue")
+            log("World $name is ready to be joined!")
             canBeJoined.value = true
             joinQueue.forEach(::join)
         }
@@ -152,7 +152,6 @@ class World(
         this.setBlock(vector3.x.toInt(), vector3.y.toInt(), vector3.z.toInt(), block)
     }
 
-
     fun generateChunk(x: Int, z: Int) {
         val chunk = getChunk(x, z) ?: Chunk(x, z, this)
         // Special case for void world generator for fast void world loading. //TODO optimizations to rest of the world generators
@@ -178,7 +177,7 @@ class World(
         if(getChunk(x, z) == null) chunks[ChunkUtils.getChunkIndex(x, z)] = (chunk)
     }
 
-    fun generateChunks(size: Int) {
+    fun generateBaseChunks(size: Int) {
         val vector = Vector2(size.toFloat(), size.toFloat())
         ((vector.x.toInt() * -1)..vector.x.toInt()).forEach chunkLoop@{ chunkX ->
             for (chunkZ in (vector.y.toInt() * -1)..vector.y.toInt()) {

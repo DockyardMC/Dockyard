@@ -1,7 +1,5 @@
 package io.github.dockyardmc.world
 
-import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
 import io.github.dockyardmc.runnables.AsyncRunnable
@@ -23,7 +21,7 @@ class ConcurrentChunkEngine(val player: Player) {
         if (currentChunkIndex != lastChunkIndex) {
             lastChunkIndex = currentChunkIndex
 
-            val chunksInRange = getChunksInRange(currentChunkIndex, world)
+            val chunksInRange = getChunksInRange(currentChunkIndex)
 
             val chunksToLoad = mutableListOf<Long>()
             val chunksToUnload = mutableListOf<Long>()
@@ -65,7 +63,6 @@ class ConcurrentChunkEngine(val player: Player) {
                 callback = {
                     player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
                     loadedChunks.add(chunkIndex)
-                    DockyardServer.broadcastMessage("<pink>generated chunk $x $z")
                 }
             }.execute()
         }
@@ -76,7 +73,7 @@ class ConcurrentChunkEngine(val player: Player) {
         loadedChunks.remove(chunk.getIndex())
     }
 
-    fun getChunksInRange(index: Long, world: World): MutableList<Long> {
+    fun getChunksInRange(index: Long): MutableList<Long> {
         val viewDistance = chunkRenderDistance + 1
         val (chunkX, chunkZ) = ChunkUtils.getChunkCoordsFromIndex(index)
 
