@@ -1,6 +1,6 @@
 package io.github.dockyardmc.ui
 
-import io.github.dockyardmc.bindables.Bindable
+import cz.lukynka.Bindable
 import io.github.dockyardmc.bindables.BindablePairMap
 import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.item.ItemComponent
@@ -105,9 +105,9 @@ data class DrawableItemStack(
     constructor(item: Item, count: Int = 1): this(Bindable(ItemStack(item, count)))
 
     val name: String get() = itemStack.value.displayName.value
-    val lore: List<String> get() = itemStack.value.lore.values
+    val lore: Collection<String> get() = itemStack.value.lore.values
     val customModelData: Int get() = itemStack.value.customModelData.value
-    val components: List<ItemComponent> get() = itemStack.value.components.values
+    val components: Collection<ItemComponent> get() = itemStack.value.components.values
 
     val clickListeners: MutableList<DrawableClickListener> = mutableListOf()
 

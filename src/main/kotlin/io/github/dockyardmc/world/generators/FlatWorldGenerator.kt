@@ -2,6 +2,7 @@ package io.github.dockyardmc.world.generators
 
 import io.github.dockyardmc.registry.Biome
 import io.github.dockyardmc.registry.Biomes
+//import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 
@@ -16,5 +17,5 @@ class FlatWorldGenerator() : WorldGenerator {
         }
     }
 
-    override fun getBiome(x: Int, y: Int, z: Int): Biome = Biomes.SUNFLOWER_PLAINS
+    override fun getBiome(x: Int, y: Int, z: Int): Biome = Biomes.PLAINS
 }

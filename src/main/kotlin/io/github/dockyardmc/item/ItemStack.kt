@@ -1,7 +1,7 @@
 package io.github.dockyardmc.item
 
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableList
+import cz.lukynka.Bindable
+import cz.lukynka.BindableList
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item

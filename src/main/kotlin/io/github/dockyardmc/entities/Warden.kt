@@ -1,7 +1,6 @@
-package io.github.dockyardmc.plugins.bundled.emberseeker.entities
+package io.github.dockyardmc.entities
 
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.entities.*
+import cz.lukynka.Bindable
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
@@ -47,4 +46,3 @@ enum class WardenAnimation {
     SONIC_BOOM,
     TENDRIL_SHAKE
 }
-

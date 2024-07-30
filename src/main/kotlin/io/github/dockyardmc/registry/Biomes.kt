@@ -23,6 +23,11 @@ object Biomes {
         list.associateBy { it.identifier }
     }
 
+    fun add(biome: Biome) {
+        (map as MutableMap)[biome.identifier] = biome
+        cacheRegistry()
+    }
+
     fun getNewBiome(identifier: String): Biome =
         map[identifier] ?: error("Biome with identifier $identifier not found")
 
@@ -173,15 +178,15 @@ data class ParticleOptions(
 )
 
 data class Effects(
-    val fogColor: Int?,
-    val foliageColor: Int?,
-    val grassColor: Int?,
-    val grassColorModifier: String?,
+    val fogColor: Int? = null,
+    val foliageColor: Int? = null,
+    val grassColor: Int? = null,
+    val grassColorModifier: String? = null,
     val moodSound: MoodSound,
-    val music: Music?,
-    val additionsSound: AdditionsSound?,
-    val ambientSound: String?,
-    val particle: BiomeParticle?,
+    val music: Music? = null,
+    val additionsSound: AdditionsSound? = null,
+    val ambientSound: String? = null,
+    val particle: BiomeParticle? = null,
     val skyColor: Int,
     val waterColor: Int,
     val waterFogColor: Int
@@ -205,12 +210,12 @@ data class Effects(
 }
 
 data class Biome(
-    val identifier: String,
-    val downfall: Float,
-    val effects: Effects,
-    val hasPrecipitation: Boolean,
-    val temperature: Float,
-    val temperatureModifier: String?
+    var identifier: String,
+    val downfall: Float = 1f,
+    var effects: Effects,
+    val hasPrecipitation: Boolean = false,
+    val temperature: Float = 1f,
+    val temperatureModifier: String? = null
 ) {
 
     fun toNBT(): NBTCompound {

@@ -8,6 +8,7 @@ import io.github.dockyardmc.annotations.AnnotationProcessor
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.protocol.PacketParser
+import io.github.dockyardmc.registry.Biome
 
 val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
 
@@ -36,4 +37,3 @@ fun main(args: Array<String>) {
     Main.instance = DockyardServer()
     Main.instance.start()
 }
-

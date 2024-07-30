@@ -1,8 +1,7 @@
 package io.github.dockyardmc.player
 
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableList
+import cz.lukynka.Bindable
+import cz.lukynka.BindableList
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEvent
@@ -26,9 +25,11 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableContainerScreen
+import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
+import io.github.dockyardmc.world.ConcurrentChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
@@ -84,6 +85,8 @@ class Player(
     val currentOpenInventory: Bindable<DrawableContainerScreen?> = Bindable(null)
     var hasSkin = false
     var itemInUse: ItemInUse? = null
+
+    val chunkEngine = ConcurrentChunkEngine(this)
 
     //for debugging
     lateinit var lastSentPacket: ClientboundPacket
@@ -334,9 +337,8 @@ class Player(
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
 
-        log("Respawned $this")
-        this.world.chunks.forEach {
-            sendPacket(it.packet)
+        this.world.chunks.values.forEach {
+            chunkEngine.loadChunk(ChunkUtils.getChunkIndex(it), world)
         }
 
         refreshClientStateAfterRespawn()

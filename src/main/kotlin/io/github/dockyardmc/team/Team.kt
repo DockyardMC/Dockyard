@@ -1,7 +1,7 @@
 package io.github.dockyardmc.team
 
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableList
+import cz.lukynka.Bindable
+import cz.lukynka.BindableList
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.extentions.writeNBT

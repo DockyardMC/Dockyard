@@ -1,6 +1,6 @@
 package io.github.dockyardmc.team
 
-import io.github.dockyardmc.bindables.BindableList
+import cz.lukynka.BindableList
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundTeamsPacket

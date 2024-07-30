@@ -1,8 +1,9 @@
 package io.github.dockyardmc.world
 
+import cz.lukynka.Bindable
+import cz.lukynka.BindableList
+import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableList
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerChangeWorldEvent
@@ -10,6 +11,7 @@ import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionType
@@ -20,6 +22,7 @@ import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.Vector2
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
+import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 import java.util.Random
 import java.util.UUID
@@ -39,7 +42,7 @@ class World(
     var time: Long = 1000
     var worldAge: Long = 0
 
-    var chunks: MutableList<Chunk> = mutableListOf()
+    var chunks: MutableMap<Long, Chunk> = mutableMapOf()
     var defaultSpawnLocation = Location(0, 0, 0, this)
 
     val players: BindableList<Player> = BindableList()
@@ -50,16 +53,14 @@ class World(
 
     var isHardcore: Boolean = false
 
-
     fun join(player: Player) {
         if(player.world == this && player.isFullyInitialized) return
         if(!canBeJoined.value && !joinQueue.contains(player)) {
             joinQueue.addIfNotPresent(player)
-            log("$player joined before world $name is loaded, added to joinQueue")
+            log("$player joined before world $name is loaded, added to joinQueue", LogType.DEBUG)
             return
         }
 
-        log("Logged in $player")
         val oldWorld = player.world
 
         oldWorld.entities.values.filter { it != player }.forEach { it.removeViewer(player, false) }
@@ -77,6 +78,7 @@ class World(
 
         joinQueue.removeIfPresent(player)
         player.respawn()
+        player.chunkEngine.loadedChunks.clear()
 
         players.values.filter { it != player }.forEach {
             it.addViewer(player)
@@ -91,12 +93,11 @@ class World(
     init {
 
         val runnable = AsyncRunnable {
-            generateChunks(6)
+            generateBaseChunks(6)
         }
 
         runnable.callback = {
-            log("World $name is read to be joined!")
-            log("Joining following players: $joinQueue")
+            log("World $name is ready to be joined!")
             canBeJoined.value = true
             joinQueue.forEach(::join)
         }
@@ -118,7 +119,9 @@ class World(
         return getChunk(chunkX, chunkZ)
     }
 
-    fun getChunk(x: Int, z: Int): Chunk? = chunks.firstOrNull { it.chunkX == x && it.chunkZ == z }
+    fun getChunkFromIndex(index: Long): Chunk? = chunks[index]
+
+    fun getChunk(x: Int, z: Int): Chunk? = chunks[ChunkUtils.getChunkIndex(x, z)]
 
     fun setBlock(x: Int, y: Int, z: Int, block: Block) {
         val chunk = getChunkAt(x, z) ?: return
@@ -149,24 +152,36 @@ class World(
         this.setBlock(vector3.x.toInt(), vector3.y.toInt(), vector3.z.toInt(), block)
     }
 
-    fun generateChunks(size: Int) {
-        val vector = Vector2(size.toFloat(), size.toFloat())
-        for (chunkX in (vector.x.toInt() * -1)..vector.x.toInt()) {
-            for (chunkZ in (vector.y.toInt() * -1)..vector.y.toInt()) {
-                val chunk = getChunk(chunkX, chunkZ) ?: Chunk(chunkX, chunkZ, this)
-                for (localX in 0..<16) {
-                    for (localZ in 0..<16) {
-                        val worldX = chunkX * 16 + localX
-                        val worldZ = chunkZ * 16 + localZ
+    fun generateChunk(x: Int, z: Int) {
+        val chunk = getChunk(x, z) ?: Chunk(x, z, this)
+        // Special case for void world generator for fast void world loading. //TODO optimizations to rest of the world generators
+        if(generator is VoidWorldGenerator) {
+            chunk.sections.forEach { section ->
+                section.biomePalette.fill(Biomes.THE_VOID.id)
+                section.blockPalette.fill(Blocks.AIR.blockStateId)
+            }
+        } else {
+            for (localX in 0..<16) {
+                for (localZ in 0..<16) {
+                    val worldX = x * 16 + localX
+                    val worldZ = z * 16 + localZ
 
-                        for (y in 0..<dimensionType.height) {
-                            chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ), false)
-                            chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ))
-                        }
+                    for (y in 0..<dimensionType.height) {
+                        chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ), false)
+                        chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ))
                     }
                 }
-                if(getChunk(chunkX, chunkZ) == null) chunks.add(chunk)
-                chunk.cacheChunkDataPacket()
+            }
+        }
+        chunk.cacheChunkDataPacket()
+        if(getChunk(x, z) == null) chunks[ChunkUtils.getChunkIndex(x, z)] = (chunk)
+    }
+
+    fun generateBaseChunks(size: Int) {
+        val vector = Vector2(size.toFloat(), size.toFloat())
+        ((vector.x.toInt() * -1)..vector.x.toInt()).forEach chunkLoop@{ chunkX ->
+            for (chunkZ in (vector.y.toInt() * -1)..vector.y.toInt()) {
+                generateChunk(chunkX, chunkZ)
             }
         }
     }

@@ -1,7 +1,7 @@
 package io.github.dockyardmc.inventory
 
-import io.github.dockyardmc.bindables.Bindable
-import io.github.dockyardmc.bindables.BindableMap
+import cz.lukynka.Bindable
+import cz.lukynka.BindableMap
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.entities.ItemDropEntity
