@@ -43,10 +43,15 @@ class MayaTestPlugin: DockyardPlugin {
 
         val sidebar = Sidebar("<aqua><bold>DockyardMC") {
             setGlobalLine("")
-            setPlayerLine{ "Hello, <yellow>${it.username}<white>!" }
+            setPlayerLine{ "Hello, <#ed9eff><u>${it.username}</u><white>!" }
             setGlobalLine("Welcome to DockyardMC!")
             setGlobalLine(" ")
             setGlobalLine("<white>Server uptime: <lime>0")
+            setGlobalLine(" ")
+            setPlayerLine { "Your health is: <red>${it.health}" }
+            setPlayerLine { "Your food is: <orange>${it.food}" }
+            setGlobalLine(" ")
+            setGlobalLine("<yellow>www.github.com/DockyardMC/")
         }
 
         Period.on<TickPeriod> {
@@ -89,7 +94,7 @@ class MayaTestPlugin: DockyardPlugin {
         Period.on<SecondPeriod> {
             seconds++
             PlayerManager.players.forEach { it.experienceLevel.value = seconds }
-            sidebar.setGlobalLine(12, "<white>Server uptime: <lime>$seconds")
+            sidebar.setGlobalLine(12, "<white>Server uptime: <lime>${seconds}s")
         }
 
         ServerLinks.links.add(CustomServerLink("<aqua>Github", "https://github.com/DockyardMC/Dockyard"))

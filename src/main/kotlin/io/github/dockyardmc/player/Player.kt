@@ -79,7 +79,7 @@ class Player(
     //TODO Implement
     val freezeTicks: Bindable<Int> = Bindable(0)
     val saturation: Bindable<Float> = Bindable(0f)
-    val food: Bindable<Int> = Bindable(20)
+    val food: Bindable<Double> = Bindable(20.0)
     val experienceLevel: Bindable<Int> = Bindable(0)
     val experienceBar: Bindable<Float> = Bindable(0f)
     val currentOpenInventory: Bindable<DrawableContainerScreen?> = Bindable(null)
@@ -171,7 +171,7 @@ class Player(
                     val foodToAdd = component.nutrition + food.value
                     if(foodToAdd > 20) {
                         val saturationToAdd = food.value - 20
-                        food.value = 20
+                        food.value = 20.0
                         saturation.value = saturationToAdd.toFloat()
                     } else {
                         food.value = foodToAdd
@@ -196,7 +196,7 @@ class Player(
     }
 
     fun sendHealthUpdatePacket() {
-        val packet = ClientboundSetHealthPacket(health.value, food.value, saturation.value)
+        val packet = ClientboundSetHealthPacket(health.value, food.value.toInt(), saturation.value)
         sendPacket(packet)
     }
 
