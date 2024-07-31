@@ -15,7 +15,8 @@ import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionType
-import io.github.dockyardmc.runnables.AsyncRunnable
+import io.github.dockyardmc.runnables.AsyncQueueProcessor
+import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.ChunkUtils
@@ -52,6 +53,8 @@ class World(
     val joinQueue: MutableList<Player> = mutableListOf()
 
     var isHardcore: Boolean = false
+
+    var asyncChunkGenerator = AsyncQueueProcessor()
 
     fun join(player: Player) {
         if(player.world == this && player.isFullyInitialized) return
@@ -91,8 +94,7 @@ class World(
     }
 
     init {
-
-        val runnable = AsyncRunnable {
+        val runnable = AsyncQueueTask("generate-base-chunks") {
             generateBaseChunks(6)
         }
 
@@ -101,7 +103,7 @@ class World(
             canBeJoined.value = true
             joinQueue.forEach(::join)
         }
-        runnable.execute()
+        asyncChunkGenerator.submit(runnable)
 
         Events.on<ServerTickEvent> {
             worldAge++
@@ -184,6 +186,10 @@ class World(
                 generateChunk(chunkX, chunkZ)
             }
         }
+    }
+
+    fun remove() {
+        this.asyncChunkGenerator.shutdown()
     }
 
     fun getRandom(): Random = Random(seed)

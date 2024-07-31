@@ -7,7 +7,6 @@ import io.github.dockyardmc.bossbar.BossbarColor
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
 import io.github.dockyardmc.item.FoodItemComponent
@@ -18,7 +17,6 @@ import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.addIfNotPresent
-import io.github.dockyardmc.player.removeIfPresent
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.registry.Items
@@ -108,22 +106,6 @@ class MayaTestPlugin: DockyardPlugin {
                 val world = WorldManager.getOrThrow(cmd.get<String>("world"))
                 world.join(player)
             }
-        }
-
-        Commands.add("/sidebar") {
-            it.execute { ctx ->
-                val player = ctx.player!!
-                sidebar.viewers.removeIfPresent(player)
-            }
-        }
-
-        Events.on<PlayerDamageEvent> {
-            it.damage = 20f
-            DockyardServer.broadcastMessage("${it.player} damage ${it.damage}")
-        }
-
-        Events.on<EntityDamageEvent> {
-            DockyardServer.broadcastMessage("${it.entity} damage ${it.damage}")
         }
 
         Commands.add("/item") {

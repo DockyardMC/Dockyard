@@ -88,7 +88,6 @@ class Player(
 
     val chunkEngine = ConcurrentChunkEngine(this)
 
-    //for debugging
     lateinit var lastSentPacket: ClientboundPacket
 
     init {

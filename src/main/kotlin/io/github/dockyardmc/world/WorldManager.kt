@@ -16,5 +16,9 @@ object WorldManager {
         return world
     }
 
+    fun delete(name: String) {
+
+    }
+
     fun getOrThrow(world: String): World = worlds[world] ?: throw Exception("World with name $world does not exist!")
 }
