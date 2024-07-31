@@ -18,6 +18,7 @@ import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.addIfNotPresent
+import io.github.dockyardmc.player.removeIfPresent
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.registry.Items
@@ -101,6 +102,13 @@ class MayaTestPlugin: DockyardPlugin {
                 val player = executor.player!!
                 val world = WorldManager.getOrThrow(cmd.get<String>("world"))
                 world.join(player)
+            }
+        }
+
+        Commands.add("/sidebar") {
+            it.execute { ctx ->
+                val player = ctx.player!!
+                sidebar.viewers.removeIfPresent(player)
             }
         }
 

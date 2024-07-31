@@ -8,12 +8,7 @@ import io.github.dockyardmc.player.PersistentPlayer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.contains
 import io.github.dockyardmc.player.sendPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundScoreboardObjectivePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ScoreboardMode
-import io.github.dockyardmc.protocol.packets.play.clientbound.ScoreboardType
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisplayObjectivePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateScorePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ObjectivePosition
+import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import java.util.UUID
 
 class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
@@ -77,6 +72,13 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
             val player = event.item.toPlayer()
             sendCreatePackets(player)
             sendLinesPackets(player)
+        }
+        viewers.itemRemoved { event ->
+            val player = event.item.toPlayer()
+            lines.forEach {
+                val packet = ClientboundResetScorePacket("line-${it.first}", objective)
+                player.sendPacket(packet)
+            }
         }
         title.valueChanged {
             val packet = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.EDIT_TEXT, it.newValue, ScoreboardType.INTEGER)
