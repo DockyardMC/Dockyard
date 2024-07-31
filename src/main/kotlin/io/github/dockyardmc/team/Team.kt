@@ -64,11 +64,6 @@ class Team(
 
     val entities = BindableList<Entity>()
 
-    companion object {
-        const val ALLOW_FRIENDLY_FIRE = 0x01
-        const val SEE_INVISIBLE_TEAMMATES = 0x02
-    }
-
     init {
         displayName.valueChanged { sendTeamUpdatePacket() }
         flags.valueChanged { sendTeamUpdatePacket() }

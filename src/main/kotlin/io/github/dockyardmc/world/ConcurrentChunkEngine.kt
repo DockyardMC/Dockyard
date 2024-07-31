@@ -2,7 +2,7 @@ package io.github.dockyardmc.world
 
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
-import io.github.dockyardmc.runnables.AsyncRunnable
+import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.utils.ChunkUtils
 
 class ConcurrentChunkEngine(val player: Player) {
@@ -53,18 +53,16 @@ class ConcurrentChunkEngine(val player: Player) {
             loadedChunks.add(chunkIndex)
         } else {
             val (x, z) = ChunkUtils.getChunkCoordsFromIndex(chunkIndex)
-            AsyncRunnable {
-                try {
+            world.asyncChunkGenerator.submit(
+                AsyncQueueTask("generate-chunk-$x-$z") {
                     world.generateChunk(x, z)
-                } catch (exception: Exception) {
-                    throw exception
+                }.apply {
+                    callback = {
+                        player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
+                        loadedChunks.add(chunkIndex)
+                    }
                 }
-            }.apply {
-                callback = {
-                    player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
-                    loadedChunks.add(chunkIndex)
-                }
-            }.execute()
+            )
         }
     }
 
