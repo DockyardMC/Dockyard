@@ -188,7 +188,7 @@ class World(
         }
     }
 
-    fun remove() {
+    fun delete() {
         this.asyncChunkGenerator.shutdown()
     }
 

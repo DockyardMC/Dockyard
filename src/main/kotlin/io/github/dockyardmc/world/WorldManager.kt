@@ -17,7 +17,12 @@ object WorldManager {
     }
 
     fun delete(name: String) {
+        val world = getOrThrow(name)
+        delete(world)
+    }
 
+    fun delete(world: World) {
+        world.delete()
     }
 
     fun getOrThrow(world: String): World = worlds[world] ?: throw Exception("World with name $world does not exist!")
