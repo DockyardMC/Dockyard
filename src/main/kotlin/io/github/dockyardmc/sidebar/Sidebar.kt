@@ -21,6 +21,7 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
     private val objective = UUID.randomUUID().toString()
 
     private val createPacket get() = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.CREATE, title.value, ScoreboardType.INTEGER)
+    private val removePacket get() = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.REMOVE, null, null)
     private val displayPacket get() = ClientboundDisplayObjectivePacket(ObjectivePosition.SIDEBAR, objective)
 
     fun setGlobalLine(value: String) {
@@ -67,7 +68,6 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
 
     init {
         builder.invoke(this)
-        //TODO Item remove, clear sidebar
         viewers.itemAdded { event ->
             val player = event.item.toPlayer()
             sendCreatePackets(player)
@@ -75,10 +75,7 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
         }
         viewers.itemRemoved { event ->
             val player = event.item.toPlayer()
-            lines.forEach {
-                val packet = ClientboundResetScorePacket("line-${it.first}", objective)
-                player.sendPacket(packet)
-            }
+            player.sendPacket(removePacket)
         }
         title.valueChanged {
             val packet = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.EDIT_TEXT, it.newValue, ScoreboardType.INTEGER)
