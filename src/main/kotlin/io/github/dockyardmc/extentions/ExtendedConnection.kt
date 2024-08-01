@@ -8,6 +8,7 @@ import io.github.dockyardmc.events.PacketSentEvent
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.utils.debug
 import io.netty.channel.ChannelHandlerContext
 
 fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket, player: Player? = null) {
@@ -24,5 +25,5 @@ fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket, player: Player? 
     if(player != null) message += " to $player [${player.getProcessor().state}]"
 
     message += " (id: ${packet.id})"
-    log(message, LogType.NETWORK)
+    debug(message, LogType.NETWORK)
 }

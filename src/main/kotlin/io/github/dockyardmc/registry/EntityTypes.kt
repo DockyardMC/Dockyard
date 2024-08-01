@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 object EntityTypes {
     private val idToEntityMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
-        val entities = json.decodeFromString<List<EntityType>>(getFile("./data/entities.json"))
+        val entities = json.decodeFromString<List<EntityType>>(getFile("data/entities.json"))
         entities.associateBy { it.id }
     }
     fun getEntityById(id: Int): EntityType = idToEntityMap[id] ?: error("Entity ID $id not found")

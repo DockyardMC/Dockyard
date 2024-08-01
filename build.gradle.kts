@@ -1,6 +1,7 @@
 import java.io.IOException
 
 plugins {
+    `maven-publish`
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.serialization") version "1.9.22"
     id("io.ktor.plugin") version "2.2.3"
@@ -95,3 +96,23 @@ tasks.processResources {
 }
 
 sourceSets["main"].resources.srcDir("${buildDir}/generated/resources/")
+
+publishing {
+    repositories {
+        maven {
+            url = uri("https://mvn.devos.one/releases")
+            credentials {
+                username = System.getenv()["MAVEN_USER"]
+                password = System.getenv()["MAVEN_PASS"]
+            }
+        }
+    }
+    publications {
+        register<MavenPublication>("maven") {
+            groupId = "io.github.dockyardmc"
+            artifactId = "dockyard"
+            version = dockyardVersion.toString()
+            from(components["java"])
+        }
+    }
+}

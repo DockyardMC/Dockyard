@@ -7,7 +7,6 @@ import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.ServerStartEvent
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
-import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.plugins.PluginManager
 import io.github.dockyardmc.plugins.bundled.commands.DockyardCommands
@@ -17,7 +16,6 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.github.dockyardmc.utils.Resources
-import io.github.dockyardmc.world.WorldManager
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.buffer.PooledByteBufAllocator
 import io.netty.channel.ChannelInitializer
@@ -27,12 +25,10 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.annotations.AnnotationProcessor
 import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.plugins.bundled.MudkipTestPlugin
-import io.github.dockyardmc.registry.DimensionTypes
-import io.github.dockyardmc.world.generators.FlatWorldGenerator
-import io.github.dockyardmc.world.generators.NetherLikeGenerator
-import io.github.dockyardmc.world.generators.VoidWorldGenerator
+import io.github.dockyardmc.protocol.PacketParser
 import java.net.InetSocketAddress
 import java.util.*
 
@@ -43,8 +39,8 @@ class DockyardServer {
     val bossGroup = NioEventLoopGroup(3)
     val workerGroup = NioEventLoopGroup()
 
-    val ip = ConfigManager.currentConfig.serverConfig.ip
-    val port = ConfigManager.currentConfig.serverConfig.port
+    var ip = ConfigManager.currentConfig.serverConfig.ip
+    var port = ConfigManager.currentConfig.serverConfig.port
 
     // Server ticks
     val tickProfiler = Profiler()
@@ -52,6 +48,13 @@ class DockyardServer {
         tickProfiler.start("Tick", 5)
         Events.dispatch(ServerTickEvent())
         tickProfiler.end()
+    }
+
+    init {
+        instance = this
+        ConfigManager.load()
+        ip = ConfigManager.currentConfig.serverConfig.ip
+        port = ConfigManager.currentConfig.serverConfig.port
     }
 
     //TODO rewrite and make good
@@ -73,7 +76,7 @@ class DockyardServer {
     fun start() {
         versionInfo = Resources.getDockyardVersion()
         log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${versionInfo.minecraftVersion})", LogType.RUNTIME)
-        if(debug) log("This is development build of DockyardMC. Things will break", LogType.FATAL)
+        log("DockyardMC is still under heavy development. Things will break (I warned you)", LogType.WARNING)
 
         runPacketServer()
     }
@@ -84,20 +87,12 @@ class DockyardServer {
         profiler.start("DockyardMC Load")
         tickTimer.run()
 
-        innerProfiler.start("Load World")
+        val packetClasses = AnnotationProcessor.getServerboundPacketClassInfo()
+        PacketParser.idAndStatePairToPacketClass = packetClasses
 
-        val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
-        testWorld.defaultSpawnLocation = Location(0, 201, 0, testWorld)
+        AnnotationProcessor.addIdsToClientboundPackets()
 
-        val netherWorld = WorldManager.create("nether", NetherLikeGenerator(), DimensionTypes.NETHER)
-        netherWorld.defaultSpawnLocation = Location(0, 125, 0, netherWorld)
-
-        val voidWorld = WorldManager.create("void", VoidWorldGenerator(), DimensionTypes.OVERWORLD)
-        voidWorld.defaultSpawnLocation = Location(0, 0, 0, voidWorld)
-
-        innerProfiler.end()
-
-        //TODO Load plugins from "/plugins" folder
+        //TODO Remove plugin system
         innerProfiler.start("Load Plugins")
         val pluginConfig = ConfigManager.currentConfig.bundledPlugins
         if(pluginConfig.dockyardCommands) PluginManager.loadLocal(DockyardCommands())
@@ -145,10 +140,12 @@ class DockyardServer {
 
     companion object {
         lateinit var versionInfo: Resources.DockyardVersionInfo
+        lateinit var instance: DockyardServer
         var allowAnyVersion: Boolean = false
 
         var tickRate: Int = 20
         val debug = ConfigManager.currentConfig.serverConfig.debug
+
 
         var mutePacketLogs = mutableListOf(
             "ClientboundSystemChatMessagePacket",

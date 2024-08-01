@@ -75,9 +75,11 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         processor.state = ProtocolState.PLAY
         processor.player.releaseMessagesQueue()
 
-        val world = WorldManager.worlds.values.first()
-        processor.player.world = world
+        val event = PlayerPreSpawnWorldSelectionEvent(player, WorldManager.getOrThrow("main"))
+        Events.dispatch(event)
+        val world = event.world
 
+        processor.player.world = world
         player.gameMode.value = GameMode.ADVENTURE
 
         if(world.canBeJoined.value) {

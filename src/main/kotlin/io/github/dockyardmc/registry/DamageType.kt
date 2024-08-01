@@ -1,6 +1,5 @@
 package io.github.dockyardmc.registry
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.utils.Resources
 import org.jglrxavpok.hephaistos.nbt.NBT
@@ -20,7 +19,6 @@ object DamageTypes {
 
             val nbt = (SNBTParser(StringReader(sNBT))).parse() as NBTCompound
             list.add(DamageType.read(identifier, nbt))
-            log(identifier)
         }
         list.associateBy { it.identifier }
     }

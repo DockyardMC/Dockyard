@@ -2,7 +2,6 @@ package io.github.dockyardmc.protocol.packets.handshake
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerListPingEvent
 import io.github.dockyardmc.extentions.sendPacket
@@ -20,7 +19,6 @@ import java.util.*
 class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor) {
 
     fun handlePing(packet: ServerboundPingRequestPacket, connection: ChannelHandlerContext) {
-        log("Received ping with time ${packet.time}", LogType.DEBUG)
         val out = ClientboundPingResponsePacket(Instant.now().toEpochMilli())
         connection.sendPacket(out)
     }
@@ -28,7 +26,6 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
 
         val handshakeState = packet.nextState
-        log("Handshake from ${connection.channel().remoteAddress().address} with version ${packet.version}", LogType.DEBUG)
 
         if(handshakeState == 2) {
             processor.loginHandler.handleHandshake(packet, connection)
@@ -39,8 +36,6 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
     }
 
     fun handleStatusRequest(packet: ServerboundStatusRequestPacket, connection: ChannelHandlerContext) {
-
-        val base64EncodedIcon = Base64.getEncoder().encode(File("./icon.png").readBytes()).decodeToString()
 
         val players = mutableListOf<ServerListPlayer>()
         PlayerManager.players.forEach {

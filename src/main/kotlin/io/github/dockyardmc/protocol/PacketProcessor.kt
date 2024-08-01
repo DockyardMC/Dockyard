@@ -3,7 +3,6 @@ package io.github.dockyardmc.protocol
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.TCP
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.events.PlayerDisconnectEvent
@@ -17,6 +16,7 @@ import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.handshake.HandshakeHandler
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.play.PlayHandler
+import io.github.dockyardmc.utils.debug
 import io.ktor.util.network.*
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -38,7 +38,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
         set(value) {
             innerState = value
             val display = if (this::player.isInitialized) player.username else address
-            log("Protocol state for $display changed to $value")
+            debug("Protocol state for $display changed to $value")
         }
 
     var statusHandler = HandshakeHandler(this)
@@ -64,7 +64,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
 
                 if (packetId == 16 && state == ProtocolState.PLAY) {
-                    log("Ignoring custom payload packet", LogType.WARNING)
+                    debug("Ignoring custom payload packet", LogType.WARNING)
                     buf.discardReadBytes()
                     break
                 }
@@ -80,13 +80,13 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
                     if(packet == null) {
                         buf.discardReadBytes()
-                        log("Received unknown packet with id $packetId (could also be buffer overflow)", LogType.ERROR)
+                        log("Received unknown packet with id $packetId (could also be buffer under/overflow)", LogType.ERROR)
                         break
                     }
 
                     val className = packet::class.simpleName ?: packet::class.toString()
                     if (!DockyardServer.mutePacketLogs.contains(className)) {
-                        log("-> Received $className (0x${packetIdByteRep}) (${Thread.currentThread().name})", LogType.NETWORK)
+                        debug("-> Received $className (0x${packetIdByteRep}) (${Thread.currentThread().name})", LogType.NETWORK)
                     }
 
                     val event = PacketReceivedEvent(packet, connection, packetSize, packetId)
@@ -123,12 +123,10 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
     }
 
     override fun handlerAdded(ctx: ChannelHandlerContext) {
-        log("TCP Handler Added <-> ${ctx.channel().remoteAddress().address}", TCP)
         super.handlerAdded(ctx)
     }
 
     override fun handlerRemoved(ctx: ChannelHandlerContext) {
-        log("TCP Handler Removed <-> ${ctx.channel().remoteAddress().address}", TCP)
         if(this::player.isInitialized) {
             player.isConnected = false
             PlayerManager.remove(player)

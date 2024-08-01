@@ -13,7 +13,6 @@ import io.github.dockyardmc.registry.writeRegistry
 class ClientboundRegistryDataPacket(registry: Registry): ClientboundPacket() {
 
     init {
-        log("Sent registry $registry")
         data.writeRegistry(registry)
     }
 }

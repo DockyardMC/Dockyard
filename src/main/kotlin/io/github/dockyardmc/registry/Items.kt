@@ -12,7 +12,7 @@ import kotlinx.serialization.Transient
 object Items {
     val idToItemMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
-        val items = json.decodeFromString<List<Item>>(Resources.getText("./data/items.json"))
+        val items = json.decodeFromString<List<Item>>(Resources.getText("data/items.json"))
         items.forEach { item ->
             val block = Blocks.idToBlockMap.values.firstOrNull { item.identifier == it.namespace } ?: return@forEach
             item.isBlock = true

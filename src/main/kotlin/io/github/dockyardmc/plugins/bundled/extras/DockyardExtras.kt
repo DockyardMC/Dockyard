@@ -2,7 +2,6 @@ package io.github.dockyardmc.plugins.bundled.extras
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.plugins.DockyardPlugin
-import io.github.dockyardmc.plugins.bundled.extras.items.SpawnEggImplementation
 
 class DockyardExtras: DockyardPlugin {
 
@@ -11,10 +10,7 @@ class DockyardExtras: DockyardPlugin {
     override var version: String = DockyardServer.versionInfo.dockyardVersion
 
     override fun load(server: DockyardServer) {
-
-        SpawnEggImplementation()
         JoinLeaveMessages().register()
-
     }
 
     override fun unload(server: DockyardServer) {

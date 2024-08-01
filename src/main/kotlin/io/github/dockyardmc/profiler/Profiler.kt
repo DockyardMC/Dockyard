@@ -4,6 +4,7 @@ import cz.lukynka.prettylog.AnsiPair
 import cz.lukynka.prettylog.CustomLogType
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.utils.debug
 import java.time.Instant
 
 class Profiler {
@@ -31,7 +32,7 @@ class Profiler {
                 log("Profiler \"$name\" ended. Took ${overall}ms, ${overall - onlyLogAbove!!}ms more than expected", LogType.WARNING)
             }
         } else {
-            log("Profiler \"$name\" ended. Took ${overall}ms", TimeLog)
+            debug("Profiler \"$name\" ended. Took ${overall}ms", TimeLog)
         }
     }
 }
