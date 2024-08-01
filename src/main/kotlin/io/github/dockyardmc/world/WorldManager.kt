@@ -1,11 +1,31 @@
 package io.github.dockyardmc.world
 
+import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionType
+import io.github.dockyardmc.registry.DimensionTypes
+import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 
 object WorldManager {
 
     val worlds: MutableMap<String, World> = mutableMapOf()
+    val mainWorld = create("main", VoidWorldGenerator(), DimensionTypes.OVERWORLD)
+
+    fun generateStonePlatform(world: World) {
+        val platformSize = 5
+
+        val centerX = (platformSize - 1) / 2
+        val centerZ = (platformSize - 1) / 2
+
+        world.defaultSpawnLocation = Location(centerX + 0.5, 1.0, centerZ + 0.5, world)
+
+        for (x in 0 until platformSize) {
+            for (z in 0 until platformSize) {
+                world.setBlock(x, 0, z, Blocks.STONE)
+            }
+        }
+    }
 
     fun create(name: String, generator: WorldGenerator, dimensionType: DimensionType): World {
         require(!worlds.keys.contains(name)) { "World with name $name already exists!" }

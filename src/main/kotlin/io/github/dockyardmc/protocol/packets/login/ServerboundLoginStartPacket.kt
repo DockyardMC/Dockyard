@@ -1,7 +1,5 @@
 package io.github.dockyardmc.protocol.packets.login
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.readUUID
@@ -23,16 +21,9 @@ class ServerboundLoginStartPacket(val name: String, val uuid: UUID): Serverbound
 
     companion object {
         fun read(byteBuf: ByteBuf): ServerboundLoginStartPacket {
-            log("reading buf in packet.read() (ServerboundLoginStartPacket): buf ref count ${byteBuf.refCnt()}", LogType.TRACE)
-            log("Readable bytes left: ${byteBuf.readableBytes()}")
 
             val name = byteBuf.readUtf(16)
-            log("read string from the buf: buf ref count ${byteBuf.refCnt()}", LogType.TRACE)
-
             val uuid = byteBuf.readUUID()
-            log("read UUID from the buf: buf ref count ${byteBuf.refCnt()}", LogType.TRACE)
-            log("Readable bytes left after reading: ${byteBuf.readableBytes()}")
-
             return ServerboundLoginStartPacket(name, uuid)
         }
     }

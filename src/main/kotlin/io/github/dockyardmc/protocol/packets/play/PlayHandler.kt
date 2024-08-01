@@ -15,8 +15,7 @@ import io.netty.channel.ChannelHandlerContext
 class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
     fun handleTeleportConfirmation(packet: ServerboundTeleportConfirmationPacket, connection: ChannelHandlerContext) {
-        log("Received teleport confirmation packet")
-     }
+    }
 
     fun handlePlayerPositionAndRotationUpdates(packet: ServerboundSetPlayerPositionPacket, connection: ChannelHandlerContext) {
         val player = processor.player

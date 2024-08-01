@@ -1,6 +1,5 @@
 package io.github.dockyardmc.player
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.MojangUtil
@@ -27,7 +26,6 @@ object SkinManager {
         val asyncRunnable = AsyncRunnable {
             val skin = MojangUtil.getSkinFromUUID(uuid)
             player.profile!!.properties[0] = skin
-            log(skin.toString())
         }
         asyncRunnable.callback = {
             player.respawn(false)

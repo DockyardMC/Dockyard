@@ -1,21 +1,14 @@
 package io.github.dockyardmc
 
-import cz.lukynka.prettylog.AnsiPair
-import cz.lukynka.prettylog.CustomLogType
 import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.annotations.AnnotationProcessor
-import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.protocol.PacketParser
-import io.github.dockyardmc.registry.Biome
+import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.registry.DimensionTypes
+import io.github.dockyardmc.utils.debug
+import io.github.dockyardmc.world.WorldManager
+import io.github.dockyardmc.world.generators.FlatWorldGenerator
 
-val TCP = CustomLogType("\uD83E\uDD1D TCP", AnsiPair.GRAY)
-
-object Main {
-    lateinit var instance: DockyardServer
-}
-
+// This is just maya testing env.. do not actually run this
 fun main(args: Array<String>) {
 
     if(args.contains("validate-packets")) {
@@ -25,15 +18,11 @@ fun main(args: Array<String>) {
     //ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED)
     var argsString = ""
     args.forEach { argsString += it }
-    log("Starting with args: $argsString", LogType.RUNTIME)
+    debug("Starting with args: $argsString", LogType.RUNTIME)
 
-    ConfigManager.load()
+    val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
+    testWorld.defaultSpawnLocation = Location(0, 201, 0, testWorld)
 
-    val packetClasses = AnnotationProcessor.getServerboundPacketClassInfo()
-    PacketParser.idAndStatePairToPacketClass = packetClasses
-
-    AnnotationProcessor.addIdsToClientboundPackets()
-
-    Main.instance = DockyardServer()
-    Main.instance.start()
+    val server = DockyardServer()
+    server.start()
 }

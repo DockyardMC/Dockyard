@@ -18,6 +18,7 @@ import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacke
 import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.MojangUtil
 import io.github.dockyardmc.utils.VersionToProtocolVersion
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.world.WorldManager
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
@@ -35,7 +36,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
     }
 
     fun handleLoginStart(packet: ServerboundLoginStartPacket, connection: ChannelHandlerContext) {
-        log("Received login start packet with name ${packet.name} and UUID ${packet.uuid}", LogType.DEBUG)
+        debug("Received login start packet with name ${packet.name} and UUID ${packet.uuid}", LogType.DEBUG)
 
         if(!DockyardServer.allowAnyVersion) {
             val playerVersion = VersionToProtocolVersion.map.reversed()[processor.playerProtocolVersion]
@@ -81,7 +82,6 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
     }
 
     fun handleEncryptionResponse(packet: ServerboundEncryptionResponsePacket, connection: ChannelHandlerContext) {
-        log("Received encryption response: ${packet.sharedSecret.size}bytes | ${packet.verifyToken.size}bytes")
 
         val cipher = Cipher.getInstance("RSA")
         cipher.init(Cipher.DECRYPT_MODE, processor.player.crypto.privateKey)
@@ -90,7 +90,6 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val sharedSecret = cipher.doFinal(packet.sharedSecret)
 
         if(!verifyToken.contentEquals(processor.player.crypto.verifyToken)) log("Verify Token of player ${processor.player.username} does not match!", LogType.ERROR)
-
 
         processor.player.crypto.sharedSecret = SecretKeySpec(sharedSecret, "AES")
         processor.player.crypto.isConnectionEncrypted = true

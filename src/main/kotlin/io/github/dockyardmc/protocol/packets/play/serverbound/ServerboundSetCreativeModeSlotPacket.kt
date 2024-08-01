@@ -19,7 +19,6 @@ class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: ItemS
 
         val player = processor.player
         val correctSlot = MathUtils.playerInventoryCorrectSlot(slot)
-        player.sendMessage("<dark_gray>${clickedItem.material.identifier} $correctSlot ($slot)")
         player.inventory[correctSlot] = clickedItem
     }
 

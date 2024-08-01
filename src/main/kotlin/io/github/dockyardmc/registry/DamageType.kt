@@ -20,7 +20,6 @@ object DamageTypes {
 
             val nbt = (SNBTParser(StringReader(sNBT))).parse() as NBTCompound
             list.add(DamageType.read(identifier, nbt))
-            log(identifier)
         }
         list.associateBy { it.identifier }
     }

@@ -19,10 +19,7 @@ import io.github.dockyardmc.runnables.AsyncQueueProcessor
 import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.utils.ChunkUtils
-import io.github.dockyardmc.utils.Vector2
-import io.github.dockyardmc.utils.Vector3
-import io.github.dockyardmc.utils.Vector3f
+import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 import java.util.Random
@@ -60,7 +57,7 @@ class World(
         if(player.world == this && player.isFullyInitialized) return
         if(!canBeJoined.value && !joinQueue.contains(player)) {
             joinQueue.addIfNotPresent(player)
-            log("$player joined before world $name is loaded, added to joinQueue", LogType.DEBUG)
+            debug("$player joined before world $name is loaded, added to joinQueue", LogType.DEBUG)
             return
         }
 
@@ -99,7 +96,7 @@ class World(
         }
 
         runnable.callback = {
-            log("World $name is ready to be joined!")
+            log("World $name has finished loading!", LogType.RUNTIME)
             canBeJoined.value = true
             joinQueue.forEach(::join)
         }
