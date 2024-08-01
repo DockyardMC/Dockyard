@@ -111,7 +111,7 @@ publishing {
         register<MavenPublication>("maven") {
             groupId = "io.github.dockyardmc"
             artifactId = "dockyard"
-            version = version
+            version = dockyardVersion.toString()
             from(components["java"])
         }
     }

@@ -8,6 +8,7 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerChangeWorldEvent
 import io.github.dockyardmc.events.ServerTickEvent
+import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
@@ -99,6 +100,7 @@ class World(
             log("World $name has finished loading!", LogType.RUNTIME)
             canBeJoined.value = true
             joinQueue.forEach(::join)
+            Events.dispatch(WorldFinishLoadingEvent(this))
         }
         asyncChunkGenerator.submit(runnable)
 

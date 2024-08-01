@@ -29,7 +29,6 @@ import io.github.dockyardmc.annotations.AnnotationProcessor
 import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
 import io.github.dockyardmc.plugins.bundled.MudkipTestPlugin
 import io.github.dockyardmc.protocol.PacketParser
-import io.github.dockyardmc.world.WorldManager
 import java.net.InetSocketAddress
 import java.util.*
 
@@ -100,8 +99,6 @@ class DockyardServer {
         if(pluginConfig.dockyardExtras) PluginManager.loadLocal(DockyardExtras())
         if(pluginConfig.mayaTestPlugin) PluginManager.loadLocal(MayaTestPlugin())
         if(pluginConfig.mudkipTestPlugin) PluginManager.loadLocal(MudkipTestPlugin())
-
-        WorldManager.generateStonePlatform(WorldManager.mainWorld)
 
         innerProfiler.end()
 
