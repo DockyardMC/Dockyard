@@ -5,6 +5,7 @@ import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.bossbar.Bossbar
 import io.github.dockyardmc.bossbar.BossbarColor
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.truncate
@@ -21,8 +22,7 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.addIfNotPresent
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
-import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.DefaultServerLink
@@ -77,8 +77,11 @@ class MayaTestPlugin: DockyardPlugin {
         }
 
         Events.on<PlayerJoinEvent> {
-            val effectPacket = ClientboundEntityEffectPacket(it.player, 15, 1, 99999, 0x00)
-            it.player.sendPacket(effectPacket)
+            it.player.addPotionEffect(
+                effect = PotionEffects.NIGHT_VISION,
+                duration = 999999,
+                level = 1,
+            )
 
             it.player.tabListHeader.value =
                 "\n  <dark_gray><s>        <r>  <aqua>DockyardMC<r>  <dark_gray><s>        <r>  \n".toComponent()
@@ -155,22 +158,15 @@ class MayaTestPlugin: DockyardPlugin {
             }
         }
 
-        Commands.add("/item") {
-            it.execute { exec ->
-                val player = exec.player!!
-                val item = ItemStack(Items.AMETHYST_SHARD, 999)
-                item.displayName.value = "<pink><underline>Woooah Magical Shaaarddddd"
-                item.customModelData.value = 1
-                item.unbreakable.value = true
-                item.maxStackSize.value = 999
-                item.lore.add(" ")
-                item.lore.add("<gray>This is very <lime><i>very <gray></i>magical shard.")
-                item.lore.add(" ")
-                item.lore.add("<orange>⭐ <yellow>This item is edible!")
-                item.lore.add("<orange>⭐ <yellow>Max stack size is 999")
-                item.lore.add(" ")
-                item.components.add(FoodItemComponent(1))
-                player.inventory[0] = item
+        Commands.add("/potion") {
+            it.addArgument("effect", StringArgument())
+            it.addArgument("duration", IntArgument())
+            it.execute { ctx ->
+                val player = ctx.player!!
+                val effect = it.get<String>("effect")
+                val duration = it.get<Int>("duration")
+                val potionEffect = PotionEffects.getPotionEffect(effect)
+                player.addPotionEffect(potionEffect, duration)
             }
         }
     }
