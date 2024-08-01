@@ -9,12 +9,11 @@ import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.DamageType
-import io.github.dockyardmc.registry.EntityType
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.toVector3f
 import io.github.dockyardmc.world.World
 import java.util.UUID
@@ -30,18 +29,49 @@ abstract class Entity {
     open var isInvulnerable: Boolean = false
     open var hasCollision: Boolean = true
     abstract var world: World
-    open var displayName: String = ""
+    open var displayName: String = this::class.simpleName.toString()
     open var isOnGround: Boolean = true
     val metadata: BindableList<EntityMetadata> = BindableList()
     val pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     abstract var health: Bindable<Float>
     abstract var inventorySize: Int
+    val potionEffects: BindableList<AppliedPotionEffect> = BindableList()
+    val walkSpeed: Bindable<Float> = Bindable(0.15f)
+    open var tickable: Boolean = true
 
     init {
+
         pose.valueChanged {
             metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
+        }
+
+        //TODO add attribute modifiers
+        walkSpeed.valueChanged {}
+
+        potionEffects.itemAdded {
+            val existingPotionEffect = potionEffects.values.firstOrNull { filter -> filter.effect == it.item.effect }
+            if(existingPotionEffect != null) potionEffects.setIndex(potionEffects.values.indexOf(existingPotionEffect), it.item)
+            it.item.startTime = System.currentTimeMillis()
+
+            val packet = ClientboundEntityEffectPacket(this, it.item.effect, it.item.level, it.item.duration, it.item.showParticles, it.item.showBlueBorder, it.item.showIconOnHud)
+            viewers.sendPacket(packet)
+            sendSelfPacketIfPlayer(packet)
+        }
+
+        potionEffects.itemRemoved {
+            val packet = ClientboundRemoveEntityEffectPacket(this, it.item)
+            viewers.sendPacket(packet)
+            sendSelfPacketIfPlayer(packet)
+        }
+    }
+
+    open fun tick() {
+        potionEffects.values.forEach {
+            if(System.currentTimeMillis() >= it.startTime!! + ticksToMs(it.duration)) {
+                potionEffects.remove(it)
+            }
         }
     }
 
