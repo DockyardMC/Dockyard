@@ -26,7 +26,9 @@ data class Schematic(
     }
 }
 
-fun World.placeSchematic(location: Location, schematic: Schematic) {
+//TODO Implement rotation
+//TODO implement block states
+fun World.placeSchematic(location: Location, schematic: Schematic, rotation: SchematicRotation = SchematicRotation.NONE) {
     val blocks = schematic.blocks.toByteBuf()
     val updateChunks = mutableListOf<Chunk>()
     val runnable = AsyncRunnable {
@@ -52,9 +54,9 @@ fun World.placeSchematic(location: Location, schematic: Schematic) {
 }
 
 enum class SchematicRotation {
+    NONE,
     CLOCKWISE_90,
     CLOCKWISE_180,
     CLOCKWISE_270,
-    CLOCKWISE_360
 }
 
