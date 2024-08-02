@@ -23,6 +23,8 @@ import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.schematics.SchematicReader
+import io.github.dockyardmc.schematics.placeSchematic
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.DefaultServerLink
@@ -32,9 +34,9 @@ import io.github.dockyardmc.sidebar.Sidebar
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.CookieClickerScreen
 import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.WorldManager
+import java.io.File
 
 class MayaTestPlugin: DockyardPlugin {
     override var name: String = "MayaTestPlugin"
@@ -152,6 +154,15 @@ class MayaTestPlugin: DockyardPlugin {
                 player.teleport(location)
                 player.playSound("entity.enderman.teleport", player.location, 1f, 2f)
                 player.spawnParticle(player.location.add(Vector3f(0f, 0.5f, 0f)), Particles.PORTAL, Vector3f(0f), 1f,15)
+            }
+        }
+
+        Commands.add("/paste") {
+            it.execute { ctx ->
+                val player = ctx.playerOrThrow()
+                val file = File("./map.schem")
+                val schematic = SchematicReader.read(file)
+                player.world.placeSchematic(player.location, schematic)
             }
         }
 

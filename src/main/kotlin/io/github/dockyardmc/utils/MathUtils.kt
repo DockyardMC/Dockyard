@@ -1,6 +1,8 @@
 package io.github.dockyardmc.utils
 
 import io.github.dockyardmc.location.Location
+import java.io.File
+import java.security.MessageDigest
 
 object MathUtils {
 
@@ -67,5 +69,18 @@ object MathUtils {
         val random = java.util.Random()
         return min + random.nextFloat() * (max - min)
     }
+
+    fun getFileHash(file: File, algorithm: String): String {
+        val digest = MessageDigest.getInstance(algorithm)
+        file.inputStream().use { fis ->
+            val buffer = ByteArray(8192)
+            var bytesRead: Int
+            while (fis.read(buffer).also { bytesRead = it } != -1) {
+                digest.update(buffer, 0, bytesRead)
+            }
+        }
+        return digest.digest().joinToString("") { String.format("%02x", it) }
+    }
+
 
 }

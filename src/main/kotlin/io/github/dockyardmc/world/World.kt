@@ -120,6 +120,8 @@ class World(
         return getChunk(chunkX, chunkZ)
     }
 
+    fun getChunkAt(location: Location): Chunk? = getChunkAt(location.x.toInt(), location.z.toInt())
+
     fun getChunkFromIndex(index: Long): Chunk? = chunks[index]
 
     fun getChunk(x: Int, z: Int): Chunk? = chunks[ChunkUtils.getChunkIndex(x, z)]
@@ -143,6 +145,12 @@ class World(
 
     fun setBlock(location: Location, block: Block) {
         this.setBlock(location.x.toInt(), location.y.toInt(), location.z.toInt(), block)
+    }
+
+    fun setBlockRaw(location: Location, blockStateId: Int, updateChunk: Boolean = true) {
+        val chunk = getChunkAt(location.x.toInt(), location.z.toInt()) ?: return
+        chunk.setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId)
+        if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
     }
 
     fun setBlock(vector3: Vector3, block: Block) {

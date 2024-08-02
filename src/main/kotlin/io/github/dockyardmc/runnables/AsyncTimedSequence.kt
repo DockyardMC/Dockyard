@@ -10,7 +10,7 @@ fun timedSequenceAsync(unit: (AsyncTimedSequence) -> Unit) {
     val runnable = AsyncRunnable {
         unit.invoke(AsyncTimedSequence())
     }
-    runnable.execute()
+    runnable.run()
 }
 
 

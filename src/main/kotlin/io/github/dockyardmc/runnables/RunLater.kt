@@ -11,5 +11,5 @@ fun runLaterAsync(ticks: Int, unit: () -> Unit) {
     task.callback = {
         unit.invoke()
     }
-    task.execute()
+    task.run()
 }

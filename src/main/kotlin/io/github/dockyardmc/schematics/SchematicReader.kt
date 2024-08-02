@@ -1,7 +1,9 @@
 package io.github.dockyardmc.schematics
 
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector3
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray
 import org.jglrxavpok.hephaistos.nbt.*
@@ -9,8 +11,14 @@ import java.io.File
 
 object SchematicReader {
 
+    val cache: MutableMap<String, Schematic> = mutableMapOf()
 
     fun read(file: File): Schematic {
+        if(!file.exists()) throw Exception("File $file does not exist!")
+        val hash = MathUtils.getFileHash(file, "SHA-256")
+        val cachedSchematic = cache[hash]
+        if(cachedSchematic != null) return cachedSchematic
+
         val nbt = NBTReader(file, CompressedProcesser.GZIP).readNamed().second as NBTCompound
         log(nbt.toSNBT())
 
@@ -41,17 +49,24 @@ object SchematicReader {
             blockArray = nbt.getByteArray("BlockData") ?: throw Exception("No Data field in schematic file!")
         }
 
-        val namespaces = pallet.keys.map { it.split("[")[0].replace("minecraft:", "") }.toSet()
-        val blocks = Blocks.idToBlockMap.values.filter { namespaces.contains(it.namespace) }
+        val blocks = mutableMapOf<Block, Int>()
+        pallet.forEach { entry ->
+            val namespace = entry.key.replace("minecraft:", "")
+            val id = (entry.value as NBTInt).getValue()
+            val block = Blocks.idToBlockMap.values.firstOrNull { it.namespace == namespace } ?: return@forEach
+            blocks[block] = id
+        }
 
-        blocks.forEach { log(it.namespace) }
+        blocks.forEach { log("${it.key.namespace}: ${it.value}") }
 
-        return Schematic(
+        val schematic = Schematic(
             size = Vector3(width, height, length),
             offset = offset,
-            pallete = blocks.toMutableList(),
+            pallete = blocks.toMutableMap(),
             blocks = blockArray.copyArray()
         )
+        cache[MathUtils.getFileHash(file, "SHA-256")] = schematic
+        return schematic
     }
 }
 
