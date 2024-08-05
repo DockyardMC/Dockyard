@@ -1161,27 +1161,29 @@ fun getBlockByStateId(stateId: Int): Block? {
     return null
 }
 
-fun getBlockStateId(block: Block, stateValues: Map<String, String>): Int {
+fun getBlockStateId(block: Block, stateValues: Map<String, String>, debug: Boolean = false): Int {
     var stateId = block.minState
 
     if (block.availableBlockStates.isNullOrEmpty()) return block.defaultBlockStateId
     if(stateValues.isEmpty()) return block.defaultBlockStateId
+    var offset = 1
 
     block.availableBlockStates?.forEach { state ->
+
         if(stateValues.containsKey(state.name)) {
             val value = stateValues[state.name]!!
+            if(debug) DockyardServer.broadcastMessage("${state.name} (${state.type}) - ${state.values} - $value")
             val stateIndex: Int = when(state.type) {
                 "int",
                 "enum" -> state.values?.indexOf(value)!!
                 "bool" -> if(value == "true") 1 else 0
                 else -> throw Exception("Unsupported operation ${state.type} (${state.name})")
             }
-            stateId += stateIndex
+            stateId += stateIndex * offset
         }
+        offset += state.numValues
     }
-
     return stateId
-
 }
 
 

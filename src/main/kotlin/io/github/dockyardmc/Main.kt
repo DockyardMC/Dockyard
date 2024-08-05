@@ -11,6 +11,7 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.getBlockStateId
 import io.github.dockyardmc.schematics.SchematicReader
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
@@ -47,14 +48,18 @@ fun main(args: Array<String>) {
     Events.on<PlayerBlockRightClickEvent> {
         val item = it.player.getHeldItem(PlayerHand.MAIN_HAND)
         val player = it.player
-        if(item.material == Items.DEBUG_STICK) {
+        if(item.material == Items.DEBUG_STICK && it.block == Blocks.OAK_SLAB) {
             val block = it.block
-            when (block) {
-                Blocks.OAK_SAPLING -> it.location.world.setBlock(it.location, Blocks.OAK_SAPLING.withBlockState("stage" to "1"))
-                Blocks.OAK_STAIRS -> it.location.world.setBlock(it.location, Blocks.OAK_STAIRS.copy().apply { blockStates["waterlogged"] = "false" })
-                Blocks.OAK_LOG -> it.location.world.setBlock(it.location, Blocks.OAK_LOG.copy().apply { blockStates["axis"] = listOf("x", "y", "z").random() })
-                Blocks.OAK_SLAB -> it.location.world.setBlock(it.location, Blocks.OAK_SLAB.copy().apply { blockStates["type"] = listOf("bottom", "top").random() }) //what the fuck
-            }
+
+            val id = getBlockStateId(block, mapOf("type" to listOf("top", "bottom").random()), true)
+            player.world.setBlockRaw(it.location, id)
+
+//            when (block) {
+//                Blocks.OAK_SAPLING -> it.location.world.setBlock(it.location, Blocks.OAK_SAPLING.withBlockState("stage" to "1"))
+//                Blocks.OAK_STAIRS -> it.location.world.setBlock(it.location, Blocks.OAK_STAIRS.copy().apply { blockStates["waterlogged"] = "false" })
+//                Blocks.OAK_LOG -> it.location.world.setBlock(it.location, Blocks.OAK_LOG.copy().apply { blockStates["axis"] = listOf("x", "y", "z").random() })
+//                Blocks.OAK_SLAB -> it.location.world.setBlock(it.location, Blocks.OAK_SLAB.copy().apply { blockStates["type"] = listOf("bottom", "top").random() }) //what the fuck
+//            }
         } else {
             player.sendMessage("${it.block.namespace} ${it.block.blockStates}")
         }
