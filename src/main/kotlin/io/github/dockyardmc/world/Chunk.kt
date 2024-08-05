@@ -66,7 +66,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
 
-        section.blockPalette[relativeX, relativeY, relativeZ] = material.blockStateId
+        section.blockPalette[relativeX, relativeY, relativeZ] = material.getId()
         if(shouldCache) cacheChunkDataPacket()
     }
 

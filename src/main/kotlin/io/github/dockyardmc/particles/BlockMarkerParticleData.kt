@@ -10,6 +10,6 @@ class BlockMarkerParticleData(val block: Block): ParticleData {
     override var id: Int = Particles.BLOCK_MARKER.id
 
     override fun write(byteBuf: ByteBuf) {
-        byteBuf.writeVarInt(block.blockStateId)
+        byteBuf.writeVarInt(block.getId())
     }
 }

@@ -167,7 +167,7 @@ class World(
         if(generator is VoidWorldGenerator) {
             chunk.sections.forEach { section ->
                 section.biomePalette.fill(Biomes.THE_VOID.id)
-                section.blockPalette.fill(Blocks.AIR.blockStateId)
+                section.blockPalette.fill(Blocks.AIR.getId())
             }
         } else {
             for (localX in 0..<16) {

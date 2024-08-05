@@ -10,6 +10,6 @@ class BlockParticleData(val block: Block): ParticleData {
     override var id: Int = Particles.BLOCK.id
 
     override fun write(byteBuf: ByteBuf) {
-        byteBuf.writeVarInt(block.blockStateId)
+        byteBuf.writeVarInt(block.getId())
     }
 }

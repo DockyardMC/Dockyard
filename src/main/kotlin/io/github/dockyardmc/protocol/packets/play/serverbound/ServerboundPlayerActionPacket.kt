@@ -17,6 +17,7 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
@@ -40,6 +41,7 @@ class ServerboundPlayerActionPacket(
             if(player.gameMode.value == GameMode.CREATIVE) {
 
                 val previousBlock = player.world.getBlock(position)
+                val item = player.getHeldItem(PlayerHand.MAIN_HAND)
 
                 val event = PlayerBlockBreakEvent(player, previousBlock, position.toLocation(player.world))
                 Events.dispatch(event)
@@ -47,6 +49,12 @@ class ServerboundPlayerActionPacket(
                     player.world.getChunkAt(position.x, position.z)?.let { player.sendPacket(it.packet) }
                     return
                 }
+
+                if(item.material == Items.DEBUG_STICK) {
+                    player.world.getChunkAt(position.x, position.z)?.let { player.sendPacket(it.packet) }
+                    return
+                }
+                player.sendMessage(item.toString())
 
                 player.world.setBlock(event.location, Blocks.AIR)
                 player.world.players.values.filter { it != player }.spawnParticle(event.location.centerBlockLocation(), Particles.BLOCK, count = 50, offset = Vector3f(0.3f), particleData = BlockParticleData(previousBlock))

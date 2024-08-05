@@ -90,13 +90,6 @@ class MayaTestPlugin: DockyardPlugin {
             it.player.experienceBar.value = 1f
             it.player.experienceLevel.value = 0
 
-            it.player.gameMode.value = GameMode.SURVIVAL
-            it.player.inventory[0] = ItemStack(Items.COOKIE).apply {
-                displayName.value = "<orange><u>Cookie Clicker<r> <gray>(Right-Click)"; components.add(
-                EnchantmentGlintOverrideItemComponent(true)
-            )
-            }
-
             sidebar.viewers.addIfNotPresent(it.player)
         }
 

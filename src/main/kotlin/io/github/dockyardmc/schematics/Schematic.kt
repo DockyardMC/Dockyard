@@ -42,7 +42,7 @@ fun World.placeSchematic(location: Location, schematic: Schematic, rotation: Sch
 
                     val chunk = placeLoc.getChunk()
                     if(chunk != null) updateChunks.addIfNotPresent(chunk)
-                    this.setBlockRaw(placeLoc, block.blockStateId, false)
+                    this.setBlockRaw(placeLoc, block.getId(), false)
                 }
             }
         }

@@ -10,6 +10,6 @@ class FallingDustParticleData(val block: Block): ParticleData {
     override var id: Int = Particles.FALLING_DUST.id
 
     override fun write(byteBuf: ByteBuf) {
-        byteBuf.writeVarInt(block.blockStateId)
+        byteBuf.writeVarInt(block.getId())
     }
 }

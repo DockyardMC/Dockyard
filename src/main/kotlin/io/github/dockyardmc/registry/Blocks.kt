@@ -1,4 +1,7 @@
 package io.github.dockyardmc.registry
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.utils.Resources
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -6,6 +9,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import io.github.dockyardmc.blocks.BlockDataHelper
+import io.github.dockyardmc.extentions.broadcastMessage
+
 // THIS CLASS IS AUTO-GENERATED
 // DATA FROM MINECRAFT 1.21
 // https://github.com/DockyardMC/RegistryClassesGenerators
@@ -14,10 +19,9 @@ object Blocks {
     val idToBlockMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
         val blocks = json.decodeFromString<List<Block>>(Resources.getText("data/blocks.json"))
-        blocks.associateBy { it.blockStateId }
+        blocks.associateBy { it.defaultBlockStateId }
     }
-    fun getBlockById(id: Int): Block =
-        idToBlockMap[id] ?: error("Block ID $id not found")
+    fun getBlockById(id: Int): Block = getBlockByStateId(id) ?: error("Block ID $id not found")
 
     val AIR = getBlockById(0)
     val STONE = getBlockById(1)
@@ -1088,11 +1092,10 @@ object Blocks {
     }
 }
 
-
 @Serializable
 data class Block(
     @SerialName("defaultState")
-    var blockStateId: Int,
+    var defaultBlockStateId: Int,
     @SerialName("displayName")
     var name: String,
     @SerialName("name")
@@ -1109,5 +1112,102 @@ data class Block(
     var maxState: Int,
     var boundingBox: String,
     @Transient
-    var isClickable: Boolean = false
+    var isClickable: Boolean = false,
+    @SerialName("states")
+    var availableBlockStates: MutableList<BlockState>? = null,
+    @Transient
+    var blockStates: MutableMap<String, String> = mutableMapOf()
+) {
+    fun getId(): Int = getBlockStateId(this, blockStates)
+
+    override operator fun equals(other: Any?): Boolean {
+        if(other !is Block) return false
+
+        return other.maxState == this.maxState && other.minState == this.minState && other.defaultBlockStateId == this.defaultBlockStateId
+    }
+
+    fun withBlockState(vararg states: Pair<String, String>): Block = this.copy().apply { blockStates = states.toMap().toMutableMap() }
+}
+
+@Serializable
+data class BlockState(
+    val name: String,
+    val type: String,
+    val values: MutableList<String>? = null,
+    @SerialName("num_values")
+    val numValues: Int
 )
+
+fun getBlockByStateId(stateId: Int): Block? {
+    Blocks.idToBlockMap.values.forEach blockLoop@{ block ->
+        if(stateId !in block.minState..block.maxState) return@blockLoop
+        if(stateId == block.defaultBlockStateId) return block
+
+        val states = mutableMapOf<String, String>()
+        val diff = stateId - block.minState
+
+        block.availableBlockStates?.forEach statesLoop@{ state ->
+            val stateValue: String = when(state.type) {
+                "int",
+                "enum" -> state.values?.get(diff / 1)!!
+                "bool" -> if (diff / 1 == 0) "true" else "false"
+                else -> return@statesLoop
+            }
+            states[state.name] = stateValue
+        }
+
+        return block.copy().apply { blockStates = states }
+    }
+    return null
+}
+
+fun getBlockStateId(block: Block, stateValues: Map<String, String>): Int {
+    var stateId = block.minState
+
+    if (block.availableBlockStates.isNullOrEmpty()) return block.defaultBlockStateId
+    if(stateValues.isEmpty()) return block.defaultBlockStateId
+
+    block.availableBlockStates?.forEach { state ->
+        if(stateValues.containsKey(state.name)) {
+            val value = stateValues[state.name]!!
+            val stateIndex: Int = when(state.type) {
+                "int",
+                "enum" -> state.values?.indexOf(value)!!
+                "bool" -> if(value == "true") 1 else 0
+                else -> throw Exception("Unsupported operation ${state.type} (${state.name})")
+            }
+            stateId += stateIndex
+        }
+    }
+
+    return stateId
+
+}
+
+
+//fun getBlockStateId(block: Block, stateValues: Map<String, String>): Int {
+//    var stateId = block.minState
+//
+//    if (block.availableBlockStates.isNullOrEmpty()) return block.defaultBlockStateId
+//    if(stateValues.isEmpty()) return block.defaultBlockStateId
+//
+//    DockyardServer.broadcastMessage("not default: $stateValues")
+//
+//    block.availableBlockStates?.forEach { state ->
+//        var offset = 1
+//
+//        if(stateValues.containsKey(state.name)) {
+//            val value = stateValues[state.name]
+//            val valueIndex = when (state.type) {
+//                "int",
+//                "enum" -> state.values?.indexOf(value) ?: -1
+//                "bool" -> if (value == "true") 1 else 0
+//                else -> throw IllegalArgumentException("Unsupported state type: ${state.type}")
+//            }
+//            require(valueIndex != -1) { "Invalid value for state '${state.name} (${state.type}) (${state.values}) (${state.numValues})': $value" }
+//            stateId += valueIndex * 1
+//        }
+//        offset *= state.numValues
+//    }
+//    return stateId
+//}

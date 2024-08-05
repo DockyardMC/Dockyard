@@ -15,7 +15,7 @@ class ChunkSection(
         fun empty(): ChunkSection {
             val defaultBlocks = Palette.blocks()
             val defaultBiomes = Palette.biomes()
-            defaultBlocks.fill(Blocks.AIR.blockStateId)
+            defaultBlocks.fill(Blocks.AIR.getId())
             defaultBiomes.fill(Biomes.THE_VOID.id)
             return ChunkSection(defaultBlocks, defaultBiomes)
         }
