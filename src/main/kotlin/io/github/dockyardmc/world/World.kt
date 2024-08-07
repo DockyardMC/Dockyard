@@ -137,7 +137,12 @@ class World(
     fun setBlockState(x: Int, y: Int, z: Int, states: Map<String, String>) {
         val location = Location(x, y, z, this)
         val existingBlock = getBlock(location)
-        setBlock(location, existingBlock.withBlockStates(states))
+        val existingBlockStates = existingBlock.blockStates
+        val newStates = mutableMapOf<String, String>()
+        newStates.putAll(existingBlockStates)
+        states.forEach { newStates[it.key] = it.value }
+
+        setBlock(location, existingBlock.withBlockStates(newStates))
     }
 
     fun setBlockState(x: Int, y: Int, z: Int, vararg states: Pair<String, String>) {

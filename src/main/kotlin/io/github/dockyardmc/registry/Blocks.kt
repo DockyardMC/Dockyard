@@ -1,6 +1,8 @@
 package io.github.dockyardmc.registry
+import io.github.dockyardmc.DockyardServer
 import kotlinx.serialization.json.Json
 import io.github.dockyardmc.blocks.BlockDataHelper
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.reversed
 import kotlinx.datetime.Clock
 import kotlinx.serialization.*
@@ -1177,7 +1179,12 @@ fun Block.withBlockStates(vararg states: Pair<String, String>): Block = this.cop
 fun Block.withBlockStates(states: Map<String, String>): Block = this.copy().apply { blockStates = states.toMap().toMutableMap() }
 
 fun getBlockByStateId(stateId: Int): Block? {
-    Blocks.idToBlockMap[stateId]?.let { return it.copy() }
+    val mapBlock = Blocks.idToBlockMap[stateId]
+    if(mapBlock != null) {
+        val states = mapBlock.cachedStates.reversed()[mapBlock.defaultBlockStateId]!!
+        val parsed = parseBlockStateString(states).second.toMutableMap()
+        return mapBlock.copy().apply { blockStates = parsed }
+    }
 
     for (block in Blocks.idToBlockMap.values) {
         val cachedState = block.cachedStates.reversed()
