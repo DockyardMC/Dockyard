@@ -85,6 +85,7 @@ class Player(
     val currentOpenInventory: Bindable<DrawableContainerScreen?> = Bindable(null)
     var hasSkin = false
     var itemInUse: ItemInUse? = null
+    var lastRightClick = 0L
 
     val chunkEngine = ConcurrentChunkEngine(this)
 

@@ -2,6 +2,7 @@ package io.github.dockyardmc.world
 
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.getId
 import io.github.dockyardmc.world.palette.Palette
 import io.github.dockyardmc.world.palette.writePalette
 import io.netty.buffer.ByteBuf
@@ -15,7 +16,7 @@ class ChunkSection(
         fun empty(): ChunkSection {
             val defaultBlocks = Palette.blocks()
             val defaultBiomes = Palette.biomes()
-            defaultBlocks.fill(Blocks.AIR.blockStateId)
+            defaultBlocks.fill(Blocks.AIR.getId())
             defaultBiomes.fill(Biomes.THE_VOID.id)
             return ChunkSection(defaultBlocks, defaultBiomes)
         }

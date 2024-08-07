@@ -55,6 +55,7 @@ class DockyardServer {
         ConfigManager.load()
         ip = ConfigManager.currentConfig.serverConfig.ip
         port = ConfigManager.currentConfig.serverConfig.port
+        debug = ConfigManager.currentConfig.serverConfig.debug
     }
 
     //TODO rewrite and make good
@@ -144,7 +145,7 @@ class DockyardServer {
         var allowAnyVersion: Boolean = false
 
         var tickRate: Int = 20
-        val debug = ConfigManager.currentConfig.serverConfig.debug
+        var debug = ConfigManager.currentConfig.serverConfig.debug
 
 
         var mutePacketLogs = mutableListOf(
@@ -158,7 +159,8 @@ class DockyardServer {
             "ClientboundUpdateEntityPositionAndRotationPacket",
             "ClientboundUpdateEntityRotationPacket",
             "ClientboundSetHeadYawPacket",
-            "ClientboundSendParticlePacket"
+            "ClientboundSendParticlePacket",
+            "ClientboundUpdateScorePacket"
         )
     }
 }

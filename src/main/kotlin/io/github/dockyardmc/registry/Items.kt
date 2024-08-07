@@ -1,4 +1,5 @@
 package io.github.dockyardmc.registry
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.utils.Resources
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -16,7 +17,7 @@ object Items {
         items.forEach { item ->
             val block = Blocks.idToBlockMap.values.firstOrNull { item.identifier == it.namespace } ?: return@forEach
             item.isBlock = true
-            item.blockId = block.blockStateId
+            item.blockId = block.defaultBlockStateId
         }
         items.associateBy { it.id }
     }
@@ -1369,4 +1370,6 @@ data class Item(
     var isBlock: Boolean = false,
     @Transient
     var blockId: Int? = null
-)
+) {
+    fun toItemStack(amount: Int = 1): ItemStack = ItemStack(this, amount)
+}

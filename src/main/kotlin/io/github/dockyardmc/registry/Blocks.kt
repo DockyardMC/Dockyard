@@ -1,24 +1,33 @@
 package io.github.dockyardmc.registry
-import io.github.dockyardmc.utils.Resources
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import io.github.dockyardmc.blocks.BlockDataHelper
+import io.github.dockyardmc.extentions.reversed
+import kotlinx.datetime.Clock
+import kotlinx.serialization.*
+import kotlinx.serialization.json.decodeFromStream
+
 // THIS CLASS IS AUTO-GENERATED
 // DATA FROM MINECRAFT 1.21
 // https://github.com/DockyardMC/RegistryClassesGenerators
 
+@OptIn(ExperimentalSerializationApi::class)
 object Blocks {
-    val idToBlockMap by lazy {
-        val json = Json { ignoreUnknownKeys = true }
-        val blocks = json.decodeFromString<List<Block>>(Resources.getText("data/blocks.json"))
-        blocks.associateBy { it.blockStateId }
-    }
-    fun getBlockById(id: Int): Block =
-        idToBlockMap[id] ?: error("Block ID $id not found")
+    var idToBlockMap: Map<Int, Block> = mapOf()
 
+    init {
+        val start = Clock.System.now()
+        val json = Json { ignoreUnknownKeys = true }
+        val inputStream = ClassLoader.getSystemResource("data/blocks.json").openStream()
+        inputStream.use {
+            idToBlockMap = json.decodeFromStream<List<Block>>(it).associateBy { block -> block.defaultBlockStateId }
+        }
+        inputStream.close()
+
+        val final = Clock.System.now()
+        val overall = final.toEpochMilliseconds() - start.toEpochMilliseconds()
+    }
+
+    fun getBlockById(id: Int): Block = getBlockByStateId(id) ?: error("Block ID $id not found")
     val AIR = getBlockById(0)
     val STONE = getBlockById(1)
     val GRANITE = getBlockById(2)
@@ -1088,26 +1097,111 @@ object Blocks {
     }
 }
 
-
+@Suppress("EqualsOrHashCode")
 @Serializable
 data class Block(
-    @SerialName("defaultState")
-    var blockStateId: Int,
-    @SerialName("displayName")
-    var name: String,
     @SerialName("name")
     var namespace: String,
+    @SerialName("displayName")
+    var name: String,
     @SerialName("transparent")
     var isTransparent: Boolean,
     @SerialName("emitLight")
     var lightEmitted: Int,
     @SerialName("filterLight")
     var lightFiltered: Int,
+    @SerialName("defaultState")
+    var defaultBlockStateId: Int,
     @SerialName("minStateId")
     var minState: Int,
     @SerialName("maxStateId")
     var maxState: Int,
     var boundingBox: String,
     @Transient
-    var isClickable: Boolean = false
+    var isClickable: Boolean = false,
+    @SerialName("generated_states")
+    var cachedStates: MutableMap<String, Int>,
+    @Transient
+    var blockStates: MutableMap<String, String> = mutableMapOf()
+) {
+    override fun toString(): String {
+        if(cachedStates.isEmpty()) return "minecraft: $namespace"
+
+        val baseBlockStatesString = cachedStates.reversed()[defaultBlockStateId]!!
+        val (_, baseStates) = parseBlockStateString(baseBlockStatesString)
+
+        val states = mutableMapOf<String, String>()
+        baseStates.forEach { states[it.key] = it.value }
+        blockStates.forEach { states[it.key] = it.value }
+
+        val stringBuilder = StringBuilder("minecraft:$namespace[")
+        states.entries.joinToString(separator = ",") { "${it.key}=${it.value}" }.also { stringBuilder.append(it) }
+
+        return stringBuilder.append("]").toString()
+    }
+
+    override operator fun equals(other: Any?): Boolean {
+        if(other !is Block) return false
+
+        return other.maxState == this.maxState && other.minState == this.minState && other.defaultBlockStateId == this.defaultBlockStateId
+    }
+}
+
+@Serializable
+data class BlockState(
+    val name: String,
+    val type: String,
+    val values: MutableList<String>? = null,
+    @SerialName("num_values")
+    val numValues: Int
 )
+
+fun parseBlockStateString(string: String): Pair<String, Map<String, String>> {
+    val index = string.indexOf('[')
+    if (index == -1) return string to emptyMap()
+
+    val block = string.substring(0, index)
+    val statesPart = string.substring(index + 1, string.length - 1)
+
+    val states = statesPart.split(',').associate {
+        val (key, value) = it.split("=", limit = 2)
+        key to value
+    }
+
+    return block to states
+}
+
+fun Block.getId(): Int = getBlockStateId(this, blockStates)
+
+fun Block.withBlockStates(vararg states: Pair<String, String>): Block = this.copy().apply { blockStates = states.toMap().toMutableMap() }
+fun Block.withBlockStates(states: Map<String, String>): Block = this.copy().apply { blockStates = states.toMap().toMutableMap() }
+
+fun getBlockByStateId(stateId: Int): Block? {
+    Blocks.idToBlockMap[stateId]?.let { return it.copy() }
+
+    for (block in Blocks.idToBlockMap.values) {
+        val cachedState = block.cachedStates.reversed()
+        if (cachedState.isEmpty()) continue
+        if (!cachedState.containsKey(stateId)) continue
+
+        val blockCopy = block.copy()
+        blockCopy.blockStates = parseBlockStateString(cachedState[stateId]!!).second.toMutableMap()
+        return blockCopy
+    }
+    return null
+}
+
+fun getBlockFromStateString(string: String): Block? {
+    val parsed = parseBlockStateString(string)
+    val block = Blocks.idToBlockMap.values.first { it.namespace == parsed.first } ?: return null
+    return block.copy().apply { blockStates = parsed.second.toMutableMap() }
+}
+
+fun getBlockStateId(block: Block, stateValues: Map<String, String>, debug: Boolean = false): Int {
+    if(stateValues.isEmpty()) return block.defaultBlockStateId
+    if(block.cachedStates.isEmpty()) return block.defaultBlockStateId
+
+    val string = block.copy().apply { blockStates = stateValues.toMutableMap() }.toString()
+    val id = block.cachedStates[string] ?: block.defaultBlockStateId
+    return id
+}

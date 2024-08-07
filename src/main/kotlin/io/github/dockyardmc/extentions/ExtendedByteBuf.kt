@@ -6,9 +6,9 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.MathUtils
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
 import org.jglrxavpok.hephaistos.nbt.*
-import java.awt.TextComponent
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -256,3 +256,5 @@ fun ByteBuf.toByteArraySafe(): ByteArray {
 
     return bytes
 }
+
+fun ByteArray.toByteBuf(): ByteBuf = Unpooled.copiedBuffer(this)

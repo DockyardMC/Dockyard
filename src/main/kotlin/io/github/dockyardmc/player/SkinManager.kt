@@ -19,7 +19,7 @@ object SkinManager {
         asyncRunnable.callback = {
             uuid?.let { setSkinOf(player, it) }
         }
-        asyncRunnable.execute()
+        asyncRunnable.run()
     }
 
     fun setSkinOf(player: Player, uuid: UUID) {
@@ -47,7 +47,7 @@ object SkinManager {
             val packet = ClientboundEntityEffectPacket(player, 15, 1, 99999, 0x00)
             player.sendPacket(packet)
         }
-        asyncRunnable.execute()
+        asyncRunnable.run()
     }
 }
 

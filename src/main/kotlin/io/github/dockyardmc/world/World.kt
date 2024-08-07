@@ -12,10 +12,7 @@ import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.registry.Biomes
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.DimensionType
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.runnables.AsyncQueueProcessor
 import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.scroll.Component
@@ -120,6 +117,8 @@ class World(
         return getChunk(chunkX, chunkZ)
     }
 
+    fun getChunkAt(location: Location): Chunk? = getChunkAt(location.x.toInt(), location.z.toInt())
+
     fun getChunkFromIndex(index: Long): Chunk? = chunks[index]
 
     fun getChunk(x: Int, z: Int): Chunk? = chunks[ChunkUtils.getChunkIndex(x, z)]
@@ -135,6 +134,24 @@ class World(
         return chunk.getBlock(x, y, z)
     }
 
+    fun setBlockState(x: Int, y: Int, z: Int, states: Map<String, String>) {
+        val location = Location(x, y, z, this)
+        val existingBlock = getBlock(location)
+        setBlock(location, existingBlock.withBlockStates(states))
+    }
+
+    fun setBlockState(x: Int, y: Int, z: Int, vararg states: Pair<String, String>) {
+        setBlockState(x, y, z, states.toMap())
+    }
+
+    fun setBlockState(location: Location, states: Map<String, String>) {
+        setBlockState(location.x.toInt(), location.y.toInt(), location.z.toInt(), states)
+    }
+
+    fun setBlockState(location: Location, vararg states: Pair<String, String>) {
+        setBlockState(location.x.toInt(), location.y.toInt(), location.z.toInt(), states.toMap())
+    }
+
     fun getBlock(location: Location): Block = this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
 
     fun getBlock(vector: Vector3f): Block = this.getBlock(vector.x.toInt(), vector.y.toInt(), vector.z.toInt())
@@ -143,6 +160,12 @@ class World(
 
     fun setBlock(location: Location, block: Block) {
         this.setBlock(location.x.toInt(), location.y.toInt(), location.z.toInt(), block)
+    }
+
+    fun setBlockRaw(location: Location, blockStateId: Int, updateChunk: Boolean = true) {
+        val chunk = getChunkAt(location.x.toInt(), location.z.toInt()) ?: return
+        chunk.setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId)
+        if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
     }
 
     fun setBlock(vector3: Vector3, block: Block) {
@@ -159,7 +182,7 @@ class World(
         if(generator is VoidWorldGenerator) {
             chunk.sections.forEach { section ->
                 section.biomePalette.fill(Biomes.THE_VOID.id)
-                section.blockPalette.fill(Blocks.AIR.blockStateId)
+                section.blockPalette.fill(Blocks.AIR.getId())
             }
         } else {
             for (localX in 0..<16) {

@@ -5,6 +5,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDa
 import io.github.dockyardmc.registry.Biome
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.getId
 import io.github.dockyardmc.utils.ChunkUtils
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
 import org.jglrxavpok.hephaistos.nbt.NBT
@@ -51,6 +52,14 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         cacheChunkDataPacket()
     }
 
+    fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int) {
+        val section = getSectionAt(y)
+        val relativeX = ChunkUtils.sectionRelative(x)
+        val relativeZ = ChunkUtils.sectionRelative(z)
+        val relativeY = ChunkUtils.sectionRelative(y)
+        section.blockPalette[relativeX, relativeY, relativeZ] = blockStateId
+    }
+
     fun setBlock(x: Int, y: Int, z: Int, material: Block, shouldCache: Boolean = true) {
         val section = getSectionAt(y)
 
@@ -58,7 +67,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
 
-        section.blockPalette[relativeX, relativeY, relativeZ] = material.blockStateId
+        section.blockPalette[relativeX, relativeY, relativeZ] = material.getId()
         if(shouldCache) cacheChunkDataPacket()
     }
 

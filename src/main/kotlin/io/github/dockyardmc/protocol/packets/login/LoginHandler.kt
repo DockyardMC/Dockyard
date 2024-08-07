@@ -75,7 +75,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val asyncRunnable = AsyncRunnable {
             val skin = MojangUtil.getSkinFromUUID(player.uuid)
         }
-        asyncRunnable.execute()
+        asyncRunnable.run()
 
         val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken, true)
         connection.sendPacket(out)

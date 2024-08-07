@@ -13,6 +13,8 @@ object Resources {
     @Deprecated("please use getFile()", ReplaceWith("getFile(path)", "io.github.dockyardmc.utils.Resources.getFile"))
     fun getText(path: String): String = getFile(path)
 
+    fun getStream(path: String): InputStream = object {}.javaClass.getResourceAsStream(path)!!
+
     private fun readVersion(): String {
         val inputStream: InputStream? = object {}.javaClass.getResourceAsStream("/dock.yard")
         return inputStream!!.bufferedReader().use { it.readText() }.trim()

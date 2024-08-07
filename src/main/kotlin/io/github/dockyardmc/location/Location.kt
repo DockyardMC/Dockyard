@@ -4,6 +4,7 @@ import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.utils.Vector2
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
+import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import kotlin.math.atan2
@@ -44,11 +45,20 @@ class Location(
     override fun toString(): String =
         "Location(${x.truncate(2)}, ${y.truncate(2)}, ${z.truncate(2)}, yaw: $yaw, pitch: $pitch, world: ${world.name})"
 
+    fun getChunk(): Chunk? = world.getChunkAt(this)
+
     fun add(vector: Vector3f): Location =
         Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch, this.world)
 
+    fun add(x: Int, y: Int, z: Int): Location = Location(this.x + x, this.y + y, this.z + z, this.yaw, this.pitch, this.world)
+
+    fun add(x: Double, y: Double, z: Double): Location = Location(this.x + x, this.y + y, this.z + z, this.yaw, this.pitch, this.world)
+
     fun add(vector: Vector3): Location =
         Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch, this.world)
+
+    fun add(location: Location): Location =
+        Location(this.x + location.x, this.y + location.y, this.z + location.z, this.yaw, this.pitch, this.world)
 
     fun clone(): Location = Location(this.x, this.y, this.z, this.yaw, this.pitch, this.world)
 
