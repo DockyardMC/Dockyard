@@ -12,24 +12,11 @@ import java.lang.Exception
 object ConfigManager {
 
     val defaultConfig = DockyardConfig(
-        serverConfig = ServerConfig(
-            ip = "0.0.0.0",
-            port = 25565,
-            networkCompressionThreshold = 256,
-            debug = false
-        ),
-        chunkEngine = ChunkEngine(
-            async = true,
-            threadPerNewChunk = true,
-            maxThreads = 25
-        ),
-        bundledPlugins = BundledPlugins(
-            dockyardCommands = false,
-            dockyardExtras = false,
-            mayaTestPlugin = false,
-            mudkipTestPlugin = false,
-            emberSeeker = false
-        )
+        configVersion = 1,
+        serverConfig = ServerConfig(),
+        chunkEngine = ChunkEngine(),
+        bundledPlugins = BundledPlugins(),
+        implementationConfig = ImplementationConfig()
     )
 
     val configFile = File("./dockyard.toml")
@@ -50,7 +37,7 @@ object ConfigManager {
             currentConfig = config
             log("Dockyard Config File has been loaded successfully!", LogType.SUCCESS)
         } catch (ex: Exception) {
-            log("There was an error while loading your dockyard config file, the default config values will be used instead.", LogType.ERROR)
+            log("There was an error while loading your dockyard config file, the default config values will be used instead. Please check if your config format is up to date!", LogType.FATAL)
             log(ex)
             currentConfig = defaultConfig
         }
@@ -59,31 +46,36 @@ object ConfigManager {
 
 @Serializable
 data class DockyardConfig(
+    val configVersion: Int,
     val serverConfig: ServerConfig,
     val chunkEngine: ChunkEngine,
+    val implementationConfig: ImplementationConfig,
     val bundledPlugins: BundledPlugins
 )
 
 @Serializable
 data class ServerConfig(
-    val ip: String,
-    val port: Int,
-    val networkCompressionThreshold: Int,
-    val debug: Boolean
+    val ip: String = "0.0.0.0",
+    val port: Int = 25565,
+    val networkCompressionThreshold: Int = 256,
+    val debug: Boolean = false
 )
 
 @Serializable
 data class ChunkEngine(
-    val async: Boolean,
-    val threadPerNewChunk: Boolean,
-    val maxThreads: Int
+    val async: Boolean = true,
+)
+
+@Serializable
+data class ImplementationConfig(
+    val applyBlockPlacementRules: Boolean = true
 )
 
 @Serializable
 data class BundledPlugins(
-    var dockyardCommands: Boolean,
-    var dockyardExtras: Boolean,
-    var mayaTestPlugin: Boolean,
-    var mudkipTestPlugin: Boolean,
-    var emberSeeker: Boolean
+    var dockyardCommands: Boolean = true,
+    var dockyardExtras: Boolean = false,
+    var mayaTestPlugin: Boolean = false,
+    var mudkipTestPlugin: Boolean = false,
+    var emberSeeker: Boolean = false
 )

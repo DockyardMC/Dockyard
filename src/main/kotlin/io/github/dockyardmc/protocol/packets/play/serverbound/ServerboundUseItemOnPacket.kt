@@ -3,6 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.blocks.*
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
@@ -23,15 +24,7 @@ import io.github.dockyardmc.utils.toLocation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-val rules = mutableListOf(
-    LogBlockPlacementRules(),
-    SlabBlockPlacementRule(),
-    StairBlockPlacementRules(),
-    WoodBlockPlacementRules(),
-    GlassPanePlacementRules(),
-    FencePlacementRules(),
-    WallPlacementRules()
-)
+val placementRules = mutableListOf<BlockPlacementRule>()
 
 @WikiVGEntry("Use Item On")
 @ServerboundPacketInfo(56, ProtocolState.PLAY)
@@ -45,6 +38,18 @@ class ServerboundUseItemOnPacket(
     var insideBlock: Boolean,
     var sequence: Int
     ): ServerboundPacket {
+
+        init {
+            if(ConfigManager.currentConfig.implementationConfig.applyBlockPlacementRules) {
+                placementRules.add(LogBlockPlacementRules())
+                placementRules.add(SlabBlockPlacementRule())
+                placementRules.add(StairBlockPlacementRules())
+                placementRules.add(WoodBlockPlacementRules())
+                placementRules.add(GlassPanePlacementRules())
+                placementRules.add(FencePlacementRules())
+                placementRules.add(WallPlacementRules())
+            }
+        }
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
@@ -73,7 +78,7 @@ class ServerboundUseItemOnPacket(
         if(item.material.isBlock && item.material != Items.AIR) {
             var block: Block = Blocks.getBlockById(item.material.blockId!!)
 
-            rules.forEach {
+            placementRules.forEach {
                 if(block.namespace.contains(it.matchesIdentifier)) {
                     val res = it.getPlacement(player, item, block, face, newPos.toLocation(player.world), pos.toLocation(player.world), cursorX, cursorY, cursorZ)
                     if(res == null) {
