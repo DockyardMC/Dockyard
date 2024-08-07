@@ -41,6 +41,18 @@ class ServerboundUseItemOnPacket(
 
         init {
             if(ConfigManager.currentConfig.implementationConfig.applyBlockPlacementRules) {
+                val rotational = listOf(
+                    "furnace",
+                    "blast_furnace",
+                    "smoker",
+                    "chiseled_bookshelf",
+                    "beehive",
+                    "bee_nest",
+                    "observer",
+                    "end_portal_frame",
+                    "campfire",
+                )
+
                 placementRules.add(LogBlockPlacementRules())
                 placementRules.add(SlabBlockPlacementRule())
                 placementRules.add(StairBlockPlacementRules())
@@ -48,6 +60,9 @@ class ServerboundUseItemOnPacket(
                 placementRules.add(GlassPanePlacementRules())
                 placementRules.add(FencePlacementRules())
                 placementRules.add(WallPlacementRules())
+                placementRules.add(StemBlockPlacementRules())
+                placementRules.add(HyphaeBlockPlacementRules())
+                placementRules.add(RotationPlacementRules(rotational))
             }
         }
 
