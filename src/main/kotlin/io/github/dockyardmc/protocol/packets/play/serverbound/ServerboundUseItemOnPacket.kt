@@ -3,9 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.blocks.GeneralBlockPlacementRules
-import io.github.dockyardmc.blocks.getSlabPlacement
-import io.github.dockyardmc.blocks.getStairPlacement
+import io.github.dockyardmc.blocks.*
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
@@ -26,6 +24,8 @@ import io.github.dockyardmc.utils.readBlockPosition
 import io.github.dockyardmc.utils.toLocation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
+
+val rules = mutableListOf(LogBlockPlacementRules(), SlabBlockPlacementRule(), StairBlockPlacementRules(), WoodBlockPlacementRules())
 
 @WikiVGEntry("Use Item On")
 @ServerboundPacketInfo(56, ProtocolState.PLAY)
@@ -67,20 +67,15 @@ class ServerboundUseItemOnPacket(
         if(item.material.isBlock && item.material != Items.AIR) {
             var block: Block = Blocks.getBlockById(item.material.blockId!!)
 
-            if(block.namespace.contains("slab")) {
-                val res = getSlabPlacement(player, item, block, face, newPos.toLocation(player.world), pos.toLocation(player.world), cursorX, cursorY, cursorZ)
-                if(res == null) {
-                    player.world.getChunkAt(newPos.x, newPos.z)?.let { player.sendPacket(it.packet) }
-                    return
-                } else block = res
-            }
-
-            if(block.namespace.contains("stair")) {
-                val res = getStairPlacement(player, item, block, face, newPos.toLocation(player.world), pos.toLocation(player.world), cursorX, cursorY, cursorZ)
-                if(res == null) {
-                    player.world.getChunkAt(newPos.x, newPos.z)?.let { player.sendPacket(it.packet) }
-                    return
-                } else block = res
+            rules.forEach {
+                if(block.namespace.contains(it.matchesIdentifier)) {
+                    val res = it.getPlacement(player, item, block, face, newPos.toLocation(player.world), pos.toLocation(player.world), cursorX, cursorY, cursorZ)
+                    if(res == null) {
+                        player.world.getChunkAt(newPos.x, newPos.z)?.let { chunk -> player.sendPacket(chunk.packet) }
+                        return
+                    }
+                    block = res
+                }
             }
 
             if(!GeneralBlockPlacementRules.canBePlaced(pos.toLocation(player.world), newPos.toLocation(player.world), block, player)) cancelled = true

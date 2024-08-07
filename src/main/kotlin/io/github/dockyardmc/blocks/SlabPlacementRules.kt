@@ -7,33 +7,36 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.withBlockStates
 
-fun getSlabPlacement(
-    player: Player,
-    heldItem: ItemStack,
-    block: Block,
-    face: Direction,
-    location: Location,
-    clickedBlock: Location,
-    cursorX: Float,
-    cursorY: Float,
-    cursorZ: Float,
-): Block? {
+class SlabBlockPlacementRule: BlockPlacementRule {
+    override val matchesIdentifier = "slab"
 
-    val originalBlock = clickedBlock.world.getBlock(clickedBlock)
-    val states = mutableMapOf<String, String>()
+    override fun getPlacement(
+        player: Player,
+        heldItem: ItemStack,
+        block: Block,
+        face: Direction,
+        location: Location,
+        clickedBlock: Location,
+        cursorX: Float,
+        cursorY: Float,
+        cursorZ: Float,
+    ): Block? {
+        val originalBlock = clickedBlock.world.getBlock(clickedBlock)
+        val states = mutableMapOf<String, String>()
 
-    states["type"] = if(cursorY >= 0.5f && face != Direction.UP) "top" else "bottom"
-    if(face == Direction.DOWN) states["type"] = "top"
+        states["type"] = if(cursorY >= 0.5f && face != Direction.UP) "top" else "bottom"
+        if(face == Direction.DOWN) states["type"] = "top"
 
-    if(originalBlock.blockStates["type"] == "bottom" && face == Direction.UP && originalBlock == block) {
-        clickedBlock.world.setBlockState(clickedBlock, "type" to "double")
-        return null
+        if(originalBlock.blockStates["type"] == "bottom" && face == Direction.UP && originalBlock == block) {
+            clickedBlock.world.setBlockState(clickedBlock, "type" to "double")
+            return null
+        }
+
+        if(originalBlock.blockStates["type"] == "top" && face == Direction.DOWN && originalBlock == block) {
+            clickedBlock.world.setBlockState(clickedBlock, "type" to "double")
+            return null
+        }
+
+        return block.withBlockStates(states)
     }
-
-    if(originalBlock.blockStates["type"] == "top" && face == Direction.DOWN && originalBlock == block) {
-        clickedBlock.world.setBlockState(clickedBlock, "type" to "double")
-        return null
-    }
-
-    return block.withBlockStates(states)
 }
