@@ -8,7 +8,6 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
 import io.github.dockyardmc.events.PlayerRightClickWithItemEvent
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.player.Direction
@@ -25,7 +24,13 @@ import io.github.dockyardmc.utils.toLocation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-val rules = mutableListOf(LogBlockPlacementRules(), SlabBlockPlacementRule(), StairBlockPlacementRules(), WoodBlockPlacementRules())
+val rules = mutableListOf(
+    LogBlockPlacementRules(),
+    SlabBlockPlacementRule(),
+    StairBlockPlacementRules(),
+    WoodBlockPlacementRules(),
+    GlassPanePlacementRules()
+)
 
 @WikiVGEntry("Use Item On")
 @ServerboundPacketInfo(56, ProtocolState.PLAY)
