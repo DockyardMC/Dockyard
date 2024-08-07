@@ -9,6 +9,7 @@ import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.getId
 import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.world.Chunk

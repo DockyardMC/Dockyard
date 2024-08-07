@@ -3,6 +3,7 @@ package io.github.dockyardmc.protocol
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.events.PlayerDisconnectEvent
@@ -85,6 +86,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                     }
 
                     val className = packet::class.simpleName ?: packet::class.toString()
+                    ServerMetrics.packetsReceived++
                     if (!DockyardServer.mutePacketLogs.contains(className)) {
                         debug("-> Received $className (0x${packetIdByteRep}) (${Thread.currentThread().name})", LogType.NETWORK)
                     }

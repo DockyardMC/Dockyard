@@ -1,8 +1,7 @@
 package io.github.dockyardmc.schematics
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.getBlockFromStateString
 import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector3
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray
@@ -20,7 +19,6 @@ object SchematicReader {
         if(cachedSchematic != null) return cachedSchematic
 
         val nbt = NBTReader(file, CompressedProcesser.GZIP).readNamed().second as NBTCompound
-        log(nbt.toSNBT())
 
         val width: Int = (nbt.getShort("Width") ?: throw Exception("Field Width was not found in the schematic file!")).toInt()
         val height: Int = (nbt.getShort("Height") ?: throw Exception("Field Height was not found in the schematic file!")).toInt()
@@ -53,11 +51,10 @@ object SchematicReader {
         pallet.forEach { entry ->
             val namespace = entry.key.replace("minecraft:", "")
             val id = (entry.value as NBTInt).getValue()
-            val block = Blocks.idToBlockMap.values.firstOrNull { it.namespace == namespace } ?: return@forEach
+            val block = getBlockFromStateString(namespace) ?: return@forEach
             blocks[block] = id
         }
 
-        blocks.forEach { log("${it.key.namespace}: ${it.value}") }
 
         val schematic = Schematic(
             size = Vector3(width, height, length),

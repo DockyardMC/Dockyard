@@ -1,8 +1,8 @@
 package io.github.dockyardmc.extentions
 
 import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketSentEvent
 import io.github.dockyardmc.player.Player
@@ -18,6 +18,7 @@ fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket, player: Player? 
     if(event.cancelled) return
 
     this.writeAndFlush(packet.asByteBuf())
+    ServerMetrics.packetsSent++
 
     val className = packet::class.simpleName
     if(DockyardServer.mutePacketLogs.contains(className)) return

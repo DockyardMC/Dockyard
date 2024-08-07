@@ -1,5 +1,6 @@
 package io.github.dockyardmc.runnables
 
+import io.github.dockyardmc.ServerMetrics
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.SwingUtilities
@@ -14,14 +15,16 @@ class AsyncQueueProcessor : Runnable {
     }
 
     fun submit(task: AsyncQueueTask) {
+        ServerMetrics.asyncQueueProcessorTasks++
         taskQueue.offer(task)
     }
 
     override fun run() {
         while (isRunning.get()) {
             try {
-                val task = taskQueue.take() // Blocks until a task is available
+                val task = taskQueue.take()
                 task.run()
+                ServerMetrics.asyncQueueProcessorTasks--
             } catch (e: InterruptedException) {
                 Thread.currentThread().interrupt()
             }

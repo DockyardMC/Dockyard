@@ -12,10 +12,7 @@ import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.registry.Biomes
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.DimensionType
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.runnables.AsyncQueueProcessor
 import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.scroll.Component

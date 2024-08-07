@@ -54,7 +54,6 @@ class ServerboundPlayerActionPacket(
                     player.world.getChunkAt(position.x, position.z)?.let { player.sendPacket(it.packet) }
                     return
                 }
-                player.sendMessage(item.toString())
 
                 player.world.setBlock(event.location, Blocks.AIR)
                 player.world.players.values.filter { it != player }.spawnParticle(event.location.centerBlockLocation(), Particles.BLOCK, count = 50, offset = Vector3f(0.3f), particleData = BlockParticleData(previousBlock))
