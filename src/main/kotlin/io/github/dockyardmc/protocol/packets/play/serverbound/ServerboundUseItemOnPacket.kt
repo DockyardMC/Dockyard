@@ -63,6 +63,7 @@ class ServerboundUseItemOnPacket(
                 placementRules.add(StemBlockPlacementRules())
                 placementRules.add(HyphaeBlockPlacementRules())
                 placementRules.add(TrapdoorBlockPlacementRule())
+                placementRules.add(ButtonBlockPlacementRule())
                 placementRules.add(RotationPlacementRules(rotational))
             }
         }
