@@ -5,14 +5,21 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.sqrt
 
 data class Vector3(
     var x: Int,
     var y: Int,
     var z: Int,
 ) {
+    operator fun minus(vector: Vector3): Vector3 {
+        val subVector = this.copy()
+        subVector.x -= vector.x
+        subVector.y -= vector.y
+        subVector.z -= vector.z
+        return subVector
+    }
+
     constructor() : this(0, 0, 0)
 }
 
@@ -22,6 +29,16 @@ data class Vector3f(
     var z: Float,
 ) {
     constructor(single: Float) : this(single, single, single)
+
+    fun normalize(): Vector3f {
+        val vector = this
+        val magnitude = sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z).toFloat()
+        return if (magnitude != 0.0f) {
+            Vector3f(vector.x / magnitude, vector.y / magnitude, vector.z / magnitude)
+        } else {
+            vector
+        }
+    }
 }
 
 fun ByteBuf.writeShortVector3(vector3: Vector3) {

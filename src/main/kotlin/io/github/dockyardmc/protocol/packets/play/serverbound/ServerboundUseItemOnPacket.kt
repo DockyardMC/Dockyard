@@ -4,6 +4,8 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.blocks.GeneralBlockPlacementRules
+import io.github.dockyardmc.blocks.getSlabPlacement
+import io.github.dockyardmc.blocks.getStairPlacement
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
@@ -16,6 +18,7 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.Vector3
@@ -62,11 +65,28 @@ class ServerboundUseItemOnPacket(
         if(rightClickEvent.cancelled) cancelled = true
 
         if(item.material.isBlock && item.material != Items.AIR) {
-            val block = Blocks.getBlockById(item.material.blockId!!)
+            var block: Block = Blocks.getBlockById(item.material.blockId!!)
+
+            if(block.namespace.contains("slab")) {
+                val res = getSlabPlacement(player, item, block, face, newPos.toLocation(player.world), pos.toLocation(player.world), cursorX, cursorY, cursorZ)
+                if(res == null) {
+                    player.world.getChunkAt(newPos.x, newPos.z)?.let { player.sendPacket(it.packet) }
+                    return
+                } else block = res
+            }
+
+            if(block.namespace.contains("stair")) {
+                val res = getStairPlacement(player, item, block, face, newPos.toLocation(player.world), pos.toLocation(player.world), cursorX, cursorY, cursorZ)
+                if(res == null) {
+                    player.world.getChunkAt(newPos.x, newPos.z)?.let { player.sendPacket(it.packet) }
+                    return
+                } else block = res
+            }
 
             if(!GeneralBlockPlacementRules.canBePlaced(pos.toLocation(player.world), newPos.toLocation(player.world), block, player)) cancelled = true
 
             val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation(player.world))
+
             Events.dispatch(blockPlaceEvent)
 
             if(blockPlaceEvent.cancelled) cancelled = true
