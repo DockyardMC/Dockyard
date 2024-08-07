@@ -1173,7 +1173,8 @@ fun parseBlockStateString(string: String): Pair<String, Map<String, String>> {
 
 fun Block.getId(): Int = getBlockStateId(this, blockStates)
 
-fun Block.withBlockState(vararg states: Pair<String, String>): Block = this.copy().apply { blockStates = states.toMap().toMutableMap() }
+fun Block.withBlockStates(vararg states: Pair<String, String>): Block = this.copy().apply { blockStates = states.toMap().toMutableMap() }
+fun Block.withBlockStates(states: Map<String, String>): Block = this.copy().apply { blockStates = states.toMap().toMutableMap() }
 
 fun getBlockByStateId(stateId: Int): Block? {
     Blocks.idToBlockMap[stateId]?.let { return it.copy() }

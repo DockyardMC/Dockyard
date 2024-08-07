@@ -134,6 +134,24 @@ class World(
         return chunk.getBlock(x, y, z)
     }
 
+    fun setBlockState(x: Int, y: Int, z: Int, states: Map<String, String>) {
+        val location = Location(x, y, z, this)
+        val existingBlock = getBlock(location)
+        setBlock(location, existingBlock.withBlockStates(states))
+    }
+
+    fun setBlockState(x: Int, y: Int, z: Int, vararg states: Pair<String, String>) {
+        setBlockState(x, y, z, states.toMap())
+    }
+
+    fun setBlockState(location: Location, states: Map<String, String>) {
+        setBlockState(location.x.toInt(), location.y.toInt(), location.z.toInt(), states)
+    }
+
+    fun setBlockState(location: Location, vararg states: Pair<String, String>) {
+        setBlockState(location.x.toInt(), location.y.toInt(), location.z.toInt(), states.toMap())
+    }
+
     fun getBlock(location: Location): Block = this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
 
     fun getBlock(vector: Vector3f): Block = this.getBlock(vector.x.toInt(), vector.y.toInt(), vector.z.toInt())
