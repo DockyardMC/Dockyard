@@ -38,8 +38,7 @@ fun main(args: Array<String>) {
     Events.on<PlayerJoinEvent> {
         val player = it.player
         player.gameMode.value = GameMode.CREATIVE
-        player.inventory[0] = Items.OAK_SAPLING.toItemStack()
-        player.inventory[1] = Items.DEBUG_STICK.toItemStack()
+        player.inventory[0] = Items.CHERRY_TRAPDOOR.toItemStack()
         DebugScoreboard.sidebar.viewers.add(player)
     }
 

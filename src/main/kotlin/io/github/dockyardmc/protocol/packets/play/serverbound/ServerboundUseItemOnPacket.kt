@@ -62,6 +62,7 @@ class ServerboundUseItemOnPacket(
                 placementRules.add(WallPlacementRules())
                 placementRules.add(StemBlockPlacementRules())
                 placementRules.add(HyphaeBlockPlacementRules())
+                placementRules.add(TrapdoorBlockPlacementRule())
                 placementRules.add(RotationPlacementRules(rotational))
             }
         }
@@ -73,6 +74,8 @@ class ServerboundUseItemOnPacket(
         var cancelled = false
 
         val newPos = pos.copy()
+        val originalBlock = player.world.getBlock(pos)
+
         when(face) {
             Direction.UP -> newPos.y += 1
             Direction.DOWN -> newPos.y += -1
@@ -89,6 +92,12 @@ class ServerboundUseItemOnPacket(
         val rightClickEvent = PlayerRightClickWithItemEvent(player, item)
         Events.dispatch(event)
         if(rightClickEvent.cancelled) cancelled = true
+
+        //TODO Move to block implementation or something idk?
+        if(!player.isSneaking && originalBlock.namespace.contains("trapdoor") && !cancelled) {
+            val open = originalBlock.blockStates["open"] != "true"
+            player.world.setBlockState(pos.toLocation(player.world), "open" to open.toString().lowercase())
+        }
 
         if(item.material.isBlock && item.material != Items.AIR) {
             var block: Block = Blocks.getBlockById(item.material.blockId!!)

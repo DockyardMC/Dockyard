@@ -9,8 +9,8 @@ import io.github.dockyardmc.player.getOpposite
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.withBlockStates
 
-class RotationPlacementRules(var matches: List<String>): BlockPlacementRule {
-    override val matchesIdentifier = ""
+class TrapdoorBlockPlacementRule: BlockPlacementRule {
+    override val matchesIdentifier = "trapdoor"
 
     override fun getPlacement(
         player: Player,
@@ -23,10 +23,15 @@ class RotationPlacementRules(var matches: List<String>): BlockPlacementRule {
         cursorY: Float,
         cursorZ: Float,
     ): Block {
-        if(!matches.contains(block.namespace)) return block
+        val states = mutableMapOf<String, String>()
+
+        states["half"] = if(cursorY >= 0.5f && face != Direction.UP) "top" else "bottom"
+        if(face == Direction.DOWN) states["half"] = "top"
 
         var dir = face
         if(face == Direction.UP || face == Direction.DOWN) dir = player.getDirection(true).getOpposite()
-        return block.withBlockStates("facing" to dir.name.lowercase() )
+        states["facing"] = dir.name.lowercase()
+
+        return block.withBlockStates(states)
     }
 }
