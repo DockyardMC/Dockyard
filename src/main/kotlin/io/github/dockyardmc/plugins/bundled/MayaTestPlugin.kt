@@ -112,6 +112,9 @@ class MayaTestPlugin: DockyardPlugin {
                         player.sendMessage("<yellow>Schematic <aqua>${file.name} <yellow>has been placed! Took <pink>${final - now}ms")
                     }
                 }
+            }
+        }
+
         Commands.add("/potion") {
             it.addArgument("effect", StringArgument())
             it.addArgument("duration", IntArgument())
