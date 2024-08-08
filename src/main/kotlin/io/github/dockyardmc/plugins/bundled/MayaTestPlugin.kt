@@ -1,28 +1,16 @@
 package io.github.dockyardmc.plugins.bundled
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.ServerMetrics
 import io.github.dockyardmc.bossbar.Bossbar
 import io.github.dockyardmc.bossbar.BossbarColor
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.truncate
-import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
-import io.github.dockyardmc.item.FoodItemComponent
-import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.particles.spawnParticle
-import io.github.dockyardmc.periodic.Period
-import io.github.dockyardmc.periodic.SecondPeriod
-import io.github.dockyardmc.periodic.TickPeriod
-import io.github.dockyardmc.player.GameMode
-import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
-import io.github.dockyardmc.player.addIfNotPresent
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
-import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.schematics.SchematicReader
 import io.github.dockyardmc.schematics.placeSchematic
@@ -31,10 +19,7 @@ import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.DefaultServerLink
 import io.github.dockyardmc.serverlinks.CustomServerLink
 import io.github.dockyardmc.serverlinks.ServerLinks
-import io.github.dockyardmc.sidebar.Sidebar
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.ui.CookieClickerScreen
-import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.WorldManager
 import java.io.File
@@ -51,20 +36,6 @@ class MayaTestPlugin: DockyardPlugin {
             1f,
             BossbarColor.BLUE
         )
-
-        Period.on<TickPeriod> {
-//            val runtime = Runtime.getRuntime()
-//            val mspt = ServerMetrics.millisecondsPerTick
-//            val memoryUsage = runtime.totalMemory() - runtime.freeMemory()
-//            val memUsagePercent =
-//                MathUtils.percent(runtime.totalMemory().toDouble(), memoryUsage.toDouble()).truncate(0)
-//
-//            val fMem = (memoryUsage.toDouble() / 1000000).truncate(1)
-//            val fMax = (runtime.totalMemory().toDouble() / 1000000).truncate(1)
-//            PlayerManager.players.forEach {
-//                it.sendActionBar("<white>MSPT: <lime>$mspt <dark_gray>| <white>Memory Usage: <#ff6830>$memUsagePercent% <gray>(${fMem}mb / ${fMax}mb) <dark_gray>| <white>World: <#f224a7>${it.world.name} <gray>(${it.world.players.values.size})")
-//            }
-        }
 
         Events.on<PlayerJoinEvent> {
             val effectPacket = ClientboundEntityEffectPacket(it.player, 15, 1, 99999, 0x00)
@@ -121,11 +92,20 @@ class MayaTestPlugin: DockyardPlugin {
         }
 
         Commands.add("/paste") {
+            it.addArgument("schematic", StringArgument())
             it.execute { ctx ->
                 val player = ctx.playerOrThrow()
-                val file = File("./map.schem")
-                val schematic = SchematicReader.read(file)
-                player.world.placeSchematic(player.location, schematic)
+                val schemFile = it.get<String>("schematic")
+                val file = File("./$schemFile.schem")
+                val now = System.currentTimeMillis()
+                player.world.placeSchematic {
+                    location = player.location
+                    schematic = SchematicReader.read(file)
+                    then = {
+                        val final = System.currentTimeMillis()
+                        player.sendMessage("<yellow>Schematic <aqua>${file.name} <yellow>has been placed! Took <pink>${final - now}ms")
+                    }
+                }
             }
         }
     }
