@@ -57,7 +57,7 @@ object CommandHandler {
                     Long::class -> value.toLongOrNull() ?: throw Exception("\"$value\" is not of type Long")
                     UUID::class -> UUID.fromString(value)
                     Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value } ?: throw Exception("\"$value\" is not of type Item")
-                    Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.namespace == value } ?: throw Exception("\"$value\" is not of type Block")
+                    Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.identifier == value } ?: throw Exception("\"$value\" is not of type Block")
 
                     //TODO: brigadier selectors @a @e @s @p @n
                     else -> null

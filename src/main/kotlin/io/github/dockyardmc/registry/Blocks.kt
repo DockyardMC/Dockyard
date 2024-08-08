@@ -1,8 +1,6 @@
 package io.github.dockyardmc.registry
-import io.github.dockyardmc.DockyardServer
 import kotlinx.serialization.json.Json
 import io.github.dockyardmc.blocks.BlockDataHelper
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.reversed
 import kotlinx.datetime.Clock
 import kotlinx.serialization.*
@@ -1103,7 +1101,7 @@ object Blocks {
 @Serializable
 data class Block(
     @SerialName("name")
-    var namespace: String,
+    var identifier: String,
     @SerialName("displayName")
     var name: String,
     @SerialName("transparent")
@@ -1127,7 +1125,7 @@ data class Block(
     var blockStates: MutableMap<String, String> = mutableMapOf()
 ) {
     override fun toString(): String {
-        if(cachedStates.isEmpty()) return "minecraft: $namespace"
+        if(cachedStates.isEmpty()) return "minecraft: $identifier"
 
         val baseBlockStatesString = cachedStates.reversed()[defaultBlockStateId]!!
         val (_, baseStates) = parseBlockStateString(baseBlockStatesString)
@@ -1136,7 +1134,7 @@ data class Block(
         baseStates.forEach { states[it.key] = it.value }
         blockStates.forEach { states[it.key] = it.value }
 
-        val stringBuilder = StringBuilder("minecraft:$namespace[")
+        val stringBuilder = StringBuilder("minecraft:$identifier[")
         states.entries.joinToString(separator = ",") { "${it.key}=${it.value}" }.also { stringBuilder.append(it) }
 
         return stringBuilder.append("]").toString()
@@ -1200,7 +1198,7 @@ fun getBlockByStateId(stateId: Int): Block? {
 
 fun getBlockFromStateString(string: String): Block? {
     val parsed = parseBlockStateString(string)
-    val block = Blocks.idToBlockMap.values.first { it.namespace == parsed.first } ?: return null
+    val block = Blocks.idToBlockMap.values.first { it.identifier == parsed.first } ?: return null
     return block.copy().apply { blockStates = parsed.second.toMutableMap() }
 }
 

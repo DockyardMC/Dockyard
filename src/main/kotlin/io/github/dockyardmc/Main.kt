@@ -1,5 +1,6 @@
 package io.github.dockyardmc
 
+import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
@@ -19,6 +20,11 @@ fun main(args: Array<String>) {
 
     if(args.contains("validate-packets")) {
         VerifyPacketIds()
+        return
+    }
+
+    if(args.contains("event-documentation")) {
+        EventsDocumentationGenerator()
         return
     }
 

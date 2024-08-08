@@ -97,7 +97,7 @@ class ServerboundUseItemOnPacket(
         if(rightClickEvent.cancelled) cancelled = true
 
         //TODO Move to block implementation or something idk?
-        if(!player.isSneaking && originalBlock.namespace.contains("trapdoor") && !cancelled) {
+        if(!player.isSneaking && originalBlock.identifier.contains("trapdoor") && !cancelled) {
             val open = originalBlock.blockStates["open"] != "true"
             player.world.setBlockState(pos.toLocation(player.world), "open" to open.toString().lowercase())
         }
@@ -106,7 +106,7 @@ class ServerboundUseItemOnPacket(
             var block: Block = Blocks.getBlockById(item.material.blockId!!)
 
             placementRules.forEach {
-                if(block.namespace.contains(it.matchesIdentifier)) {
+                if(block.identifier.contains(it.matchesIdentifier)) {
                     val res = it.getPlacement(player, item, block, face, newPos.toLocation(player.world), pos.toLocation(player.world), cursorX, cursorY, cursorZ)
                     if(res == null) {
                         player.world.getChunkAt(newPos.x, newPos.z)?.let { chunk -> player.sendPacket(chunk.packet) }

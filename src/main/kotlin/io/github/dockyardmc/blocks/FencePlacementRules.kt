@@ -36,19 +36,19 @@ class FencePlacementRules: BlockPlacementRule {
         val east = world.getBlock(eastLoc)
         val west = world.getBlock(westLoc)
 
-        if(north.namespace.contains(matchesIdentifier)) {
+        if(north.identifier.contains(matchesIdentifier)) {
             states["north"] = "true"
             world.setBlockState(northLoc, "south" to "true")
         }
-        if(south.namespace.contains(matchesIdentifier)) {
+        if(south.identifier.contains(matchesIdentifier)) {
             states["south"] = "true"
             world.setBlockState(southLoc, "north" to "true")
         }
-        if(east.namespace.contains(matchesIdentifier)) {
+        if(east.identifier.contains(matchesIdentifier)) {
             states["east"] = "true"
             world.setBlockState(eastLoc, "west" to "true")
         }
-        if(west.namespace.contains(matchesIdentifier)) {
+        if(west.identifier.contains(matchesIdentifier)) {
             states["west"] = "true"
             world.setBlockState(westLoc, "east" to "true")
         }

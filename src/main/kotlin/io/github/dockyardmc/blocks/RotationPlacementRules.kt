@@ -23,7 +23,7 @@ class RotationPlacementRules(var matches: List<String>): BlockPlacementRule {
         cursorY: Float,
         cursorZ: Float,
     ): Block {
-        if(!matches.contains(block.namespace)) return block
+        if(!matches.contains(block.identifier)) return block
 
         var dir = face
         if(face == Direction.UP || face == Direction.DOWN) dir = player.getDirection(true).getOpposite()

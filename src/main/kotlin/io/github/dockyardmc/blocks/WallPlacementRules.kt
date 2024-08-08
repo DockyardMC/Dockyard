@@ -36,19 +36,19 @@ class WallPlacementRules: BlockPlacementRule {
         val east = world.getBlock(eastLoc)
         val west = world.getBlock(westLoc)
 
-        if(north.namespace.contains(matchesIdentifier)) {
+        if(north.identifier.contains(matchesIdentifier)) {
             states["north"] = "low"
             world.setBlockState(northLoc, "south" to "low")
         }
-        if(south.namespace.contains(matchesIdentifier)) {
+        if(south.identifier.contains(matchesIdentifier)) {
             states["south"] = "low"
             world.setBlockState(southLoc, "north" to "low")
         }
-        if(east.namespace.contains(matchesIdentifier)) {
+        if(east.identifier.contains(matchesIdentifier)) {
             states["east"] = "low"
             world.setBlockState(eastLoc, "west" to "low")
         }
-        if(west.namespace.contains(matchesIdentifier)) {
+        if(west.identifier.contains(matchesIdentifier)) {
             states["west"] = "low"
             world.setBlockState(westLoc, "east" to "low")
         }

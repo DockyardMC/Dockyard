@@ -7,8 +7,8 @@ import io.github.dockyardmc.registry.Blocks
 object BlockDataHelper {
 
     fun isClickable(block: Block): Boolean {
-        if(block.namespace.contains("shulker_box")) return true
-        if(block.namespace.contains("door")) return true
+        if(block.identifier.contains("shulker_box")) return true
+        if(block.identifier.contains("door")) return true
         return when(block) {
             Blocks.CHISELED_BOOKSHELF -> true
             Blocks.DECORATED_POT -> true

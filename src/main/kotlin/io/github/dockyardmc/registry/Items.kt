@@ -15,7 +15,7 @@ object Items {
         val json = Json { ignoreUnknownKeys = true }
         val items = json.decodeFromString<List<Item>>(Resources.getText("data/items.json"))
         items.forEach { item ->
-            val block = Blocks.idToBlockMap.values.firstOrNull { item.identifier == it.namespace } ?: return@forEach
+            val block = Blocks.idToBlockMap.values.firstOrNull { item.identifier == it.identifier } ?: return@forEach
             item.isBlock = true
             item.blockId = block.defaultBlockStateId
         }
