@@ -13,12 +13,13 @@ object EntityManager {
 
     //TODO Add way to have fully client-side entities
 
-    fun World.spawnEntity(entity: Entity) {
+    fun World.spawnEntity(entity: Entity): Entity {
         this@EntityManager.entities.add(entity)
         this.entities.add(entity)
         PlayerManager.players.forEach { loopPlayer ->
             entity.addViewer(loopPlayer)
         }
+        return entity
     }
 
     fun World.despawnEntity(entity: Entity) {

@@ -64,15 +64,15 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
 
 class EntityStateMetadataBuilder(entity: Entity) {
     //TODO fire ticks
-    val isOnFire = false
-    val isCrouching = if(entity is Player) entity.isSneaking else false
-    val isSprinting = if(entity is Player) entity.isSprinting else false
+    var isOnFire = false
+    var isCrouching = if(entity is Player) entity.isSneaking else false
+    var isSprinting = if(entity is Player) entity.isSprinting else false
     //TODO is swimming
-    val isSwimming = false
-    val isInvisible = entity.isInvisible.value
-    val isGlowing = entity.isGlowing.value
+    var isSwimming = false
+    var isInvisible = entity.isInvisible.value
+    var isGlowing = entity.isGlowing.value
     //TODO elytra
-    val isFlying = false
+    var isFlying = false
 }
 
 fun getEntityMetadataState(entity: Entity, builder: (EntityStateMetadataBuilder.() -> Unit) = {}): EntityMetadata {
