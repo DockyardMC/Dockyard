@@ -39,3 +39,5 @@ bin/
 log
 dockyard.toml
 dockyard.toml
+map.schem
+test.schem
