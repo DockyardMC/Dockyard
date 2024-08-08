@@ -2,21 +2,29 @@ package io.github.dockyardmc.entities
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import cz.lukynka.BindableMap
+import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.effects.PotionEffectImpl
 import io.github.dockyardmc.events.*
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
+import io.github.dockyardmc.player.PersistentPlayer
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.mergeEntityMetadata
 import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.toVector3f
 import io.github.dockyardmc.world.World
 import java.util.UUID
+import javax.print.Doc
 
 abstract class Entity {
     open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
@@ -38,8 +46,35 @@ abstract class Entity {
     val potionEffects: BindableList<AppliedPotionEffect> = BindableList()
     val walkSpeed: Bindable<Float> = Bindable(0.15f)
     open var tickable: Boolean = true
+    val metadataLayers: BindableMap<PersistentPlayer, MutableList<EntityMetadata>> = BindableMap()
+    val isGlowing: Bindable<Boolean> = Bindable(false)
+    val isInvisible: Bindable<Boolean> = Bindable(false)
 
     init {
+
+        isGlowing.valueChanged {
+            metadata.addOrUpdate(getEntityMetadataState(this))
+            sendMetadataPacketToViewers()
+            sendSelfMetadataIfPlayer()
+            DockyardServer.broadcastMessage("<yellow>Glowing: <orange>${it.newValue}")
+        }
+
+        isInvisible.valueChanged {
+            metadata.addOrUpdate(getEntityMetadataState(this))
+            sendMetadataPacketToViewers()
+            sendSelfMetadataIfPlayer()
+            DockyardServer.broadcastMessage("<cyan>Invisible: <aqua>${it.newValue}")
+        }
+
+        metadataLayers.itemSet {
+            val player = it.key.toPlayer()
+            if(player != null) sendMetadataPacket(player)
+        }
+
+        metadataLayers.itemRemoved {
+            val player = it.key.toPlayer()
+            if(player != null) sendMetadataPacket(player)
+        }
 
         pose.valueChanged {
             metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
@@ -58,13 +93,23 @@ abstract class Entity {
             val packet = ClientboundEntityEffectPacket(this, it.item.effect, it.item.level, it.item.duration, it.item.showParticles, it.item.showBlueBorder, it.item.showIconOnHud)
             viewers.sendPacket(packet)
             sendSelfPacketIfPlayer(packet)
+            PotionEffectImpl.onEffectApply(this, it.item.effect)
         }
 
         potionEffects.itemRemoved {
             val packet = ClientboundRemoveEntityEffectPacket(this, it.item)
             viewers.sendPacket(packet)
+            PotionEffectImpl.onEffectRemoved(this, it.item.effect)
             sendSelfPacketIfPlayer(packet)
         }
+    }
+
+    fun updateEntity(player: Player, respawn: Boolean = false) {
+        sendMetadataPacketToViewers()
+    }
+
+    fun updateEntityForAll(respawn: Boolean = false) {
+
     }
 
     open fun tick() {
@@ -90,11 +135,10 @@ abstract class Entity {
         if(event.cancelled) return
 
         val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, location.yaw, 0, velocity)
-        val metadataPacket = ClientboundSetEntityMetadataPacket(this)
 
         viewers.add(player)
         player.sendPacket(entitySpawnPacket)
-        player.sendPacket(metadataPacket)
+        sendMetadataPacket(player)
         sendMetadataPacketToViewers()
     }
 
@@ -127,8 +171,13 @@ abstract class Entity {
     }
 
     open fun sendMetadataPacketToViewers() {
-        val packet = ClientboundSetEntityMetadataPacket(this)
-        viewers.sendPacket(packet)
+        viewers.forEach(this::sendMetadataPacket)
+    }
+
+    open fun sendMetadataPacket(player: Player) {
+        val metadata = mergeEntityMetadata(this, metadataLayers[player.toPersistent()])
+        val packet = ClientboundSetEntityMetadataPacket(this, metadata)
+        player.sendPacket(packet)
     }
 
     open fun calculateBoundingBox(): BoundingBox {
@@ -187,9 +236,8 @@ abstract class Entity {
     }
 
     private fun sendSelfMetadataIfPlayer() {
-        if(this is Player) this.sendPacket(ClientboundSetEntityMetadataPacket(this))
+        if(this is Player) sendMetadataPacket(this)
     }
-
 
     fun placeBlock(location: Location, block: Block) {
 

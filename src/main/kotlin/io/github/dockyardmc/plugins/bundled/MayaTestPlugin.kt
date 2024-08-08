@@ -115,17 +115,6 @@ class MayaTestPlugin: DockyardPlugin {
             }
         }
 
-        Commands.add("/potion") {
-            it.addArgument("effect", StringArgument())
-            it.addArgument("duration", IntArgument())
-            it.execute { ctx ->
-                val player = ctx.player!!
-                val effect = it.get<String>("effect")
-                val duration = it.get<Int>("duration")
-                val potionEffect = PotionEffects.getPotionEffect(effect)
-                player.addPotionEffect(potionEffect, duration)
-            }
-        }
     }
 
 

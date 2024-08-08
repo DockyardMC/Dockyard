@@ -20,20 +20,27 @@ object PotionEffectImpl {
             "resistance" -> {}
             "fire_resistance" -> {}
             "water_breathing" -> {}
-            "invisibility" -> {}
-            "hunger" -> {}
-            "weakness" -> {}
-            "poison" -> {}
-            "wither" -> {}
-            "health_boost" -> {}
-            "absorption" -> {}
-            "saturation" -> {}
-            "glowing" -> {}
-            "levitation" -> {}
-            "conduit_power" -> {}
-            "dolphins_grace" -> {}
-            "bad_omen" -> {}
-            "hero_of_the_village" -> {}
+            "invisibility" -> entity.isInvisible.value = true
+            "glowing" -> entity.isGlowing.value = true
+        }
+    }
+
+    fun onEffectRemoved(entity: Entity, effect: PotionEffect) {
+        when(effect.namespace) {
+            "speed" -> {}
+            "slowness" -> {}
+            "haste" -> {}
+            "mining_fatigue" -> {}
+            "strength" -> {}
+            "instant_health" -> {}
+            "instant_damage" -> {}
+            "jump_boost" -> {}
+            "regeneration" -> {}
+            "resistance" -> {}
+            "fire_resistance" -> {}
+            "water_breathing" -> {}
+            "invisibility" -> entity.isInvisible.value = false
+            "glowing" -> entity.isGlowing.value = false
         }
     }
 }

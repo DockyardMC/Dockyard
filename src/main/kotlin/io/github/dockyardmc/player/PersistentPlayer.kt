@@ -9,7 +9,7 @@ data class PersistentPlayer(
     val uuid: UUID
 ) {
     //TODO micro-optimization: make uuid to player map
-    fun toPlayer(): Player = PlayerManager.players.first { it.uuid == uuid }
+    fun toPlayer(): Player? = PlayerManager.players.firstOrNull { it.uuid == uuid }
 }
 
 fun MutableList<Player>.toPersistent(): MutableList<PersistentPlayer> {
@@ -20,7 +20,7 @@ fun MutableList<Player>.toPersistent(): MutableList<PersistentPlayer> {
 
 fun MutableList<PersistentPlayer>.toPlayer(): MutableList<Player> {
     val arrOut = mutableListOf<Player>()
-    this.forEach { arrOut.add(it.toPlayer()) }
+    this.forEach { if(it.toPlayer() != null) arrOut.add(it.toPlayer()!!) }
     return arrOut
 }
 
@@ -32,20 +32,20 @@ fun BindableList<Player>.toPersistent(): BindableList<PersistentPlayer> {
 
 fun BindableList<PersistentPlayer>.toPlayer(): BindableList<Player> {
     val arrOut = mutableListOf<Player>()
-    this.values.forEach { arrOut.add(it.toPlayer()) }
+    this.values.forEach { if(it.toPlayer() != null) arrOut.add(it.toPlayer()!!) }
     return BindableList<Player>(arrOut)
 }
 
 fun BindableList<PersistentPlayer>.sendPacket(packet: ClientboundPacket) {
-    this.values.forEach { it.toPlayer().sendPacket(packet) }
+    this.values.forEach { it.toPlayer()?.sendPacket(packet) }
 }
 
 fun MutableList<PersistentPlayer>.sendPacket(packet: ClientboundPacket) {
-    this.forEach { it.toPlayer().sendPacket(packet) }
+    this.forEach { it.toPlayer()?.sendPacket(packet) }
 }
 
 fun PersistentPlayer.sendPacket(packet: ClientboundPacket) {
-    this.toPlayer().sendPacket(packet)
+    this.toPlayer()?.sendPacket(packet)
 }
 
 operator fun BindableList<PersistentPlayer>.contains(target: Player): Boolean =

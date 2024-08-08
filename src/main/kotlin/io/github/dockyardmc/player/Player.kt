@@ -237,11 +237,8 @@ class Player(
 
         super.addViewer(player)
 
-        val packetIn = ClientboundSetEntityMetadataPacket(player)
-        this.sendPacket(packetIn)
-
-        val packetOut = ClientboundSetEntityMetadataPacket(this)
-        player.sendPacket(packetOut)
+        player.sendMetadataPacket(this)
+        sendMetadataPacket(player)
     }
 
     //TODO Add off-hand support
@@ -309,8 +306,7 @@ class Player(
     }
 
     fun sendSelfMetadataPacket() {
-        val packet = ClientboundSetEntityMetadataPacket(this)
-        this.sendPacket(packet)
+        sendMetadataPacket(this)
     }
 
     fun clearTitle(reset: Boolean) {
