@@ -17,10 +17,7 @@ import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import io.github.dockyardmc.registry.DamageType
-import io.github.dockyardmc.registry.EntityType
-import io.github.dockyardmc.registry.EntityTypes
-import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
@@ -66,7 +63,6 @@ class Player(
     var isFullyInitialized: Boolean = false
     var inventory: Inventory = Inventory(this)
     var gameMode: Bindable<GameMode> = Bindable(GameMode.ADVENTURE)
-    var flySpeed: Bindable<Float> = Bindable(0.05f) // 0.05 is the default fly speed in vanilla minecraft
     var displayedSkinParts: BindableList<DisplayedSkinPart> = BindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     var isConnected: Boolean = true
     val tabListHeader: Bindable<Component> = Bindable("".toComponent())
@@ -86,6 +82,7 @@ class Player(
     var hasSkin = false
     var itemInUse: ItemInUse? = null
     var lastRightClick = 0L
+    val flySpeed: Bindable<Float> = Bindable(0.05f)
 
     val chunkEngine = ConcurrentChunkEngine(this)
 
@@ -95,7 +92,6 @@ class Player(
         selectedHotbarSlot.valueChanged { this.sendPacket(ClientboundSetHeldItemPacket(it.newValue)) }
         isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value)) }
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
-        flySpeed.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, it.newValue)) }
         gameMode.valueChanged {
             this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat()))
             when(it.newValue) {
@@ -146,7 +142,7 @@ class Player(
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
     }
 
-    fun tick() {
+    override fun tick() {
         if(itemInUse != null) {
             val item = itemInUse!!.item
 
@@ -193,6 +189,7 @@ class Player(
                 }
             }
         }
+        super.tick()
     }
 
     fun sendHealthUpdatePacket() {
@@ -357,6 +354,7 @@ class Player(
         experienceBar.triggerUpdate()
         experienceLevel.triggerUpdate()
         inventory.sendFullInventoryUpdate()
+        refreshPotionEffects()
 
         pose.triggerUpdate()
         refreshAbilities()
