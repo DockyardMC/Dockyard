@@ -8,8 +8,6 @@ import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.particles.spawnParticle
-import io.github.dockyardmc.periodic.Period
-import io.github.dockyardmc.periodic.TickPeriod
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.plugins.DockyardPlugin
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket

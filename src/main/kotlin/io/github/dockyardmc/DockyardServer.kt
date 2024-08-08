@@ -147,7 +147,6 @@ class DockyardServer {
         var tickRate: Int = 20
         var debug = ConfigManager.currentConfig.serverConfig.debug
 
-
         var mutePacketLogs = mutableListOf(
             "ClientboundSystemChatMessagePacket",
             "ServerboundSetPlayerPositionPacket",

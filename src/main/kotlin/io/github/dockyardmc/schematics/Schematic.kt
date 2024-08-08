@@ -34,6 +34,14 @@ class SchematicPlacer {
     var then: (() -> Unit)? = null
 }
 
+fun World.placeSchematic(schem: Schematic, loc: Location, rot: SchematicRotation = SchematicRotation.NONE) {
+    this.placeSchematic {
+        schematic = schem
+        location = loc
+        rotation = rot
+    }
+}
+
 fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
     val placer = SchematicPlacer()
     builder.invoke(placer)
@@ -64,6 +72,7 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
         }
         batchBlockUpdate.forEach { this.setBlockRaw(it.first, it.second, false) }
     }
+
     runnable.callback = {
         updateChunks.forEach { chunk -> location.world.players.values.sendPacket(chunk.packet) }
         placer.then?.invoke()
