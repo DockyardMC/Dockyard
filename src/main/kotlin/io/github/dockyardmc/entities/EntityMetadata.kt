@@ -6,11 +6,13 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.EntityPose
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.utils.*
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.util.*
+import kotlin.experimental.or
 
 data class EntityMetadata(
     val index: EntityMetaIndex,
@@ -27,7 +29,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
     val valuePresent = metadata.value != null
     val v = metadata.value
     when(metadata.type) {
-        EntityMetadataType.BYTE -> this.writeByte(v as Int)
+        EntityMetadataType.BYTE -> this.writeByte((v as Byte).toInt())
         EntityMetadataType.VAR_INT -> this.writeVarInt(v as Int)
         EntityMetadataType.VAR_LONG -> this.writeVarLong(v as Long)
         EntityMetadataType.FLOAT -> this.writeFloat(v as Float)
@@ -57,6 +59,38 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetadataType.QUATERNION -> this.writeQuaternion(v as Quaternion)
         else -> throw Exception("noop in entity meta")
     }
+}
+
+
+class EntityStateMetadataBuilder(entity: Entity) {
+    //TODO fire ticks
+    var isOnFire = false
+    var isCrouching = if(entity is Player) entity.isSneaking else false
+    var isSprinting = if(entity is Player) entity.isSprinting else false
+    //TODO is swimming
+    var isSwimming = false
+    var isInvisible = entity.isInvisible.value
+    var isGlowing = entity.isGlowing.value
+    //TODO elytra
+    var isFlying = false
+}
+
+fun getEntityMetadataState(entity: Entity, builder: (EntityStateMetadataBuilder.() -> Unit) = {}): EntityMetadata {
+
+    val stateMetadata = EntityStateMetadataBuilder(entity)
+    builder.invoke(stateMetadata)
+
+    var bitMask: Byte = 0x00
+    if (stateMetadata.isOnFire) bitMask = (bitMask or 0x01)
+    if (stateMetadata.isCrouching) bitMask = (bitMask + 0x02).toByte()
+    if (stateMetadata.isSprinting) bitMask = (bitMask + 0x08).toByte()
+    if (stateMetadata.isSwimming) bitMask = (bitMask + 0x10).toByte()
+    if (stateMetadata.isInvisible) bitMask = (bitMask + 0x20).toByte()
+    if (stateMetadata.isGlowing) bitMask = (bitMask + 0x40).toByte()
+    if (stateMetadata.isFlying) bitMask = (bitMask or 0x80.toByte())
+    if(entity is Player) entity.sendMessage("<pink>Meta: <white>$bitMask")
+
+    return EntityMetadata(EntityMetaIndex.STATE, EntityMetadataType.BYTE, bitMask)
 }
 
 enum class EntityMetaIndex(var index: Int) {

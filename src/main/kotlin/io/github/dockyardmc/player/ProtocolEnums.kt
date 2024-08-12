@@ -3,6 +3,7 @@ package io.github.dockyardmc.player
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.utils.Vector3f
+import kotlin.experimental.or
 
 enum class PlayerHand {
     MAIN_HAND,
@@ -43,7 +44,7 @@ enum class EntityPose {
 }
 
 
-enum class DisplayedSkinPart(val bit: Int) {
+enum class DisplayedSkinPart(val bit: Byte) {
     CAPE(0x01),
     JACKET(0x02),
     LEFT_SLEEVE(0x04),
@@ -51,12 +52,14 @@ enum class DisplayedSkinPart(val bit: Int) {
     LEFT_PANTS(0x10),
     RIGHT_PANTS(0x20),
     HAT(0x40),
-    UNUSED(0x80)
+    UNUSED(0x80.toByte())
 }
 
-fun Collection<DisplayedSkinPart>.getBitMask(): Int {
-    var out = 0x00
-    this.forEach { out += it.bit }
+fun Collection<DisplayedSkinPart>.getBitMask(): Byte {
+    var out: Byte = 0x00
+    for (part in this) {
+        out = (out or part.bit).toByte()
+    }
     return out
 }
 

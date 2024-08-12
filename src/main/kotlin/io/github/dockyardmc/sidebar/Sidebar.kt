@@ -4,6 +4,7 @@ import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.extentions.onlinePlayers
 import io.github.dockyardmc.player.PersistentPlayer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.contains
@@ -34,12 +35,12 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
 
     fun setGlobalLine(line: Int, value: String) {
         innerLines[line] = GlobalSidebarLine(value)
-        viewers.values.forEach { sendLinePacket(it.toPlayer(), line) }
+        viewers.onlinePlayers.forEach { sendLinePacket(it, line) }
     }
 
     fun setPlayerLine(line: Int, value: (Player) -> String) {
         innerLines[line] = PersonalizedSidebarLine(value)
-        viewers.values.forEach { sendLinePacket(it.toPlayer(), line) }
+        viewers.onlinePlayers.forEach { sendLinePacket(it, line) }
     }
 
     private fun sendCreatePackets(player: Player) {
@@ -69,13 +70,13 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
     init {
         builder.invoke(this)
         viewers.itemAdded { event ->
-            val player = event.item.toPlayer()
+            val player = event.item.toPlayer()!!
             sendCreatePackets(player)
             sendLinesPackets(player)
         }
         viewers.itemRemoved { event ->
             val player = event.item.toPlayer()
-            player.sendPacket(removePacket)
+            player?.sendPacket(removePacket)
         }
         title.valueChanged {
             val packet = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.EDIT_TEXT, it.newValue, ScoreboardType.INTEGER)

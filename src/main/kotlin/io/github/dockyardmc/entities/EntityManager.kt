@@ -1,5 +1,7 @@
 package io.github.dockyardmc.entities
 
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.world.World
 import java.util.concurrent.atomic.AtomicInteger
@@ -11,12 +13,13 @@ object EntityManager {
 
     //TODO Add way to have fully client-side entities
 
-    fun World.spawnEntity(entity: Entity) {
+    fun World.spawnEntity(entity: Entity): Entity {
         this@EntityManager.entities.add(entity)
         this.entities.add(entity)
         PlayerManager.players.forEach { loopPlayer ->
             entity.addViewer(loopPlayer)
         }
+        return entity
     }
 
     fun World.despawnEntity(entity: Entity) {
@@ -25,5 +28,11 @@ object EntityManager {
             entity.removeViewer(it, false)
         }
 //        this.entities.remove(entity)
+    }
+
+    init {
+        Events.on<ServerTickEvent> {
+            entities.forEach { if(it.tickable) it.tick() }
+        }
     }
 }

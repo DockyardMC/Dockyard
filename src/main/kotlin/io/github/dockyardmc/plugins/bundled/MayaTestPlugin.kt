@@ -4,20 +4,23 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.bossbar.Bossbar
 import io.github.dockyardmc.bossbar.BossbarColor
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.events.*
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.plugins.DockyardPlugin
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.registry.addPotionEffect
 import io.github.dockyardmc.schematics.SchematicReader
 import io.github.dockyardmc.schematics.placeSchematic
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.serverlinks.DefaultServerLinkType
-import io.github.dockyardmc.serverlinks.DefaultServerLink
 import io.github.dockyardmc.serverlinks.CustomServerLink
+import io.github.dockyardmc.serverlinks.DefaultServerLink
+import io.github.dockyardmc.serverlinks.DefaultServerLinkType
 import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.Vector3f
@@ -38,8 +41,11 @@ class MayaTestPlugin: DockyardPlugin {
         )
 
         Events.on<PlayerJoinEvent> {
-            val effectPacket = ClientboundEntityEffectPacket(it.player, 15, 1, 99999, 0x00)
-            it.player.sendPacket(effectPacket)
+            it.player.addPotionEffect(
+                effect = PotionEffects.NIGHT_VISION,
+                duration = 999999,
+                level = 1,
+            )
 
             it.player.tabListHeader.value =
                 "\n  <dark_gray><s>        <r>  <aqua>DockyardMC<r>  <dark_gray><s>        <r>  \n".toComponent()
@@ -108,6 +114,7 @@ class MayaTestPlugin: DockyardPlugin {
                 }
             }
         }
+
     }
 
 

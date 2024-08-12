@@ -2,19 +2,25 @@ package io.github.dockyardmc.entities
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import cz.lukynka.BindableMap
+import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.effects.PotionEffectImpl
 import io.github.dockyardmc.events.*
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
+import io.github.dockyardmc.player.PersistentPlayer
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.DamageType
-import io.github.dockyardmc.registry.EntityType
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.mergeEntityMetadata
+import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.toVector3f
 import io.github.dockyardmc.world.World
 import java.util.UUID
@@ -30,18 +36,84 @@ abstract class Entity {
     open var isInvulnerable: Boolean = false
     open var hasCollision: Boolean = true
     abstract var world: World
-    open var displayName: String = ""
+    open var displayName: String = this::class.simpleName.toString()
     open var isOnGround: Boolean = true
     val metadata: BindableList<EntityMetadata> = BindableList()
     val pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     abstract var health: Bindable<Float>
     abstract var inventorySize: Int
+    val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = BindableMap()
+    val walkSpeed: Bindable<Float> = Bindable(0.15f)
+    open var tickable: Boolean = true
+    val metadataLayers: BindableMap<PersistentPlayer, MutableList<EntityMetadata>> = BindableMap()
+    val isGlowing: Bindable<Boolean> = Bindable(false)
+    val isInvisible: Bindable<Boolean> = Bindable(false)
 
     init {
+
+        isGlowing.valueChanged {
+            metadata.addOrUpdate(getEntityMetadataState(this))
+            sendMetadataPacketToViewers()
+            sendSelfMetadataIfPlayer()
+            DockyardServer.broadcastMessage("<yellow>Glowing: <orange>${it.newValue}")
+        }
+
+        isInvisible.valueChanged {
+            metadata.addOrUpdate(getEntityMetadataState(this))
+            sendMetadataPacketToViewers()
+            sendSelfMetadataIfPlayer()
+            DockyardServer.broadcastMessage("<cyan>Invisible: <aqua>${it.newValue}")
+        }
+
+        metadataLayers.itemSet {
+            val player = it.key.toPlayer()
+            if(player != null) sendMetadataPacket(player)
+        }
+
+        metadataLayers.itemRemoved {
+            val player = it.key.toPlayer()
+            if(player != null) sendMetadataPacket(player)
+        }
+
         pose.valueChanged {
             metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
+        }
+
+        //TODO add attribute modifiers
+        walkSpeed.valueChanged {}
+
+        potionEffects.itemSet {
+            it.value.startTime = System.currentTimeMillis()
+            val packet = ClientboundEntityEffectPacket(this, it.value.effect, it.value.level, it.value.duration, it.value.showParticles, it.value.showBlueBorder, it.value.showIconOnHud)
+
+            viewers.sendPacket(packet)
+            sendSelfPacketIfPlayer(packet)
+            PotionEffectImpl.onEffectApply(this, it.value.effect)
+        }
+
+        potionEffects.itemRemoved {
+            val packet = ClientboundRemoveEntityEffectPacket(this, it.value)
+            viewers.sendPacket(packet)
+            PotionEffectImpl.onEffectRemoved(this, it.value.effect)
+            sendSelfPacketIfPlayer(packet)
+        }
+    }
+
+    fun updateEntity(player: Player, respawn: Boolean = false) {
+        sendMetadataPacketToViewers()
+    }
+
+    fun updateEntityForAll(respawn: Boolean = false) {
+
+    }
+
+    open fun tick() {
+        potionEffects.values.forEach {
+            if(System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.duration)) {
+                potionEffects.remove(it.key)
+            }
         }
     }
 
@@ -60,11 +132,10 @@ abstract class Entity {
         if(event.cancelled) return
 
         val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, location.yaw, 0, velocity)
-        val metadataPacket = ClientboundSetEntityMetadataPacket(this)
 
         viewers.add(player)
         player.sendPacket(entitySpawnPacket)
-        player.sendPacket(metadataPacket)
+        sendMetadataPacket(player)
         sendMetadataPacketToViewers()
     }
 
@@ -97,8 +168,13 @@ abstract class Entity {
     }
 
     open fun sendMetadataPacketToViewers() {
-        val packet = ClientboundSetEntityMetadataPacket(this)
-        viewers.sendPacket(packet)
+        viewers.forEach(this::sendMetadataPacket)
+    }
+
+    open fun sendMetadataPacket(player: Player) {
+        val metadata = mergeEntityMetadata(this, metadataLayers[player.toPersistent()])
+        val packet = ClientboundSetEntityMetadataPacket(this, metadata)
+        player.sendPacket(packet)
     }
 
     open fun calculateBoundingBox(): BoundingBox {
@@ -157,9 +233,8 @@ abstract class Entity {
     }
 
     private fun sendSelfMetadataIfPlayer() {
-        if(this is Player) this.sendPacket(ClientboundSetEntityMetadataPacket(this))
+        if(this is Player) sendMetadataPacket(this)
     }
-
 
     fun placeBlock(location: Location, block: Block) {
 

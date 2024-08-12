@@ -7,9 +7,9 @@ import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.world.World
 
 class Pig(
-    override var type: EntityType = EntityTypes.PIG,
     override var location: Location,
     override var world: World,
+    override var type: EntityType = EntityTypes.PIG,
     override var inventorySize: Int = 0
 ) : Entity() {
     override var health: Bindable<Float> = Bindable(20f)

@@ -42,10 +42,6 @@ object SkinManager {
             player.sendToViewers(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!))))
             player.sendToViewers(ClientboundSpawnEntityPacket(player.entityId, player.uuid, player.type.id, player.location, player.location.yaw, 0, player.velocity))
             player.displayedSkinParts.triggerUpdate()
-
-            //TODO Retain effects on respawn
-            val packet = ClientboundEntityEffectPacket(player, 15, 1, 99999, 0x00)
-            player.sendPacket(packet)
         }
         asyncRunnable.run()
     }
