@@ -120,13 +120,13 @@ class Player(
         tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
 
         pose.valueChanged {
-            metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetadataByteBufWriter.POSE, it.newValue)
             sendMetadataPacketToViewers()
             sendSelfMetadataPacket()
         }
 
         displayedSkinParts.listUpdated {
-            metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.DISPLAY_SKIN_PARTS, EntityMetadataType.BYTE, displayedSkinParts.values.getBitMask()))
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.DISPLAY_SKIN_PARTS, EntityMetadataByteBufWriter.BYTE, displayedSkinParts.values.getBitMask())
             sendMetadataPacketToViewers()
             sendSelfMetadataPacket()
         }
