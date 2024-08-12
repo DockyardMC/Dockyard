@@ -1,6 +1,5 @@
 package io.github.dockyardmc.registry
 
-import cz.lukynka.BindableList
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
@@ -122,28 +121,20 @@ fun Entity.addPotionEffect(
     showIconOnHud: Boolean = false,
 ) {
     val potionEffect = AppliedPotionEffect(effect, duration, level, showParticles, showBlueBorder, showIconOnHud)
-    this.potionEffects.add(potionEffect)
+    this.potionEffects[effect] = potionEffect
 }
 
 fun Entity.removePotionEffect(effect: PotionEffect) {
-    this.potionEffects.removeByType(effect)
-}
-
-fun Entity.removePotionEffect(effect: AppliedPotionEffect) {
     this.potionEffects.remove(effect)
 }
 
+fun Entity.removePotionEffect(effect: AppliedPotionEffect) {
+    this.potionEffects.remove(effect.effect)
+}
+
 fun Entity.clearPotionEffects() {
-    this.potionEffects.values.forEach(potionEffects::remove)
+    this.potionEffects.clear()
 }
-
-fun BindableList<AppliedPotionEffect>.removeByType(effect: PotionEffect) {
-    val existingEffect = values.firstOrNull { it.effect == effect } ?: return
-    remove(existingEffect)
-}
-
-fun BindableList<AppliedPotionEffect>.hasType(effect: PotionEffect): Boolean = values.firstOrNull { it.effect == effect } != null
-
 
 fun Entity.refreshPotionEffects() {
     viewers.forEach(::sendPotionEffectsPacket)
@@ -151,9 +142,7 @@ fun Entity.refreshPotionEffects() {
 }
 
 fun Entity.sendPotionEffectsPacket(player: Player) {
-    player.sendMessage("$player ${potionEffects.size}")
-    potionEffects.values.forEach {
-        player.sendMessage(it.effect.name)
+    potionEffects.values.values.forEach {
         val packet = ClientboundEntityEffectPacket(this, it.effect, it.level, it.duration, it.showParticles, it.showBlueBorder, it.showIconOnHud)
         player.sendPacket(packet)
     }

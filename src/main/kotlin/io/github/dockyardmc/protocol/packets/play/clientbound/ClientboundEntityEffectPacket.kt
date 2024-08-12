@@ -7,6 +7,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.registry.PotionEffect
+import kotlin.experimental.or
 
 @WikiVGEntry("Entity Effect")
 @ClientboundPacketInfo(0x76, ProtocolState.PLAY)
@@ -21,17 +22,18 @@ class ClientboundEntityEffectPacket(
 ): ClientboundPacket() {
 
     init {
-        var flags = 0
-        if(showBlueBorder) flags += 0x01
-        if(showParticles) flags += 0x02
-        if(showIconOnHud) flags += 0x04
+        val flags: Byte = 0
+        if(showBlueBorder) flags or 0x01
+        if(showParticles) flags or 0x02
+        if(showIconOnHud) flags or 0x04
+
         amplifier -= 1
         if(amplifier <= -1) amplifier = 0
 
         data.writeVarInt(entity.entityId)
         data.writeVarInt(effect.id)
-        data.writeByte(amplifier)
+        data.writeVarInt(amplifier)
         data.writeVarInt(duration)
-        data.writeByte(flags)
+        data.writeByte(0x02)
     }
 }

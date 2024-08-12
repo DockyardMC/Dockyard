@@ -24,7 +24,6 @@ import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.toVector3f
 import io.github.dockyardmc.world.World
 import java.util.UUID
-import javax.print.Doc
 
 abstract class Entity {
     open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
@@ -43,7 +42,7 @@ abstract class Entity {
     val pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     abstract var health: Bindable<Float>
     abstract var inventorySize: Int
-    val potionEffects: BindableList<AppliedPotionEffect> = BindableList()
+    val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = BindableMap()
     val walkSpeed: Bindable<Float> = Bindable(0.15f)
     open var tickable: Boolean = true
     val metadataLayers: BindableMap<PersistentPlayer, MutableList<EntityMetadata>> = BindableMap()
@@ -85,21 +84,19 @@ abstract class Entity {
         //TODO add attribute modifiers
         walkSpeed.valueChanged {}
 
-        potionEffects.itemAdded {
-            val existingPotionEffect = potionEffects.values.firstOrNull { filter -> filter.effect == it.item.effect }
-            if(existingPotionEffect != null) potionEffects.setIndex(potionEffects.values.indexOf(existingPotionEffect), it.item)
-            it.item.startTime = System.currentTimeMillis()
+        potionEffects.itemSet {
+            it.value.startTime = System.currentTimeMillis()
+            val packet = ClientboundEntityEffectPacket(this, it.value.effect, it.value.level, it.value.duration, it.value.showParticles, it.value.showBlueBorder, it.value.showIconOnHud)
 
-            val packet = ClientboundEntityEffectPacket(this, it.item.effect, it.item.level, it.item.duration, it.item.showParticles, it.item.showBlueBorder, it.item.showIconOnHud)
             viewers.sendPacket(packet)
             sendSelfPacketIfPlayer(packet)
-            PotionEffectImpl.onEffectApply(this, it.item.effect)
+            PotionEffectImpl.onEffectApply(this, it.value.effect)
         }
 
         potionEffects.itemRemoved {
-            val packet = ClientboundRemoveEntityEffectPacket(this, it.item)
+            val packet = ClientboundRemoveEntityEffectPacket(this, it.value)
             viewers.sendPacket(packet)
-            PotionEffectImpl.onEffectRemoved(this, it.item.effect)
+            PotionEffectImpl.onEffectRemoved(this, it.value.effect)
             sendSelfPacketIfPlayer(packet)
         }
     }
@@ -114,8 +111,8 @@ abstract class Entity {
 
     open fun tick() {
         potionEffects.values.forEach {
-            if(System.currentTimeMillis() >= it.startTime!! + ticksToMs(it.duration)) {
-                potionEffects.remove(it)
+            if(System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.duration)) {
+                potionEffects.remove(it.key)
             }
         }
     }
