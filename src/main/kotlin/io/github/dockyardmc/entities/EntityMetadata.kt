@@ -1,6 +1,5 @@
 package io.github.dockyardmc.entities
 
-import cz.lukynka.BindableList
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
@@ -15,48 +14,48 @@ import java.util.*
 import kotlin.experimental.or
 
 data class EntityMetadata(
-    val index: EntityMetaIndex,
     val type: EntityMetadataType,
+    val writer: EntityMetadataByteBufWriter,
     val value: Any?
 ) {
     override fun toString(): String =
-        "EntityMetadata(${index.name}[${index.index}, ${type.name}[${type.ordinal}], $value)"
+        "EntityMetadata(${type.name}[${type.index}, ${writer.name}[${writer.ordinal}], $value)"
 }
 
 fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
-    this.writeByte(metadata.index.index)
-    this.writeVarInt(metadata.type.ordinal)
+    this.writeByte(metadata.type.index)
+    this.writeVarInt(metadata.writer.ordinal)
     val valuePresent = metadata.value != null
     val v = metadata.value
-    when(metadata.type) {
-        EntityMetadataType.BYTE -> this.writeByte((v as Byte).toInt())
-        EntityMetadataType.VAR_INT -> this.writeVarInt(v as Int)
-        EntityMetadataType.VAR_LONG -> this.writeVarLong(v as Long)
-        EntityMetadataType.FLOAT -> this.writeFloat(v as Float)
-        EntityMetadataType.STRING -> this.writeUtf(v as String)
-        EntityMetadataType.TEXT_COMPONENT -> this.writeNBT((metadata.value as Component).toNBT())
-        EntityMetadataType.OPTIONAL_TEXT_COMPONENT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeNBT((metadata.value as Component).toNBT()) }
-        EntityMetadataType.SLOT -> TODO()
-        EntityMetadataType.BOOLEAN -> this.writeBoolean(v as Boolean)
-        EntityMetadataType.ROTATION -> this.writeVector3f(v as Vector3f)
-        EntityMetadataType.POSITION -> this.writeLocation(v as Location)
-        EntityMetadataType.OPTIONAL_POSITION -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeLocation(v as Location)}
-        EntityMetadataType.DIRECTION -> this.writeVarInt((v as Direction).ordinal)
-        EntityMetadataType.OPTIONAL_UUID -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeUUID(v as UUID)}
-        EntityMetadataType.BLOCK_STATE -> this.writeVarInt(v as Int)
-        EntityMetadataType.OPTIONAL_BLOCK_STATE -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
-        EntityMetadataType.NBT -> this.writeNBT(v as NBTCompound)
-        EntityMetadataType.PARTICLE -> TODO()
-        EntityMetadataType.VILLAGER_DATA -> this.writeVector3(v as Vector3)
-        EntityMetadataType.OPTIONAL_VAR_INT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
-        EntityMetadataType.POSE -> this.writeVarInt((v as EntityPose).ordinal)
-        EntityMetadataType.CAT_VARIANT -> this.writeVarInt(v as Int)
-        EntityMetadataType.FROG_VARIANT -> this.writeVarInt(v as Int)
-        EntityMetadataType.OPTIONAL_GLOBAL_POSITION -> TODO()
-        EntityMetadataType.PAINTING_VARIANT -> this.writeVarInt(v as Int)
-        EntityMetadataType.SNIFFER_STATE -> this.writeVarInt(v as Int)
-        EntityMetadataType.VECTOR3 -> this.writeVector3f(v as Vector3f)
-        EntityMetadataType.QUATERNION -> this.writeQuaternion(v as Quaternion)
+    when(metadata.writer) {
+        EntityMetadataByteBufWriter.BYTE -> this.writeByte((v as Byte).toInt())
+        EntityMetadataByteBufWriter.VAR_INT -> this.writeVarInt(v as Int)
+        EntityMetadataByteBufWriter.VAR_LONG -> this.writeVarLong(v as Long)
+        EntityMetadataByteBufWriter.FLOAT -> this.writeFloat(v as Float)
+        EntityMetadataByteBufWriter.STRING -> this.writeUtf(v as String)
+        EntityMetadataByteBufWriter.TEXT_COMPONENT -> this.writeNBT((metadata.value as Component).toNBT())
+        EntityMetadataByteBufWriter.OPTIONAL_TEXT_COMPONENT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeNBT((metadata.value as Component).toNBT()) }
+        EntityMetadataByteBufWriter.SLOT -> TODO()
+        EntityMetadataByteBufWriter.BOOLEAN -> this.writeBoolean(v as Boolean)
+        EntityMetadataByteBufWriter.ROTATION -> this.writeVector3f(v as Vector3f)
+        EntityMetadataByteBufWriter.POSITION -> this.writeLocation(v as Location)
+        EntityMetadataByteBufWriter.OPTIONAL_POSITION -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeLocation(v as Location)}
+        EntityMetadataByteBufWriter.DIRECTION -> this.writeVarInt((v as Direction).ordinal)
+        EntityMetadataByteBufWriter.OPTIONAL_UUID -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeUUID(v as UUID)}
+        EntityMetadataByteBufWriter.BLOCK_STATE -> this.writeVarInt(v as Int)
+        EntityMetadataByteBufWriter.OPTIONAL_BLOCK_STATE -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
+        EntityMetadataByteBufWriter.NBT -> this.writeNBT(v as NBTCompound)
+        EntityMetadataByteBufWriter.PARTICLE -> TODO()
+        EntityMetadataByteBufWriter.VILLAGER_DATA -> this.writeVector3(v as Vector3)
+        EntityMetadataByteBufWriter.OPTIONAL_VAR_INT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
+        EntityMetadataByteBufWriter.POSE -> this.writeVarInt((v as EntityPose).ordinal)
+        EntityMetadataByteBufWriter.CAT_VARIANT -> this.writeVarInt(v as Int)
+        EntityMetadataByteBufWriter.FROG_VARIANT -> this.writeVarInt(v as Int)
+        EntityMetadataByteBufWriter.OPTIONAL_GLOBAL_POSITION -> TODO()
+        EntityMetadataByteBufWriter.PAINTING_VARIANT -> this.writeVarInt(v as Int)
+        EntityMetadataByteBufWriter.SNIFFER_STATE -> this.writeVarInt(v as Int)
+        EntityMetadataByteBufWriter.VECTOR3 -> this.writeVector3f(v as Vector3f)
+        EntityMetadataByteBufWriter.QUATERNION -> this.writeQuaternion(v as Quaternion)
         else -> throw Exception("noop in entity meta")
     }
 }
@@ -90,10 +89,10 @@ fun getEntityMetadataState(entity: Entity, builder: (EntityStateMetadataBuilder.
     if (stateMetadata.isFlying) bitMask = (bitMask or 0x80.toByte())
     if(entity is Player) entity.sendMessage("<pink>Meta: <white>$bitMask")
 
-    return EntityMetadata(EntityMetaIndex.STATE, EntityMetadataType.BYTE, bitMask)
+    return EntityMetadata(EntityMetadataType.STATE, EntityMetadataByteBufWriter.BYTE, bitMask)
 }
 
-enum class EntityMetaIndex(var index: Int) {
+enum class EntityMetadataType(var index: Int) {
     STATE(0),
     AIR_TICKS(1),
     CUSTOM_NAME(2),
@@ -109,7 +108,7 @@ enum class EntityMetaIndex(var index: Int) {
     MAIN_HAND(18)
 }
 
-enum class EntityMetadataType {
+enum class EntityMetadataByteBufWriter {
     BYTE,
     VAR_INT,
     VAR_LONG,
@@ -140,14 +139,4 @@ enum class EntityMetadataType {
     ARMADILLO_STATE,
     VECTOR3,
     QUATERNION
-}
-
-fun BindableList<EntityMetadata>.addOrUpdate(metadata: EntityMetadata) {
-    val hasMeta = (this.values.firstOrNull { it.type == metadata.type } != null)
-    if(hasMeta) {
-        val index = this.values.indexOfFirst { it.type == metadata.type }
-        this.setIndex(index, metadata)
-    } else {
-        this.add(metadata)
-    }
 }

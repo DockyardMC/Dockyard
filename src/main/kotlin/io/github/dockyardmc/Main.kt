@@ -5,6 +5,7 @@ import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
+import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerPreSpawnWorldSelectionEvent
@@ -65,6 +66,19 @@ fun main(args: Array<String>) {
         }
     }
 
+    val player = PlayerManager.playerToEntityIdMap[0]!!
+
+    player.metadata[EntityMetadataType.STATE] = getEntityMetadataState(player) {
+        isGlowing = true
+        isInvisible = false
+        isFlying = true
+    }
+
     val server = DockyardServer()
     server.start()
+}
+
+fun MutableList<EntityMetadata>.removeByType(type: EntityMetadataType) {
+    val meta = this.firstOrNull { it.type == type } ?: return
+    this.remove(meta)
 }

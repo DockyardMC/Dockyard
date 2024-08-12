@@ -1,7 +1,6 @@
 package io.github.dockyardmc.entities
 
 import cz.lukynka.Bindable
-import cz.lukynka.BindableList
 import cz.lukynka.BindableMap
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.effects.PotionEffectImpl
@@ -38,28 +37,28 @@ abstract class Entity {
     abstract var world: World
     open var displayName: String = this::class.simpleName.toString()
     open var isOnGround: Boolean = true
-    val metadata: BindableList<EntityMetadata> = BindableList()
+    val metadata: BindableMap<EntityMetadataType, EntityMetadata> = BindableMap()
     val pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
     abstract var health: Bindable<Float>
     abstract var inventorySize: Int
     val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = BindableMap()
     val walkSpeed: Bindable<Float> = Bindable(0.15f)
     open var tickable: Boolean = true
-    val metadataLayers: BindableMap<PersistentPlayer, MutableList<EntityMetadata>> = BindableMap()
+    val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = BindableMap()
     val isGlowing: Bindable<Boolean> = Bindable(false)
     val isInvisible: Bindable<Boolean> = Bindable(false)
 
     init {
 
         isGlowing.valueChanged {
-            metadata.addOrUpdate(getEntityMetadataState(this))
+            metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
             DockyardServer.broadcastMessage("<yellow>Glowing: <orange>${it.newValue}")
         }
 
         isInvisible.valueChanged {
-            metadata.addOrUpdate(getEntityMetadataState(this))
+            metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
             DockyardServer.broadcastMessage("<cyan>Invisible: <aqua>${it.newValue}")
@@ -76,7 +75,7 @@ abstract class Entity {
         }
 
         pose.valueChanged {
-            metadata.addOrUpdate(EntityMetadata(EntityMetaIndex.POSE, EntityMetadataType.POSE, it.newValue))
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetadataByteBufWriter.POSE, it.newValue)
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
         }
