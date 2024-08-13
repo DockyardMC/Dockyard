@@ -43,6 +43,7 @@ object ServerMetrics {
             averages.add(diff)
             timeSinceLastTick = Instant.now()
             millisecondsPerTick = Math.round(averages.average() * 10) / 10.0
+            if (millisecondsPerTick < 50) millisecondsPerTick = 50.0
         }
     }
 }
