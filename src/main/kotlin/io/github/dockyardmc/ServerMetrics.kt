@@ -2,6 +2,7 @@ package io.github.dockyardmc
 
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
+import io.github.dockyardmc.extentions.round
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.SecondPeriod
 import java.time.Instant
@@ -42,7 +43,7 @@ object ServerMetrics {
             val diff = Instant.now().toEpochMilli() - timeSinceLastTick.toEpochMilli()
             averages.add(diff)
             timeSinceLastTick = Instant.now()
-            millisecondsPerTick = Math.round(averages.average() * 10) / 10.0
+            millisecondsPerTick = averages.average().round(1)
             if (millisecondsPerTick < 50) millisecondsPerTick = 50.0
         }
     }
