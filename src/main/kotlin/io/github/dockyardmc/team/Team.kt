@@ -2,7 +2,6 @@ package io.github.dockyardmc.team
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.Player
@@ -33,12 +32,12 @@ enum class TeamCollisionRule(val value: String) {
 
 class Team(
     val name: String,
-    val displayName: Bindable<Component> = Bindable(name.toComponent()),
+    val displayName: Bindable<String> = Bindable(name),
     val teamNameTagVisibility: Bindable<TeamNameTagVisibility> = Bindable(TeamNameTagVisibility.VISIBLE),
     val teamCollisionRule: Bindable<TeamCollisionRule> = Bindable(TeamCollisionRule.ALWAYS),
     val color: Bindable<LegacyTextColor> = Bindable(LegacyTextColor.WHITE),
-    val prefix: Bindable<Component?> = Bindable(null),
-    val suffix: Bindable<Component?> = Bindable(null)
+    val prefix: Bindable<String?> = Bindable(null),
+    val suffix: Bindable<String?> = Bindable(null)
 ) {
 
     constructor(
@@ -51,12 +50,12 @@ class Team(
         suffix: String? = null
     ): this(
         name,
-        Bindable<Component>(displayName.toComponent()),
+        Bindable<String>(displayName),
         Bindable<TeamNameTagVisibility>(teamNameTagVisibility),
         Bindable<TeamCollisionRule>(teamCollisionRule),
         Bindable<LegacyTextColor>(color),
-        Bindable<Component?>(prefix?.toComponent()),
-        Bindable<Component?>(suffix?.toComponent())
+        Bindable<String?>(prefix),
+        Bindable<String?>(suffix)
     )
 
     val entities = BindableList<Entity>()
@@ -70,7 +69,7 @@ class Team(
         suffix.valueChanged { sendTeamUpdatePacket() }
 
         entities.itemAdded { event ->
-            if(event.item.team != null && event.item.team != this) throw IllegalArgumentException("Entity is on another team! (${event.item.team?.name})")
+            if(event.item.team.value != null && event.item.team.value != this) throw IllegalArgumentException("Entity is on another team! (${event.item.team.value?.name})")
 
             val packet = ClientboundTeamsPacket(AddEntitiesTeamPacketAction(this, listOf(event.item)))
             PlayerManager.players.sendPacket(packet)
@@ -92,8 +91,8 @@ class Team(
         PlayerManager.players.sendPacket(packet)
     }
 
-    val allowFriendlyFire: Boolean = true
-    val seeFriendlyInvisibles: Boolean = true
+    var allowFriendlyFire: Boolean = true
+    var seeFriendlyInvisibles: Boolean = true
 
     fun getFlags(): Byte {
         var mask: Byte = 0x00
@@ -103,13 +102,12 @@ class Team(
     }
 }
 
-
 fun ByteBuf.writeTeamInfo(team: Team) {
-    this.writeNBT(team.displayName.value.toNBT())
+    this.writeTextComponent(team.displayName.value)
     this.writeByte(team.getFlags().toInt())
     this.writeUtf(team.teamNameTagVisibility.value.value)
     this.writeUtf(team.teamCollisionRule.value.value)
     this.writeVarInt(team.color.value.ordinal)
-    this.writeNBT((team.prefix.value ?: "".toComponent()).toNBT())
-    this.writeNBT((team.suffix.value ?: "".toComponent()).toNBT())
+    this.writeTextComponent((team.prefix.value ?: ""))
+    this.writeTextComponent((team.suffix.value ?: ""))
 }

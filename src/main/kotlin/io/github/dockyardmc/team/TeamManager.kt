@@ -31,5 +31,9 @@ object TeamManager {
         PlayerManager.players.sendPacket(removePacket)
     }
 
+    fun remove(team: Team) {
+        remove(team.name)
+    }
+
     operator fun BindableList<Team>.get(name: String): Team? = this.values.firstOrNull { it.name == name }
 }

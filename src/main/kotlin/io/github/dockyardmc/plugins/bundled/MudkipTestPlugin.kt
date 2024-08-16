@@ -26,9 +26,6 @@ class MudkipTestPlugin: DockyardPlugin {
 
     override fun load(server: DockyardServer) {
 
-        Events.on<PlayerJoinEvent> {
-            it.player.team = team
-        }
     }
 
     override fun unload(server: DockyardServer) {

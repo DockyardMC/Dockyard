@@ -1,7 +1,6 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
@@ -12,6 +11,9 @@ import io.github.dockyardmc.events.PlayerPreSpawnWorldSelectionEvent
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.scroll.LegacyTextColor
+import io.github.dockyardmc.team.TeamCollisionRule
+import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
@@ -54,8 +56,20 @@ fun main(args: Array<String>) {
         }
     }
 
+    val customTeam = TeamManager.create("trans-gang", LegacyTextColor.PINK)
+    customTeam.prefix.value = "<#F5A9B8>[Trans Gang]"
+    customTeam.teamCollisionRule.value = TeamCollisionRule.NEVER
+    customTeam.allowFriendlyFire = false
+
+    Events.on<PlayerJoinEvent> {
+        it.player.team.value = customTeam
+        it.player.isGlowing.value = true
+    }
+
     val server = DockyardServer()
     server.start()
+
+
 }
 
 fun MutableList<EntityMetadata>.removeByType(type: EntityMetadataType) {
