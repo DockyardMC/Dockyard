@@ -10,7 +10,10 @@ import io.github.dockyardmc.events.PlayerPreSpawnWorldSelectionEvent
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.runnables.ticks
+import io.github.dockyardmc.runnables.timedSequenceAsync
 import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
 
@@ -51,6 +54,28 @@ fun main(args: Array<String>) {
             world.join(player)
         }
     }
+
+    Commands.add("/red") {
+        it.execute { ctx ->
+            val player = ctx.playerOrThrow()
+            player.redVignette.value = 0f
+            timedSequenceAsync { seq ->
+                val fadeSteps = 40
+
+                repeat(fadeSteps) { loop ->
+                    val percent = MathUtils.percent(fadeSteps.toDouble(), loop.toDouble()) / fadeSteps
+                    player.redVignette.value = percent.toFloat()
+                    seq.wait(1.ticks)
+                }
+                repeat(fadeSteps) { loop ->
+                    val percent = 1f - (MathUtils.percent(fadeSteps.toDouble(), loop.toDouble()) / fadeSteps)
+                    player.redVignette.value = percent.toFloat()
+                    seq.wait(1.ticks)
+                }
+            }
+        }
+    }
+
     val server = DockyardServer()
     server.start()
 }

@@ -57,6 +57,9 @@ object MathUtils {
 
     fun percent(max: Double, part: Double): Double = (part / max) * 100
 
+    // percent is float 0f - 1f.
+    fun percentOf(percent: Float, max: Double): Double = percent * max
+
     fun positiveCeilDiv(i: Int, j: Int): Int = -Math.floorDiv(-i, j)
 
     fun bitsToRepresent(n: Int): Int {

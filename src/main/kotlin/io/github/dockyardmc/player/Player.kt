@@ -83,6 +83,7 @@ class Player(
     var itemInUse: ItemInUse? = null
     var lastRightClick = 0L
     val flySpeed: Bindable<Float> = Bindable(0.05f)
+    val redVignette: Bindable<Float> = Bindable(0f)
 
     val chunkEngine = ConcurrentChunkEngine(this)
 
@@ -118,6 +119,11 @@ class Player(
 
         tabListHeader.valueChanged { sendPacket(ClientboundTabListPacket(it.newValue, tabListFooter.value)) }
         tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
+
+        redVignette.valueChanged {
+            val distance = MathUtils.percentOf(it.newValue * 10, world.worldBorder.diameter).toInt()
+            sendPacket(ClientboundSetWorldBorderWarningDistance(distance))
+        }
 
         pose.valueChanged {
             metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetadataByteBufWriter.POSE, it.newValue)
