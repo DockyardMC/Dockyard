@@ -54,26 +54,6 @@ fun main(args: Array<String>) {
         }
     }
 
-    Commands.add("/potion") {
-        it.addArgument("effect", StringArgument())
-        it.addArgument("duration", IntArgument())
-        it.execute { ctx ->
-            val player = ctx.player!!
-            val effect = it.get<String>("effect")
-            val duration = it.get<Int>("duration")
-            val potionEffect = PotionEffects.getPotionEffect(effect)
-            player.addPotionEffect(potionEffect, duration)
-        }
-    }
-
-    val player = PlayerManager.playerToEntityIdMap[0]!!
-
-    player.metadata[EntityMetadataType.STATE] = getEntityMetadataState(player) {
-        isGlowing = true
-        isInvisible = false
-        isFlying = true
-    }
-
     val server = DockyardServer()
     server.start()
 }

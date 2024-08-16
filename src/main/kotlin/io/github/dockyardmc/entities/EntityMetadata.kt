@@ -87,7 +87,6 @@ fun getEntityMetadataState(entity: Entity, builder: (EntityStateMetadataBuilder.
     if (stateMetadata.isInvisible) bitMask = (bitMask + 0x20).toByte()
     if (stateMetadata.isGlowing) bitMask = (bitMask + 0x40).toByte()
     if (stateMetadata.isFlying) bitMask = (bitMask or 0x80.toByte())
-    if(entity is Player) entity.sendMessage("<pink>Meta: <white>$bitMask")
 
     return EntityMetadata(EntityMetadataType.STATE, EntityMetadataByteBufWriter.BYTE, bitMask)
 }
@@ -105,7 +104,8 @@ enum class EntityMetadataType(var index: Int) {
     MOB(16),
     WARDEN_ANGER_LEVEL(16),
     DISPLAY_SKIN_PARTS(17),
-    MAIN_HAND(18)
+    MAIN_HAND(18),
+    PARROT_VARIANT(19)
 }
 
 enum class EntityMetadataByteBufWriter {

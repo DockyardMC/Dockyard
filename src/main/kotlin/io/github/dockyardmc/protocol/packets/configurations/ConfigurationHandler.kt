@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
 import io.github.dockyardmc.events.*
@@ -130,7 +131,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         player.sendPacket(tickingStatePacket)
 
         TeamManager.teams.values.forEach { team ->
-            player.sendPacket(ClientboundTeamsPacket(CreateTeamPacketAction(team)))
+            player.sendPacket(ClientboundTeamsPacket(CreateTeamPacketAction(team.value)))
         }
 
         player.setSkin(player.uuid)

@@ -291,13 +291,14 @@ class Player(
         }
     }
 
-    fun teleport(location: Location) {
+    override fun teleport(location: Location) {
         this.location = location
         if(!WorldManager.worlds.containsValue(location.world)) throw Exception("That world does not exist!")
         if(location.world != world) location.world.join(this)
 
         val teleportPacket = ClientboundPlayerSynchronizePositionPacket(location)
         this.sendPacket(teleportPacket)
+        super.teleport(location)
     }
 
     fun hasPermission(permission: String): Boolean {

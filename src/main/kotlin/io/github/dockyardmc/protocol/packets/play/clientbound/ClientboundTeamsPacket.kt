@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.entities.Entity
@@ -10,6 +11,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.writeTeamInfo
 import io.netty.buffer.ByteBuf
+import kotlin.math.log
 
 @WikiVGEntry("Update Teams")
 @ClientboundPacketInfo(0x60, ProtocolState.PLAY)

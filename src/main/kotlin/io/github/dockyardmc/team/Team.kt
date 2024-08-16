@@ -2,11 +2,9 @@ package io.github.dockyardmc.team
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.extentions.writeNBT
-import io.github.dockyardmc.extentions.writeUtf
-import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.AddEntitiesTeamPacketAction
@@ -16,6 +14,8 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.netty.buffer.ByteBuf
+import java.lang.IllegalArgumentException
+import kotlin.experimental.or
 
 enum class TeamNameTagVisibility(val value: String) {
     VISIBLE("always"),
@@ -34,7 +34,6 @@ enum class TeamCollisionRule(val value: String) {
 class Team(
     val name: String,
     val displayName: Bindable<Component> = Bindable(name.toComponent()),
-    val flags: Bindable<Int> = Bindable(0x00),
     val teamNameTagVisibility: Bindable<TeamNameTagVisibility> = Bindable(TeamNameTagVisibility.VISIBLE),
     val teamCollisionRule: Bindable<TeamCollisionRule> = Bindable(TeamCollisionRule.ALWAYS),
     val color: Bindable<LegacyTextColor> = Bindable(LegacyTextColor.WHITE),
@@ -44,17 +43,15 @@ class Team(
 
     constructor(
         name: String,
-        displayName: String,
-        flags: Int,
-        teamNameTagVisibility: TeamNameTagVisibility,
-        teamCollisionRule: TeamCollisionRule,
         color: LegacyTextColor,
+        teamNameTagVisibility: TeamNameTagVisibility = TeamNameTagVisibility.VISIBLE,
+        teamCollisionRule: TeamCollisionRule = TeamCollisionRule.ALWAYS,
+        displayName: String = name,
         prefix: String? = null,
         suffix: String? = null
     ): this(
         name,
         Bindable<Component>(displayName.toComponent()),
-        Bindable<Int>(flags),
         Bindable<TeamNameTagVisibility>(teamNameTagVisibility),
         Bindable<TeamCollisionRule>(teamCollisionRule),
         Bindable<LegacyTextColor>(color),
@@ -66,7 +63,6 @@ class Team(
 
     init {
         displayName.valueChanged { sendTeamUpdatePacket() }
-        flags.valueChanged { sendTeamUpdatePacket() }
         teamNameTagVisibility.valueChanged { sendTeamUpdatePacket() }
         teamCollisionRule.valueChanged { sendTeamUpdatePacket() }
         color.valueChanged { sendTeamUpdatePacket() }
@@ -74,10 +70,10 @@ class Team(
         suffix.valueChanged { sendTeamUpdatePacket() }
 
         entities.itemAdded { event ->
-            require(event.item.team == this) { "Entity is still in another team!" }
+            if(event.item.team != null && event.item.team != this) throw IllegalArgumentException("Entity is on another team! (${event.item.team?.name})")
 
             val packet = ClientboundTeamsPacket(AddEntitiesTeamPacketAction(this, listOf(event.item)))
-            event.item.viewers.forEach { it.sendPacket(packet) }
+            PlayerManager.players.sendPacket(packet)
         }
     }
 
@@ -95,11 +91,22 @@ class Team(
         val packet = ClientboundTeamsPacket(UpdateTeamPacketAction(this))
         PlayerManager.players.sendPacket(packet)
     }
+
+    val allowFriendlyFire: Boolean = true
+    val seeFriendlyInvisibles: Boolean = true
+
+    fun getFlags(): Byte {
+        var mask: Byte = 0x00
+        if(allowFriendlyFire) mask = (mask or 0x01)
+        if(seeFriendlyInvisibles) mask = (mask or 0x02)
+        return mask
+    }
 }
+
 
 fun ByteBuf.writeTeamInfo(team: Team) {
     this.writeNBT(team.displayName.value.toNBT())
-    this.writeByte(team.flags.value)
+    this.writeByte(team.getFlags().toInt())
     this.writeUtf(team.teamNameTagVisibility.value.value)
     this.writeUtf(team.teamCollisionRule.value.value)
     this.writeVarInt(team.color.value.ordinal)

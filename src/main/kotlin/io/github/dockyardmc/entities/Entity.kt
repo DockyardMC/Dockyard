@@ -2,10 +2,8 @@ package io.github.dockyardmc.entities
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableMap
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.effects.PotionEffectImpl
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
@@ -22,6 +20,7 @@ import io.github.dockyardmc.utils.mergeEntityMetadata
 import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.toVector3f
 import io.github.dockyardmc.world.World
+import java.lang.IllegalArgumentException
 import java.util.UUID
 
 abstract class Entity {
@@ -47,6 +46,7 @@ abstract class Entity {
     val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = BindableMap()
     val isGlowing: Bindable<Boolean> = Bindable(false)
     val isInvisible: Bindable<Boolean> = Bindable(false)
+    val team: Bindable<Team?> = Bindable(null)
 
     init {
 
@@ -54,14 +54,12 @@ abstract class Entity {
             metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
-            DockyardServer.broadcastMessage("<yellow>Glowing: <orange>${it.newValue}")
         }
 
         isInvisible.valueChanged {
             metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
-            DockyardServer.broadcastMessage("<cyan>Invisible: <aqua>${it.newValue}")
         }
 
         metadataLayers.itemSet {
@@ -98,14 +96,16 @@ abstract class Entity {
             PotionEffectImpl.onEffectRemoved(this, it.value.effect)
             sendSelfPacketIfPlayer(packet)
         }
+
+        team.valueChanged {
+            if(it.newValue != null && !TeamManager.teams.values.containsKey(it.newValue!!.name)) throw IllegalArgumentException("Team ${it.newValue!!.name} is not registered!")
+            this.team.value?.entities?.remove(this)
+            it.newValue?.entities?.add(this)
+        }
     }
 
     fun updateEntity(player: Player, respawn: Boolean = false) {
         sendMetadataPacketToViewers()
-    }
-
-    fun updateEntityForAll(respawn: Boolean = false) {
-
     }
 
     open fun tick() {
@@ -116,14 +116,6 @@ abstract class Entity {
         }
     }
 
-    var team: Team? = null
-        set(value) {
-            require(value in TeamManager.teams.values) { "This team is not registered!" }
-
-            this.team?.entities?.remove(this)
-            field = value
-            value?.entities?.addIfNotPresent(this)
-        }
 
     open fun addViewer(player: Player) {
         val event = EntityViewerAddEvent(this, player)
@@ -131,11 +123,13 @@ abstract class Entity {
         if(event.cancelled) return
 
         val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, location.yaw, 0, velocity)
+        isOnGround = true
 
         viewers.add(player)
         player.sendPacket(entitySpawnPacket)
         sendMetadataPacket(player)
         sendMetadataPacketToViewers()
+        teleport(location)
     }
 
     open fun removeViewer(player: Player, isDisconnect: Boolean) {
@@ -187,6 +181,10 @@ abstract class Entity {
             location.z - width / 2,
             location.z + width / 2
         )
+    }
+
+    open fun teleport(location: Location) {
+        viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
     }
 
     open fun damage(damage: Float, damageType: DamageType, attacker: Entity? = null, projectile: Entity? = null) {
