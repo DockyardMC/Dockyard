@@ -3,8 +3,29 @@ package io.github.dockyardmc.utils
 import io.github.dockyardmc.location.Location
 import java.io.File
 import java.security.MessageDigest
+import kotlin.math.cos
+import kotlin.math.sin
 
 object MathUtils {
+
+    fun eulerToQuaternion(euler: Vector3f): Quaternion = eulerToQuaternion(euler.x.toDouble(), euler.y.toDouble(), euler.z.toDouble())
+
+    fun eulerToQuaternion(roll: Double, pitch: Double, yaw: Double): Quaternion {
+        val cy = cos(yaw * 0.5)
+        val sy = sin(yaw * 0.5)
+        val cp = cos(pitch * 0.5)
+        val sp = sin(pitch * 0.5)
+        val cr = cos(roll * 0.5)
+        val sr = sin(roll * 0.5)
+
+
+        val w = cr * cp * cy + sr * sp * sy
+        val x = sr * cp * cy - cr * sp * sy
+        val y = cr * sp * cy + sr * cp * sy
+        val z = cr * cp * sy - sr * sp * cy
+
+        return Quaternion(w.toFloat(), x.toFloat(), y.toFloat(), z.toFloat())
+    }
 
     fun getRelativeCoords(current: Double, previous: Double): Int = ((current * 32 - previous * 32) * 128).toInt()
 

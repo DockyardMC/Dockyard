@@ -30,6 +30,8 @@ data class Vector3f(
 ) {
     constructor(single: Float) : this(single, single, single)
 
+    constructor(): this(0f, 0f, 0f)
+
     fun normalize(): Vector3f {
         val vector = this
         val magnitude = sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z).toFloat()

@@ -1,6 +1,8 @@
 package io.github.dockyardmc.commands
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -72,6 +74,7 @@ object CommandHandler {
             command.arguments.values.forEach { it.returnedValue = null }
 
         } catch (ex: Exception) {
+            if(DockyardServer.debug) log(ex)
             val message = "<dark_red>Error <dark_gray>| <red>${ex.message}"
             if(executor.isPlayer) {
                 executor.player!!.sendMessage(message)

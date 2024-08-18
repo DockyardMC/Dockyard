@@ -121,13 +121,13 @@ class Player(
         }
 
         pose.valueChanged {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetadataByteBufWriter.POSE, it.newValue)
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
             sendMetadataPacketToViewers()
             sendSelfMetadataPacket()
         }
 
         displayedSkinParts.listUpdated {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.DISPLAY_SKIN_PARTS, EntityMetadataByteBufWriter.BYTE, displayedSkinParts.values.getBitMask())
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
             sendMetadataPacketToViewers()
             sendSelfMetadataPacket()
         }

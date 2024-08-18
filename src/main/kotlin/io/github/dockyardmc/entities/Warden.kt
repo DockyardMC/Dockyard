@@ -19,7 +19,7 @@ open class Warden(override var location: Location, override var world: World): E
 
     init {
         angerLevel.valueChanged {
-            metadata[EntityMetadataType.WARDEN_ANGER_LEVEL] = EntityMetadata(EntityMetadataType.WARDEN_ANGER_LEVEL, EntityMetadataByteBufWriter.VAR_INT, it.newValue)
+            metadata[EntityMetadataType.WARDEN_ANGER_LEVEL] = EntityMetadata(EntityMetadataType.WARDEN_ANGER_LEVEL, EntityMetaValue.VAR_INT, it.newValue)
         }
     }
 

@@ -62,7 +62,7 @@ abstract class Entity {
         }
 
         freezeTicks.valueChanged {
-            val meta = EntityMetadata(EntityMetadataType.FROZEN_TICKS, EntityMetadataByteBufWriter.VAR_INT, it.newValue)
+            val meta = EntityMetadata(EntityMetadataType.FROZEN_TICKS, EntityMetaValue.VAR_INT, it.newValue)
             metadata[EntityMetadataType.FROZEN_TICKS] = meta
         }
 
@@ -90,7 +90,7 @@ abstract class Entity {
         }
 
         pose.valueChanged {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetadataByteBufWriter.POSE, it.newValue)
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
         }
 
         //TODO add attribute modifiers
@@ -131,7 +131,6 @@ abstract class Entity {
         }
     }
 
-
     open fun addViewer(player: Player) {
         val event = EntityViewerAddEvent(this, player)
         Events.dispatch(event)
@@ -162,7 +161,6 @@ abstract class Entity {
         val packet = ClientboundSetVelocityPacket(this, velocity)
         viewers.sendPacket(packet)
         sendSelfPacketIfPlayer(packet)
-
     }
 
     //TODO make this work

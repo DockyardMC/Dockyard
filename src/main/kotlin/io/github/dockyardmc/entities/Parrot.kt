@@ -19,7 +19,7 @@ class Parrot(override var world: World, override var location: Location): Entity
 
     init {
         variant.valueChanged {
-            metadata[EntityMetadataType.PARROT_VARIANT] = EntityMetadata(EntityMetadataType.PARROT_VARIANT, EntityMetadataByteBufWriter.VAR_INT, it.newValue.ordinal)
+            metadata[EntityMetadataType.PARROT_VARIANT] = EntityMetadata(EntityMetadataType.PARROT_VARIANT, EntityMetaValue.VAR_INT, it.newValue.ordinal)
         }
         variant.triggerUpdate()
     }
