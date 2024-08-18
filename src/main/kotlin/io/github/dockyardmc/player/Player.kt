@@ -68,12 +68,7 @@ class Player(
     val tabListHeader: Bindable<Component> = Bindable("".toComponent())
     val tabListFooter: Bindable<Component> = Bindable("".toComponent())
     val isListed: Bindable<Boolean> = Bindable(true)
-    //TODO Implement
-    val isOnFire: Bindable<Boolean> = Bindable(false)
-    //TODO Implement
-    val fireTicks: Bindable<Int> = Bindable(0)
-    //TODO Implement
-    val freezeTicks: Bindable<Int> = Bindable(0)
+
     val saturation: Bindable<Float> = Bindable(0f)
     val food: Bindable<Double> = Bindable(20.0)
     val experienceLevel: Bindable<Int> = Bindable(0)
@@ -333,7 +328,6 @@ class Player(
     }
 
     fun respawn(isBecauseDeath: Boolean = false) {
-        fireTicks.value = 0
         isOnFire.value = false
         health.value = 20f
 

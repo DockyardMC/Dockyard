@@ -62,8 +62,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
 
 
 class EntityStateMetadataBuilder(entity: Entity) {
-    //TODO fire ticks
-    var isOnFire = false
+    var isOnFire = entity.isOnFire.value
     var isCrouching = if(entity is Player) entity.isSneaking else false
     var isSprinting = if(entity is Player) entity.isSprinting else false
     //TODO is swimming

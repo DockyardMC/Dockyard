@@ -47,19 +47,36 @@ abstract class Entity {
     val isGlowing: Bindable<Boolean> = Bindable(false)
     val isInvisible: Bindable<Boolean> = Bindable(false)
     val team: Bindable<Team?> = Bindable(null)
+    //TODO Implement
+    val isOnFire: Bindable<Boolean> = Bindable(false)
+    //TODO Implement
+    val freezeTicks: Bindable<Int> = Bindable(0)
 
     init {
 
-        isGlowing.valueChanged {
-            metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
+        isOnFire.valueChanged {
+            val meta = getEntityMetadataState(this) {
+                isOnFire = it.newValue
+            }
+            metadata[EntityMetadataType.STATE] = meta
+        }
+
+        freezeTicks.valueChanged {
+            val meta = EntityMetadata(EntityMetadataType.FROZEN_TICKS, EntityMetadataByteBufWriter.VAR_INT, it.newValue)
+            metadata[EntityMetadataType.FROZEN_TICKS] = meta
+        }
+
+        metadata.mapUpdated {
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
         }
 
+        isGlowing.valueChanged {
+            metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
+        }
+
         isInvisible.valueChanged {
             metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
-            sendMetadataPacketToViewers()
-            sendSelfMetadataIfPlayer()
         }
 
         metadataLayers.itemSet {
@@ -74,8 +91,6 @@ abstract class Entity {
 
         pose.valueChanged {
             metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetadataByteBufWriter.POSE, it.newValue)
-            sendMetadataPacketToViewers()
-            sendSelfMetadataIfPlayer()
         }
 
         //TODO add attribute modifiers
