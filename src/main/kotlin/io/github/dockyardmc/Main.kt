@@ -1,20 +1,18 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.FloatArgument
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.entities.*
-import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerPreSpawnWorldSelectionEvent
+import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.utils.DebugScoreboard
-import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
 
@@ -53,48 +51,8 @@ fun main(args: Array<String>) {
             val player = executor.player!!
             val world = WorldManager.getOrThrow(cmd.get<String>("world"))
             world.join(player)
-        }
-    }
-
-    var itemDisplay: BlockDisplay? = null
-
-    Commands.add("/block") {
-        it.execute { ctx ->
-            val player = ctx.playerOrThrow()
-
-            val world = player.world
-            val location = player.location
-            val entity = world.spawnEntity(BlockDisplay(location.withNoRotation(), world)) as BlockDisplay
-            itemDisplay = entity
-            entity.interpolationDelay.value = 0
-            entity.transformInterpolation.value = 20
-            entity.block.value = Blocks.CHERRY_PLANKS
-        }
-    }
-
-    Commands.add("/scale") {
-        it.addArgument("x", FloatArgument())
-        it.addArgument("y", FloatArgument())
-        it.execute { ctx ->
-            val player = ctx.playerOrThrow()
-            val x = it.get<Float>("x")
-            val y = it.get<Float>("y")
-
-            itemDisplay?.scale?.value = Vector3f(x, y, 5f)
-        }
-    }
-
-    Commands.add("/rotate") {
-        it.addArgument("x", FloatArgument())
-        it.addArgument("y", FloatArgument())
-        it.addArgument("z", FloatArgument())
-        it.execute { ctx ->
-            val player = ctx.playerOrThrow()
-            val x = it.get<Float>("x")
-            val y = it.get<Float>("y")
-            val z = it.get<Float>("z")
-
-            itemDisplay?.rotation?.value = Vector3f(x, y, z)
+            val item = ItemStack(Items.IRON_SWORD)
+            item.components.add(EnchantmentGlintOverrideItemComponent(true))
         }
     }
 

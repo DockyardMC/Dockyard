@@ -41,6 +41,14 @@ data class Vector3f(
             vector
         }
     }
+
+    operator fun plus(vector3f: Vector3f): Vector3f {
+        return Vector3f(
+            this.x + vector3f.x,
+            this.y + vector3f.y,
+            this.z + vector3f.z,
+        )
+    }
 }
 
 fun ByteBuf.writeShortVector3(vector3: Vector3) {

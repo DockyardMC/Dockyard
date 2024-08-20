@@ -6,7 +6,6 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.scroll.CustomColor
-import io.github.dockyardmc.utils.MathUtils
 import io.github.dockyardmc.utils.Quaternion
 import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.World
@@ -84,7 +83,47 @@ open class DisplayEntityBase(
             metadata[type] = EntityMetadata(type, EntityMetaValue.VAR_INT, it.newValue.toRgbInt())
         }
     }
+
+    fun scaleTo(x: Float, y: Float, z: Float, interpolation: Int? = null) {
+        if(interpolation != null) transformInterpolation.value = interpolation
+        scale.value = Vector3f(x, y, z)
+    }
+
+    fun scaleTo(vector3f: Vector3f, interpolation: Int?) {
+        scaleTo(vector3f.x, vector3f.y, vector3f.z, interpolation)
+    }
+
+    fun translateTo(x: Float, y: Float, z: Float, interpolation: Int? = null) {
+        if(interpolation != null) translationInterpolation.value = interpolation
+        translation.value = Vector3f(x, y, z)
+    }
+
+    fun translateTo(vector3f: Vector3f, interpolation: Int?) {
+        translateTo(vector3f.x, vector3f.y, vector3f.z, interpolation)
+    }
+
+    fun rotateTo(x: Float, y: Float, z: Float, interpolation: Int? = null) {
+        if(interpolation != null) transformInterpolation.value = interpolation
+        rotation.value = Vector3f(x, y, z)
+    }
+
+    fun rotateTo(vector3f: Vector3f, interpolation: Int?) {
+        rotateTo(vector3f.x, vector3f.y, vector3f.z, interpolation)
+    }
+
+    fun rotateBy(x: Float, y: Float, z: Float, interpolation: Int? = null) {
+        if(interpolation != null) transformInterpolation.value = interpolation
+        rotation.value += Vector3f(x, y, z)
+    }
+
+    fun rotateBy(vector3f: Vector3f, interpolation: Int?) {
+        rotateBy(vector3f.x, vector3f.y, vector3f.z, interpolation)
+    }
 }
+
+
+
+
 
 enum class DisplayBillboard {
     FIXED,
