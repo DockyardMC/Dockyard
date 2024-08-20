@@ -121,10 +121,6 @@ open class DisplayEntityBase(
     }
 }
 
-
-
-
-
 enum class DisplayBillboard {
     FIXED,
     VERTICAL,

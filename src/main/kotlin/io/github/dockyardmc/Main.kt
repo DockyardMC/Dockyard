@@ -1,9 +1,12 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.FloatArgument
+import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
+import io.github.dockyardmc.entities.KinematicChain
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerPreSpawnWorldSelectionEvent
@@ -13,6 +16,7 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
 
@@ -53,6 +57,36 @@ fun main(args: Array<String>) {
             world.join(player)
             val item = ItemStack(Items.IRON_SWORD)
             item.components.add(EnchantmentGlintOverrideItemComponent(true))
+        }
+    }
+
+    var kinematic: KinematicChain? = null
+
+    Commands.add("/mimic") {
+        it.execute { ctx ->
+            val player = ctx.playerOrThrow()
+
+            kinematic = KinematicChain(player.location, player.world, 3)
+        }
+    }
+
+    Commands.add("/loc") {
+        it.execute { ctx ->
+            val player = ctx.playerOrThrow()
+            kinematic?.setLocation(player.location)
+        }
+    }
+
+    Commands.add("/rot") {
+        it.addArgument("x", FloatArgument())
+        it.addArgument("y", FloatArgument())
+        it.addArgument("z", FloatArgument())
+        it.execute { ctx ->
+            val x = it.get<Float>("x")
+            val y = it.get<Float>("y")
+            val z = it.get<Float>("z")
+
+            kinematic?.segments?.last()?.rotation?.value = Vector3f(x, y, z)
         }
     }
 
