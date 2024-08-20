@@ -10,7 +10,6 @@ import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerPreSpawnWorldSelectionEvent
-import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.registry.*
@@ -57,19 +56,19 @@ fun main(args: Array<String>) {
         }
     }
 
-    var itemDisplay: ItemDisplay? = null
+    var itemDisplay: BlockDisplay? = null
 
-    Commands.add("/item") {
+    Commands.add("/block") {
         it.execute { ctx ->
             val player = ctx.playerOrThrow()
 
             val world = player.world
             val location = player.location
-            val entity = world.spawnEntity(ItemDisplay(location, world)) as ItemDisplay
+            val entity = world.spawnEntity(BlockDisplay(location.withNoRotation(), world)) as BlockDisplay
             itemDisplay = entity
             entity.interpolationDelay.value = 0
             entity.transformInterpolation.value = 20
-            entity.item.value = ItemStack(Items.AMETHYST_SHARD)
+            entity.block.value = Blocks.CHERRY_PLANKS
         }
     }
 

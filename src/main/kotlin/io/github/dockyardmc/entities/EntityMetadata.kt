@@ -8,6 +8,8 @@ import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.registry.Block
+import io.github.dockyardmc.registry.getId
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.utils.*
 import io.netty.buffer.ByteBuf
@@ -47,7 +49,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.OPTIONAL_POSITION -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeLocation(v as Location)}
         EntityMetaValue.DIRECTION -> this.writeVarInt((v as Direction).ordinal)
         EntityMetaValue.OPTIONAL_UUID -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeUUID(v as UUID)}
-        EntityMetaValue.BLOCK_STATE -> this.writeVarInt(v as Int)
+        EntityMetaValue.BLOCK_STATE -> this.writeVarInt((v as Block).getId())
         EntityMetaValue.OPTIONAL_BLOCK_STATE -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
         EntityMetaValue.NBT -> this.writeNBT(v as NBTCompound)
         EntityMetaValue.PARTICLE -> TODO()
@@ -152,7 +154,8 @@ enum class EntityMetadataType(var index: Int) {
     TEXT_DISPLAY_TEXT_OPACITY(26),
     TEXT_DISPLAY_FORMATTING(27),
     ITEM_DISPLAY_ITEM(23),
-    ITEM_DISPLAY_RENDER_TYPE(24)
+    ITEM_DISPLAY_RENDER_TYPE(24),
+    BLOCK_DISPLAY_BLOCK(23)
 }
 
 
