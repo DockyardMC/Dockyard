@@ -1,6 +1,8 @@
 package io.github.dockyardmc.entities
 
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.writeItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.player.Direction
@@ -38,7 +40,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.STRING -> this.writeUtf(v as String)
         EntityMetaValue.TEXT_COMPONENT -> this.writeNBT((metadata.value as Component).toNBT())
         EntityMetaValue.OPTIONAL_TEXT_COMPONENT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeNBT((metadata.value as Component).toNBT()) }
-        EntityMetaValue.SLOT -> TODO()
+        EntityMetaValue.ITEM_STACK -> this.writeItemStack(v as ItemStack)
         EntityMetaValue.BOOLEAN -> this.writeBoolean(v as Boolean)
         EntityMetaValue.ROTATION -> this.writeVector3f(v as Vector3f)
         EntityMetaValue.POSITION -> this.writeLocation(v as Location)
@@ -148,7 +150,9 @@ enum class EntityMetadataType(var index: Int) {
     TEXT_DISPLAY_LINE_WIDTH(24),
     TEXT_DISPLAY_BACKGROUND_COLOR(25),
     TEXT_DISPLAY_TEXT_OPACITY(26),
-    TEXT_DISPLAY_FORMATTING(27)
+    TEXT_DISPLAY_FORMATTING(27),
+    ITEM_DISPLAY_ITEM(23),
+    ITEM_DISPLAY_RENDER_TYPE(24)
 }
 
 
@@ -160,7 +164,7 @@ enum class EntityMetaValue {
     STRING,
     TEXT_COMPONENT,
     OPTIONAL_TEXT_COMPONENT,
-    SLOT,
+    ITEM_STACK,
     BOOLEAN,
     ROTATION,
     POSITION,
@@ -176,11 +180,12 @@ enum class EntityMetaValue {
     OPTIONAL_VAR_INT,
     POSE,
     CAT_VARIANT,
+    WOLF_VARIANT,
     FROG_VARIANT,
     OPTIONAL_GLOBAL_POSITION,
     PAINTING_VARIANT,
     SNIFFER_STATE,
     ARMADILLO_STATE,
-    QUATERNION,
     VECTOR3,
+    QUATERNION,
 }

@@ -3,10 +3,21 @@ package io.github.dockyardmc.utils
 import io.github.dockyardmc.location.Location
 import java.io.File
 import java.security.MessageDigest
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
 object MathUtils {
+
+    fun multiplyQuaternions(q1: Quaternion, q2: Quaternion): Quaternion {
+        val x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y
+        val y = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x
+        val z = q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w
+        val w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z
+        return Quaternion(x, y, z, w)
+    }
+
+    fun degreesToRadians(degrees: Float): Float = (degrees * (PI / 180.0)).toFloat()
 
     fun eulerToQuaternion(euler: Vector3f): Quaternion = eulerToQuaternion(euler.x.toDouble(), euler.y.toDouble(), euler.z.toDouble())
 

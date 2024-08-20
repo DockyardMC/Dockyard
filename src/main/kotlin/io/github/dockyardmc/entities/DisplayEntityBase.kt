@@ -7,6 +7,7 @@ import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.Quaternion
 import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.World
 
@@ -55,7 +56,7 @@ open class DisplayEntityBase(
         }
         rotation.valueChanged {
             val type = EntityMetadataType.DISPLAY_ROTATION_LEFT
-            val quaternion = MathUtils.eulerToQuaternion(it.newValue)
+            val quaternion = Quaternion.fromAxis(it.newValue)
             metadata[type] = EntityMetadata(type, EntityMetaValue.QUATERNION, quaternion)
         }
         billboard.valueChanged {
@@ -84,8 +85,6 @@ open class DisplayEntityBase(
         }
     }
 }
-
-
 
 enum class DisplayBillboard {
     FIXED,
