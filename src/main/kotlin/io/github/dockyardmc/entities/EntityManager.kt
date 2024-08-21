@@ -23,7 +23,7 @@ object EntityManager {
     }
 
     fun World.despawnEntity(entity: Entity) {
-        this@EntityManager.entities.add(entity)
+        this@EntityManager.entities.remove(entity)
         PlayerManager.players.forEach {
             entity.removeViewer(it, false)
         }

@@ -15,13 +15,12 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
-import io.github.dockyardmc.utils.Vector3
-import io.github.dockyardmc.utils.mergeEntityMetadata
-import io.github.dockyardmc.utils.ticksToMs
-import io.github.dockyardmc.utils.toVector3f
+import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.world.World
 import java.lang.IllegalArgumentException
 import java.util.UUID
+import kotlin.math.cos
+import kotlin.math.sin
 
 abstract class Entity {
     open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
@@ -197,6 +196,7 @@ abstract class Entity {
     }
 
     open fun teleport(location: Location) {
+        this.location = location
         viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
     }
 
@@ -256,6 +256,17 @@ abstract class Entity {
 
     fun breakBlock() {
 
+    }
+
+    fun getFacingDirectionVector(): Vector3f {
+        val yawRadians = Math.toRadians(location.yaw.toDouble())
+        val pitchRadians = Math.toRadians(location.pitch.toDouble())
+
+        val x = -sin(yawRadians) * cos(pitchRadians)
+        val y = -sin(pitchRadians)
+        val z = cos(yawRadians) * cos(pitchRadians)
+
+        return Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
     }
 
 }

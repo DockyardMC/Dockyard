@@ -9,6 +9,9 @@ import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.utils.Quaternion
 import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.World
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 open class DisplayEntityBase(
     override var location: Location,
@@ -113,11 +116,26 @@ open class DisplayEntityBase(
 
     fun rotateBy(x: Float, y: Float, z: Float, interpolation: Int? = null) {
         if(interpolation != null) transformInterpolation.value = interpolation
-        rotation.value += Vector3f(x, y, z)
+        rotation.value = rotation.value.add(Vector3f(x, y, z))
     }
 
     fun rotateBy(vector3f: Vector3f, interpolation: Int?) {
         rotateBy(vector3f.x, vector3f.y, vector3f.z, interpolation)
+    }
+
+    fun getForwardVector(): Vector3f {
+        val rotation = this.rotation.value // Assuming 'rotation' is a Vector3f representing Euler angles (pitch, yaw, roll)
+
+        val cosPitch = cos(rotation.x * PI / 180.0)
+        val sinPitch = sin(rotation.x * PI / 180.0)
+        val cosYaw = cos(rotation.y * PI / 180.0)
+        val sinYaw = sin(rotation.y * PI / 180.0)
+
+        return Vector3f(
+            (cosPitch * sinYaw).toFloat(),
+            -sinPitch.toFloat(),
+            (cosPitch * cosYaw).toFloat()
+        )
     }
 }
 

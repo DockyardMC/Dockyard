@@ -1,17 +1,12 @@
 package io.github.dockyardmc.entities
 
-import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.entities.EntityManager.despawnEntity
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.utils.Vector3f
-import io.github.dockyardmc.utils.toVector3
 import io.github.dockyardmc.utils.toVector3f
 import io.github.dockyardmc.world.World
-import kotlin.math.asin
-import kotlin.math.atan2
-import kotlin.math.sqrt
 
 class Mimic(location: Location, world: World) {
     val legs: MutableMap<Int, KinematicChain> = mutableMapOf()
@@ -26,7 +21,7 @@ class Mimic(location: Location, world: World) {
 
 }
 
-class KinematicChain(location: Location, world: World, segmentAmounts: Int) {
+class KinematicChain(val root: Location, val world: World, val segmentAmounts: Int, val segmentScale: Float = 1f) {
 
     val segments: MutableList<BlockDisplay> = mutableListOf()
 
@@ -34,9 +29,9 @@ class KinematicChain(location: Location, world: World, segmentAmounts: Int) {
         for (i in 0 until segmentAmounts) {
             val sizeBefore = (0.3f - ((i - 1f) / 10f)) * 0.5
             val size = 0.3f - (i / 10f)
-            val display = BlockDisplay(location.withNoRotation().add(0.0, i.toDouble(), 0.0).subtract(sizeBefore, 0.0, sizeBefore), world)
-            display.block.value = Blocks.NETHERITE_BLOCK
-            display.scaleTo(size, 1f, size)
+            val display = BlockDisplay(root.withNoRotation().add(0.0, i.toDouble(), 0.0).subtract(sizeBefore, 0.0, sizeBefore), world)
+            display.block.value = Blocks.AIR
+            display.scaleTo(size, segmentScale, size)
             display.interpolationDelay.value = 0
             display.transformInterpolation.value = 10
             display.translationInterpolation.value = 10
@@ -45,23 +40,70 @@ class KinematicChain(location: Location, world: World, segmentAmounts: Int) {
         }
     }
 
-    fun setLocation(location: Location) {
-        val last = segments.last()
-        val direction = location.subtract(last.location).toVector3f().normalize()
-        DockyardServer.broadcastMessage("$direction")
-
-        val yaw = atan2(direction.z.toDouble(), direction.x.toDouble()).toFloat()
-
-        val horizontalDistance = sqrt((direction.x * direction.x + direction.z * direction.z).toDouble())
-        val pitch = atan2(direction.y.toDouble(), horizontalDistance).toFloat()
-
-        val yawDegrees = Math.toDegrees(yaw.toDouble()).toFloat()
-        val pitchDegrees = Math.toDegrees(pitch.toDouble()).toFloat()
-
-        val yawAdjusted = (yawDegrees + 90) % 360
-        val pitchAdjusted = (pitchDegrees + 90) % 360
-
-        DockyardServer.broadcastMessage("<yellow>$yawAdjusted <gray>| <yellow>$pitchAdjusted <gray>| <yellow>0f")
-        last.rotation.value = Vector3f(pitchAdjusted, yawAdjusted, 0f)
+    private var isDisposing = false
+    fun dispose() {
+        isDisposing = true
+        segments.forEach {
+            world.despawnEntity(it)
+        }
     }
+
+    fun fabrik(target: Location) {
+        val tolerance = 0.01
+
+        for (i in 0 until 10) {
+            if(isDisposing) break
+            fabrikForward(target)
+            fabrikBackward()
+
+            if(getEndEffector().distance(target.toVector3f()) < tolerance) {
+                break
+            }
+        }
+    }
+
+    fun fabrikForward(newPosition: Location) {
+        val lastSegment = segments.last()
+        lastSegment.location = newPosition
+
+        for(i in segments.size -1 downTo 1) {
+            val previousSegment = segments[i]
+            val segment = segments[i - 1]
+
+            moveSegment(segment, previousSegment.location, previousSegment.scale.value.y.toDouble())
+        }
+    }
+
+
+    fun fabrikBackward() {
+        moveSegment(segments.first(), root, segments.first().scale.value.y.toDouble())
+
+        for (i in 1 until segments.size) {
+            val previousSegment = segments[i - 1]
+            val segment = segments[i]
+
+            moveSegment(segment, previousSegment.location, segment.scale.value.y.toDouble())
+        }
+    }
+
+
+    fun straightenDirection(direction: Vector3f) {
+        direction.normalize()
+        val position = root.clone() // We still need to clone `root` to avoid modifying it
+        for (segment in segments) {
+            position.add(direction.multiply(segment.scale.value.y.toDouble()))
+            segment.location = position
+        }
+    }
+
+    fun moveSegment(segment: BlockDisplay, pullTowards: Location, segmentLen: Double) {
+        val point = segment.location
+        val direction = pullTowards.subtract(point).toVector3f().normalize()
+
+        segment.location = pullTowards.subtract(direction.multiply(segmentLen))
+    }
+
+    fun getEndEffector(): Vector3f = segments.last().location.toVector3f()
 }
+
+

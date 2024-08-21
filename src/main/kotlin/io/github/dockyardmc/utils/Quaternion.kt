@@ -1,6 +1,7 @@
 package io.github.dockyardmc.utils
 
 import io.netty.buffer.ByteBuf
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -11,6 +12,18 @@ data class Quaternion(
     val z: Float,
     val w: Float
 ) {
+
+    fun rotate(vector: Vector3f): Vector3f {
+        val q = this // The quaternion representing the rotation
+        val p = Quaternion(0f, vector.x, vector.y, vector.z)
+
+        val rotatedP = MathUtils.multiplyQuaternions(MathUtils.multiplyQuaternions(q, p), q).conjugate()
+
+        return Vector3f(rotatedP.x, rotatedP.y, rotatedP.z)
+    }
+
+    fun conjugate(): Quaternion = Quaternion(this.w, -this.x, -this.y, -this.z)
+
     companion object {
         fun fromAxis(axisX: Float, axisY: Float, axisZ: Float): Quaternion {
             val xRadians = MathUtils.degreesToRadians(axisX)
@@ -26,7 +39,23 @@ data class Quaternion(
             return q
         }
 
+        fun fromAxisAngle(axis: Vector3f, angleDegrees: Double): Quaternion {
+            val angleRadians = angleDegrees * PI / 180.0 // Convert degrees to radians
+            val halfAngle = angleRadians / 2.0
+            val sinHalfAngle = sin(halfAngle).toFloat()
+            val cosHalfAngle = cos(halfAngle).toFloat()
+
+            return Quaternion(
+                cosHalfAngle,
+                axis.x * sinHalfAngle,
+                axis.y * sinHalfAngle,
+                axis.z * sinHalfAngle
+            )
+        }
+
         fun fromAxis(vector3f: Vector3f): Quaternion = fromAxis(vector3f.x, vector3f.y, vector3f.z)
+
+
     }
 }
 
