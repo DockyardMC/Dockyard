@@ -13,6 +13,8 @@ import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.world.World
+import io.github.dockyardmc.world.WorldManager
 import java.util.*
 
 object CommandHandler {
@@ -60,6 +62,7 @@ object CommandHandler {
                     UUID::class -> UUID.fromString(value)
                     Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value } ?: throw Exception("\"$value\" is not of type Item")
                     Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.identifier == value } ?: throw Exception("\"$value\" is not of type Block")
+                    World::class -> WorldManager.worlds[value]
 
                     //TODO: brigadier selectors @a @e @s @p @n
                     else -> null

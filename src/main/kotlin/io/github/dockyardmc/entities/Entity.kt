@@ -22,18 +22,15 @@ import java.util.UUID
 import kotlin.math.cos
 import kotlin.math.sin
 
-abstract class Entity {
+abstract class Entity(open var location: Location, open var world: World) {
     open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
-    abstract var location: Location
     open var velocity: Vector3 = Vector3()
     val viewers: MutableList<Player> = mutableListOf()
     open var hasGravity: Boolean = true
     open var isInvulnerable: Boolean = false
     open var hasCollision: Boolean = true
-    @Suppress("LeakingThis")
-    open var world: World = location.world
     open var displayName: String = this::class.simpleName.toString()
     open var isOnGround: Boolean = true
     val metadata: BindableMap<EntityMetadataType, EntityMetadata> = BindableMap()
@@ -49,6 +46,8 @@ abstract class Entity {
     val team: Bindable<Team?> = Bindable(null)
     val isOnFire: Bindable<Boolean> = Bindable(false)
     val freezeTicks: Bindable<Int> = Bindable(0)
+
+    constructor(location: Location): this(location, location.world)
 
     init {
 

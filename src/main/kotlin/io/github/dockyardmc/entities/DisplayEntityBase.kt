@@ -8,15 +8,11 @@ import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.utils.Quaternion
 import io.github.dockyardmc.utils.Vector3f
-import io.github.dockyardmc.world.World
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-open class DisplayEntityBase(
-    override var location: Location,
-    override var world: World,
-) : Entity() {
+open class DisplayEntityBase(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.TEXT_DISPLAY
     override var health: Bindable<Float> = Bindable(0f)
     override var inventorySize: Int = 0

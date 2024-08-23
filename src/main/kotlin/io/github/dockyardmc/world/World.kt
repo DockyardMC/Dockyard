@@ -5,6 +5,7 @@ import cz.lukynka.BindableList
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entities.EntityManager.despawnEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerChangeWorldEvent
 import io.github.dockyardmc.events.ServerTickEvent
@@ -18,6 +19,7 @@ import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.*
+import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 import java.util.Random
@@ -216,6 +218,19 @@ class World(
     }
 
     fun delete() {
+        players.values.forEach {
+            it.teleport(mainWorld.defaultSpawnLocation)
+            players.remove(it)
+        }
+        entities.values.forEach {
+            if(it is Player) return@forEach
+            despawnEntity(it)
+            entities.remove(it)
+        }
+        canBeJoined.value = false
+        chunks.clear()
+
+        WorldManager.worlds.remove(this.name)
         this.asyncChunkGenerator.shutdown()
     }
 

@@ -7,9 +7,8 @@ import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.world.World
 
-class TextDisplay(location: Location, world: World): DisplayEntityBase(location, world) {
+class TextDisplay(location: Location): DisplayEntityBase(location) {
 
     override var type: EntityType = EntityTypes.TEXT_DISPLAY
     val text: Bindable<String> = Bindable("")

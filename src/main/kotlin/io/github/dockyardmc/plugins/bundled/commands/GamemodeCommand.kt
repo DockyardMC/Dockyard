@@ -13,6 +13,7 @@ class GamemodeCommand {
     init {
         Commands.add("/gamemode") {
             it.description = "Changes your gamemode"
+            it.permission = "dockyard.commands.creative"
             it.addArgument("mode", EnumArgument(GameMode::class))
             it.execute { executor ->
                 if(!executor.isPlayer) return@execute
@@ -23,12 +24,12 @@ class GamemodeCommand {
             }
         }
 
-
         Commands.add("/gmc") {
             it.aliases.add("gms")
             it.aliases.add("gma")
             it.aliases.add("gmsp")
             it.description = "Sets players gamemode"
+            it.permission = "dockyard.commands.creative"
 
             it.addOptionalArgument("player", PlayerArgument())
 

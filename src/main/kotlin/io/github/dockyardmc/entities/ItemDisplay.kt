@@ -7,7 +7,7 @@ import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.world.World
 
-class ItemDisplay(location: Location, world: World): DisplayEntityBase(location, world) {
+class ItemDisplay(location: Location, world: World): DisplayEntityBase(location) {
 
     override var type: EntityType = EntityTypes.ITEM_DISPLAY
     val item: Bindable<ItemStack> = Bindable(ItemStack.air)

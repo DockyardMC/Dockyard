@@ -9,7 +9,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEvent
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
 
-open class Warden(override var location: Location): Entity() {
+open class Warden(location: Location): Entity(location) {
     override var type: EntityType = EntityTypes.WARDEN
     override var health: Bindable<Float> = Bindable(500f)
     override var inventorySize: Int = 0

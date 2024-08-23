@@ -42,7 +42,7 @@ class Player(
     val connection: ChannelHandlerContext,
     val address: String,
     val crypto: PlayerCrypto,
-): Entity() {
+): Entity(location) {
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var hasGravity: Boolean = true
     override var isInvulnerable: Boolean = true
@@ -304,6 +304,7 @@ class Player(
 
     fun hasPermission(permission: String): Boolean {
         if(permission.isEmpty()) return true
+        if(permissions.contains("dockyard.all") || permissions.contains("dockyard.*")) return true
         return permissions.contains(permission)
     }
 

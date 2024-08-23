@@ -44,19 +44,8 @@ fun main(args: Array<String>) {
         DebugScoreboard.sidebar.viewers.add(player)
         player.addPotionEffect(PotionEffects.NIGHT_VISION, 99999, 0, false)
         player.addPotionEffect(PotionEffects.SPEED, 99999, 3, false)
-    }
-
-    Commands.add("/world") { cmd ->
-        cmd.addArgument("world", StringArgument())
-        cmd.execute { executor ->
-            val player = executor.player!!
-            val world = WorldManager.getOrThrow(cmd.get<String>("world"))
-            world.join(player)
-
-            val location = player.location
-            val entity = world.spawnEntity(Warden(location), false) as Warden
-            entity.addViewer(player)
-            world.despawnEntity(entity)
+        if(player.username == "LukynkaCZE") {
+            player.permissions.add("dockyard.all")
         }
     }
 
