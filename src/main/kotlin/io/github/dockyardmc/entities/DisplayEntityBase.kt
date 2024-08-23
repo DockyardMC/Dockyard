@@ -124,7 +124,7 @@ open class DisplayEntityBase(
     }
 
     fun getForwardVector(): Vector3f {
-        val rotation = this.rotation.value // Assuming 'rotation' is a Vector3f representing Euler angles (pitch, yaw, roll)
+        val rotation = this.rotation.value
 
         val cosPitch = cos(rotation.x * PI / 180.0)
         val sinPitch = sin(rotation.x * PI / 180.0)

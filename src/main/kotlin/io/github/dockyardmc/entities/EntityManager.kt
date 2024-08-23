@@ -11,14 +11,10 @@ object EntityManager {
     var entityIdCounter = AtomicInteger()
     val entities: MutableList<Entity> = mutableListOf()
 
-    //TODO Add way to have fully client-side entities
-
-    fun World.spawnEntity(entity: Entity): Entity {
+    fun World.spawnEntity(entity: Entity, noViewers: Boolean = false): Entity {
         this@EntityManager.entities.add(entity)
         this.entities.add(entity)
-        PlayerManager.players.forEach { loopPlayer ->
-            entity.addViewer(loopPlayer)
-        }
+        if(!noViewers) PlayerManager.players.forEach(entity::addViewer)
         return entity
     }
 
@@ -27,7 +23,6 @@ object EntityManager {
         PlayerManager.players.forEach {
             entity.removeViewer(it, false)
         }
-//        this.entities.remove(entity)
     }
 
     init {

@@ -26,8 +26,6 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.AnnotationProcessor
-import io.github.dockyardmc.plugins.bundled.MayaTestPlugin
-import io.github.dockyardmc.plugins.bundled.MudkipTestPlugin
 import io.github.dockyardmc.protocol.PacketParser
 import java.net.InetSocketAddress
 import java.util.*
@@ -98,8 +96,6 @@ class DockyardServer {
         val pluginConfig = ConfigManager.currentConfig.bundledPlugins
         if(pluginConfig.dockyardCommands) PluginManager.loadLocal(DockyardCommands())
         if(pluginConfig.dockyardExtras) PluginManager.loadLocal(DockyardExtras())
-        if(pluginConfig.mayaTestPlugin) PluginManager.loadLocal(MayaTestPlugin())
-        if(pluginConfig.mudkipTestPlugin) PluginManager.loadLocal(MudkipTestPlugin())
 
         innerProfiler.end()
 

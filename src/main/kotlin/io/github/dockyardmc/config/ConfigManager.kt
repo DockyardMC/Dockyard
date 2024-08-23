@@ -12,7 +12,7 @@ import java.lang.Exception
 object ConfigManager {
 
     val defaultConfig = DockyardConfig(
-        configVersion = 1,
+        configVersion = 2,
         serverConfig = ServerConfig(),
         chunkEngine = ChunkEngine(),
         bundledPlugins = BundledPlugins(),
@@ -75,7 +75,4 @@ data class ImplementationConfig(
 data class BundledPlugins(
     var dockyardCommands: Boolean = true,
     var dockyardExtras: Boolean = false,
-    var mayaTestPlugin: Boolean = false,
-    var mudkipTestPlugin: Boolean = false,
-    var emberSeeker: Boolean = false
 )
