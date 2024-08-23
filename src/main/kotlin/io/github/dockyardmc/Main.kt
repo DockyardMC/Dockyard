@@ -6,7 +6,8 @@ import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.entities.KinematicChain
+import io.github.dockyardmc.entities.*
+import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerPreSpawnWorldSelectionEvent
@@ -14,12 +15,10 @@ import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.particles.DustParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.runnables.AsyncQueueProcessor
-import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.utils.Vector3f
@@ -54,6 +53,24 @@ fun main(args: Array<String>) {
         DebugScoreboard.sidebar.viewers.add(player)
         player.addPotionEffect(PotionEffects.NIGHT_VISION, 99999, 0, false)
         player.addPotionEffect(PotionEffects.SPEED, 99999, 3, false)
+
+        val display = player.world.spawnEntity(ItemDisplay(player.location, player.world)) as ItemDisplay
+        // Set item of the item display to cookie
+        display.item.value = ItemStack(Items.COOKIE)
+
+        // get or create new map
+        val playerMetaLayer = display.metadataLayers[player.toPersistent()] ?: mutableMapOf()
+        // create new meta
+        val itemMetadata = EntityMetadata(EntityMetadataType.ITEM_DISPLAY_ITEM, EntityMetaValue.ITEM_STACK, ItemStack(Items.CAKE))
+
+        // add the meta to the map
+        playerMetaLayer[EntityMetadataType.ITEM_DISPLAY_ITEM] = itemMetadata
+
+        // add the metadata map to the metadata layers on the entity
+        display.metadataLayers[player.toPersistent()] = playerMetaLayer
+
+        // player will now see Cake instead of actual item
+        // the layer provided will be merged on top of actual entity metadata when sending to specific viewer (the provided player). Keep in mind this will remain even after player logs off and rejoins
     }
 
     Commands.add("/world") { cmd ->

@@ -18,7 +18,6 @@ class Mimic(location: Location, world: World) {
         legs[3] = KinematicChain(location, world, segments)
         legs[4] = KinematicChain(location, world, segments)
     }
-
 }
 
 class KinematicChain(val root: Location, val world: World, val segmentAmounts: Int, val segmentScale: Float = 1f) {
@@ -89,7 +88,7 @@ class KinematicChain(val root: Location, val world: World, val segmentAmounts: I
 
     fun straightenDirection(direction: Vector3f) {
         direction.normalize()
-        val position = root.clone() // We still need to clone `root` to avoid modifying it
+        val position = root.clone()
         for (segment in segments) {
             position.add(direction.multiply(segment.scale.value.y.toDouble()))
             segment.location = position
