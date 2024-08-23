@@ -4,6 +4,9 @@ import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
+import io.github.dockyardmc.entities.EntityManager.despawnEntity
+import io.github.dockyardmc.entities.EntityManager.spawnEntity
+import io.github.dockyardmc.entities.Warden
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerPreSpawnWorldSelectionEvent
@@ -49,6 +52,11 @@ fun main(args: Array<String>) {
             val player = executor.player!!
             val world = WorldManager.getOrThrow(cmd.get<String>("world"))
             world.join(player)
+
+            val location = player.location
+            val entity = world.spawnEntity(Warden(location), false) as Warden
+            entity.addViewer(player)
+            world.despawnEntity(entity)
         }
     }
 

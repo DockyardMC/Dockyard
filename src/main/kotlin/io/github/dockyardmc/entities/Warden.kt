@@ -8,9 +8,8 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityE
 import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEvent
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
-import io.github.dockyardmc.world.World
 
-open class Warden(override var location: Location, override var world: World): Entity() {
+open class Warden(override var location: Location): Entity() {
     override var type: EntityType = EntityTypes.WARDEN
     override var health: Bindable<Float> = Bindable(500f)
     override var inventorySize: Int = 0

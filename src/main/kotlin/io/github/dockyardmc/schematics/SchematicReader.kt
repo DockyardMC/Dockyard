@@ -1,5 +1,6 @@
 package io.github.dockyardmc.schematics
 
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.getBlockFromStateString
 import io.github.dockyardmc.utils.MathUtils
@@ -14,9 +15,11 @@ object SchematicReader {
 
     fun read(file: File): Schematic {
         if(!file.exists()) throw Exception("File $file does not exist!")
-        val hash = MathUtils.getFileHash(file, "SHA-256")
-        val cachedSchematic = cache[hash]
-        if(cachedSchematic != null) return cachedSchematic
+        if(ConfigManager.currentConfig.serverConfig.cacheSchematics) {
+            val hash = MathUtils.getFileHash(file, "SHA-256")
+            val cachedSchematic = cache[hash]
+            if(cachedSchematic != null) return cachedSchematic
+        }
 
         val nbt = NBTReader(file, CompressedProcesser.GZIP).readNamed().second as NBTCompound
 
@@ -62,7 +65,9 @@ object SchematicReader {
             pallete = blocks.toMutableMap(),
             blocks = blockArray.copyArray()
         )
-        cache[MathUtils.getFileHash(file, "SHA-256")] = schematic
+        if(ConfigManager.currentConfig.serverConfig.cacheSchematics) {
+            cache[MathUtils.getFileHash(file, "SHA-256")] = schematic
+        }
         return schematic
     }
 }

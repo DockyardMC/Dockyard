@@ -32,7 +32,8 @@ abstract class Entity {
     open var hasGravity: Boolean = true
     open var isInvulnerable: Boolean = false
     open var hasCollision: Boolean = true
-    abstract var world: World
+    @Suppress("LeakingThis")
+    open var world: World = location.world
     open var displayName: String = this::class.simpleName.toString()
     open var isOnGround: Boolean = true
     val metadata: BindableMap<EntityMetadataType, EntityMetadata> = BindableMap()
@@ -46,9 +47,7 @@ abstract class Entity {
     val isGlowing: Bindable<Boolean> = Bindable(false)
     val isInvisible: Bindable<Boolean> = Bindable(false)
     val team: Bindable<Team?> = Bindable(null)
-    //TODO Implement
     val isOnFire: Bindable<Boolean> = Bindable(false)
-    //TODO Implement
     val freezeTicks: Bindable<Int> = Bindable(0)
 
     init {

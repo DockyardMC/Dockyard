@@ -37,8 +37,8 @@ class DockyardServer {
     val bossGroup = NioEventLoopGroup(3)
     val workerGroup = NioEventLoopGroup()
 
-    var ip = ConfigManager.currentConfig.serverConfig.ip
-    var port = ConfigManager.currentConfig.serverConfig.port
+    val ip get() = ConfigManager.currentConfig.serverConfig.ip
+    val port get() = ConfigManager.currentConfig.serverConfig.port
 
     // Server ticks
     val tickProfiler = Profiler()
@@ -51,9 +51,6 @@ class DockyardServer {
     init {
         instance = this
         ConfigManager.load()
-        ip = ConfigManager.currentConfig.serverConfig.ip
-        port = ConfigManager.currentConfig.serverConfig.port
-        debug = ConfigManager.currentConfig.serverConfig.debug
     }
 
     //TODO rewrite and make good
@@ -141,7 +138,7 @@ class DockyardServer {
         var allowAnyVersion: Boolean = false
 
         var tickRate: Int = 20
-        var debug = ConfigManager.currentConfig.serverConfig.debug
+        val debug get() = ConfigManager.currentConfig.serverConfig.debug
 
         var mutePacketLogs = mutableListOf(
             "ClientboundSystemChatMessagePacket",

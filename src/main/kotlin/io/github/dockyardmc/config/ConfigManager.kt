@@ -68,6 +68,7 @@ data class ServerConfig(
     val ip: String = "0.0.0.0",
     val port: Int = 25565,
     val networkCompressionThreshold: Int = 256,
+    val cacheSchematics: Boolean = true,
     val debug: Boolean = false
 )
 
