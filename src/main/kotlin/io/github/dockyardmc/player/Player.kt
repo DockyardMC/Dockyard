@@ -42,7 +42,7 @@ class Player(
     val connection: ChannelHandlerContext,
     val address: String,
     val crypto: PlayerCrypto,
-): Entity() {
+): Entity(location) {
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var hasGravity: Boolean = true
     override var isInvulnerable: Boolean = true
@@ -68,12 +68,7 @@ class Player(
     val tabListHeader: Bindable<Component> = Bindable("".toComponent())
     val tabListFooter: Bindable<Component> = Bindable("".toComponent())
     val isListed: Bindable<Boolean> = Bindable(true)
-    //TODO Implement
-    val isOnFire: Bindable<Boolean> = Bindable(false)
-    //TODO Implement
-    val fireTicks: Bindable<Int> = Bindable(0)
-    //TODO Implement
-    val freezeTicks: Bindable<Int> = Bindable(0)
+
     val saturation: Bindable<Float> = Bindable(0f)
     val food: Bindable<Double> = Bindable(20.0)
     val experienceLevel: Bindable<Int> = Bindable(0)
@@ -83,6 +78,7 @@ class Player(
     var itemInUse: ItemInUse? = null
     var lastRightClick = 0L
     val flySpeed: Bindable<Float> = Bindable(0.05f)
+    val redVignette: Bindable<Float> = Bindable(0f)
 
     val chunkEngine = ConcurrentChunkEngine(this)
 
@@ -119,14 +115,19 @@ class Player(
         tabListHeader.valueChanged { sendPacket(ClientboundTabListPacket(it.newValue, tabListFooter.value)) }
         tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
 
+        redVignette.valueChanged {
+            val distance = MathUtils.percentOf(it.newValue * 10, world.worldBorder.diameter).toInt()
+            sendPacket(ClientboundSetWorldBorderWarningDistance(distance))
+        }
+
         pose.valueChanged {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetadataByteBufWriter.POSE, it.newValue)
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
             sendMetadataPacketToViewers()
             sendSelfMetadataPacket()
         }
 
         displayedSkinParts.listUpdated {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.DISPLAY_SKIN_PARTS, EntityMetadataByteBufWriter.BYTE, displayedSkinParts.values.getBitMask())
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
             sendMetadataPacketToViewers()
             sendSelfMetadataPacket()
         }
@@ -303,6 +304,7 @@ class Player(
 
     fun hasPermission(permission: String): Boolean {
         if(permission.isEmpty()) return true
+        if(permissions.contains("dockyard.all") || permissions.contains("dockyard.*")) return true
         return permissions.contains(permission)
     }
 
@@ -327,7 +329,6 @@ class Player(
     }
 
     fun respawn(isBecauseDeath: Boolean = false) {
-        fireTicks.value = 0
         isOnFire.value = false
         health.value = 20f
 

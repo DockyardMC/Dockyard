@@ -5,7 +5,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundInitial
 
 class WorldBorder(val world: World) {
 
-    var diameter: Double = Double.MAX_VALUE
+    var diameter: Double = 2.9999984E7
     var warningBlocks: Int = 10
     var warningTime: Int = 1
 

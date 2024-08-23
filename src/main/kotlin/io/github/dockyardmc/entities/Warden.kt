@@ -8,9 +8,8 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityE
 import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEvent
 import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
-import io.github.dockyardmc.world.World
 
-open class Warden(override var location: Location, override var world: World): Entity() {
+open class Warden(location: Location): Entity(location) {
     override var type: EntityType = EntityTypes.WARDEN
     override var health: Bindable<Float> = Bindable(500f)
     override var inventorySize: Int = 0
@@ -19,7 +18,7 @@ open class Warden(override var location: Location, override var world: World): E
 
     init {
         angerLevel.valueChanged {
-            metadata[EntityMetadataType.WARDEN_ANGER_LEVEL] = EntityMetadata(EntityMetadataType.WARDEN_ANGER_LEVEL, EntityMetadataByteBufWriter.VAR_INT, it.newValue)
+            metadata[EntityMetadataType.WARDEN_ANGER_LEVEL] = EntityMetadata(EntityMetadataType.WARDEN_ANGER_LEVEL, EntityMetaValue.VAR_INT, it.newValue)
         }
     }
 

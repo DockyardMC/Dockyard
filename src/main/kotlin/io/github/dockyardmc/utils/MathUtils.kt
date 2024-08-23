@@ -3,8 +3,40 @@ package io.github.dockyardmc.utils
 import io.github.dockyardmc.location.Location
 import java.io.File
 import java.security.MessageDigest
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 object MathUtils {
+
+    fun multiplyQuaternions(q1: Quaternion, q2: Quaternion): Quaternion {
+        val x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y
+        val y = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x
+        val z = q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w
+        val w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z
+        return Quaternion(x, y, z, w)
+    }
+
+    fun degreesToRadians(degrees: Float): Float = (degrees * (PI / 180.0)).toFloat()
+
+    fun eulerToQuaternion(euler: Vector3f): Quaternion = eulerToQuaternion(euler.x.toDouble(), euler.y.toDouble(), euler.z.toDouble())
+
+    fun eulerToQuaternion(roll: Double, pitch: Double, yaw: Double): Quaternion {
+        val cy = cos(yaw * 0.5)
+        val sy = sin(yaw * 0.5)
+        val cp = cos(pitch * 0.5)
+        val sp = sin(pitch * 0.5)
+        val cr = cos(roll * 0.5)
+        val sr = sin(roll * 0.5)
+
+
+        val w = cr * cp * cy + sr * sp * sy
+        val x = sr * cp * cy - cr * sp * sy
+        val y = cr * sp * cy + sr * cp * sy
+        val z = cr * cp * sy - sr * sp * cy
+
+        return Quaternion(w.toFloat(), x.toFloat(), y.toFloat(), z.toFloat())
+    }
 
     fun getRelativeCoords(current: Double, previous: Double): Int = ((current * 32 - previous * 32) * 128).toInt()
 
@@ -56,6 +88,9 @@ object MathUtils {
     }
 
     fun percent(max: Double, part: Double): Double = (part / max) * 100
+
+    // percent is float 0f - 1f.
+    fun percentOf(percent: Float, max: Double): Double = percent * max
 
     fun positiveCeilDiv(i: Int, j: Int): Int = -Math.floorDiv(-i, j)
 

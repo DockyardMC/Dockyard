@@ -34,8 +34,9 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
     }
 
     fun setGlobalLine(line: Int, value: String) {
+        val before = innerLines[line] as GlobalSidebarLine?
         innerLines[line] = GlobalSidebarLine(value)
-        viewers.onlinePlayers.forEach { sendLinePacket(it, line) }
+        if(before?.value != value) viewers.onlinePlayers.forEach { sendLinePacket(it, line) }
     }
 
     fun setPlayerLine(line: Int, value: (Player) -> String) {

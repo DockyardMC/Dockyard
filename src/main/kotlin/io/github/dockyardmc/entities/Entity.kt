@@ -15,25 +15,22 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
-import io.github.dockyardmc.utils.Vector3
-import io.github.dockyardmc.utils.mergeEntityMetadata
-import io.github.dockyardmc.utils.ticksToMs
-import io.github.dockyardmc.utils.toVector3f
+import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.world.World
 import java.lang.IllegalArgumentException
 import java.util.UUID
+import kotlin.math.cos
+import kotlin.math.sin
 
-abstract class Entity {
+abstract class Entity(open var location: Location, open var world: World) {
     open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
-    abstract var location: Location
     open var velocity: Vector3 = Vector3()
     val viewers: MutableList<Player> = mutableListOf()
     open var hasGravity: Boolean = true
     open var isInvulnerable: Boolean = false
     open var hasCollision: Boolean = true
-    abstract var world: World
     open var displayName: String = this::class.simpleName.toString()
     open var isOnGround: Boolean = true
     val metadata: BindableMap<EntityMetadataType, EntityMetadata> = BindableMap()
@@ -47,19 +44,36 @@ abstract class Entity {
     val isGlowing: Bindable<Boolean> = Bindable(false)
     val isInvisible: Bindable<Boolean> = Bindable(false)
     val team: Bindable<Team?> = Bindable(null)
+    val isOnFire: Bindable<Boolean> = Bindable(false)
+    val freezeTicks: Bindable<Int> = Bindable(0)
+
+    constructor(location: Location): this(location, location.world)
 
     init {
 
-        isGlowing.valueChanged {
-            metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
+        isOnFire.valueChanged {
+            val meta = getEntityMetadataState(this) {
+                isOnFire = it.newValue
+            }
+            metadata[EntityMetadataType.STATE] = meta
+        }
+
+        freezeTicks.valueChanged {
+            val meta = EntityMetadata(EntityMetadataType.FROZEN_TICKS, EntityMetaValue.VAR_INT, it.newValue)
+            metadata[EntityMetadataType.FROZEN_TICKS] = meta
+        }
+
+        metadata.mapUpdated {
             sendMetadataPacketToViewers()
             sendSelfMetadataIfPlayer()
         }
 
+        isGlowing.valueChanged {
+            metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
+        }
+
         isInvisible.valueChanged {
             metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
-            sendMetadataPacketToViewers()
-            sendSelfMetadataIfPlayer()
         }
 
         metadataLayers.itemSet {
@@ -73,9 +87,7 @@ abstract class Entity {
         }
 
         pose.valueChanged {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetadataByteBufWriter.POSE, it.newValue)
-            sendMetadataPacketToViewers()
-            sendSelfMetadataIfPlayer()
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
         }
 
         //TODO add attribute modifiers
@@ -116,7 +128,6 @@ abstract class Entity {
         }
     }
 
-
     open fun addViewer(player: Player) {
         val event = EntityViewerAddEvent(this, player)
         Events.dispatch(event)
@@ -147,7 +158,6 @@ abstract class Entity {
         val packet = ClientboundSetVelocityPacket(this, velocity)
         viewers.sendPacket(packet)
         sendSelfPacketIfPlayer(packet)
-
     }
 
     //TODO make this work
@@ -184,6 +194,7 @@ abstract class Entity {
     }
 
     open fun teleport(location: Location) {
+        this.location = location
         viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
     }
 
@@ -243,6 +254,17 @@ abstract class Entity {
 
     fun breakBlock() {
 
+    }
+
+    fun getFacingDirectionVector(): Vector3f {
+        val yawRadians = Math.toRadians(location.yaw.toDouble())
+        val pitchRadians = Math.toRadians(location.pitch.toDouble())
+
+        val x = -sin(yawRadians) * cos(pitchRadians)
+        val y = -sin(pitchRadians)
+        val z = cos(yawRadians) * cos(pitchRadians)
+
+        return Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
     }
 
 }

@@ -5,6 +5,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 data class Vector3(
@@ -30,6 +31,10 @@ data class Vector3f(
 ) {
     constructor(single: Float) : this(single, single, single)
 
+    constructor(): this(0f, 0f, 0f)
+
+    constructor(vector3f: Vector3f): this(vector3f.x, vector3f.y, vector3f.z)
+
     fun normalize(): Vector3f {
         val vector = this
         val magnitude = sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z).toFloat()
@@ -38,6 +43,48 @@ data class Vector3f(
         } else {
             vector
         }
+    }
+
+    fun add(vector3f: Vector3f): Vector3f {
+        return Vector3f(
+            this.x + vector3f.x,
+            this.y + vector3f.y,
+            this.z + vector3f.z,
+        )
+    }
+
+    fun subtract(vector3f: Vector3f): Vector3f {
+        return Vector3f(
+            this.x - vector3f.x,
+            this.y - vector3f.y,
+            this.z - vector3f.z,
+        )
+    }
+
+    fun multiply(times: Double): Vector3f {
+        val scalar = times.toFloat()
+        return Vector3f(x * scalar, y * scalar, z * scalar)
+    }
+
+    fun dot(other: Vector3f): Float = this.x * other.x + this.y * other.y + this.z * other.z
+
+    fun cross(other: Vector3f): Vector3f {
+        return Vector3f(
+            this.y * other.z - this.z * other.y,
+            this.z * other.x - this.x * other.z,
+            this.x * other.y - this.y * other.x
+        )
+    }
+
+    fun distance(other: Vector3f): Double =
+        sqrt((this.x - other.x).pow(2f) + (this.y - other.y).pow(2f) + (this.z - other.z).pow(2f)).toDouble()
+
+
+    fun set(new: Vector3f): Vector3f {
+        this.x = new.x
+        this.y = new.y
+        this.z = new.z
+        return this
     }
 }
 

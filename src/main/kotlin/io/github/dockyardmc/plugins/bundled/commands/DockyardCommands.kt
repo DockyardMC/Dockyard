@@ -11,10 +11,10 @@ class DockyardCommands: DockyardPlugin {
 
     override fun load(server: DockyardServer) {
 
-        SkinCommand()
         PluginsCommand()
         GamemodeCommand()
         VersionAndHelpCommand()
+        WorldCommand()
 
     }
 

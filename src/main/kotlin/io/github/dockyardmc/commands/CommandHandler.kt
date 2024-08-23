@@ -1,6 +1,8 @@
 package io.github.dockyardmc.commands
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -11,6 +13,8 @@ import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.world.World
+import io.github.dockyardmc.world.WorldManager
 import java.util.*
 
 object CommandHandler {
@@ -58,6 +62,7 @@ object CommandHandler {
                     UUID::class -> UUID.fromString(value)
                     Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value } ?: throw Exception("\"$value\" is not of type Item")
                     Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.identifier == value } ?: throw Exception("\"$value\" is not of type Block")
+                    World::class -> WorldManager.worlds[value]
 
                     //TODO: brigadier selectors @a @e @s @p @n
                     else -> null
@@ -72,6 +77,7 @@ object CommandHandler {
             command.arguments.values.forEach { it.returnedValue = null }
 
         } catch (ex: Exception) {
+            if(DockyardServer.debug) log(ex)
             val message = "<dark_red>Error <dark_gray>| <red>${ex.message}"
             if(executor.isPlayer) {
                 executor.player!!.sendMessage(message)

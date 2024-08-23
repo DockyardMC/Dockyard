@@ -18,6 +18,7 @@ class ItemStack(var material: Item, var amount: Int = 1) {
     //TODO nice easy custom data api not like persistent containers or whatever the complicated fuck spigot uses
     val maxStackSize: Bindable<Int> = Bindable(64)
     val unbreakable: Bindable<Boolean> = Bindable(false)
+    val hasGlint: Bindable<Boolean> = Bindable(false)
 
     init {
         displayName.valueChanged { components.addOrUpdate(CustomNameItemComponent(it.newValue)) }
@@ -25,6 +26,7 @@ class ItemStack(var material: Item, var amount: Int = 1) {
         customModelData.valueChanged { components.addOrUpdate(CustomModelDataItemComponent(it.newValue)) }
         maxStackSize.valueChanged { components.addOrUpdate(MaxStackSizeItemComponent(it.newValue)) }
         unbreakable.valueChanged { components.addOrUpdate(UnbreakableItemComponent(true)) }
+        hasGlint.valueChanged { components.addOrUpdate(EnchantmentGlintOverrideItemComponent(it.newValue)) }
         if(amount <= 0) amount = 1
     }
 

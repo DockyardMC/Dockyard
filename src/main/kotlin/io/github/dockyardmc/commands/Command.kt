@@ -2,6 +2,7 @@ package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.utils.Console
+import io.github.dockyardmc.world.World
 import java.util.UUID
 import kotlin.reflect.KClass
 
@@ -17,6 +18,7 @@ class Command: Cloneable {
 
     operator fun <T> get(argumentName: String): T {
         if(arguments[argumentName] == null) throw Exception("Argument with name $argumentName does not exist")
+        if(arguments[argumentName]!!.returnedValue == null) throw Exception("Argument value of $argumentName is null. Use getOrNull to get nullable value")
 
         return arguments[argumentName]!!.returnedValue as T
     }
@@ -65,6 +67,10 @@ interface CommandArgument {
 class StringArgument(
     val staticCompletions: MutableList<String> = mutableListOf(),
     override var expectedType: KClass<*> = String::class,
+): CommandArgument
+
+class WorldArgument(
+    override var expectedType: KClass<*> = World::class,
 ): CommandArgument
 
 class PlayerArgument(

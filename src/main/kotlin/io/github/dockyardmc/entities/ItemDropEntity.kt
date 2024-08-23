@@ -11,6 +11,6 @@ class ItemDropEntity(
     override var world: World = location.world,
     override var type: EntityType = EntityTypes.ITEM,
     override var inventorySize: Int = 0
-): Entity() {
+): Entity(location, world) {
     override var health: Bindable<Float> = Bindable(9999f)
 }

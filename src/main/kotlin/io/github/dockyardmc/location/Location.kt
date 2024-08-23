@@ -125,6 +125,9 @@ class Location(
         loc.z -= z
         return loc
     }
+
+    fun withNoRotation(): Location = this.clone().apply { yaw = 0f; pitch = 0f }
+    fun length(): Double = sqrt(x * x + y * y + z * z)
 }
 
 fun ByteBuf.writeLocation(location: Location, rotDelta: Boolean = false) {
