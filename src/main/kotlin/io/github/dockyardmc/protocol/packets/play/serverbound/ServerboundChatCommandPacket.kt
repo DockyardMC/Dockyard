@@ -1,14 +1,10 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.commands.CommandExecutor
 import io.github.dockyardmc.commands.CommandHandler
-import io.github.dockyardmc.extentions.readFixedBitSet
-import io.github.dockyardmc.extentions.readInstant
-import io.github.dockyardmc.extentions.readUtf
-import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -27,7 +23,7 @@ class ServerboundChatCommandPacket(val command: String): ServerboundPacket {
     companion object {
         fun read(buf: ByteBuf): ServerboundChatCommandPacket {
 
-            val command = buf.readUtf(32767)
+            val command = buf.readString(32767)
 
             return ServerboundChatCommandPacket(command)
         }

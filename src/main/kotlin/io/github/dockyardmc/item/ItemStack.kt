@@ -7,6 +7,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
+import io.github.dockyardmc.scroll.extensions.toComponent
 import io.netty.buffer.ByteBuf
 
 class ItemStack(var material: Item, var amount: Int = 1) {
@@ -21,8 +22,8 @@ class ItemStack(var material: Item, var amount: Int = 1) {
     val hasGlint: Bindable<Boolean> = Bindable(false)
 
     init {
-        displayName.valueChanged { components.addOrUpdate(CustomNameItemComponent(it.newValue)) }
-        lore.listUpdated { components.addOrUpdate(LoreItemComponent(lore.values)) }
+        displayName.valueChanged { components.addOrUpdate(CustomNameItemComponent(it.newValue.toComponent())) }
+        lore.listUpdated { components.addOrUpdate(LoreItemComponent(lore.values.toComponents())) }
         customModelData.valueChanged { components.addOrUpdate(CustomModelDataItemComponent(it.newValue)) }
         maxStackSize.valueChanged { components.addOrUpdate(MaxStackSizeItemComponent(it.newValue)) }
         unbreakable.valueChanged { components.addOrUpdate(UnbreakableItemComponent(true)) }

@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.extentions.readUtf
+import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.toByteArraySafe
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -20,7 +20,7 @@ class ServerboundPlayPluginMessagePacket(val channel: String, val data: ByteArra
 
     companion object {
         fun read(byteBuf: ByteBuf, size: Int): ServerboundPlayPluginMessagePacket {
-            val channel = byteBuf.readUtf()
+            val channel = byteBuf.readString()
             val data = byteBuf.readBytes(byteBuf.readableBytes())
             return ServerboundPlayPluginMessagePacket(channel, data.toByteArraySafe())
         }

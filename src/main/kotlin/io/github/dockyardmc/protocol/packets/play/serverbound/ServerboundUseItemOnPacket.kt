@@ -19,7 +19,7 @@ import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.Vector3
-import io.github.dockyardmc.utils.readBlockPosition
+import io.github.dockyardmc.utils.readPosition
 import io.github.dockyardmc.utils.toLocation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -137,7 +137,7 @@ class ServerboundUseItemOnPacket(
         fun read(buf: ByteBuf): ServerboundUseItemOnPacket {
             return ServerboundUseItemOnPacket(
                 buf.readVarIntEnum<PlayerHand>(),
-                buf.readBlockPosition(),
+                buf.readPosition(),
                 buf.readVarIntEnum<Direction>(),
                 buf.readFloat(),
                 buf.readFloat(),

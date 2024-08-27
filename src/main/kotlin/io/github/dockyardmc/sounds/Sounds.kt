@@ -62,7 +62,7 @@ fun ByteBuf.writeSoundEvent(sound: String) {
 
 fun ByteBuf.readSoundEvent(): String {
     val type = this.readVarInt()
-    val identifier = this.readUtf()
+    val identifier = this.readString()
     val hasFixedRange = this.readBoolean()
     if(hasFixedRange) {
         val fixedRange = this.readFloat()

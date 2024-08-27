@@ -1,8 +1,10 @@
 package io.github.dockyardmc.registry
 
 import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
+import io.netty.buffer.ByteBuf
 
 object PotionEffects {
 
@@ -146,4 +148,16 @@ fun Entity.sendPotionEffectsPacket(player: Player) {
         val packet = ClientboundEntityEffectPacket(this, it.effect, it.level, it.duration, it.showParticles, it.showBlueBorder, it.showIconOnHud)
         player.sendPacket(packet)
     }
+}
+
+fun ByteBuf.readAppliedPotionEffect(): AppliedPotionEffect {
+    val id = this.readVarInt()
+    val amplifier = this.readVarInt()
+    val duration = this.readVarInt()
+    val ambient = this.readBoolean()
+    val showParticles = this.readBoolean()
+    val showIcon = this.readBoolean()
+
+    val effect = PotionEffects.potions.values.firstOrNull { it.id == id } ?: throw IllegalArgumentException("Potion effect with id $id does not exist in the registry!")
+    return AppliedPotionEffect(effect, duration, amplifier, showParticles, ambient, showIcon)
 }

@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.extentions.readUtf
+import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -29,7 +29,7 @@ class ServerboundClientInformationPacket(
     companion object {
         fun read(buf: ByteBuf): ServerboundClientInformationPacket {
             return ServerboundClientInformationPacket(
-                buf.readUtf(16),
+                buf.readString(16),
                 buf.readByte().toInt(),
                 buf.readVarInt(),
                 buf.readBoolean(),

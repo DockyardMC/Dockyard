@@ -44,8 +44,6 @@ fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
     }
 }
 
-
-
 fun ByteBuf.readUUID(): UUID {
     val most = this.readLong()
     val least = this.readLong()
@@ -215,9 +213,9 @@ fun ByteBuf.writeVarInt(int: Int) {
     }
 }
 
-fun ByteBuf.readUtf() = readUtf(Short.MAX_VALUE.toInt())
+fun ByteBuf.readString() = readString(Short.MAX_VALUE.toInt())
 fun ByteBuf.readUtfAndLength() = readUtfAndLength(Short.MAX_VALUE.toInt())
-fun ByteBuf.readUtf(i: Int): String {
+fun ByteBuf.readString(i: Int): String {
     val maxSize = i * 3
     val size = this.readVarInt()
     if (size > maxSize) throw DecoderException("The received string was longer than the allowed $maxSize ($size > $maxSize)")
