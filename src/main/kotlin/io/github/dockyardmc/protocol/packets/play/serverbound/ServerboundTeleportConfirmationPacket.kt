@@ -17,8 +17,7 @@ class ServerboundTeleportConfirmationPacket(teleportId: Int): ServerboundPacket 
     }
 
     companion object {
-        fun read(buf: ByteBuf): ServerboundTeleportConfirmationPacket {
-            return ServerboundTeleportConfirmationPacket(buf.readVarInt())
-        }
+        fun read(buf: ByteBuf): ServerboundTeleportConfirmationPacket =
+            ServerboundTeleportConfirmationPacket(buf.readVarInt())
     }
 }

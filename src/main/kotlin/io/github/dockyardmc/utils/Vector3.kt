@@ -117,7 +117,7 @@ fun ByteBuf.writeVector3(vector3: Vector3) {
 
 fun ByteBuf.readVector3(): Vector3 = Vector3(this.readVarInt(), this.readVarInt(), this.readVarInt())
 
-fun ByteBuf.readBlockPosition(): Vector3 {
+fun ByteBuf.readPosition(): Vector3 {
     val value: Long = this.readLong()
     val x = (value shr 38).toInt()
     val y = (value shl 52 shr 52).toInt()

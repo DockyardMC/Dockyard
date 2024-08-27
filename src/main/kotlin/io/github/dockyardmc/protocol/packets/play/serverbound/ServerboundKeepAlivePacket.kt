@@ -9,7 +9,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 @WikiVGEntry("Serverbound Keep Alive (play)")
-@ServerboundPacketInfo(24, ProtocolState.PLAY)
+@ServerboundPacketInfo(0x18, ProtocolState.PLAY)
 class ServerboundKeepAlivePacket(val keepAliveId: Long): ServerboundPacket {
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.playHandler.handleKeepAlive(this, connection)

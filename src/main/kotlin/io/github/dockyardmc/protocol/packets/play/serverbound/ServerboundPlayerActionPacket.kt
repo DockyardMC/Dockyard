@@ -21,7 +21,7 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
-import io.github.dockyardmc.utils.readBlockPosition
+import io.github.dockyardmc.utils.readPosition
 import io.github.dockyardmc.utils.toLocation
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -73,7 +73,7 @@ class ServerboundPlayerActionPacket(
 
     companion object {
         fun read(buf: ByteBuf): ServerboundPlayerActionPacket =
-            ServerboundPlayerActionPacket(buf.readVarIntEnum<PlayerAction>(), buf.readBlockPosition(), buf.readByteEnum<Direction>(), buf.readVarInt())
+            ServerboundPlayerActionPacket(buf.readVarIntEnum<PlayerAction>(), buf.readPosition(), buf.readByteEnum<Direction>(), buf.readVarInt())
     }
 }
 

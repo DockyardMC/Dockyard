@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.login
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.readUUID
-import io.github.dockyardmc.extentions.readUtf
+import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -22,7 +22,7 @@ class ServerboundLoginStartPacket(val name: String, val uuid: UUID): Serverbound
     companion object {
         fun read(byteBuf: ByteBuf): ServerboundLoginStartPacket {
 
-            val name = byteBuf.readUtf(16)
+            val name = byteBuf.readString(16)
             val uuid = byteBuf.readUUID()
             return ServerboundLoginStartPacket(name, uuid)
         }

@@ -4,7 +4,7 @@ import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import io.github.dockyardmc.extentions.readUtf
+import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -27,7 +27,7 @@ class ServerboundHandshakePacket(
         fun read(byteBuf: ByteBuf): ServerboundHandshakePacket {
             return ServerboundHandshakePacket(
                 version = byteBuf.readVarInt(),
-                serverAddress = byteBuf.readUtf(255),
+                serverAddress = byteBuf.readString(),
                 port = byteBuf.readUnsignedShort().toShort(),
                 nextState = byteBuf.readVarInt()
             )

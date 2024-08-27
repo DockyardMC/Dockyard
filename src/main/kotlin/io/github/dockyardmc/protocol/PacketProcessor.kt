@@ -8,6 +8,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.events.PlayerDisconnectEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
@@ -61,34 +62,29 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                 buf.markReaderIndex()
                 val packetSize = buf.readVarInt() - 1
                 val packetId = buf.readVarInt()
-                val packetIdByteRep = packetId.toByte().toHexString()
+                val packetIdByteRep = "0x${packetId.toByte().toHexString()}"
 
-
-                if (packetId == 16 && state == ProtocolState.PLAY) {
-                    debug("Ignoring custom payload packet", LogType.WARNING)
-                    buf.discardReadBytes()
-                    break
-                }
 
                 if (buf.readableBytes() < packetSize) {
                     buf.discardReadBytes()
-                    log("Received packet (${packetId} - $packetIdByteRep) which has less readable bytes than packet size specified (${buf.readableBytes()} < ${packetSize})", LogType.ERROR)
+                    log("Received packet $packetId ($packetIdByteRep) which has less readable bytes than packet size specified (${buf.readableBytes()} < ${packetSize})", LogType.ERROR)
                     break
                 }
+
                 val packetData = buf.readSlice(packetSize)
                 try {
                     val packet = PacketParser.parse(packetId, packetData, this, packetSize)
 
                     if(packet == null) {
                         buf.discardReadBytes()
-                        log("Received unknown packet with id $packetId (could also be buffer under/overflow)", LogType.ERROR)
+                        log("Received unknown packet with id $packetId ($packetIdByteRep) during phase: ${state.name}", LogType.ERROR)
                         break
                     }
 
                     val className = packet::class.simpleName ?: packet::class.toString()
                     ServerMetrics.packetsReceived++
                     if (!DockyardServer.mutePacketLogs.contains(className)) {
-                        debug("-> Received $className (0x${packetIdByteRep}) (${Thread.currentThread().name})", LogType.NETWORK)
+                        debug("-> Received $className (${packetIdByteRep})", LogType.NETWORK)
                     }
 
                     val event = PacketReceivedEvent(packet, connection, packetSize, packetId)
@@ -97,6 +93,8 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                         buf.discardReadBytes()
                         break
                     }
+
+                    DockyardServer.broadcastMessage("bytes left after ${packet::class.simpleName}:  ${buf.readableBytes()}")
                     event.packet.handle(this, event.connection, event.size, event.id)
                 } finally {
                     packetData.release()

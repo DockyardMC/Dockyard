@@ -1,12 +1,13 @@
 package io.github.dockyardmc.item
 
 import cz.lukynka.BindableList
+import io.github.dockyardmc.attributes.Attribute
+import io.github.dockyardmc.blocks.BlockPredicate
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
-import io.github.dockyardmc.registry.BannerPattern
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.Effects
+import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.world.World
@@ -45,17 +46,17 @@ data class UnbreakableItemComponent(
 ): ItemComponent
 
 data class CustomNameItemComponent(
-    var name: String,
+    var name: Component,
     override val id: Int = 5
 ): ItemComponent
 
 data class ItemNameItemComponent(
-    var name: String,
+    var name: Component,
     override val id: Int = 6
 ): ItemComponent
 
 data class LoreItemComponent(
-    var lines: Collection<String>,
+    var lines: Collection<Component>,
     override val id: Int = 7
 ): ItemComponent
 
@@ -70,19 +71,21 @@ data class EnchantmentsItemComponent(
 ): ItemComponent
 
 data class CanBePlacedOnItemComponent(
-    var blocks: Collection<Block>,
+    var blocks: Collection<BlockPredicate>,
     var showInTooltip: Boolean = true,
     override val id: Int = 10
 ): ItemComponent
 
 data class CanBreakItemComponent(
-    var blocks: Collection<Block>,
+    var blocks: Collection<BlockPredicate>,
     var showInTooltip: Boolean = true,
     override val id: Int = 11
 ): ItemComponent
 
 //TODO Attributes
 data class AttributeModifiersItemComponent(
+    val attributes: Collection<Attribute>,
+    val showInTooltip: Boolean,
     override val id: Int = 12
 ): ItemComponent
 
@@ -186,16 +189,16 @@ data class BundleContentsItemComponent(
 
 //TODO Potions
 data class PotionContentsItemComponent(
-    var potionId: Int,
+    var potionId: Int?,
     var customColor: CustomColor?,
-//    var potionEffects:
+    var potionEffects: Collection<AppliedPotionEffect>,
 
     override val id: Int = 31
 ): ItemComponent
 
 //TODO Potions
 data class SuspiciousStewEffectsItemComponent(
-//    var potionEffects:
+    var potionEffects: Collection<PotionEffect>,
     override val id: Int = 32
 ): ItemComponent
 
@@ -254,7 +257,7 @@ data class OminousBottleAmplifierItemComponent(
 data class JukeboxPlayableItemComponent(
     var directMode: Boolean,
     var sound: String?,
-    var description: String?,
+    var description: Component?,
     var duration: Float?,
     var output: Int? = 15,
     var showInTooltip: Boolean,
@@ -319,6 +322,7 @@ data class ContainerItemComponent(
 
 //TODO Block States
 data class BlockStateItemComponent(
+    val states: Map<String, String>,
     override val id: Int = 53
 ): ItemComponent
 
@@ -370,8 +374,8 @@ fun ByteBuf.readBookPages(): List<BookPage> {
     val pages = mutableListOf<BookPage>()
     val size = this.readVarInt()
     for (i in 0 until size) {
-        val content = this.readUtf()
-        val filteredContent = if(this.readBoolean()) this.readUtf() else null
+        val content = this.readString()
+        val filteredContent = if(this.readBoolean()) this.readString() else null
         pages.add(BookPage(content, filteredContent))
     }
     return pages

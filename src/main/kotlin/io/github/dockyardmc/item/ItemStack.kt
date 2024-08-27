@@ -2,11 +2,14 @@ package io.github.dockyardmc.item
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
+import io.github.dockyardmc.scroll.extensions.toComponent
 import io.netty.buffer.ByteBuf
 
 class ItemStack(var material: Item, var amount: Int = 1) {
@@ -21,8 +24,8 @@ class ItemStack(var material: Item, var amount: Int = 1) {
     val hasGlint: Bindable<Boolean> = Bindable(false)
 
     init {
-        displayName.valueChanged { components.addOrUpdate(CustomNameItemComponent(it.newValue)) }
-        lore.listUpdated { components.addOrUpdate(LoreItemComponent(lore.values)) }
+        displayName.valueChanged { components.addOrUpdate(CustomNameItemComponent(it.newValue.toComponent())) }
+        lore.listUpdated { components.addOrUpdate(LoreItemComponent(lore.values.toComponents())) }
         customModelData.valueChanged { components.addOrUpdate(CustomModelDataItemComponent(it.newValue)) }
         maxStackSize.valueChanged { components.addOrUpdate(MaxStackSizeItemComponent(it.newValue)) }
         unbreakable.valueChanged { components.addOrUpdate(UnbreakableItemComponent(true)) }
@@ -56,16 +59,11 @@ fun ByteBuf.readItemStack(): ItemStack {
     }
     for (i in 0 until componentsToRemove) {
         val type = this.readVarInt()
-        val component = this.readComponent(type)
-        removeComponents.add(component)
+//        removeComponents.add(ItemCom)
     }
 
     val item = ItemStack(Items.getItemById(itemId), count)
     components.forEach { item.components.add(it) }
-
-//    DockyardServer.broadcastMessage("bytes left: ${this.readableBytes()}")
-    val left = this.readableBytes()
-    this.readBytes(left)
 
     return item
 }

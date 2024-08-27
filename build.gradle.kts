@@ -41,7 +41,7 @@ dependencies {
     // Minecraft
     implementation("io.github.jglrxavpok.hephaistos:common:2.2.0")
     implementation("io.github.jglrxavpok.hephaistos:gson:2.2.0")
-    implementation("io.github.dockyardmc:scroll:1.7")
+    implementation("io.github.dockyardmc:scroll:1.8")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
 
     // Networking

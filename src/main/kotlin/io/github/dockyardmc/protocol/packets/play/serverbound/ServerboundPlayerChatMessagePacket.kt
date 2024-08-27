@@ -27,7 +27,7 @@ class ServerboundPlayerChatMessagePacket(var message: String): ServerboundPacket
 
     companion object {
         fun read(buf: ByteBuf): ServerboundPlayerChatMessagePacket {
-            val text = buf.readUtf(256)
+            val text = buf.readString(256)
             val timestamp = buf.readInstant()
             val salt = buf.readLong()
             val hasSignature = buf.readBoolean()

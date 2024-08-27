@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.extentions.readUtf
+import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -18,7 +18,7 @@ class ServerboundPluginMessagePacket(var channel: String, var data: String): Ser
 
     companion object {
         fun read(buf: ByteBuf): ServerboundPluginMessagePacket {
-            val channel = buf.readUtf()
+            val channel = buf.readString()
             val leftBits = buf.readableBytes()
             val restOfData = buf.readBytes(buf.readableBytes())
 

@@ -3,6 +3,7 @@ package io.github.dockyardmc.item
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.writeProfileProperties
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.writeSoundEvent
@@ -31,7 +32,7 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
             this.writeTextComponent(comp.name)
         }
         is ItemNameItemComponent -> {
-            this.writeNBT(comp.name.toComponent().toNBT())
+            this.writeNBT(comp.name.toNBT())
         }
         is LoreItemComponent -> {
             this.writeVarInt(comp.lines.size)
@@ -217,3 +218,8 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
     }
 }
 
+fun Collection<String>.toComponents(): List<Component> {
+    val list = mutableListOf<Component>()
+    this.forEach { list.add(it.toComponent()) }
+    return list
+}
