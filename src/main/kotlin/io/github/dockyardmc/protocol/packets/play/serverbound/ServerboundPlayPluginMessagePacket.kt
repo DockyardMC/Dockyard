@@ -11,19 +11,26 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 @WikiVGEntry("Serverbound Plugin Message (play)")
-@ServerboundPacketInfo(18, ProtocolState.PLAY)
+@ServerboundPacketInfo(0x12, ProtocolState.PLAY)
 class ServerboundPlayPluginMessagePacket(val channel: String, val data: ByteArray): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
-        processor.playHandler.handlePluginMessage(this, connection)
     }
 
     companion object {
-        fun read(byteBuf: ByteBuf, size: Int): ServerboundPlayPluginMessagePacket {
+        fun read(byteBuf: ByteBuf): ServerboundPlayPluginMessagePacket {
             val channel = byteBuf.readString()
-            val data = byteBuf.readBytes(byteBuf.readableBytes())
-            return ServerboundPlayPluginMessagePacket(channel, data.toByteArraySafe())
+            val data = byteBuf.readRawBytes()
+            return ServerboundPlayPluginMessagePacket(channel, data)
         }
     }
+}
 
+fun ByteBuf.readRawBytes(): ByteArray {
+    val limit = this.nioBuffer().limit()
+    val length = limit - this.readerIndex()
+    val bytes = ByteArray(length)
+    this.nioBuffer().get(this.readerIndex(), bytes)
+    this.readerIndex(this.readerIndex() + length)
+    return bytes
 }

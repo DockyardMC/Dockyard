@@ -27,7 +27,7 @@ class ServerboundHandshakePacket(
         fun read(byteBuf: ByteBuf): ServerboundHandshakePacket {
             return ServerboundHandshakePacket(
                 version = byteBuf.readVarInt(),
-                serverAddress = byteBuf.readString(255),
+                serverAddress = byteBuf.readString(),
                 port = byteBuf.readUnsignedShort().toShort(),
                 nextState = byteBuf.readVarInt()
             )

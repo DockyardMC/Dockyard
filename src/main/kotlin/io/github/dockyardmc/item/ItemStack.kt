@@ -2,6 +2,8 @@ package io.github.dockyardmc.item
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Item
@@ -57,16 +59,11 @@ fun ByteBuf.readItemStack(): ItemStack {
     }
     for (i in 0 until componentsToRemove) {
         val type = this.readVarInt()
-        val component = this.readComponent(type)
-        removeComponents.add(component)
+//        removeComponents.add(ItemCom)
     }
 
     val item = ItemStack(Items.getItemById(itemId), count)
     components.forEach { item.components.add(it) }
-
-//    DockyardServer.broadcastMessage("bytes left: ${this.readableBytes()}")
-    val left = this.readableBytes()
-    this.readBytes(left)
 
     return item
 }

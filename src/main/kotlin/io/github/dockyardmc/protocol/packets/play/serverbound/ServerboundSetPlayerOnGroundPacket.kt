@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.packets.login
+package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
@@ -8,14 +8,16 @@ import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-@WikiVGEntry("Login Acknowledged")
-@ServerboundPacketInfo(0x03, ProtocolState.LOGIN)
-class ServerboundLoginAcknowledgedPacket: ServerboundPacket {
+@WikiVGEntry("Set Player On Ground")
+@ServerboundPacketInfo(0x1D, ProtocolState.PLAY)
+class ServerboundSetPlayerOnGroundPacket(var onGround: Boolean): ServerboundPacket {
+
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
-        processor.loginHandler.handleLoginAcknowledge(this, connection)
+        processor.player.isOnGround = onGround
     }
 
     companion object {
-        fun read(buf: ByteBuf): ServerboundLoginAcknowledgedPacket = ServerboundLoginAcknowledgedPacket()
+        fun read(buf: ByteBuf): ServerboundSetPlayerOnGroundPacket = ServerboundSetPlayerOnGroundPacket(buf.readBoolean())
     }
+
 }

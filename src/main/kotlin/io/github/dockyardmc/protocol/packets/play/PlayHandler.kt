@@ -63,8 +63,4 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
     fun handleKeepAlive(packet: ServerboundKeepAlivePacket, connection: ChannelHandlerContext) {
         processor.respondedToLastKeepAlive = true
     }
-
-    fun handlePluginMessage(packet: ServerboundPlayPluginMessagePacket, connection: ChannelHandlerContext) {
-        log(packet.channel)
-    }
 }

@@ -90,7 +90,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         15 -> HideTooltipItemComponent()
         16 -> RepairCostItemComponent(this.readVarInt())
         17 -> CreativeSlotLockItemComponent()
-        18 -> EnchantmentGlintOverrideItemComponent(this.readBoolean())
+        18 -> EnchantmentGlintOverrideItemComponent(this.readVarInt() == 1)
         19 -> IntangibleProjectileItemComponent()
         20 -> {
 
@@ -212,7 +212,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         48 -> NoteBlockSoundItemComponent(this.readString())
         49 -> TODO("Banner Patterns are not implemented yet")
         50 -> BannerShieldBaseColorItemComponent(this.readVarIntEnum<LegacyTextColor>())
-        51 -> TODO("Baner Patterns are not implemented yet")
+        51 -> TODO("Pot Decorations are not implemented yet")
         52 -> {
             val containerItems = mutableListOf<ItemStack>()
             val size = this.readVarInt()
