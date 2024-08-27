@@ -2,7 +2,7 @@
 
 # 🏗️ DockyardMC 🚢
 
-DockyardMC open-source, fast and lightweight Minecraft server software that's written from scratch in Kotlin without any code from Mojang. It is focused on making development easy, unlike PaperMC which still uses some really old bukkit APIs, Dockyard has very easy to use and modern API
+DockyardMC open-source, fast and lightweight Minecraft server protocol implementation that's written from scratch in Kotlin without any code from Mojang. It is focused on making development easy, unlike PaperMC which still uses some really old bukkit APIs, Dockyard has very easy to use and modern API
 
 ⚠️ _**This project is currently under heavy development and it is NOT production ready**_
 
