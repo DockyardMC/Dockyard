@@ -20,7 +20,7 @@ object ConfigManager {
         implementationConfig = ImplementationConfig()
     )
 
-    val configFile = File("./dockyard.toml")
+    val configFile = File("/dockyard.toml")
 
     var currentConfig: DockyardConfig = defaultConfig
     val toml = Toml(inputConfig = TomlInputConfig(
