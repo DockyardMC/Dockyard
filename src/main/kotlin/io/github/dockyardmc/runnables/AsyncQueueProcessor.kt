@@ -1,12 +1,12 @@
 package io.github.dockyardmc.runnables
 
 import io.github.dockyardmc.ServerMetrics
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.LinkedTransferQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.SwingUtilities
 
 class AsyncQueueProcessor : Runnable {
-    private val taskQueue = LinkedBlockingQueue<AsyncQueueTask>()
+    private val taskQueue = LinkedTransferQueue<AsyncQueueTask>()
     private val isRunning = AtomicBoolean(true)
     private val thread = Thread(this)
 
@@ -36,7 +36,6 @@ class AsyncQueueProcessor : Runnable {
         thread.interrupt()
     }
 }
-
 
 class AsyncQueueTask(val name: String, val task: () -> Unit) {
     var callback: (() -> Unit)? = null

@@ -1,6 +1,9 @@
 package io.github.dockyardmc.world
 
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerEnterChunkEvent
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetCenterChunkPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
 import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.utils.ChunkUtils
@@ -19,6 +22,10 @@ class ConcurrentChunkEngine(val player: Player) {
         val currentChunkIndex = ChunkUtils.getChunkIndex(currentChunkX, currentChunkZ)
 
         if (currentChunkIndex != lastChunkIndex) {
+
+            Events.dispatch(PlayerEnterChunkEvent(currentChunkIndex, world.getChunkFromIndex(currentChunkIndex), player))
+            player.sendPacket(ClientboundSetCenterChunkPacket(currentChunkX, currentChunkZ))
+
             lastChunkIndex = currentChunkIndex
 
             val chunksInRange = getChunksInRange(currentChunkIndex)
