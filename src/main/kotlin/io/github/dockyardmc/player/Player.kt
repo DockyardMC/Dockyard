@@ -83,7 +83,12 @@ class Player(
     lateinit var lastSentPacket: ClientboundPacket
 
     init {
-        selectedHotbarSlot.valueChanged { this.sendPacket(ClientboundSetHeldItemPacket(it.newValue)) }
+        selectedHotbarSlot.valueChanged {
+            this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
+            val item = inventory[it.newValue]
+            equipment.value = equipment.value.apply { mainHand = item }
+        }
+
         isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value)) }
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
         gameMode.valueChanged {
@@ -245,6 +250,7 @@ class Player(
 
         player.sendMetadataPacket(this)
         sendMetadataPacket(player)
+        sendEquipmentPacket(player)
     }
 
     //TODO Add off-hand support
@@ -340,7 +346,7 @@ class Player(
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
 
-        this.world.chunks.values.forEach {
+        this.world.chunks.values.toList().forEach {
             chunkEngine.loadChunk(ChunkUtils.getChunkIndex(it), world)
         }
 
@@ -361,6 +367,7 @@ class Player(
 
         pose.triggerUpdate()
         refreshAbilities()
+        displayedSkinParts.triggerUpdate()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
     }
 

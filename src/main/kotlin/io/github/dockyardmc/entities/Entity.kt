@@ -46,10 +46,24 @@ abstract class Entity(open var location: Location, open var world: World) {
     val team: Bindable<Team?> = Bindable(null)
     val isOnFire: Bindable<Boolean> = Bindable(false)
     val freezeTicks: Bindable<Int> = Bindable(0)
+    val equipment: Bindable<EntityEquipment> = Bindable(EntityEquipment())
+    val equipmentLayers: BindableMap<PersistentPlayer, EntityEquipmentLayer> = BindableMap()
 
     constructor(location: Location): this(location, location.world)
 
     init {
+
+        equipment.valueChanged { viewers.forEach(::sendEquipmentPacket) }
+
+        equipmentLayers.itemSet {
+            val player = it.key.toPlayer()
+            if(player != null) sendEquipmentPacket(player)
+        }
+
+        equipmentLayers.itemRemoved {
+            val player = it.key.toPlayer()
+            if(player != null) sendEquipmentPacket(player)
+        }
 
         isOnFire.valueChanged {
             val meta = getEntityMetadataState(this) {
@@ -177,6 +191,12 @@ abstract class Entity(open var location: Location, open var world: World) {
     open fun sendMetadataPacket(player: Player) {
         val metadata = mergeEntityMetadata(this, metadataLayers[player.toPersistent()])
         val packet = ClientboundSetEntityMetadataPacket(this, metadata)
+        player.sendPacket(packet)
+    }
+
+    open fun sendEquipmentPacket(player: Player) {
+        val equipment = getMergedEquipmentData(equipment.value, equipmentLayers[player.toPersistent()])
+        val packet = ClientboundSetEquipmentPacket(this, equipment)
         player.sendPacket(packet)
     }
 

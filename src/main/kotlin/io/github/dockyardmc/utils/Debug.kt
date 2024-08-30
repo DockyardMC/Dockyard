@@ -6,5 +6,6 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 
 fun debug(text: String, logType: CustomLogType = LogType.DEBUG) {
-    if(DockyardServer.debug) log(text, logType)
+    log(text, logType)
+//    if(DockyardServer.debug) log(text, logType)
 }

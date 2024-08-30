@@ -21,8 +21,18 @@ class Inventory(var entity: Entity) {
     var dragData: DragButtonInventoryActionData? = null
 
     init {
-        slots.itemSet { sendInventoryUpdate(it.key) }
-        slots.itemRemoved { sendInventoryUpdate(it.key) }
+        slots.itemSet {
+            sendInventoryUpdate(it.key)
+            if(entity is Player && it.key == (entity as Player).selectedHotbarSlot.value) {
+                entity.equipment.value = entity.equipment.value.apply { mainHand = it.value }
+            }
+        }
+        slots.itemRemoved {
+            if(entity is Player && it.key == (entity as Player).selectedHotbarSlot.value) {
+                entity.equipment.value = entity.equipment.value.apply { mainHand = it.value }
+            }
+            sendInventoryUpdate(it.key)
+        }
         carriedItem.valueChanged { sendInventoryUpdate(-1) }
 
         for (i in 0 until entity.inventorySize) {

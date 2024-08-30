@@ -16,6 +16,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.runnables.AsyncQueueProcessor
 import io.github.dockyardmc.runnables.AsyncQueueTask
+import io.github.dockyardmc.runnables.runLaterAsync
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.*
@@ -80,12 +81,14 @@ class World(
         player.respawn()
         player.chunkEngine.loadedChunks.clear()
 
-        players.values.filter { it != player }.forEach {
-            it.addViewer(player)
-            player.addViewer(it)
+        runLaterAsync(2) {
+            players.values.filter { it != player }.forEach {
+                it.addViewer(player)
+                player.addViewer(it)
+            }
         }
 
-        entities.values.filter { it != player }.forEach { it.addViewer(player) }
+        entities.values.filter { it != player && it !is Player }.forEach { it.addViewer(player) }
 
         player.isFullyInitialized = true
     }
