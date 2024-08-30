@@ -123,9 +123,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         world.join(player)
 
-        runLaterAsync(5) {
-            Events.dispatch(PlayerJoinEvent(processor.player))
-        }
+        Events.dispatch(PlayerJoinEvent(processor.player))
 
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         player.sendPacket(tickingStatePacket)

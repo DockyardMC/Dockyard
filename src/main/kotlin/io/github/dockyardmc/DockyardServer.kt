@@ -152,7 +152,8 @@ class DockyardServer {
             "ClientboundUpdateEntityRotationPacket",
             "ClientboundSetHeadYawPacket",
             "ClientboundSendParticlePacket",
-            "ClientboundUpdateScorePacket"
+            "ClientboundUpdateScorePacket",
+            "ClientboundChunkDataPacket"
         )
     }
 }
