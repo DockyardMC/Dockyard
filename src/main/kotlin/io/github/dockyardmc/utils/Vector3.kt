@@ -127,6 +127,11 @@ fun ByteBuf.readPosition(): Vector3 {
 
 
 data class Vector2(
+    var x: Int,
+    var y: Int,
+)
+
+data class Vector2f(
     var x: Float,
     var y: Float,
 )

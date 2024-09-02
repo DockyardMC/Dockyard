@@ -1,14 +1,14 @@
 package io.github.dockyardmc.commands
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
-import io.github.dockyardmc.extentions.writeVarIntArray
 import io.netty.buffer.ByteBuf
 import kotlin.experimental.or
 
 // Increase this counter if you tried to implement command nodes and failed: 2
-
+// GET FUCKED I DID IT ON 3RD TRY
 
 abstract class CommandNode(
     val type: CommandNodeType,
@@ -21,7 +21,7 @@ abstract class CommandNode(
 
 fun getCommandList(): MutableMap<Int, CommandNode> {
 
-    val commands = mutableListOf("test", "command", "uwu", "owo")
+    val commands = Commands.commands
     val rootNode = RootCommandNode()
 
     val indexedNodes = mutableMapOf<Int, CommandNode>()
@@ -30,14 +30,29 @@ fun getCommandList(): MutableMap<Int, CommandNode> {
     rootNode.isExecutable = true
 
     var index = 0
-    commands.forEach {
+    commands.toSortedMap().forEach {
         index++
-        val node = LiteralCommandNode(it)
-        indexedNodes[index] = node
+        val nodeIndex = index
+        val node = LiteralCommandNode(it.key)
+        var nextChild: CommandNode = node
+        it.value.arguments.forEach { arg ->
+            index++
+            val argument = ArgumentCommandNode(arg.key, arg.value.argument)
+            indexedNodes[index] = argument
+            nextChild.children.add(argument)
+            nextChild = argument
+        }
+
+        indexedNodes[nodeIndex] = node
         rootNode.children.add(node)
     }
 
-    return indexedNodes
+    log(indexedNodes.toSortedMap().toString())
+    return indexedNodes.toSortedMap()
+}
+
+fun createNodeMapRecursively(rootCommand: LiteralCommandNode) {
+
 }
 
 fun ByteBuf.writeCommandNode(node: CommandNode, indices: MutableMap<Int, CommandNode>) {
@@ -49,8 +64,11 @@ fun ByteBuf.writeCommandNode(node: CommandNode, indices: MutableMap<Int, Command
     }
     if(node.redirectNode != null) this.writeVarInt(getCommandNodeIndex(node.redirectNode, indices))
     if(node is LiteralCommandNode) this.writeUtf(node.name)
-    if(node is ArgumentCommandNode) this.writeUtf(node.name)
-    if(node is ArgumentCommandNode) this.writeVarInt(node.parser.ordinal)
+    if(node is ArgumentCommandNode) {
+        this.writeUtf(node.name)
+        this.writeVarInt(node.argument.parser.ordinal)
+        node.argument.write(this)
+    }
     if(node.suggestionType != null) this.writeUtf(node.suggestionType)
 }
 
@@ -75,12 +93,9 @@ fun getCommandNodeFlags(node: CommandNode): Byte {
     return mask
 }
 
-
-
-
 class ArgumentCommandNode(
     val name: String,
-    val parser: ArgumentCommandNodeParser,
+    val argument: CommandArgument,
 ): CommandNode(type = CommandNodeType.ARGUMENT)
 
 class LiteralCommandNode(
@@ -102,10 +117,10 @@ enum class ArgumentCommandNodeParser {
     VECTOR_3,
     VECTOR_2,
     BLOCK_STATE,
-    BLOCK_PREDICATE,
+    BLOCK,
     ITEM_STACK,
-    ITEM_PREDICATE,
-    COLOR,
+    ITEM,
+    LEGACY_TEXT_COLOR,
     COMPONENT,
     STYLE,
     MESSAGE,
@@ -128,7 +143,7 @@ enum class ArgumentCommandNodeParser {
     ENTITY_ANCHOR,
     INT_RANGE,
     FLOAT_RANGE,
-    DIMENSION,
+    WORLD,
     GAMEMODE,
     TIME,
     RESOURCE_OR_TAG,
@@ -141,26 +156,6 @@ enum class ArgumentCommandNodeParser {
     UUID,
     FORGE_MOD_ID,
     FORGE_ENUM
-}
-
-fun ByteBuf.writeBrigadierDouble(min: Double?, max: Double?) {
-
-}
-
-fun ByteBuf.writeBrigadierFloat(min: Float?, max: Float?) {
-
-}
-
-fun ByteBuf.writeBrigadierInteger(min: Int?, max: Int?) {
-
-}
-
-fun ByteBuf.writeBrigadierLong(min: Long?, max: Long?) {
-
-}
-
-fun ByteBuf.writeBrigadierString(type: BrigadierStringType) {
-
 }
 
 enum class BrigadierStringType {

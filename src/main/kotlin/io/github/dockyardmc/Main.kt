@@ -1,7 +1,6 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.getCommandList
+import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
@@ -34,12 +33,12 @@ fun main(args: Array<String>) {
     Events.on<PlayerJoinEvent> {
         val player = it.player
         player.gameMode.value = GameMode.CREATIVE
-        player.inventory[0] = Items.CHERRY_TRAPDOOR.toItemStack()
         DebugScoreboard.sidebar.viewers.add(player)
         player.addPotionEffect(PotionEffects.NIGHT_VISION, 99999, 0, false)
         player.addPotionEffect(PotionEffects.SPEED, 99999, 3, false)
         if(player.username == "LukynkaCZE") {
             player.permissions.add("dockyard.all")
+            player.sendMessage(player.permissions.toString())
         }
     }
 
@@ -49,6 +48,19 @@ fun main(args: Array<String>) {
             player.sendPacket(ClientboundCommandsPacket(getCommandList()))
         }
     }
+
+    Commands.add("/player") {
+        it.addArgument("player", PlayerArgument())
+        it.addArgument("world", WorldArgument())
+        it.addArgument("text", StringArgument(BrigadierStringType.SINGLE_WORD))
+        it.addArgument("item", ItemArgument())
+        it.addArgument("block", BlockArgument())
+        it.execute { ctx ->
+            val player = it.get<Player>("player")
+            player.sendMessage("aaaa $player")
+        }
+    }
+
 
     val server = DockyardServer()
     server.start()
