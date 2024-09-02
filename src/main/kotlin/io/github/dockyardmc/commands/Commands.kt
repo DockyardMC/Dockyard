@@ -1,20 +1,12 @@
 package io.github.dockyardmc.commands
 
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundCommandsPacket
-
 object Commands {
 
     val commands: MutableMap<String, Command> = mutableMapOf()
 
-    var cachedPacket: ClientboundCommandsPacket = ClientboundCommandsPacket(getCommandList())
-
     var autoCorrectCaseSensitivity: Boolean = false
     var warnAboutCaseSensitivity: Boolean = true
     var warnWithClosestMatchToInvalidCommand: Boolean = false
-
-    fun updateCache() {
-        cachedPacket = ClientboundCommandsPacket(getCommandList())
-    }
 
     fun add(name: String, command: (Command) -> Unit) {
 
@@ -32,6 +24,5 @@ object Commands {
             aliasCommand.name = it
             commands[it] = aliasCommand
         }
-        updateCache()
     }
 }

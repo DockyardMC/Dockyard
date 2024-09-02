@@ -1,6 +1,5 @@
 package io.github.dockyardmc.commands
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
@@ -12,14 +11,13 @@ import kotlin.experimental.or
 
 abstract class CommandNode(
     val type: CommandNodeType,
-    var isExecutable: Boolean = true,
+    var isOptional: Boolean = false,
     val children: MutableList<CommandNode> = mutableListOf(),
     val redirectNode: CommandNode? = null,
-    val suggestionType: String? = null
+    var suggestionType: CommandArgumentSuggestionType? = null
 )
 
-
-fun getCommandList(): MutableMap<Int, CommandNode> {
+fun buildCommandGraph(): MutableMap<Int, CommandNode> {
 
     val commands = Commands.commands
     val rootNode = RootCommandNode()
@@ -27,7 +25,7 @@ fun getCommandList(): MutableMap<Int, CommandNode> {
     val indexedNodes = mutableMapOf<Int, CommandNode>()
 
     indexedNodes[0] = rootNode
-    rootNode.isExecutable = true
+    rootNode.isOptional = true
 
     var index = 0
     commands.toSortedMap().forEach {
@@ -38,6 +36,7 @@ fun getCommandList(): MutableMap<Int, CommandNode> {
         it.value.arguments.forEach { arg ->
             index++
             val argument = ArgumentCommandNode(arg.key, arg.value.argument)
+            argument.isOptional = arg.value.optional
             indexedNodes[index] = argument
             nextChild.children.add(argument)
             nextChild = argument
@@ -47,16 +46,22 @@ fun getCommandList(): MutableMap<Int, CommandNode> {
         rootNode.children.add(node)
     }
 
-    log(indexedNodes.toSortedMap().toString())
     return indexedNodes.toSortedMap()
 }
 
-fun createNodeMapRecursively(rootCommand: LiteralCommandNode) {
-
-}
-
 fun ByteBuf.writeCommandNode(node: CommandNode, indices: MutableMap<Int, CommandNode>) {
-    this.writeByte(getCommandNodeFlags(node).toInt())
+    if(node is ArgumentCommandNode) {
+        when(node.argument) {
+            is StringArgument -> node.suggestionType = CommandArgumentSuggestionType.ASK_SERVER
+            is EntityArgument -> node.suggestionType = CommandArgumentSuggestionType.SUMMONABLE_MOBS
+            is SoundArgument -> node.suggestionType = CommandArgumentSuggestionType.AVAILABLE_SOUNDS
+            is WorldArgument -> node.suggestionType = CommandArgumentSuggestionType.ASK_SERVER
+            else -> {}
+        }
+    }
+
+    val flags = getCommandNodeFlags(node)
+    this.writeByte(flags.toInt())
     this.writeVarInt(node.children.size)
     node.children.forEach {
         val childIndex = getCommandNodeIndex(it, indices)
@@ -65,11 +70,13 @@ fun ByteBuf.writeCommandNode(node: CommandNode, indices: MutableMap<Int, Command
     if(node.redirectNode != null) this.writeVarInt(getCommandNodeIndex(node.redirectNode, indices))
     if(node is LiteralCommandNode) this.writeUtf(node.name)
     if(node is ArgumentCommandNode) {
+        val parser = node.argument.parser
         this.writeUtf(node.name)
-        this.writeVarInt(node.argument.parser.ordinal)
+        this.writeVarInt(parser.ordinal)
         node.argument.write(this)
+
+        if(node.suggestionType != null) this.writeUtf(node.suggestionType!!.getIdentifier())
     }
-    if(node.suggestionType != null) this.writeUtf(node.suggestionType)
 }
 
 fun ByteBuf.writeCommands(nodes: MutableMap<Int, CommandNode>) {
@@ -86,7 +93,7 @@ fun getCommandNodeIndex(node: CommandNode, indices: MutableMap<Int, CommandNode>
 fun getCommandNodeFlags(node: CommandNode): Byte {
     var mask: Byte = 0x00
     mask = mask or node.type.byte
-    if(node.isExecutable) mask = mask or 0x04
+    if(node.isOptional) mask = mask or 0x04
     if(node.redirectNode != null) mask = mask or 0x08
     if(node.suggestionType != null) mask = mask or 0x10
 
@@ -102,6 +109,15 @@ class LiteralCommandNode(
     val name: String
 ): CommandNode(type = CommandNodeType.LITERAL)
 class RootCommandNode(): CommandNode(type = CommandNodeType.ROOT)
+
+enum class CommandArgumentSuggestionType {
+    ASK_SERVER,
+    ALL_RECIPES,
+    AVAILABLE_SOUNDS,
+    SUMMONABLE_MOBS;
+
+    fun getIdentifier(): String = "minecraft:${this.name.lowercase()}"
+}
 
 enum class ArgumentCommandNodeParser {
     BOOL,

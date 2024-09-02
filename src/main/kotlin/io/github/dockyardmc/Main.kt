@@ -45,7 +45,7 @@ fun main(args: Array<String>) {
     Commands.add("/test") {
         it.execute { ctx ->
             val player = ctx.playerOrThrow()
-            player.sendPacket(ClientboundCommandsPacket(getCommandList()))
+            player.sendPacket(ClientboundCommandsPacket(buildCommandGraph()))
         }
     }
 
@@ -53,14 +53,13 @@ fun main(args: Array<String>) {
         it.addArgument("player", PlayerArgument())
         it.addArgument("world", WorldArgument())
         it.addArgument("text", StringArgument(BrigadierStringType.SINGLE_WORD))
-        it.addArgument("item", ItemArgument())
-        it.addArgument("block", BlockArgument())
+        it.addOptionalArgument("item", ItemArgument())
+        it.addOptionalArgument("block", BlockArgument())
         it.execute { ctx ->
             val player = it.get<Player>("player")
             player.sendMessage("aaaa $player")
         }
     }
-
 
     val server = DockyardServer()
     server.start()

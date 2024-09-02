@@ -14,4 +14,6 @@ class ClientboundCommandsPacket(val commands: MutableMap<Int, CommandNode>): Cli
     init {
         data.writeCommands(commands)
     }
+
+    fun clone(): ClientboundCommandsPacket = ClientboundCommandsPacket(commands.toMutableMap())
 }

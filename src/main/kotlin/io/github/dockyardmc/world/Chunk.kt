@@ -29,19 +29,12 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
     )
 
     val packet: ClientboundChunkDataPacket get() {
-        if(!this::cachedPacket.isInitialized || !this.cachedPacket.isValid) cacheChunkDataPacket()
-        cacheChunkDataPacket() // always make new one idc
-        return cachedPacket.packet as ClientboundChunkDataPacket
-    }
-
-    fun cacheChunkDataPacket() {
         val heightMap = NBT.Compound {
             it.put("MOTION_BLOCKING", NBT.LongArray(motionBlocking))
             it.put("WORLD_SURFACE", NBT.LongArray(worldSurface))
         }
 
-        val packet = ClientboundChunkDataPacket(chunkX, chunkZ, heightMap, sections, light)
-        cachedPacket = CachedPacket(true, packet)
+        return ClientboundChunkDataPacket(chunkX, chunkZ, heightMap, sections, light)
     }
 
     init {
@@ -49,7 +42,6 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         repeat(sectionsAmount) {
             sections.add(ChunkSection.empty())
         }
-        cacheChunkDataPacket()
     }
 
     fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int) {
@@ -68,7 +60,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeY = ChunkUtils.sectionRelative(y)
 
         section.blockPalette[relativeX, relativeY, relativeZ] = material.getId()
-        if(shouldCache) cacheChunkDataPacket()
+//        if(shouldCache) cacheChunkDataPacket()
     }
 
     fun setBiome(x: Int, y: Int, z: Int, biome: Biome) {

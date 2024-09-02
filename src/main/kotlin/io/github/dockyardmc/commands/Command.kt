@@ -31,7 +31,11 @@ class Command: Cloneable {
     }
 
     fun addArgument(name: String, argument: CommandArgument) {
-        arguments[name] = CommandArgumentData(argument, false, expectedReturnValueType = argument.expectedType)
+        val data = CommandArgumentData(argument, false, expectedReturnValueType = argument.expectedType)
+        arguments[name] = data
+        val before = arguments.values.indexOf(data) - 1
+        if(before <= 0 ) return
+        if(arguments.values.toList()[before].optional) throw IllegalStateException("Cannot put argument after optional argument!")
     }
 
     fun addOptionalArgument(name: String, argument: CommandArgument) {

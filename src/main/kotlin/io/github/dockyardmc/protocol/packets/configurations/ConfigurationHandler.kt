@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
-import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
@@ -127,7 +127,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             Events.dispatch(PlayerJoinEvent(processor.player))
         }
 
-        player.sendPacket(Commands.cachedPacket)
+        player.sendPacket(ClientboundCommandsPacket(buildCommandGraph()))
 
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         player.sendPacket(tickingStatePacket)

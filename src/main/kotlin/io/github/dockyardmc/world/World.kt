@@ -204,7 +204,7 @@ class World(
                 }
             }
         }
-        chunk.cacheChunkDataPacket()
+//        chunk.cacheChunkDataPacket()
         if(getChunk(x, z) == null) chunks[ChunkUtils.getChunkIndex(x, z)] = (chunk)
     }
 
