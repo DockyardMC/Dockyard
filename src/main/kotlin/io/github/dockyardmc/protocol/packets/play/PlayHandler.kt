@@ -8,6 +8,7 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
 import io.github.dockyardmc.utils.Vector2
+import io.github.dockyardmc.utils.Vector2f
 import io.netty.channel.ChannelHandlerContext
 
 class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
@@ -45,7 +46,7 @@ class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
         player.isOnGround = isOnGround
 
         if(isOnlyHeadMovement) {
-            val packet = ClientboundUpdateEntityRotationPacket(player, Vector2(player.location.yaw, player.location.pitch))
+            val packet = ClientboundUpdateEntityRotationPacket(player, Vector2f(player.location.yaw, player.location.pitch))
             player.sendToViewers(packet)
         } else {
             val packet = ClientboundUpdateEntityPositionAndRotationPacket(player, oldLocation)

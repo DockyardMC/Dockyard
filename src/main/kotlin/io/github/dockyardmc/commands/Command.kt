@@ -2,9 +2,6 @@ package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.utils.Console
-import io.github.dockyardmc.world.World
-import java.util.UUID
-import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
 class Command: Cloneable {
@@ -59,65 +56,6 @@ class Command: Cloneable {
         return cloned
     }
 }
-
-interface CommandArgument {
-    var expectedType: KClass<*>
-}
-
-class StringArgument(
-    val staticCompletions: MutableList<String> = mutableListOf(),
-    override var expectedType: KClass<*> = String::class,
-): CommandArgument
-
-class WorldArgument(
-    override var expectedType: KClass<*> = World::class,
-): CommandArgument
-
-class PlayerArgument(
-    override var expectedType: KClass<*> = Player::class,
-): CommandArgument
-
-class IntArgument(
-    var staticCompletions: MutableList<Int> = mutableListOf(),
-    override var expectedType: KClass<*> = Int::class,
-): CommandArgument
-
-class DoubleArgument(
-    val staticCompletions: MutableList<Double> = mutableListOf(),
-    override var expectedType: KClass<*> = Double::class,
-): CommandArgument
-
-class FloatArgument(
-    val staticCompletions: MutableList<Float> = mutableListOf(),
-    override var expectedType: KClass<*> = Float::class,
-): CommandArgument
-
-class BooleanArgument(
-    val staticCompletions: MutableList<Boolean> = mutableListOf(true, false),
-    override var expectedType: KClass<*> = Boolean::class,
-): CommandArgument
-
-class LongArgument(
-    val staticCompletions: MutableList<Long> = mutableListOf(),
-    override var expectedType: KClass<*> = Long::class,
-): CommandArgument
-
-class UUIDArgument(
-    override var expectedType: KClass<*> = UUID::class,
-): CommandArgument
-
-class EnumArgument(
-    val enumType: KClass<*>,
-    override var expectedType: KClass<*> = String::class,
-): CommandArgument
-
-
-class CommandArgumentData(
-    val argument: CommandArgument,
-    val optional: Boolean = false,
-    var returnedValue: Any? = null,
-    var expectedReturnValueType: KClass<*>
-)
 
 data class CommandExecutor(
     val player: Player? = null,
