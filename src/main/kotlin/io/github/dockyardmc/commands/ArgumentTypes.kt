@@ -6,6 +6,7 @@ import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Particle
 import io.github.dockyardmc.scroll.LegacyTextColor
+import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.utils.Vector2
 import io.github.dockyardmc.utils.Vector2f
 import io.github.dockyardmc.utils.Vector3
@@ -38,6 +39,16 @@ class StringArgument(
 class WorldArgument(
 ): CommandArgument {
     override var expectedType: KClass<*> = World::class
+    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.STRING
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeVarIntEnum<BrigadierStringType>(BrigadierStringType.SINGLE_WORD)
+    }
+}
+
+class SoundArgument(
+): CommandArgument {
+    override var expectedType: KClass<*> = String::class
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.STRING
 
     override fun write(buffer: ByteBuf) {
