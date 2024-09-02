@@ -360,7 +360,7 @@ class Player(
     }
 
     fun refreshAbilities() {
-        val packet = ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, 0.1f)
+        val packet = ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, 0.1f, this.gameMode.value)
         sendPacket(packet)
     }
 
