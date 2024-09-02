@@ -106,6 +106,7 @@ class Player(
                     }
                 }
             }
+            refreshAbilities()
         }
 
         health.valueChanged { sendHealthUpdatePacket() }
