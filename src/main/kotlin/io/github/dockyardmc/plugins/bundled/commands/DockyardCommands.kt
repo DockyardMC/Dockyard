@@ -16,6 +16,7 @@ class DockyardCommands: DockyardPlugin {
         VersionAndHelpCommand()
         WorldCommand()
         SoundCommand()
+        GiveCommand()
 
     }
 

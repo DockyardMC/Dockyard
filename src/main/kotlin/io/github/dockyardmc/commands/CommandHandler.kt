@@ -32,7 +32,9 @@ object CommandHandler {
             if(executor.isPlayer && (!executor.player!!.hasPermission(command.permission))) throw Exception("You do not have enough perms! lol loser")
 
             if(tokens.size >= 2 && command.subcommands[tokens[1]] != null) {
-                handleCommand(command.subcommands[tokens[1]]!!, executor, tokens, inputCommand, commandName)
+                val current = command.subcommands[tokens[1]]!!
+                tokens.removeFirst()
+                handleCommand(current, executor, tokens, inputCommand, commandName)
             } else {
                 if(command.subcommands.isNotEmpty()) {
                     var fullCommandString = "/${command.name.replace("/", "")} ("
@@ -58,7 +60,6 @@ object CommandHandler {
     }
 
     fun handleCommand(command: Command, executor: CommandExecutor, tokens: MutableList<String>, inputCommand: String, rootCommandName: String) {
-        tokens.removeFirst()
         var fullCommandString = "/${rootCommandName.replace("/", "")} ${command.name} "
         command.arguments.forEach { argument ->
             if(argument.value.optional) fullCommandString +="["
@@ -82,14 +83,20 @@ object CommandHandler {
 
             argumentData.returnedValue = when(argumentData.expectedReturnValueType) {
                 String::class -> value
-                Player::class -> PlayerManager.players.firstOrNull { it.username == value }
+                Player::class -> {
+                    when(value) {
+                        "@s" -> executor.player!!
+                        "@p" -> executor.player!!
+                        else -> PlayerManager.players.firstOrNull { it.username == value }
+                    }
+                }
                 Int::class -> value.toIntOrNull() ?: throw Exception("\"$value\" is not of type Int")
                 Double::class -> value.toDoubleOrNull() ?: throw Exception("\"$value\" is not of type Double")
                 Float::class -> value.toFloatOrNull() ?: throw Exception("\"$value\" is not of type Float")
                 Long::class -> value.toLongOrNull() ?: throw Exception("\"$value\" is not of type Long")
                 UUID::class -> UUID.fromString(value)
-                Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value } ?: throw Exception("\"$value\" is not of type Item")
-                Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.identifier == value } ?: throw Exception("\"$value\" is not of type Block")
+                Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw Exception("\"$value\" is not of type Item")
+                Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw Exception("\"$value\" is not of type Block")
                 World::class -> WorldManager.worlds[value]
                 Sound::class -> Sound(value)
 
