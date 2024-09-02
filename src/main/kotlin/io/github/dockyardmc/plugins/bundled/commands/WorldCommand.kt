@@ -1,9 +1,6 @@
 package io.github.dockyardmc.plugins.bundled.commands
 
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.EnumArgument
-import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.commands.WorldArgument
+import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
@@ -11,11 +8,14 @@ import io.github.dockyardmc.world.generators.FlatWorldGenerator
 class WorldCommand {
 
     init {
+
+        fun suggestWorlds(): CommandSuggestions = SuggestionProvider.withContext { WorldManager.worlds.keys.toList() }
+
         Commands.add("/world") {
             it.permission = "dockyard.commands.world"
             it.aliases.add("worlds")
             it.addArgument("action", EnumArgument(Action::class))
-            it.addOptionalArgument("world", WorldArgument())
+            it.addOptionalArgument("world", StringArgument(), suggestWorlds())
             it.execute { ctx ->
                 val player = ctx.playerOrThrow()
                 val arg = it.getEnum<Action>("action")

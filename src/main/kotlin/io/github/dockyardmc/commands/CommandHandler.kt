@@ -7,12 +7,14 @@ import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.isUppercase
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import java.util.*
@@ -33,9 +35,9 @@ object CommandHandler {
 
             var fullCommandString = "/$commandName "
             command.arguments.forEach { argument ->
+                if(argument.value.optional) fullCommandString +="["
                 fullCommandString += "\\<${argument.key}"
-                if(argument.value.optional) fullCommandString += "?"
-                fullCommandString += "> "
+                fullCommandString += if(argument.value.optional) ">] " else "> "
             }
 
             var i = 0
@@ -63,6 +65,7 @@ object CommandHandler {
                     Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value } ?: throw Exception("\"$value\" is not of type Item")
                     Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.identifier == value } ?: throw Exception("\"$value\" is not of type Block")
                     World::class -> WorldManager.worlds[value]
+                    Sound::class -> Sound(value)
 
                     //TODO: brigadier selectors @a @e @s @p @n
                     else -> null

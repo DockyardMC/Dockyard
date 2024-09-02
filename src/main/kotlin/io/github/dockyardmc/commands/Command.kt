@@ -25,21 +25,28 @@ class Command: Cloneable {
         return T::class.java.enumConstants.firstOrNull { it.name == value.uppercase() } ?: throw Exception("Enum ${T::class.simpleName} does not contain \"${value.uppercase()}\"")
     }
 
+    inline fun <reified T : Enum<T>> getEnumOrNull(argumentName: String): T? {
+        if(arguments[argumentName] == null) return null
+        val value = getOrNull<String>(argumentName) ?: return null
+        return T::class.java.enumConstants.firstOrNull { it.name == value.uppercase() } ?: throw Exception("Enum ${T::class.simpleName} does not contain \"${value.uppercase()}\"")
+    }
+
     fun <T> getOrNull(argumentName: String): T? {
         if(arguments[argumentName] == null) return null
         return arguments[argumentName]!!.returnedValue as T
     }
 
-    fun addArgument(name: String, argument: CommandArgument) {
-        val data = CommandArgumentData(argument, false, expectedReturnValueType = argument.expectedType)
+    fun addArgument(name: String, argument: CommandArgument, suggestions: CommandSuggestions? = null) {
+        val data = CommandArgumentData(argument, false, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
         arguments[name] = data
         val before = arguments.values.indexOf(data) - 1
         if(before <= 0 ) return
         if(arguments.values.toList()[before].optional) throw IllegalStateException("Cannot put argument after optional argument!")
+
     }
 
-    fun addOptionalArgument(name: String, argument: CommandArgument) {
-        arguments[name] = CommandArgumentData(argument, true, expectedReturnValueType = argument.expectedType)
+    fun addOptionalArgument(name: String, argument: CommandArgument, suggestions: CommandSuggestions? = null) {
+        arguments[name] = CommandArgumentData(argument, true, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
     }
 
     fun execute(function: (CommandExecutor) -> Unit) {

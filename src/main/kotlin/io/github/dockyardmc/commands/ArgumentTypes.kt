@@ -1,5 +1,6 @@
 package io.github.dockyardmc.commands
 
+import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Block
@@ -17,7 +18,6 @@ import java.util.*
 import kotlin.experimental.or
 import kotlin.reflect.KClass
 
-
 interface CommandArgument {
     var expectedType: KClass<*>
     var parser: ArgumentCommandNodeParser
@@ -25,7 +25,7 @@ interface CommandArgument {
 }
 
 class StringArgument(
-    val type: BrigadierStringType,
+    val type: BrigadierStringType = BrigadierStringType.SINGLE_WORD,
     val staticCompletions: MutableList<String> = mutableListOf(),
 ): CommandArgument {
     override var expectedType: KClass<*> = String::class
@@ -48,11 +48,11 @@ class WorldArgument(
 
 class SoundArgument(
 ): CommandArgument {
-    override var expectedType: KClass<*> = String::class
-    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.STRING
+    override var expectedType: KClass<*> = Sound::class
+    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.RESOURCE
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeVarIntEnum<BrigadierStringType>(BrigadierStringType.SINGLE_WORD)
+        buffer.writeUtf("minecraft:sound")
     }
 }
 
@@ -180,7 +180,6 @@ class ParticleArgument(
 class IntArgument(
     var min: Int? = null,
     var max: Int? = null,
-    var staticCompletions: MutableList<Int> = mutableListOf(),
 ): CommandArgument {
     override var expectedType: KClass<*> = Int::class
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.INTEGER
@@ -198,7 +197,6 @@ class IntArgument(
 class DoubleArgument(
     var min: Double? = null,
     var max: Double? = null,
-    val staticCompletions: MutableList<Double> = mutableListOf(),
 ): CommandArgument {
     override var expectedType: KClass<*> = Double::class
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.DOUBLE
@@ -216,7 +214,6 @@ class DoubleArgument(
 class FloatArgument(
     var min: Float? = null,
     var max: Float? = null,
-    val staticCompletions: MutableList<Float> = mutableListOf(),
 ): CommandArgument {
     override var expectedType: KClass<*> = Float::class
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.FLOAT
@@ -232,7 +229,6 @@ class FloatArgument(
 }
 
 class BooleanArgument(
-    val staticCompletions: MutableList<Boolean> = mutableListOf(true, false),
 ): CommandArgument {
     override var expectedType: KClass<*> = Boolean::class
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.BOOL
@@ -243,7 +239,6 @@ class BooleanArgument(
 class LongArgument(
     var min: Long? = null,
     var max: Long? = null,
-    val staticCompletions: MutableList<Long> = mutableListOf(),
 ): CommandArgument {
     override var expectedType: KClass<*> = Long::class
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.LONG
@@ -281,5 +276,6 @@ class CommandArgumentData(
     val argument: CommandArgument,
     val optional: Boolean = false,
     var returnedValue: Any? = null,
-    var expectedReturnValueType: KClass<*>
+    var expectedReturnValueType: KClass<*>,
+    var suggestions: CommandSuggestions? = null
 )

@@ -15,6 +15,7 @@ class DockyardCommands: DockyardPlugin {
         GamemodeCommand()
         VersionAndHelpCommand()
         WorldCommand()
+        SoundCommand()
 
     }
 

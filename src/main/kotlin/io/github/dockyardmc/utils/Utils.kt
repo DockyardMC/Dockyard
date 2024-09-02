@@ -6,8 +6,11 @@ import io.github.dockyardmc.entities.EntityMetadataType
 import io.github.dockyardmc.entities.getEntityMetadataState
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
+import kotlin.reflect.KClass
 
 fun ticksToMs(ticks: Int): Int = ticks * 50
+
+fun getEnumEntries(enumClass: KClass<Enum<*>>): List<Enum<*>> = enumClass.java.enumConstants.toList()
 
 fun Entity.setGlowingFor(player: Player, state: Boolean) {
     val entityState = getEntityMetadataState(this) {

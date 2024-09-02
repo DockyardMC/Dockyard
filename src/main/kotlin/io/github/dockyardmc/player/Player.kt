@@ -107,6 +107,9 @@ class Player(
                 }
             }
             refreshAbilities()
+            val updatePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, UpdateGamemodeInfoUpdateAction(gameMode.value)))
+            sendPacket(updatePacket)
+            sendToViewers(updatePacket)
         }
 
         health.valueChanged { sendHealthUpdatePacket() }
