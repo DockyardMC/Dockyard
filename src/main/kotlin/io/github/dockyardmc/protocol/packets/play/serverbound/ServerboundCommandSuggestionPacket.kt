@@ -24,7 +24,7 @@ class ServerboundCommandSuggestionPacket(var transactionId: Int, var text: Strin
 
         if(event.cancelled) return
 
-        SuggestionHandler.handleSuggestion(transactionId, event.command, processor.player)
+        SuggestionHandler.handleSuggestionInput(transactionId, event.command, processor.player)
     }
 
     companion object {

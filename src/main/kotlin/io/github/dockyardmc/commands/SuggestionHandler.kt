@@ -7,18 +7,27 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSuggest
 import io.github.dockyardmc.utils.getEnumEntries
 import kotlin.reflect.KClass
 
-
 object SuggestionHandler {
 
-    fun handleSuggestion(transactionId: Int, inputCommand: String, player: Player) {
-        val tokens = inputCommand.removePrefix("/").split(" ")
+    fun handleSuggestionInput(transactionId: Int, inputCommand: String, player: Player) {
+        val tokens = inputCommand.removePrefix("/").split(" ").toMutableList()
         val commandName = tokens[0]
-        val command = Commands.commands[commandName]
-        if (Commands.commands[commandName] == null) return
+        val command = Commands.commands[commandName] ?: return
 
-        val current = command!!.arguments.values.toList()[tokens.size - 2]
         val currentlyTyped = tokens.last()
 
+        if(tokens.size >= 2 && command.subcommands[tokens[1]] != null) {
+            val subcommand = command.subcommands[tokens[1]]!!
+            val current = subcommand.arguments.values.toList()[tokens.size - 3]
+            handleSuggestion(current, inputCommand, currentlyTyped, player, transactionId)
+        } else {
+            val current = command.arguments.values.toList()[tokens.size - 2]
+            handleSuggestion(current, inputCommand, currentlyTyped, player, transactionId)
+        }
+    }
+
+
+    fun handleSuggestion(current: CommandArgumentData, inputCommand: String, currentlyTyped: String, player: Player, transactionId: Int) {
         // Auto suggest enum entries if user defined suggestion is null
         if(current.argument is EnumArgument && current.suggestions == null) {
             val enum = current.argument.enumType as KClass<Enum<*>>

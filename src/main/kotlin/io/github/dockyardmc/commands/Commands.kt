@@ -8,7 +8,14 @@ object Commands {
     var warnAboutCaseSensitivity: Boolean = true
     var warnWithClosestMatchToInvalidCommand: Boolean = false
 
-    fun add(name: String, command: (Command) -> Unit) {
+    fun subcommandBase(name: String): Command {
+        val command = Command()
+        command.name = name.lowercase().removePrefix("/")
+        commands[command.name] = command
+        return command
+    }
+
+    fun add(name: String, command: (Command) -> Unit): Command {
 
         val sanitizedName = name.lowercase().removePrefix("/")
         val builder = Command()
@@ -24,5 +31,6 @@ object Commands {
             aliasCommand.name = it
             commands[it] = aliasCommand
         }
+        return finalCommand
     }
 }

@@ -12,6 +12,7 @@ class Command: Cloneable {
     var isAlias = false
     var name = ""
     var aliases = mutableListOf<String>()
+    val subcommands: MutableMap<String, Command> = mutableMapOf()
 
     operator fun <T> get(argumentName: String): T {
         if(arguments[argumentName] == null) throw Exception("Argument with name $argumentName does not exist")
@@ -37,6 +38,7 @@ class Command: Cloneable {
     }
 
     fun addArgument(name: String, argument: CommandArgument, suggestions: CommandSuggestions? = null) {
+        if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands!")
         val data = CommandArgumentData(argument, false, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
         arguments[name] = data
         val before = arguments.values.indexOf(data) - 1
@@ -46,14 +48,26 @@ class Command: Cloneable {
     }
 
     fun addOptionalArgument(name: String, argument: CommandArgument, suggestions: CommandSuggestions? = null) {
+        if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands at the same time!")
         arguments[name] = CommandArgumentData(argument, true, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
     }
 
     fun execute(function: (CommandExecutor) -> Unit) {
+        if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have executor and subcommands at the same time!")
         internalExecutorDoNotUse = function
     }
 
     fun build(): Command = this
+
+    fun addSubcommand(name: String, command: (Command) -> Unit) {
+        if(arguments.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands at the same time!")
+        val sanitizedName = name.lowercase().removePrefix("/")
+        val builder = Command()
+        command(builder)
+        val subcommand = builder.build()
+        subcommands[sanitizedName] = subcommand
+        subcommand.name = sanitizedName
+    }
 
     public override fun clone(): Command {
         val cloned = super.clone() as Command

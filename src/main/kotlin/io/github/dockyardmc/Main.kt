@@ -6,9 +6,10 @@ import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundCommandsPacket
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.world.WorldManager
+import java.lang.Exception
 
 // This is just maya testing env.. do not actually run this
 fun main(args: Array<String>) {
@@ -39,25 +40,6 @@ fun main(args: Array<String>) {
         if(player.username == "LukynkaCZE") {
             player.permissions.add("dockyard.all")
             player.sendMessage(player.permissions.toString())
-        }
-    }
-
-    Commands.add("/test") {
-        it.execute { ctx ->
-            val player = ctx.playerOrThrow()
-            player.sendPacket(ClientboundCommandsPacket(buildCommandGraph()))
-        }
-    }
-
-    Commands.add("/player") {
-        it.addArgument("player", PlayerArgument())
-        it.addArgument("world", WorldArgument())
-        it.addArgument("text", StringArgument(BrigadierStringType.SINGLE_WORD))
-        it.addOptionalArgument("item", ItemArgument())
-        it.addOptionalArgument("block", BlockArgument())
-        it.execute { ctx ->
-            val player = it.get<Player>("player")
-            player.sendMessage("aaaa $player")
         }
     }
 

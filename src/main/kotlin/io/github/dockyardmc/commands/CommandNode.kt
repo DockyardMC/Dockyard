@@ -33,6 +33,23 @@ fun buildCommandGraph(): MutableMap<Int, CommandNode> {
         val nodeIndex = index
         val node = LiteralCommandNode(it.key)
         var nextChild: CommandNode = node
+        it.value.subcommands.forEach { subcommand ->
+            index++
+            val subNode = LiteralCommandNode(subcommand.key)
+            subNode.isOptional = false
+            indexedNodes[index] = subNode
+            node.children.add(subNode)
+
+            var innerChildNext: CommandNode = subNode
+            subcommand.value.arguments.forEach { arg ->
+                index++
+                val argument = ArgumentCommandNode(arg.key, arg.value.argument)
+                argument.isOptional = arg.value.optional
+                indexedNodes[index] = argument
+                innerChildNext.children.add(argument)
+                innerChildNext = argument
+            }
+        }
         it.value.arguments.forEach { arg ->
             index++
             val argument = ArgumentCommandNode(arg.key, arg.value.argument)
