@@ -8,10 +8,13 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.add
+import io.github.dockyardmc.player.toPersistent
+import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEquipmentLayer
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugScoreboard
@@ -51,22 +54,19 @@ fun main(args: Array<String>) {
     }
 
 
-    Commands.add("/explode") {
+    Commands.add("/equipment") {
         addArgument("player", PlayerArgument())
-        withPermission("player.admin")
-        withDescription("executes stuff")
         execute {
-            val executingPlayer = it.getPlayerOrThrow()
-            val player = getArgument<Player>("player")
+            val player = it.getPlayerOrThrow()
+            val target = getArgument<Player>("player")
 
-            player.spawnParticle(player.location, Particles.EXPLOSION_EMITTER, Vector3f(1f), amount = 5)
-            player.playSound("minecraft:entity.generic.explode", volume = 2f, pitch = MathUtils.randomFloat(0.6f, 1.3f))
-
-            player.sendMessage("<yellow>You got <rainbow><b>totally exploded <yellow>by <red>$executingPlayer")
-            executingPlayer.sendMessage("<yellow>You <rainbow><b>totally exploded <yellow>player <red>$player")
+            target.equipmentLayers[player.toPersistent()] = EntityEquipmentLayer(
+                helmet = ItemStack(Items.LIME_STAINED_GLASS),
+                offHand = ItemStack(Items.LEAD),
+                boots = ItemStack(Items.NETHERITE_BOOTS)
+            )
         }
     }
-
 
 
     val server = DockyardServer()

@@ -25,9 +25,9 @@ open class ClientboundPacket() {
         if(id == null) throw Exception("tried to send packet without id")
         if(state == null) throw Exception("tried to send packet without network state")
         val packetWithHeader = Unpooled.buffer()
-        packetWithHeader.writeVarInt(data.writerIndex() + 1)
+        packetWithHeader.writeVarInt(data.copy().writerIndex() + 1)
         packetWithHeader.writeVarInt(id!!)
-        packetWithHeader.writeBytes(data)
+        packetWithHeader.writeBytes(data.copy())
         return packetWithHeader
     }
 }

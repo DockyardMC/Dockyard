@@ -109,6 +109,8 @@ class Player(
                     }
                 }
             }
+
+            isInvisible.value = it.newValue == GameMode.SPECTATOR
             refreshAbilities()
             val updatePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, UpdateGamemodeInfoUpdateAction(gameMode.value)))
             sendPacket(updatePacket)
@@ -249,6 +251,7 @@ class Player(
         super.addViewer(player)
 
         player.sendMetadataPacket(this)
+        this.displayedSkinParts.triggerUpdate()
         sendMetadataPacket(player)
         sendEquipmentPacket(player)
     }
