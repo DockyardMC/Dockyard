@@ -202,12 +202,12 @@ class World(
 
                     for (y in 0..<dimensionType.height) {
                         chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ), false)
-                        chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ))
+                        chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ), false)
                     }
                 }
             }
         }
-//        chunk.cacheChunkDataPacket()
+        chunk.updateCache()
         if(getChunk(x, z) == null) chunks[ChunkUtils.getChunkIndex(x, z)] = (chunk)
     }
 

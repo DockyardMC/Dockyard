@@ -1,5 +1,7 @@
 package io.github.dockyardmc.implementations.commands
 
+import io.github.dockyardmc.config.ConfigManager
+
 class DockyardCommands {
 
     init {
@@ -10,5 +12,9 @@ class DockyardCommands {
         GiveCommand()
         TeleportCommand()
         SchematicCommand()
+        if(ConfigManager.currentConfig.serverConfig.debug) {
+            ViewerCommand()
+            DebugCommands()
+        }
     }
 }

@@ -68,7 +68,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         if(shouldCache) updateCache()
     }
 
-    fun setBiome(x: Int, y: Int, z: Int, biome: Biome) {
+    fun setBiome(x: Int, y: Int, z: Int, biome: Biome, shouldCache: Boolean = true) {
         val section = getSectionAt(y)
 
         val relativeX = ChunkUtils.sectionRelative(x)
@@ -76,7 +76,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeY = ChunkUtils.sectionRelative(y)
 
         section.biomePalette[relativeX, relativeY, relativeZ] = biome.id
-        updateCache()
+        if(shouldCache) updateCache()
     }
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
