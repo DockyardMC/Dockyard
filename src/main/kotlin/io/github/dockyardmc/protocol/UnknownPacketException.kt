@@ -6,3 +6,4 @@ class UnknownPacketException(override val message: String): Exception() {
         this.stackTrace = arrayOf()
     }
 }
+

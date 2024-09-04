@@ -1,8 +1,8 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
+import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
@@ -26,7 +26,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         processor.player.brand = event.data
 
         // Send server brand
-        val serverBrandEvent = ServerBrandEvent("§bDockyardMC §8| §7Custom Kotlin Server Implementation")
+        val serverBrandEvent = ServerBrandEvent("§bDockyardMC Server §7(https://github.com/DockyardMC/)")
         Events.dispatch(serverBrandEvent)
         connection.sendPacket(ClientboundPluginMessagePacket("minecraft:brand", serverBrandEvent.brand))
 
@@ -126,6 +126,8 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         runLaterAsync(5) {
             Events.dispatch(PlayerJoinEvent(processor.player))
         }
+
+        player.sendPacket(ClientboundCommandsPacket(buildCommandGraph(player)))
 
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         player.sendPacket(tickingStatePacket)

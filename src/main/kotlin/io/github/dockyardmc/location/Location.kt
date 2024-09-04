@@ -1,7 +1,7 @@
 package io.github.dockyardmc.location
 
 import io.github.dockyardmc.extentions.truncate
-import io.github.dockyardmc.utils.Vector2
+import io.github.dockyardmc.utils.Vector2f
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.Chunk
@@ -68,7 +68,7 @@ class Location(
 
     fun centerBlockLocation(): Location = this.apply { x += 0.5; y += 0.5; z += 0.5 }
 
-    fun getRotation(): Vector2 = Vector2(yaw, pitch)
+    fun getRotation(): Vector2f = Vector2f(yaw, pitch)
 
     fun setDirection(vector: Vector3f): Location {
         val loc = this.clone()

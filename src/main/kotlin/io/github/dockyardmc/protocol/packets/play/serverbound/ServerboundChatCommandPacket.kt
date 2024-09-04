@@ -17,7 +17,7 @@ import io.netty.channel.ChannelHandlerContext
 class ServerboundChatCommandPacket(val command: String): ServerboundPacket {
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
-        CommandHandler.handleCommand(command, CommandExecutor(player = processor.player, console = Console))
+        CommandHandler.handleCommandInput(command, CommandExecutor(player = processor.player, console = Console))
     }
 
     companion object {

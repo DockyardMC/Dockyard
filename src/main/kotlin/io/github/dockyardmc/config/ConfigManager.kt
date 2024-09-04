@@ -13,14 +13,14 @@ import java.lang.Exception
 object ConfigManager {
 
     val defaultConfig = DockyardConfig(
-        configVersion = 2,
+        configVersion = 3,
         serverConfig = ServerConfig(),
         chunkEngine = ChunkEngine(),
-        bundledPlugins = BundledPlugins(),
+        defaultImplementations = DefaultImplementations(),
         implementationConfig = ImplementationConfig()
     )
 
-    val configFile = File("/dockyard.toml")
+    val configFile = File("dockyard.toml")
 
     var currentConfig: DockyardConfig = defaultConfig
     val toml = Toml(inputConfig = TomlInputConfig(
@@ -60,7 +60,7 @@ data class DockyardConfig(
     val serverConfig: ServerConfig,
     val chunkEngine: ChunkEngine,
     val implementationConfig: ImplementationConfig,
-    val bundledPlugins: BundledPlugins
+    val defaultImplementations: DefaultImplementations
 )
 
 @Serializable
@@ -79,11 +79,13 @@ data class ChunkEngine(
 
 @Serializable
 data class ImplementationConfig(
-    val applyBlockPlacementRules: Boolean = true
+    val applyBlockPlacementRules: Boolean = true,
+    val notifyUserOfExceptionDuringCommand: Boolean = true,
+    val commandErrorPrefix: String = "<dark_red>Error <dark_gray>| <red>",
+    val commandNoPermissionsMessage: String = "You do not have permissions to execute this command!",
 )
 
 @Serializable
-data class BundledPlugins(
+data class DefaultImplementations(
     var dockyardCommands: Boolean = true,
-    var dockyardExtras: Boolean = false,
 )

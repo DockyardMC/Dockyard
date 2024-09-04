@@ -204,12 +204,12 @@ class World(
                 }
             }
         }
-        chunk.cacheChunkDataPacket()
+//        chunk.cacheChunkDataPacket()
         if(getChunk(x, z) == null) chunks[ChunkUtils.getChunkIndex(x, z)] = (chunk)
     }
 
     fun generateBaseChunks(size: Int) {
-        val vector = Vector2(size.toFloat(), size.toFloat())
+        val vector = Vector2f(size.toFloat(), size.toFloat())
         ((vector.x.toInt() * -1)..vector.x.toInt()).forEach chunkLoop@{ chunkX ->
             for (chunkZ in (vector.y.toInt() * -1)..vector.y.toInt()) {
                 generateChunk(chunkX, chunkZ)

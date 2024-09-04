@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 // https://github.com/DockyardMC/RegistryClassesGenerators
 
 object Particles {
-    private val idToParticleMap by lazy {
+    val idToParticleMap by lazy {
         val json = Json { ignoreUnknownKeys = true }
         val particles = json.decodeFromString<MutableList<Particle>>(getFile("data/particles.json"))
         particles.associateBy { it.id }
@@ -129,5 +129,5 @@ object Particles {
 data class Particle(
     val id: Int,
     @SerialName("name")
-    val namespace: String
+    val identifier: String
 )

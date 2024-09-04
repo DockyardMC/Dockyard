@@ -1,51 +1,93 @@
 package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.utils.Console
-import io.github.dockyardmc.world.World
-import java.util.UUID
-import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
 class Command: Cloneable {
     lateinit var internalExecutorDoNotUse: (CommandExecutor) -> Unit
     var arguments: MutableMap<String, CommandArgumentData> = mutableMapOf()
-    var permission = ""
-    var description = ""
-    var isAlias = false
-    var name = ""
-    var aliases = mutableListOf<String>()
+    var permission: String = ""
+    var description: String = ""
+    var isAlias: Boolean = false
+    var name: String = ""
+    var aliases: List<String> = listOf<String>()
+    val subcommands: MutableMap<String, Command> = mutableMapOf()
 
-    operator fun <T> get(argumentName: String): T {
-        if(arguments[argumentName] == null) throw Exception("Argument with name $argumentName does not exist")
-        if(arguments[argumentName]!!.returnedValue == null) throw Exception("Argument value of $argumentName is null. Use getOrNull to get nullable value")
+    fun withPermission(permission: String) {
+        this.permission = permission
+    }
+
+    fun withDescription(description: String) {
+        this.description = description
+    }
+
+    fun withAliases(aliases: List<String>) {
+        this.aliases = aliases
+    }
+
+    fun withAliases(vararg aliases: String) {
+        this.aliases = aliases.toList()
+    }
+
+
+    inline fun <reified T> getArgument(argumentName: String): T {
+        if(T::class.java.isEnum && T::class != LegacyTextColor::class) throw IllegalStateException("Supplied generic is of type enum, please use getEnumArgument method instead.")
+        if(arguments[argumentName] == null) throw IllegalStateException("Argument with name $argumentName does not exist")
+        if(arguments[argumentName]!!.returnedValue == null) throw IllegalStateException("Argument value of $argumentName is null. Use getOrNull to get nullable value")
 
         return arguments[argumentName]!!.returnedValue as T
     }
 
-    inline fun <reified T : Enum<T>> getEnum(argumentName: String): T {
-        val value = get<String>(argumentName)
+    inline fun <reified T : Enum<T>> getEnumArgument(argumentName: String): T {
+        val value = getArgument<String>(argumentName)
         return T::class.java.enumConstants.firstOrNull { it.name == value.uppercase() } ?: throw Exception("Enum ${T::class.simpleName} does not contain \"${value.uppercase()}\"")
     }
 
-    fun <T> getOrNull(argumentName: String): T? {
+    inline fun <reified T : Enum<T>> getEnumArgumentOrNull(argumentName: String): T? {
         if(arguments[argumentName] == null) return null
+        val value = getArgumentOrNull<String>(argumentName) ?: return null
+        return T::class.java.enumConstants.firstOrNull { it.name == value.uppercase() } ?: throw Exception("Enum ${T::class.simpleName} does not contain \"${value.uppercase()}\"")
+    }
+
+    inline fun <reified T> getArgumentOrNull(argumentName: String): T? {
+        if(T::class.java.isEnum && T::class != LegacyTextColor::class) throw IllegalStateException("Supplied generic is of type enum, please use getEnumArgumentOrNull method instead.")
+        if(arguments[argumentName] == null) return null
+        if(arguments[argumentName]!!.returnedValue == null) return null
         return arguments[argumentName]!!.returnedValue as T
     }
 
-    fun addArgument(name: String, argument: CommandArgument) {
-        arguments[name] = CommandArgumentData(argument, false, expectedReturnValueType = argument.expectedType)
+    fun addArgument(name: String, argument: CommandArgument, suggestions: CommandSuggestions? = null) {
+        if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands!")
+        val data = CommandArgumentData(argument, false, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
+        arguments[name] = data
+        val before = arguments.values.indexOf(data) - 1
+        if(before <= 0 ) return
+        if(arguments.values.toList()[before].optional) throw IllegalStateException("Cannot put argument after optional argument!")
+
     }
 
-    fun addOptionalArgument(name: String, argument: CommandArgument) {
-        arguments[name] = CommandArgumentData(argument, true, expectedReturnValueType = argument.expectedType)
+    fun addOptionalArgument(name: String, argument: CommandArgument, suggestions: CommandSuggestions? = null) {
+        if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands at the same time!")
+        arguments[name] = CommandArgumentData(argument, true, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
     }
 
-    fun execute(function: (CommandExecutor) -> Unit) {
+    fun execute(function: (ctx: CommandExecutor) -> Unit) {
+        if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have executor and subcommands at the same time!")
         internalExecutorDoNotUse = function
     }
 
     fun build(): Command = this
+
+    fun addSubcommand(name: String, builder: Command.() -> Unit) {
+        if(arguments.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands at the same time!")
+        val sanitizedName = name.lowercase().removePrefix("/")
+        val subcommand = Command()
+        builder.invoke(subcommand)
+        subcommands[sanitizedName] = subcommand
+        subcommand.name = sanitizedName
+    }
 
     public override fun clone(): Command {
         val cloned = super.clone() as Command
@@ -60,65 +102,6 @@ class Command: Cloneable {
     }
 }
 
-interface CommandArgument {
-    var expectedType: KClass<*>
-}
-
-class StringArgument(
-    val staticCompletions: MutableList<String> = mutableListOf(),
-    override var expectedType: KClass<*> = String::class,
-): CommandArgument
-
-class WorldArgument(
-    override var expectedType: KClass<*> = World::class,
-): CommandArgument
-
-class PlayerArgument(
-    override var expectedType: KClass<*> = Player::class,
-): CommandArgument
-
-class IntArgument(
-    var staticCompletions: MutableList<Int> = mutableListOf(),
-    override var expectedType: KClass<*> = Int::class,
-): CommandArgument
-
-class DoubleArgument(
-    val staticCompletions: MutableList<Double> = mutableListOf(),
-    override var expectedType: KClass<*> = Double::class,
-): CommandArgument
-
-class FloatArgument(
-    val staticCompletions: MutableList<Float> = mutableListOf(),
-    override var expectedType: KClass<*> = Float::class,
-): CommandArgument
-
-class BooleanArgument(
-    val staticCompletions: MutableList<Boolean> = mutableListOf(true, false),
-    override var expectedType: KClass<*> = Boolean::class,
-): CommandArgument
-
-class LongArgument(
-    val staticCompletions: MutableList<Long> = mutableListOf(),
-    override var expectedType: KClass<*> = Long::class,
-): CommandArgument
-
-class UUIDArgument(
-    override var expectedType: KClass<*> = UUID::class,
-): CommandArgument
-
-class EnumArgument(
-    val enumType: KClass<*>,
-    override var expectedType: KClass<*> = String::class,
-): CommandArgument
-
-
-class CommandArgumentData(
-    val argument: CommandArgument,
-    val optional: Boolean = false,
-    var returnedValue: Any? = null,
-    var expectedReturnValueType: KClass<*>
-)
-
 data class CommandExecutor(
     val player: Player? = null,
     val console: Console,
@@ -126,8 +109,8 @@ data class CommandExecutor(
     val isPlayer: Boolean = player != null,
 ) {
 
-    fun playerOrThrow(): Player {
-        if(player == null) throw Exception("Command was not executed by player")
+    fun getPlayerOrThrow(): Player {
+        if(player == null) throw CommandException("Command was not executed by player")
         return player
     }
 

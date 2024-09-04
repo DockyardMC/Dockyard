@@ -6,6 +6,7 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.entities.ItemDropEntity
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.registry.Items
@@ -23,6 +24,10 @@ class Inventory(var entity: Entity) {
         slots.itemSet { sendInventoryUpdate(it.key) }
         slots.itemRemoved { sendInventoryUpdate(it.key) }
         carriedItem.valueChanged { sendInventoryUpdate(-1) }
+
+        for (i in 0 until entity.inventorySize) {
+            set(i, ItemStack.air)
+        }
     }
 
     operator fun set(slot: Int, item: ItemStack) {
@@ -38,14 +43,6 @@ class Inventory(var entity: Entity) {
         slots.clear(false)
     }
 
-    //TODO make work
-    fun Player.give(itemStack: ItemStack) {
-
-    }
-
-    fun Player.clearInventory() {
-        this@Inventory.clear()
-    }
 
     fun sendInventoryUpdate(slot: Int) {
         val player = entity as Player
@@ -71,6 +68,33 @@ class Inventory(var entity: Entity) {
         loc.world.spawnEntity(drop)
     }
 }
+
+fun Player.give(itemStack: ItemStack) {
+    for (slot in inventory.slots.values) {
+        if (slot.value.isSameAs(itemStack) && slot.value.amount < slot.value.maxStackSize.value) {
+            val remaining = slot.value.amount + itemStack.amount - slot.value.maxStackSize.value
+            if (remaining > 0) {
+                inventory[slot.key] = slot.value.apply { amount = slot.value.maxStackSize.value }
+                give(itemStack.apply { amount = remaining })
+                return
+            } else {
+                inventory[slot.key] = slot.value.apply { amount += itemStack.amount }
+                return
+            }
+        }
+    }
+
+    inventory.slots.values.forEach {
+        if(!it.value.isSameAs(ItemStack.air)) return@forEach
+        inventory[it.key] = itemStack
+        return
+    }
+}
+
+fun Player.clearInventory() {
+    this.inventory.clear()
+}
+
 
 data class DragButtonInventoryActionData(
     val type: DragButtonInventoryAction,

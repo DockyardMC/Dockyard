@@ -8,9 +8,7 @@ import io.github.dockyardmc.events.ServerStartEvent
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.plugins.PluginManager
-import io.github.dockyardmc.plugins.bundled.commands.DockyardCommands
-import io.github.dockyardmc.plugins.bundled.extras.DockyardExtras
+import io.github.dockyardmc.implementations.commands.DockyardCommands
 import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
@@ -88,11 +86,9 @@ class DockyardServer {
 
         AnnotationProcessor.addIdsToClientboundPackets()
 
-        //TODO Remove plugin system
-        innerProfiler.start("Load Plugins")
-        val pluginConfig = ConfigManager.currentConfig.bundledPlugins
-        if(pluginConfig.dockyardCommands) PluginManager.loadLocal(DockyardCommands())
-        if(pluginConfig.dockyardExtras) PluginManager.loadLocal(DockyardExtras())
+        innerProfiler.start("Load Default Implementations")
+        val implementationsConfig = ConfigManager.currentConfig.defaultImplementations
+        if(implementationsConfig.dockyardCommands) DockyardCommands()
 
         innerProfiler.end()
 
@@ -152,7 +148,8 @@ class DockyardServer {
             "ClientboundUpdateEntityRotationPacket",
             "ClientboundSetHeadYawPacket",
             "ClientboundSendParticlePacket",
-            "ClientboundUpdateScorePacket"
+            "ClientboundUpdateScorePacket",
+            "ClientboundChunkDataPacket"
         )
     }
 }

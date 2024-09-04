@@ -5,22 +5,23 @@ import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.extentions.writeVarIntEnum
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.sounds.Sound
 
 @WikiVGEntry("Sound Effect")
 @ClientboundPacketInfo(0x68, ProtocolState.PLAY)
-class ClientboundPlaySoundPacket(sound: Sound): ClientboundPacket() {
+class ClientboundPlaySoundPacket(sound: Sound, location: Location): ClientboundPacket() {
 
     init {
         data.writeVarInt(0)
         data.writeUtf(sound.identifier)
         data.writeBoolean(false)
         data.writeVarIntEnum<SoundCategory>(sound.category)
-        data.writeInt((sound.location.x * 8.0).toInt())
-        data.writeInt((sound.location.y * 8.0).toInt())
-        data.writeInt((sound.location.z * 8.0).toInt())
+        data.writeInt((location.x * 8.0).toInt())
+        data.writeInt((location.y * 8.0).toInt())
+        data.writeInt((location.z * 8.0).toInt())
         data.writeFloat(sound.volume)
         data.writeFloat(sound.pitch)
         data.writeLong(0L)
