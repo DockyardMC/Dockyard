@@ -48,13 +48,13 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         updateCache()
     }
 
-    fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int) {
+    fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int, shouldCache: Boolean = true) {
         val section = getSectionAt(y)
         val relativeX = ChunkUtils.sectionRelative(x)
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
         section.blockPalette[relativeX, relativeY, relativeZ] = blockStateId
-        updateCache()
+        if(shouldCache) updateCache()
     }
 
     fun setBlock(x: Int, y: Int, z: Int, material: Block, shouldCache: Boolean = true) {

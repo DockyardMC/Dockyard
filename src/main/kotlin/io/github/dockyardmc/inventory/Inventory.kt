@@ -17,6 +17,7 @@ class Inventory(var entity: Entity) {
     val size = entity.inventorySize
     val slots: BindableMap<Int, ItemStack> = BindableMap()
     var carriedItem: Bindable<ItemStack> = Bindable(ItemStack.air)
+    var offhandItem: Bindable<ItemStack> = Bindable(ItemStack.air)
 
     var dragData: DragButtonInventoryActionData? = null
 
@@ -52,7 +53,6 @@ class Inventory(var entity: Entity) {
     fun clear() {
         slots.clear(false)
     }
-
 
     fun sendInventoryUpdate(slot: Int) {
         val player = entity as Player

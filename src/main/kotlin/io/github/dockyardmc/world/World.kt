@@ -174,7 +174,7 @@ class World(
 
     fun setBlockRaw(location: Location, blockStateId: Int, updateChunk: Boolean = true) {
         val chunk = getChunkAt(location.x.toInt(), location.z.toInt()) ?: return
-        chunk.setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId)
+        chunk.setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId, updateChunk)
         if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
     }
 

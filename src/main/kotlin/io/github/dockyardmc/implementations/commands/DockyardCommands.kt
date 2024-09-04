@@ -9,5 +9,6 @@ class DockyardCommands {
         SoundCommand()
         GiveCommand()
         TeleportCommand()
+        SchematicCommand()
     }
 }
