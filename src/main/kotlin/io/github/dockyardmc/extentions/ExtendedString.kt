@@ -19,3 +19,5 @@ fun String.SHA256Long(): Long = Hashing.sha256().hashString(this, CharsetUtil.UT
 
 @Suppress("FunctionName")
 fun String.SHA256String(): String = Hashing.sha256().hashString(this, CharsetUtil.UTF_8).toString()
+
+fun String.identifier(): String = this.replace("minecraft:", "")

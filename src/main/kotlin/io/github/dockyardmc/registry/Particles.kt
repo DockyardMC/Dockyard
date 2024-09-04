@@ -129,5 +129,5 @@ object Particles {
 data class Particle(
     val id: Int,
     @SerialName("name")
-    val namespace: String
+    val identifier: String
 )

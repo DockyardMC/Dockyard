@@ -7,6 +7,7 @@ import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.getLegacyTextColorNameFromVanilla
+import io.github.dockyardmc.extentions.identifier
 import io.github.dockyardmc.extentions.isUppercase
 import io.github.dockyardmc.extentions.isValidUUID
 import io.github.dockyardmc.player.Player
@@ -96,19 +97,19 @@ object CommandHandler {
                 Float::class -> value.toFloatOrNull() ?: throw CommandException("\"$value\" is not of type Float")
                 Long::class -> value.toLongOrNull() ?: throw CommandException("\"$value\" is not of type Long")
                 UUID::class -> UUID.fromString(value)
-                Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw CommandException("\"$value\" is not of type Item")
+                Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value.identifier() } ?: throw CommandException("\"$value\" is not of type Item")
                 Block::class -> {
                     if(value.contains("[")) {
                         //block state
                         val states = parseBlockStateString(value)
-                        val block = Blocks.idToBlockMap.values.firstOrNull { it.identifier == states.first.replace("minecraft:", "") } ?: throw CommandException("\"${states.first}\" is not of type Block")
+                        val block = Blocks.idToBlockMap.values.firstOrNull { it.identifier == states.first.identifier() } ?: throw CommandException("\"${states.first}\" is not of type Block")
                         block.withBlockStates(states.second)
                     } else {
                         //not block state
-                        Blocks.idToBlockMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw CommandException("\"$value\" is not of type Block")
+                        Blocks.idToBlockMap.values.firstOrNull { it.identifier == value.identifier() } ?: throw CommandException("\"$value\" is not of type Block")
                     }
                 }
-                World::class -> WorldManager.worlds[value]
+                World::class -> WorldManager.worlds[value] ?: throw CommandException("World with name $value does not exist!")
                 Sound::class -> Sound(value)
                 Entity::class -> {
                     if(value.contains("-")) {
@@ -121,13 +122,13 @@ object CommandHandler {
                     }
                 }
                 LegacyTextColor::class -> {
-                    val name = getLegacyTextColorNameFromVanilla(value.lowercase().replace("minecraft:", ""))
+                    val name = getLegacyTextColorNameFromVanilla(value.lowercase().identifier())
                     if(!LegacyTextColor.entries.map { it.name.lowercase() }.contains(name)) throw CommandException("$value is not valid LegacyTextColor!")
                     LegacyTextColor.valueOf(name.uppercase())
 
                 }
                 Particle::class -> {
-                    Particles.idToParticleMap.values.firstOrNull { it.namespace == value.replace("minecraft:", "") } ?: throw CommandException("$value is not valid Particle in the registry!")
+                    Particles.idToParticleMap.values.firstOrNull { it.identifier == value.identifier() } ?: throw CommandException("$value is not valid Particle in the registry!")
                 }
 
                 else -> null
