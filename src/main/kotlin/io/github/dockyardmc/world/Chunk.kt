@@ -1,6 +1,5 @@
 package io.github.dockyardmc.world
 
-import io.github.dockyardmc.protocol.CachedPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.registry.Biome
 import io.github.dockyardmc.registry.Block
