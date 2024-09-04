@@ -14,6 +14,7 @@ import io.github.dockyardmc.utils.MathUtils
 class GiveCommand {
     init {
         Commands.add("/give") {
+            it.permission = "dockyard.commands.give"
             it.addArgument("player", PlayerArgument())
             it.addArgument("item", ItemArgument())
             it.addOptionalArgument("amount", IntArgument())

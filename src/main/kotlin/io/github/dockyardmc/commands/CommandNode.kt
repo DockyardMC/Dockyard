@@ -3,6 +3,7 @@ package io.github.dockyardmc.commands
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.player.Player
 import io.netty.buffer.ByteBuf
 import kotlin.experimental.or
 
@@ -17,7 +18,7 @@ abstract class CommandNode(
     var suggestionType: CommandArgumentSuggestionType? = null
 )
 
-fun buildCommandGraph(): MutableMap<Int, CommandNode> {
+fun buildCommandGraph(player: Player? = null): MutableMap<Int, CommandNode> {
 
     val commands = Commands.commands
     val rootNode = RootCommandNode()
@@ -29,6 +30,7 @@ fun buildCommandGraph(): MutableMap<Int, CommandNode> {
 
     var index = 0
     commands.toSortedMap().forEach {
+        if(player != null && !player.hasPermission(it.value.permission)) return@forEach
         index++
         val nodeIndex = index
         val node = LiteralCommandNode(it.key)

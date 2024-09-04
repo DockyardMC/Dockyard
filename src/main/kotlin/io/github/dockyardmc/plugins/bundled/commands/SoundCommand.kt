@@ -10,6 +10,7 @@ class SoundCommand {
 
     init {
         Commands.add("/playsound") {
+            it.permission = "dockyard.commands.playsound"
             it.addArgument("player", PlayerArgument())
             it.addArgument("sound", SoundArgument())
             it.addOptionalArgument("volume", FloatArgument())

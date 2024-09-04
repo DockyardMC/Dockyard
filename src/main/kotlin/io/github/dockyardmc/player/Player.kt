@@ -2,6 +2,7 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEvent
@@ -22,10 +23,7 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableContainerScreen
-import io.github.dockyardmc.utils.ChunkUtils
-import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Vector3
-import io.github.dockyardmc.utils.Vector3f
+import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.world.ConcurrentChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
@@ -59,7 +57,7 @@ class Player(
     var isSneaking: Boolean = false
     var isSprinting: Boolean = false
     var selectedHotbarSlot: Bindable<Int> = Bindable(0)
-    val permissions: MutableList<String> = mutableListOf()
+    val permissions: BindableList<String> = BindableList()
     var isFullyInitialized: Boolean = false
     var inventory: Inventory = Inventory(this)
     var gameMode: Bindable<GameMode> = Bindable(GameMode.ADVENTURE)
@@ -111,6 +109,9 @@ class Player(
             sendPacket(updatePacket)
             sendToViewers(updatePacket)
         }
+
+        permissions.itemAdded { rebuildCommandNodeGraph() }
+        permissions.itemRemoved { rebuildCommandNodeGraph() }
 
         health.valueChanged { sendHealthUpdatePacket() }
         food.valueChanged { sendHealthUpdatePacket() }
@@ -308,8 +309,8 @@ class Player(
 
     fun hasPermission(permission: String): Boolean {
         if(permission.isEmpty()) return true
-        if(permissions.contains("dockyard.all") || permissions.contains("dockyard.*")) return true
-        return permissions.contains(permission)
+        if(permissions.values.contains("dockyard.all") || permissions.values.contains("dockyard.*")) return true
+        return permissions.values.contains(permission)
     }
 
     fun sendSelfMetadataPacket() {
@@ -375,6 +376,10 @@ class Player(
     fun resetExperience() {
         experienceLevel.value = 0
         experienceBar.value = 0f
+    }
+
+    fun rebuildCommandNodeGraph() {
+        this.sendPacket(ClientboundCommandsPacket(buildCommandGraph(this)))
     }
 
     fun openDrawableScreen(screen: DrawableContainerScreen) {

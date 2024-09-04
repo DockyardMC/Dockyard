@@ -127,7 +127,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             Events.dispatch(PlayerJoinEvent(processor.player))
         }
 
-        player.sendPacket(ClientboundCommandsPacket(buildCommandGraph()))
+        player.sendPacket(ClientboundCommandsPacket(buildCommandGraph(player)))
 
         val tickingStatePacket = ClientboundSetTickingStatePacket(DockyardServer.tickRate, false)
         player.sendPacket(tickingStatePacket)

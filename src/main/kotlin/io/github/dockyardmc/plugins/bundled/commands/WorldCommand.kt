@@ -13,6 +13,7 @@ class WorldCommand {
         fun suggestWorlds(): CommandSuggestions = SuggestionProvider.withContext { WorldManager.worlds.keys.toList() }
 
         val command = Commands.subcommandBase("/world")
+        command.permission = "dockyard.commands.world"
 
         command.addSubcommand("tp") {
             it.addArgument("world", StringArgument(), suggestWorlds())
