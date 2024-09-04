@@ -1,10 +1,9 @@
 package io.github.dockyardmc.commands
 
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.isUppercase
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
@@ -18,6 +17,9 @@ import io.github.dockyardmc.world.WorldManager
 import java.util.*
 
 object CommandHandler {
+
+    val prefix get() = ConfigManager.currentConfig.implementationConfig.commandErrorPrefix
+
     fun handleCommandInput(inputCommand: String, executor: CommandExecutor) {
         val tokens = inputCommand.removePrefix("/").split(" ").toMutableList()
         val commandName = tokens[0]
@@ -25,7 +27,7 @@ object CommandHandler {
             if(Commands.commands[commandName] == null) {
                 var message = "Command with that name does not exist!"
                 if(Commands.warnAboutCaseSensitivity && commandName.isUppercase()) message += " <gray>(check case sensitivity)"
-                throw Exception(message)
+                throw CommandException(message)
             }
             val command = Commands.commands[commandName]!!
             executor.command = command.name
@@ -42,18 +44,20 @@ object CommandHandler {
                         if(command.subcommands.size == 1 || command.subcommands.keys.last() == it.key) return@forEach else fullCommandString += ", "
                     }
                     fullCommandString += ")"
-                    throw Exception("Missing subcommand: <orange>$fullCommandString")
+                    throw CommandException("Missing subcommand: <orange>$fullCommandString")
                 }
                 handleCommand(command, executor, tokens, inputCommand, commandName)
             }
 
         } catch (ex: Exception) {
-            if(DockyardServer.debug) log(ex)
-            val message = "<dark_red>Error <dark_gray>| <red>${ex.message}"
-            if(executor.isPlayer) {
-                executor.player!!.sendMessage(message)
+            if(ex is CommandException) {
+                val message = "$prefix${ex.message}"
+                executor.sendMessage(message)
             } else {
-                DockyardServer.broadcastMessage(message)
+                log(ex)
+                if(ConfigManager.currentConfig.implementationConfig.notifyUserOfExceptionDuringCommand) {
+                    executor.sendMessage("${prefix}A <orange>${ex::class.qualifiedName} <red>was thrown during execution of this command!")
+                }
             }
         }
     }
@@ -66,13 +70,13 @@ object CommandHandler {
             fullCommandString += if(argument.value.optional) ">] " else "> "
         }
 
-        if(executor.isPlayer && (!executor.player!!.hasPermission(command.permission))) throw Exception("You cannot execute this command!")
+        if(executor.isPlayer && (!executor.player!!.hasPermission(command.permission))) throw CommandException(ConfigManager.currentConfig.implementationConfig.commandNoPermissionsMessage)
 
         var i = 0
         command.arguments.forEach { (key, value) ->
             i++
             if(tokens.getOrNull(i) == null && !value.optional) {
-                throw Exception("Missing argument<orange> \\<$key><red> in <yellow>$fullCommandString")
+                throw CommandException("Missing argument<orange> \\<$key><red> in <yellow>$fullCommandString")
             }
         }
 
@@ -91,13 +95,13 @@ object CommandHandler {
                         else -> PlayerManager.players.firstOrNull { it.username == value }
                     }
                 }
-                Int::class -> value.toIntOrNull() ?: throw Exception("\"$value\" is not of type Int")
-                Double::class -> value.toDoubleOrNull() ?: throw Exception("\"$value\" is not of type Double")
-                Float::class -> value.toFloatOrNull() ?: throw Exception("\"$value\" is not of type Float")
-                Long::class -> value.toLongOrNull() ?: throw Exception("\"$value\" is not of type Long")
+                Int::class -> value.toIntOrNull() ?: throw CommandException("\"$value\" is not of type Int")
+                Double::class -> value.toDoubleOrNull() ?: throw CommandException("\"$value\" is not of type Double")
+                Float::class -> value.toFloatOrNull() ?: throw CommandException("\"$value\" is not of type Float")
+                Long::class -> value.toLongOrNull() ?: throw CommandException("\"$value\" is not of type Long")
                 UUID::class -> UUID.fromString(value)
-                Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw Exception("\"$value\" is not of type Item")
-                Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw Exception("\"$value\" is not of type Block")
+                Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw CommandException("\"$value\" is not of type Item")
+                Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw CommandException("\"$value\" is not of type Block")
                 World::class -> WorldManager.worlds[value]
                 Sound::class -> Sound(value)
 

@@ -13,7 +13,7 @@ import java.lang.Exception
 object ConfigManager {
 
     val defaultConfig = DockyardConfig(
-        configVersion = 2,
+        configVersion = 3,
         serverConfig = ServerConfig(),
         chunkEngine = ChunkEngine(),
         bundledPlugins = BundledPlugins(),
@@ -79,7 +79,10 @@ data class ChunkEngine(
 
 @Serializable
 data class ImplementationConfig(
-    val applyBlockPlacementRules: Boolean = true
+    val applyBlockPlacementRules: Boolean = true,
+    val notifyUserOfExceptionDuringCommand: Boolean = true,
+    val commandErrorPrefix: String = "<dark_red>Error <dark_gray>| <red>",
+    val commandNoPermissionsMessage: String = "You do not have permissions to execute this command!"
 )
 
 @Serializable

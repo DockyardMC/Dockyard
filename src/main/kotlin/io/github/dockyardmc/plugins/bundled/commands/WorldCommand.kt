@@ -19,7 +19,7 @@ class WorldCommand {
             it.addArgument("world", StringArgument(), suggestWorlds())
             it.addOptionalArgument("player", PlayerArgument())
             it.execute { ctx ->
-                val world = WorldManager.worlds[it.get<String>("world")] ?: throw Exception("World with that name not found")
+                val world = WorldManager.worlds[it.get<String>("world")] ?: throw CommandException("World with that name not found")
                 val player = it.getOrNull<Player>("player") ?: ctx.playerOrThrow()
                 player.teleport(world.defaultSpawnLocation)
             }
@@ -40,7 +40,7 @@ class WorldCommand {
         command.addSubcommand("delete") {
             it.addArgument("world", StringArgument(), suggestWorlds())
             it.execute { ctx ->
-                val world = WorldManager.worlds[it.get<String>("world")] ?: throw Exception("World with that name not found")
+                val world = WorldManager.worlds[it.get<String>("world")] ?: throw CommandException("World with that name not found")
                 WorldManager.delete(world)
                 ctx.sendMessage("<red>Deleted world <yellow>${world.name}")
             }

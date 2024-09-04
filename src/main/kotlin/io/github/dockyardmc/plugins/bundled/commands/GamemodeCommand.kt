@@ -1,5 +1,6 @@
 package io.github.dockyardmc.plugins.bundled.commands
 
+import io.github.dockyardmc.commands.CommandException
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.EnumArgument
 import io.github.dockyardmc.commands.PlayerArgument
@@ -43,7 +44,7 @@ class GamemodeCommand {
 
                 val command = executor.command.removePrefix("/")
                 val gameMode: GameMode = map[command]!!
-                val target: Player = it.getOrNull<Player>("player") ?: if (executor.isPlayer) { executor.player!! } else throw Exception("You need to specify a player target!")
+                val target: Player = it.getOrNull<Player>("player") ?: if (executor.isPlayer) { executor.player!! } else throw CommandException("You need to specify a player target!")
                 val message = "<#41cc56>Gamemode <dark_gray>| <gray>Gamemode of <yellow>$target <gray>has been set to <aqua>${gameMode.name.properStrictCase()}"
 
                 target.gameMode.value = gameMode
