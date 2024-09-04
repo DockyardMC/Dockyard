@@ -29,7 +29,6 @@ object CommandHandler {
             }
             val command = Commands.commands[commandName]!!
             executor.command = command.name
-            if(executor.isPlayer && (!executor.player!!.hasPermission(command.permission))) throw Exception("You do not have enough perms! lol loser")
 
             if(tokens.size >= 2 && command.subcommands[tokens[1]] != null) {
                 val current = command.subcommands[tokens[1]]!!
@@ -66,6 +65,8 @@ object CommandHandler {
             fullCommandString += "\\<${argument.key}"
             fullCommandString += if(argument.value.optional) ">] " else "> "
         }
+
+        if(executor.isPlayer && (!executor.player!!.hasPermission(command.permission))) throw Exception("You cannot execute this command!")
 
         var i = 0
         command.arguments.forEach { (key, value) ->

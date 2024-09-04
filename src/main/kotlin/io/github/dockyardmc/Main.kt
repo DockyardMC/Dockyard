@@ -1,5 +1,6 @@
 package io.github.dockyardmc
 
+import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
@@ -27,8 +28,21 @@ fun main(args: Array<String>) {
         DebugScoreboard.sidebar.viewers.add(player)
         player.addPotionEffect(PotionEffects.NIGHT_VISION, 99999, 0, false)
         player.addPotionEffect(PotionEffects.SPEED, 99999, 3, false)
-        player.permissions.add("dockyard.all")
-        player.sendMessage(player.permissions.toString())
+//        player.permissions.add("dockyard.all")
+    }
+
+    val test = Commands.subcommandBase("/test")
+    test.addSubcommand("no_perms") {
+        it.execute { ctx ->
+            ctx.sendMessage("aya")
+        }
+    }
+
+    test.addSubcommand("perms") {
+        it.permission = "admin.uwu"
+        it.execute { ctx ->
+            ctx.sendMessage("owo")
+        }
     }
 
     val server = DockyardServer()

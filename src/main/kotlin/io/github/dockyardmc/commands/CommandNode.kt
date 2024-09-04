@@ -35,7 +35,9 @@ fun buildCommandGraph(player: Player? = null): MutableMap<Int, CommandNode> {
         val nodeIndex = index
         val node = LiteralCommandNode(it.key)
         var nextChild: CommandNode = node
-        it.value.subcommands.forEach { subcommand ->
+        it.value.subcommands.forEach subcommandForeach@{ subcommand ->
+            if(player != null && !player.hasPermission(subcommand.value.permission)) return@subcommandForeach
+
             index++
             val subNode = LiteralCommandNode(subcommand.key)
             subNode.isOptional = false
