@@ -1,10 +1,12 @@
 [![wakatime](https://wakatime.com/badge/github/DockyardMC/Dockyard.svg)](https://wakatime.com/badge/github/DockyardMC/Dockyard)
+[![Discord](https://img.shields.io/discord/1242845647892123650?label=Discord%20Server&color=%237289DA)](https://discord.gg/SA9nmfMkdc)
 
-# 🏗️ DockyardMC 🚢
+# 🌊 DockyardMC 🚢
 
 DockyardMC open-source, fast and lightweight Minecraft server protocol implementation that's written from scratch in Kotlin without any code from Mojang. It is focused on making development easy, unlike PaperMC which still uses some really old bukkit APIs, Dockyard has very easy to use and modern API
 
-⚠️ _**This project is currently under heavy development and it is NOT production ready**_
+> [!WARNING]  
+> ⚠️ This project is currently under heavy development, and it is NOT production ready.
 
 ## Quick Start
 
@@ -50,25 +52,23 @@ Events.on<PlayerMoveEvent> {
 #### Commands API
 You can create commands quickly and easily with the DockyardMC command API
 
-
 ```kotlin
-Commands.add("/boom") {
-    it.permission = "commands.troll"
-    it.addArgument("target", PlayerArgument())
-    it.execute { exec ->
-        if(!exec.isPlayer) exec.console.sendMessage("<red>Only players can execute this command!")
-        val player = exec.player!!
-        val target = it.get<Player>("target")
-        val world = target.world
-        world.spawnParticle(target.location, Particles.EXPLOSION_EMITTER, speed = 0f, count = 3)
-        world.spawnParticle(target.location, Particles.SMOKE, speed = 0.2f, count = 10)
-        world.spawnParticle(target.location, Particles.FLAME, speed = 0.2f, count = 10)
-        world.playSound(Sounds.EXPLOSION, volume = 2f, pitch = 0.5f)
-        target.sendMessage("<red>you got totally exploded by <yellow>$player<red>!!!")
+Commands.add("/explode") {
+    addArgument("player", PlayerArgument())
+    withPermission("player.admin")
+    withDescription("executes stuff")
+    execute {
+        val executingPlayer = it.getPlayerOrThrow()
+        val player = getArgument<Player>("player")
+    
+        player.spawnParticle(player.location, Particles.EXPLOSION_EMITTER, Vector3f(1f), amount = 5)
+        player.playSound("minecraft:entity.generic.explode", volume = 2f, pitch = MathUtils.randomFloat(0.6f, 1.3f))
+    
+        player.sendMessage("<yellow>You got <rainbow><b>totally exploded <yellow>by <red>$executingPlayer")
+        executingPlayer.sendMessage("<yellow>You <rainbow><b>totally exploded <yellow>player <red>$player")
     }
 }
 ```
-⚠️ _Brigadier support is planned for the future releases_
 
 ---
 
@@ -92,6 +92,7 @@ _there will be more later_
 - Clone the repository `git clone https://github.com/DockyardMC/Dockyard/`
 - Go to the project directory `cd Dockyard`
 - Open in IntelliJ and run task `Dockyard Server`
+
 ## Contributing
 
 Contributions are always welcome! Please always check branches to see if the feature you are contributing is not already existing feature that someone else is working on
@@ -113,4 +114,7 @@ Contributions are always welcome! Please always check branches to see if the fea
 - [@KevDev](https://github.com/TrasherMC)
 - [@BluSpring](https://github.com/BluSpring)
 - [@Asoji](https://github.com/asoji)
+- All the contributors
 - Twitch chat who watches me code this! <3
+
+If you want to support me and this project, consider [buying me a coffee](https://ko-fi.com/lukynkacze)

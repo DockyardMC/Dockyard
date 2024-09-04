@@ -9,10 +9,6 @@ import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Particle
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
-import io.github.dockyardmc.utils.Vector2
-import io.github.dockyardmc.utils.Vector2f
-import io.github.dockyardmc.utils.Vector3
-import io.github.dockyardmc.utils.Vector3f
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import java.util.*
