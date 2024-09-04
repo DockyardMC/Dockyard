@@ -10,7 +10,6 @@ import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.registry.*
-import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.utils.MathUtils

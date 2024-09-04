@@ -90,7 +90,7 @@ object CommandHandler {
 
             argumentData.returnedValue = when(argumentData.expectedReturnValueType) {
                 String::class -> value
-                Player::class -> PlayerManager.players.firstOrNull { it.username == value }
+                Player::class -> PlayerManager.players.firstOrNull { it.username == value } ?: throw CommandException("Player $value is not online or the supplied name is invalid!")
                 Int::class -> value.toIntOrNull() ?: throw CommandException("\"$value\" is not of type Int")
                 Double::class -> value.toDoubleOrNull() ?: throw CommandException("\"$value\" is not of type Double")
                 Float::class -> value.toFloatOrNull() ?: throw CommandException("\"$value\" is not of type Float")
