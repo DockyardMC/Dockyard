@@ -1,5 +1,6 @@
 package io.github.dockyardmc.commands
 
+import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.player.Player
@@ -56,6 +57,15 @@ class SoundArgument(
     }
 }
 
+class RegistryResourceArgument(val registryResource: String): CommandArgument {
+    override var expectedType: KClass<*> = String::class
+    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.RESOURCE
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeUtf(registryResource)
+    }
+}
+
 class PlayerArgument(
     var onlySinglePlayer: Boolean = true,
 ): CommandArgument {
@@ -72,66 +82,19 @@ class PlayerArgument(
 
 //TODO Implement in handler
 class EntityArgument(
-    var onlySingleEntity: Boolean = true,
     var onlyAllowPlayer: Boolean = true,
 ): CommandArgument {
-    override var expectedType: KClass<*> = Player::class
+    override var expectedType: KClass<*> = Entity::class
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.ENTITY
 
     override fun write(buffer: ByteBuf) {
         var mask: Byte = 0x00
-        if(onlySingleEntity) mask = mask or 0x01
+        mask = mask or 0x01
         if(onlyAllowPlayer) mask = mask or 0x02
         buffer.writeByte(mask.toInt())
     }
 }
 
-//TODO Implement in handler
-class GameProfileArgument(
-): CommandArgument {
-    override var expectedType: KClass<*> = Player::class
-    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.GAME_PROFILE
-
-    override fun write(buffer: ByteBuf) {} // No extra data
-}
-
-//TODO Implement in handler
-class Vector3fArgument(
-): CommandArgument {
-    override var expectedType: KClass<*> = Vector3f::class
-    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.VECTOR_3
-
-    override fun write(buffer: ByteBuf) {} // No extra data
-}
-
-//TODO Implement in handler
-class Vector3Argument(
-): CommandArgument {
-    override var expectedType: KClass<*> = Vector3::class
-    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.VECTOR_3
-
-    override fun write(buffer: ByteBuf) {} // No extra data
-}
-
-//TODO Implement in handler
-class Vector2Argument(
-): CommandArgument {
-    override var expectedType: KClass<*> = Vector2::class
-    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.VECTOR_2
-
-    override fun write(buffer: ByteBuf) {} // No extra data
-}
-
-//TODO Implement in handler
-class Vector2fArgument(
-): CommandArgument {
-    override var expectedType: KClass<*> = Vector2f::class
-    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.VECTOR_2
-
-    override fun write(buffer: ByteBuf) {} // No extra data
-}
-
-//TODO Implement in handler
 class BlockArgument(
 ): CommandArgument {
     override var expectedType: KClass<*> = Block::class
@@ -140,7 +103,6 @@ class BlockArgument(
     override fun write(buffer: ByteBuf) {} // No extra data
 }
 
-//TODO Implement in handler
 class BlockStateArgument(
 ): CommandArgument {
     override var expectedType: KClass<*> = Block::class
@@ -149,7 +111,6 @@ class BlockStateArgument(
     override fun write(buffer: ByteBuf) {} // No extra data
 }
 
-//TODO Implement in handler
 class ItemArgument(
 ): CommandArgument {
     override var expectedType: KClass<*> = Item::class
@@ -159,7 +120,6 @@ class ItemArgument(
 }
 
 
-//TODO Implement in handler
 class LegacyTextColorArgument(
 ): CommandArgument {
     override var expectedType: KClass<*> = LegacyTextColor::class
@@ -168,7 +128,6 @@ class LegacyTextColorArgument(
     override fun write(buffer: ByteBuf) {} // No extra data
 }
 
-//TODO Implement in handler
 class ParticleArgument(
 ): CommandArgument {
     override var expectedType: KClass<*> = Particle::class

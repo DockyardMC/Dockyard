@@ -2,15 +2,17 @@ package io.github.dockyardmc.commands
 
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.config.ConfigManager
+import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.extentions.getLegacyTextColorNameFromVanilla
 import io.github.dockyardmc.extentions.isUppercase
+import io.github.dockyardmc.extentions.isValidUUID
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.Item
-import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
@@ -88,24 +90,46 @@ object CommandHandler {
 
             argumentData.returnedValue = when(argumentData.expectedReturnValueType) {
                 String::class -> value
-                Player::class -> {
-                    when(value) {
-                        "@s" -> executor.player!!
-                        "@p" -> executor.player!!
-                        else -> PlayerManager.players.firstOrNull { it.username == value }
-                    }
-                }
+                Player::class -> PlayerManager.players.firstOrNull { it.username == value }
                 Int::class -> value.toIntOrNull() ?: throw CommandException("\"$value\" is not of type Int")
                 Double::class -> value.toDoubleOrNull() ?: throw CommandException("\"$value\" is not of type Double")
                 Float::class -> value.toFloatOrNull() ?: throw CommandException("\"$value\" is not of type Float")
                 Long::class -> value.toLongOrNull() ?: throw CommandException("\"$value\" is not of type Long")
                 UUID::class -> UUID.fromString(value)
                 Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw CommandException("\"$value\" is not of type Item")
-                Block::class -> Blocks.idToBlockMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw CommandException("\"$value\" is not of type Block")
+                Block::class -> {
+                    if(value.contains("[")) {
+                        //block state
+                        val states = parseBlockStateString(value)
+                        val block = Blocks.idToBlockMap.values.firstOrNull { it.identifier == states.first.replace("minecraft:", "") } ?: throw CommandException("\"${states.first}\" is not of type Block")
+                        block.withBlockStates(states.second)
+                    } else {
+                        //not block state
+                        Blocks.idToBlockMap.values.firstOrNull { it.identifier == value.replace("minecraft:", "") } ?: throw CommandException("\"$value\" is not of type Block")
+                    }
+                }
                 World::class -> WorldManager.worlds[value]
                 Sound::class -> Sound(value)
+                Entity::class -> {
+                    if(value.contains("-")) {
+                        if(!isValidUUID(value)) throw CommandException("Provided UUID is not in valid UUID format!")
+                        val uuid = UUID.fromString(value)
+                        EntityManager.entities.firstOrNull { it.uuid == UUID.fromString(value) } ?: throw CommandException("Entity with that UUID does not exist!")
+                    } else {
+                        val id = value.toIntOrNull() ?: throw CommandException("Provided entity id is not of type Int")
+                        EntityManager.entities.firstOrNull { it.entityId == id } ?: throw CommandException("Entity with that entity id does not exist!")
+                    }
+                }
+                LegacyTextColor::class -> {
+                    val name = getLegacyTextColorNameFromVanilla(value.lowercase().replace("minecraft:", ""))
+                    if(!LegacyTextColor.entries.map { it.name.lowercase() }.contains(name)) throw CommandException("$value is not valid LegacyTextColor!")
+                    LegacyTextColor.valueOf(name.uppercase())
 
-                //TODO: brigadier selectors @a @e @s @p @n
+                }
+                Particle::class -> {
+                    Particles.idToParticleMap.values.firstOrNull { it.namespace == value.replace("minecraft:", "") } ?: throw CommandException("$value is not valid Particle in the registry!")
+                }
+
                 else -> null
             }
         }

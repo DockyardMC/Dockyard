@@ -16,7 +16,7 @@ object ConfigManager {
         configVersion = 3,
         serverConfig = ServerConfig(),
         chunkEngine = ChunkEngine(),
-        bundledPlugins = BundledPlugins(),
+        defaultImplementations = DefaultImplementations(),
         implementationConfig = ImplementationConfig()
     )
 
@@ -60,7 +60,7 @@ data class DockyardConfig(
     val serverConfig: ServerConfig,
     val chunkEngine: ChunkEngine,
     val implementationConfig: ImplementationConfig,
-    val bundledPlugins: BundledPlugins
+    val defaultImplementations: DefaultImplementations
 )
 
 @Serializable
@@ -82,11 +82,10 @@ data class ImplementationConfig(
     val applyBlockPlacementRules: Boolean = true,
     val notifyUserOfExceptionDuringCommand: Boolean = true,
     val commandErrorPrefix: String = "<dark_red>Error <dark_gray>| <red>",
-    val commandNoPermissionsMessage: String = "You do not have permissions to execute this command!"
+    val commandNoPermissionsMessage: String = "You do not have permissions to execute this command!",
 )
 
 @Serializable
-data class BundledPlugins(
+data class DefaultImplementations(
     var dockyardCommands: Boolean = true,
-    var dockyardExtras: Boolean = false,
 )

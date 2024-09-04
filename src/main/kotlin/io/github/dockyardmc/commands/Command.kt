@@ -1,6 +1,7 @@
 package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.utils.Console
 
 @Suppress("UNCHECKED_CAST")
@@ -32,7 +33,7 @@ class Command: Cloneable {
 
 
     inline fun <reified T> getArgument(argumentName: String): T {
-        if(T::class.java.isEnum) throw IllegalStateException("Supplied generic is of type enum, please use getEnumArgument method instead.")
+        if(T::class.java.isEnum && T::class != LegacyTextColor::class) throw IllegalStateException("Supplied generic is of type enum, please use getEnumArgument method instead.")
         if(arguments[argumentName] == null) throw IllegalStateException("Argument with name $argumentName does not exist")
         if(arguments[argumentName]!!.returnedValue == null) throw IllegalStateException("Argument value of $argumentName is null. Use getOrNull to get nullable value")
 
@@ -51,7 +52,7 @@ class Command: Cloneable {
     }
 
     inline fun <reified T> getArgumentOrNull(argumentName: String): T? {
-        if(T::class.java.isEnum) throw IllegalStateException("Supplied generic is of type enum, please use getEnumArgumentOrNull method instead.")
+        if(T::class.java.isEnum && T::class != LegacyTextColor::class) throw IllegalStateException("Supplied generic is of type enum, please use getEnumArgumentOrNull method instead.")
         if(arguments[argumentName] == null) return null
         if(arguments[argumentName]!!.returnedValue == null) return null
         return arguments[argumentName]!!.returnedValue as T

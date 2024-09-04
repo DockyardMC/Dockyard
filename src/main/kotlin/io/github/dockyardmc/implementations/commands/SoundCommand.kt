@@ -1,4 +1,4 @@
-package io.github.dockyardmc.plugins.bundled.commands
+package io.github.dockyardmc.implementations.commands
 
 import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.player.Player
