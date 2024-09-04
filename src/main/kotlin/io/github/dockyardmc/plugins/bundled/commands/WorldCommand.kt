@@ -12,46 +12,48 @@ class WorldCommand {
 
         fun suggestWorlds(): CommandSuggestions = SuggestionProvider.withContext { WorldManager.worlds.keys.toList() }
 
-        val command = Commands.subcommandBase("/world")
-        command.permission = "dockyard.commands.world"
+        Commands.add("/world") {
+            withPermission("dockyard.commands.world")
+            withDescription("Command for managing worlds (creation, tp, deletion etc.)")
 
-        command.addSubcommand("tp") {
-            it.addArgument("world", StringArgument(), suggestWorlds())
-            it.addOptionalArgument("player", PlayerArgument())
-            it.execute { ctx ->
-                val world = WorldManager.worlds[it.get<String>("world")] ?: throw CommandException("World with that name not found")
-                val player = it.getOrNull<Player>("player") ?: ctx.playerOrThrow()
-                player.teleport(world.defaultSpawnLocation)
-            }
-        }
-
-        command.addSubcommand("list") {
-            it.execute { ctx ->
-                val message = buildString {
-                    appendLine()
-                    WorldManager.worlds.forEach { world ->
-                        appendLine("<gray>  - <yellow>${world.key} <gray>type: <lime>${world.value.generator::class.simpleName}<gray>, <orange>${world.value.dimensionType.identifier.replace("minecraft:", "")}<gray>, age: <aqua>${world.value.worldAge}")
-                    }
+            addSubcommand("tp") {
+                addArgument("world", StringArgument(), suggestWorlds())
+                addOptionalArgument("player", PlayerArgument())
+                execute { ctx ->
+                    val world = WorldManager.worlds[getArgument<String>("world")] ?: throw CommandException("World with that name not found")
+                    val player = getArgumentOrNull<Player>("player") ?: ctx.getPlayerOrThrow()
+                    player.teleport(world.defaultSpawnLocation)
                 }
-                ctx.sendMessage(message)
             }
-        }
 
-        command.addSubcommand("delete") {
-            it.addArgument("world", StringArgument(), suggestWorlds())
-            it.execute { ctx ->
-                val world = WorldManager.worlds[it.get<String>("world")] ?: throw CommandException("World with that name not found")
-                WorldManager.delete(world)
-                ctx.sendMessage("<red>Deleted world <yellow>${world.name}")
+            addSubcommand("list") {
+                execute {
+                    val message = buildString {
+                        appendLine()
+                        WorldManager.worlds.forEach { world ->
+                            appendLine("<gray>  - <yellow>${world.key} <gray>type: <lime>${world.value.generator::class.simpleName}<gray>, <orange>${world.value.dimensionType.identifier.replace("minecraft:", "")}<gray>, age: <aqua>${world.value.worldAge}")
+                        }
+                    }
+                    it.sendMessage(message)
+                }
             }
-        }
 
-        command.addSubcommand("create") {
-            it.addArgument("world", StringArgument(), SuggestionProvider.simple("<name>"))
-            it.execute { ctx ->
-                val worldName = it.get<String>("world")
-                WorldManager.create(worldName, FlatWorldGenerator(), DimensionTypes.OVERWORLD)
-                ctx.sendMessage("<lime>Created world <yellow>$worldName")
+            addSubcommand("delete") {
+                addArgument("world", StringArgument(), suggestWorlds())
+                execute {
+                    val world = WorldManager.worlds[getArgument<String>("world")] ?: throw CommandException("World with that name not found")
+                    WorldManager.delete(world)
+                    it.sendMessage("<red>Deleted world <yellow>${world.name}")
+                }
+            }
+
+            addSubcommand("create") {
+                addArgument("world", StringArgument(), SuggestionProvider.simple("<name>"))
+                execute {
+                    val worldName = getArgument<String>("world")
+                    WorldManager.create(worldName, FlatWorldGenerator(), DimensionTypes.OVERWORLD)
+                    it.sendMessage("<lime>Created world <yellow>$worldName")
+                }
             }
         }
     }

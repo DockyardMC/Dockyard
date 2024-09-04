@@ -1,15 +1,22 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.Vector3f
 
-// This is just maya testing env.. do not actually run this
+// This is just testing/development environment.
+// To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
+
 fun main(args: Array<String>) {
 
     if(args.contains("validate-packets")) {
@@ -28,20 +35,22 @@ fun main(args: Array<String>) {
         DebugScoreboard.sidebar.viewers.add(player)
         player.addPotionEffect(PotionEffects.NIGHT_VISION, 99999, 0, false)
         player.addPotionEffect(PotionEffects.SPEED, 99999, 3, false)
-//        player.permissions.add("dockyard.all")
+        player.permissions.add("dockyard.all")
     }
 
-    val test = Commands.subcommandBase("/test")
-    test.addSubcommand("no_perms") {
-        it.execute { ctx ->
-            ctx.sendMessage("aya")
-        }
-    }
+    Commands.add("/explode") {
+        addArgument("player", PlayerArgument())
+        withPermission("player.admin")
+        withDescription("executes stuff")
+        execute {
+            val executingPlayer = it.getPlayerOrThrow()
+            val player = getArgument<Player>("player")
 
-    test.addSubcommand("perms") {
-        it.permission = "admin.uwu"
-        it.execute { ctx ->
-            ctx.sendMessage("owo")
+            player.spawnParticle(player.location, Particles.EXPLOSION_EMITTER, Vector3f(1f), amount = 5)
+            player.playSound("minecraft:entity.generic.explode", volume = 2f, pitch = MathUtils.randomFloat(0.6f, 1.3f))
+
+            player.sendMessage("<yellow>You got <rainbow><b>totally exploded <yellow>by <red>$executingPlayer")
+            executingPlayer.sendMessage("<yellow>You <rainbow><b>totally exploded <yellow>player <red>$player")
         }
     }
 

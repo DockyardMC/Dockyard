@@ -1,40 +1,44 @@
 package io.github.dockyardmc.plugins.bundled.commands
 
-import io.github.dockyardmc.commands.CommandException
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.EnumArgument
 import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.extentions.properStrictCase
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.Player
-import java.lang.Exception
 
 class GamemodeCommand {
 
     init {
         Commands.add("/gamemode") {
-            it.description = "Changes your gamemode"
-            it.permission = "dockyard.commands.creative"
-            it.addArgument("mode", EnumArgument(GameMode::class))
-            it.execute { executor ->
-                if(!executor.isPlayer) return@execute
-                val player = executor.player!!
-                val gamemode = it.getEnum<GameMode>("mode")
-
+            withDescription("Changes your gamemode")
+            withPermission("dockyard.commands.creative")
+            addArgument("game_mode", EnumArgument(GameMode::class))
+            addOptionalArgument("player", PlayerArgument())
+            execute {
+                val gamemode = getEnumArgument<GameMode>("game_mode")
+                val player = getArgumentOrNull<Player>("player") ?: it.getPlayerOrThrow()
                 player.gameMode.value = gamemode
+
+                val name = gamemode.name.properStrictCase()
+
+                if(player == it.player) {
+                    player.sendMessage("<gray>Set your own gamemode to <white>$name")
+                } else {
+                    it.sendMessage("<gray>Set gamemode of <white>$player <gray>to <white>$name")
+                    player.sendMessage("<gray>Your gamemode has been updated to <white>$name")
+                }
             }
         }
 
         Commands.add("/gmc") {
-            it.aliases.add("gms")
-            it.aliases.add("gma")
-            it.aliases.add("gmsp")
-            it.description = "Sets players gamemode"
-            it.permission = "dockyard.commands.creative"
+            withAliases("gms", "gma", "gmsp")
+            withDescription("Sets players gamemode")
+            withPermission("dockyard.commands.creative")
 
-            it.addOptionalArgument("player", PlayerArgument())
+            addOptionalArgument("player", PlayerArgument())
 
-            it.execute { executor ->
+            execute {
                 val map = mapOf(
                     "gmc" to GameMode.CREATIVE,
                     "gms" to GameMode.SURVIVAL,
@@ -42,13 +46,20 @@ class GamemodeCommand {
                     "gma" to GameMode.ADVENTURE
                 )
 
-                val command = executor.command.removePrefix("/")
-                val gameMode: GameMode = map[command]!!
-                val target: Player = it.getOrNull<Player>("player") ?: if (executor.isPlayer) { executor.player!! } else throw CommandException("You need to specify a player target!")
-                val message = "<#41cc56>Gamemode <dark_gray>| <gray>Gamemode of <yellow>$target <gray>has been set to <aqua>${gameMode.name.properStrictCase()}"
+                val command = it.command.removePrefix("/")
+                val gamemode: GameMode = map[command]!!
+                val player: Player = getArgumentOrNull<Player>("player") ?: it.getPlayerOrThrow()
 
-                target.gameMode.value = gameMode
-                executor.sendMessage(message)
+                val name = gamemode.name.properStrictCase()
+
+                if(player == it.player) {
+                    player.sendMessage("<gray>Set your own gamemode to <white>$name")
+                } else {
+                    it.sendMessage("<gray>Set gamemode of <white>$player <gray>to <white>$name")
+                    player.sendMessage("<gray>Your gamemode has been updated to <white>$name")
+                }
+
+                player.gameMode.value = gamemode
             }
         }
     }

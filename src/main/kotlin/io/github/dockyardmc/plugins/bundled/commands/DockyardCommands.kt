@@ -11,7 +11,6 @@ class DockyardCommands: DockyardPlugin {
 
     override fun load(server: DockyardServer) {
 
-        PluginsCommand()
         GamemodeCommand()
         VersionAndHelpCommand()
         WorldCommand()

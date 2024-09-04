@@ -10,20 +10,22 @@ class SoundCommand {
 
     init {
         Commands.add("/playsound") {
-            it.permission = "dockyard.commands.playsound"
-            it.addArgument("player", PlayerArgument())
-            it.addArgument("sound", SoundArgument())
-            it.addOptionalArgument("volume", FloatArgument())
-            it.addOptionalArgument("volume", FloatArgument())
-            it.addOptionalArgument("pitch", FloatArgument())
-            it.addOptionalArgument("category", EnumArgument(SoundCategory::class))
+            withPermission("dockyard.commands.playsound")
+            withDescription("Plays sounds")
 
-            it.execute { ctx ->
-                val player = it.get<Player>("player")
-                val sound = it.get<Sound>("sound")
-                val volume = it.getOrNull<Float>("volume") ?: 0.5f
-                val pitch = it.getOrNull<Float>("pitch") ?: 1f
-                val category = it.getEnumOrNull<SoundCategory>("category") ?: SoundCategory.MASTER
+            addArgument("player", PlayerArgument())
+            addArgument("sound", SoundArgument())
+            addOptionalArgument("volume", FloatArgument())
+            addOptionalArgument("volume", FloatArgument())
+            addOptionalArgument("pitch", FloatArgument())
+            addOptionalArgument("category", EnumArgument(SoundCategory::class))
+
+            execute {
+                val player = getArgument<Player>("player")
+                val sound = getArgument<Sound>("sound")
+                val volume = getArgumentOrNull<Float>("volume") ?: 0.5f
+                val pitch = getArgumentOrNull<Float>("pitch") ?: 1f
+                val category = getEnumArgumentOrNull<SoundCategory>("category") ?: SoundCategory.MASTER
 
                 sound.category = category
                 sound.pitch = pitch

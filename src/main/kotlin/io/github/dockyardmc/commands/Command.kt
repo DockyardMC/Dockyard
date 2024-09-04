@@ -7,33 +7,53 @@ import io.github.dockyardmc.utils.Console
 class Command: Cloneable {
     lateinit var internalExecutorDoNotUse: (CommandExecutor) -> Unit
     var arguments: MutableMap<String, CommandArgumentData> = mutableMapOf()
-    var permission = ""
-    var description = ""
-    var isAlias = false
-    var name = ""
-    var aliases = mutableListOf<String>()
+    var permission: String = ""
+    var description: String = ""
+    var isAlias: Boolean = false
+    var name: String = ""
+    var aliases: List<String> = listOf<String>()
     val subcommands: MutableMap<String, Command> = mutableMapOf()
 
-    operator fun <T> get(argumentName: String): T {
-        if(arguments[argumentName] == null) throw Exception("Argument with name $argumentName does not exist")
-        if(arguments[argumentName]!!.returnedValue == null) throw Exception("Argument value of $argumentName is null. Use getOrNull to get nullable value")
+    fun withPermission(permission: String) {
+        this.permission = permission
+    }
+
+    fun withDescription(description: String) {
+        this.description = description
+    }
+
+    fun withAliases(aliases: List<String>) {
+        this.aliases = aliases
+    }
+
+    fun withAliases(vararg aliases: String) {
+        this.aliases = aliases.toList()
+    }
+
+
+    inline fun <reified T> getArgument(argumentName: String): T {
+        if(T::class.java.isEnum) throw IllegalStateException("Supplied generic is of type enum, please use getEnumArgument method instead.")
+        if(arguments[argumentName] == null) throw IllegalStateException("Argument with name $argumentName does not exist")
+        if(arguments[argumentName]!!.returnedValue == null) throw IllegalStateException("Argument value of $argumentName is null. Use getOrNull to get nullable value")
 
         return arguments[argumentName]!!.returnedValue as T
     }
 
-    inline fun <reified T : Enum<T>> getEnum(argumentName: String): T {
-        val value = get<String>(argumentName)
+    inline fun <reified T : Enum<T>> getEnumArgument(argumentName: String): T {
+        val value = getArgument<String>(argumentName)
         return T::class.java.enumConstants.firstOrNull { it.name == value.uppercase() } ?: throw Exception("Enum ${T::class.simpleName} does not contain \"${value.uppercase()}\"")
     }
 
-    inline fun <reified T : Enum<T>> getEnumOrNull(argumentName: String): T? {
+    inline fun <reified T : Enum<T>> getEnumArgumentOrNull(argumentName: String): T? {
         if(arguments[argumentName] == null) return null
-        val value = getOrNull<String>(argumentName) ?: return null
+        val value = getArgumentOrNull<String>(argumentName) ?: return null
         return T::class.java.enumConstants.firstOrNull { it.name == value.uppercase() } ?: throw Exception("Enum ${T::class.simpleName} does not contain \"${value.uppercase()}\"")
     }
 
-    fun <T> getOrNull(argumentName: String): T? {
+    inline fun <reified T> getArgumentOrNull(argumentName: String): T? {
+        if(T::class.java.isEnum) throw IllegalStateException("Supplied generic is of type enum, please use getEnumArgumentOrNull method instead.")
         if(arguments[argumentName] == null) return null
+        if(arguments[argumentName]!!.returnedValue == null) return null
         return arguments[argumentName]!!.returnedValue as T
     }
 
@@ -52,19 +72,18 @@ class Command: Cloneable {
         arguments[name] = CommandArgumentData(argument, true, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
     }
 
-    fun execute(function: (CommandExecutor) -> Unit) {
+    fun execute(function: (ctx: CommandExecutor) -> Unit) {
         if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have executor and subcommands at the same time!")
         internalExecutorDoNotUse = function
     }
 
     fun build(): Command = this
 
-    fun addSubcommand(name: String, command: (Command) -> Unit) {
+    fun addSubcommand(name: String, builder: Command.() -> Unit) {
         if(arguments.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands at the same time!")
         val sanitizedName = name.lowercase().removePrefix("/")
-        val builder = Command()
-        command(builder)
-        val subcommand = builder.build()
+        val subcommand = Command()
+        builder.invoke(subcommand)
         subcommands[sanitizedName] = subcommand
         subcommand.name = sanitizedName
     }
@@ -89,8 +108,8 @@ data class CommandExecutor(
     val isPlayer: Boolean = player != null,
 ) {
 
-    fun playerOrThrow(): Player {
-        if(player == null) throw Exception("Command was not executed by player")
+    fun getPlayerOrThrow(): Player {
+        if(player == null) throw CommandException("Command was not executed by player")
         return player
     }
 
