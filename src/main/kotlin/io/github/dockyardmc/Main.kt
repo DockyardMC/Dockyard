@@ -5,6 +5,7 @@ import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -15,6 +16,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEquipmentLayer
+import io.github.dockyardmc.protocol.packets.play.serverbound.placementRules
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugScoreboard
@@ -66,6 +68,10 @@ fun main(args: Array<String>) {
                 boots = ItemStack(Items.NETHERITE_BOOTS)
             )
         }
+    }
+
+    Events.on<PlayerDropItemEvent> {
+        it.cancelled = true
     }
 
 

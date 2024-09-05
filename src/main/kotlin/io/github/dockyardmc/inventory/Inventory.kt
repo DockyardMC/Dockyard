@@ -5,9 +5,13 @@ import cz.lukynka.BindableMap
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.entities.ItemDropEntity
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.clone
 import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.MathUtils
@@ -72,10 +76,26 @@ class Inventory(var entity: Entity) {
         sendInventoryUpdate(size)
     }
 
-    fun drop(itemStack: ItemStack) {
-        val loc = entity.location
-        val drop = ItemDropEntity(loc)
-        loc.world.spawnEntity(drop)
+    fun drop(itemStack: ItemStack, isEntireStack: Boolean, isHeld: Boolean) {
+        val player= entity as Player
+
+        val event = PlayerDropItemEvent(player, itemStack)
+        Events.dispatch(event)
+        if(event.cancelled) {
+            sendFullInventoryUpdate()
+            return
+        }
+
+        if(isHeld) {
+            val held = player.getHeldItem(PlayerHand.MAIN_HAND)
+            val newItem = if(isEntireStack) {
+                if(held.amount == 1) ItemStack.air else held.clone().apply { amount -= 1 }
+            } else {
+                ItemStack.air
+            }
+            player.inventory[player.selectedHotbarSlot.value] = newItem
+        }
+        // let users implement dropping themselves if they need it
     }
 }
 
