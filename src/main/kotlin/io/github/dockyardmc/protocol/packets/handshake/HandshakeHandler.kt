@@ -37,7 +37,7 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
             players.add(ServerListPlayer(it.username, it.uuid.toString()))
         }
 
-        val serverStatus = defaultMotd
+        val serverStatus = ServerStatusManager.getCache()
         Events.dispatch(ServerListPingEvent(serverStatus))
 
         val json = serverStatus.toJson()

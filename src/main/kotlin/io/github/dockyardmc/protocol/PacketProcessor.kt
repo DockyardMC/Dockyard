@@ -9,6 +9,7 @@ import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.events.PlayerDisconnectEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.Profiler
@@ -131,6 +132,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
             PlayerManager.remove(player)
             Events.dispatch(PlayerDisconnectEvent(player))
             if(player.isFullyInitialized) {
+                ServerStatusManager.updateCache()
                 Events.dispatch(PlayerLeaveEvent(player))
             }
         }

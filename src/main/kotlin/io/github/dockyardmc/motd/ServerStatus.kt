@@ -1,9 +1,11 @@
 package io.github.dockyardmc.motd
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.utils.Branding
 import io.github.dockyardmc.utils.VersionToProtocolVersion
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -11,24 +13,42 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.*
 
-private val iconFile = File("./icon.png")
-val base64EncodedIcon = if(iconFile.exists()) Base64.getEncoder().encode(File("./icon.png").readBytes()).decodeToString() else ""
-val defaultMotd = ServerStatus(
-    version = Version(
-        name = DockyardServer.versionInfo.minecraftVersion,
-        protocol = VersionToProtocolVersion.map[DockyardServer.versionInfo.minecraftVersion] ?: 0,
-    ),
-    players = Players(
-        max = 727,
-        online = PlayerManager.players.size,
-        sample = mutableListOf(),
-    ),
-    description = "<aqua>DockyardMC <dark_gray>| <gray>Custom Kotlin Server Implementation".toComponent(),
-    enforceSecureChat = false,
-    previewsChat = false,
-    favicon = "data:image/png;base64,$base64EncodedIcon"
-)
-val json = defaultMotd.toJson()
+object ServerStatusManager {
+
+    private lateinit var cache: ServerStatus
+
+    private val iconFile = File("./icon.png")
+    val base64EncodedIcon = if(iconFile.exists()) Base64.getEncoder().encode(iconFile.readBytes()).decodeToString() else ""
+
+    fun getCache(): ServerStatus {
+        if(!this::cache.isInitialized) updateCache()
+        return cache
+    }
+
+    fun updateCache() {
+        val playersOnline = mutableListOf<ServerListPlayer>()
+        PlayerManager.players.forEach {
+            playersOnline.add(ServerListPlayer(it.displayName, it.uuid.toString()))
+        }
+
+        cache = ServerStatus(
+            version = Version(
+                name = DockyardServer.versionInfo.minecraftVersion,
+                protocol = VersionToProtocolVersion.map[DockyardServer.versionInfo.minecraftVersion] ?: 0,
+            ),
+            players = Players(
+                max = ConfigManager.currentConfig.serverConfig.maxPlayers,
+                online = PlayerManager.players.size,
+                sample = playersOnline,
+            ),
+            description = "${Branding.logo} <gray>Custom Kotlin Server Implementation".toComponent(),
+            enforceSecureChat = false,
+            previewsChat = false,
+            favicon = "data:image/png;base64,$base64EncodedIcon"
+        )
+    }
+    private val json = getCache().toJson()
+}
 
 fun ServerStatus.toJson(): String = Json.encodeToString<ServerStatus>(this)
 

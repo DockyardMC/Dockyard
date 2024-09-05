@@ -3,8 +3,10 @@ package io.github.dockyardmc.protocol.packets.configurations
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
 import io.github.dockyardmc.commands.buildCommandGraph
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
@@ -103,7 +105,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             entityId = player.entityId,
             isHardcore = world.isHardcore,
             dimensionNames = WorldManager.worlds.keys,
-            maxPlayers = 20,
+            maxPlayers = ConfigManager.currentConfig.serverConfig.maxPlayers,
             viewDistance = 16,
             simulationDistance = 16,
             reducedDebugInfo = false,
@@ -121,7 +123,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         player.sendPacket(playPacket)
 
         world.join(player)
-
+        ServerStatusManager.updateCache()
         Events.dispatch(PlayerJoinEvent(processor.player))
 
         player.sendPacket(ClientboundCommandsPacket(buildCommandGraph(player)))

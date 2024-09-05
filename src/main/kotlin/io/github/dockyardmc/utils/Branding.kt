@@ -2,9 +2,9 @@ package io.github.dockyardmc.utils
 
 object Branding {
 
-    const val COLOR = "#6791f5"
+    const val COLOR = "#05bcff"
     const val NAME = "DockyardMC"
 
-    val logo get() = "<$COLOR>$NAME"
+    val logo get() = "<$COLOR>$NAME <dark_gray>|"
 
 }

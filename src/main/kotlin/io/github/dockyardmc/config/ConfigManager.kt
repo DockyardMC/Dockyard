@@ -69,7 +69,8 @@ data class ServerConfig(
     val port: Int = 25565,
     val networkCompressionThreshold: Int = 256,
     val cacheSchematics: Boolean = true,
-    val debug: Boolean = false
+    val debug: Boolean = false,
+    val maxPlayers: Int = 50
 )
 
 @Serializable
