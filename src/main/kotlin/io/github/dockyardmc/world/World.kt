@@ -38,7 +38,7 @@ class World(
     var seed: Long = worldSeed.SHA256Long()
     var worldBorder = WorldBorder(this)
 
-    var time: Long = 1000
+    var time: Bindable<Long> = Bindable(1000L)
     var worldAge: Long = 0
 
     var chunks: MutableMap<Long, Chunk> = mutableMapOf()
@@ -53,6 +53,8 @@ class World(
     var isHardcore: Boolean = false
 
     var asyncChunkGenerator = AsyncQueueProcessor()
+
+    var freezeTime: Boolean = false
 
     fun join(player: Player) {
         if(player.world == this && player.isFullyInitialized) return
@@ -91,6 +93,7 @@ class World(
         entities.values.filter { it != player && it !is Player }.forEach { it.addViewer(player) }
 
         player.isFullyInitialized = true
+        player.updateWorldTime()
     }
 
     init {
@@ -106,8 +109,21 @@ class World(
         }
         asyncChunkGenerator.submit(runnable)
 
+        time.valueChanged {
+            players.values.forEach { player ->
+                player.updateWorldTime()
+            }
+        }
+
         Events.on<ServerTickEvent> {
             worldAge++
+            if(freezeTime) {
+                if(worldAge % 5L == 0L) {
+                    time.triggerUpdate()
+                }
+            } else {
+                time.setSilently(time.value + 1)
+            }
         }
     }
 

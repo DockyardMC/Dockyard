@@ -77,6 +77,7 @@ class Player(
     var lastRightClick = 0L
     val flySpeed: Bindable<Float> = Bindable(0.05f)
     val redVignette: Bindable<Float> = Bindable(0f)
+    val time: Bindable<Long> = Bindable(-1)
 
     val chunkEngine = ConcurrentChunkEngine(this)
 
@@ -153,6 +154,7 @@ class Player(
 
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
+        time.valueChanged { updateWorldTime() }
     }
 
     override fun tick() {
@@ -391,6 +393,12 @@ class Player(
 
     fun rebuildCommandNodeGraph() {
         this.sendPacket(ClientboundCommandsPacket(buildCommandGraph(this)))
+    }
+
+    fun updateWorldTime() {
+        val time = if(time.value == -1L) world.time.value else time.value
+        val packet = ClientboundUpdateTimePacket(world.worldAge, time)
+        sendPacket(packet)
     }
 
     fun openDrawableScreen(screen: DrawableContainerScreen) {

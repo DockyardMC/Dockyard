@@ -12,6 +12,7 @@ class DockyardCommands {
         GiveCommand()
         TeleportCommand()
         SchematicCommand()
+        TimeCommand()
         if(ConfigManager.currentConfig.serverConfig.debug) {
             ViewerCommand()
             DebugCommands()
