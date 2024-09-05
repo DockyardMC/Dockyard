@@ -1,4 +1,8 @@
 import java.io.IOException
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 
 plugins {
     `maven-publish`
@@ -115,4 +119,55 @@ publishing {
             from(components["java"])
         }
     }
+}
+
+tasks.publish {
+    finalizedBy("sendPublishWebhook")
+}
+
+task("sendPublishWebhook") {
+    group = "publishing"
+    description = "Sends a webhook message after publishing to Maven."
+
+    doLast {
+        sendWebhookToDiscord(System.getenv("DISCORD_DOCKYARD_WEBHOOK"))
+    }
+}
+
+fun sendWebhookToDiscord(webhookUrl: String) {
+    val httpClient = HttpClient.newHttpClient()
+
+    val requestBody = embed()
+    val request = HttpRequest.newBuilder()
+        .uri(URI(webhookUrl))
+        .header("Content-Type", "application/json")
+        .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+        .build()
+
+    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+
+        .thenRun { println("Webhook sent successfully!") }
+        .exceptionally { throwable ->
+            throwable.printStackTrace()
+            null
+        }
+}
+
+
+fun embed(): String {
+    return """
+        {
+          "content": null,
+          "embeds": [
+            {
+              "title": "Published to Maven",
+              "description": "`io.github.dockyardmc:dockyard:$dockyardVersion` was successfully published to maven!",
+              "color": 5046022
+            }
+          ],
+          "username": "Mavenboo",
+          "avatar_url": "https://storage.moemate.io/9edcfd27fd20abe29e93bf904f633d61b4fccadc/3f1c4383-1ba3-43f9-891e-f6a96abbe970.webp",
+          "attachments": []
+        }
+    """.trimIndent()
 }
