@@ -3,15 +3,16 @@ package io.github.dockyardmc.protocol.packets.configurations
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
 import io.github.dockyardmc.commands.buildCommandGraph
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
-import io.github.dockyardmc.runnables.runLaterAsync
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.world.World
@@ -104,7 +105,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             entityId = player.entityId,
             isHardcore = world.isHardcore,
             dimensionNames = WorldManager.worlds.keys,
-            maxPlayers = 20,
+            maxPlayers = ConfigManager.currentConfig.serverConfig.maxPlayers,
             viewDistance = 16,
             simulationDistance = 16,
             reducedDebugInfo = false,
@@ -122,10 +123,8 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         player.sendPacket(playPacket)
 
         world.join(player)
-
-        runLaterAsync(5) {
-            Events.dispatch(PlayerJoinEvent(processor.player))
-        }
+        ServerStatusManager.updateCache()
+        Events.dispatch(PlayerJoinEvent(processor.player))
 
         player.sendPacket(ClientboundCommandsPacket(buildCommandGraph(player)))
 

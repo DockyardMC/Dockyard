@@ -9,9 +9,11 @@ import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.events.PlayerDisconnectEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.Profiler
+import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.handshake.HandshakeHandler
@@ -33,6 +35,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
     var playerProtocolVersion: Int = 0
 
     var respondedToLastKeepAlive = true
+
 
     var state: ProtocolState
         get() = innerState
@@ -129,6 +132,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
             PlayerManager.remove(player)
             Events.dispatch(PlayerDisconnectEvent(player))
             if(player.isFullyInitialized) {
+                ServerStatusManager.updateCache()
                 Events.dispatch(PlayerLeaveEvent(player))
             }
         }

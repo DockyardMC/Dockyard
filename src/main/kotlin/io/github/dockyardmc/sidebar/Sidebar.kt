@@ -71,7 +71,7 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
     init {
         builder.invoke(this)
         viewers.itemAdded { event ->
-            val player = event.item.toPlayer()!!
+            val player = event.item.toPlayer() ?: return@itemAdded
             sendCreatePackets(player)
             sendLinesPackets(player)
         }

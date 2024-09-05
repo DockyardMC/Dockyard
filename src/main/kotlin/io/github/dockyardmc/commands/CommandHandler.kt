@@ -90,6 +90,7 @@ object CommandHandler {
             val argumentData = command.arguments.values.toList()[index - 1]
 
             argumentData.returnedValue = when(argumentData.expectedReturnValueType) {
+                Boolean::class -> value == "true"
                 String::class -> value
                 Player::class -> PlayerManager.players.firstOrNull { it.username == value } ?: throw CommandException("Player $value is not online or the supplied name is invalid!")
                 Int::class -> value.toIntOrNull() ?: throw CommandException("\"$value\" is not of type Int")

@@ -7,6 +7,7 @@ import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.scroll.extensions.toComponent
+import kotlin.experimental.or
 
 @WikiVGEntry("Player Info Update")
 @ClientboundPacketInfo(0x3E, ProtocolState.PLAY)
@@ -14,12 +15,13 @@ class ClientboundPlayerInfoUpdatePacket(vararg updates: PlayerInfoUpdate): Clien
 
     init {
         //TODO Figure out why this wont send with multiple update actions
-        var bitMask = 0
-        updates.forEach { bitMask += it.action.bitMask }
-        data.writeByte(bitMask)
-        data.writeVarInt(updates.size)
+        var bitMask: Byte = 0
+        updates.forEach { bitMask = bitMask or it.action.bitMask }
+
+        data.writeByte(bitMask.toInt())
+        data.writeVarInt(1)
+        data.writeUUID(updates[0].uuid)
         updates.forEach {
-            data.writeUUID(it.uuid)
             when(val updateAction = it.action) {
                 is AddPlayerInfoUpdateAction -> data.writeProfileProperties(updateAction.profileProperty)
                 is UpdateGamemodeInfoUpdateAction -> data.writeVarInt(updateAction.gameMode.ordinal)

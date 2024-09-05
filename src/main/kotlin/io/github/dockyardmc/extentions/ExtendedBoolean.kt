@@ -14,3 +14,10 @@ fun Int.toBoolean(): Boolean {
         else -> true
     }
 }
+
+fun Boolean.toScrollText(): String {
+    return when(this) {
+        true -> "<lime>true"
+        else -> "<red>false"
+    }
+}

@@ -69,6 +69,18 @@ class ServerboundPlayerActionPacket(
                 player.itemInUse = null
             }
         }
+
+        if(action == PlayerAction.DROP_ITEM) {
+            val held = player.getHeldItem(PlayerHand.MAIN_HAND)
+            if(held.isEmpty()) return
+            player.inventory.drop(held, isEntireStack = false, isHeld = true)
+        }
+
+        if(action == PlayerAction.DROP_ITEM_STACK) {
+            val held = player.getHeldItem(PlayerHand.MAIN_HAND)
+            if(held.isEmpty()) return
+            player.inventory.drop(held, isEntireStack = true, isHeld = true)
+        }
     }
 
     companion object {

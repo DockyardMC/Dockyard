@@ -46,7 +46,7 @@ class ServerboundClickContainerPacket(
 
                     // drop
                     if(slot == -999) {
-                        player.inventory.drop(player.inventory.carriedItem.value)
+                        player.inventory.drop(player.inventory.carriedItem.value, isEntireStack = true, isHeld = true)
                         player.inventory.carriedItem.value = empty
                         return
                     }
@@ -93,7 +93,7 @@ class ServerboundClickContainerPacket(
                 if(action == NormalButtonAction.RIGHT_MOUSE_CLICK) {
 
                     if(slot == -999) {
-                        player.inventory.drop(player.inventory.carriedItem.value.clone().apply { amount = 1 })
+                        player.inventory.drop(player.inventory.carriedItem.value.clone().apply { amount = 1 }, isEntireStack = false, isHeld = false)
                         val item = player.inventory.carriedItem.value.clone().apply { amount -= 1 }
                         val newItem = if(item.amount == 0) empty else item
                         player.inventory.carriedItem.value = newItem
@@ -215,14 +215,14 @@ class ServerboundClickContainerPacket(
                     if(existingItem.isSameAs(empty)) return
 
                     val newItem = if(existingItem.amount == 1) empty else existingItem.clone().apply { amount -= 1 }
-                    player.inventory.drop(existingItem.apply { amount = 1 })
+                    player.inventory.drop(existingItem.apply { amount = 1 }, isEntireStack = false, isHeld = false)
                     player.inventory[properSlot] = newItem
                 }
                 if(action == DropButtonAction.CONTROL_DROP) {
                     val existingItem = player.inventory[properSlot].clone()
                     if(existingItem.isSameAs(empty)) return
 
-                    player.inventory.drop(existingItem)
+                    player.inventory.drop(existingItem, isEntireStack = false, isHeld = false)
                     player.inventory[properSlot] = empty
                 }
             }

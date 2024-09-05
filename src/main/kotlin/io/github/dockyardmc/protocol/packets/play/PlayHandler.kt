@@ -7,7 +7,6 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
-import io.github.dockyardmc.utils.Vector2
 import io.github.dockyardmc.utils.Vector2f
 import io.netty.channel.ChannelHandlerContext
 

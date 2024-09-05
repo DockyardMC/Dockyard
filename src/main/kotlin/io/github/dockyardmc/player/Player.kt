@@ -77,13 +77,19 @@ class Player(
     var lastRightClick = 0L
     val flySpeed: Bindable<Float> = Bindable(0.05f)
     val redVignette: Bindable<Float> = Bindable(0f)
+    val time: Bindable<Long> = Bindable(-1)
 
     val chunkEngine = ConcurrentChunkEngine(this)
 
     lateinit var lastSentPacket: ClientboundPacket
 
     init {
-        selectedHotbarSlot.valueChanged { this.sendPacket(ClientboundSetHeldItemPacket(it.newValue)) }
+        selectedHotbarSlot.valueChanged {
+            this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
+            val item = inventory[it.newValue]
+            equipment.value = equipment.value.apply { mainHand = item }
+        }
+
         isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value)) }
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
         gameMode.valueChanged {
@@ -104,6 +110,8 @@ class Player(
                     }
                 }
             }
+
+            isInvisible.value = it.newValue == GameMode.SPECTATOR
             refreshAbilities()
             val updatePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, UpdateGamemodeInfoUpdateAction(gameMode.value)))
             sendPacket(updatePacket)
@@ -146,6 +154,7 @@ class Player(
 
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
+        time.valueChanged { updateWorldTime() }
     }
 
     override fun tick() {
@@ -244,7 +253,10 @@ class Player(
         super.addViewer(player)
 
         player.sendMetadataPacket(this)
+        this.displayedSkinParts.triggerUpdate()
         sendMetadataPacket(player)
+        sendEquipmentPacket(player)
+        player.sendPacket(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))))
     }
 
     //TODO Add off-hand support
@@ -340,7 +352,7 @@ class Player(
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
 
-        this.world.chunks.values.forEach {
+        this.world.chunks.values.toList().forEach {
             chunkEngine.loadChunk(ChunkUtils.getChunkIndex(it), world)
         }
 
@@ -361,6 +373,7 @@ class Player(
 
         pose.triggerUpdate()
         refreshAbilities()
+        displayedSkinParts.triggerUpdate()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(world.defaultSpawnLocation))
     }
 
@@ -380,6 +393,12 @@ class Player(
 
     fun rebuildCommandNodeGraph() {
         this.sendPacket(ClientboundCommandsPacket(buildCommandGraph(this)))
+    }
+
+    fun updateWorldTime() {
+        val time = if(time.value == -1L) world.time.value else time.value
+        val packet = ClientboundUpdateTimePacket(world.worldAge, time)
+        sendPacket(packet)
     }
 
     fun openDrawableScreen(screen: DrawableContainerScreen) {

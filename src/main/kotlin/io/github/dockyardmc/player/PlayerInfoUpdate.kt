@@ -8,34 +8,34 @@ class PlayerInfoUpdate(
 )
 
 interface PlayerInfoUpdateAction {
-    val bitMask: Int
+    val bitMask: Byte
 }
 
 class AddPlayerInfoUpdateAction(
 
     val profileProperty: ProfilePropertyMap,
-    override val bitMask: Int = 0x01
+    override val bitMask: Byte = 0x01
 
 ): PlayerInfoUpdateAction
 
 class UpdateGamemodeInfoUpdateAction(
 
     val gameMode: GameMode,
-    override val bitMask: Int = 0x04
+    override val bitMask: Byte = 0x04
 
 ): PlayerInfoUpdateAction
 
 class SetListedInfoUpdateAction(
 
     val listed: Boolean,
-    override val bitMask: Int = 0x08
+    override val bitMask: Byte = 0x08
 
 ): PlayerInfoUpdateAction
 
 class UpdateLatencyInfoUpdateAction(
 
     val ping: Int,
-    override val bitMask: Int = 0x10
+    override val bitMask: Byte = 0x10
 
 ): PlayerInfoUpdateAction
 
@@ -43,7 +43,7 @@ class SetDisplayNameInfoUpdateAction(
 
     val hasDisplayName: Boolean,
     val displayName: String?,
-    override val bitMask: Int = 0x20
+    override val bitMask: Byte = 0x20
 
 ): PlayerInfoUpdateAction
 

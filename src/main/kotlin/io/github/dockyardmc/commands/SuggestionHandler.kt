@@ -5,6 +5,7 @@ package io.github.dockyardmc.commands
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSuggestionsResponse
 import io.github.dockyardmc.utils.getEnumEntries
+import io.github.dockyardmc.world.WorldManager
 import kotlin.reflect.KClass
 
 object SuggestionHandler {
@@ -29,9 +30,16 @@ object SuggestionHandler {
 
     fun handleSuggestion(current: CommandArgumentData, inputCommand: String, currentlyTyped: String, player: Player, transactionId: Int) {
         // Auto suggest enum entries if user defined suggestion is null
-        if(current.argument is EnumArgument && current.suggestions == null) {
-            val enum = current.argument.enumType as KClass<Enum<*>>
-            current.suggestions = SuggestionProvider.withContext { getEnumEntries(enum).map { it.name.lowercase() } }
+        if(current.suggestions == null) {
+            when(current.argument ) {
+                is EnumArgument -> {
+                    val enum = current.argument.enumType as KClass<Enum<*>>
+                    current.suggestions = SuggestionProvider.withContext { getEnumEntries(enum).map { it.name.lowercase() } }
+                }
+                is WorldArgument -> {
+                    current.suggestions = SuggestionProvider.simple(WorldManager.worlds.keys.toList())
+                }
+            }
         }
 
         val suggestions = current.suggestions ?: return

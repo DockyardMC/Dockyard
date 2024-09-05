@@ -37,6 +37,8 @@ class ItemStack(var material: Item, var amount: Int = 1) {
         val air = ItemStack(Items.AIR, 0)
     }
 
+    fun isEmpty(): Boolean = this.isSameAs(air)
+
     override fun toString(): String = "ItemStack(${material.identifier}, ${components.values}, $amount)".stripComponentTags()
 }
 

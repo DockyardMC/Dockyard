@@ -10,6 +10,7 @@ import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.getId
 import io.github.dockyardmc.runnables.AsyncRunnable
+import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.World
@@ -65,7 +66,14 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
                     val block = flippedPallet[id] ?: Blocks.RED_STAINED_GLASS
 
                     val chunk = placeLoc.getChunk()
-                    if(chunk != null) updateChunks.add(chunk)
+                    if(chunk != null) {
+                        updateChunks.add(chunk)
+                    } else {
+                        val chunkX = ChunkUtils.getChunkCoordinate(placeLoc.x)
+                        val chunkZ = ChunkUtils.getChunkCoordinate(placeLoc.z)
+                        location.world.generateChunk(chunkX, chunkZ)
+                        updateChunks.add(placeLoc.getChunk()!!)
+                    }
                     batchBlockUpdate.add(placeLoc to block.getId())
                 }
             }
@@ -74,7 +82,10 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
     }
 
     runnable.callback = {
-        updateChunks.forEach { chunk -> location.world.players.values.sendPacket(chunk.packet) }
+        updateChunks.forEach { chunk ->
+            chunk.updateCache()
+            location.world.players.values.sendPacket(chunk.packet)
+        }
         placer.then?.invoke()
     }
     runnable.run()
