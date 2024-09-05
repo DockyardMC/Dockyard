@@ -1,9 +1,8 @@
 package io.github.dockyardmc.implementations.commands
 
-import io.github.dockyardmc.commands.BooleanArgument
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.LongArgument
+import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.extentions.toScrollText
+import io.github.dockyardmc.player.Player
 
 class TimeCommand {
 
@@ -12,7 +11,7 @@ class TimeCommand {
             withPermission("dockyard.commands.time")
 
             addSubcommand("set") {
-                addArgument("time", LongArgument())
+                addArgument("time", LongArgument(), SuggestionProvider.simple("<time>"))
                 execute {
                     val time = getArgument<Long>("time")
                     val player = it.getPlayerOrThrow()
@@ -30,6 +29,17 @@ class TimeCommand {
 
                     player.world.freezeTime = frozen
                     player.sendMessage("<gray>Time in world <white>${player.world.name}<gray> frozen: ${frozen.toScrollText()}")
+                }
+            }
+
+            addSubcommand("player") {
+                addArgument("player", PlayerArgument())
+                addArgument("time", LongArgument(), SuggestionProvider.simple("<time (-1 to reset)>"))
+                execute {
+                    val player = getArgument<Player>("player")
+                    val time = getArgument<Long>("time")
+                    player.time.value = time
+                    player.sendMessage("<gray>Set client time of player <white>${player}<gray> to <white>${time}")
                 }
             }
         }

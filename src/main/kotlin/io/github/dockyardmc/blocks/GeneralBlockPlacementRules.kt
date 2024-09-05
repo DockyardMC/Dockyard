@@ -17,7 +17,7 @@ object GeneralBlockPlacementRules {
         val existingBlock = world.getBlock(originalClickedBlock)
         val placementLocation = world.getBlock(where)
 
-        if(placementLocation != Blocks.AIR) canBePlaced = CancelReason(false, "Block at new location is not air")
+        if(placementLocation != Blocks.AIR && placementLocation != Blocks.LIGHT) canBePlaced = CancelReason(false, "Block at new location is not air")
         if(isLocationInsideBoundingBox(where, placer.world.entities.values) && newBlock.boundingBox == "block") canBePlaced = CancelReason(false, "Block collides with entity")
         if(world.getBlock(originalClickedBlock).boundingBox != "block") canBePlaced = CancelReason(false, "Block is not full block")
         if(existingBlock.isClickable && !placer.isSneaking) canBePlaced = CancelReason(false, "Block is clickable and player is not sneaking")
