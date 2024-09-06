@@ -28,7 +28,7 @@ abstract class Entity(open var location: Location, open var world: World) {
     open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
     open var velocity: Vector3 = Vector3()
-    val viewers: MutableList<Player> = mutableListOf()
+    val viewers: MutableSet<Player> = mutableSetOf()
     open var hasGravity: Boolean = true
     open var isInvulnerable: Boolean = false
     open var hasCollision: Boolean = true
@@ -146,7 +146,6 @@ abstract class Entity(open var location: Location, open var world: World) {
     }
 
     open fun addViewer(player: Player) {
-
         val event = EntityViewerAddEvent(this, player)
         Events.dispatch(event)
         if(event.cancelled) return

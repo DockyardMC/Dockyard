@@ -86,7 +86,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                     val className = packet::class.simpleName ?: packet::class.toString()
                     ServerMetrics.packetsReceived++
                     if (!DockyardServer.mutePacketLogs.contains(className)) {
-                        debug("-> Received $className (${packetIdByteRep})", LogType.NETWORK)
+                        debug("-> Received $className (${packetIdByteRep})", logType = LogType.NETWORK)
                     }
 
                     val event = PacketReceivedEvent(packet, connection, packetSize, packetId)

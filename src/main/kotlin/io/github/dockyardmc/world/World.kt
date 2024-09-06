@@ -60,7 +60,7 @@ class World(
         if(player.world == this && player.isFullyInitialized) return
         if(!canBeJoined.value && !joinQueue.contains(player)) {
             joinQueue.addIfNotPresent(player)
-            debug("$player joined before world $name is loaded, added to joinQueue", LogType.DEBUG)
+            debug("$player joined before world $name is loaded, added to joinQueue", logType = LogType.DEBUG)
             return
         }
 

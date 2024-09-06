@@ -36,7 +36,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
     }
 
     fun handleLoginStart(packet: ServerboundLoginStartPacket, connection: ChannelHandlerContext) {
-        debug("Received login start packet with name ${packet.name} and UUID ${packet.uuid}", LogType.DEBUG)
+        debug("Received login start packet with name ${packet.name} and UUID ${packet.uuid}", logType = LogType.DEBUG)
 
         if(!DockyardServer.allowAnyVersion) {
             val playerVersion = VersionToProtocolVersion.map.reversed()[processor.playerProtocolVersion]
