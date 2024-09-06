@@ -71,7 +71,7 @@ data class ServerConfig(
     val cacheSchematics: Boolean = true,
     val debug: Boolean = false,
     val maxPlayers: Int = 50,
-    val defaultEntityRenderDistanceBlocks: Int = 128,
+    val defaultEntityRenderDistanceBlocks: Int = 64,
 )
 
 @Serializable

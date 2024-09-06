@@ -3,7 +3,6 @@ package io.github.dockyardmc.player
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.commands.buildCommandGraph
-import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEvent
