@@ -1,6 +1,7 @@
 package io.github.dockyardmc.location
 
 import io.github.dockyardmc.extentions.truncate
+import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.utils.Vector2f
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
@@ -8,6 +9,7 @@ import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import kotlin.math.atan2
+import kotlin.math.floor
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -17,7 +19,7 @@ class Location(
     var z: Double,
     var yaw: Float = 0f,
     var pitch: Float = 0f,
-    var world: World
+    var world: World,
 ) {
     constructor(
         x: Int,
@@ -25,22 +27,26 @@ class Location(
         z: Int,
         yaw: Float = 0f,
         pitch: Float = 0f,
-        world: World
+        world: World,
     ): this(x.toDouble(), y.toDouble(), z.toDouble(), yaw, pitch, world)
 
     constructor(
         x: Int,
         y: Int,
         z: Int,
-        world: World
+        world: World,
     ): this(x.toDouble(), y.toDouble(), z.toDouble(), 0f, 0f, world)
 
     constructor(
         x: Double,
         y: Double,
         z: Double,
-        world: World
+        world: World,
     ): this(x, y, z, 0f, 0f, world)
+
+    val blockX: Int get() = floor(x).toInt()
+    val blockY: Int get() = floor(y).toInt()
+    val blockZ: Int get() = floor(z).toInt()
 
     override fun toString(): String =
         "Location(${x.truncate(2)}, ${y.truncate(2)}, ${z.truncate(2)}, yaw: $yaw, pitch: $pitch, world: ${world.name})"
@@ -128,6 +134,7 @@ class Location(
 
     fun withNoRotation(): Location = this.clone().apply { yaw = 0f; pitch = 0f }
     fun length(): Double = sqrt(x * x + y * y + z * z)
+    fun getBlock(): Block = world.getBlock(this)
 }
 
 fun ByteBuf.writeLocation(location: Location, rotDelta: Boolean = false) {

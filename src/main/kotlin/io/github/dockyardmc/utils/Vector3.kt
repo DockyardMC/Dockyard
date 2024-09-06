@@ -86,6 +86,73 @@ data class Vector3f(
         this.z = new.z
         return this
     }
+
+    fun isZero(): Boolean = x == 0f && y == 0f && z == 0f
+}
+
+data class Vector3d(
+    var x: Double,
+    var y: Double,
+    var z: Double,
+) {
+    constructor(single: Double) : this(single, single, single)
+
+    constructor(): this(0.0, 0.0, 0.0)
+
+    constructor(vector3d: Vector3d): this(vector3d.x, vector3d.y, vector3d.z)
+
+    fun toLocation(world: World): Location = Location(x, y, z, world)
+
+    fun normalize(): Vector3d {
+        val vector = this
+        val magnitude = sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z)
+        return if (magnitude != 0.0) {
+            Vector3d(vector.x / magnitude, vector.y / magnitude, vector.z / magnitude)
+        } else {
+            vector
+        }
+    }
+
+    fun add(vector3d: Vector3d): Vector3d {
+        return Vector3d(
+            this.x + vector3d.x,
+            this.y + vector3d.y,
+            this.z + vector3d.z,
+        )
+    }
+
+    fun subtract(vector3d: Vector3d): Vector3d {
+        return Vector3d(
+            this.x - vector3d.x,
+            this.y - vector3d.y,
+            this.z - vector3d.z,
+        )
+    }
+
+    fun multiply(times: Double): Vector3d = Vector3d(x * times, y * times, z * times)
+
+    fun dot(other: Vector3d): Double = this.x * other.x + this.y * other.y + this.z * other.z
+
+    fun cross(other: Vector3d): Vector3d {
+        return Vector3d(
+            this.y * other.z - this.z * other.y,
+            this.z * other.x - this.x * other.z,
+            this.x * other.y - this.y * other.x
+        )
+    }
+
+    fun distance(other: Vector3d): Double =
+        sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0)).toDouble()
+
+
+    fun set(new: Vector3d): Vector3d {
+        this.x = new.x
+        this.y = new.y
+        this.z = new.z
+        return this
+    }
+
+    fun isZero(): Boolean = x == 0.0 && y == 0.0 && z == 0.0
 }
 
 fun ByteBuf.writeShortVector3(vector3: Vector3) {
@@ -105,6 +172,8 @@ fun Vector3.toLocation(world: World): Location = Location(this.x, this.y, this.z
 fun Vector3f.toLocation(world: World): Location = Location(this.x.toDouble(), this.y.toDouble(), this.z.toDouble(), world)
 
 fun Location.toVector3(): Vector3 = Vector3(this.x.toInt(), this.y.toInt(), this.z.toInt())
+
+fun Location.toVector3d(): Vector3d = Vector3d(this.x, this.y, this.z)
 
 fun Location.toVector3f(): Vector3f = Vector3f(this.x.toFloat(), this.y.toFloat(), this.z.toFloat())
 

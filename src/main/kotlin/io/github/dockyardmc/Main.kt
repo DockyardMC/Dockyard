@@ -1,25 +1,23 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.commands.CommandSuggestions
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.commands.SuggestionProvider
+import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.GameMode
+import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.add
-import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.registry.addPotionEffect
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.resourcepack.addResourcepack
 import io.github.dockyardmc.resourcepack.removeResourcepack
+import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.world.WorldManager
+import io.github.dockyardmc.world.generators.FlatWorldGenerator
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -60,6 +58,47 @@ fun main(args: Array<String>) {
     Commands.add("/test") {
         execute {
             it.getPlayerOrThrow().give(ItemStack(Items.TOTEM_OF_UNDYING).apply { customModelData.value = 1 })
+
+            val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
+            testWorld.defaultSpawnLocation = Location(0, 201, 0, testWorld)
+        }
+    }
+
+    val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
+    Events.on<PlayerPreSpawnWorldSelectionEvent> {
+        it.world = testWorld
+    }
+
+    var pathStart: Location? = null
+    var pathEnd: Location? = null
+
+//    Commands.add("/start") {
+//        execute {
+//            val player = it.getPlayerOrThrow()
+//            if (pathStart == null || pathEnd == null) throw CommandException("start or end is null!")
+//            val pathfinder = Pathfinder(pathStart!!, pathEnd!!)
+//            val path = pathfinder.findPath() ?: throw CommandException("path could not be found!")
+//            path.forEach { block ->
+//                block.world.setBlock(block, Blocks.LIGHT_BLUE_CONCRETE)
+//            }
+//        }
+//    }
+
+    Events.on<PlayerBlockRightClickEvent> {
+        if (it.heldItem.material == Items.DEBUG_STICK) {
+            it.player.playSound("minecraft:block.note_block.pling")
+            it.player.sendMessage("<lime>First point set!")
+            it.location.world.setBlock(it.location, Blocks.GOLD_BLOCK)
+            pathStart = it.location
+        }
+    }
+
+    Events.on<PlayerBlockBreakEvent> {
+        if (it.player.getHeldItem(PlayerHand.MAIN_HAND).material == Items.DEBUG_STICK) {
+            it.player.playSound("minecraft:block.note_block.pling")
+            it.player.sendMessage("<lime>Second point set!")
+            it.location.world.setBlock(it.location, Blocks.DIAMOND_BLOCK)
+            pathEnd = it.location
         }
     }
 
