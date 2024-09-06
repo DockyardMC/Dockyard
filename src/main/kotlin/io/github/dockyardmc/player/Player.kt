@@ -3,6 +3,7 @@ package io.github.dockyardmc.player
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.commands.buildCommandGraph
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEvent
@@ -80,6 +81,7 @@ class Player(
     val time: Bindable<Long> = Bindable(-1)
 
     val chunkEngine = ConcurrentChunkEngine(this)
+    var visibleEntities: MutableList<Entity> = mutableListOf()
 
     lateinit var lastSentPacket: ClientboundPacket
 
@@ -158,6 +160,14 @@ class Player(
     }
 
     override fun tick() {
+        val entities = world.entities.values.filter { it.autoViewable && it != this }
+
+        val add = entities.filter { it.location.distance(this.location) <= it.renderDistanceBlocks && !visibleEntities.contains(it) }
+        val remove = entities.filter { it.location.distance(this.location) > it.renderDistanceBlocks && visibleEntities.contains(it) }
+
+        add.forEach { it.addViewer(this) }
+        remove.forEach { it.removeViewer(this, false) }
+
         if(itemInUse != null) {
             val item = itemInUse!!.item
 
@@ -247,6 +257,7 @@ class Player(
     }
 
     override fun addViewer(player: Player) {
+        if(player == this) return
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
 
@@ -263,6 +274,7 @@ class Player(
     fun getHeldItem(hand: PlayerHand): ItemStack = inventory[selectedHotbarSlot.value]
 
     override fun removeViewer(player: Player, isDisconnect: Boolean) {
+        if(player == this) return
         if(isDisconnect) {
             val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this)
             player.sendPacket(playerRemovePacket)
