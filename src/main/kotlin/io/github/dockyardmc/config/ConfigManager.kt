@@ -13,7 +13,7 @@ import java.lang.Exception
 object ConfigManager {
 
     val defaultConfig = DockyardConfig(
-        configVersion = 3,
+        configVersion = 4,
         serverConfig = ServerConfig(),
         chunkEngine = ChunkEngine(),
         defaultImplementations = DefaultImplementations(),
@@ -70,7 +70,8 @@ data class ServerConfig(
     val networkCompressionThreshold: Int = 256,
     val cacheSchematics: Boolean = true,
     val debug: Boolean = false,
-    val maxPlayers: Int = 50
+    val maxPlayers: Int = 50,
+    val defaultEntityRenderDistanceBlocks: Int = 64,
 )
 
 @Serializable

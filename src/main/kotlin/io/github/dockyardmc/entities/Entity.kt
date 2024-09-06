@@ -2,6 +2,7 @@ package io.github.dockyardmc.entities
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableMap
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.effects.PotionEffectImpl
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
@@ -27,7 +28,7 @@ abstract class Entity(open var location: Location, open var world: World) {
     open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
     open var velocity: Vector3 = Vector3()
-    val viewers: MutableList<Player> = mutableListOf()
+    val viewers: MutableSet<Player> = mutableSetOf()
     open var hasGravity: Boolean = true
     open var isInvulnerable: Boolean = false
     open var hasCollision: Boolean = true
@@ -48,6 +49,8 @@ abstract class Entity(open var location: Location, open var world: World) {
     val freezeTicks: Bindable<Int> = Bindable(0)
     val equipment: Bindable<EntityEquipment> = Bindable(EntityEquipment())
     val equipmentLayers: BindableMap<PersistentPlayer, EntityEquipmentLayer> = BindableMap()
+    var renderDistanceBlocks: Int = ConfigManager.currentConfig.serverConfig.defaultEntityRenderDistanceBlocks
+    var autoViewable: Boolean = true
 
     constructor(location: Location): this(location, location.world)
 
@@ -154,10 +157,11 @@ abstract class Entity(open var location: Location, open var world: World) {
         player.sendPacket(entitySpawnPacket)
         sendMetadataPacket(player)
         sendMetadataPacketToViewers()
-        teleport(location)
+        player.visibleEntities.add(this)
     }
 
     open fun removeViewer(player: Player, isDisconnect: Boolean) {
+
         val event = EntityViewerRemoveEvent(this, player)
         Events.dispatch(event)
         if(event.cancelled) return
@@ -165,6 +169,7 @@ abstract class Entity(open var location: Location, open var world: World) {
         viewers.remove(player)
         val entityDespawnPacket = ClientboundEntityRemovePacket(this)
         player.sendPacket(entityDespawnPacket)
+        player.visibleEntities.remove(this)
     }
 
     //TODO move to bindable

@@ -26,5 +26,5 @@ fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket, player: Player? 
     if(player != null) message += " to $player [${player.getProcessor().state}]"
 
     message += " (id: ${packet.id})"
-    debug(message, LogType.NETWORK)
+    debug(message, logType = LogType.NETWORK)
 }

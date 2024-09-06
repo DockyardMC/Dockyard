@@ -32,7 +32,7 @@ class Profiler {
                 log("Profiler \"$name\" ended. Took ${overall}ms, ${overall - onlyLogAbove!!}ms more than expected", LogType.WARNING)
             }
         } else {
-            debug("Profiler \"$name\" ended. Took ${overall}ms", TimeLog)
+            debug("Profiler \"$name\" ended. Took ${overall}ms", logType = TimeLog)
         }
     }
 }
