@@ -184,7 +184,7 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
         is PlayerHeadProfileItemComponent -> {
             this.writeOptional(comp.name) { it.writeUtf(comp.name!!) }
             this.writeOptional(comp.uuid) { it.writeUUID(comp.uuid!!) }
-            this.writeProfileProperties(comp.propertyMap)
+            this.writeProfileProperties(comp.propertyMap, disableUtf = true)
         }
 
         is NoteBlockSoundItemComponent -> {
