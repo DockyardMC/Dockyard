@@ -19,6 +19,7 @@ import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.handshake.HandshakeHandler
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.play.PlayHandler
+import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.utils.debug
 import io.ktor.util.network.*
 import io.netty.buffer.ByteBuf
@@ -130,6 +131,9 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
         if(this::player.isInitialized) {
             player.isConnected = false
             PlayerManager.remove(player)
+            ResourcepackManager.pending.toList().filter { it.player == player }.forEach { pack ->
+                ResourcepackManager.pending.remove(pack)
+            }
             Events.dispatch(PlayerDisconnectEvent(player))
             if(player.isFullyInitialized) {
                 ServerStatusManager.updateCache()

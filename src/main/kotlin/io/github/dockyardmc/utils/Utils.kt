@@ -6,6 +6,7 @@ import io.github.dockyardmc.entities.EntityMetadataType
 import io.github.dockyardmc.entities.getEntityMetadataState
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
+import java.security.MessageDigest
 import kotlin.reflect.KClass
 
 fun ticksToMs(ticks: Int): Int = ticks * 50
@@ -50,4 +51,22 @@ fun Entity.setIsCrouchingFor(player: Player, state: Boolean) {
 
     playerMetadataLayer[EntityMetadataType.STATE] = entityState
     this.metadataLayers[player.toPersistent()] = playerMetadataLayer
+}
+
+
+fun generateSHA1(input: String): String {
+    val messageDigest = MessageDigest.getInstance("SHA-1")
+    val bytes = messageDigest.digest(input.toByteArray())
+
+    val hexString = StringBuilder()
+    for (byte in bytes) {
+        val hex = Integer.toHexString(byte.toInt() and 0xff)
+        if (hex.length == 1) {
+            hexString.append('0')
+        }
+        hexString.append(hex)
+    }
+
+    return hexString.toString()
+
 }

@@ -1,27 +1,20 @@
 package io.github.dockyardmc
 
+import io.github.dockyardmc.commands.CommandSuggestions
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.PlayerArgument
+import io.github.dockyardmc.commands.StringArgument
+import io.github.dockyardmc.commands.SuggestionProvider
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.particles.spawnParticle
-import io.github.dockyardmc.player.GameMode
-import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.add
-import io.github.dockyardmc.player.toPersistent
-import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEquipmentLayer
-import io.github.dockyardmc.protocol.packets.play.serverbound.placementRules
+import io.github.dockyardmc.player.*
 import io.github.dockyardmc.registry.*
-import io.github.dockyardmc.sounds.playSound
+import io.github.dockyardmc.resourcepack.addResourcepack
+import io.github.dockyardmc.resourcepack.removeResourcepack
 import io.github.dockyardmc.utils.DebugScoreboard
-import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Vector3f
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -55,24 +48,45 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
+    fun getPackSuggestions(): CommandSuggestions {
+        return SuggestionProvider.withContext { it.resourcepacks.keys.toList() }
+    }
 
-    Commands.add("/equipment") {
-        addArgument("player", PlayerArgument())
-        execute {
-            val player = it.getPlayerOrThrow()
-            val target = getArgument<Player>("player")
+    Commands.add("/resourcepack") {
+        addSubcommand("add") {
+            addArgument("name", StringArgument(), getPackSuggestions())
+            addArgument("url", StringArgument())
+            execute {
+                val player = it.getPlayerOrThrow()
+                val name = getArgument<String>("name")
+                val url = getArgument<String>("url")
 
-            target.equipmentLayers[player.toPersistent()] = EntityEquipmentLayer(
-                helmet = ItemStack(Items.LIME_STAINED_GLASS),
-                offHand = ItemStack(Items.LEAD),
-                boots = ItemStack(Items.NETHERITE_BOOTS)
-            )
+                DockyardServer.broadcastMessage(url)
+
+                player.addResourcepack(name) {
+                    withUrl(url)
+
+                    onSuccess { response ->
+                        response.player.sendMessage("<lime>Successfully loaded resourcepack!")
+                    }
+                    onFail { response ->
+                        response.player.sendMessage("<red>womp womp: <orange>${response.status.name}")
+                    }
+                }
+            }
+        }
+
+        addSubcommand("remove") {
+            addArgument("name", StringArgument(), getPackSuggestions())
+            execute {
+                val player = it.getPlayerOrThrow()
+                val name = getArgument<String>("name")
+
+                player.removeResourcepack(name)
+            }
         }
     }
 
-    Events.on<PlayerDropItemEvent> {
-        it.cancelled = true
-    }
 
 
     val server = DockyardServer()
