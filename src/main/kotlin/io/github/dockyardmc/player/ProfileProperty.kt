@@ -7,9 +7,9 @@ import io.netty.buffer.ByteBuf
 data class ProfileProperty(val name: String, val value: String, val isSigned: Boolean, val signature: String?)
 data class ProfilePropertyMap(val name: String, val properties: MutableList<ProfileProperty>)
 
-fun ByteBuf.writeProfileProperties(propertyMap: ProfilePropertyMap) {
+fun ByteBuf.writeProfileProperties(propertyMap: ProfilePropertyMap,disableUtf: Boolean = false) {
 
-    this.writeUtf(propertyMap.name)
+    if(!disableUtf) this.writeUtf(propertyMap.name)
     this.writeVarInt(propertyMap.properties.size)
 
     propertyMap.properties.forEach {
