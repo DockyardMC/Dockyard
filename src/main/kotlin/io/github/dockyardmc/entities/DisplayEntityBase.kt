@@ -81,6 +81,7 @@ open class DisplayEntityBase(location: Location) : Entity(location) {
             val type = EntityMetadataType.DISPLAY_GLOW_COLOR
             metadata[type] = EntityMetadata(type, EntityMetaValue.VAR_INT, it.newValue.toRgbInt())
         }
+        interpolationDelay.value = -1
     }
 
     fun scaleTo(x: Float, y: Float, z: Float, interpolation: Int? = null) {

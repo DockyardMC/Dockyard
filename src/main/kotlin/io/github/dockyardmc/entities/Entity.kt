@@ -85,6 +85,11 @@ abstract class Entity(open var location: Location, open var world: World) {
             sendSelfMetadataIfPlayer()
         }
 
+        metadata.itemSet {
+            sendMetadataPacketToViewers()
+            sendSelfMetadataIfPlayer()
+        }
+
         isGlowing.valueChanged {
             metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
         }
@@ -150,14 +155,15 @@ abstract class Entity(open var location: Location, open var world: World) {
         Events.dispatch(event)
         if(event.cancelled) return
 
+        sendMetadataPacket(player)
         val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, location.yaw, 0, velocity)
         isOnGround = true
 
+        player.visibleEntities.add(this)
         viewers.add(player)
         player.sendPacket(entitySpawnPacket)
         sendMetadataPacket(player)
         sendMetadataPacketToViewers()
-        player.visibleEntities.add(this)
     }
 
     open fun removeViewer(player: Player, isDisconnect: Boolean) {

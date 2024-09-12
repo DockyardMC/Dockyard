@@ -104,7 +104,11 @@ sourceSets["main"].resources.srcDir("${buildDir}/generated/resources/")
 publishing {
     repositories {
         maven {
-            url = uri("https://mvn.devos.one/releases")
+            url = if(dockyardVersion.toString().endsWith("-SNAPSHOT")) {
+                uri("https://mvn.devos.one/snapshots")
+            } else {
+                uri("https://mvn.devos.one/releases")
+            }
             credentials {
                 username = System.getenv()["MAVEN_USER"]
                 password = System.getenv()["MAVEN_PASS"]
@@ -155,13 +159,14 @@ fun sendWebhookToDiscord(webhookUrl: String) {
 
 
 fun embed(): String {
+    val target = if(dockyardVersion.toString().endsWith("-SNAPSHOT")) "https://mvn.devos.one/snapshots" else "https://mvn.devos.one/releases"
     return """
         {
           "content": null,
           "embeds": [
             {
               "title": "Published to Maven",
-              "description": "`io.github.dockyardmc:dockyard:$dockyardVersion` was successfully published to maven!",
+              "description": "`io.github.dockyardmc:dockyard:$dockyardVersion` was successfully published to maven **$target**!",
               "color": 5046022
             }
           ],
