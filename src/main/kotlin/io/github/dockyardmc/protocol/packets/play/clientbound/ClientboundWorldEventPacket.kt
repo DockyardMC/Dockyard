@@ -12,9 +12,9 @@ class ClientboundWorldEventPacket(event: WorldEvent, location: Location, extraDa
     init {
         data.writeInt(event.id)
 
-        val blockX = location.centerBlockLocation().x.toInt()
-        val blockY = location.centerBlockLocation().y.toInt()
-        val blockZ = location.centerBlockLocation().z.toInt()
+        val blockX = location.getBlockLocation().x.toInt()
+        val blockY = location.getBlockLocation().y.toInt()
+        val blockZ = location.getBlockLocation().z.toInt()
 
         val longPos = ((blockX.toLong() and 0x3FFFFFFL) shl 38) or
                 ((blockZ.toLong() and 0x3FFFFFFL) shl 12) or

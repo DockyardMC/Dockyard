@@ -89,8 +89,12 @@ open class DisplayEntityBase(location: Location) : Entity(location) {
         scale.value = Vector3f(x, y, z)
     }
 
-    fun scaleTo(vector3f: Vector3f, interpolation: Int?) {
+    fun scaleTo(vector3f: Vector3f, interpolation: Int? = null) {
         scaleTo(vector3f.x, vector3f.y, vector3f.z, interpolation)
+    }
+
+    fun scaleTo(all: Float, interpolation: Int? = null) {
+        scaleTo(all, all, all, interpolation)
     }
 
     fun translateTo(x: Float, y: Float, z: Float, interpolation: Int? = null) {

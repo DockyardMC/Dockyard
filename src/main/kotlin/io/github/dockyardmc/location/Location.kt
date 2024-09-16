@@ -48,6 +48,17 @@ class Location(
     val blockY: Int get() = floor(y).toInt()
     val blockZ: Int get() = floor(z).toInt()
 
+    fun getAdjacentLocations(): List<Location> {
+        return listOf(
+            getBlockLocation().add(1, 0, 0),
+            getBlockLocation().add(-1, 0, 0),
+            getBlockLocation().add(0, 1, 0),
+            getBlockLocation().add(0, -1, 0),
+            getBlockLocation().add(0, 0, 1),
+            getBlockLocation().add(0, 0, -1),
+        )
+    }
+
     override fun toString(): String =
         "Location(${x.truncate(2)}, ${y.truncate(2)}, ${z.truncate(2)}, yaw: $yaw, pitch: $pitch, world: ${world.name})"
 
@@ -72,7 +83,7 @@ class Location(
         //surly it's not just me that pronounces it "squirt"
         sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0))
 
-    fun centerBlockLocation(): Location = this.apply { x += 0.5; y += 0.5; z += 0.5 }
+    fun getBlockLocation(): Location = Location(blockX, blockY, blockZ, world)
 
     fun getRotation(): Vector2f = Vector2f(yaw, pitch)
 

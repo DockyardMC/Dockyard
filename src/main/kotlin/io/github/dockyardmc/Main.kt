@@ -8,6 +8,7 @@ import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.pathfinding.Pathfinder
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.add
@@ -55,34 +56,32 @@ fun main(args: Array<String>) {
         return SuggestionProvider.withContext { it.resourcepacks.keys.toList() }
     }
 
-    Commands.add("/test") {
-        execute {
-            it.getPlayerOrThrow().give(ItemStack(Items.TOTEM_OF_UNDYING).apply { customModelData.value = 1 })
-
-            val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
-            testWorld.defaultSpawnLocation = Location(0, 201, 0, testWorld)
-        }
-    }
-
-    val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
-    Events.on<PlayerPreSpawnWorldSelectionEvent> {
-        it.world = testWorld
-    }
+//    val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
+//    testWorld.defaultSpawnLocation = Location(0, 201, 0, testWorld)
+//    Events.on<PlayerPreSpawnWorldSelectionEvent> {
+//        it.world = testWorld
+//    }
 
     var pathStart: Location? = null
     var pathEnd: Location? = null
 
-//    Commands.add("/start") {
-//        execute {
-//            val player = it.getPlayerOrThrow()
-//            if (pathStart == null || pathEnd == null) throw CommandException("start or end is null!")
-//            val pathfinder = Pathfinder(pathStart!!, pathEnd!!)
-//            val path = pathfinder.findPath() ?: throw CommandException("path could not be found!")
-//            path.forEach { block ->
-//                block.world.setBlock(block, Blocks.LIGHT_BLUE_CONCRETE)
-//            }
-//        }
-//    }
+    var pathfinder: Pathfinder? = null
+
+    Commands.add("/start") {
+        execute {
+            val player = it.getPlayerOrThrow()
+            if (pathStart == null || pathEnd == null) throw CommandException("start or end is null!")
+            pathfinder = Pathfinder(pathStart!!, pathEnd!!)
+            pathfinder!!.findPath()
+        }
+    }
+
+    Commands.add("/next") {
+        execute {
+            if (pathfinder == null) throw CommandException("pathfinder is not initialized")
+            pathfinder!!.nextStep()
+        }
+    }
 
     Events.on<PlayerBlockRightClickEvent> {
         if (it.heldItem.material == Items.DEBUG_STICK) {

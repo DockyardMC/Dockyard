@@ -22,7 +22,7 @@ object WorldManager {
     }
 
     private fun generateStonePlatform(world: World) {
-        val platformSize = 5
+        val platformSize = 30
 
         val centerX = (platformSize - 1) / 2
         val centerZ = (platformSize - 1) / 2
