@@ -2,6 +2,7 @@ package io.github.dockyardmc.location
 
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.registry.Block
+import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.utils.Vector2f
 import io.github.dockyardmc.utils.Vector3
 import io.github.dockyardmc.utils.Vector3f
@@ -61,6 +62,14 @@ class Location(
 
     override fun toString(): String =
         "Location(${x.truncate(2)}, ${y.truncate(2)}, ${z.truncate(2)}, yaw: $yaw, pitch: $pitch, world: ${world.name})"
+
+    fun toBlockString(): String {
+        return "${this.blockX}${this.blockY}${this.blockZ}"
+    }
+
+    fun equalsBlock(location: Location): Boolean {
+        return this.toBlockString() == location.toBlockString()
+    }
 
     fun getChunk(): Chunk? = world.getChunkAt(this)
 
@@ -146,6 +155,10 @@ class Location(
     fun withNoRotation(): Location = this.clone().apply { yaw = 0f; pitch = 0f }
     fun length(): Double = sqrt(x * x + y * y + z * z)
     fun getBlock(): Block = world.getBlock(this)
+}
+
+fun Block.isEmpty(): Boolean {
+    return this.defaultBlockStateId == Blocks.AIR.defaultBlockStateId
 }
 
 fun ByteBuf.writeLocation(location: Location, rotDelta: Boolean = false) {

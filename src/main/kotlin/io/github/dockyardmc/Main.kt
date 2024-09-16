@@ -67,18 +67,18 @@ fun main(args: Array<String>) {
 
     var pathfinder: Pathfinder? = null
 
-    Commands.add("/start") {
+    Commands.add("/backtrack") {
         execute {
-            val player = it.getPlayerOrThrow()
             if (pathStart == null || pathEnd == null) throw CommandException("start or end is null!")
-            pathfinder = Pathfinder(pathStart!!, pathEnd!!)
-            pathfinder!!.findPath()
+            if (pathfinder == null) pathfinder = Pathfinder(pathStart!!, pathEnd!!)
+            pathfinder!!.backTrack()
         }
     }
 
     Commands.add("/next") {
         execute {
-            if (pathfinder == null) throw CommandException("pathfinder is not initialized")
+            if (pathStart == null || pathEnd == null) throw CommandException("start or end is null!")
+            if (pathfinder == null) pathfinder = Pathfinder(pathStart!!, pathEnd!!)
             pathfinder!!.nextStep()
         }
     }
