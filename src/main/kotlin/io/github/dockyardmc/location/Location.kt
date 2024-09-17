@@ -57,6 +57,16 @@ class Location(
             getBlockLocation().add(0, -1, 0),
             getBlockLocation().add(0, 0, 1),
             getBlockLocation().add(0, 0, -1),
+
+            getBlockLocation().add(1, 1, 0),
+            getBlockLocation().add(-1, 1, 0),
+            getBlockLocation().add(0, 1, 1),
+            getBlockLocation().add(0, 1, -1),
+
+            getBlockLocation().add(1, -1, 0),
+            getBlockLocation().add(-1, -1, 0),
+            getBlockLocation().add(0, -1, 1),
+            getBlockLocation().add(0, -1, -1),
         )
     }
 

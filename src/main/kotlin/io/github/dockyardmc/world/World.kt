@@ -184,6 +184,13 @@ class World(
         if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
     }
 
+    fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int, updateChunk: Boolean = true) {
+        val location = Location(x, y, z, this)
+        val chunk = getChunkAt(location.x.toInt(), location.z.toInt()) ?: return
+        chunk.setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId, updateChunk)
+        if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
+    }
+
     fun setBlock(vector3: Vector3, block: Block) {
         this.setBlock(vector3.x, vector3.y, vector3.z, block)
     }

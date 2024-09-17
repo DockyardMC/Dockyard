@@ -3,7 +3,6 @@ package io.github.dockyardmc.world
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.main
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionType
 import io.github.dockyardmc.registry.DimensionTypes
