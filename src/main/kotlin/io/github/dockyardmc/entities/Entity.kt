@@ -18,10 +18,12 @@ import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
-import io.github.dockyardmc.utils.*
+import io.github.dockyardmc.utils.mergeEntityMetadata
+import io.github.dockyardmc.utils.ticksToMs
+import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.World
-import java.lang.IllegalArgumentException
-import java.util.UUID
+import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -187,9 +189,8 @@ abstract class Entity(open var location: Location, open var world: World) {
         sendSelfPacketIfPlayer(packet)
     }
 
-    //TODO make this work
     open fun lookAt(target: Entity) {
-        val newLoc = this.location.setDirection(target.location.subtract(this.location).toVector3f())
+        val newLoc = this.location.setDirection(target.location.subtract(this.location).toVector3d())
         this.location = newLoc
 
         this.location.yaw = (newLoc.yaw % 360) * 256 / 360

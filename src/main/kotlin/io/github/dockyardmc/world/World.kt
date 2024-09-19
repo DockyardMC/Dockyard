@@ -19,9 +19,13 @@ import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.*
+import io.github.dockyardmc.utils.vectors.Vector2f
+import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
+import java.lang.IllegalStateException
 import java.util.Random
 import java.util.UUID
 
@@ -141,7 +145,7 @@ class World(
     }
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
-        val chunk = getChunkAt(x, z) ?: return Blocks.AIR
+        val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $z not generated!")
         return chunk.getBlock(x, y, z)
     }
 

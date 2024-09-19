@@ -12,6 +12,10 @@ import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.getId
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.utils.*
+import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.utils.vectors.writeVector3
+import io.github.dockyardmc.utils.vectors.writeVector3f
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.util.*

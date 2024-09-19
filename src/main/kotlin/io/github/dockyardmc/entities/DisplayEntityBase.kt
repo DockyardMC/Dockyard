@@ -7,7 +7,7 @@ import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.utils.Quaternion
-import io.github.dockyardmc.utils.Vector3f
+import io.github.dockyardmc.utils.vectors.Vector3f
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -117,7 +117,7 @@ open class DisplayEntityBase(location: Location) : Entity(location) {
 
     fun rotateBy(x: Float, y: Float, z: Float, interpolation: Int? = null) {
         if(interpolation != null) transformInterpolation.value = interpolation
-        rotation.value = rotation.value.add(Vector3f(x, y, z))
+        rotation.value = rotation.value + Vector3f(x, y, z)
     }
 
     fun rotateBy(vector3f: Vector3f, interpolation: Int?) {

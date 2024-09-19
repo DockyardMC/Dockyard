@@ -1,5 +1,6 @@
 package io.github.dockyardmc.utils
 
+import io.github.dockyardmc.utils.vectors.Vector3
 import io.netty.buffer.ByteBuf
 
 fun ByteBuf.writeVelocity(velocity: Vector3) {

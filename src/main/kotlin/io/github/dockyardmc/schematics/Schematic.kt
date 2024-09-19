@@ -11,7 +11,7 @@ import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.getId
 import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.ChunkUtils
-import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.World
 import java.lang.IllegalArgumentException

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.utils
 
+import io.github.dockyardmc.utils.vectors.Vector3f
 import io.netty.buffer.ByteBuf
 import kotlin.math.PI
 import kotlin.math.cos

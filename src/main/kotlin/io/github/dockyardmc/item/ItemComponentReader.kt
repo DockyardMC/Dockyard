@@ -6,6 +6,7 @@ import io.github.dockyardmc.blocks.BlockPredicate
 import io.github.dockyardmc.blocks.readBlockPredicate
 import io.github.dockyardmc.blocks.readBlockSet
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.PotionEffect
 import io.github.dockyardmc.registry.PotionEffects
@@ -15,12 +16,9 @@ import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.readSoundEvent
-import io.github.dockyardmc.utils.readPosition
-import io.github.dockyardmc.utils.toLocation
 import io.github.dockyardmc.world.WorldManager
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import java.lang.IllegalArgumentException
 
 fun ByteBuf.readComponent(id: Int): ItemComponent {
     return when (id) {
@@ -33,10 +31,12 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             val nbt = this.readNBT() as NBTCompound
             return CustomNameItemComponent(nbt.toComponent())
         }
+
         6 -> {
             val nbt = this.readNBT() as NBTCompound
             return ItemNameItemComponent(nbt.toComponent())
         }
+
         7 -> {
             val size = this.readVarInt()
             val lines = mutableListOf<Component>()
@@ -46,6 +46,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             }
             return LoreItemComponent(lines)
         }
+
         8 -> RarityItemComponent(this.readVarIntEnum<ItemRarity>())
         //TODO 9 -> Enchantments
         9 -> {
@@ -57,16 +58,18 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             this.readBoolean()
             return EnchantmentsItemComponent()
         }
-         10 -> {
-             val size = this.readVarInt()
-             val predicates = mutableListOf<BlockPredicate>()
-             for (i in 0 until size) {
-                 predicates.add(this.readBlockPredicate())
-             }
-             val showInTooltip = this.readBoolean()
 
-             return CanBePlacedOnItemComponent(predicates, showInTooltip)
+        10 -> {
+            val size = this.readVarInt()
+            val predicates = mutableListOf<BlockPredicate>()
+            for (i in 0 until size) {
+                predicates.add(this.readBlockPredicate())
+            }
+            val showInTooltip = this.readBoolean()
+
+            return CanBePlacedOnItemComponent(predicates, showInTooltip)
         }
+
         11 -> {
             val size = this.readVarInt()
             val predicates = mutableListOf<BlockPredicate>()
@@ -77,6 +80,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
 
             return CanBreakItemComponent(predicates, showInTooltip)
         }
+
         12 -> {
             val size = this.readVarInt()
             val attributes = mutableListOf<Attribute>()
@@ -85,6 +89,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             val showInTooltip = this.readBoolean()
             return AttributeModifiersItemComponent(attributes, showInTooltip)
         }
+
         13 -> CustomModelDataItemComponent(this.readVarInt())
         14 -> HideAdditionalTooltipItemComponent()
         15 -> HideTooltipItemComponent()
@@ -99,6 +104,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
 
             return FoodItemComponent(food, true, this.readBoolean(), this.readFloat())
         }
+
         21 -> FireResistantItemComponent()
         22 -> {
             val rules = mutableListOf<ToolRule>()
@@ -123,6 +129,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             this.readBoolean()
             return StoredEnchantmentsItemComponent()
         }
+
         24 -> DyedColorItemComponent(CustomColor.fromRGBInt(this.readInt()), this.readBoolean())
         25 -> MapColorItemComponent(CustomColor.fromRGBInt(this.readInt()))
         26 -> MapIdItemComponent(this.readVarInt())
@@ -145,22 +152,26 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             }
             BundleContentsItemComponent(bundleContents)
         }
+
         31 -> {
-            val potionId = if(this.readBoolean()) this.readVarInt() else null
-            val customColor = if(this.readBoolean()) CustomColor.fromRGBInt(this.readVarInt()) else null
+            val potionId = if (this.readBoolean()) this.readVarInt() else null
+            val customColor = if (this.readBoolean()) CustomColor.fromRGBInt(this.readVarInt()) else null
             val effects = mutableListOf<AppliedPotionEffect>()
             for (i in 0 until this.readVarInt()) effects.add(this.readAppliedPotionEffect())
 
             return PotionContentsItemComponent(potionId, customColor, effects)
         }
+
         32 -> {
             val effects = mutableListOf<PotionEffect>()
             for (i in 0 until this.readVarInt()) {
-                PotionEffects.potions.values.firstOrNull { it.id == this.readVarInt() } ?: throw IllegalArgumentException("Potion effect with id $id was not found in the registry!")
+                PotionEffects.potions.values.firstOrNull { it.id == this.readVarInt() }
+                    ?: throw IllegalArgumentException("Potion effect with id $id was not found in the registry!")
             }
 
             return SuspiciousStewEffectsItemComponent(effects)
         }
+
         33 -> WritableBookContentItemComponent(this.readBookPages())
         34 -> {
             val title = this.readString()
@@ -171,6 +182,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             this.readBoolean()
             WrittenBookContentItemComponent(title, filteredTitle, author, generation, pages)
         }
+
         35 -> TODO("Trims are not implemented")
         36 -> DebugStickItemComponent(this.readNBT() as NBTCompound)
         37 -> EntityDataItemComponent(this.readNBT() as NBTCompound)
@@ -187,7 +199,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             val identifier = if (directMode) this.readString() else null
             val type = if (directMode) this.readVarInt() else null
             val sound = if (directMode) this.readSoundEvent() else null
-            val description = if(directMode) (this.readNBT() as NBTCompound).toComponent() else null
+            val description = if (directMode) (this.readNBT() as NBTCompound).toComponent() else null
             val duration = if (directMode) this.readFloat() else null
             val output = if (directMode) this.readVarInt() else null
 
@@ -199,13 +211,15 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         44 -> {
             val hasGlobalPosition = this.readBoolean()
             val dimensionIdentifier = this.readString()
-            val world = WorldManager.worlds[dimensionIdentifier] ?: throw Exception("there is no world with the identifier (name) $dimensionIdentifier")
-            val position = this.readPosition()
+            val world = WorldManager.worlds[dimensionIdentifier]
+                ?: throw Exception("there is no world with the identifier (name) $dimensionIdentifier")
+            val position = this.readBlockPosition()
             val location = position.toLocation(world)
             val tracked = this.readBoolean()
 
             LodestoneTrackerItemComponent(hasGlobalPosition, world, location, tracked)
         }
+
         45 -> TODO("Firework Explosion Data is not implemented yet")
         46 -> TODO("Fireworks are not implemented yet")
         47 -> TODO("Player head profiles are not implemented yet")
@@ -221,6 +235,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             }
             ContainerItemComponent(containerItems)
         }
+
         53 -> {
             val states = mutableMapOf<String, String>()
             for (i in 0 until this.readVarInt()) {
@@ -229,6 +244,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
 
             BlockStateItemComponent(states)
         }
+
         54 -> {
             val bees = mutableListOf<BeeInsideBeehive>()
             val size = this.readVarInt()

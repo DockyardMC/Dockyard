@@ -47,6 +47,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
             }
         }
 
+        log("Encryption starting")
         val generator = KeyPairGenerator.getInstance("RSA")
         generator.initialize(1024)
         val keyPair = generator.generateKeyPair()
@@ -57,26 +58,36 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val verificationToken  = ByteArray(4)
         secureRandom.nextBytes(verificationToken)
         // verificationToken.size reports 4 but nextBytes WRITES 8 IN REALITY... WHY???? I HAVE SPENT 2 HOURS DEBUGGING THIS
+        log("filled secureRandom")
 
         val playerCrypto = PlayerCrypto(publicKey, privateKey, verificationToken)
+        log("made player crypto")
         val player = Player(
             username =  packet.name,
             entityId = EntityManager.entityIdCounter.incrementAndGet(),
             uuid =  packet.uuid,
-            world = WorldManager.worlds.values.first(),
+            world = WorldManager.mainWorld,
             address = connection.channel().remoteAddress().address,
             crypto = playerCrypto,
             connection = connection,
         )
+        log("created player object")
+
 
         PlayerManager.add(player, processor)
         EntityManager.entities.add(player)
 
+        log("added to lists")
+
+        // pre-cache the skin
         val asyncRunnable = AsyncRunnable {
-            val skin = MojangUtil.getSkinFromUUID(player.uuid)
+            MojangUtil.getSkinFromUUID(player.uuid)
+            log("cached skin")
         }
         asyncRunnable.run()
+        log("caching skin..")
 
+        log("Encryption out")
         val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken, true)
         connection.sendPacket(out)
     }

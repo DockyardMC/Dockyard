@@ -7,7 +7,7 @@ import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.broadcastActionBar
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Vector3f
+import io.github.dockyardmc.utils.vectors.Vector3f
 import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin

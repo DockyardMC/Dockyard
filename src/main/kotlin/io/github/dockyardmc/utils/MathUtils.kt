@@ -1,6 +1,7 @@
 package io.github.dockyardmc.utils
 
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.utils.vectors.Vector3f
 import java.io.File
 import java.security.MessageDigest
 import kotlin.math.PI

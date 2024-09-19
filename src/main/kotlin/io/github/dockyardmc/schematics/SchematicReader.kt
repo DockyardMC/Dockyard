@@ -4,7 +4,7 @@ import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.getBlockFromStateString
 import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray
 import org.jglrxavpok.hephaistos.nbt.*
 import java.io.File

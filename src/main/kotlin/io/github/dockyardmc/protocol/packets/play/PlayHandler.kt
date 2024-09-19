@@ -7,7 +7,7 @@ import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
-import io.github.dockyardmc.utils.Vector2f
+import io.github.dockyardmc.utils.vectors.Vector2f
 import io.netty.channel.ChannelHandlerContext
 
 class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {

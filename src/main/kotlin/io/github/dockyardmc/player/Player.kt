@@ -2,6 +2,8 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
@@ -25,6 +27,8 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.*
+import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.ConcurrentChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
@@ -88,6 +92,7 @@ class Player(
     lateinit var lastSentPacket: ClientboundPacket
 
     init {
+        log("[PLAYER] Initializing player", LogType.TRACE)
         selectedHotbarSlot.valueChanged {
             this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
             val item = inventory[it.newValue]
@@ -159,6 +164,7 @@ class Player(
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
         time.valueChanged { updateWorldTime() }
+        log("[PLAYER] player initialized", LogType.TRACE)
     }
 
     override fun tick() {
