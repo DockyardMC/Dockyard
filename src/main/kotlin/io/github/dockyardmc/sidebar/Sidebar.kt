@@ -50,7 +50,7 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
     }
 
     private fun sendLinesPackets(player: Player) {
-        innerLines.forEach {
+        innerLines.toMap().forEach {
             sendLinePacket(player, it.key)
         }
     }

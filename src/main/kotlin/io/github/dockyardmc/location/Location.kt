@@ -8,7 +8,6 @@ import io.github.dockyardmc.utils.vectors.Vector3d
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.World
-import io.github.dockyardmc.world.WorldManager
 import io.netty.buffer.ByteBuf
 import kotlin.math.*
 
@@ -20,10 +19,6 @@ class Location(
     var pitch: Float = 0f,
     var world: World,
 ) {
-
-    companion object {
-        val default = Location(0, 0, 0, WorldManager.mainWorld)
-    }
 
     constructor(x: Int, y: Int, z: Int, yaw: Float = 0f, pitch: Float = 0f, world: World):
             this(x.toDouble(), y.toDouble(), z.toDouble(), yaw, pitch, world)

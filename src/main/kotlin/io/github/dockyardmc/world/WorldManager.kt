@@ -8,13 +8,15 @@ import io.github.dockyardmc.registry.DimensionType
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
+import java.lang.IllegalArgumentException
 
 object WorldManager {
 
     val worlds: MutableMap<String, World> = mutableMapOf()
-    val mainWorld = create("main", VoidWorldGenerator(), DimensionTypes.OVERWORLD)
+    val mainWorld: World = World("main", VoidWorldGenerator(), DimensionTypes.OVERWORLD)
 
     init {
+        worlds["main"] = mainWorld
         Events.on<WorldFinishLoadingEvent> {
             if(it.world == mainWorld) generateStonePlatform(mainWorld)
         }
@@ -53,5 +55,5 @@ object WorldManager {
         world.delete()
     }
 
-    fun getOrThrow(world: String): World = worlds[world] ?: throw Exception("World with name $world does not exist!")
+    fun getOrThrow(world: String): World = worlds[world] ?: throw IllegalArgumentException("World with name $world does not exist!")
 }

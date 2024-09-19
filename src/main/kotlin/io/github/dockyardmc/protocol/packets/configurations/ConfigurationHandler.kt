@@ -15,21 +15,24 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.serverlinks.ServerLinks
+import io.github.dockyardmc.protocol.plugin.PluginMessages
+import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 
 class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(processor) {
 
-    fun handlePluginMessage(packet: ServerboundPluginMessagePacket, connection: ChannelHandlerContext) {
-        val event = PluginMessageReceivedEvent(packet.channel, packet.data)
+    fun handlePluginMessage(packet: ServerboundConfigurationPluginMessagePacket, connection: ChannelHandlerContext) {
+        val event = PluginMessageReceivedEvent(processor.player, packet.channel, packet.data)
         Events.dispatch(event)
-        processor.player.brand = event.data
+
+        if(!event.cancelled) PluginMessages.handle(event.channel, event.data, processor.player)
 
         // Send server brand
         val serverBrandEvent = ServerBrandEvent("§bDockyardMC Server §7(https://github.com/DockyardMC/)")
         Events.dispatch(serverBrandEvent)
-        connection.sendPacket(ClientboundPluginMessagePacket("minecraft:brand", serverBrandEvent.brand))
+        connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asPacket("minecraft:brand"))
 
         // Send feature flags
         val featureFlagsEvent = ServerFeatureFlagsEvent(FeatureFlags.enabledFeatureFlags)

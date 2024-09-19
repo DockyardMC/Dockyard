@@ -13,6 +13,8 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.profiler.Profiler
+import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
+import io.github.dockyardmc.protocol.plugin.messages.RegisterPluginMessage
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
@@ -136,6 +138,7 @@ fun main(args: Array<String>) {
             pathEnd = it.location
         }
     }
+
 
     val server = DockyardServer()
     server.start()

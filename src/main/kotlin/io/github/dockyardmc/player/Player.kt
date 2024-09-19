@@ -40,8 +40,8 @@ class Player(
     override var entityId: Int,
     override var uuid: UUID,
     override var type: EntityType = EntityTypes.PLAYER,
-    override var location: Location = Location(0, 0, 0, WorldManager.worlds.values.first()),
     override var world: World,
+    override var location: Location = world.defaultSpawnLocation,
     val connection: ChannelHandlerContext,
     val address: String,
     val crypto: PlayerCrypto,
@@ -92,7 +92,6 @@ class Player(
     lateinit var lastSentPacket: ClientboundPacket
 
     init {
-        log("[PLAYER] Initializing player", LogType.TRACE)
         selectedHotbarSlot.valueChanged {
             this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
             val item = inventory[it.newValue]
@@ -164,7 +163,6 @@ class Player(
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
         time.valueChanged { updateWorldTime() }
-        log("[PLAYER] player initialized", LogType.TRACE)
     }
 
     override fun tick() {
