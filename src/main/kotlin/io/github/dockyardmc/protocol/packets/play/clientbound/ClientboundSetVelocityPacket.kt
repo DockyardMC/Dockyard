@@ -6,9 +6,8 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.utils.Vector3
-import io.github.dockyardmc.utils.writeShortVector3
-import io.github.dockyardmc.utils.writeVector3
+import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.writeShortVector3
 
 @WikiVGEntry("Set Entity Velocity")
 @ClientboundPacketInfo(0x5A, ProtocolState.PLAY)

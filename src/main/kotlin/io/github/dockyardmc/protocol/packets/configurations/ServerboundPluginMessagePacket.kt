@@ -11,18 +11,17 @@ import io.netty.channel.ChannelHandlerContext
 
 @WikiVGEntry("Serverbound Plugin Message (configuration)")
 @ServerboundPacketInfo(0x02, ProtocolState.CONFIGURATION)
-class ServerboundPluginMessagePacket(var channel: String, var data: String): ServerboundPacket {
+class ServerboundConfigurationPluginMessagePacket(val channel: String, val data: ByteBuf) : ServerboundPacket {
+
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.configurationHandler.handlePluginMessage(this, connection)
     }
 
     companion object {
-        fun read(buf: ByteBuf): ServerboundPluginMessagePacket {
-            val channel = buf.readString()
-            val leftBits = buf.readableBytes()
-            val restOfData = buf.readBytes(buf.readableBytes())
-
-            return ServerboundPluginMessagePacket(channel, "")
+        fun read(byteBuf: ByteBuf): ServerboundConfigurationPluginMessagePacket {
+            val channel = byteBuf.readString(32767)
+            val data = byteBuf.readBytes(byteBuf.readableBytes())
+            return ServerboundConfigurationPluginMessagePacket(channel, data)
         }
     }
 }

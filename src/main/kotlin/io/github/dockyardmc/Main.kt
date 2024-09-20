@@ -1,25 +1,28 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.commands.CommandSuggestions
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.commands.SuggestionProvider
+import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.inventory.give
-import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.pathfinding.Pathfinder
 import io.github.dockyardmc.player.GameMode
+import io.github.dockyardmc.player.PlayerHand
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
+import io.github.dockyardmc.profiler.Profiler
+import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.addPotionEffect
-import io.github.dockyardmc.resourcepack.addResourcepack
-import io.github.dockyardmc.resourcepack.removeResourcepack
+import io.github.dockyardmc.runnables.timedSequenceAsync
+import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.utils.randomFloat
+import io.github.dockyardmc.world.Chunk
+import io.github.dockyardmc.world.WorldManager
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -57,52 +60,82 @@ fun main(args: Array<String>) {
         return SuggestionProvider.withContext { it.resourcepacks.keys.toList() }
     }
 
-    Commands.add("/test") {
+//    val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
+//    testWorld.defaultSpawnLocation = Location(0, 201, 0, testWorld)
+//    Events.on<PlayerPreSpawnWorldSelectionEvent> {
+//        it.world = testWorld
+//    }
+
+    var pathStart: Location? = null
+    var pathEnd: Location? = null
+
+    var pathfinder: Pathfinder? = null
+
+
+    Commands.add("/reset") {
         execute {
-            it.getPlayerOrThrow().give(ItemStack(Items.TOTEM_OF_UNDYING).apply { customModelData.value = 1 })
-        }
-    }
+            val platformSize = 30
 
-    Commands.add("/totem") {
-        execute {
-            it.getPlayerOrThrow().playTotemAnimation(1)
-        }
-    }
+            val world = WorldManager.mainWorld
+            val chunks = mutableListOf<Chunk>()
 
-    Commands.add("/resourcepack") {
-        addSubcommand("add") {
-            addArgument("name", StringArgument(), getPackSuggestions())
-            addArgument("url", StringArgument())
-            execute {
-                val player = it.getPlayerOrThrow()
-                val name = getArgument<String>("name")
-                val url = getArgument<String>("url")
-
-                DockyardServer.broadcastMessage(url)
-
-                player.addResourcepack(name) {
-                    withUrl(url)
-
-                    onSuccess { response ->
-                        response.player.sendMessage("<lime>Successfully loaded resourcepack!")
-                    }
-                    onFail { response ->
-                        response.player.sendMessage("<red>womp womp: <orange>${response.status.name}")
+            for (x in 0 until platformSize) {
+                for (z in 0 until platformSize) {
+                    world.setBlock(x, 0, z, Blocks.STONE)
+                    val chunk = world.getChunkAt(x, z)!!
+                    if(!chunks.contains(chunk)) chunks.add(chunk)
+                    for (y in 1 until 20) {
+                        world.setBlockRaw(x, y, z, Blocks.AIR.defaultBlockStateId, false)
                     }
                 }
             }
-        }
-
-        addSubcommand("remove") {
-            addArgument("name", StringArgument(), getPackSuggestions())
-            execute {
-                val player = it.getPlayerOrThrow()
-                val name = getArgument<String>("name")
-
-                player.removeResourcepack(name)
+            chunks.forEach { chunk ->
+                chunk.updateCache()
+                PlayerManager.players.sendPacket(chunk.packet)
             }
         }
     }
+
+
+    Commands.add("/find") {
+        execute {
+            if (pathStart == null || pathEnd == null) throw CommandException("start or end is null!")
+            pathfinder = Pathfinder(pathStart!!, pathEnd!!)
+            val profiler = Profiler()
+            profiler.start("Pathfind")
+            val path = pathfinder!!.findPath() ?: throw CommandException("Path not found!")
+            profiler.end()
+            timedSequenceAsync { seq ->
+                path.forEach {
+                    it.world.setBlock(it, Blocks.YELLOW_CONCRETE)
+                    it.world.players.values.playSound(
+                        "minecraft:entity.chicken.egg",
+                        pitch = randomFloat(1f, 2f)
+                    )
+                    seq.wait(1)
+                }
+            }
+        }
+    }
+
+    Events.on<PlayerBlockRightClickEvent> {
+        if (it.heldItem.material == Items.DEBUG_STICK) {
+            it.player.playSound("minecraft:block.note_block.pling")
+            it.player.sendMessage("<lime>First point set!")
+            it.location.world.setBlock(it.location, Blocks.GOLD_BLOCK)
+            pathStart = it.location
+        }
+    }
+
+    Events.on<PlayerBlockBreakEvent> {
+        if (it.player.getHeldItem(PlayerHand.MAIN_HAND).material == Items.DEBUG_STICK) {
+            it.player.playSound("minecraft:block.note_block.pling")
+            it.player.sendMessage("<lime>Second point set!")
+            it.location.world.setBlock(it.location, Blocks.DIAMOND_BLOCK)
+            pathEnd = it.location
+        }
+    }
+
 
     val server = DockyardServer()
     server.start()

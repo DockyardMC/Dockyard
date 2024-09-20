@@ -4,7 +4,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.writeItemStack
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.positiveCeilDiv
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
@@ -135,7 +135,7 @@ fun ByteBuf.writeNBT(nbt: NBT, truncateRootTag: Boolean = true) {
 }
 
 fun ByteBuf.readFixedBitSet(i: Int): BitSet {
-    val bs = ByteArray(MathUtils.positiveCeilDiv(i, 8))
+    val bs = ByteArray(positiveCeilDiv(i, 8))
     this.readBytes(bs)
     return BitSet.valueOf(bs)
 }

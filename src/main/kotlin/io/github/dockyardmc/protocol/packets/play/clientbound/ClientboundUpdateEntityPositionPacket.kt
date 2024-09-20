@@ -7,7 +7,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.getRelativeCoords
 
 @WikiVGEntry("Update Entity Position")
 @ClientboundPacketInfo(0x2E, ProtocolState.PLAY)
@@ -20,9 +20,9 @@ class ClientboundUpdateEntityPositionPacket(
         val current = entity.location
 
         data.writeVarInt(entity.entityId)
-        data.writeShort(MathUtils.getRelativeCoords(current.x, previousLocation.x))
-        data.writeShort(MathUtils.getRelativeCoords(current.y, previousLocation.y))
-        data.writeShort(MathUtils.getRelativeCoords(current.z, previousLocation.z))
+        data.writeShort(getRelativeCoords(current.x, previousLocation.x))
+        data.writeShort(getRelativeCoords(current.y, previousLocation.y))
+        data.writeShort(getRelativeCoords(current.z, previousLocation.z))
         data.writeBoolean(entity.isOnGround)
     }
 }

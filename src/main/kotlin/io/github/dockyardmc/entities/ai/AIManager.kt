@@ -6,8 +6,8 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.broadcastActionBar
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Vector3f
+import io.github.dockyardmc.utils.randomInt
+import io.github.dockyardmc.utils.vectors.Vector3f
 import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
@@ -127,14 +127,14 @@ class RandomLookAroundAIGoal(override var entity: Entity, override var priority:
     var lookingDirection: Vector3f = Vector3f(0f)
 
     override fun startCondition(): Boolean {
-        if(MathUtils.randomInt(chancePerTick, 100) != chancePerTick) {
+        if(randomInt(chancePerTick, 100) != chancePerTick) {
             return false
         }
         return entity.health.value > 10
     }
 
     override fun start() {
-        lookTime = MathUtils.randomInt(20, 40)
+        lookTime = randomInt(20, 40)
         lookingDirection = getRandomDirection()
         DockyardServer.broadcastMessage("<lime>started ai")
     }

@@ -21,7 +21,7 @@ object DebugScoreboard {
             val runtime = Runtime.getRuntime()
             val mspt = ServerMetrics.millisecondsPerTick
             val memoryUsage = runtime.totalMemory() - runtime.freeMemory()
-            val memUsagePercent = MathUtils.percent(runtime.totalMemory().toDouble(), memoryUsage.toDouble())
+            val memUsagePercent = percent(runtime.totalMemory().toDouble(), memoryUsage.toDouble())
 
             val fMem = (memoryUsage.toDouble() / 1000000).truncate(1)
             val fRented = (runtime.totalMemory().toDouble() / 1000000).truncate(1)

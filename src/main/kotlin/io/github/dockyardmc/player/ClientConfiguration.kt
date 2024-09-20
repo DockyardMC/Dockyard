@@ -5,7 +5,7 @@ class ClientConfiguration(
     var viewDistance: Int,
     var chatMode: Int,
     var chatColors: Boolean,
-    var displayedSkinParts: Short,
+    var displayedSkinParts: Byte,
     var mainHandSide: Int,
     var enableTextFiltering: Boolean,
     var allowServerListing: Boolean

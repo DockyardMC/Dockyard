@@ -16,8 +16,13 @@ fun timedSequenceAsync(unit: (AsyncTimedSequence) -> Unit) {
 
 class AsyncTimedSequence() {
 
+    @Deprecated("Use int instead of using duration", ReplaceWith("wait(ticks: Int)"))
     fun wait(ticks: Duration) {
         Thread.sleep(ticks.inWholeMilliseconds)
+    }
+
+    fun wait(ticks: Int) {
+        Thread.sleep((ticks * 50).toDuration(DurationUnit.MILLISECONDS).inWholeMilliseconds)
     }
 }
 

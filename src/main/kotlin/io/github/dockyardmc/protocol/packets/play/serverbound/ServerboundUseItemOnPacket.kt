@@ -10,6 +10,7 @@ import io.github.dockyardmc.events.PlayerBlockPlaceEvent
 import io.github.dockyardmc.events.PlayerRightClickWithItemEvent
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PacketProcessor
@@ -18,9 +19,7 @@ import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.utils.Vector3
-import io.github.dockyardmc.utils.readPosition
-import io.github.dockyardmc.utils.toLocation
+import io.github.dockyardmc.utils.vectors.Vector3
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -137,7 +136,7 @@ class ServerboundUseItemOnPacket(
         fun read(buf: ByteBuf): ServerboundUseItemOnPacket {
             return ServerboundUseItemOnPacket(
                 buf.readVarIntEnum<PlayerHand>(),
-                buf.readPosition(),
+                buf.readBlockPosition(),
                 buf.readVarIntEnum<Direction>(),
                 buf.readFloat(),
                 buf.readFloat(),

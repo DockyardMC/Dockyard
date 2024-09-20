@@ -3,26 +3,27 @@ package io.github.dockyardmc.world
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.main
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionType
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
+import java.lang.IllegalArgumentException
 
 object WorldManager {
 
     val worlds: MutableMap<String, World> = mutableMapOf()
-    val mainWorld = create("main", VoidWorldGenerator(), DimensionTypes.OVERWORLD)
+    val mainWorld: World = World("main", VoidWorldGenerator(), DimensionTypes.OVERWORLD)
 
     init {
+        worlds["main"] = mainWorld
         Events.on<WorldFinishLoadingEvent> {
             if(it.world == mainWorld) generateStonePlatform(mainWorld)
         }
     }
 
     private fun generateStonePlatform(world: World) {
-        val platformSize = 5
+        val platformSize = 30
 
         val centerX = (platformSize - 1) / 2
         val centerZ = (platformSize - 1) / 2
@@ -54,5 +55,5 @@ object WorldManager {
         world.delete()
     }
 
-    fun getOrThrow(world: String): World = worlds[world] ?: throw Exception("World with name $world does not exist!")
+    fun getOrThrow(world: String): World = worlds[world] ?: throw IllegalArgumentException("World with name $world does not exist!")
 }

@@ -6,8 +6,7 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.utils.Vector2
-import io.github.dockyardmc.utils.Vector2f
+import io.github.dockyardmc.utils.vectors.Vector2f
 
 @WikiVGEntry("Update Entity Rotation")
 @ClientboundPacketInfo(0x30, ProtocolState.PLAY)

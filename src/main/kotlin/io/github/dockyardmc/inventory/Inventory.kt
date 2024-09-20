@@ -3,8 +3,6 @@ package io.github.dockyardmc.inventory
 import cz.lukynka.Bindable
 import cz.lukynka.BindableMap
 import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityManager.spawnEntity
-import io.github.dockyardmc.entities.ItemDropEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.item.ItemStack
@@ -14,7 +12,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.toOriginalSlotIndex
 
 class Inventory(var entity: Entity) {
     val name: String = "Inventory"
@@ -60,7 +58,7 @@ class Inventory(var entity: Entity) {
 
     fun sendInventoryUpdate(slot: Int) {
         val player = entity as Player
-        val clientSlot =  MathUtils.toOriginalSlotIndex(slot)
+        val clientSlot =  toOriginalSlotIndex(slot)
         val item = if(slot == -1) carriedItem.value else slots[slot]
         val windowId = if(slot == -1) -1 else 0
         val packet = ClientboundSetInventorySlotPacket(windowId, 0, clientSlot, item ?: ItemStack.air)

@@ -19,9 +19,13 @@ import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.*
+import io.github.dockyardmc.utils.vectors.Vector2f
+import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
+import java.lang.IllegalStateException
 import java.util.Random
 import java.util.UUID
 
@@ -141,7 +145,7 @@ class World(
     }
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
-        val chunk = getChunkAt(x, z) ?: return Blocks.AIR
+        val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $z not generated!")
         return chunk.getBlock(x, y, z)
     }
 
@@ -179,6 +183,13 @@ class World(
     }
 
     fun setBlockRaw(location: Location, blockStateId: Int, updateChunk: Boolean = true) {
+        val chunk = getChunkAt(location.x.toInt(), location.z.toInt()) ?: return
+        chunk.setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId, updateChunk)
+        if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
+    }
+
+    fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int, updateChunk: Boolean = true) {
+        val location = Location(x, y, z, this)
         val chunk = getChunkAt(location.x.toInt(), location.z.toInt()) ?: return
         chunk.setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId, updateChunk)
         if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }

@@ -11,7 +11,7 @@ import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
-import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.playerInventoryCorrectSlot
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -29,7 +29,7 @@ class ServerboundClickContainerPacket(
 
     override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
-        val properSlot = if(player.currentOpenInventory.value == null) MathUtils.playerInventoryCorrectSlot(slot) else slot
+        val properSlot = if(player.currentOpenInventory.value == null) playerInventoryCorrectSlot(slot) else slot
 
         val clickedSlotItem = player.inventory[properSlot].clone()
         val empty = ItemStack.air

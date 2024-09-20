@@ -14,12 +14,16 @@ import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.sounds.Sound
+import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
-import io.github.dockyardmc.utils.*
+import io.github.dockyardmc.utils.mergeEntityMetadata
+import io.github.dockyardmc.utils.ticksToMs
+import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.World
-import java.lang.IllegalArgumentException
-import java.util.UUID
+import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -185,9 +189,8 @@ abstract class Entity(open var location: Location, open var world: World) {
         sendSelfPacketIfPlayer(packet)
     }
 
-    //TODO make this work
     open fun lookAt(target: Entity) {
-        val newLoc = this.location.setDirection(target.location.subtract(this.location).toVector3f())
+        val newLoc = this.location.setDirection(target.location.subtract(this.location).toVector3d())
         this.location = newLoc
 
         this.location.yaw = (newLoc.yaw % 360) * 256 / 360
@@ -227,6 +230,7 @@ abstract class Entity(open var location: Location, open var world: World) {
     open fun teleport(location: Location) {
         this.location = location
         viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
+        viewers.sendPacket(ClientboundSetHeadYawPacket(this))
     }
 
     open fun damage(damage: Float, damageType: DamageType, attacker: Entity? = null, projectile: Entity? = null) {
@@ -246,6 +250,10 @@ abstract class Entity(open var location: Location, open var world: World) {
 
         val packet = ClientboundDamageEventPacket(this, event.damageType, event.attacker, event.projectile, location)
         viewers.sendPacket(packet)
+    }
+
+    fun playSoundToViewers(sound: Sound, location: Location? = this.location) {
+        viewers.playSound(sound, location)
     }
 
     open fun kill() {

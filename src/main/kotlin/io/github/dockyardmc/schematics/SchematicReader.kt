@@ -3,8 +3,8 @@ package io.github.dockyardmc.schematics
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.getBlockFromStateString
-import io.github.dockyardmc.utils.MathUtils
-import io.github.dockyardmc.utils.Vector3
+import io.github.dockyardmc.utils.getFileHash
+import io.github.dockyardmc.utils.vectors.Vector3
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray
 import org.jglrxavpok.hephaistos.nbt.*
 import java.io.File
@@ -16,7 +16,7 @@ object SchematicReader {
     fun read(file: File): Schematic {
         if(!file.exists()) throw Exception("File $file does not exist!")
         if(ConfigManager.currentConfig.serverConfig.cacheSchematics) {
-            val hash = MathUtils.getFileHash(file, "SHA-256")
+            val hash = getFileHash(file, "SHA-256")
             val cachedSchematic = cache[hash]
             if(cachedSchematic != null) return cachedSchematic
         }
@@ -66,7 +66,7 @@ object SchematicReader {
             blocks = blockArray.copyArray()
         )
         if(ConfigManager.currentConfig.serverConfig.cacheSchematics) {
-            cache[MathUtils.getFileHash(file, "SHA-256")] = schematic
+            cache[getFileHash(file, "SHA-256")] = schematic
         }
         return schematic
     }

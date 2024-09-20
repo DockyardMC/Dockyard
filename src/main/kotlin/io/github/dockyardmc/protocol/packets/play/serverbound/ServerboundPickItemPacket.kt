@@ -7,7 +7,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
-import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.toOriginalSlotIndex
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -25,7 +25,7 @@ class ServerboundPickItemPacket(var slot: Int): ServerboundPacket {
             }
             newSlot++
         }
-        val oldSlot = MathUtils.toOriginalSlotIndex(slot)
+        val oldSlot = toOriginalSlotIndex(slot)
         val oldItem = player.inventory[newSlot]
         player.inventory[newSlot] = player.inventory[oldSlot]
         player.inventory[oldSlot] = oldItem

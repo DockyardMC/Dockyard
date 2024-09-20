@@ -17,7 +17,7 @@ class ServerboundClientInformationPacket(
     var viewDistance: Int,
     var chatMode: Int,
     var chatColors: Boolean,
-    var displayedSkinParts: Short,
+    var displayedSkinParts: Byte,
     var mainHandSide: Int,
     var enableTextFiltering: Boolean,
     var allowServerListing: Boolean
@@ -29,11 +29,11 @@ class ServerboundClientInformationPacket(
     companion object {
         fun read(buf: ByteBuf): ServerboundClientInformationPacket {
             return ServerboundClientInformationPacket(
-                buf.readString(16),
+                buf.readString(),
                 buf.readByte().toInt(),
                 buf.readVarInt(),
                 buf.readBoolean(),
-                buf.readUnsignedByte(),
+                buf.readByte(),
                 buf.readVarInt(),
                 buf.readBoolean(),
                 buf.readBoolean()

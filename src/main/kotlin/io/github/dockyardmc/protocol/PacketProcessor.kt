@@ -78,9 +78,12 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                 try {
                     val packet = PacketParser.parse(packetId, packetData, this, packetSize)
 
-                    if(packet == null) {
+                    if (packet == null) {
                         buf.discardReadBytes()
-                        log("Received unknown packet with id $packetId ($packetIdByteRep) during phase: ${state.name}", LogType.ERROR)
+                        log(
+                            "Received unknown packet with id $packetId ($packetIdByteRep) during phase: ${state.name}",
+                            LogType.ERROR
+                        )
                         break
                     }
 
@@ -98,6 +101,8 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                     }
 
                     event.packet.handle(this, event.connection, event.size, event.id)
+                } catch (ex: Exception) {
+                    log(ex)
                 } finally {
                     packetData.release()
                 }

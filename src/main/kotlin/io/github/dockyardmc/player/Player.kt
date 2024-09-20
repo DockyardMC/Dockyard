@@ -25,6 +25,8 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.*
+import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.ConcurrentChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
@@ -36,8 +38,8 @@ class Player(
     override var entityId: Int,
     override var uuid: UUID,
     override var type: EntityType = EntityTypes.PLAYER,
-    override var location: Location = Location(0, 0, 0, WorldManager.worlds.values.first()),
     override var world: World,
+    override var location: Location = world.defaultSpawnLocation,
     val connection: ChannelHandlerContext,
     val address: String,
     val crypto: PlayerCrypto,
@@ -133,7 +135,7 @@ class Player(
         tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
 
         redVignette.valueChanged {
-            val distance = MathUtils.percentOf(it.newValue * 10, world.worldBorder.diameter).toInt()
+            val distance = percentOf(it.newValue * 10, world.worldBorder.diameter).toInt()
             sendPacket(ClientboundSetWorldBorderWarningDistance(distance))
         }
 
@@ -183,7 +185,7 @@ class Player(
 
                 if((world.worldAge % 5) == 0L) {
                     val viewers = world.players.values.toMutableList().filter { it != this }
-                    viewers.playSound("minecraft:entity.generic.eat", location, 1f, MathUtils.randomFloat(0.9f, 1.3f))
+                    viewers.playSound("minecraft:entity.generic.eat", location, 1f, randomFloat(0.9f, 1.3f))
                     viewers.spawnParticle(location.clone().apply { y += 1.5 }, Particles.ITEM, Vector3f(0.2f), 0.05f, 6, false, ItemParticleData(item))
                 }
 

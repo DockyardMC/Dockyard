@@ -31,12 +31,13 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
         processor.playerProtocolVersion = packet.version
-
         processor.state = ProtocolState.LOGIN
     }
 
     fun handleLoginStart(packet: ServerboundLoginStartPacket, connection: ChannelHandlerContext) {
-        debug("Received login start packet with name ${packet.name} and UUID ${packet.uuid}", logType = LogType.DEBUG)
+        val name = packet.name
+        val uuid = packet.uuid
+        debug("Received login start packet with name $name and UUID $uuid", logType = LogType.DEBUG)
 
         if(!DockyardServer.allowAnyVersion) {
             val playerVersion = VersionToProtocolVersion.map.reversed()[processor.playerProtocolVersion]
@@ -56,14 +57,14 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         val secureRandom = SecureRandom()
         val verificationToken  = ByteArray(4)
         secureRandom.nextBytes(verificationToken)
-        // verificationToken.size reports 4 but nextBytes WRITES 8 IN REALITY... WHY???? I HAVE SPENT 2 HOURS DEBUGGING THIS
 
         val playerCrypto = PlayerCrypto(publicKey, privateKey, verificationToken)
+        log("made player crypto")
         val player = Player(
-            username =  packet.name,
+            username =  name,
             entityId = EntityManager.entityIdCounter.incrementAndGet(),
-            uuid =  packet.uuid,
-            world = WorldManager.worlds.values.first(),
+            uuid =  uuid,
+            world = WorldManager.mainWorld,
             address = connection.channel().remoteAddress().address,
             crypto = playerCrypto,
             connection = connection,
@@ -72,11 +73,12 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         PlayerManager.add(player, processor)
         EntityManager.entities.add(player)
 
+
+        // pre-cache the skin
         val asyncRunnable = AsyncRunnable {
-            val skin = MojangUtil.getSkinFromUUID(player.uuid)
+            MojangUtil.getSkinFromUUID(player.uuid)
         }
         asyncRunnable.run()
-
         val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken, true)
         connection.sendPacket(out)
     }

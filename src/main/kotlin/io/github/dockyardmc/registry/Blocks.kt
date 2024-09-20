@@ -1210,3 +1210,7 @@ fun getBlockStateId(block: Block, stateValues: Map<String, String>, debug: Boole
     val id = block.cachedStates[string] ?: block.defaultBlockStateId
     return id
 }
+
+fun Block.isAir(): Boolean {
+    return this.defaultBlockStateId == Blocks.AIR.defaultBlockStateId
+}
