@@ -110,8 +110,8 @@ class Location(
             return loc
         }
 
-        loc.pitch = Math.toDegrees(atan2(-x, z)).toFloat()
-        loc.yaw = Math.toDegrees(atan2(-y, sqrt(x * x + z * z))).toFloat()
+        loc.yaw = Math.toDegrees(atan2(-x, z)).toFloat()
+        loc.pitch = Math.toDegrees(atan2(-y, sqrt(x * x + z * z))).toFloat()
         return loc
     }
 
@@ -131,7 +131,7 @@ class Location(
     fun toVector3f(): Vector3f = Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
     fun toVector3d(): Vector3d = Vector3d(x, y, z)
 
-    val blockHash: Int get() = (blockX + blockY + blockZ)
+    val blockHash: String get() = "$blockX$blockY$blockZ${world.name}"
     fun equalsBlock(location: Location): Boolean  = this.blockHash == location.blockHash
 }
 

@@ -13,17 +13,14 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.profiler.Profiler
-import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
-import io.github.dockyardmc.protocol.plugin.messages.RegisterPluginMessage
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.addPotionEffect
-import io.github.dockyardmc.runnables.ticks
 import io.github.dockyardmc.runnables.timedSequenceAsync
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugScoreboard
-import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.randomFloat
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
 
@@ -113,9 +110,9 @@ fun main(args: Array<String>) {
                     it.world.setBlock(it, Blocks.YELLOW_CONCRETE)
                     it.world.players.values.playSound(
                         "minecraft:entity.chicken.egg",
-                        pitch = MathUtils.randomFloat(1f, 2f)
+                        pitch = randomFloat(1f, 2f)
                     )
-                    seq.wait(1.ticks)
+                    seq.wait(1)
                 }
             }
         }

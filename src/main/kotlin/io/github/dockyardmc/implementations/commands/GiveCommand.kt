@@ -9,7 +9,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.utils.MathUtils
+import io.github.dockyardmc.utils.randomFloat
 
 class GiveCommand {
     init {
@@ -25,7 +25,7 @@ class GiveCommand {
                 val item = getArgument<Item>("item")
                 val amount = getArgumentOrNull<Int>("amount") ?: 1
                 player.give(ItemStack(item, amount))
-                player.playSound("minecraft:entity.item.pickup", pitch = MathUtils.randomFloat(0.8f, 1.3f))
+                player.playSound("minecraft:entity.item.pickup", pitch = randomFloat(0.8f, 1.3f))
             }
         }
     }

@@ -2,8 +2,6 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
@@ -137,7 +135,7 @@ class Player(
         tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
 
         redVignette.valueChanged {
-            val distance = MathUtils.percentOf(it.newValue * 10, world.worldBorder.diameter).toInt()
+            val distance = percentOf(it.newValue * 10, world.worldBorder.diameter).toInt()
             sendPacket(ClientboundSetWorldBorderWarningDistance(distance))
         }
 
@@ -187,7 +185,7 @@ class Player(
 
                 if((world.worldAge % 5) == 0L) {
                     val viewers = world.players.values.toMutableList().filter { it != this }
-                    viewers.playSound("minecraft:entity.generic.eat", location, 1f, MathUtils.randomFloat(0.9f, 1.3f))
+                    viewers.playSound("minecraft:entity.generic.eat", location, 1f, randomFloat(0.9f, 1.3f))
                     viewers.spawnParticle(location.clone().apply { y += 1.5 }, Particles.ITEM, Vector3f(0.2f), 0.05f, 6, false, ItemParticleData(item))
                 }
 

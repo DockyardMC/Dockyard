@@ -13,7 +13,6 @@ class ClientboundSetHeadYawPacket(entity: Entity): ClientboundPacket() {
 
     init {
         data.writeVarInt(entity.entityId)
-        data.writeByte((entity.location.yaw * 256 / 360).toInt())
+        data.writeByte(((entity.location.yaw % 360) * 256 / 360).toInt())
     }
-
 }

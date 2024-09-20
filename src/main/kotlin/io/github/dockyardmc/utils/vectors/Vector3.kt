@@ -5,6 +5,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -93,6 +94,16 @@ data class Vector3(
     fun toLocation(world: World): Location = Location(this.x, this.y, this.z, world)
     fun toVector3d() = Vector3d(x.toDouble(), y.toDouble(), z.toDouble())
     fun toVector3f() = Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
+
+    fun isDiagonalTo(other: Vector3): Boolean {
+        val dx = abs(x - other.x)
+        val dy = abs(y - other.y)
+        val dz = abs(z - other.z)
+
+        return (dx == 1 && dy == 1 && dz == 0) ||
+                (dx == 1 && dz == 1 && dy == 0) ||
+                (dy == 1 && dz == 1 && dx == 0)
+    }
 }
 
 fun ByteBuf.writeShortVector3(vector3: Vector3) {
@@ -108,5 +119,3 @@ fun ByteBuf.writeVector3(vector3: Vector3) {
 }
 
 fun ByteBuf.readVector3(): Vector3 = Vector3(this.readVarInt(), this.readVarInt(), this.readVarInt())
-
-

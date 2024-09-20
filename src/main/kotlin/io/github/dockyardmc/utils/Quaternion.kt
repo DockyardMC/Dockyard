@@ -18,7 +18,7 @@ data class Quaternion(
         val q = this // The quaternion representing the rotation
         val p = Quaternion(0f, vector.x, vector.y, vector.z)
 
-        val rotatedP = MathUtils.multiplyQuaternions(MathUtils.multiplyQuaternions(q, p), q).conjugate()
+        val rotatedP = multiplyQuaternions(multiplyQuaternions(q, p), q).conjugate()
 
         return Vector3f(rotatedP.x, rotatedP.y, rotatedP.z)
     }
@@ -27,15 +27,15 @@ data class Quaternion(
 
     companion object {
         fun fromAxis(axisX: Float, axisY: Float, axisZ: Float): Quaternion {
-            val xRadians = MathUtils.degreesToRadians(axisX)
-            val yRadians = MathUtils.degreesToRadians(axisY)
-            val zRadians = MathUtils.degreesToRadians(axisZ)
+            val xRadians = degreesToRadians(axisX)
+            val yRadians = degreesToRadians(axisY)
+            val zRadians = degreesToRadians(axisZ)
 
             val qx = Quaternion(sin(xRadians / 2), 0f, 0f, cos(xRadians / 2))
             val qy = Quaternion(0f, sin(yRadians / 2), 0f, cos(yRadians / 2))
             val qz = Quaternion(0f, 0f, sin(zRadians / 2), cos(zRadians / 2))
 
-            val q = MathUtils.multiplyQuaternions(MathUtils.multiplyQuaternions(qz, qy), qx)
+            val q = multiplyQuaternions(multiplyQuaternions(qz, qy), qx)
 
             return q
         }
