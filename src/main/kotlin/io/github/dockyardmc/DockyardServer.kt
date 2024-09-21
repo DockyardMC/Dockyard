@@ -24,19 +24,22 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.AnnotationProcessor
+import io.github.dockyardmc.config.Config
 import io.github.dockyardmc.protocol.PacketParser
 import java.net.InetSocketAddress
 import java.util.*
 
-class DockyardServer {
+class DockyardServer(configBuilder: Config.() -> Unit) {
 
     lateinit var bootstrap: ServerBootstrap
     lateinit var channelPipeline: ChannelPipeline
     val bossGroup = NioEventLoopGroup(3)
     val workerGroup = NioEventLoopGroup()
 
-    val ip get() = ConfigManager.currentConfig.serverConfig.ip
-    val port get() = ConfigManager.currentConfig.serverConfig.port
+    val config = Config()
+
+    val ip get() = config.ip
+    val port get() = config.port
 
     // Server ticks
     val tickProfiler = Profiler()
@@ -48,7 +51,7 @@ class DockyardServer {
 
     init {
         instance = this
-        ConfigManager.load()
+        configBuilder.invoke(config)
     }
 
     //TODO rewrite and make good
@@ -87,7 +90,7 @@ class DockyardServer {
         AnnotationProcessor.addIdsToClientboundPackets()
 
         innerProfiler.start("Load Default Implementations")
-        val implementationsConfig = ConfigManager.currentConfig.defaultImplementations
+        val implementationsConfig = config.implementationConfig
         if(implementationsConfig.dockyardCommands) DockyardCommands()
 
         innerProfiler.end()
@@ -134,7 +137,7 @@ class DockyardServer {
         var allowAnyVersion: Boolean = false
 
         var tickRate: Int = 20
-        val debug get() = ConfigManager.currentConfig.serverConfig.debug
+        val debug get() = ConfigManager.config.debug
 
         var mutePacketLogs = mutableListOf(
             "ClientboundSystemChatMessagePacket",

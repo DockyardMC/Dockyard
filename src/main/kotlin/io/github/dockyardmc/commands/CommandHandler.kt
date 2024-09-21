@@ -21,7 +21,7 @@ import java.util.*
 
 object CommandHandler {
 
-    val prefix get() = ConfigManager.currentConfig.implementationConfig.commandErrorPrefix
+    val prefix get() = ConfigManager.config.implementationConfig.commandErrorPrefix
 
     fun handleCommandInput(inputCommand: String, executor: CommandExecutor) {
         val tokens = inputCommand.removePrefix("/").split(" ").toMutableList()
@@ -58,7 +58,7 @@ object CommandHandler {
                 executor.sendMessage(message)
             } else {
                 log(ex)
-                if(ConfigManager.currentConfig.implementationConfig.notifyUserOfExceptionDuringCommand) {
+                if(ConfigManager.config.implementationConfig.notifyUserOfExceptionDuringCommand) {
                     executor.sendMessage("${prefix}A <orange>${ex::class.qualifiedName} <red>was thrown during execution of this command!")
                 }
             }
@@ -73,7 +73,7 @@ object CommandHandler {
             fullCommandString += if(argument.value.optional) ">] " else "> "
         }
 
-        if(executor.isPlayer && (!executor.player!!.hasPermission(command.permission))) throw CommandException(ConfigManager.currentConfig.implementationConfig.commandNoPermissionsMessage)
+        if(executor.isPlayer && (!executor.player!!.hasPermission(command.permission))) throw CommandException(ConfigManager.config.implementationConfig.commandNoPermissionsMessage)
 
         var i = 0
         command.arguments.forEach { (key, value) ->

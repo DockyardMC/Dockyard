@@ -30,7 +30,7 @@ class SchematicCommand {
                 }
             }
 
-            if(ConfigManager.currentConfig.serverConfig.cacheSchematics) {
+            if(ConfigManager.config.implementationConfig.cacheSchematics) {
                 addSubcommand("cache") {
                     execute {
                         val message = buildString {

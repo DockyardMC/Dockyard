@@ -6,9 +6,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRemoveR
 import java.util.UUID
 
 object ResourcepackManager {
-
     val pending: MutableList<Resourcepack> = mutableListOf()
-
 }
 
 class Resourcepack {
