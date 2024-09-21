@@ -108,7 +108,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             entityId = player.entityId,
             isHardcore = world.isHardcore,
             dimensionNames = WorldManager.worlds.keys,
-            maxPlayers = ConfigManager.currentConfig.serverConfig.maxPlayers,
+            maxPlayers = ConfigManager.config.maxPlayers,
             viewDistance = 16,
             simulationDistance = 16,
             reducedDebugInfo = false,

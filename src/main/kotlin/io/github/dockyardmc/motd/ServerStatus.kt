@@ -37,7 +37,7 @@ object ServerStatusManager {
                 protocol = VersionToProtocolVersion.map[DockyardServer.versionInfo.minecraftVersion] ?: 0,
             ),
             players = Players(
-                max = ConfigManager.currentConfig.serverConfig.maxPlayers,
+                max = ConfigManager.config.maxPlayers,
                 online = PlayerManager.players.size,
                 sample = playersOnline,
             ),

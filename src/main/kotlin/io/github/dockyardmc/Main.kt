@@ -1,26 +1,22 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.commands.*
+import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.events.*
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.pathfinding.Pathfinder
 import io.github.dockyardmc.player.GameMode
-import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
-import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.addPotionEffect
-import io.github.dockyardmc.runnables.timedSequenceAsync
-import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugScoreboard
-import io.github.dockyardmc.utils.randomFloat
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
 
@@ -56,21 +52,10 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
-    fun getPackSuggestions(): CommandSuggestions {
-        return SuggestionProvider.withContext { it.resourcepacks.keys.toList() }
-    }
-
-//    val testWorld = WorldManager.create("test", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
-//    testWorld.defaultSpawnLocation = Location(0, 201, 0, testWorld)
-//    Events.on<PlayerPreSpawnWorldSelectionEvent> {
-//        it.world = testWorld
-//    }
-
     var pathStart: Location? = null
     var pathEnd: Location? = null
 
     var pathfinder: Pathfinder? = null
-
 
     Commands.add("/reset") {
         execute {
@@ -83,7 +68,7 @@ fun main(args: Array<String>) {
                 for (z in 0 until platformSize) {
                     world.setBlock(x, 0, z, Blocks.STONE)
                     val chunk = world.getChunkAt(x, z)!!
-                    if(!chunks.contains(chunk)) chunks.add(chunk)
+                    if (!chunks.contains(chunk)) chunks.add(chunk)
                     for (y in 1 until 20) {
                         world.setBlockRaw(x, y, z, Blocks.AIR.defaultBlockStateId, false)
                     }
@@ -96,47 +81,15 @@ fun main(args: Array<String>) {
         }
     }
 
-
-    Commands.add("/find") {
-        execute {
-            if (pathStart == null || pathEnd == null) throw CommandException("start or end is null!")
-            pathfinder = Pathfinder(pathStart!!, pathEnd!!)
-            val profiler = Profiler()
-            profiler.start("Pathfind")
-            val path = pathfinder!!.findPath() ?: throw CommandException("Path not found!")
-            profiler.end()
-            timedSequenceAsync { seq ->
-                path.forEach {
-                    it.world.setBlock(it, Blocks.YELLOW_CONCRETE)
-                    it.world.players.values.playSound(
-                        "minecraft:entity.chicken.egg",
-                        pitch = randomFloat(1f, 2f)
-                    )
-                    seq.wait(1)
-                }
-            }
+    val server = DockyardServer {
+        withIp("0.0.0.0")
+        withMaxPlayers(50)
+        withPort(25565)
+        useMojangAuth(false)
+        useDebugMode(true)
+        withImplementations {
+            dockyardCommands = true
         }
     }
-
-    Events.on<PlayerBlockRightClickEvent> {
-        if (it.heldItem.material == Items.DEBUG_STICK) {
-            it.player.playSound("minecraft:block.note_block.pling")
-            it.player.sendMessage("<lime>First point set!")
-            it.location.world.setBlock(it.location, Blocks.GOLD_BLOCK)
-            pathStart = it.location
-        }
-    }
-
-    Events.on<PlayerBlockBreakEvent> {
-        if (it.player.getHeldItem(PlayerHand.MAIN_HAND).material == Items.DEBUG_STICK) {
-            it.player.playSound("minecraft:block.note_block.pling")
-            it.player.sendMessage("<lime>Second point set!")
-            it.location.world.setBlock(it.location, Blocks.DIAMOND_BLOCK)
-            pathEnd = it.location
-        }
-    }
-
-
-    val server = DockyardServer()
     server.start()
 }

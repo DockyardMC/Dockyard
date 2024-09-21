@@ -6,9 +6,9 @@ import java.security.PublicKey
 import javax.crypto.SecretKey
 
 class PlayerCrypto(
-    val publicKey: PublicKey,
-    val privateKey: PrivateKey,
-    val verifyToken: ByteArray,
+    val publicKey: PublicKey? = null,
+    val privateKey: PrivateKey? = null,
+    val verifyToken: ByteArray? = null,
     var sharedSecret: SecretKey? = null,
     var isConnectionEncrypted: Boolean = false,
     var playerSession: PlayerSession? = null

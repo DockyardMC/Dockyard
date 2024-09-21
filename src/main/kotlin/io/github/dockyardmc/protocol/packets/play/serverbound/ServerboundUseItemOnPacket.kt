@@ -39,7 +39,7 @@ class ServerboundUseItemOnPacket(
     ): ServerboundPacket {
 
         init {
-            if(ConfigManager.currentConfig.implementationConfig.applyBlockPlacementRules) {
+            if(ConfigManager.config.implementationConfig.applyBlockPlacementRules) {
                 val rotational = listOf(
                     "furnace",
                     "blast_furnace",

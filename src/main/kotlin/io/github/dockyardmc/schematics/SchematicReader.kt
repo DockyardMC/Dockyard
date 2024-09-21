@@ -15,7 +15,7 @@ object SchematicReader {
 
     fun read(file: File): Schematic {
         if(!file.exists()) throw Exception("File $file does not exist!")
-        if(ConfigManager.currentConfig.serverConfig.cacheSchematics) {
+        if(ConfigManager.config.implementationConfig.cacheSchematics) {
             val hash = getFileHash(file, "SHA-256")
             val cachedSchematic = cache[hash]
             if(cachedSchematic != null) return cachedSchematic
@@ -65,7 +65,7 @@ object SchematicReader {
             pallete = blocks.toMutableMap(),
             blocks = blockArray.copyArray()
         )
-        if(ConfigManager.currentConfig.serverConfig.cacheSchematics) {
+        if(ConfigManager.config.implementationConfig.cacheSchematics) {
             cache[getFileHash(file, "SHA-256")] = schematic
         }
         return schematic

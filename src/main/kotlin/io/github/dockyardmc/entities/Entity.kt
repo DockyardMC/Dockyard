@@ -53,7 +53,7 @@ abstract class Entity(open var location: Location, open var world: World) {
     val freezeTicks: Bindable<Int> = Bindable(0)
     val equipment: Bindable<EntityEquipment> = Bindable(EntityEquipment())
     val equipmentLayers: BindableMap<PersistentPlayer, EntityEquipmentLayer> = BindableMap()
-    var renderDistanceBlocks: Int = ConfigManager.currentConfig.serverConfig.defaultEntityRenderDistanceBlocks
+    var renderDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityRenderDistanceBlocks
     var autoViewable: Boolean = true
 
     constructor(location: Location): this(location, location.world)

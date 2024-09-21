@@ -13,7 +13,7 @@ class DockyardCommands {
         TeleportCommand()
         SchematicCommand()
         TimeCommand()
-        if(ConfigManager.currentConfig.serverConfig.debug) {
+        if(ConfigManager.config.debug) {
             ViewerCommand()
             DebugCommands()
         }

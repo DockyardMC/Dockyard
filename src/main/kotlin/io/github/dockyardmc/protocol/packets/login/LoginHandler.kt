@@ -3,6 +3,7 @@ package io.github.dockyardmc.protocol.packets.login
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.extentions.sendPacket
@@ -48,39 +49,44 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
             }
         }
 
-        val generator = KeyPairGenerator.getInstance("RSA")
-        generator.initialize(1024)
-        val keyPair = generator.generateKeyPair()
-        val privateKey = keyPair.private
-        val publicKey = keyPair.public
-
-        val secureRandom = SecureRandom()
-        val verificationToken  = ByteArray(4)
-        secureRandom.nextBytes(verificationToken)
-
-        val playerCrypto = PlayerCrypto(publicKey, privateKey, verificationToken)
-        log("made player crypto")
+        val dummyCrypto = PlayerCrypto()
         val player = Player(
             username =  name,
             entityId = EntityManager.entityIdCounter.incrementAndGet(),
             uuid =  uuid,
             world = WorldManager.mainWorld,
             address = connection.channel().remoteAddress().address,
-            crypto = playerCrypto,
+            crypto = dummyCrypto,
             connection = connection,
         )
 
         PlayerManager.add(player, processor)
         EntityManager.entities.add(player)
 
+        if(ConfigManager.config.useMojangAuth) {
+            val generator = KeyPairGenerator.getInstance("RSA")
+            generator.initialize(1024)
+            val keyPair = generator.generateKeyPair()
+            val privateKey = keyPair.private
+            val publicKey = keyPair.public
 
-        // pre-cache the skin
-        val asyncRunnable = AsyncRunnable {
-            MojangUtil.getSkinFromUUID(player.uuid)
+            val secureRandom = SecureRandom()
+            val verificationToken  = ByteArray(4)
+            secureRandom.nextBytes(verificationToken)
+
+            val playerCrypto = PlayerCrypto(publicKey, privateKey, verificationToken)
+            player.crypto = playerCrypto
+
+            // pre-cache the skin
+            val asyncRunnable = AsyncRunnable {
+                MojangUtil.getSkinFromUUID(player.uuid)
+            }
+            asyncRunnable.run()
+            val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken, true)
+            connection.sendPacket(out)
+        } else {
+            finishEncryption(player)
         }
-        asyncRunnable.run()
-        val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken, true)
-        connection.sendPacket(out)
     }
 
     fun handleEncryptionResponse(packet: ServerboundEncryptionResponsePacket, connection: ChannelHandlerContext) {
@@ -102,7 +108,14 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
         pipeline.addBefore("decryptor", "encryptor", PacketEncryptionHandler(processor.player.crypto))
 
         val player = processor.player
+        finishEncryption(player)
+    }
 
+    fun handleLoginAcknowledge(packet: ServerboundLoginAcknowledgedPacket, connection: ChannelHandlerContext) {
+        processor.state = ProtocolState.CONFIGURATION
+    }
+
+    fun finishEncryption(player: Player) {
         val list = mutableListOf<ProfilePropertyMap>()
 
         val texturesProperty = ProfileProperty("textures", "", true, "")
@@ -112,9 +125,5 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
 
         player.sendPacket(ClientboundSetCompressionPacket(-1))
         player.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, list))
-    }
-
-    fun handleLoginAcknowledge(packet: ServerboundLoginAcknowledgedPacket, connection: ChannelHandlerContext) {
-        processor.state = ProtocolState.CONFIGURATION
     }
 }
