@@ -33,7 +33,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
     lateinit var bootstrap: ServerBootstrap
     lateinit var channelPipeline: ChannelPipeline
-    val bossGroup = NioEventLoopGroup(3)
+    val bossGroup = NioEventLoopGroup()
     val workerGroup = NioEventLoopGroup()
 
     val config = Config()
@@ -43,9 +43,11 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
     // Server ticks
     val tickProfiler = Profiler()
+    var serverTicks: Int = 0
     val tickTimer = RepeatingTimerAsync(50) {
         tickProfiler.start("Tick", 5)
-        Events.dispatch(ServerTickEvent())
+        serverTicks++
+        Events.dispatch(ServerTickEvent(serverTicks))
         tickProfiler.end()
     }
 
