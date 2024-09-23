@@ -6,10 +6,7 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager.despawnEntity
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerChangeWorldEvent
-import io.github.dockyardmc.events.ServerTickEvent
-import io.github.dockyardmc.events.WorldFinishLoadingEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
@@ -33,12 +30,11 @@ class World(
     var name: String,
     var generator: WorldGenerator,
     var dimensionType: DimensionType
-) {
+): Disposable {
     val worldSeed = UUID.randomUUID().leastSignificantBits.toString()
+    var seed: Long = worldSeed.SHA256Long()
 
     val difficulty: Bindable<Difficulty> = Bindable(Difficulty.NORMAL)
-
-    var seed: Long = worldSeed.SHA256Long()
     var worldBorder = WorldBorder(this)
 
     var time: Bindable<Long> = Bindable(1000L)
@@ -54,10 +50,10 @@ class World(
     val joinQueue: MutableList<Player> = mutableListOf()
 
     var isHardcore: Boolean = false
+    var freezeTime: Boolean = false
 
     var asyncChunkGenerator = AsyncQueueProcessor()
-
-    var freezeTime: Boolean = false
+    var eventPool = EventPool()
 
     fun join(player: Player) {
         if(player.world == this && player.isFullyInitialized) return
@@ -109,7 +105,7 @@ class World(
             }
         }
 
-        Events.on<ServerTickEvent> {
+        eventPool.on<ServerTickEvent> {
             worldAge++
             if(freezeTime) {
                 if(worldAge % 5L == 0L) {
@@ -237,7 +233,9 @@ class World(
         }
     }
 
-    fun delete() {
+    fun getRandom(): Random = Random(seed)
+
+    override fun dispose() {
         players.values.forEach {
             it.teleport(mainWorld.defaultSpawnLocation)
             players.remove(it)
@@ -245,14 +243,12 @@ class World(
         entities.values.forEach {
             if(it is Player) return@forEach
             despawnEntity(it)
-            entities.remove(it)
         }
         canBeJoined.value = false
         chunks.clear()
 
         WorldManager.worlds.remove(this.name)
         this.asyncChunkGenerator.shutdown()
+        eventPool.dispose()
     }
-
-    fun getRandom(): Random = Random(seed)
 }

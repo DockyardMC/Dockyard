@@ -55,24 +55,6 @@ fun main(args: Array<String>) {
 
     var pathfinder: Pathfinder? = null
 
-    var listener: EventListener<Event>? = null
-
-    Commands.add("listener") {
-        addSubcommand("add") {
-            execute {
-                listener = Events.on<PlayerEnterChunkEvent> { event ->
-                    DockyardServer.broadcastMessage("${event.player} entered ${event.chunkIndex}")
-                }
-            }
-        }
-
-        addSubcommand("remove") {
-            execute {
-                Events.unregister(listener!!)
-            }
-        }
-    }
-
     Commands.add("/reset") {
         execute {
             val platformSize = 30

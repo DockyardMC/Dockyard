@@ -19,11 +19,8 @@ object EntityManager {
     }
 
     fun World.despawnEntity(entity: Entity) {
-        entity.autoViewable = false
-        this@EntityManager.entities.remove(entity)
-        PlayerManager.players.forEach {
-            entity.removeViewer(it, false)
-        }
+        entity.dispose()
+
     }
 
     init {

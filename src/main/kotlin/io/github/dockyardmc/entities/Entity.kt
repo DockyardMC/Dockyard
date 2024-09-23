@@ -18,6 +18,7 @@ import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
+import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.mergeEntityMetadata
 import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.vectors.Vector3
@@ -27,7 +28,7 @@ import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
 
-abstract class Entity(open var location: Location, open var world: World) {
+abstract class Entity(open var location: Location, open var world: World): Disposable {
     open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
@@ -140,6 +141,17 @@ abstract class Entity(open var location: Location, open var world: World) {
             this.team.value?.entities?.remove(this)
             it.newValue?.entities?.add(this)
         }
+    }
+
+    override fun dispose() {
+        autoViewable = false
+        team.value?.entities?.remove(this)
+        team.value = null
+        equipmentLayers.clear()
+        viewers.iterator().forEach { removeViewer(it, false) }
+        metadataLayers.clear()
+        EntityManager.entities.remove(this)
+        world.entities.remove(this)
     }
 
     fun updateEntity(player: Player, respawn: Boolean = false) {
