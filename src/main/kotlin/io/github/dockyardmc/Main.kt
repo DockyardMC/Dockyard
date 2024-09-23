@@ -3,9 +3,7 @@ package io.github.dockyardmc
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
@@ -56,6 +54,24 @@ fun main(args: Array<String>) {
     var pathEnd: Location? = null
 
     var pathfinder: Pathfinder? = null
+
+    var listener: EventListener<Event>? = null
+
+    Commands.add("listener") {
+        addSubcommand("add") {
+            execute {
+                listener = Events.on<PlayerEnterChunkEvent> { event ->
+                    DockyardServer.broadcastMessage("${event.player} entered ${event.chunkIndex}")
+                }
+            }
+        }
+
+        addSubcommand("remove") {
+            execute {
+                Events.unregister(listener!!)
+            }
+        }
+    }
 
     Commands.add("/reset") {
         execute {

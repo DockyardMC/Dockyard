@@ -59,6 +59,11 @@ object DebugScoreboard {
                 memPoolTotal += memPool
             }
 
+            var totalEvents: Int = 0
+            Events.eventMap.values.forEach {
+                totalEvents += it.size
+            }
+
             sidebar.setGlobalLine(14, " Ms per tick: ${msptColor}${mspt}ms")
             sidebar.setGlobalLine(13, " Memory: $memoryPercentColor${memUsagePercent.truncate(1)}%")
             sidebar.setGlobalLine(12, " ◾ Using $memoryPercentColor${fMem}mb")
@@ -68,7 +73,7 @@ object DebugScoreboard {
             sidebar.setGlobalLine(8, " AsyncQueueProcessor: <#cba3ff>${ServerMetrics.asyncQueueProcessorTasks}")
             sidebar.setGlobalLine(6, " Packets: <#cba3ff>↑${ServerMetrics.packetsSentAverage} ↓${ServerMetrics.packetsReceivedAverage}")
             sidebar.setGlobalLine(5, " ")
-            sidebar.setGlobalLine(4, " gc mem pools: <orange>${memPoolTotal}")
+            sidebar.setGlobalLine(4, " Event Listeners: <lime>$totalEvents")
             sidebar.setGlobalLine(3, " gc collections: <orange>${totalCollections}")
             sidebar.setGlobalLine(2, " gc time: <orange>${totalCollectionTime}ms")
         }
