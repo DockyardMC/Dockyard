@@ -2,6 +2,7 @@ package io.github.dockyardmc.ui
 
 import cz.lukynka.Bindable
 import io.github.dockyardmc.bindables.BindablePairMap
+import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.item.ItemComponent
 import io.github.dockyardmc.item.ItemStack
@@ -13,8 +14,9 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.InventoryType
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.sounds.playSound
+import io.github.dockyardmc.utils.Disposable
 
-open class DrawableContainerScreen(): ContainerInventory {
+open class DrawableContainerScreen(): ContainerInventory, Disposable {
     var player: Player? = null
     override val name: String = "Inventory"
     override val rows: Int = 6
@@ -22,6 +24,7 @@ open class DrawableContainerScreen(): ContainerInventory {
     val slots: BindablePairMap<Int, DrawableItemStack> = BindablePairMap()
     var closeListener: ((Player) -> Unit)? = null
     var openListener: ((Player) -> Unit)? = null
+    val screenEventPool = EventPool()
 
     override fun open(player: Player) {
         this.player = player
@@ -80,6 +83,10 @@ open class DrawableContainerScreen(): ContainerInventory {
             }
         }
     }
+
+    override fun dispose() {
+        screenEventPool.dispose()
+    }
 }
 
 class DrawableReactiveListener<T>(var unit: (Bindable.ValueChangedEvent<T>) -> Unit) {
@@ -132,7 +139,7 @@ data class DrawableItemStack(
     }
 }
 
-class CookieClickerScreen(): DrawableContainerScreen() {
+class CookieClickerScreen: DrawableContainerScreen() {
     override val name: String = "<black><bold>Cookie Clicker"
     override val rows: Int = 3
 
