@@ -202,12 +202,8 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
     }
 
     open fun lookAt(target: Entity) {
-        val newLoc = this.location.setDirection(target.location.subtract(this.location).toVector3d())
-        this.location = newLoc
-
-        this.location.yaw = (newLoc.yaw % 360) * 256 / 360
-        val packet = ClientboundEntityTeleportPacket(this)
-        viewers.sendPacket(packet)
+        val newLoc = this.location.setDirection(target.location.toVector3d() - (this.location).toVector3d())
+        teleport(newLoc)
     }
 
     open fun sendMetadataPacketToViewers() {

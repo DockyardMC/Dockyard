@@ -1,20 +1,25 @@
 package io.github.dockyardmc.datagen
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.EventDocumentation
 import java.io.File
+import java.time.Instant
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.javaField
 
 class EventsDocumentationGenerator {
 
     init {
+        log("Generating event documentation..")
+        val start = Instant.now().toEpochMilli()
         val packageToScan = "io.github.dockyardmc"
 
         val reflections = org.reflections.Reflections(packageToScan)
         val annotatedClasses = reflections.getTypesAnnotatedWith(EventDocumentation::class.java)
 
         val markdown = buildString {
-            append("# Events\n")
+            append("# Event List\n")
             annotatedClasses.forEach { loopClass ->
                 val annotation = loopClass.getAnnotation(EventDocumentation::class.java)
                 val fields = loopClass.kotlin.declaredMemberProperties
@@ -35,6 +40,7 @@ class EventsDocumentationGenerator {
                     appendLine("- ${field.name}: `${fullTypeName}$nullableIndicator`")
                 }
                 appendLine("")
+                log("Generated event documentation for ${loopClass.simpleName}", LogType.DEBUG)
             }
         }
 
@@ -43,5 +49,9 @@ class EventsDocumentationGenerator {
         val file = File("./out/events.md")
         file.createNewFile()
         file.writeText(markdown)
+
+        val end = Instant.now().toEpochMilli()
+        val now = end - start
+        log("Finished generating event documentation in ${now}ms!", LogType.SUCCESS)
     }
 }
