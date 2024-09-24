@@ -5,5 +5,5 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.world.World
 
 @EventDocumentation("when player is in configuration phase and needs initial world to spawn in", false)
-class PlayerPreSpawnWorldSelectionEvent(val player: Player, var world: World): Event {
+class PlayerSpawnEvent(val player: Player, var world: World): Event {
 }

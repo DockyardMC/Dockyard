@@ -5,7 +5,6 @@ import io.github.dockyardmc.utils.Disposable
 class EventPool: Disposable {
     val eventList = mutableListOf<EventListener<Event>>()
 
-    @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Event> on(noinline function: (event: T) -> Unit): EventListener<Event> {
         val listener = Events.on<T>(function)
         eventList.add(listener)

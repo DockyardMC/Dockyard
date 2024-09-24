@@ -16,7 +16,7 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.Disposable
 
-open class DrawableContainerScreen(): ContainerInventory, Disposable {
+open class DrawableContainerScreen: ContainerInventory, Disposable {
     var player: Player? = null
     override val name: String = "Inventory"
     override val rows: Int = 6
@@ -89,9 +89,7 @@ open class DrawableContainerScreen(): ContainerInventory, Disposable {
     }
 }
 
-class DrawableReactiveListener<T>(var unit: (Bindable.ValueChangedEvent<T>) -> Unit) {
-}
-
+class DrawableReactiveListener<T>(var unit: (Bindable.ValueChangedEvent<T>) -> Unit)
 class DrawableClickEvent(var clickType: DrawableClickType, val item: ItemStack, val player: Player)
 class DrawableClickListener(var unit: (DrawableClickEvent) -> Unit)
 
