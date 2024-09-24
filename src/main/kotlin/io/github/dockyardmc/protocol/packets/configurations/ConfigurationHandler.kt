@@ -35,7 +35,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asPacket("minecraft:brand"))
 
         // Send feature flags
-        val featureFlagsEvent = ServerFeatureFlagsEvent(FeatureFlags.enabledFeatureFlags)
+        val featureFlagsEvent = PlayerSendFeatureFlagsEvent(FeatureFlags.enabledFeatureFlags)
         Events.dispatch(featureFlagsEvent)
         connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags))
 
@@ -80,7 +80,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         processor.state = ProtocolState.PLAY
         processor.player.releaseMessagesQueue()
 
-        val event = PlayerPreSpawnWorldSelectionEvent(player, WorldManager.getOrThrow("main"))
+        val event = PlayerSpawnEvent(player, WorldManager.getOrThrow("main"))
         Events.dispatch(event)
         val world = event.world
 

@@ -9,7 +9,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-
 fun multiplyQuaternions(q1: Quaternion, q2: Quaternion): Quaternion {
     val x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y
     val y = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x

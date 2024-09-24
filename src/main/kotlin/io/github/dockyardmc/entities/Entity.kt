@@ -18,6 +18,7 @@ import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
+import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.mergeEntityMetadata
 import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.vectors.Vector3
@@ -27,7 +28,7 @@ import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
 
-abstract class Entity(open var location: Location, open var world: World) {
+abstract class Entity(open var location: Location, open var world: World): Disposable {
     open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
@@ -142,6 +143,17 @@ abstract class Entity(open var location: Location, open var world: World) {
         }
     }
 
+    override fun dispose() {
+        autoViewable = false
+        team.value?.entities?.remove(this)
+        team.value = null
+        equipmentLayers.clear()
+        viewers.iterator().forEach { removeViewer(it, false) }
+        metadataLayers.clear()
+        EntityManager.entities.remove(this)
+        world.entities.remove(this)
+    }
+
     fun updateEntity(player: Player, respawn: Boolean = false) {
         sendMetadataPacketToViewers()
     }
@@ -190,12 +202,8 @@ abstract class Entity(open var location: Location, open var world: World) {
     }
 
     open fun lookAt(target: Entity) {
-        val newLoc = this.location.setDirection(target.location.subtract(this.location).toVector3d())
-        this.location = newLoc
-
-        this.location.yaw = (newLoc.yaw % 360) * 256 / 360
-        val packet = ClientboundEntityTeleportPacket(this)
-        viewers.sendPacket(packet)
+        val newLoc = this.location.setDirection(target.location.toVector3d() - (this.location).toVector3d())
+        teleport(newLoc)
     }
 
     open fun sendMetadataPacketToViewers() {

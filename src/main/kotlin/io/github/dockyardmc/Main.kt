@@ -3,9 +3,11 @@ package io.github.dockyardmc
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entities.EntityManager.despawnEntity
+import io.github.dockyardmc.entities.EntityManager.spawnEntity
+import io.github.dockyardmc.entities.TestZombie
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
@@ -52,10 +54,23 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
-    var pathStart: Location? = null
-    var pathEnd: Location? = null
+    var entity: Entity? = null
 
-    var pathfinder: Pathfinder? = null
+    Commands.add("/entity") {
+        addSubcommand("spawn") {
+            execute {
+                val player = it.getPlayerOrThrow()
+                val location = player.location
+                entity = location.world.spawnEntity(TestZombie(location))
+            }
+        }
+        addSubcommand("kill") {
+            execute {
+                entity!!.world.despawnEntity(entity!!)
+            }
+        }
+    }
+
 
     Commands.add("/reset") {
         execute {

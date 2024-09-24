@@ -1,7 +1,6 @@
 package io.github.dockyardmc.world
 
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.WorldFinishLoadingEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionType
@@ -15,16 +14,19 @@ object WorldManager {
     val worlds: MutableMap<String, World> = mutableMapOf()
     val mainWorld: World = World("main", VoidWorldGenerator(), DimensionTypes.OVERWORLD)
 
+    private var worldLoadListener: EventListener<Event>
+
     init {
         worlds["main"] = mainWorld
-        Events.on<WorldFinishLoadingEvent> {
+        worldLoadListener = Events.on<WorldFinishLoadingEvent> {
             if(it.world == mainWorld) generateStonePlatform(mainWorld)
         }
     }
 
     private fun generateStonePlatform(world: World) {
-        val platformSize = 30
+        Events.unregister(worldLoadListener)
 
+        val platformSize = 30
         val centerX = (platformSize - 1) / 2
         val centerZ = (platformSize - 1) / 2
 
@@ -52,7 +54,7 @@ object WorldManager {
     }
 
     fun delete(world: World) {
-        world.delete()
+        world.dispose()
     }
 
     fun getOrThrow(world: String): World = worlds[world] ?: throw IllegalArgumentException("World with name $world does not exist!")

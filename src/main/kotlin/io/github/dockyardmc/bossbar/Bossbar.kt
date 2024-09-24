@@ -2,14 +2,14 @@ package io.github.dockyardmc.bossbar
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.BossbarPacketAction
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundBossbarPacket
-import java.util.UUID
+import io.github.dockyardmc.utils.Disposable
+import java.util.*
 
 class Bossbar(
     val title: Bindable<String> = Bindable(""),
@@ -17,7 +17,7 @@ class Bossbar(
     val color: Bindable<BossbarColor> = Bindable(BossbarColor.WHITE),
     val notches: Bindable<BossbarNotches> = Bindable(BossbarNotches.NO_NOTCHES),
     val viewers: BindableList<PersistentPlayer> = BindableList(),
-) {
+): Disposable {
 
     constructor(
         title: String = "",
@@ -25,7 +25,7 @@ class Bossbar(
         color: BossbarColor = BossbarColor.WHITE,
         notches: BossbarNotches = BossbarNotches.NO_NOTCHES,
         viewers: MutableList<Player> = mutableListOf(),
-    ):
+    ) :
             this(
                 Bindable(title),
                 Bindable(progress),
@@ -34,6 +34,7 @@ class Bossbar(
                 BindableList(viewers.toPersistent())
             )
 
+    val eventPool = EventPool()
     val uuid: UUID = UUID.randomUUID()
 
     init {
@@ -55,12 +56,17 @@ class Bossbar(
         }
 
         // if player joins and is part of viewers, the bossbar should show for them
-        Events.on<PlayerJoinEvent> {
-            if(viewers.contains(it.player)) {
+        eventPool.on<PlayerJoinEvent> {
+            if (viewers.contains(it.player)) {
                 val createPacket = ClientboundBossbarPacket(BossbarPacketAction.ADD, this)
                 it.player.sendPacket(createPacket)
             }
         }
+    }
+
+    override fun dispose() {
+        eventPool.dispose()
+        viewers.values.forEach(viewers::remove)
     }
 }
 
