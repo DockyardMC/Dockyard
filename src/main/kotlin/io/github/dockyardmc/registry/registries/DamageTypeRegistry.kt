@@ -101,7 +101,7 @@ data class DamageType(
     val deathMessageType: String? = null,
     override val protocolId: Int
 ): RegistryEntry {
-    fun toNBT(): NBTCompound {
+    override fun getNbt(): NBTCompound {
         return NBT.Compound {
             it.put("exhaustion", this.exhaustion)
             it.put("messageId", this.messageId)

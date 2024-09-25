@@ -1,6 +1,5 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.DockyardServer.Companion.debug
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
@@ -17,9 +16,6 @@ import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.utils.DebugScoreboard
-import io.github.dockyardmc.utils.debug
-import io.github.dockyardmc.utils.now
-import io.github.dockyardmc.utils.playerInventoryCorrectSlot
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
 
@@ -61,6 +57,24 @@ fun main(args: Array<String>) {
     Events.on<PlayerLeaveEvent> {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
+
+    var entity: Entity? = null
+
+    Commands.add("/entity") {
+        addSubcommand("spawn") {
+            execute {
+                val player = it.getPlayerOrThrow()
+                val location = player.location
+                entity = location.world.spawnEntity(TestZombie(location))
+            }
+        }
+        addSubcommand("kill") {
+            execute {
+                entity!!.world.despawnEntity(entity!!)
+            }
+        }
+    }
+
 
     Commands.add("/reset") {
         execute {

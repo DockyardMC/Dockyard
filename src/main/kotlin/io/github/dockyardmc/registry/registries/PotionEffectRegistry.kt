@@ -2,6 +2,7 @@ package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.registry.Registry
 import io.github.dockyardmc.registry.RegistryEntry
+import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.util.concurrent.atomic.AtomicInteger
 
 object PotionEffectRegistry: Registry {
@@ -70,7 +71,9 @@ object PotionEffectRegistry: Registry {
     }
 }
 
-data class PotionEffect(val namespace: String, val name: String, val type: PotionEffectType, override val protocolId: Int): RegistryEntry
+data class PotionEffect(val namespace: String, val name: String, val type: PotionEffectType, override val protocolId: Int): RegistryEntry {
+    override fun getNbt(): NBTCompound? = null
+}
 
 enum class PotionEffectType {
     GOOD,

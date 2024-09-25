@@ -30,5 +30,5 @@ interface DynamicDataDrivenRegistry: DataDrivenRegistry, DynamicRegistry {
 
 interface RegistryEntry {
     val protocolId: Int
-    fun getNbt(): NBTCompound? = null
+    fun getNbt(): NBTCompound?
 }
