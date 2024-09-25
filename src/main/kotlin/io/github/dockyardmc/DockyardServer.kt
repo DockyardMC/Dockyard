@@ -27,10 +27,37 @@ import io.github.dockyardmc.annotations.AnnotationProcessor
 import io.github.dockyardmc.config.Config
 import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.PacketParser
+import io.github.dockyardmc.registry.MinecraftVersions
 import java.net.InetSocketAddress
 import java.util.*
 
 class DockyardServer(configBuilder: Config.() -> Unit) {
+
+    companion object {
+        lateinit var versionInfo: Resources.DockyardVersionInfo
+        lateinit var instance: DockyardServer
+        val minecraftVersion = MinecraftVersions.v1_21
+        var allowAnyVersion: Boolean = false
+
+        var tickRate: Int = 20
+        val debug get() = ConfigManager.config.debug
+
+        var mutePacketLogs = mutableListOf(
+            "ClientboundSystemChatMessagePacket",
+            "ServerboundSetPlayerPositionPacket",
+            "ServerboundSetPlayerPositionAndRotationPacket",
+            "ServerboundSetPlayerRotationPacket",
+            "ClientboundKeepAlivePacket",
+            "ServerboundKeepAlivePacket",
+            "ClientboundUpdateEntityPositionPacket",
+            "ClientboundUpdateEntityPositionAndRotationPacket",
+            "ClientboundUpdateEntityRotationPacket",
+            "ClientboundSetHeadYawPacket",
+            "ClientboundSendParticlePacket",
+            "ClientboundUpdateScorePacket",
+            "ClientboundChunkDataPacket",
+        )
+    }
 
     lateinit var bootstrap: ServerBootstrap
     lateinit var channelPipeline: ChannelPipeline
@@ -75,7 +102,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
     fun start() {
         versionInfo = Resources.getDockyardVersion()
-        log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${versionInfo.minecraftVersion})", LogType.RUNTIME)
+        log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${minecraftVersion.versionName})", LogType.RUNTIME)
         log("DockyardMC is still under heavy development. Things will break (I warned you)", LogType.WARNING)
 
         runPacketServer()
@@ -132,30 +159,5 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             bossGroup.shutdownGracefully()
             workerGroup.shutdownGracefully()
         }
-    }
-
-    companion object {
-        lateinit var versionInfo: Resources.DockyardVersionInfo
-        lateinit var instance: DockyardServer
-        var allowAnyVersion: Boolean = false
-
-        var tickRate: Int = 20
-        val debug get() = ConfigManager.config.debug
-
-        var mutePacketLogs = mutableListOf(
-            "ClientboundSystemChatMessagePacket",
-            "ServerboundSetPlayerPositionPacket",
-            "ServerboundSetPlayerPositionAndRotationPacket",
-            "ServerboundSetPlayerRotationPacket",
-            "ClientboundKeepAlivePacket",
-            "ServerboundKeepAlivePacket",
-            "ClientboundUpdateEntityPositionPacket",
-            "ClientboundUpdateEntityPositionAndRotationPacket",
-            "ClientboundUpdateEntityRotationPacket",
-            "ClientboundSetHeadYawPacket",
-            "ClientboundSendParticlePacket",
-            "ClientboundUpdateScorePacket",
-            "ClientboundChunkDataPacket",
-        )
     }
 }

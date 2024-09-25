@@ -1,28 +1,34 @@
 package io.github.dockyardmc.registry
 
-import io.github.dockyardmc.extentions.writeNBT
-import io.github.dockyardmc.extentions.writeUtf
-import io.github.dockyardmc.extentions.writeVarInt
-import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBT
+import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
+import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import java.io.InputStream
 
-data class Registry(
-    val identifier: String,
-    val list: MutableList<RegistryEntry>
-)
+interface Registry {
 
-data class RegistryEntry(
-    val identifier: String,
-    val data: NBT?
-)
+    val identifier: String
 
-fun ByteBuf.writeRegistry(registry: Registry) {
-    this.writeUtf(registry.identifier)
-    this.writeVarInt(registry.list.size)
-    registry.list.forEach {
-        this.writeUtf(it.identifier)
-        val isDataPresent = it.data != null
-        this.writeBoolean(isDataPresent)
-        if(isDataPresent) this.writeNBT(it.data!!)
-    }
+    operator fun get(identifier: String): RegistryEntry
+    fun getOrNull(identifier: String): RegistryEntry?
+
+    fun getByProtocolId(id: Int): RegistryEntry
+
+    fun getMap(): Map<String, RegistryEntry>
+}
+
+interface DynamicRegistry: Registry {
+    fun getCachedPacket(): ClientboundRegistryDataPacket
+    fun updateCache()
+}
+
+interface DataDrivenRegistry: Registry {
+    fun initialize(inputStream: InputStream)
+}
+
+interface DynamicDataDrivenRegistry: DataDrivenRegistry, DynamicRegistry {
+}
+
+interface RegistryEntry {
+    val protocolId: Int
+    fun getNbt(): NBTCompound? = null
 }

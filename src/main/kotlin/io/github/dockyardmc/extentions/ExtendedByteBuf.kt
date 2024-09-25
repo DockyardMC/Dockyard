@@ -2,6 +2,8 @@ package io.github.dockyardmc.extentions
 
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.writeItemStack
+import io.github.dockyardmc.registry.AppliedPotionEffect
+import io.github.dockyardmc.registry.registries.PotionEffectRegistry
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.positiveCeilDiv
@@ -253,6 +255,19 @@ fun ByteBuf.toByteArraySafe(): ByteArray {
     this.getBytes(this.readerIndex(), bytes)
 
     return bytes
+}
+
+fun ByteBuf.readAppliedPotionEffect(): AppliedPotionEffect {
+    val id = this.readVarInt()
+    val amplifier = this.readVarInt()
+    val duration = this.readVarInt()
+    val ambient = this.readBoolean()
+    val showParticles = this.readBoolean()
+    val showIcon = this.readBoolean()
+
+    val effect = PotionEffectRegistry.getByProtocolId(id)
+
+    return AppliedPotionEffect(effect, duration, amplifier, showParticles, ambient, showIcon)
 }
 
 fun ByteArray.toByteBuf(): ByteBuf = Unpooled.copiedBuffer(this)

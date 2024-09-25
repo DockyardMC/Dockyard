@@ -40,7 +40,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), processor)
 
         // Send registries
-        val registryPackets: MutableList<Registry> = mutableListOf(
+        val registryPackets: MutableList<DataDrivenRegistry> = mutableListOf(
             BannerPatterns.registryCache,
             ChatTypes.registryCache,
             DamageTypes.registryCache,

@@ -11,6 +11,7 @@ import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.DimensionType
 import io.github.dockyardmc.runnables.AsyncQueueProcessor
 import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.scroll.Component

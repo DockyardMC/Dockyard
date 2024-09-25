@@ -24,8 +24,6 @@ object Resources {
         val data = readVersion().split("|")
         return DockyardVersionInfo(
             dockyardVersion = data[0],
-            minecraftVersion = data[1],
-            protocolVersion = VersionToProtocolVersion.map[data[1]] ?: 0,
             gitBranch = data[2],
             gitCommit = data[3]
         )
@@ -33,8 +31,6 @@ object Resources {
 
     data class DockyardVersionInfo(
         val dockyardVersion: String,
-        val minecraftVersion: String,
-        val protocolVersion: Int,
         val gitBranch: String,
         val gitCommit: String
     )

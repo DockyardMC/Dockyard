@@ -14,6 +14,7 @@ import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
@@ -289,6 +290,42 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
 
     private fun sendSelfMetadataIfPlayer() {
         if(this is Player) sendMetadataPacket(this)
+    }
+
+    fun addPotionEffect(
+        effect: PotionEffect,
+        duration: Int,
+        level: Int = 1,
+        showParticles: Boolean = false,
+        showBlueBorder: Boolean = false,
+        showIconOnHud: Boolean = false,
+    ) {
+        val potionEffect = AppliedPotionEffect(effect, duration, level, showParticles, showBlueBorder, showIconOnHud)
+        this.potionEffects[effect] = potionEffect
+    }
+
+    fun removePotionEffect(effect: PotionEffect) {
+        this.potionEffects.remove(effect)
+    }
+
+    fun removePotionEffect(effect: AppliedPotionEffect) {
+        this.potionEffects.remove(effect.effect)
+    }
+
+    fun clearPotionEffects() {
+        this.potionEffects.clear()
+    }
+
+    fun refreshPotionEffects() {
+        viewers.forEach(::sendPotionEffectsPacket)
+        if(this is Player) this.sendPotionEffectsPacket(this)
+    }
+
+    fun sendPotionEffectsPacket(player: Player) {
+        potionEffects.values.values.forEach {
+            val packet = ClientboundEntityEffectPacket(this, it.effect, it.level, it.duration, it.showParticles, it.showBlueBorder, it.showIconOnHud)
+            player.sendPacket(packet)
+        }
     }
 
     fun placeBlock(location: Location, block: Block) {

@@ -14,9 +14,8 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
-import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.registry.addPotionEffect
+import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.now
@@ -38,6 +37,12 @@ fun main(args: Array<String>) {
         EventsDocumentationGenerator()
         return
     }
+
+    BlockRegistry.initialize(ClassLoader.getSystemResource("registry/block_registry.json.gz").openStream())
+    DimensionTypeRegistry
+    WolfVariantRegistry
+    BannerPatternRegistry
+    DamageTypeRegistry
 
     Events.on<PlayerJoinEvent> {
         val player = it.player
