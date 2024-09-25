@@ -42,6 +42,7 @@ fun main(args: Array<String>) {
     DimensionTypeRegistry
     WolfVariantRegistry
     BannerPatternRegistry
+    PotionEffectRegistry
     DamageTypeRegistry
 
     Events.on<PlayerJoinEvent> {
