@@ -1,9 +1,13 @@
 package io.github.dockyardmc.registry.registries
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.scroll.extensions.put
+import io.github.dockyardmc.utils.debug
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.jglrxavpok.hephaistos.nbt.NBT
@@ -24,6 +28,7 @@ object BiomeRegistry: DataDrivenRegistry {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<Biome>>(stream)
         biomes = list.associateBy { it.identifier }.toMutableMap()
+        debug("Loaded biome registry: ${biomes.size} entries", false)
     }
 
     override fun get(identifier: String): Biome {
@@ -43,22 +48,24 @@ object BiomeRegistry: DataDrivenRegistry {
     }
 }
 
+@Serializable
 data class MoodSound(
     val blockSearchExtent: Int,
-    val offset: Double,
+    val soundPositionOffset: Double,
     val sound: String,
     val tickDelay: Int
 ) {
     fun toNBT(): NBTCompound {
         return NBT.Compound {
             it.put("block_search_extent", blockSearchExtent)
-            it.put("offset", offset)
+            it.put("offset", soundPositionOffset)
             it.put("sound", sound)
             it.put("tick_delay", tickDelay)
         }
     }
 }
 
+@Serializable
 data class BackgroundMusic(
     val maxDelay: Int,
     val minDelay: Int,
@@ -75,6 +82,7 @@ data class BackgroundMusic(
     }
 }
 
+@Serializable
 data class AdditionsSound(
     val sound: String,
     val tickChance: Double
@@ -87,6 +95,7 @@ data class AdditionsSound(
     }
 }
 
+@Serializable
 data class BiomeParticle(
     val options: ParticleOptions,
     val probability: Float
@@ -101,10 +110,12 @@ data class BiomeParticle(
     }
 }
 
+@Serializable
 data class ParticleOptions(
     val type: String
 )
 
+@Serializable
 data class Effects(
     val fogColor: Int? = null,
     val foliageColor: Int? = null,
@@ -133,6 +144,7 @@ data class Effects(
     }
 }
 
+@Serializable
 data class Biome(
     var identifier: String,
     val downfall: String = "rain",

@@ -28,6 +28,8 @@ import io.github.dockyardmc.config.Config
 import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.PacketParser
 import io.github.dockyardmc.registry.MinecraftVersions
+import io.github.dockyardmc.registry.RegistryManager
+import io.github.dockyardmc.registry.registries.*
 import java.net.InetSocketAddress
 import java.util.*
 
@@ -118,6 +120,22 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         PacketParser.idAndStatePairToPacketClass = packetClasses
 
         AnnotationProcessor.addIdsToClientboundPackets()
+
+        innerProfiler.start("Load Registries")
+        RegistryManager.register(BlockRegistry)
+        RegistryManager.register(BiomeRegistry)
+        RegistryManager.register(EntityTypeRegistry)
+        RegistryManager.register(DimensionTypeRegistry)
+        RegistryManager.register(WolfVariantRegistry)
+        RegistryManager.register(BannerPatternRegistry)
+        RegistryManager.register(DamageTypeRegistry)
+        RegistryManager.register(JukeboxSongRegistry)
+        RegistryManager.register(TrimMaterialRegistry)
+        RegistryManager.register(TrimPatternRegistry)
+        RegistryManager.register(ChatTypeRegistry)
+        RegistryManager.register(ParticleRegistry)
+        RegistryManager.register(PotionEffectRegistry)
+        innerProfiler.end()
 
         innerProfiler.start("Load Default Implementations")
         val implementationsConfig = config.implementationConfig

@@ -1,10 +1,9 @@
 package io.github.dockyardmc.world.generators
 
-import io.github.dockyardmc.registry.Biome
 import io.github.dockyardmc.registry.Biomes
-//import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.registries.Biome
 
 class FlatWorldGenerator() : WorldGenerator {
 

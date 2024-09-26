@@ -13,6 +13,8 @@ import io.github.dockyardmc.extentions.isValidUUID
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.Particle
+import io.github.dockyardmc.registry.registries.ParticleRegistry
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.world.World
@@ -126,10 +128,10 @@ object CommandHandler {
                     val name = getLegacyTextColorNameFromVanilla(value.lowercase().identifier())
                     if(!LegacyTextColor.entries.map { it.name.lowercase() }.contains(name)) throw CommandException("$value is not valid LegacyTextColor!")
                     LegacyTextColor.valueOf(name.uppercase())
-
                 }
+
                 Particle::class -> {
-                    Particles.idToParticleMap.values.firstOrNull { it.identifier == value.identifier() } ?: throw CommandException("$value is not valid Particle in the registry!")
+                    ParticleRegistry.getOrNull(value.identifier()) ?: throw CommandException("$value is not valid Particle in the registry!")
                 }
 
                 else -> null

@@ -1,10 +1,10 @@
 package io.github.dockyardmc.world
 
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
-import io.github.dockyardmc.registry.Biome
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.getId
+import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.ChunkUtils
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
 import org.jglrxavpok.hephaistos.nbt.NBT
@@ -75,7 +75,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
 
-        section.biomePalette[relativeX, relativeY, relativeZ] = biome.id
+        section.biomePalette[relativeX, relativeY, relativeZ] = biome.protocolId
         if(shouldCache) updateCache()
     }
 

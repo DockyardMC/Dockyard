@@ -5,7 +5,7 @@ import io.netty.buffer.ByteBuf
 
 class SculkChargeParticleData(val roll: Float): ParticleData {
 
-    override var id: Int = Particles.SCULK_CHARGE.id
+    override var id: Int = Particles.SCULK_CHARGE.protocolId
 
     override fun write(byteBuf: ByteBuf) {
         byteBuf.writeFloat(roll)

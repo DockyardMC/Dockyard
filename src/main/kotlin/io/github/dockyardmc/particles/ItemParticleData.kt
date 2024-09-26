@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf
 
 class ItemParticleData(val item: ItemStack): ParticleData {
 
-    override var id: Int = Particles.ITEM.id
+    override var id: Int = Particles.ITEM.protocolId
 
     override fun write(byteBuf: ByteBuf) {
         byteBuf.writeItemStack(item)

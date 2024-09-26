@@ -11,18 +11,15 @@ interface ParticleData {
 
     companion object {
         fun requiresData(particleId: Int): Boolean {
-            return particleId ==  Particles.BLOCK.id ||
-                    particleId == Particles.BLOCK_MARKER.id ||
-                    particleId == Particles.DUST.id ||
-                    particleId == Particles.DUST_COLOR_TRANSITION.id ||
-                    particleId == Particles.FALLING_DUST.id ||
-                    particleId == Particles.SCULK_CHARGE.id ||
-                    particleId == Particles.ITEM.id ||
-                    particleId == Particles.VIBRATION.id ||
-                    particleId == Particles.SHRIEK.id
+            return particleId ==  Particles.BLOCK.protocolId ||
+                    particleId == Particles.BLOCK_MARKER.protocolId ||
+                    particleId == Particles.DUST.protocolId ||
+                    particleId == Particles.DUST_COLOR_TRANSITION.protocolId ||
+                    particleId == Particles.FALLING_DUST.protocolId ||
+                    particleId == Particles.SCULK_CHARGE.protocolId ||
+                    particleId == Particles.ITEM.protocolId ||
+                    particleId == Particles.VIBRATION.protocolId ||
+                    particleId == Particles.SHRIEK.protocolId
         }
     }
-
-
-
 }

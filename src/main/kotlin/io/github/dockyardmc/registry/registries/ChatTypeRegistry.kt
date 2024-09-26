@@ -11,7 +11,7 @@ object ChatTypeRegistry: DynamicRegistry {
 
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
-    val map: MutableMap<String, RegistryEntry> = mutableMapOf()
+    val chatTypes: MutableMap<String, RegistryEntry> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
     init {
@@ -28,18 +28,18 @@ object ChatTypeRegistry: DynamicRegistry {
     }
 
     override fun get(identifier: String): RegistryEntry {
-        return map[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
+        return chatTypes[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
     }
 
     override fun getOrNull(identifier: String): RegistryEntry? {
-        return map[identifier]
+        return chatTypes[identifier]
     }
 
     override fun getByProtocolId(id: Int): RegistryEntry {
-        return map.values.toList().getOrNull(id) ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        return chatTypes.values.toList().getOrNull(id) ?: throw IllegalStateException("There is no registry entry with protocol id $id")
     }
 
     override fun getMap(): Map<String, RegistryEntry> {
-        return map
+        return chatTypes
     }
 }

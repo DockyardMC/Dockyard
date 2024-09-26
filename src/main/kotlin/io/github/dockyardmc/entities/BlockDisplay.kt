@@ -3,6 +3,7 @@ package io.github.dockyardmc.entities
 import cz.lukynka.Bindable
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.EntityType
 
 class BlockDisplay(location: Location): DisplayEntityBase(location) {
 

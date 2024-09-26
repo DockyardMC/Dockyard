@@ -13,7 +13,7 @@ import io.github.dockyardmc.world.generators.FlatWorldGenerator
 @ClientboundPacketInfo(0x47, ProtocolState.PLAY)
 class ClientboundRespawnPacket(player: Player, dataKept: RespawnDataKept = RespawnDataKept.NO_DATA_KEPT) : ClientboundPacket() { //nice
     init {
-        data.writeVarInt(player.world.dimensionType.id)
+        data.writeVarInt(player.world.dimensionType.protocolId)
         data.writeUtf(player.world.name)
         data.writeLong(0)
         data.writeByte(player.gameMode.value.ordinal)

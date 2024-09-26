@@ -7,6 +7,8 @@ import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.BannerPattern
+import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.LegacyTextColor
@@ -130,7 +132,7 @@ data class FoodItemComponent(
     var giveSaturation: Boolean = false,
     var canAlwaysEat: Boolean = true,
     var secondsToEat: Float = 2f,
-    var potionEffects: MutableList<Effects> = mutableListOf(),
+    var potionEffects: MutableList<PotionEffect> = mutableListOf(),
     override val id: Int = 20
 ): ItemComponent
 

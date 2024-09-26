@@ -19,6 +19,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.DamageType
+import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.resourcepack.Resourcepack
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent

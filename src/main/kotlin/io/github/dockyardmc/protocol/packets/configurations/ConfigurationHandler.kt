@@ -39,18 +39,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         Events.dispatch(featureFlagsEvent)
         connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), processor)
 
-        // Send registries
-        val registryPackets: MutableList<DataDrivenRegistry> = mutableListOf(
-            BannerPatterns.registryCache,
-            ChatTypes.registryCache,
-            DamageTypes.registryCache,
-            DimensionTypes.registryCache,
-            PaintingVariants.registryCache,
-            WolfVariants.registryCache,
-            Biomes.registryCache
-        )
-
-        registryPackets.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it), processor) }
+        RegistryManager.dynamicRegistries.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it), processor) }
 
         connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), processor)
 
@@ -114,7 +103,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             reducedDebugInfo = false,
             enableRespawnScreen = true,
             doLimitedCrafting = false,
-            dimensionType = world.dimensionType.id,
+            dimensionType = world.dimensionType.protocolId,
             dimensionName = world.name,
             hashedSeed = world.seed,
             gameMode = player.gameMode.value,

@@ -6,8 +6,8 @@ import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
 import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
+import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.randomFloat

@@ -6,7 +6,7 @@ import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Item
-import io.github.dockyardmc.registry.Particle
+import io.github.dockyardmc.registry.registries.Particle
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.world.World

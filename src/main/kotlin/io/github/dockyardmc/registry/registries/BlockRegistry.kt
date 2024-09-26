@@ -2,6 +2,7 @@ package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.utils.debug
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -24,6 +25,7 @@ object BlockRegistry: DataDrivenRegistry {
         val list = Json.decodeFromStream<List<RegistryBlock>>(stream)
         blocks = list.associateBy { it.identifier }
         protocolIdToBlock = list.associateBy { it.defaultBlockStateId }
+        debug("Loaded entity type registry: ${blocks.size} entries", false)
     }
 
     override fun get(identifier: String): RegistryEntry {

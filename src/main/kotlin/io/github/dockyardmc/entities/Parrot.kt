@@ -6,9 +6,9 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundWorldEventPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.WorldEvent
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.world.World
 
 class Parrot(override var world: World, override var location: Location): Entity(location, world) {

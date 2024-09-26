@@ -1,5 +1,7 @@
 package io.github.dockyardmc
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
@@ -14,10 +16,17 @@ import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.*
-import io.github.dockyardmc.registry.registries.*
+import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.util.zip.GZIPInputStream
+import kotlin.math.log
+
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -34,18 +43,25 @@ fun main(args: Array<String>) {
         return
     }
 
-    BlockRegistry.initialize(ClassLoader.getSystemResource("registry/block_registry.json.gz").openStream())
-    BiomeRegistry.initialize(ClassLoader.getSystemResource("registry/biome_registry.json.gz").openStream())
-    DimensionTypeRegistry.updateCache()
-    WolfVariantRegistry.updateCache()
-    BannerPatternRegistry.updateCache()
-    DamageTypeRegistry.updateCache()
-    JukeboxSongRegistry.updateCache()
-    TrimMaterialRegistry.updateCache()
-    TrimPatternRegistry.updateCache()
-    ChatTypeRegistry.updateCache()
-    ParticleRegistry
-    PotionEffectRegistry
+    if (args.contains("registry-test")) {
+
+        val stream = ClassLoader.getSystemResource("registry/biome_registry.json.gz").openStream()
+        val gzip = GZIPInputStream(stream)
+        val reader: InputStreamReader = InputStreamReader(gzip)
+        val `in` = BufferedReader(reader)
+
+        var readed: String?
+        var final: String = ""
+        while ((`in`.readLine().also { readed = it }) != null) {
+            println(readed)
+            final = readed.toString()
+        }
+
+        val test = Json.decodeFromString<List<Biome>>(final)
+        log(test.toString(), LogType.AUDIT)
+
+        return
+    }
 
     Events.on<PlayerJoinEvent> {
         val player = it.player

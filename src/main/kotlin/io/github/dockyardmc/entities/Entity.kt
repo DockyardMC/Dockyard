@@ -14,6 +14,8 @@ import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.DamageType
+import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
@@ -173,7 +175,7 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
         if(event.cancelled) return
 
         sendMetadataPacket(player)
-        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.id, location, location.yaw, 0, velocity)
+        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.protocolId, location, location.yaw, 0, velocity)
         isOnGround = true
 
         player.visibleEntities.add(this)
@@ -224,8 +226,8 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
     }
 
     open fun calculateBoundingBox(): BoundingBox {
-        val width = type.width
-        val height = type.height
+        val width = type.dimensions.width
+        val height = type.dimensions.height
         return BoundingBox(
             location.x - width / 2,
             location.x + width / 2,
