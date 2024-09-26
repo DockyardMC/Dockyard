@@ -6,6 +6,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
+import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.io.InputStream
 import java.lang.IllegalStateException
 import java.util.zip.GZIPInputStream
@@ -67,6 +68,8 @@ data class RegistryBlock(
     val possibleStates: Map<String, Int>,
 ): RegistryEntry {
     override val protocolId: Int = defaultBlockStateId
+
+    override fun getNbt(): NBTCompound? = null
 }
 
 @Serializable

@@ -35,11 +35,15 @@ fun main(args: Array<String>) {
     }
 
     BlockRegistry.initialize(ClassLoader.getSystemResource("registry/block_registry.json.gz").openStream())
-    DimensionTypeRegistry
-    WolfVariantRegistry
-    BannerPatternRegistry
+    DimensionTypeRegistry.updateCache()
+    WolfVariantRegistry.updateCache()
+    BannerPatternRegistry.updateCache()
+    DamageTypeRegistry.updateCache()
+    JukeboxSongRegistry.updateCache()
+    TrimMaterialRegistry.updateCache()
+    TrimPatternRegistry.updateCache()
+    ChatTypeRegistry.updateCache()
     PotionEffectRegistry
-    DamageTypeRegistry
 
     Events.on<PlayerJoinEvent> {
         val player = it.player
