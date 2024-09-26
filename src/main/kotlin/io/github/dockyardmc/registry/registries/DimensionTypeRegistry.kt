@@ -15,11 +15,11 @@ object DimensionTypeRegistry : DynamicRegistry {
 
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
-    var map: MutableMap<String, DimensionType> = mutableMapOf()
+    var dimensionTypes: MutableMap<String, DimensionType> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
     init {
-        map["minecraft:overworld"] = DimensionType(
+        dimensionTypes["minecraft:overworld"] = DimensionType(
             ambientLight = 0.0f,
             bedWorks = true,
             coordinateScale = 1.0,
@@ -39,7 +39,7 @@ object DimensionTypeRegistry : DynamicRegistry {
             ultraWarm = false,
             protocolId = protocolIdCounter.getAndIncrement()
         )
-        map["minecraft:overworld_caves"] = DimensionType(
+        dimensionTypes["minecraft:overworld_caves"] = DimensionType(
             ambientLight = 0.0f,
             bedWorks = true,
             coordinateScale = 1.0,
@@ -59,7 +59,7 @@ object DimensionTypeRegistry : DynamicRegistry {
             ultraWarm = false,
             protocolId = protocolIdCounter.getAndIncrement()
         )
-        map["minecraft:the_end"] = DimensionType(
+        dimensionTypes["minecraft:the_end"] = DimensionType(
             ambientLight = 0.0f,
             bedWorks = false,
             coordinateScale = 1.0,
@@ -80,7 +80,7 @@ object DimensionTypeRegistry : DynamicRegistry {
             fixedTime = 6000L,
             protocolId = protocolIdCounter.getAndIncrement()
         )
-        map["minecraft:the_nether"] = DimensionType(
+        dimensionTypes["minecraft:the_nether"] = DimensionType(
             ambientLight = 0.1f,
             bedWorks = false,
             coordinateScale = 8.0,
@@ -113,20 +113,20 @@ object DimensionTypeRegistry : DynamicRegistry {
     }
 
     override fun get(identifier: String): DimensionType {
-        return map[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
+        return dimensionTypes[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
     }
 
     override fun getOrNull(identifier: String): DimensionType? {
-        return map[identifier]
+        return dimensionTypes[identifier]
     }
 
     override fun getByProtocolId(id: Int): DimensionType {
-        return map.values.toList().getOrNull(id)
+        return dimensionTypes.values.toList().getOrNull(id)
             ?: throw IllegalStateException("There is no registry entry with protocol id $id")
     }
 
     override fun getMap(): Map<String, DimensionType> {
-        return map
+        return dimensionTypes
     }
 }
 

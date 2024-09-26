@@ -51,4 +51,3 @@ object DamageTypes {
     val WITHER = DamageTypeRegistry["minecraft:wither"]
     val WITHER_SKULL = DamageTypeRegistry["minecraft:wither_skull"]
 }
-

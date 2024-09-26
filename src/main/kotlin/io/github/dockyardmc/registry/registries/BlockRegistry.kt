@@ -16,30 +16,30 @@ object BlockRegistry: DataDrivenRegistry {
 
     override val identifier: String = "minecraft:block"
 
-    var entries: Map<String, RegistryEntry> = mapOf()
-    var protocolIdEntries: Map<Int, RegistryEntry> = mapOf()
+    var blocks: Map<String, RegistryEntry> = mapOf()
+    var protocolIdToBlock: Map<Int, RegistryEntry> = mapOf()
 
     override fun initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<RegistryBlock>>(stream)
-        entries = list.associateBy { it.identifier }
-        protocolIdEntries = list.associateBy { it.defaultBlockStateId }
+        blocks = list.associateBy { it.identifier }
+        protocolIdToBlock = list.associateBy { it.defaultBlockStateId }
     }
 
     override fun get(identifier: String): RegistryEntry {
-        return entries[identifier] ?: throw IllegalStateException("Registry entry with identifier $identifier was not found")
+        return blocks[identifier] ?: throw IllegalStateException("Registry entry with identifier $identifier was not found")
     }
 
     override fun getOrNull(identifier: String): RegistryEntry? {
-        return entries[identifier]
+        return blocks[identifier]
     }
 
     override fun getByProtocolId(id: Int): RegistryEntry {
-        return protocolIdEntries[id] ?: throw IllegalStateException("Block with protocol id $id is not in the registry!")
+        return protocolIdToBlock[id] ?: throw IllegalStateException("Block with protocol id $id is not in the registry!")
     }
 
     override fun getMap(): Map<String, RegistryEntry> {
-        return entries
+        return blocks
     }
 }
 

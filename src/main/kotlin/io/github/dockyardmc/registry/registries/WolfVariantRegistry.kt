@@ -14,11 +14,11 @@ object WolfVariantRegistry: DynamicRegistry {
 
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
-    val map: MutableMap<String, WolfVariant> = mutableMapOf()
+    val wolfVariants: MutableMap<String, WolfVariant> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
     init {
-        map["minecraft:ashen"] = WolfVariant(
+        wolfVariants["minecraft:ashen"] = WolfVariant(
             wildTexture = "minecraft:entity/wolf/wolf_ashen",
             angryTexture = "minecraft:entity/wolf/wolf_ashen_angry",
             biomes = "minecraft:snowy_taiga",
@@ -26,56 +26,56 @@ object WolfVariantRegistry: DynamicRegistry {
             protocolId = protocolIdCounter.getAndIncrement()
         )
 
-        map["minecraft:black"] = WolfVariant(
+        wolfVariants["minecraft:black"] = WolfVariant(
             wildTexture = "minecraft:entity/wolf/wolf_black",
             angryTexture = "minecraft:entity/wolf/wolf_black_angry",
             biomes = "minecraft:old_growth_pine_taiga",
             tameTexture = "minecraft:entity/wolf/wolf_black_tame",
             protocolId = protocolIdCounter.getAndIncrement()
         )
-        map["minecraft:chestnut"] = WolfVariant(
+        wolfVariants["minecraft:chestnut"] = WolfVariant(
             wildTexture = "minecraft:entity/wolf/wolf_chestnut",
             angryTexture = "minecraft:entity/wolf/wolf_chestnut_angry",
             biomes = "minecraft:old_growth_spruce_taiga",
             tameTexture = "minecraft:entity/wolf/wolf_chestnut_tame",
             protocolId = protocolIdCounter.getAndIncrement()
         )
-        map["minecraft:pale"] = WolfVariant(
+        wolfVariants["minecraft:pale"] = WolfVariant(
             wildTexture = "minecraft:entity/wolf/wolf",
             angryTexture = "minecraft:entity/wolf/wolf_angry",
             biomes = "minecraft:taiga",
             tameTexture = "minecraft:entity/wolf/wolf_tame",
             protocolId = protocolIdCounter.getAndIncrement()
         )
-        map["minecraft:rusty"] = WolfVariant(
+        wolfVariants["minecraft:rusty"] = WolfVariant(
             wildTexture = "minecraft:entity/wolf/wolf_rusty",
             angryTexture = "minecraft:entity/wolf/wolf_rusty_angry",
             biomes = "#minecraft:is_jungle",
             tameTexture = "minecraft:entity/wolf/wolf_rusty_tame",
             protocolId = protocolIdCounter.getAndIncrement()
         )
-        map["minecraft:snowy"] = WolfVariant(
+        wolfVariants["minecraft:snowy"] = WolfVariant(
             wildTexture = "minecraft:entity/wolf/wolf_snowy",
             angryTexture = "minecraft:entity/wolf/wolf_snowy_angry",
             biomes = "minecraft:grove",
             tameTexture = "minecraft:entity/wolf/wolf_snowy_tame",
             protocolId = protocolIdCounter.getAndIncrement()
         )
-        map["minecraft:spotted"] = WolfVariant(
+        wolfVariants["minecraft:spotted"] = WolfVariant(
             wildTexture = "minecraft:entity/wolf/wolf_spotted",
             angryTexture = "minecraft:entity/wolf/wolf_spotted_angry",
             biomes = "#minecraft:is_savanna",
             tameTexture = "minecraft:entity/wolf/wolf_spotted_tame",
             protocolId = protocolIdCounter.getAndIncrement()
         )
-        map["minecraft:striped"] = WolfVariant(
+        wolfVariants["minecraft:striped"] = WolfVariant(
             wildTexture = "minecraft:entity/wolf/wolf_striped",
             angryTexture = "minecraft:entity/wolf/wolf_striped_angry",
             biomes = "#minecraft:is_badlands",
             tameTexture = "minecraft:entity/wolf/wolf_striped_tame",
             protocolId = protocolIdCounter.getAndIncrement()
         )
-        map["minecraft:woods"] to WolfVariant(
+        wolfVariants["minecraft:woods"] to WolfVariant(
             wildTexture = "minecraft:entity/wolf/wolf_woods",
             angryTexture = "minecraft:entity/wolf/wolf_woods_angry",
             biomes = "minecraft:forest",
@@ -94,19 +94,19 @@ object WolfVariantRegistry: DynamicRegistry {
     }
 
     override fun get(identifier: String): WolfVariant {
-        return map[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
+        return wolfVariants[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
     }
 
     override fun getOrNull(identifier: String): WolfVariant? {
-        return map[identifier]
+        return wolfVariants[identifier]
     }
 
     override fun getByProtocolId(id: Int): WolfVariant {
-        return map.values.toList().getOrNull(id) ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        return wolfVariants.values.toList().getOrNull(id) ?: throw IllegalStateException("There is no registry entry with protocol id $id")
     }
 
     override fun getMap(): Map<String, WolfVariant> {
-        return map
+        return wolfVariants
     }
 }
 
