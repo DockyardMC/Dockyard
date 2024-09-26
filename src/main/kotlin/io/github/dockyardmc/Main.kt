@@ -35,6 +35,7 @@ fun main(args: Array<String>) {
     }
 
     BlockRegistry.initialize(ClassLoader.getSystemResource("registry/block_registry.json.gz").openStream())
+    BiomeRegistry.initialize(ClassLoader.getSystemResource("registry/biome_registry.json.gz").openStream())
     DimensionTypeRegistry.updateCache()
     WolfVariantRegistry.updateCache()
     BannerPatternRegistry.updateCache()
@@ -43,6 +44,7 @@ fun main(args: Array<String>) {
     TrimMaterialRegistry.updateCache()
     TrimPatternRegistry.updateCache()
     ChatTypeRegistry.updateCache()
+    ParticleRegistry
     PotionEffectRegistry
 
     Events.on<PlayerJoinEvent> {
