@@ -17,7 +17,7 @@ object JukeboxSongRegistry: DynamicRegistry {
     val jukeboxSongs: MutableMap<String, JukeboxSong> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
-    init {
+    override fun register() {
         jukeboxSongs["minecraft:11"] = JukeboxSong(11, "jukebox_song.minecraft.11", 71.0f, "minecraft:music_disc.11", protocolIdCounter.getAndIncrement())
         jukeboxSongs["minecraft:13"] = JukeboxSong(1, "jukebox_song.minecraft.13", 178.0f, "minecraft:music_disc.13", protocolIdCounter.getAndIncrement())
         jukeboxSongs["minecraft:5"] = JukeboxSong(15, "jukebox_song.minecraft.5", 178.0f, "minecraft:music_disc.5", protocolIdCounter.getAndIncrement())

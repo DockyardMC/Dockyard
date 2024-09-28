@@ -14,7 +14,7 @@ object RegistryManager {
         BiomeRegistry::class to "registry/biome_registry.json.gz"
     )
 
-    val dynamicRegistries: MutableList<DynamicRegistry> = mutableListOf()
+    val dynamicRegistries: MutableList<Registry> = mutableListOf()
 
     fun register(registry: Registry) {
         if(registry is DataDrivenRegistry) {
@@ -22,8 +22,10 @@ object RegistryManager {
             registry.initialize(ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]!!).openStream())
         }
         if (registry is DynamicRegistry) {
+            registry.register()
             registry.updateCache()
-            dynamicRegistries.add(registry)
         }
+
+        dynamicRegistries.add(registry)
     }
 }

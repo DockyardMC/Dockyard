@@ -17,7 +17,7 @@ object DamageTypeRegistry: DynamicRegistry {
     val damageTypes: MutableMap<String, DamageType> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
-    init {
+    override fun register() {
         damageTypes["minecraft:arrow"] = DamageType(exhaustion = 0.1f, messageId = "arrow", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
         damageTypes["minecraft:bad_respawn_point"] = DamageType(deathMessageType = "intentional_game_design", exhaustion = 0.1f, messageId = "badRespawnPoint", scaling = "always", protocolId = protocolIdCounter.getAndIncrement())
         damageTypes["minecraft:cactus"] = DamageType(exhaustion = 0.1f, messageId = "cactus", scaling = "when_caused_by_living_non_player" , protocolId = protocolIdCounter.getAndIncrement())
@@ -104,7 +104,7 @@ data class DamageType(
     override fun getNbt(): NBTCompound {
         return NBT.Compound {
             it.put("exhaustion", this.exhaustion)
-            it.put("messageId", this.messageId)
+            it.put("message_id", this.messageId)
             it.put("scaling", this.scaling)
         }
     }

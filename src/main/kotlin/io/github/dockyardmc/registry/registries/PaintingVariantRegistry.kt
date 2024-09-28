@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
@@ -17,7 +18,7 @@ object PaintingVariantRegistry: DynamicRegistry {
     val paintingVariants: MutableMap<String, PaintingVariant> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
-    init {
+    override fun register() {
         paintingVariants["minecraft:kebab"] = PaintingVariant("kebab", 1, 1, protocolIdCounter.getAndIncrement())
         paintingVariants["minecraft:aztec"] = PaintingVariant("aztec", 1, 1, protocolIdCounter.getAndIncrement())
         paintingVariants["minecraft:alban"] = PaintingVariant("alban", 1, 1, protocolIdCounter.getAndIncrement())
@@ -48,6 +49,7 @@ object PaintingVariantRegistry: DynamicRegistry {
         paintingVariants["minecraft:water"] = PaintingVariant("water", 2, 2, protocolIdCounter.getAndIncrement())
         paintingVariants["minecraft:fire"] = PaintingVariant("fire", 2, 2, protocolIdCounter.getAndIncrement())
         paintingVariants["minecraft:donkey_kong"] = PaintingVariant("donkey_kong", 3, 4, protocolIdCounter.getAndIncrement())
+        log("loaded paiting variant registry ${paintingVariants.size}")
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {

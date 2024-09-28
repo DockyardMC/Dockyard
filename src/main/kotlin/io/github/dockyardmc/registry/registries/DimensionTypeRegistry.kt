@@ -18,7 +18,7 @@ object DimensionTypeRegistry : DynamicRegistry {
     var dimensionTypes: MutableMap<String, DimensionType> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
-    init {
+    override fun register() {
         dimensionTypes["minecraft:overworld"] = DimensionType(
             ambientLight = 0.0f,
             bedWorks = true,

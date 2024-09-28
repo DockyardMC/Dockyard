@@ -17,7 +17,7 @@ object TrimMaterialRegistry: DynamicRegistry {
     val trimMaterials: MutableMap<String, TrimMaterial> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
-    init {
+    override fun register() {
         trimMaterials["minecraft:amethyst"] = TrimMaterial("amethyst", "#9A5CC6", "trim_material.minecraft.amethyst", "minecraft:amethyst_shard", 1.0f, protocolId = protocolIdCounter.getAndIncrement())
         trimMaterials["minecraft:copper"] = TrimMaterial("copper", "#B4684D", "trim_material.minecraft.copper", "minecraft:copper_ingot", 0.5f, protocolId = protocolIdCounter.getAndIncrement())
         trimMaterials["minecraft:diamond"] = TrimMaterial("diamond", "#6EECD2", "trim_material.minecraft.diamond", "minecraft:diamond", 0.8f, mapOf("minecraft:diamond" to "diamond_darker"), protocolId = protocolIdCounter.getAndIncrement())

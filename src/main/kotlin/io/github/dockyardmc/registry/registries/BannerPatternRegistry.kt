@@ -17,7 +17,7 @@ object BannerPatternRegistry: DynamicRegistry {
     val bannerPatterns: MutableMap<String, BannerPattern> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
-    init {
+    override fun register() {
         bannerPatterns["minecraft:base"] = BannerPattern("minecraft:base", "block.minecraft.banner.base", protocolIdCounter.getAndIncrement())
         bannerPatterns["minecraft:border"] = BannerPattern("minecraft:border", "block.minecraft.banner.border", protocolIdCounter.getAndIncrement())
         bannerPatterns["minecraft:bricks"] = BannerPattern("minecraft:bricks", "block.minecraft.banner.bricks", protocolIdCounter.getAndIncrement())
@@ -71,6 +71,7 @@ object BannerPatternRegistry: DynamicRegistry {
     override fun updateCache() {
         cachedPacket = ClientboundRegistryDataPacket(this)
     }
+
 
     override fun get(identifier: String): BannerPattern {
         return bannerPatterns[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")

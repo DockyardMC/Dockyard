@@ -19,6 +19,7 @@ interface Registry {
 interface DynamicRegistry: Registry {
     fun getCachedPacket(): ClientboundRegistryDataPacket
     fun updateCache()
+    fun register()
 }
 
 interface DataDrivenRegistry: Registry {

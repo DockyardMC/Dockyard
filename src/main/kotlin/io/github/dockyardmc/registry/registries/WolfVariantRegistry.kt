@@ -17,7 +17,7 @@ object WolfVariantRegistry: DynamicRegistry {
     val wolfVariants: MutableMap<String, WolfVariant> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
-    init {
+    override fun register() {
         wolfVariants["minecraft:ashen"] = WolfVariant(
             wildTexture = "minecraft:entity/wolf/wolf_ashen",
             angryTexture = "minecraft:entity/wolf/wolf_ashen_angry",

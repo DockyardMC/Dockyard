@@ -123,7 +123,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
         innerProfiler.start("Load Registries")
         RegistryManager.register(BlockRegistry)
-        RegistryManager.register(BiomeRegistry)
         RegistryManager.register(EntityTypeRegistry)
         RegistryManager.register(DimensionTypeRegistry)
         RegistryManager.register(WolfVariantRegistry)
@@ -134,7 +133,9 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         RegistryManager.register(TrimPatternRegistry)
         RegistryManager.register(ChatTypeRegistry)
         RegistryManager.register(ParticleRegistry)
+        RegistryManager.register(PaintingVariantRegistry)
         RegistryManager.register(PotionEffectRegistry)
+        RegistryManager.register(BiomeRegistry)
         innerProfiler.end()
 
         innerProfiler.start("Load Default Implementations")

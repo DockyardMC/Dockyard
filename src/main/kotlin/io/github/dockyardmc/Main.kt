@@ -12,11 +12,16 @@ import io.github.dockyardmc.entities.TestZombie
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.registry.registries.Biome
+import io.github.dockyardmc.registry.registries.BiomeRegistry
+import io.github.dockyardmc.registry.registries.Effects
+import io.github.dockyardmc.runnables.runLaterAsync
+import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
@@ -25,8 +30,6 @@ import kotlinx.serialization.json.Json
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.zip.GZIPInputStream
-import kotlin.math.log
-
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -43,25 +46,11 @@ fun main(args: Array<String>) {
         return
     }
 
-    if (args.contains("registry-test")) {
+    val color = CustomColor.fromHex("#ff1100").toRgbInt()
+    val effects = Effects(fogColor = color, skyColor = color, waterFogColor = color, waterColor = color)
 
-        val stream = ClassLoader.getSystemResource("registry/biome_registry.json.gz").openStream()
-        val gzip = GZIPInputStream(stream)
-        val reader: InputStreamReader = InputStreamReader(gzip)
-        val `in` = BufferedReader(reader)
-
-        var readed: String?
-        var final: String = ""
-        while ((`in`.readLine().also { readed = it }) != null) {
-            println(readed)
-            final = readed.toString()
-        }
-
-        val test = Json.decodeFromString<List<Biome>>(final)
-        log(test.toString(), LogType.AUDIT)
-
-        return
-    }
+    val biome = Biome("custom:hollow", 1f, effects, hasRain = true, protocolId = BiomeRegistry.protocolIdCounter.getAndIncrement())
+    BiomeRegistry.biomes["custom:hollow"] = biome
 
     Events.on<PlayerJoinEvent> {
         val player = it.player
@@ -116,6 +105,9 @@ fun main(args: Array<String>) {
                 }
             }
             chunks.forEach { chunk ->
+                chunk.sections.forEach {
+                    it.biomePalette.fill(0)
+                }
                 chunk.updateCache()
                 PlayerManager.players.sendPacket(chunk.packet)
             }

@@ -17,7 +17,7 @@ object TrimPatternRegistry: DynamicRegistry {
     val trimPatterns: MutableMap<String, TrimPattern> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
 
-    init {
+    override fun register() {
         trimPatterns["minecraft:bolt"] = TrimPattern("minecraft:bolt", false, "trim_pattern.minecraft.bolt" ,"minecraft:bolt_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
         trimPatterns["minecraft:coast"] = TrimPattern("minecraft:coast", false, "trim_pattern.minecraft.coast" ,"minecraft:coast_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
         trimPatterns["minecraft:dune"] = TrimPattern("minecraft:dune", false, "trim_pattern.minecraft.dune" ,"minecraft:dune_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())

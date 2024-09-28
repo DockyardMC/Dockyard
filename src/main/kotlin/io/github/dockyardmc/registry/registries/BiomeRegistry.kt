@@ -1,6 +1,5 @@
 package io.github.dockyardmc.registry.registries
 
-import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
@@ -18,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
 
 object BiomeRegistry: DataDrivenRegistry {
-    override val identifier: String = "minecraft:biome"
+    override val identifier: String = "minecraft:worldgen/biome"
 
     var biomes: MutableMap<String, Biome> = mutableMapOf()
     val protocolIdCounter =  AtomicInteger()
@@ -27,7 +26,7 @@ object BiomeRegistry: DataDrivenRegistry {
     override fun initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<Biome>>(stream)
-        biomes = list.associateBy { it.identifier }.toMutableMap()
+        biomes += list.associateBy { it.identifier }.toMutableMap()
         debug("Loaded biome registry: ${biomes.size} entries", false)
     }
 
@@ -119,6 +118,8 @@ data class ParticleOptions(
 data class Effects(
     val fogColor: Int? = null,
     val foliageColor: Int? = null,
+    val grassColor: Int? = null,
+    val grassColorModifier: String? = null,
     val moodSound: MoodSound? = null,
     val music: BackgroundMusic? = null,
     val ambientAdditions: AdditionsSound? = null,
@@ -126,12 +127,14 @@ data class Effects(
     val particle: BiomeParticle? = null,
     val skyColor: Int,
     val waterColor: Int,
-    val waterFogColor: Int
+    val waterFogColor: Int,
 ) {
     fun toNBT(): NBTCompound {
         return NBT.Compound {
-            it.put("fog_color", fogColor)
-            it.put("foliage_color", foliageColor)
+            if(fogColor != null) it.put("fog_color", fogColor)
+            if(foliageColor != null) it.put("foliage_color", foliageColor)
+            if(grassColor != null) it.put("grass_color", grassColor)
+            if(grassColorModifier != null) it.put("grass_color_modifier", grassColorModifier)
             if(moodSound != null) it.put("mood_sound", moodSound.toNBT())
             if(music != null) it.put("music", music.toNBT())
             if(ambientAdditions != null) it.put("additions_sound", ambientAdditions.toNBT())
@@ -147,10 +150,11 @@ data class Effects(
 @Serializable
 data class Biome(
     var identifier: String,
-    val downfall: String = "rain",
+    val downfall: Float = 1f,
     var effects: Effects,
     val hasRain: Boolean = false,
     val temperature: Float = 1f,
+    val temperatureModifier: String? = null,
     override val protocolId: Int,
 ): RegistryEntry {
 
@@ -160,6 +164,7 @@ data class Biome(
             it.put("effects", effects.toNBT())
             it.put("has_precipitation", hasRain)
             it.put("temperature", temperature)
+            if(temperatureModifier != null) it.put("temperature_modifier", temperatureModifier)
         }
     }
 }
