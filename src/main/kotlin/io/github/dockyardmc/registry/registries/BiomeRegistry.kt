@@ -5,6 +5,7 @@ import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryD
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.scroll.extensions.put
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -51,7 +52,6 @@ object BiomeRegistry : DataDrivenRegistry, DynamicRegistry {
         entries.forEach { addEntry(it, false) }
         updateCache()
     }
-
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun initialize(inputStream: InputStream) {
@@ -114,7 +114,7 @@ data class BackgroundMusic(
 }
 
 @Serializable
-data class AdditionsSound(
+data class AmbientAdditions(
     val sound: String,
     val tickChance: Double,
 ) {
@@ -127,7 +127,7 @@ data class AdditionsSound(
 }
 
 @Serializable
-data class BiomeParticle(
+data class BiomeParticles(
     val options: ParticleOptions,
     val probability: Float,
 ) {
@@ -154,9 +154,9 @@ data class Effects(
     val grassColorModifier: String? = null,
     val moodSound: MoodSound? = null,
     val music: BackgroundMusic? = null,
-    val ambientAdditions: AdditionsSound? = null,
+    val ambientAdditions: AmbientAdditions? = null,
     val ambientLoop: String? = null,
-    val particle: BiomeParticle? = null,
+    val particle: BiomeParticles? = null,
     val skyColor: Int,
     val waterColor: Int,
     val waterFogColor: Int,

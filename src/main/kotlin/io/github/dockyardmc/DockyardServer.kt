@@ -84,6 +84,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     init {
         instance = this
         configBuilder.invoke(config)
+        load()
     }
 
     //TODO rewrite and make good
@@ -146,13 +147,13 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
         log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))
-        keepAlivePacketTimer.run()
 
         profiler.end()
     }
 
     @Throws(Exception::class)
     private fun runPacketServer() {
+        keepAlivePacketTimer.run()
         try {
             bootstrap = ServerBootstrap()
             bootstrap.group(bossGroup, workerGroup)
@@ -170,7 +171,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
             log("DockyardMC server running on $ip:$port", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent(this))
-            load()
 
             val future = bootstrap.bind(InetSocketAddress(ip, port)).sync()
             future.channel().closeFuture().sync()

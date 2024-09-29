@@ -18,6 +18,7 @@ import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.utils.customBiome
 import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
@@ -26,6 +27,17 @@ import io.github.dockyardmc.world.WorldManager
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
 
 fun main(args: Array<String>) {
+
+    val server = DockyardServer {
+        withIp("0.0.0.0")
+        withMaxPlayers(50)
+        withPort(25565)
+        useMojangAuth(true)
+        useDebugMode(true)
+        withImplementations {
+            dockyardCommands = true
+        }
+    }
 
     if (args.contains("validate-packets")) {
         VerifyPacketIds()
@@ -37,17 +49,15 @@ fun main(args: Array<String>) {
         return
     }
 
-    val color = CustomColor.fromHex("#572fcc").toRgbInt()
-    val grassColor = CustomColor.fromHex("#ff7512").toRgbInt()
-    val effects = Effects(
-        fogColor = color, skyColor = color, waterFogColor = color, waterColor = color, particle = BiomeParticle(
-            ParticleOptions(Particles.VAULT_CONNECTION.identifier), 0.05f
-        ),
-        grassColor = grassColor,
-        foliageColor = grassColor
-    )
-
-    BiomeRegistry.addEntry(Biome("custom:hollow", 1f, effects, hasRain = true))
+    val customBiome = customBiome("dockyardmc:the_pale_garden") {
+        withSkyColor("#c9c9c9")
+        withGrassColor("#a9ada8")
+        withFogColor("#ffffff")
+        withFoliageColor("#d7d1de")
+        withParticles(Particles.ASH, 0.05f)
+        withWaterColor("#a676de")
+    }
+    BiomeRegistry.addEntry(customBiome)
 
     Events.on<PlayerJoinEvent> {
         val player = it.player
@@ -73,7 +83,7 @@ fun main(args: Array<String>) {
             val world = WorldManager.mainWorld
             val chunks = mutableListOf<Chunk>()
 
-            val hollow = BiomeRegistry["custom:hollow"]
+            val hollow = BiomeRegistry["dockyardmc:the_pale_garden"]
             debug("${hollow.identifier} - ${hollow.getProtocolId()}", true)
 
             for (x in 0 until platformSize) {
@@ -97,15 +107,6 @@ fun main(args: Array<String>) {
         }
     }
 
-    val server = DockyardServer {
-        withIp("0.0.0.0")
-        withMaxPlayers(50)
-        withPort(25565)
-        useMojangAuth(true)
-        useDebugMode(true)
-        withImplementations {
-            dockyardCommands = true
-        }
-    }
+
     server.start()
 }
