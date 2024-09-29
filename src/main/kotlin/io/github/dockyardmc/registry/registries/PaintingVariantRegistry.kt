@@ -1,6 +1,7 @@
 package io.github.dockyardmc.registry.registries
 
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
@@ -16,40 +17,47 @@ object PaintingVariantRegistry: DynamicRegistry {
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
     val paintingVariants: MutableMap<String, PaintingVariant> = mutableMapOf()
-    val protocolIdCounter =  AtomicInteger()
+    val protocolIds: MutableMap<String, Int> = mutableMapOf()
+    private val protocolIdCounter = AtomicInteger()
+
+    fun addEntry(entry: PaintingVariant, updateCache: Boolean = true) {
+        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
+        paintingVariants[entry.identifier] = entry
+        if (updateCache) updateCache()
+    }
 
     override fun register() {
-        paintingVariants["minecraft:kebab"] = PaintingVariant("kebab", 1, 1, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:aztec"] = PaintingVariant("aztec", 1, 1, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:alban"] = PaintingVariant("alban", 1, 1, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:aztec2"] = PaintingVariant("aztec2", 1, 1, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:bomb"] = PaintingVariant("bomb", 1, 1, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:plant"] = PaintingVariant("plant", 1, 1, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:wasteland"] = PaintingVariant("wasteland", 1, 1, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:pool"] = PaintingVariant("pool", 1, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:courbet"] = PaintingVariant("courbet", 1, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:sea"] = PaintingVariant("sea", 1, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:sunset"] = PaintingVariant("sunset", 1, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:creebet"] = PaintingVariant("creebet", 1, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:wanderer"] = PaintingVariant("wanderer", 2, 1, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:graham"] = PaintingVariant("graham", 2, 1, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:match"] = PaintingVariant("match", 2, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:bust"] = PaintingVariant("bust", 2, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:stage"] = PaintingVariant("stage", 2, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:void"] = PaintingVariant("void", 2, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:skull_and_roses"] = PaintingVariant("skull_and_roses", 2, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:wither"] = PaintingVariant("wither", 2, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:fighters"] = PaintingVariant("fighters", 2, 4, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:pointer"] = PaintingVariant("pointer", 4, 4, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:pigscene"] = PaintingVariant("pigscene", 4, 4, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:burning_skull"] = PaintingVariant("burning_skull", 4, 4, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:skeleton"] = PaintingVariant("skeleton", 3, 4, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:earth"] = PaintingVariant("earth", 2, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:wind"] = PaintingVariant("wind", 2, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:water"] = PaintingVariant("water", 2, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:fire"] = PaintingVariant("fire", 2, 2, protocolIdCounter.getAndIncrement())
-        paintingVariants["minecraft:donkey_kong"] = PaintingVariant("donkey_kong", 3, 4, protocolIdCounter.getAndIncrement())
-        log("loaded paiting variant registry ${paintingVariants.size}")
+        addEntry(PaintingVariant("minecraft:kebab", "kebab", 1, 1), false)
+        addEntry(PaintingVariant("minecraft:aztec", "aztec", 1, 1), false)
+        addEntry(PaintingVariant("minecraft:alban", "alban", 1, 1), false)
+        addEntry(PaintingVariant("minecraft:aztec2", "aztec2", 1, 1), false)
+        addEntry(PaintingVariant("minecraft:bomb", "bomb", 1, 1), false)
+        addEntry(PaintingVariant("minecraft:plant", "plant", 1, 1), false)
+        addEntry(PaintingVariant("minecraft:wasteland", "wasteland", 1, 1), false)
+        addEntry(PaintingVariant("minecraft:pool", "pool", 1, 2), false)
+        addEntry(PaintingVariant("minecraft:courbet", "courbet", 1, 2), false)
+        addEntry(PaintingVariant("minecraft:sea", "sea", 1, 2), false)
+        addEntry(PaintingVariant("minecraft:sunset", "sunset", 1, 2), false)
+        addEntry(PaintingVariant("minecraft:creebet", "creebet", 1, 2), false)
+        addEntry(PaintingVariant("minecraft:wanderer", "wanderer", 2, 1), false)
+        addEntry(PaintingVariant("minecraft:graham", "graham", 2, 1), false)
+        addEntry(PaintingVariant("minecraft:match", "match", 2, 2), false)
+        addEntry(PaintingVariant("minecraft:bust", "bust", 2, 2), false)
+        addEntry(PaintingVariant("minecraft:stage", "stage", 2, 2), false)
+        addEntry(PaintingVariant("minecraft:void", "void", 2, 2), false)
+        addEntry(PaintingVariant("minecraft:skull_and_roses", "skull_and_roses", 2, 2), false)
+        addEntry(PaintingVariant("minecraft:wither", "wither", 2, 2), false)
+        addEntry(PaintingVariant("minecraft:fighters", "fighters", 2, 4), false)
+        addEntry(PaintingVariant("minecraft:pointer", "pointer", 4, 4), false)
+        addEntry(PaintingVariant("minecraft:pigscene", "pigscene", 4, 4), false)
+        addEntry(PaintingVariant("minecraft:burning_skull", "burning_skull", 4, 4), false)
+        addEntry(PaintingVariant("minecraft:skeleton", "skeleton", 3, 4), false)
+        addEntry(PaintingVariant("minecraft:earth", "earth", 2, 2), false)
+        addEntry(PaintingVariant("minecraft:wind", "wind", 2, 2), false)
+        addEntry(PaintingVariant("minecraft:water", "water", 2, 2), false)
+        addEntry(PaintingVariant("minecraft:fire", "fire", 2, 2), false)
+        addEntry(PaintingVariant("minecraft:donkey_kong", "donkey_kong", 3, 4), false)
+        updateCache()
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
@@ -78,7 +86,17 @@ object PaintingVariantRegistry: DynamicRegistry {
     }
 }
 
-data class PaintingVariant(val assetId: String, val height: Int, val width: Int, override val protocolId: Int): RegistryEntry {
+data class PaintingVariant(
+    val identifier: String,
+    val assetId: String,
+    val height: Int,
+    val width: Int,
+): RegistryEntry {
+
+    override fun getProtocolId(): Int {
+        return PaintingVariantRegistry.protocolIds.getOrThrow(identifier)
+    }
+
     override fun getNbt(): NBTCompound {
         return NBT.Compound {
             it.put("asset_id", assetId)

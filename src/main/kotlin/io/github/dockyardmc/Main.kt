@@ -1,35 +1,26 @@
 package io.github.dockyardmc
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityManager.despawnEntity
-import io.github.dockyardmc.entities.EntityManager.spawnEntity
-import io.github.dockyardmc.entities.TestZombie
-import io.github.dockyardmc.events.*
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
-import io.github.dockyardmc.registry.*
-import io.github.dockyardmc.registry.registries.Biome
-import io.github.dockyardmc.registry.registries.BiomeRegistry
-import io.github.dockyardmc.registry.registries.Effects
-import io.github.dockyardmc.runnables.runLaterAsync
+import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.util.zip.GZIPInputStream
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -46,11 +37,17 @@ fun main(args: Array<String>) {
         return
     }
 
-    val color = CustomColor.fromHex("#ff1100").toRgbInt()
-    val effects = Effects(fogColor = color, skyColor = color, waterFogColor = color, waterColor = color)
+    val color = CustomColor.fromHex("#572fcc").toRgbInt()
+    val grassColor = CustomColor.fromHex("#ff7512").toRgbInt()
+    val effects = Effects(
+        fogColor = color, skyColor = color, waterFogColor = color, waterColor = color, particle = BiomeParticle(
+            ParticleOptions(Particles.VAULT_CONNECTION.identifier), 0.05f
+        ),
+        grassColor = grassColor,
+        foliageColor = grassColor
+    )
 
-    val biome = Biome("custom:hollow", 1f, effects, hasRain = true, protocolId = BiomeRegistry.protocolIdCounter.getAndIncrement())
-    BiomeRegistry.biomes["custom:hollow"] = biome
+    BiomeRegistry.addEntry(Biome("custom:hollow", 1f, effects, hasRain = true))
 
     Events.on<PlayerJoinEvent> {
         val player = it.player
@@ -69,30 +66,15 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
-    var entity: Entity? = null
-
-    Commands.add("/entity") {
-        addSubcommand("spawn") {
-            execute {
-                val player = it.getPlayerOrThrow()
-                val location = player.location
-                entity = location.world.spawnEntity(TestZombie(location))
-            }
-        }
-        addSubcommand("kill") {
-            execute {
-                entity!!.world.despawnEntity(entity!!)
-            }
-        }
-    }
-
-
     Commands.add("/reset") {
         execute {
             val platformSize = 30
 
             val world = WorldManager.mainWorld
             val chunks = mutableListOf<Chunk>()
+
+            val hollow = BiomeRegistry["custom:hollow"]
+            debug("${hollow.identifier} - ${hollow.getProtocolId()}", true)
 
             for (x in 0 until platformSize) {
                 for (z in 0 until platformSize) {
@@ -106,7 +88,8 @@ fun main(args: Array<String>) {
             }
             chunks.forEach { chunk ->
                 chunk.sections.forEach {
-                    it.biomePalette.fill(0)
+                    it.biomePalette.fill(hollow.getProtocolId())
+
                 }
                 chunk.updateCache()
                 PlayerManager.players.sendPacket(chunk.packet)
@@ -118,7 +101,7 @@ fun main(args: Array<String>) {
         withIp("0.0.0.0")
         withMaxPlayers(50)
         withPort(25565)
-        useMojangAuth(false)
+        useMojangAuth(true)
         useDebugMode(true)
         withImplementations {
             dockyardCommands = true

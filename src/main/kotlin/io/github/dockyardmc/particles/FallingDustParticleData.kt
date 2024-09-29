@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf
 
 class FallingDustParticleData(val block: Block): ParticleData {
 
-    override var id: Int = Particles.FALLING_DUST.protocolId
+    override var id: Int = Particles.FALLING_DUST.getProtocolId()
 
     override fun write(byteBuf: ByteBuf) {
         byteBuf.writeVarInt(block.getId())

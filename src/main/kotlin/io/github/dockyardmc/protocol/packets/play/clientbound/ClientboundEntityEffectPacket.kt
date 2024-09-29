@@ -31,7 +31,7 @@ class ClientboundEntityEffectPacket(
         if(amplifier <= -1) amplifier = 0
 
         data.writeVarInt(entity.entityId)
-        data.writeVarInt(effect.protocolId)
+        data.writeVarInt(effect.getProtocolId())
         data.writeVarInt(amplifier)
         data.writeVarInt(duration)
         data.writeByte(0x02)

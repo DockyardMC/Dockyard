@@ -205,7 +205,7 @@ class World(
         // Special case for void world generator for fast void world loading. //TODO optimizations to rest of the world generators
         if(generator is VoidWorldGenerator) {
             chunk.sections.forEach { section ->
-                section.biomePalette.fill(Biomes.THE_VOID.protocolId)
+                section.biomePalette.fill(Biomes.THE_VOID.getProtocolId())
                 section.blockPalette.fill(Blocks.AIR.getId())
             }
         } else {

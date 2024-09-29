@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
+import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
@@ -15,19 +16,27 @@ object TrimMaterialRegistry: DynamicRegistry {
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
     val trimMaterials: MutableMap<String, TrimMaterial> = mutableMapOf()
-    val protocolIdCounter =  AtomicInteger()
+    val protocolIds: MutableMap<String, Int> = mutableMapOf()
+    private val protocolIdCounter = AtomicInteger()
+
+    fun addEntry(entry: TrimMaterial, updateCache: Boolean = true) {
+        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
+        trimMaterials[entry.identifier] = entry
+        if (updateCache) updateCache()
+    }
 
     override fun register() {
-        trimMaterials["minecraft:amethyst"] = TrimMaterial("amethyst", "#9A5CC6", "trim_material.minecraft.amethyst", "minecraft:amethyst_shard", 1.0f, protocolId = protocolIdCounter.getAndIncrement())
-        trimMaterials["minecraft:copper"] = TrimMaterial("copper", "#B4684D", "trim_material.minecraft.copper", "minecraft:copper_ingot", 0.5f, protocolId = protocolIdCounter.getAndIncrement())
-        trimMaterials["minecraft:diamond"] = TrimMaterial("diamond", "#6EECD2", "trim_material.minecraft.diamond", "minecraft:diamond", 0.8f, mapOf("minecraft:diamond" to "diamond_darker"), protocolId = protocolIdCounter.getAndIncrement())
-        trimMaterials["minecraft:emerald"] = TrimMaterial("emerald", "#11A036", "trim_material.minecraft.emerald", "minecraft:emerald", 0.7f, protocolId = protocolIdCounter.getAndIncrement())
-        trimMaterials["minecraft:gold"] = TrimMaterial("gold", "#DEB12D", "trim_material.minecraft.gold", "minecraft:gold_ingot", 0.6f, mapOf("minecraft:gold" to "gold_darker"), protocolId = protocolIdCounter.getAndIncrement())
-        trimMaterials["minecraft:iron"] = TrimMaterial("iron", "#ECECEC", "trim_material.minecraft.iron", "minecraft:iron_ingot", 0.2f, mapOf("minecraft:iron" to "iron_darker"), protocolId = protocolIdCounter.getAndIncrement())
-        trimMaterials["minecraft:lapis"] = TrimMaterial("lapis", "#416E97", "trim_material.minecraft.lapis", "minecraft:lapis_lazuli", 0.9f, protocolId = protocolIdCounter.getAndIncrement())
-        trimMaterials["minecraft:netherite"] = TrimMaterial("netherite", "#625859", "trim_material.minecraft.netherite", "minecraft:netherite_ingot", 0.3f,mapOf("minecraft:netherite" to "netherite_darker"), protocolId = protocolIdCounter.getAndIncrement())
-        trimMaterials["minecraft:quartz"] = TrimMaterial("quartz", "#E3D4C4", "trim_material.minecraft.quartz", "minecraft:quartz", 0.1f, protocolId = protocolIdCounter.getAndIncrement())
-        trimMaterials["minecraft:redstone"] = TrimMaterial("redstone", "#971607", "trim_material.minecraft.redstone", "minecraft:redstone", 0.4f, protocolId = protocolIdCounter.getAndIncrement())
+        addEntry(TrimMaterial("minecraft:amethyst", "amethyst", "#9A5CC6", "trim_material.minecraft.amethyst", "minecraft:amethyst_shard", 1.0f))
+        addEntry(TrimMaterial("minecraft:copper", "copper", "#B4684D", "trim_material.minecraft.copper", "minecraft:copper_ingot", 0.5f))
+        addEntry(TrimMaterial("minecraft:diamond", "diamond", "#6EECD2", "trim_material.minecraft.diamond", "minecraft:diamond", 0.8f, mapOf("minecraft:diamond" to "diamond_darker")))
+        addEntry(TrimMaterial("minecraft:emerald", "emerald", "#11A036", "trim_material.minecraft.emerald", "minecraft:emerald", 0.7f))
+        addEntry(TrimMaterial("minecraft:gold", "gold", "#DEB12D", "trim_material.minecraft.gold", "minecraft:gold_ingot", 0.6f, mapOf("minecraft:gold" to "gold_darker")))
+        addEntry(TrimMaterial("minecraft:iron", "iron", "#ECECEC", "trim_material.minecraft.iron", "minecraft:iron_ingot", 0.2f, mapOf("minecraft:iron" to "iron_darker")))
+        addEntry(TrimMaterial("minecraft:lapis", "lapis", "#416E97", "trim_material.minecraft.lapis", "minecraft:lapis_lazuli", 0.9f))
+        addEntry(TrimMaterial("minecraft:netherite", "netherite", "#625859", "trim_material.minecraft.netherite", "minecraft:netherite_ingot", 0.3f,mapOf("minecraft:netherite" to "netherite_darker")))
+        addEntry(TrimMaterial("minecraft:quartz", "quartz", "#E3D4C4", "trim_material.minecraft.quartz", "minecraft:quartz", 0.1f))
+        addEntry(TrimMaterial("minecraft:redstone", "redstone", "#971607", "trim_material.minecraft.redstone", "minecraft:redstone", 0.4f))
+        updateCache()
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
@@ -57,14 +66,18 @@ object TrimMaterialRegistry: DynamicRegistry {
 }
 
 data class TrimMaterial(
+    val identifier: String,
     val assetName: String,
     val color: String,
     val translate: String,
     val ingredient: String,
     val itemModelIndex: Float,
     val overrideArmorMaterials: Map<String, String>? = null,
-    override val protocolId: Int
 ): RegistryEntry {
+
+    override fun getProtocolId(): Int {
+        return TrimMaterialRegistry.protocolIds.getOrThrow(identifier)
+    }
 
     override fun getNbt(): NBTCompound {
         return NBT.Compound {

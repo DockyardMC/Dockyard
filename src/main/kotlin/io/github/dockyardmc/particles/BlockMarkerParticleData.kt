@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf
 
 class BlockMarkerParticleData(val block: Block): ParticleData {
 
-    override var id: Int = Particles.BLOCK_MARKER.protocolId
+    override var id: Int = Particles.BLOCK_MARKER.getProtocolId()
 
     override fun write(byteBuf: ByteBuf) {
         byteBuf.writeVarInt(block.getId())

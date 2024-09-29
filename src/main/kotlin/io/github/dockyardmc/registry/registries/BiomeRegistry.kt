@@ -1,10 +1,11 @@
 package io.github.dockyardmc.registry.registries
 
-import cz.lukynka.prettylog.log
+import io.github.dockyardmc.extentions.getOrThrow
+import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DataDrivenRegistry
+import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.scroll.extensions.put
-import io.github.dockyardmc.utils.debug
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -12,26 +13,56 @@ import kotlinx.serialization.json.decodeFromStream
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.io.InputStream
-import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
 
-object BiomeRegistry: DataDrivenRegistry {
+object BiomeRegistry : DataDrivenRegistry, DynamicRegistry {
+
     override val identifier: String = "minecraft:worldgen/biome"
 
-    var biomes: MutableMap<String, Biome> = mutableMapOf()
-    val protocolIdCounter =  AtomicInteger()
+    val biomes: MutableMap<String, Biome> = mutableMapOf()
+    val protocolIds: MutableMap<String, Int> = mutableMapOf()
+    private val protocolIdCounter = AtomicInteger()
+
+    lateinit var packet: ClientboundRegistryDataPacket
+
+    override fun getCachedPacket(): ClientboundRegistryDataPacket {
+        if (!::packet.isInitialized) updateCache()
+        return packet
+    }
+
+    override fun updateCache() {
+        packet = ClientboundRegistryDataPacket(this)
+    }
+
+    override fun register() {}
+
+    fun addEntry(entry: Biome, updateCache: Boolean = true) {
+        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
+        biomes[entry.identifier] = entry
+        if(updateCache) updateCache()
+    }
+
+    fun addEntries(vararg entries: Biome) {
+        addEntries(entries.toList())
+    }
+
+    fun addEntries(entries: Collection<Biome>) {
+        entries.forEach { addEntry(it, false) }
+        updateCache()
+    }
+
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<Biome>>(stream)
-        biomes += list.associateBy { it.identifier }.toMutableMap()
-        debug("Loaded biome registry: ${biomes.size} entries", false)
+        addEntries(list)
     }
 
     override fun get(identifier: String): Biome {
-        return biomes[identifier] ?: throw IllegalStateException("Biome with identifier $identifier is not present in the registry!")
+        return biomes[identifier]
+            ?: throw IllegalStateException("Biome with identifier $identifier is not present in the registry!")
     }
 
     override fun getOrNull(identifier: String): Biome? {
@@ -39,7 +70,8 @@ object BiomeRegistry: DataDrivenRegistry {
     }
 
     override fun getByProtocolId(id: Int): Biome {
-        return biomes.values.toList().getOrNull(id) ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        return biomes.values.toList().getOrNull(id)
+            ?: throw IllegalStateException("There is no registry entry with protocol id $id")
     }
 
     override fun getMap(): Map<String, Biome> {
@@ -52,7 +84,7 @@ data class MoodSound(
     val blockSearchExtent: Int,
     val soundPositionOffset: Double,
     val sound: String,
-    val tickDelay: Int
+    val tickDelay: Int,
 ) {
     fun toNBT(): NBTCompound {
         return NBT.Compound {
@@ -69,7 +101,7 @@ data class BackgroundMusic(
     val maxDelay: Int,
     val minDelay: Int,
     val replaceCurrentMusic: Boolean,
-    val sound: String
+    val sound: String,
 ) {
     fun toNBT(): NBTCompound {
         return NBT.Compound {
@@ -84,7 +116,7 @@ data class BackgroundMusic(
 @Serializable
 data class AdditionsSound(
     val sound: String,
-    val tickChance: Double
+    val tickChance: Double,
 ) {
     fun toNBT(): NBTCompound {
         return NBT.Compound {
@@ -97,7 +129,7 @@ data class AdditionsSound(
 @Serializable
 data class BiomeParticle(
     val options: ParticleOptions,
-    val probability: Float
+    val probability: Float,
 ) {
     fun toNBT(): NBTCompound {
         return NBT.Compound {
@@ -111,7 +143,7 @@ data class BiomeParticle(
 
 @Serializable
 data class ParticleOptions(
-    val type: String
+    val type: String,
 )
 
 @Serializable
@@ -131,15 +163,15 @@ data class Effects(
 ) {
     fun toNBT(): NBTCompound {
         return NBT.Compound {
-            if(fogColor != null) it.put("fog_color", fogColor)
-            if(foliageColor != null) it.put("foliage_color", foliageColor)
-            if(grassColor != null) it.put("grass_color", grassColor)
-            if(grassColorModifier != null) it.put("grass_color_modifier", grassColorModifier)
-            if(moodSound != null) it.put("mood_sound", moodSound.toNBT())
-            if(music != null) it.put("music", music.toNBT())
-            if(ambientAdditions != null) it.put("additions_sound", ambientAdditions.toNBT())
-            if(particle != null) it.put("particle", particle.toNBT())
-            if(ambientLoop != null) it.put("ambient_sound", ambientLoop)
+            if (fogColor != null) it.put("fog_color", fogColor)
+            if (foliageColor != null) it.put("foliage_color", foliageColor)
+            if (grassColor != null) it.put("grass_color", grassColor)
+            if (grassColorModifier != null) it.put("grass_color_modifier", grassColorModifier)
+            if (moodSound != null) it.put("mood_sound", moodSound.toNBT())
+            if (music != null) it.put("music", music.toNBT())
+            if (ambientAdditions != null) it.put("additions_sound", ambientAdditions.toNBT())
+            if (particle != null) it.put("particle", particle.toNBT())
+            if (ambientLoop != null) it.put("ambient_sound", ambientLoop)
             it.put("sky_color", skyColor)
             it.put("water_color", waterColor)
             it.put("water_fog_color", waterFogColor)
@@ -155,8 +187,11 @@ data class Biome(
     val hasRain: Boolean = false,
     val temperature: Float = 1f,
     val temperatureModifier: String? = null,
-    override val protocolId: Int,
-): RegistryEntry {
+) : RegistryEntry {
+
+    override fun getProtocolId(): Int {
+        return BiomeRegistry.protocolIds.getOrThrow(identifier)
+    }
 
     override fun getNbt(): NBTCompound {
         return NBT.Compound {
@@ -164,7 +199,7 @@ data class Biome(
             it.put("effects", effects.toNBT())
             it.put("has_precipitation", hasRain)
             it.put("temperature", temperature)
-            if(temperatureModifier != null) it.put("temperature_modifier", temperatureModifier)
+            if (temperatureModifier != null) it.put("temperature_modifier", temperatureModifier)
         }
     }
 }

@@ -1,5 +1,7 @@
 package io.github.dockyardmc.registry.registries
 
+import io.github.dockyardmc.extentions.getOrThrow
+import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.utils.debug
@@ -11,21 +13,30 @@ import kotlinx.serialization.json.decodeFromStream
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.io.InputStream
 import java.lang.IllegalStateException
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
 
 object EntityTypeRegistry: DataDrivenRegistry {
     override val identifier: String = "minecraft:entity_type"
 
     var entityTypes: MutableMap<String, EntityType> = mutableMapOf()
-    var protocolIdMap: MutableMap<Int, EntityType> = mutableMapOf()
+    var protocolIds: MutableMap<String, Int> = mutableMapOf()
+    private val protocolIdCounter = AtomicInteger()
+
+    private fun addEntry(entry: EntityType) {
+        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
+        entityTypes[entry.identifier] = entry
+    }
+
+    fun addEntries(entries: Collection<EntityType>) {
+        entries.forEach { addEntry(it) }
+    }
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<EntityType>>(stream)
-        entityTypes = list.associateBy { it.identifier }.toMutableMap()
-        protocolIdMap = list.associateBy { it.protocolId }.toMutableMap()
-        debug("Loaded entity type registry: ${entityTypes.size} entries", false)
+        addEntries(list)
     }
 
     override fun get(identifier: String): EntityType {
@@ -37,7 +48,8 @@ object EntityTypeRegistry: DataDrivenRegistry {
     }
 
     override fun getByProtocolId(id: Int): EntityType {
-        return protocolIdMap[id] ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        val identifier = protocolIds.reversed().getOrThrow(id)
+        return entityTypes.getOrThrow(identifier)
     }
 
     override fun getMap(): Map<String, EntityType> {
@@ -58,8 +70,12 @@ data class EntityType(
     val immuneToFire: Boolean,
     val immuneBlocks: List<String>,
     val dimensions: EntityDimensions,
-    override val protocolId: Int,
 ): RegistryEntry {
+
+    override fun getProtocolId(): Int {
+        return EntityTypeRegistry.protocolIds.getOrThrow(identifier)
+    }
+
     override fun getNbt(): NBTCompound? = null
 }
 

@@ -18,7 +18,6 @@ object RegistryManager {
 
     fun register(registry: Registry) {
         if(registry is DataDrivenRegistry) {
-            log("initializing ${registry::class.simpleName}")
             registry.initialize(ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]!!).openStream())
         }
         if (registry is DynamicRegistry) {

@@ -15,7 +15,7 @@ class ClientboundDamageEventPacket(entity: Entity, type: DamageType, attacker: E
 
     init {
         data.writeVarInt(entity.entityId)
-        data.writeVarInt(type.protocolId)
+        data.writeVarInt(type.getProtocolId())
         data.writeVarInt(if(attacker != null) attacker.entityId +1 else 0)
         var sourceDirectId = 0
         if(projectile != null) sourceDirectId = projectile.entityId

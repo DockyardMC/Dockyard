@@ -7,7 +7,7 @@ object PotionEffectImpl {
 
     //TODO Implement attributes
     fun onEffectApply(entity: Entity, effect: PotionEffect) {
-        when(effect.namespace) {
+        when(effect.identifier) {
             "speed" -> {}
             "slowness" -> {}
             "haste" -> {}
@@ -26,7 +26,7 @@ object PotionEffectImpl {
     }
 
     fun onEffectRemoved(entity: Entity, effect: PotionEffect) {
-        when(effect.namespace) {
+        when(effect.identifier) {
             "speed" -> {}
             "slowness" -> {}
             "haste" -> {}

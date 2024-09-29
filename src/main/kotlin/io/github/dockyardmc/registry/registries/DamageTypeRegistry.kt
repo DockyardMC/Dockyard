@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
+import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
@@ -15,56 +16,63 @@ object DamageTypeRegistry: DynamicRegistry {
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
     val damageTypes: MutableMap<String, DamageType> = mutableMapOf()
-    val protocolIdCounter =  AtomicInteger()
+    val protocolIds: MutableMap<String, Int> = mutableMapOf()
+    private val protocolIdCounter =  AtomicInteger()
+
+    fun addEntry(entry: DamageType, updateCache: Boolean = true) {
+        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
+        damageTypes[entry.identifier] = entry
+        if(updateCache) updateCache()
+    }
 
     override fun register() {
-        damageTypes["minecraft:arrow"] = DamageType(exhaustion = 0.1f, messageId = "arrow", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:bad_respawn_point"] = DamageType(deathMessageType = "intentional_game_design", exhaustion = 0.1f, messageId = "badRespawnPoint", scaling = "always", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:cactus"] = DamageType(exhaustion = 0.1f, messageId = "cactus", scaling = "when_caused_by_living_non_player" , protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:campfire"] = DamageType(effects = "burning", exhaustion = 0.1f, messageId = "inFire",scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:cramming"] = DamageType(exhaustion = 0.0f, messageId = "cramming", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:dragon_breath"] = DamageType(exhaustion = 0.0f, messageId = "dragonBreath", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:drown"] = DamageType(effects = "drowning", exhaustion = 0.0f, messageId = "drown",scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:dry_out"] = DamageType(exhaustion = 0.1f, messageId = "dryout", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:explosion"] = DamageType(exhaustion = 0.1f, messageId = "explosion", scaling = "always", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:fall"] = DamageType(deathMessageType = "fall_variants", exhaustion = 0.0f, messageId = "fall",scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:falling_anvil"] = DamageType(exhaustion = 0.1f, messageId = "anvil", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:falling_block"] = DamageType(exhaustion = 0.1f, messageId = "fallingBlock", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:falling_stalactite"] = DamageType(exhaustion = 0.1f, messageId = "fallingStalactite", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:fireball"] = DamageType(effects = "burning", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "fireball", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:fireworks"] = DamageType(exhaustion = 0.1f, messageId = "fireworks", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:fly_into_wall"] = DamageType(exhaustion = 0.0f, messageId = "flyIntoWall", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:freeze"] = DamageType(effects = "freezing", exhaustion = 0.0f, scaling = "when_caused_by_living_non_player", messageId = "freeze", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:generic"] = DamageType(exhaustion = 0.0f, messageId = "generic", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:generic_kill"] = DamageType(exhaustion = 0.0f, messageId = "genericKill", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:hot_floor"] = DamageType(effects = "burning", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "hotFloor", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:in_fire"] = DamageType(effects = "burning", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "inFire", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:in_wall"] = DamageType(exhaustion = 0.0f, messageId = "inWall", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:indirect_magic"] = DamageType(exhaustion = 0.0f, messageId = "indirectMagic", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:lava"] = DamageType(effects = "burning", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "lava", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:lightning_bolt"] = DamageType(exhaustion = 0.1f, messageId = "lightningBolt", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:magic"] = DamageType(exhaustion = 0.0f, messageId = "magic", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:mob_attack"] = DamageType(exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:mob_attack_no_aggro"] = DamageType(exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:mob_projectile"] = DamageType(exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:on_fire"] = DamageType(effects = "burning", exhaustion = 0.0f, scaling = "when_caused_by_living_non_player", messageId = "onFire", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:out_of_world"] = DamageType(exhaustion = 0.0f, messageId = "outOfWorld", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:outside_border"] = DamageType(exhaustion = 0.0f, messageId = "outsideBorder", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:player_attack"] = DamageType(exhaustion = 0.1f, messageId = "player", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:player_explosion"] = DamageType(exhaustion = 0.1f, messageId = "explosion.player", scaling = "always", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:sonic_boom"] = DamageType(exhaustion = 0.0f, messageId = "sonic_boom", scaling = "always", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:spit"] = DamageType(exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:stalagmite"] = DamageType(exhaustion = 0.0f, messageId = "stalagmite", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:starve"] = DamageType(exhaustion = 0.0f, messageId = "starve", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:sting"] = DamageType(exhaustion = 0.1f, messageId = "sting", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:sweet_berry_bush"] = DamageType(effects = "poking", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "sweetBerryBush", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:thorns"] = DamageType(effects = "thorns", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "thorns", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:thrown"] = DamageType(exhaustion = 0.1f, messageId = "thrown", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:trident"] = DamageType(exhaustion = 0.1f, messageId = "trident", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:unattributed_fireball"] = DamageType(effects = "burning", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "onFire", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:wind_charge"] = DamageType(exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:wither"] = DamageType(exhaustion = 0.0f, messageId = "wither", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
-        damageTypes["minecraft:wither_skull"] = DamageType(exhaustion = 0.1f, messageId = "witherSkull", scaling = "when_caused_by_living_non_player", protocolId = protocolIdCounter.getAndIncrement())
+        addEntry(DamageType("minecraft:arrow", exhaustion = 0.1f, messageId = "arrow", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:bad_respawn_point", deathMessageType = "intentional_game_design", exhaustion = 0.1f, messageId = "badRespawnPoint", scaling = "always"), false)
+        addEntry(DamageType("minecraft:cactus", exhaustion = 0.1f, messageId = "cactus", scaling = "when_caused_by_living_non_player" ), false)
+        addEntry(DamageType("minecraft:campfire", effects = "burning", exhaustion = 0.1f, messageId = "inFire",scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:cramming", exhaustion = 0.0f, messageId = "cramming", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:dragon_breath", exhaustion = 0.0f, messageId = "dragonBreath", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:drown", effects = "drowning", exhaustion = 0.0f, messageId = "drown",scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:dry_out", exhaustion = 0.1f, messageId = "dryout", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:explosion", exhaustion = 0.1f, messageId = "explosion", scaling = "always"), false)
+        addEntry(DamageType("minecraft:fall", deathMessageType = "fall_variants", exhaustion = 0.0f, messageId = "fall",scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:falling_anvil", exhaustion = 0.1f, messageId = "anvil", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:falling_block", exhaustion = 0.1f, messageId = "fallingBlock", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:falling_stalactite", exhaustion = 0.1f, messageId = "fallingStalactite", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:fireball", effects = "burning", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "fireball"), false)
+        addEntry(DamageType("minecraft:fireworks", exhaustion = 0.1f, messageId = "fireworks", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:fly_into_wall", exhaustion = 0.0f, messageId = "flyIntoWall", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:freeze", effects = "freezing", exhaustion = 0.0f, scaling = "when_caused_by_living_non_player", messageId = "freeze"), false)
+        addEntry(DamageType("minecraft:generic", exhaustion = 0.0f, messageId = "generic", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:generic_kill", exhaustion = 0.0f, messageId = "genericKill", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:hot_floor", effects = "burning", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "hotFloor"), false)
+        addEntry(DamageType("minecraft:in_fire", effects = "burning", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "inFire"), false)
+        addEntry(DamageType("minecraft:in_wall", exhaustion = 0.0f, messageId = "inWall", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:indirect_magic", exhaustion = 0.0f, messageId = "indirectMagic", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:lava", effects = "burning", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "lava"), false)
+        addEntry(DamageType("minecraft:lightning_bolt", exhaustion = 0.1f, messageId = "lightningBolt", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:magic", exhaustion = 0.0f, messageId = "magic", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:mob_attack", exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:mob_attack_no_aggro", exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:mob_projectile", exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:on_fire", effects = "burning", exhaustion = 0.0f, scaling = "when_caused_by_living_non_player", messageId = "onFire"), false)
+        addEntry(DamageType("minecraft:out_of_world", exhaustion = 0.0f, messageId = "outOfWorld", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:outside_border", exhaustion = 0.0f, messageId = "outsideBorder", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:player_attack", exhaustion = 0.1f, messageId = "player", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:player_explosion", exhaustion = 0.1f, messageId = "explosion.player", scaling = "always"), false)
+        addEntry(DamageType("minecraft:sonic_boom", exhaustion = 0.0f, messageId = "sonic_boom", scaling = "always"), false)
+        addEntry(DamageType("minecraft:spit", exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:stalagmite", exhaustion = 0.0f, messageId = "stalagmite", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:starve", exhaustion = 0.0f, messageId = "starve", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:sting", exhaustion = 0.1f, messageId = "sting", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:sweet_berry_bush", effects = "poking", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "sweetBerryBush"), false)
+        addEntry(DamageType("minecraft:thorns", effects = "thorns", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "thorns"), false)
+        addEntry(DamageType("minecraft:thrown", exhaustion = 0.1f, messageId = "thrown", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:trident", exhaustion = 0.1f, messageId = "trident", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:unattributed_fireball", effects = "burning", exhaustion = 0.1f, scaling = "when_caused_by_living_non_player", messageId = "onFire"), false)
+        addEntry(DamageType("minecraft:wind_charge", exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:wither", exhaustion = 0.0f, messageId = "wither", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:wither_skull", exhaustion = 0.1f, messageId = "witherSkull", scaling = "when_caused_by_living_non_player"), false)
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
@@ -94,13 +102,18 @@ object DamageTypeRegistry: DynamicRegistry {
 }
 
 data class DamageType(
+    val identifier: String,
     val exhaustion: Float,
     val messageId: String,
     val scaling: String,
     val effects: String? = null,
     val deathMessageType: String? = null,
-    override val protocolId: Int
 ): RegistryEntry {
+
+    override fun getProtocolId(): Int {
+        return DamageTypeRegistry.protocolIds.getOrThrow(identifier)
+    }
+
     override fun getNbt(): NBTCompound {
         return NBT.Compound {
             it.put("exhaustion", this.exhaustion)

@@ -94,6 +94,8 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
         player.sendPacket(gameEventPacket)
 
+        log("Getting dimension type id: ${world.dimensionType.identifier} - ${world.dimensionType.getProtocolId()}", LogType.TRACE)
+
         val playPacket = ClientboundLoginPlayPacket(
             entityId = player.entityId,
             isHardcore = world.isHardcore,
@@ -104,7 +106,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             reducedDebugInfo = false,
             enableRespawnScreen = true,
             doLimitedCrafting = false,
-            dimensionType = world.dimensionType.protocolId,
+            dimensionType = world.dimensionType.getProtocolId(),
             dimensionName = world.name,
             hashedSeed = world.seed,
             gameMode = player.gameMode.value,

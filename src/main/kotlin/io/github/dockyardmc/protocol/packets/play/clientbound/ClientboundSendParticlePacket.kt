@@ -25,15 +25,15 @@ class ClientboundSendParticlePacket(
 ): ClientboundPacket() {
 
     init {
-        if(particleData != null && particleData.id != particle.protocolId) throw Exception("Particle data ${particleData::class.simpleName} is not valid for particle ${particle.identifier}")
-        if(particleData == null && ParticleData.requiresData(particle.protocolId)) throw Exception("Particle ${particle.identifier} requires particle data")
+        if(particleData != null && particleData.id != particle.getProtocolId()) throw Exception("Particle data ${particleData::class.simpleName} is not valid for particle ${particle.identifier}")
+        if(particleData == null && ParticleData.requiresData(particle.getProtocolId())) throw Exception("Particle ${particle.identifier} requires particle data")
 
         data.writeBoolean(longDistance)
         data.writeLocationWithoutRotation(location)
         data.writeVector3f(offset)
         data.writeFloat(speed)
         data.writeInt(count)
-        data.writeVarInt(particle.protocolId)
+        data.writeVarInt(particle.getProtocolId())
         particleData?.write(data)
     }
 }

@@ -40,7 +40,7 @@ object SkinManager {
             player.sendToViewers(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
             player.sendToViewers(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
             player.sendToViewers(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!))))
-            player.sendToViewers(ClientboundSpawnEntityPacket(player.entityId, player.uuid, player.type.protocolId, player.location, player.location.yaw, 0, player.velocity))
+            player.sendToViewers(ClientboundSpawnEntityPacket(player.entityId, player.uuid, player.type.getProtocolId(), player.location, player.location.yaw, 0, player.velocity))
             player.displayedSkinParts.triggerUpdate()
         }
         asyncRunnable.run()

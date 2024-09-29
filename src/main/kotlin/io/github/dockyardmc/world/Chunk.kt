@@ -75,7 +75,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
 
-        section.biomePalette[relativeX, relativeY, relativeZ] = biome.protocolId
+        section.biomePalette[relativeX, relativeY, relativeZ] = biome.getProtocolId()
         if(shouldCache) updateCache()
     }
 

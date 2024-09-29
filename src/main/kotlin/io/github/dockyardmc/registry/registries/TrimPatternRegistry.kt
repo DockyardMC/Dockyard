@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
+import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
@@ -15,27 +16,35 @@ object TrimPatternRegistry: DynamicRegistry {
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
     val trimPatterns: MutableMap<String, TrimPattern> = mutableMapOf()
-    val protocolIdCounter =  AtomicInteger()
+    val protocolIds: MutableMap<String, Int> = mutableMapOf()
+    private val protocolIdCounter = AtomicInteger()
+
+    fun addEntry(entry: TrimPattern, updateCache: Boolean = true) {
+        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
+        trimPatterns[entry.identifier] = entry
+        if (updateCache) updateCache()
+    }
 
     override fun register() {
-        trimPatterns["minecraft:bolt"] = TrimPattern("minecraft:bolt", false, "trim_pattern.minecraft.bolt" ,"minecraft:bolt_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:coast"] = TrimPattern("minecraft:coast", false, "trim_pattern.minecraft.coast" ,"minecraft:coast_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:dune"] = TrimPattern("minecraft:dune", false, "trim_pattern.minecraft.dune" ,"minecraft:dune_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:eye"] = TrimPattern("minecraft:eye", false, "trim_pattern.minecraft.eye" ,"minecraft:eye_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:flow"] = TrimPattern("minecraft:flow", false, "trim_pattern.minecraft.flow" ,"minecraft:flow_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:host"] = TrimPattern("minecraft:host", false, "trim_pattern.minecraft.host" ,"minecraft:host_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:raiser"] = TrimPattern("minecraft:raiser", false, "trim_pattern.minecraft.raiser" ,"minecraft:raiser_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:rib"] = TrimPattern("minecraft:rib", false, "trim_pattern.minecraft.rib" ,"minecraft:rib_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:sentry"] = TrimPattern("minecraft:sentry", false, "trim_pattern.minecraft.sentry" ,"minecraft:sentry_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:shaper"] = TrimPattern("minecraft:shaper", false, "trim_pattern.minecraft.shaper" ,"minecraft:shaper_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:silence"] = TrimPattern("minecraft:silence", false, "trim_pattern.minecraft.silence" ,"minecraft:silence_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:snout"] = TrimPattern("minecraft:snout", false, "trim_pattern.minecraft.snout" ,"minecraft:snout_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:spire"] = TrimPattern("minecraft:spire", false, "trim_pattern.minecraft.spire" ,"minecraft:spire_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:tide"] = TrimPattern("minecraft:tide", false, "trim_pattern.minecraft.tide" ,"minecraft:tide_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:vex"] = TrimPattern("minecraft:vex", false, "trim_pattern.minecraft.vex" ,"minecraft:vex_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:ward"] = TrimPattern("minecraft:ward", false, "trim_pattern.minecraft.ward" ,"minecraft:ward_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:wayfinder"] = TrimPattern("minecraft:wayfinder", false, "trim_pattern.minecraft.wayfinder" ,"minecraft:wayfinder_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
-        trimPatterns["minecraft:wild"] = TrimPattern("minecraft:wild", false, "trim_pattern.minecraft.wild" ,"minecraft:wild_armor_trim_smithing_template", protocolIdCounter.getAndIncrement())
+        addEntry(TrimPattern("minecraft:bolt", "bolt", false, "trim_pattern.minecraft.bolt" ,"minecraft:bolt_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:coast", "coast", false, "trim_pattern.minecraft.coast" ,"minecraft:coast_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:dune", "dune", false, "trim_pattern.minecraft.dune" ,"minecraft:dune_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:eye", "eye", false, "trim_pattern.minecraft.eye" ,"minecraft:eye_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:flow", "flow", false, "trim_pattern.minecraft.flow" ,"minecraft:flow_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:host", "host", false, "trim_pattern.minecraft.host" ,"minecraft:host_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:raiser", "raiser", false, "trim_pattern.minecraft.raiser" ,"minecraft:raiser_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:rib", "rib", false, "trim_pattern.minecraft.rib" ,"minecraft:rib_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:sentry", "sentry", false, "trim_pattern.minecraft.sentry" ,"minecraft:sentry_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:shaper", "shaper", false, "trim_pattern.minecraft.shaper" ,"minecraft:shaper_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:silence", "silence", false, "trim_pattern.minecraft.silence" ,"minecraft:silence_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:snout", "snout", false, "trim_pattern.minecraft.snout" ,"minecraft:snout_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:spire", "spire", false, "trim_pattern.minecraft.spire" ,"minecraft:spire_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:tide", "tide", false, "trim_pattern.minecraft.tide" ,"minecraft:tide_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:vex", "vex", false, "trim_pattern.minecraft.vex" ,"minecraft:vex_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:ward", "ward", false, "trim_pattern.minecraft.ward" ,"minecraft:ward_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:wayfinder", "wayfinder", false, "trim_pattern.minecraft.wayfinder" ,"minecraft:wayfinder_armor_trim_smithing_template"))
+        addEntry(TrimPattern("minecraft:wild", "wild", false, "trim_pattern.minecraft.wild" ,"minecraft:wild_armor_trim_smithing_template"))
+        updateCache()
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
@@ -65,12 +74,16 @@ object TrimPatternRegistry: DynamicRegistry {
 }
 
 data class TrimPattern(
+    val identifier: String,
     val assetId: String,
     val decal: Boolean,
     val translate: String,
     val templateItem: String,
-    override val protocolId: Int
 ): RegistryEntry {
+
+    override fun getProtocolId(): Int {
+        return PaintingVariantRegistry.protocolIds.getOrThrow(identifier)
+    }
 
     override fun getNbt(): NBTCompound {
         return NBT.Compound {

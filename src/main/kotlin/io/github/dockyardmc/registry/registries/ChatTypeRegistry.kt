@@ -12,7 +12,7 @@ object ChatTypeRegistry: DynamicRegistry {
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
     val chatTypes: MutableMap<String, RegistryEntry> = mutableMapOf()
-    val protocolIdCounter =  AtomicInteger()
+    private val protocolIdCounter =  AtomicInteger()
 
     override fun register() {
         // Empty, dockyard does not use vanilla chat type stuff

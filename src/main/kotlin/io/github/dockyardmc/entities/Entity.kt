@@ -175,7 +175,7 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
         if(event.cancelled) return
 
         sendMetadataPacket(player)
-        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.protocolId, location, location.yaw, 0, velocity)
+        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
         isOnGround = true
 
         player.visibleEntities.add(this)

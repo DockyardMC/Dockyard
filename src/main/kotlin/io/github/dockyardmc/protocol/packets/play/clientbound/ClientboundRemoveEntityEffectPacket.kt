@@ -17,7 +17,7 @@ class ClientboundRemoveEntityEffectPacket(entity: Entity, effect: PotionEffect):
 
     init {
         data.writeVarInt(entity.entityId)
-        data.writeVarInt(effect.protocolId)
+        data.writeVarInt(effect.getProtocolId())
     }
 
 }

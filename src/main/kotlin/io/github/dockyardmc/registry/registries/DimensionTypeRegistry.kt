@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
+import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
@@ -16,10 +17,18 @@ object DimensionTypeRegistry : DynamicRegistry {
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
     var dimensionTypes: MutableMap<String, DimensionType> = mutableMapOf()
-    val protocolIdCounter =  AtomicInteger()
+    var protocolIds: MutableMap<String, Int> = mutableMapOf()
+    private val protocolIdCounter =  AtomicInteger()
+
+    fun addEntry(entry: DimensionType, updateCache: Boolean = true) {
+        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
+        dimensionTypes[entry.identifier] = entry
+        if(updateCache) updateCache()
+    }
 
     override fun register() {
-        dimensionTypes["minecraft:overworld"] = DimensionType(
+         addEntry(DimensionType(
+            "minecraft:overworld",
             ambientLight = 0.0f,
             bedWorks = true,
             coordinateScale = 1.0,
@@ -37,9 +46,9 @@ object DimensionTypeRegistry : DynamicRegistry {
             piglinSafe = false,
             respawnAnchorWorks = false,
             ultraWarm = false,
-            protocolId = protocolIdCounter.getAndIncrement()
-        )
-        dimensionTypes["minecraft:overworld_caves"] = DimensionType(
+        ))
+        addEntry(DimensionType(
+            "minecraft:overworld_caves",
             ambientLight = 0.0f,
             bedWorks = true,
             coordinateScale = 1.0,
@@ -57,9 +66,9 @@ object DimensionTypeRegistry : DynamicRegistry {
             piglinSafe = false,
             respawnAnchorWorks = false,
             ultraWarm = false,
-            protocolId = protocolIdCounter.getAndIncrement()
-        )
-        dimensionTypes["minecraft:the_end"] = DimensionType(
+        ))
+        addEntry(DimensionType(
+            "minecraft:the_end",
             ambientLight = 0.0f,
             bedWorks = false,
             coordinateScale = 1.0,
@@ -78,9 +87,9 @@ object DimensionTypeRegistry : DynamicRegistry {
             respawnAnchorWorks = false,
             ultraWarm = false,
             fixedTime = 6000L,
-            protocolId = protocolIdCounter.getAndIncrement()
-        )
-        dimensionTypes["minecraft:the_nether"] = DimensionType(
+        ))
+        addEntry(DimensionType(
+            "minecraft:the_nether",
             ambientLight = 0.1f,
             bedWorks = false,
             coordinateScale = 8.0,
@@ -99,8 +108,7 @@ object DimensionTypeRegistry : DynamicRegistry {
             respawnAnchorWorks = true,
             ultraWarm = true,
             fixedTime = 18000L,
-            protocolId = protocolIdCounter.getAndIncrement()
-        )
+        ))
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
@@ -131,6 +139,7 @@ object DimensionTypeRegistry : DynamicRegistry {
 }
 
 data class DimensionType(
+    val identifier: String,
     val ambientLight: Float,
     val bedWorks: Boolean,
     val coordinateScale: Double,
@@ -149,8 +158,11 @@ data class DimensionType(
     val respawnAnchorWorks: Boolean,
     val ultraWarm: Boolean,
     val fixedTime: Long? = null,
-    override val protocolId: Int,
 ) : RegistryEntry {
+
+    override fun getProtocolId(): Int {
+        return DimensionTypeRegistry.protocolIds.getOrThrow(identifier)
+    }
 
     override fun getNbt(): NBTCompound {
         return NBT.Compound {

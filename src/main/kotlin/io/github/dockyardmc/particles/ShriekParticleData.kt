@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf
 
 class ShriekParticleData(val delayTicks: Int): ParticleData {
 
-    override var id: Int = Particles.SHRIEK.protocolId
+    override var id: Int = Particles.SHRIEK.getProtocolId()
 
     override fun write(byteBuf: ByteBuf) {
         byteBuf.writeVarInt(delayTicks)
