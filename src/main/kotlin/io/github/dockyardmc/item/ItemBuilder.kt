@@ -33,7 +33,7 @@ class ItemBuilder() {
      *
      * @throws IllegalArgumentException if the amount is less than 1
      */
-    fun setAmount(amount: Int): ItemBuilder {
+    fun withAmount(amount: Int): ItemBuilder {
         if (amount < 1) {
             throw IllegalArgumentException("Amount cannot be less than 1")
         }
@@ -47,7 +47,7 @@ class ItemBuilder() {
      * @param name String
      * @return ItemBuilder
      */
-    fun setName(name: String): ItemBuilder {
+    fun withName(name: String): ItemBuilder {
         itemStack.displayName.value = name
         return this
     }
@@ -58,13 +58,13 @@ class ItemBuilder() {
      * @param lore List<String>
      * @return ItemBuilder
      */
-    fun setLore(lore: List<String>): ItemBuilder {
+    fun withLore(lore: List<String>): ItemBuilder {
         itemStack.lore.setValues(lore)
         return this
     }
 
     /**
-     * Add a lore to the item
+     * Adds a line of lore to the item
      *
      * @param lore String
      * @return ItemBuilder
@@ -80,7 +80,7 @@ class ItemBuilder() {
      * @param customModelData Int
      * @return ItemBuilder
      */
-    fun setCustomModelData(customModelData: Int): ItemBuilder {
+    fun withCustomModelData(customModelData: Int): ItemBuilder {
         itemStack.customModelData.value = customModelData
         return this
     }
@@ -93,7 +93,7 @@ class ItemBuilder() {
      *
      * @throws IllegalArgumentException if the max stack size is less than 1
      */
-    fun setMaxStackSize(maxStackSize: Int): ItemBuilder {
+    fun withMaxStackSize(maxStackSize: Int): ItemBuilder {
         if (maxStackSize < 1) {
             throw IllegalArgumentException("Max stack size cannot be less than 1")
         }
@@ -113,7 +113,7 @@ class ItemBuilder() {
      * @throws IllegalArgumentException if the damage is greater than the max damage
      * @throws IllegalArgumentException if the item is stackable
      */
-    fun setDamage(damage: Int, maxDamage: Int = 100): ItemBuilder {
+    fun withDamage(damage: Int, maxDamage: Int = 100): ItemBuilder {
         if (damage < 0) {
             throw IllegalArgumentException("Damage cannot be less than 0")
         }
@@ -135,7 +135,7 @@ class ItemBuilder() {
      * @param unbreakable Boolean
      * @return ItemBuilder
      */
-    fun setUnbreakable(unbreakable: Boolean, showInTooltip: Boolean = false): ItemBuilder {
+    fun isUnbreakable(unbreakable: Boolean, showInTooltip: Boolean = false): ItemBuilder {
         if (unbreakable) {
             itemStack.components.addOrUpdate(UnbreakableItemComponent(showInTooltip))
         } else {
@@ -151,7 +151,7 @@ class ItemBuilder() {
      * @param glint Boolean
      * @return ItemBuilder
      */
-    fun setGlint(glint: Boolean): ItemBuilder {
+    fun withGlint(glint: Boolean): ItemBuilder {
         itemStack.hasGlint.value = glint
         return this
     }
@@ -162,7 +162,7 @@ class ItemBuilder() {
      * @param material Item
      * @return ItemBuilder
      */
-    fun setMaterial(material: Item): ItemBuilder {
+    fun withMaterial(material: Item): ItemBuilder {
         itemStack.material = material
         return this
     }
@@ -174,7 +174,7 @@ class ItemBuilder() {
      * @param showInTooltip Boolean (default false)
      * @return ItemBuilder
      */
-    fun setColor(color: Int, showInTooltip: Boolean = false): ItemBuilder {
+    fun withColor(color: Int, showInTooltip: Boolean = false): ItemBuilder {
         itemStack.components.addOrUpdate(DyedColorItemComponent(CustomColor.fromRGBInt(color), showInTooltip))
         return this
     }
@@ -186,7 +186,7 @@ class ItemBuilder() {
      * @param showInTooltip Boolean (default false)
      * @return ItemBuilder
      */
-    fun setColor(color: String, showInTooltip: Boolean = false): ItemBuilder {
+    fun withColor(color: String, showInTooltip: Boolean = false): ItemBuilder {
         itemStack.components.addOrUpdate(DyedColorItemComponent(CustomColor.fromHex(color), showInTooltip))
         return this
     }
@@ -201,7 +201,7 @@ class ItemBuilder() {
      * @return ItemBuilder
      */
     @Deprecated("Breaks in 1.21.2. Will be reworked in the future")
-    fun setFood(nutrition: Int, giveSaturation: Boolean = false, canAlwaysEat: Boolean = true , secondsToEat: Float = 2f): ItemBuilder {
+    fun withFood(nutrition: Int, giveSaturation: Boolean = false, canAlwaysEat: Boolean = true , secondsToEat: Float = 2f): ItemBuilder {
         itemStack.components.addOrUpdate(FoodItemComponent(nutrition, giveSaturation, canAlwaysEat, secondsToEat))
         return this
     }
