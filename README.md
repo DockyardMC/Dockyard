@@ -10,7 +10,7 @@ DockyardMC open-source, fast and lightweight Minecraft server protocol implement
 
 ## Quick Start
 
-You can read how to setup and use dockyard here: https://dockyardmc.github.io/Wiki/wiki/quick-start
+You can read how to setup and use dockyard here: https://dockyard.lukynka.cloud/wiki/quick-start
 
 ## Features
 
