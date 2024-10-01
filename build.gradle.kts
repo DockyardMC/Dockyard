@@ -32,6 +32,7 @@ repositories {
     mavenCentral()
     maven("https://mvn.devos.one/releases")
     maven("https://jitpack.io")
+    maven("https://repo.spongepowered.org/repository/maven-public/")
 }
 
 dependencies {

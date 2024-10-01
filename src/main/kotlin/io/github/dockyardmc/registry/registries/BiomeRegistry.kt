@@ -61,8 +61,7 @@ object BiomeRegistry : DataDrivenRegistry, DynamicRegistry {
     }
 
     override fun get(identifier: String): Biome {
-        return biomes[identifier]
-            ?: throw IllegalStateException("Biome with identifier $identifier is not present in the registry!")
+        return biomes[identifier] ?: throw IllegalStateException("Biome with identifier $identifier is not present in the registry!")
     }
 
     override fun getOrNull(identifier: String): Biome? {

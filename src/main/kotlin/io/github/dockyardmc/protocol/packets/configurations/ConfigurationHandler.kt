@@ -1,7 +1,5 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.FeatureFlags
 import io.github.dockyardmc.commands.buildCommandGraph
@@ -93,8 +91,6 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
 
         val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
         player.sendPacket(gameEventPacket)
-
-        log("Getting dimension type id: ${world.dimensionType.identifier} - ${world.dimensionType.getProtocolId()}", LogType.TRACE)
 
         val playPacket = ClientboundLoginPlayPacket(
             entityId = player.entityId,

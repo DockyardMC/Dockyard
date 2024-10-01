@@ -89,6 +89,18 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         return Blocks.getBlockById(section.blockPalette[relativeX, relativeY, relativeZ])
     }
 
+    fun fillBiome(biome: Biome) {
+        sections.forEach {
+            it.biomePalette.fill(biome.getProtocolId())
+        }
+    }
+
+    fun fillBlocks(block: Block) {
+        sections.forEach {
+            it.biomePalette.fill(block.getId())
+        }
+    }
+
     fun getSection(section: Int): ChunkSection = sections[section - minSection]
 
     fun getSectionAt(y: Int): ChunkSection = getSection(ChunkUtils.getChunkCoordinate(y))

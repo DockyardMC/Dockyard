@@ -8,18 +8,15 @@ import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.registry.registries.*
-import io.github.dockyardmc.scroll.CustomColor
+import io.github.dockyardmc.registry.registries.BiomeRegistry
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.utils.customBiome
-import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
 
@@ -49,7 +46,7 @@ fun main(args: Array<String>) {
         return
     }
 
-    val customBiome = customBiome("dockyardmc:the_pale_garden") {
+    val customBiome = customBiome("dockyardmc:the_hollow") {
         withSkyColor("#c9c9c9")
         withGrassColor("#a9ada8")
         withFogColor("#ffffff")
@@ -83,8 +80,7 @@ fun main(args: Array<String>) {
             val world = WorldManager.mainWorld
             val chunks = mutableListOf<Chunk>()
 
-            val hollow = BiomeRegistry["dockyardmc:the_pale_garden"]
-            debug("${hollow.identifier} - ${hollow.getProtocolId()}", true)
+            val hollow = BiomeRegistry["dockyardmc:the_hollow"]
 
             for (x in 0 until platformSize) {
                 for (z in 0 until platformSize) {
@@ -106,7 +102,5 @@ fun main(args: Array<String>) {
             }
         }
     }
-
-
     server.start()
 }
