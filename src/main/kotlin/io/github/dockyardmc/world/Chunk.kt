@@ -1,9 +1,8 @@
 package io.github.dockyardmc.world
 
+import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.getId
 import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.ChunkUtils
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
@@ -54,17 +53,20 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
         section.blockPalette[relativeX, relativeY, relativeZ] = blockStateId
+        world.customDataBlocks.remove(Location(x, y, z, world).blockHash)
         if(shouldCache) updateCache()
     }
 
-    fun setBlock(x: Int, y: Int, z: Int, material: Block, shouldCache: Boolean = true) {
+    fun setBlock(x: Int, y: Int, z: Int, block: Block, shouldCache: Boolean = true) {
         val section = getSectionAt(y)
 
         val relativeX = ChunkUtils.sectionRelative(x)
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
 
-        section.blockPalette[relativeX, relativeY, relativeZ] = material.getId()
+        if(block.customData != null) world.customDataBlocks[Location(x, y, z, world).blockHash] = block
+        if(block.customData == null) world.customDataBlocks.remove(Location(x, y, z, world).blockHash)
+        section.blockPalette[relativeX, relativeY, relativeZ] = block.getProtocolId()
         if(shouldCache) updateCache()
     }
 
@@ -79,14 +81,17 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         if(shouldCache) updateCache()
     }
 
-    fun getBlock(x: Int, y: Int, z: Int): Block {
+    fun getBlock(x: Int, y: Int, z: Int): Block? {
+        val customDataBlock = world.customDataBlocks[Location(x, y, z, world).blockHash]
+        if(customDataBlock != null) return customDataBlock
+
         val section = getSectionAt(y)
 
         val relativeX = ChunkUtils.sectionRelative(x)
-        val relativeZ = ChunkUtils.sectionRelative(z)
-        val relativeY = ChunkUtils.sectionRelative(y)
+        val relativeZ = ChunkUtils.sectionRelative(y)
+        val relativeY = ChunkUtils.sectionRelative(z)
 
-        return Blocks.getBlockById(section.blockPalette[relativeX, relativeY, relativeZ])
+        return Block.getBlockByStateId(section.blockPalette[relativeX, relativeY, relativeZ])
     }
 
     fun fillBiome(biome: Biome) {
@@ -97,7 +102,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
 
     fun fillBlocks(block: Block) {
         sections.forEach {
-            it.biomePalette.fill(block.getId())
+            it.biomePalette.fill(block.getProtocolId())
         }
     }
 

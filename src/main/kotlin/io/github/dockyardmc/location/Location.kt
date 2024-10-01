@@ -1,7 +1,7 @@
 package io.github.dockyardmc.location
 
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.extentions.truncate
-import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.utils.vectors.Vector2f
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3d
@@ -31,7 +31,6 @@ class Location(
 
     constructor(x: Double, y: Double, z: Double, world: World):
             this(x, y, z, 0f, 0f, world)
-
 
     val blockX: Int get() = floor(x).toInt()
     val blockY: Int get() = floor(y).toInt()
@@ -131,7 +130,7 @@ class Location(
     fun toVector3f(): Vector3f = Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
     fun toVector3d(): Vector3d = Vector3d(x, y, z)
 
-    val blockHash: String get() = "$blockX$blockY$blockZ${world.name}"
+    val blockHash: Int get() = (blockX.hashCode() + blockY.hashCode() + blockZ.hashCode() + world.name.hashCode())
     fun equalsBlock(location: Location): Boolean  = this.blockHash == location.blockHash
 }
 
