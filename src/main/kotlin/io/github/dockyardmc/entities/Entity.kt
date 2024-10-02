@@ -3,6 +3,7 @@ package io.github.dockyardmc.entities
 import cz.lukynka.Bindable
 import cz.lukynka.BindableMap
 import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.blocks.BlockIterator
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.effects.PotionEffectImpl
 import io.github.dockyardmc.events.*
@@ -32,7 +33,7 @@ import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
 
-abstract class Entity(open var location: Location, open var world: World): Disposable {
+abstract class Entity(open var location: Location, open var world: World) : Disposable {
     open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
@@ -61,7 +62,7 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
     var renderDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityRenderDistanceBlocks
     var autoViewable: Boolean = true
 
-    constructor(location: Location): this(location, location.world)
+    constructor(location: Location) : this(location, location.world)
 
     init {
 
@@ -69,12 +70,12 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
 
         equipmentLayers.itemSet {
             val player = it.key.toPlayer()
-            if(player != null) sendEquipmentPacket(player)
+            if (player != null) sendEquipmentPacket(player)
         }
 
         equipmentLayers.itemRemoved {
             val player = it.key.toPlayer()
-            if(player != null) sendEquipmentPacket(player)
+            if (player != null) sendEquipmentPacket(player)
         }
 
         isOnFire.valueChanged {
@@ -109,16 +110,17 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
 
         metadataLayers.itemSet {
             val player = it.key.toPlayer()
-            if(player != null) sendMetadataPacket(player)
+            if (player != null) sendMetadataPacket(player)
         }
 
         metadataLayers.itemRemoved {
             val player = it.key.toPlayer()
-            if(player != null) sendMetadataPacket(player)
+            if (player != null) sendMetadataPacket(player)
         }
 
         pose.valueChanged {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
+            metadata[EntityMetadataType.POSE] =
+                EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
         }
 
         //TODO add attribute modifiers
@@ -126,7 +128,15 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
 
         potionEffects.itemSet {
             it.value.startTime = System.currentTimeMillis()
-            val packet = ClientboundEntityEffectPacket(this, it.value.effect, it.value.level, it.value.duration, it.value.showParticles, it.value.showBlueBorder, it.value.showIconOnHud)
+            val packet = ClientboundEntityEffectPacket(
+                this,
+                it.value.effect,
+                it.value.level,
+                it.value.duration,
+                it.value.showParticles,
+                it.value.showBlueBorder,
+                it.value.showIconOnHud
+            )
 
             viewers.sendPacket(packet)
             sendSelfPacketIfPlayer(packet)
@@ -141,7 +151,9 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
         }
 
         team.valueChanged {
-            if(it.newValue != null && !TeamManager.teams.values.containsKey(it.newValue!!.name)) throw IllegalArgumentException("Team ${it.newValue!!.name} is not registered!")
+            if (it.newValue != null && !TeamManager.teams.values.containsKey(it.newValue!!.name)) throw IllegalArgumentException(
+                "Team ${it.newValue!!.name} is not registered!"
+            )
             this.team.value?.entities?.remove(this)
             it.newValue?.entities?.add(this)
         }
@@ -164,7 +176,7 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
 
     open fun tick() {
         potionEffects.values.forEach {
-            if(System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.duration)) {
+            if (System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.duration)) {
                 potionEffects.remove(it.key)
             }
         }
@@ -173,10 +185,11 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
     open fun addViewer(player: Player) {
         val event = EntityViewerAddEvent(this, player)
         Events.dispatch(event)
-        if(event.cancelled) return
+        if (event.cancelled) return
 
         sendMetadataPacket(player)
-        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
+        val entitySpawnPacket =
+            ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
         isOnGround = true
 
         player.visibleEntities.add(this)
@@ -190,7 +203,7 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
 
         val event = EntityViewerRemoveEvent(this, player)
         Events.dispatch(event)
-        if(event.cancelled) return
+        if (event.cancelled) return
 
         viewers.remove(player)
         val entityDespawnPacket = ClientboundEntityRemovePacket(this)
@@ -233,7 +246,7 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
             location.x - width / 2,
             location.x + width / 2,
             location.y - height / 2,
-            location.y + height /2,
+            location.y + height / 2,
             location.z - width / 2,
             location.z + width / 2
         )
@@ -248,15 +261,15 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
     open fun damage(damage: Float, damageType: DamageType, attacker: Entity? = null, projectile: Entity? = null) {
         val event = EntityDamageEvent(this, damage, damageType, attacker, projectile)
         Events.dispatch(event)
-        if(event.cancelled) return
+        if (event.cancelled) return
 
         var location: Location? = null
-        if(attacker != null) location = attacker.location
-        if(projectile != null) location = projectile.location
+        if (attacker != null) location = attacker.location
+        if (projectile != null) location = projectile.location
 
-        if(event.damage > 0) {
-            if(!isInvulnerable) {
-                if(health.value - event.damage <= 0) kill() else health.value -= event.damage
+        if (event.damage > 0) {
+            if (!isInvulnerable) {
+                if (health.value - event.damage <= 0) kill() else health.value -= event.damage
             }
         }
 
@@ -271,7 +284,7 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
     open fun kill() {
         val event = EntityDeathEvent(this)
         Events.dispatch(event)
-        if(event.cancelled) {
+        if (event.cancelled) {
             health.value = 0.1f
             return
         }
@@ -284,15 +297,15 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
         val minY: Double,
         val maxY: Double,
         val minZ: Double,
-        val maxZ: Double
+        val maxZ: Double,
     )
 
     private fun sendSelfPacketIfPlayer(packet: ClientboundPacket) {
-        if(this is Player) this.sendPacket(packet)
+        if (this is Player) this.sendPacket(packet)
     }
 
     private fun sendSelfMetadataIfPlayer() {
-        if(this is Player) sendMetadataPacket(this)
+        if (this is Player) sendMetadataPacket(this)
     }
 
     fun addPotionEffect(
@@ -321,12 +334,20 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
 
     fun refreshPotionEffects() {
         viewers.forEach(::sendPotionEffectsPacket)
-        if(this is Player) this.sendPotionEffectsPacket(this)
+        if (this is Player) this.sendPotionEffectsPacket(this)
     }
 
     fun sendPotionEffectsPacket(player: Player) {
         potionEffects.values.values.forEach {
-            val packet = ClientboundEntityEffectPacket(this, it.effect, it.level, it.duration, it.showParticles, it.showBlueBorder, it.showIconOnHud)
+            val packet = ClientboundEntityEffectPacket(
+                this,
+                it.effect,
+                it.level,
+                it.duration,
+                it.showParticles,
+                it.showBlueBorder,
+                it.showIconOnHud
+            )
             player.sendPacket(packet)
         }
     }
@@ -342,6 +363,16 @@ abstract class Entity(open var location: Location, open var world: World): Dispo
     fun breakBlock() {
 
     }
+
+    fun getTargetBlock(maxDistance: Int): Location? {
+        val it: Iterator<Vector3> = BlockIterator(this, maxDistance)
+        while (it.hasNext()) {
+            val position: Location = it.next().toLocation(world)
+            if (world.getBlock(position).isAir()) return position
+        }
+        return null
+    }
+
 
     fun getFacingDirectionVector(): Vector3f {
         val yawRadians = Math.toRadians(location.yaw.toDouble())

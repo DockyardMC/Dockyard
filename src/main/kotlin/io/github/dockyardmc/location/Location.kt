@@ -56,6 +56,7 @@ class Location(
     fun add(x: Int, y: Int, z: Int): Location = Location(this.x + x, this.y + y, this.z + z, this.yaw, this.pitch, this.world)
     fun add(x: Double, y: Double, z: Double): Location = Location(this.x + x, this.y + y, this.z + z, this.yaw, this.pitch, this.world)
     fun add(vector: Vector3): Location = Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch, this.world)
+    fun add(vector: Vector3d): Location = Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch, this.world)
     fun add(location: Location): Location = Location(this.x + location.x, this.y + location.y, this.z + location.z, this.yaw, this.pitch, this.world)
 
     fun clone(): Location = Location(this.x, this.y, this.z, this.yaw, this.pitch, this.world)
@@ -132,6 +133,14 @@ class Location(
 
     val blockHash: Int get() = (blockX.hashCode() + blockY.hashCode() + blockZ.hashCode() + world.name.hashCode())
     fun equalsBlock(location: Location): Boolean  = this.blockHash == location.blockHash
+
+    fun sameBlock(point: Vector3): Boolean {
+        return sameBlock(point.x, point.y, point.z)
+    }
+
+    fun sameBlock(blockX: Int, blockY: Int, blockZ: Int): Boolean {
+        return this.blockX == blockX && this.blockY == blockY && this.blockZ == blockZ
+    }
 }
 
 fun ByteBuf.writeLocation(location: Location, rotDelta: Boolean = false) {

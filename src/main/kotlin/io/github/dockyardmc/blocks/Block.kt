@@ -17,12 +17,12 @@ data class Block(
         if (blockStates.isEmpty()) return registryBlock.defaultBlockStateId
         if (registryBlock.states.isEmpty()) return registryBlock.defaultBlockStateId
 
-        val id = registryBlock.possibleStates[this.toString()] ?: registryBlock.defaultBlockStateId
-        return id
+        val id = registryBlock.possibleStates[this.toString()]
+        return id ?: registryBlock.defaultBlockStateId
     }
 
     override fun toString(): String {
-        if (registryBlock.states.isEmpty()) return "minecraft:${registryBlock.identifier}"
+        if (registryBlock.states.isEmpty()) return identifier
 
         val baseBlockStatesString = registryBlock.possibleStates.reversed()[registryBlock.defaultBlockStateId]!!
         val (_, baseStates) = parseBlockStateString(baseBlockStatesString)
@@ -31,7 +31,7 @@ data class Block(
         baseStates.forEach { states[it.key] = it.value }
         blockStates.forEach { states[it.key] = it.value }
 
-        val stringBuilder = StringBuilder("minecraft:${registryBlock.identifier}[")
+        val stringBuilder = StringBuilder("$identifier[")
         states.entries.joinToString(separator = ",") { "${it.key}=${it.value}" }.also { stringBuilder.append(it) }
 
         return stringBuilder.append("]").toString()

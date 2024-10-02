@@ -54,7 +54,7 @@ class ServerboundPlayerActionPacket(
                     return
                 }
 
-                player.world.setBlock(event.location, Blocks.BONE_BLOCK)
+                player.world.setBlock(event.location, Blocks.AIR)
                 player.world.players.values.filter { it != player }.spawnParticle(
                     event.location.getBlockLocation(),
                     Particles.BLOCK,

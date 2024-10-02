@@ -1,6 +1,10 @@
 package io.github.dockyardmc
 
+import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.commands.CommandException
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.StringArgument
+import io.github.dockyardmc.commands.SuggestionProvider
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
@@ -15,6 +19,7 @@ import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.registries.BiomeRegistry
+import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.utils.customBiome
 import io.github.dockyardmc.world.Chunk
@@ -72,6 +77,71 @@ fun main(args: Array<String>) {
     Events.on<PlayerLeaveEvent> {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
+
+    Commands.add("/targetblock") {
+        execute {
+            val player = it.getPlayerOrThrow()
+            val block = player.getTargetBlock(16)
+            player.sendMessage("<yellow>${block.toString()}")
+        }
+    }
+
+    Commands.add("/data") {
+        addSubcommand("get") {
+            addArgument("type", StringArgument(), SuggestionProvider.simple("string", "boolean", "int", "float"))
+            addArgument("key", StringArgument(), SuggestionProvider.simple("<key>"))
+            execute {
+                val dataHolder = CustomDataHolder()
+                dataHolder.add<String>("test", "uwu")
+                dataHolder.add<Int>("int", 1)
+                dataHolder.add<Boolean>("bowol", true)
+                val block = Block.Air.withCustomData(dataHolder)
+                val player = it.getPlayerOrThrow()
+                if(block.customData == null) throw CommandException("This block does not have custom data holder")
+                val type = getArgument<String>("type")
+                val key = getArgument<String>("key")
+
+                val data = block.customData.dataStore[key]
+                val value = when(type) {
+                    "string" -> data as String
+                    "boolean" -> data as Boolean
+                    "int" -> data as Int
+                    "float" -> data as Float
+                    else -> ""
+                }
+                player.sendMessage("<lime>$value")
+            }
+        }
+
+        addSubcommand("set") {
+            addArgument("type", StringArgument(), SuggestionProvider.simple("string", "boolean", "int", "float"))
+            addArgument("key", StringArgument(), SuggestionProvider.simple("<key>"))
+            addArgument("value", StringArgument(), SuggestionProvider.simple("<value>"))
+            execute {
+                val dataHolder = CustomDataHolder()
+                val block = Block.Air.withCustomData(dataHolder)
+                val player = it.getPlayerOrThrow()
+                if(block.customData == null) throw CommandException("This block does not have custom data holder")
+                val type = getArgument<String>("type")
+                val key = getArgument<String>("key")
+                val value = getArgument<String>("value")
+
+                when(type) {
+                    "string" -> block.customData.add<String>(key, value)
+                    "boolean" -> block.customData.add<Boolean>(key, value == "true")
+                    "int" -> block.customData.add<Int>(key, value.toInt())
+                    "float" -> block.customData.add<Float>(key, value.toFloat())
+                }
+
+                player.sendMessage("<lime>set data on block!")
+            }
+        }
+
+        addSubcommand("list") {
+
+        }
+    }
+
 
     Commands.add("/reset") {
         execute {

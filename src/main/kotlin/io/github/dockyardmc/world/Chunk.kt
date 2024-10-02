@@ -5,6 +5,7 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.ChunkUtils
+import io.github.dockyardmc.utils.debug
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
 import org.jglrxavpok.hephaistos.nbt.NBT
 import java.lang.IllegalStateException
@@ -76,15 +77,15 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
 
-//        if(block.customData != null) world.customDataBlocks[Location(x, y, z, world).blockHash] = block
-//        if(block.customData == null) world.customDataBlocks.remove(Location(x, y, z, world).blockHash)
+        if(block.customData != null) world.customDataBlocks[Location(x, y, z, world).blockHash] = block
+        if(block.customData == null) world.customDataBlocks.remove(Location(x, y, z, world).blockHash)
         section.blockPalette[relativeX, relativeY, relativeZ] = block.getProtocolId()
         if(shouldCache) updateCache()
     }
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
-//        val customDataBlock = world.customDataBlocks[Location(x, y, z, world).blockHash]
-//        if(customDataBlock != null) return customDataBlock
+        val customDataBlock = world.customDataBlocks[Location(x, y, z, world).blockHash]
+        if(customDataBlock != null) return customDataBlock
 
         val section = getSectionAt(y)
 
