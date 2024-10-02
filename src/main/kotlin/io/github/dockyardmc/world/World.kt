@@ -140,19 +140,21 @@ class World(
 
     fun getChunk(x: Int, z: Int): Chunk? = chunks[ChunkUtils.getChunkIndex(x, z)]
 
+    fun setBlock(x: Int, y: Int, z: Int, block: RegistryBlock) {
+        setBlock(x, y, z, block.toBlock())
+    }
+
     fun setBlock(x: Int, y: Int, z: Int, block: Block) {
         val chunk = getChunkAt(x, z) ?: return
         chunk.setBlock(x, y, z, block, true)
         players.values.forEach { it.sendPacket(chunk.packet) }
     }
 
-    fun getBlock(location: Location): Block {
-        return getBlock(location.blockX, location.blockY, location.blockZ)
-    }
+    fun getBlock(location: Location): Block = this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
         val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $z not generated!")
-        return chunk.getBlock(x, y, z) ?: Block.Air
+        return chunk.getBlock(x, y, z)
     }
 
     fun setBlockState(x: Int, y: Int, z: Int, states: Map<String, String>) {
@@ -187,21 +189,13 @@ class World(
     }
 
     fun setBlockRaw(location: Location, blockStateId: Int, updateChunk: Boolean = true) {
-        setBlockRaw(location.blockX, location.blockY, location.blockZ, blockStateId, updateChunk)
+        setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId, updateChunk)
     }
 
     fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int, updateChunk: Boolean = true) {
         val chunk = getChunkAt(x, z) ?: return
         chunk.setBlockRaw(x, y, z, blockStateId, updateChunk)
         if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
-    }
-
-    fun setBlock(vector3: Vector3, block: Block) {
-        this.setBlock(vector3.x, vector3.y, vector3.z, block)
-    }
-
-    fun setBlock(vector3: Vector3f, block: Block) {
-        this.setBlock(vector3.x.toInt(), vector3.y.toInt(), vector3.z.toInt(), block)
     }
 
     fun generateChunk(x: Int, z: Int) {
@@ -249,6 +243,7 @@ class World(
             if(it is Player) return@forEach
             despawnEntity(it)
         }
+        customDataBlocks.clear()
         canBeJoined.value = false
         chunks.clear()
 

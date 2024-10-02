@@ -1,5 +1,6 @@
 package io.github.dockyardmc.entities
 
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.writeItemStack
@@ -8,8 +9,6 @@ import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.getId
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.utils.vectors.Vector3
@@ -53,7 +52,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.OPTIONAL_POSITION -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeLocation(v as Location)}
         EntityMetaValue.DIRECTION -> this.writeVarInt((v as Direction).ordinal)
         EntityMetaValue.OPTIONAL_UUID -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeUUID(v as UUID)}
-        EntityMetaValue.BLOCK_STATE -> this.writeVarInt((v as Block).getId())
+        EntityMetaValue.BLOCK_STATE -> this.writeVarInt((v as Block).getProtocolId())
         EntityMetaValue.OPTIONAL_BLOCK_STATE -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
         EntityMetaValue.NBT -> this.writeNBT(v as NBTCompound)
         EntityMetaValue.PARTICLE -> TODO()

@@ -16,7 +16,7 @@ import java.util.zip.GZIPInputStream
 @OptIn(ExperimentalSerializationApi::class)
 object BlockRegistry: DataDrivenRegistry {
 
-    val Air = BlockRegistry["minecraft:air"]
+    val Air get() = BlockRegistry["minecraft:air"]
 
     override val identifier: String = "minecraft:block"
 
@@ -26,7 +26,7 @@ object BlockRegistry: DataDrivenRegistry {
     override fun initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<RegistryBlock>>(stream)
-        blocks = list.associateBy { it.identifier }
+        blocks += list.associateBy { it.identifier }
         protocolIdToBlock = list.associateBy { it.defaultBlockStateId }
     }
 
@@ -41,6 +41,11 @@ object BlockRegistry: DataDrivenRegistry {
     override fun getByProtocolId(id: Int): RegistryBlock {
         return protocolIdToBlock[id] ?: throw IllegalStateException("Block with protocol id $id is not in the registry!")
     }
+
+    fun getByProtocolIdOrNull(id: Int): RegistryBlock? {
+        return protocolIdToBlock[id]
+    }
+
 
     override fun getMap(): Map<String, RegistryBlock> {
         return blocks

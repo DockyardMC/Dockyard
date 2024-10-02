@@ -6,8 +6,6 @@ import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.getDirection
 import io.github.dockyardmc.player.getOpposite
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.withBlockStates
 
 class TrapdoorBlockPlacementRule: BlockPlacementRule {
     override val matchesIdentifier = "trapdoor"

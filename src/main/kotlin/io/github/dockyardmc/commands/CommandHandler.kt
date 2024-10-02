@@ -1,6 +1,7 @@
 package io.github.dockyardmc.commands
 
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager
@@ -13,8 +14,10 @@ import io.github.dockyardmc.extentions.isValidUUID
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.Particle
 import io.github.dockyardmc.registry.registries.ParticleRegistry
+import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.world.World
@@ -101,15 +104,15 @@ object CommandHandler {
                 Long::class -> value.toLongOrNull() ?: throw CommandException("\"$value\" is not of type Long")
                 UUID::class -> UUID.fromString(value)
                 Item::class -> Items.idToItemMap.values.firstOrNull { it.identifier == value.identifier() } ?: throw CommandException("\"$value\" is not of type Item")
-                Block::class -> {
+                RegistryBlock::class -> {
                     if(value.contains("[")) {
                         //block state
-                        val states = parseBlockStateString(value)
-                        val block = Blocks.idToBlockMap.values.firstOrNull { it.identifier == states.first.identifier() } ?: throw CommandException("\"${states.first}\" is not of type Block")
+                        val states = Block.parseBlockStateString(value)
+                        val block = BlockRegistry.protocolIdToBlock.values.firstOrNull { it.identifier == states.first.identifier() } ?: throw CommandException("\"${states.first}\" is not of type Block")
                         block.withBlockStates(states.second)
                     } else {
                         //not block state
-                        Blocks.idToBlockMap.values.firstOrNull { it.identifier == value.identifier() } ?: throw CommandException("\"$value\" is not of type Block")
+                        BlockRegistry.protocolIdToBlock.values.firstOrNull { it.identifier == value.identifier() } ?: throw CommandException("\"$value\" is not of type Block")
                     }
                 }
                 World::class -> WorldManager.worlds[value] ?: throw CommandException("World with name $value does not exist!")

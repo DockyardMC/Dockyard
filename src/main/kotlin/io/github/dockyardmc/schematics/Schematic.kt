@@ -2,13 +2,12 @@
 
 package io.github.dockyardmc.schematics
 
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.getId
 import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.vectors.Vector3
@@ -63,7 +62,7 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
                 for (x in 0 until schematic.size.x) {
                     val placeLoc = Location(x, y, z, location.world).add(location)
                     val id = blocks.readVarInt()
-                    val block = flippedPallet[id] ?: Blocks.RED_STAINED_GLASS
+                    val block = flippedPallet[id] ?: Blocks.RED_STAINED_GLASS.toBlock()
 
                     val chunk = placeLoc.getChunk()
                     if(chunk != null) {
@@ -74,7 +73,7 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
                         location.world.generateChunk(chunkX, chunkZ)
                         updateChunks.add(placeLoc.getChunk()!!)
                     }
-                    batchBlockUpdate.add(placeLoc to block.getId())
+                    batchBlockUpdate.add(placeLoc to block.getProtocolId())
                 }
             }
         }

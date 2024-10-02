@@ -4,9 +4,9 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.registries.Particle
+import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.world.World
@@ -93,7 +93,7 @@ class EntityArgument(
 
 class BlockArgument(
 ): CommandArgument {
-    override var expectedType: KClass<*> = Block::class
+    override var expectedType: KClass<*> = RegistryBlock::class
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.BLOCK
 
     override fun write(buffer: ByteBuf) {} // No extra data
@@ -101,7 +101,7 @@ class BlockArgument(
 
 class BlockStateArgument(
 ): CommandArgument {
-    override var expectedType: KClass<*> = Block::class
+    override var expectedType: KClass<*> = RegistryBlock::class
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.BLOCK_STATE
 
     override fun write(buffer: ByteBuf) {} // No extra data

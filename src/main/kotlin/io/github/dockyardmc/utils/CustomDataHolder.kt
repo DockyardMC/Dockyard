@@ -4,29 +4,21 @@ class CustomDataHolder {
     val dataStore = mutableMapOf<String, Any>()
 
     fun <T : Any> add(key: String, value: T) {
-        synchronized(dataStore) {
-            dataStore[key] = value
-        }
+        dataStore[key] = value
     }
 
     fun remove(key: String) {
-        synchronized(dataStore) {
-            dataStore.remove(key)
-        }
+        dataStore.remove(key)
     }
 
     inline operator fun <reified T> get(key: String): T? {
-        synchronized(dataStore) {
-            if (!dataStore.containsKey(key)) throw IllegalArgumentException("Value for key $key not found in data holder")
-            val value = dataStore[key]
-            if (value !is T) throw IllegalArgumentException("Value for key $key is not of type ${T::class.simpleName}")
-            return value
-        }
+        if (!dataStore.containsKey(key)) throw IllegalArgumentException("Value for key $key not found in data holder")
+        val value = dataStore[key]
+        if (value !is T) throw IllegalArgumentException("Value for key $key is not of type ${T::class.simpleName}")
+        return value
     }
 
     operator fun contains(key: String): Boolean {
-        synchronized(dataStore) {
-            return dataStore.containsKey(key)
-        }
+        return dataStore.containsKey(key)
     }
 }

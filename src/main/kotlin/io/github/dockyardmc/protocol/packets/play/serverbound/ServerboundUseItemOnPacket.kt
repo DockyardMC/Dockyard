@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.blocks.*
@@ -16,10 +17,9 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.isDoubleInteract
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -80,7 +80,8 @@ class ServerboundUseItemOnPacket(
         var cancelled = false
 
         val newPos = pos.copy()
-        val originalBlock = player.world.getBlock(pos)
+        val originalBlock = player.world.getBlock(pos.toLocation(player.world))
+        debug(originalBlock.registryBlock.identifier, true)
 
         when(face) {
             Direction.UP -> newPos.y += 1
@@ -91,7 +92,7 @@ class ServerboundUseItemOnPacket(
             Direction.NORTH -> newPos.z += -1
         }
 
-        val event = PlayerBlockRightClickEvent(player, item, player.world.getBlock(pos), face, pos.toLocation(player.world))
+        val event = PlayerBlockRightClickEvent(player, item, player.world.getBlock(pos.toLocation(player.world)), face, pos.toLocation(player.world))
         if(event.cancelled) cancelled = true
         Events.dispatch(event)
 
@@ -106,7 +107,7 @@ class ServerboundUseItemOnPacket(
         }
 
         if(item.material.isBlock && item.material != Items.AIR) {
-            var block: Block = Blocks.getBlockById(item.material.blockId!!)
+            var block: Block = Block.getBlockByStateId(item.material.blockId!!) ?: Block.Air
 
             placementRules.forEach {
                 if(block.identifier.contains(it.matchesIdentifier)) {
@@ -119,7 +120,9 @@ class ServerboundUseItemOnPacket(
                 }
             }
 
-            if(!GeneralBlockPlacementRules.canBePlaced(pos.toLocation(player.world), newPos.toLocation(player.world), block, player)) cancelled = true
+            if(!GeneralBlockPlacementRules.canBePlaced(pos.toLocation(player.world), newPos.toLocation(player.world), block, player)) {
+                cancelled = true
+            }
 
             val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation(player.world))
 
@@ -129,9 +132,11 @@ class ServerboundUseItemOnPacket(
 
             if(cancelled) {
                 player.world.getChunkAt(newPos.x, newPos.z)?.let { player.sendPacket(it.packet) }
+                debug("Placing cancelled", true)
                 return
             }
 
+            debug("Placing block", true)
             player.world.setBlock(blockPlaceEvent.location, blockPlaceEvent.block)
         }
     }

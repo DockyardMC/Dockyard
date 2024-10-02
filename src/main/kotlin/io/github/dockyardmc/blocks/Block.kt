@@ -1,6 +1,7 @@
 package io.github.dockyardmc.blocks
 
 import io.github.dockyardmc.extentions.reversed
+import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.CustomDataHolder
@@ -10,6 +11,7 @@ data class Block(
     val blockStates: Map<String, String> = mutableMapOf(),
     val customData: CustomDataHolder? = null,
 ) {
+    val identifier = registryBlock.identifier
 
     fun getProtocolId(): Int {
         if (blockStates.isEmpty()) return registryBlock.defaultBlockStateId
@@ -49,6 +51,10 @@ data class Block(
         return Block(registryBlock, blockStates, customDataHolder)
     }
 
+    fun isAir(): Boolean {
+        return this.registryBlock == Blocks.AIR
+    }
+
     companion object {
 
         val Air = Block(BlockRegistry.Air)
@@ -69,7 +75,8 @@ data class Block(
         }
 
         fun getBlockByStateId(stateId: Int): Block? {
-            val registryBlock = BlockRegistry.protocolIdToBlock[stateId]
+            val registryBlock = BlockRegistry.getByProtocolIdOrNull(stateId)
+
             if (registryBlock != null) {
                 val states = registryBlock.possibleStates.reversed()[registryBlock.defaultBlockStateId]!!
                 val parsed = parseBlockStateString(states).second.toMutableMap()
@@ -85,6 +92,10 @@ data class Block(
                 return Block(block.value, states)
             }
             return null
+        }
+
+        fun getBlockFromStateString(identifier: String): Block {
+            return BlockRegistry[identifier].toBlock()
         }
     }
 }

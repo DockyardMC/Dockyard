@@ -7,6 +7,7 @@ import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.ChunkUtils
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
 import org.jglrxavpok.hephaistos.nbt.NBT
+import java.lang.IllegalStateException
 import java.util.UUID
 
 class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
@@ -57,19 +58,6 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         if(shouldCache) updateCache()
     }
 
-    fun setBlock(x: Int, y: Int, z: Int, block: Block, shouldCache: Boolean = true) {
-        val section = getSectionAt(y)
-
-        val relativeX = ChunkUtils.sectionRelative(x)
-        val relativeZ = ChunkUtils.sectionRelative(z)
-        val relativeY = ChunkUtils.sectionRelative(y)
-
-        if(block.customData != null) world.customDataBlocks[Location(x, y, z, world).blockHash] = block
-        if(block.customData == null) world.customDataBlocks.remove(Location(x, y, z, world).blockHash)
-        section.blockPalette[relativeX, relativeY, relativeZ] = block.getProtocolId()
-        if(shouldCache) updateCache()
-    }
-
     fun setBiome(x: Int, y: Int, z: Int, biome: Biome, shouldCache: Boolean = true) {
         val section = getSectionAt(y)
 
@@ -81,17 +69,31 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         if(shouldCache) updateCache()
     }
 
-    fun getBlock(x: Int, y: Int, z: Int): Block? {
-        val customDataBlock = world.customDataBlocks[Location(x, y, z, world).blockHash]
-        if(customDataBlock != null) return customDataBlock
+    fun setBlock(x: Int, y: Int, z: Int, block: Block, shouldCache: Boolean = true) {
+        val section = getSectionAt(y)
+
+        val relativeX = ChunkUtils.sectionRelative(x)
+        val relativeZ = ChunkUtils.sectionRelative(z)
+        val relativeY = ChunkUtils.sectionRelative(y)
+
+//        if(block.customData != null) world.customDataBlocks[Location(x, y, z, world).blockHash] = block
+//        if(block.customData == null) world.customDataBlocks.remove(Location(x, y, z, world).blockHash)
+        section.blockPalette[relativeX, relativeY, relativeZ] = block.getProtocolId()
+        if(shouldCache) updateCache()
+    }
+
+    fun getBlock(x: Int, y: Int, z: Int): Block {
+//        val customDataBlock = world.customDataBlocks[Location(x, y, z, world).blockHash]
+//        if(customDataBlock != null) return customDataBlock
 
         val section = getSectionAt(y)
 
         val relativeX = ChunkUtils.sectionRelative(x)
-        val relativeZ = ChunkUtils.sectionRelative(y)
-        val relativeY = ChunkUtils.sectionRelative(z)
+        val relativeZ = ChunkUtils.sectionRelative(z)
+        val relativeY = ChunkUtils.sectionRelative(y)
 
-        return Block.getBlockByStateId(section.blockPalette[relativeX, relativeY, relativeZ])
+        val id = section.blockPalette[relativeX, relativeY, relativeZ]
+        return Block.getBlockByStateId(id) ?: throw IllegalStateException("Block state with id $id not found")
     }
 
     fun fillBiome(biome: Biome) {

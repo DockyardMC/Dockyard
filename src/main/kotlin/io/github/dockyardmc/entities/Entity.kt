@@ -2,6 +2,7 @@ package io.github.dockyardmc.entities
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableMap
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.effects.PotionEffectImpl
 import io.github.dockyardmc.events.*

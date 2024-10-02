@@ -1,8 +1,7 @@
 package io.github.dockyardmc.schematics
 
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.getBlockFromStateString
 import io.github.dockyardmc.utils.getFileHash
 import io.github.dockyardmc.utils.vectors.Vector3
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray
@@ -54,7 +53,7 @@ object SchematicReader {
         pallet.forEach { entry ->
             val namespace = entry.key.replace("minecraft:", "")
             val id = (entry.value as NBTInt).getValue()
-            val block = getBlockFromStateString(namespace) ?: return@forEach
+            val block = Block.getBlockFromStateString(namespace) ?: return@forEach
             blocks[block] = id
         }
 
