@@ -182,6 +182,7 @@ fun main(args: Array<String>) {
                     }
                 }
             }
+
             chunks.forEach { chunk ->
                 chunk.sections.forEach {
                     it.biomePalette.fill(hollow.getProtocolId())
