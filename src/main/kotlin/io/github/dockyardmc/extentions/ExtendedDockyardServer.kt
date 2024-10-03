@@ -2,6 +2,7 @@ package io.github.dockyardmc.extentions
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Console
@@ -12,4 +13,7 @@ fun DockyardServer.Companion.broadcastActionBar(message: String) { this.broadcas
 fun DockyardServer.Companion.broadcastActionBar(component: Component) { PlayerManager.players.sendActionBar(component) }
 fun DockyardServer.Companion.sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
     PlayerManager.players.sendTitle(title, subtitle, fadeIn, stay, fadeOut)
+}
+fun DockyardServer.Companion.broadcastPacket(packet: ClientboundPacket) {
+    PlayerManager.players.sendPacket(packet)
 }
