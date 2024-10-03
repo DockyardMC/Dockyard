@@ -8,6 +8,7 @@ import io.github.dockyardmc.commands.SuggestionProvider
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -15,10 +16,9 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
-import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.Particles
-import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.registry.registries.BiomeRegistry
+import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.utils.customBiome
@@ -59,6 +59,7 @@ fun main(args: Array<String>) {
         withParticles(Particles.ASH, 0.05f)
         withWaterColor("#a676de")
     }
+
     BiomeRegistry.addEntry(customBiome)
 
     Events.on<PlayerJoinEvent> {
@@ -78,11 +79,30 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
-    Commands.add("/targetblock") {
-        execute {
-            val player = it.getPlayerOrThrow()
-            val block = player.getTargetBlock(16)
-            player.sendMessage("<yellow>${block.toString()}")
+
+    Events.on<PlayerBlockRightClickEvent> {
+        val player = it.player
+        val block = it.block
+        val item = it.heldItem
+
+        if(item.material == Items.TOTEM_OF_UNDYING) {
+            val holder = CustomDataHolder()
+            holder.add<Boolean>("test", true)
+            holder.add<String>("custom", "uwu :3")
+            holder.add<Int>("dmg", 16)
+
+            it.location.world.setBlock(it.location, block.withCustomData(holder))
+            player.playSound("minecraft:block.decorated_pot.insert")
+            player.playSound("minecraft:item.bundle.insert")
+            player.playSound("minecraft:block.lava.pop")
+        }
+        if(item.material == Items.DEBUG_STICK) {
+            val holder = block.customData
+            val test = holder?.get<Boolean>("test")
+            val custom = holder?.get<String>("custom")
+            val dmg = holder?.get<Int>("dmg")
+
+            player.sendMessage("$test | $custom | $dmg")
         }
     }
 
