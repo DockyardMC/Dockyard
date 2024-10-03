@@ -1,3 +1,2 @@
-
-rootProject.name = "DockyardMC"
+rootProject.name = "Dockyard"
 
