@@ -93,7 +93,7 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
                         debug("-> Received $className (${packetIdByteRep})", logType = LogType.NETWORK)
                     }
 
-                    val event = PacketReceivedEvent(packet, connection, packetSize, packetId)
+                    val event = PacketReceivedEvent(packet, this, connection, packetSize, packetId)
                     Events.dispatch(event)
                     if (event.cancelled) {
                         buf.discardReadBytes()
@@ -149,6 +149,18 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
 
     override fun channelReadComplete(ctx: ChannelHandlerContext) {
         ctx.flush()
+    }
+
+    fun isPlayerInitialized(): Boolean {
+        return ::player.isInitialized
+    }
+
+    fun getPlayerOrNull(): Player? {
+        return if(isPlayerInitialized()) player else null
+    }
+
+    fun getPlayerOrThrow(): Player {
+        return if(isPlayerInitialized()) player else throw UninitializedPropertyAccessException("Player has not been initialized yet")
     }
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {

@@ -25,6 +25,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.AnnotationProcessor
 import io.github.dockyardmc.config.Config
+import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.PacketParser
 import java.net.InetSocketAddress
 import java.util.*
@@ -60,7 +61,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     var keepAliveId = 0L
     val keepAlivePacketTimer = RepeatingTimerAsync(5000) {
         PlayerManager.players.forEach {
-            it.connection.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
+            it.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
             val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
             if(!processor.respondedToLastKeepAlive) {
                 log("$it failed to respond to keep alive", LogType.WARNING)

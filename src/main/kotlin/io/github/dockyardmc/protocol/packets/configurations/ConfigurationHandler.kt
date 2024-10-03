@@ -32,12 +32,12 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         // Send server brand
         val serverBrandEvent = ServerBrandEvent("§bDockyardMC Server §7(https://github.com/DockyardMC/)")
         Events.dispatch(serverBrandEvent)
-        connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"))
+        connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"), processor)
 
         // Send feature flags
         val featureFlagsEvent = PlayerSendFeatureFlagsEvent(FeatureFlags.enabledFeatureFlags)
         Events.dispatch(featureFlagsEvent)
-        connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags))
+        connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), processor)
 
         // Send registries
         val registryPackets: MutableList<Registry> = mutableListOf(
@@ -50,12 +50,12 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             Biomes.registryCache
         )
 
-        registryPackets.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it)) }
+        registryPackets.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it), processor) }
 
-        connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links))
+        connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), processor)
 
         val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
-        connection.sendPacket(finishConfigurationPacket)
+        connection.sendPacket(finishConfigurationPacket, processor)
     }
 
     fun handleClientInformation(packet: ServerboundClientInformationPacket, connection: ChannelHandlerContext) {

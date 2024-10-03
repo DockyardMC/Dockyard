@@ -15,7 +15,7 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
 
     fun handlePing(packet: ServerboundPingRequestPacket, connection: ChannelHandlerContext) {
         val out = ClientboundPingResponsePacket(Instant.now().toEpochMilli())
-        connection.sendPacket(out)
+        connection.sendPacket(out, processor)
     }
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
@@ -43,6 +43,6 @@ class HandshakeHandler(val processor: PacketProcessor): PacketHandler(processor)
         val json = serverStatus.toJson()
         val out = ClientboundStatusResponsePacket(json)
 
-        connection.sendPacket(out)
+        connection.sendPacket(out, processor)
     }
 }

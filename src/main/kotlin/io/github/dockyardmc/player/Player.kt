@@ -299,7 +299,7 @@ class Player(
 
     override fun toString(): String = username
     fun kick(reason: String) { this.kick(reason.toComponent()) }
-    fun kick(reason: Component) { connection.sendPacket(ClientboundDisconnectPacket(reason)) }
+    fun kick(reason: Component) { sendPacket(ClientboundDisconnectPacket(reason)) }
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
     fun sendMessage(component: Component) { sendSystemMessage(component, false) }
     fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
@@ -317,7 +317,7 @@ class Player(
     fun sendPacket(packet: ClientboundPacket) {
         if(!isConnected) return
         if(packet.state != this.getProcessor().state) return
-        connection.sendPacket(packet, this)
+        connection.sendPacket(packet, getProcessor())
         lastSentPacket = packet
     }
 

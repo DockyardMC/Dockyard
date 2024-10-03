@@ -44,7 +44,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
             val playerVersion = VersionToProtocolVersion.map.reversed()[processor.playerProtocolVersion]
             val requiredVersion = DockyardServer.versionInfo.protocolVersion
             if(processor.playerProtocolVersion != requiredVersion) {
-                connection.sendPacket(ClientboundLoginDisconnectPacket(getSystemKickMessage("You are using incompatible version <red>($playerVersion)<gray>. Please use version <yellow>${DockyardServer.versionInfo.minecraftVersion}<gray>", KickReason.INCOMPATIBLE_VERSION.name)))
+                connection.sendPacket(ClientboundLoginDisconnectPacket(getSystemKickMessage("You are using incompatible version <red>($playerVersion)<gray>. Please use version <yellow>${DockyardServer.versionInfo.minecraftVersion}<gray>", KickReason.INCOMPATIBLE_VERSION.name)), processor)
                 return
             }
         }
@@ -83,7 +83,7 @@ class LoginHandler(var processor: PacketProcessor): PacketHandler(processor) {
             }
             asyncRunnable.run()
             val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken, true)
-            connection.sendPacket(out)
+            connection.sendPacket(out, processor)
         } else {
             finishEncryption(player)
         }

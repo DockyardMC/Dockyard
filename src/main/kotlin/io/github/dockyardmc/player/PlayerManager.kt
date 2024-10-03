@@ -46,6 +46,6 @@ object PlayerManager {
 
     fun sendToEveryoneInWorld(world: World, packet: ClientboundPacket) {
         val filtered = players.filter { it.world == world }
-        filtered.forEach { it.connection.sendPacket(packet) }
+        filtered.forEach { it.sendPacket(packet) }
     }
 }
