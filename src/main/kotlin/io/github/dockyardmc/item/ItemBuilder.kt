@@ -1,7 +1,9 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.extentions.fromRGBInt
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Item
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.CustomColor
 
 class ItemBuilder() {
@@ -203,6 +205,16 @@ class ItemBuilder() {
     @Deprecated("Breaks in 1.21.2. Will be reworked in the future")
     fun withFood(nutrition: Int, giveSaturation: Boolean = false, canAlwaysEat: Boolean = true , secondsToEat: Float = 2f): ItemBuilder {
         itemStack.components.addOrUpdate(FoodItemComponent(nutrition, giveSaturation, canAlwaysEat, secondsToEat))
+        return this
+    }
+
+    fun withLodestoneTracker(location: Location, tracked: Boolean = false): ItemBuilder {
+        if (itemStack.material != Items.COMPASS) {
+            throw IllegalArgumentException("Item must be a compass")
+        }
+
+        itemStack.components.addOrUpdate(LodestoneTrackerItemComponent(true, location.world, location, tracked))
+
         return this
     }
 
