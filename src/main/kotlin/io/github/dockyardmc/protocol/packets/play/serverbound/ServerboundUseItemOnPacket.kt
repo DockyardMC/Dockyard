@@ -19,6 +19,7 @@ import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.utils.isDoubleInteract
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -73,6 +74,9 @@ class ServerboundUseItemOnPacket(
         val player = processor.player
         val item = player.getHeldItem(hand)
 
+        // since minecraft sends 2 packets at once, we need to make sure that only one gets handled
+        if(isDoubleInteract(player)) return
+
         var cancelled = false
 
         val newPos = pos.copy()
@@ -92,7 +96,7 @@ class ServerboundUseItemOnPacket(
         Events.dispatch(event)
 
         val rightClickEvent = PlayerRightClickWithItemEvent(player, item)
-        Events.dispatch(event)
+        Events.dispatch(rightClickEvent)
         if(rightClickEvent.cancelled) cancelled = true
 
         //TODO Move to block implementation or something idk?

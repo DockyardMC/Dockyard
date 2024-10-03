@@ -31,6 +31,7 @@ import io.github.dockyardmc.world.ConcurrentChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
+import java.time.Instant
 import java.util.*
 
 class Player(
@@ -86,6 +87,8 @@ class Player(
 
     val chunkEngine = ConcurrentChunkEngine(this)
     var visibleEntities: MutableList<Entity> = mutableListOf()
+
+    var lastInteractionTime: Long = -1L
 
     lateinit var lastSentPacket: ClientboundPacket
 
