@@ -9,6 +9,10 @@ import io.github.dockyardmc.player.toPersistent
 import java.security.MessageDigest
 import kotlin.reflect.KClass
 
+fun now(): Long {
+    return System.currentTimeMillis()
+}
+
 fun ticksToMs(ticks: Int): Int = ticks * 50
 
 fun getEnumEntries(enumClass: KClass<Enum<*>>): List<Enum<*>> = enumClass.java.enumConstants.toList()

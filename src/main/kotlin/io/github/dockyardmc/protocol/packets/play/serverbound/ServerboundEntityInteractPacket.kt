@@ -1,6 +1,5 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.entities.Entity
@@ -9,16 +8,17 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.events.PlayerInteractAtEntityEvent
 import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.isDoubleInteract
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
+import java.lang.IllegalStateException
 
 @WikiVGEntry("Interact")
 @ServerboundPacketInfo(22, ProtocolState.PLAY)
@@ -44,6 +44,9 @@ class ServerboundEntityInteractPacket(
         }
 
         if(interactionType == EntityInteractionType.INTERACT) {
+
+            if(isDoubleInteract(player)) return
+
             val event = PlayerInteractWithEntityEvent(player, entity, hand!!)
             Events.dispatch(event)
             if(event.cancelled) return
@@ -52,6 +55,7 @@ class ServerboundEntityInteractPacket(
         }
 
         if(interactionType == EntityInteractionType.INTERACT_AT) {
+
             val event = PlayerInteractAtEntityEvent(player, entity, Vector3f(targetX!!, targetY!!, targetZ!!), hand!!)
             Events.dispatch(event)
             if(event.cancelled) return
@@ -65,10 +69,7 @@ class ServerboundEntityInteractPacket(
 
             val entityId = buf.readVarInt()
             val entity = EntityManager.entities.firstOrNull { it.entityId == entityId }
-            if(entity == null) {
-                DockyardServer.broadcastMessage("<red>Entity with id $entityId does not exist")
-                throw Exception("Entity with id $entityId was not found")
-            }
+            if(entity == null) throw IllegalStateException("Entity with id $entityId was not found")
             val type = buf.readVarIntEnum<EntityInteractionType>()
             var targetX: Float? = null
             var targetY: Float? = null
