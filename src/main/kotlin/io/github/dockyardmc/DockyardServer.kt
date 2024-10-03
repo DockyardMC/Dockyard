@@ -1,17 +1,24 @@
 package io.github.dockyardmc
 
 import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
+import io.github.dockyardmc.annotations.AnnotationProcessor
+import io.github.dockyardmc.config.Config
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.ServerStartEvent
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
-import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.implementations.commands.DockyardCommands
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.Profiler
+import io.github.dockyardmc.protocol.PacketParser
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
+import io.github.dockyardmc.registry.MinecraftVersions
+import io.github.dockyardmc.registry.RegistryManager
+import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.github.dockyardmc.utils.Resources
 import io.netty.bootstrap.ServerBootstrap
@@ -22,14 +29,6 @@ import io.netty.channel.ChannelPipeline
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.annotations.AnnotationProcessor
-import io.github.dockyardmc.config.Config
-import io.github.dockyardmc.player.PlayerManager.getProcessor
-import io.github.dockyardmc.protocol.PacketParser
-import io.github.dockyardmc.registry.MinecraftVersions
-import io.github.dockyardmc.registry.RegistryManager
-import io.github.dockyardmc.registry.registries.*
 import java.net.InetSocketAddress
 import java.util.*
 
@@ -93,7 +92,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         PlayerManager.players.forEach {
             it.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
             val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
-            if(!processor.respondedToLastKeepAlive) {
+            if (!processor.respondedToLastKeepAlive) {
                 log("$it failed to respond to keep alive", LogType.WARNING)
 //                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
                 return@forEach
@@ -105,7 +104,10 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
     fun start() {
         versionInfo = Resources.getDockyardVersion()
-        log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${minecraftVersion.versionName})", LogType.RUNTIME)
+        log(
+            "Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${minecraftVersion.versionName})",
+            LogType.RUNTIME
+        )
         log("DockyardMC is still under heavy development. Things will break (I warned you)", LogType.WARNING)
 
         runPacketServer()
@@ -137,11 +139,12 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         RegistryManager.register(PaintingVariantRegistry)
         RegistryManager.register(PotionEffectRegistry)
         RegistryManager.register(BiomeRegistry)
+        RegistryManager.register(ItemRegistry)
         innerProfiler.end()
 
         innerProfiler.start("Load Default Implementations")
         val implementationsConfig = config.implementationConfig
-        if(implementationsConfig.dockyardCommands) DockyardCommands()
+        if (implementationsConfig.dockyardCommands) DockyardCommands()
 
         innerProfiler.end()
 
@@ -158,7 +161,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             bootstrap = ServerBootstrap()
             bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel::class.java)
-                .childHandler(object : ChannelInitializer<SocketChannel>(){
+                .childHandler(object : ChannelInitializer<SocketChannel>() {
                     override fun initChannel(ch: SocketChannel) {
                         channelPipeline = ch.pipeline()
                             .addLast("processor", PacketProcessor())
