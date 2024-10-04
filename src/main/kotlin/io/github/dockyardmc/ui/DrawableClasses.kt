@@ -11,8 +11,8 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundOpenContainerPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.InventoryType
-import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.Disposable
 

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.extentions.reversed
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -26,12 +27,23 @@ object ItemRegistry : DataDrivenRegistry {
         val protocolIdCounter = AtomicInteger()
 
         list.forEach {
+
             items[it.identifier] = it
             protocolIdToItem[protocolIdCounter.getAndIncrement()] = it
         }
 
+        //TODO Figure default components out for future release, keeping this not implement for the time being so this update can move on
+//        list.forEach {
+//            val components = mutableListOf<ItemComponent>()
+//            it.encodedComponents.forEach { component ->
+//                val id = component.key
+//                val buffer = Unpooled.copiedBuffer(component.value, Charset.defaultCharset())
+//                val itemComponent = buffer.readComponent(id)
+//                components.add(itemComponent)
+//                log(itemComponent.toString())
+//            }
+//        }
     }
-
 
     override fun get(identifier: String): Item {
         return items[identifier]
@@ -70,7 +82,10 @@ data class Item(
 
     override fun getProtocolId(): Int {
         return ItemRegistry.protocolIdToItem.reversed()[this]
-            ?: throw IllegalStateException("This item is not in registry")
+            ?: throw IllegalStateException("This item is not in the registry (how did you get hold of this object??)")
     }
 
+    fun toItemStack(): ItemStack {
+        return ItemStack(this)
+    }
 }

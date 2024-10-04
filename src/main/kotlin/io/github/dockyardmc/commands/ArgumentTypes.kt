@@ -4,7 +4,7 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeUtf
 import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.registry.Item
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.Particle
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scroll.LegacyTextColor

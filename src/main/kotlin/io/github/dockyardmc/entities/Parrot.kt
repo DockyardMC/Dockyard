@@ -27,7 +27,7 @@ class Parrot(override var world: World, override var location: Location): Entity
     fun makeDance() {
         val jukeboxLoc = location.subtract(0, 2, 0)
         jukeboxLoc.world.setBlock(jukeboxLoc, Blocks.JUKEBOX)
-        val recordPacket = ClientboundWorldEventPacket(WorldEvent.PLAY_RECORD, jukeboxLoc, Items.MUSIC_DISC_CREATOR.id, false)
+        val recordPacket = ClientboundWorldEventPacket(WorldEvent.PLAY_RECORD, jukeboxLoc, Items.MUSIC_DISC_CREATOR.getProtocolId(), false)
         viewers.sendPacket(recordPacket)
     }
 }

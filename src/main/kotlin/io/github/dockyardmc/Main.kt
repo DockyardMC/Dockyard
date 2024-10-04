@@ -1,10 +1,6 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.blocks.Block
-import io.github.dockyardmc.commands.CommandException
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.commands.SuggestionProvider
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
@@ -16,7 +12,10 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
-import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.registries.BiomeRegistry
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.CustomDataHolder
@@ -79,13 +78,12 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
-
     Events.on<PlayerBlockRightClickEvent> {
         val player = it.player
         val block = it.block
         val item = it.heldItem
 
-        if(item.material == Items.TOTEM_OF_UNDYING) {
+        if (item.material == Items.TOTEM_OF_UNDYING) {
             val holder = CustomDataHolder()
             holder.add<Boolean>("test", true)
             holder.add<String>("custom", "uwu :3")
@@ -96,7 +94,7 @@ fun main(args: Array<String>) {
             player.playSound("minecraft:item.bundle.insert")
             player.playSound("minecraft:block.lava.pop")
         }
-        if(item.material == Items.DEBUG_STICK) {
+        if (item.material == Items.DEBUG_STICK) {
             val holder = block.customData
             val test = holder?.get<Boolean>("test")
             val custom = holder?.get<String>("custom")
@@ -105,63 +103,6 @@ fun main(args: Array<String>) {
             player.sendMessage("$test | $custom | $dmg")
         }
     }
-
-    Commands.add("/data") {
-        addSubcommand("get") {
-            addArgument("type", StringArgument(), SuggestionProvider.simple("string", "boolean", "int", "float"))
-            addArgument("key", StringArgument(), SuggestionProvider.simple("<key>"))
-            execute {
-                val dataHolder = CustomDataHolder()
-                dataHolder.add<String>("test", "uwu")
-                dataHolder.add<Int>("int", 1)
-                dataHolder.add<Boolean>("bowol", true)
-                val block = Block.Air.withCustomData(dataHolder)
-                val player = it.getPlayerOrThrow()
-                if(block.customData == null) throw CommandException("This block does not have custom data holder")
-                val type = getArgument<String>("type")
-                val key = getArgument<String>("key")
-
-                val data = block.customData.dataStore[key]
-                val value = when(type) {
-                    "string" -> data as String
-                    "boolean" -> data as Boolean
-                    "int" -> data as Int
-                    "float" -> data as Float
-                    else -> ""
-                }
-                player.sendMessage("<lime>$value")
-            }
-        }
-
-        addSubcommand("set") {
-            addArgument("type", StringArgument(), SuggestionProvider.simple("string", "boolean", "int", "float"))
-            addArgument("key", StringArgument(), SuggestionProvider.simple("<key>"))
-            addArgument("value", StringArgument(), SuggestionProvider.simple("<value>"))
-            execute {
-                val dataHolder = CustomDataHolder()
-                val block = Block.Air.withCustomData(dataHolder)
-                val player = it.getPlayerOrThrow()
-                if(block.customData == null) throw CommandException("This block does not have custom data holder")
-                val type = getArgument<String>("type")
-                val key = getArgument<String>("key")
-                val value = getArgument<String>("value")
-
-                when(type) {
-                    "string" -> block.customData.add<String>(key, value)
-                    "boolean" -> block.customData.add<Boolean>(key, value == "true")
-                    "int" -> block.customData.add<Int>(key, value.toInt())
-                    "float" -> block.customData.add<Float>(key, value.toFloat())
-                }
-
-                player.sendMessage("<lime>set data on block!")
-            }
-        }
-
-        addSubcommand("list") {
-
-        }
-    }
-
 
     Commands.add("/reset") {
         execute {

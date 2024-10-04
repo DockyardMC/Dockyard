@@ -16,8 +16,10 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.isDoubleInteract
+import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -110,7 +112,7 @@ class ServerboundUseItemOnPacket(
         }
 
         if (item.material.isBlock && item.material != Items.AIR) {
-            var block: Block = Block.getBlockByStateId(item.material.blockId!!) ?: Block.Air
+            var block: Block = (BlockRegistry.getOrNull(item.material.identifier) ?: Blocks.AIR).toBlock()
 
             placementRules.forEach {
                 if (block.identifier.contains(it.matchesIdentifier)) {
