@@ -22,7 +22,7 @@ fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket, processor: Packe
     val className = packet::class.simpleName
     if(DockyardServer.mutePacketLogs.contains(className)) return
     var message = "<- Sent ${packet::class.simpleName}"
-    if(processor.getPlayerOrNull() != null) message += " to $processor.player [${processor.state}]"
+    if(processor.getPlayerOrNull() != null) message += " to ${processor.player} [${processor.state}]"
 
     message += " (id: ${packet.id})"
     debug(message, logType = LogType.NETWORK)

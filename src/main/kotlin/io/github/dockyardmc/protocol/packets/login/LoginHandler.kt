@@ -112,8 +112,8 @@ class LoginHandler(var processor: PacketProcessor) : PacketHandler(processor) {
         processor.encrypted = true
 
         val pipeline = connection.channel().pipeline()
-        pipeline.addBefore("processor", "decryptor", PacketDecryptionHandler(processor.player.crypto))
-        pipeline.addBefore("decryptor", "encryptor", PacketEncryptionHandler(processor.player.crypto))
+        pipeline.addBefore("frame-decoder", "packet-decryptor", PacketDecryptionHandler(processor.player.crypto))
+        pipeline.addBefore("packet-decryptor", "packet-encryptor", PacketEncryptionHandler(processor.player.crypto))
 
         val player = processor.player
         finishEncryption(player)

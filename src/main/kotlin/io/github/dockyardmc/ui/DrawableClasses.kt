@@ -4,6 +4,7 @@ import cz.lukynka.Bindable
 import io.github.dockyardmc.bindables.BindablePairMap
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.inventory.ContainerInventory
+import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
 import io.github.dockyardmc.item.ItemComponent
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.MaxStackSizeItemComponent
@@ -157,6 +158,7 @@ class CookieClickerScreen: DrawableContainerScreen() {
                 .addLoreLine("<gray>You currently have <aqua>${update.newValue} cookies<gray>!")
                 .addLoreLine("")
                 .withComponent(MaxStackSizeItemComponent(255))
+                .withComponent(EnchantmentGlintOverrideItemComponent(true))
                 .onClick { click ->
                     cookies.value++
                     click.player.playSound("minecraft:entity.generic.eat")

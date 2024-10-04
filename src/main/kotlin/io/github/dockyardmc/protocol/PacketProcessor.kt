@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol
 
+import Packet
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
@@ -15,6 +16,8 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.protocol.packets.UnprocessedPacket
 import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.handshake.HandshakeHandler
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
@@ -51,70 +54,73 @@ class PacketProcessor : ChannelInboundHandlerAdapter() {
     var configurationHandler = ConfigurationHandler(this)
     var playHandler = PlayHandler(this)
 
-    @OptIn(ExperimentalStdlibApi::class)
+//    @OptIn(ExperimentalStdlibApi::class)
     override fun channelRead(connection: ChannelHandlerContext, msg: Any) {
         val profiler = Profiler()
 
+        val packet = msg as ServerboundPacket
         if (!this::address.isInitialized) address = connection.channel().remoteAddress().address
-        val buf = msg as ByteBuf
-        try {
-            profiler.start("Read Packet Buf", 20)
-            while (buf.isReadable) {
-                buf.retain()
+        packet.handle(this, connection, 0, 0)
 
-                buf.markReaderIndex()
-                val packetSize = buf.readVarInt() - 1
-                val packetId = buf.readVarInt()
-                val packetIdByteRep = "0x${packetId.toByte().toHexString()}"
-
-
-                if (buf.readableBytes() < packetSize) {
-                    buf.discardReadBytes()
-                    log("Received packet $packetId ($packetIdByteRep) which has less readable bytes than packet size specified (${buf.readableBytes()} < ${packetSize})", LogType.ERROR)
-                    break
-                }
-
-                val packetData = buf.readSlice(packetSize)
-                try {
-                    val packet = PacketParser.parse(packetId, packetData, this, packetSize)
-
-                    if (packet == null) {
-                        buf.discardReadBytes()
-                        log(
-                            "Received unknown packet with id $packetId ($packetIdByteRep) during phase: ${state.name}",
-                            LogType.ERROR
-                        )
-                        break
-                    }
-
-                    val className = packet::class.simpleName ?: packet::class.toString()
-                    ServerMetrics.packetsReceived++
-                    if (!DockyardServer.mutePacketLogs.contains(className)) {
-                        debug("-> Received $className (${packetIdByteRep})", logType = LogType.NETWORK)
-                    }
-
-                    val event = PacketReceivedEvent(packet, this, connection, packetSize, packetId)
-                    Events.dispatch(event)
-                    if (event.cancelled) {
-                        buf.discardReadBytes()
-                        break
-                    }
-
-                    event.packet.handle(this, event.connection, event.size, event.id)
-                } catch (ex: Exception) {
-                    log(ex)
-                } finally {
-                    packetData.release()
-                }
-            }
-        } catch (ex: Exception) {
-            handleException(connection, buf, ex)
-        } finally {
-            buf.release()  // Release the buffer after processing
-            buf.clear()
-            profiler.end()
-            connection.flush()
-        }
+//        val upacket = msg as UnprocessedPacket
+//        val buf = upacket.data
+//        try {
+//            profiler.start("Read Packet Buf", 20)
+//            while (buf.isReadable) {
+//                buf.retain()
+//
+//                buf.markReaderIndex()
+//                val packetSize = upacket.size
+//                val packetId = buf.readVarInt()
+//                val packetIdByteRep = "0x${packetId.toByte().toHexString()}"
+//
+//                if (buf.readableBytes() < packetSize) {
+//                    buf.discardReadBytes()
+//                    log("Received packet $packetId ($packetIdByteRep) which has less readable bytes than packet size specified (${buf.readableBytes()} < ${packetSize})", LogType.ERROR)
+//                    break
+//                }
+//
+//                val packetData = buf.readSlice(packetSize)
+//                try {
+//                    val packet = PacketParser.parse(packetId, packetData, this, packetSize)
+//
+//                    if (packet == null) {
+//                        buf.discardReadBytes()
+//                        log(
+//                            "Received unknown packet with id $packetId ($packetIdByteRep) during phase: ${state.name}",
+//                            LogType.ERROR
+//                        )
+//                        break
+//                    }
+//
+//                    val className = packet::class.simpleName ?: packet::class.toString()
+//                    ServerMetrics.packetsReceived++
+//                    if (!DockyardServer.mutePacketLogs.contains(className)) {
+//                        debug("-> Received $className (${packetIdByteRep})", logType = LogType.NETWORK)
+//                    }
+//
+//                    val event = PacketReceivedEvent(packet, this, connection, packetSize, packetId)
+//                    Events.dispatch(event)
+//                    if (event.cancelled) {
+//                        buf.discardReadBytes()
+//                        break
+//                    }
+//
+//                    event.packet.handle(this, event.connection, event.size, event.id)
+//                } catch (ex: Exception) {
+//                    log(ex)
+//                } finally {
+//                    packetData.release()
+//                }
+//            }
+//        } catch (ex: Exception) {
+//            handleException(connection, buf, ex)
+//        } finally {
+//            buf.release()  // Release the buffer after processing
+//            buf.clear()
+//            profiler.end()
+//            connection.flush()
+//        }
     }
 
     fun clearBuffer(connection: ChannelHandlerContext, buffer: ByteBuf) {

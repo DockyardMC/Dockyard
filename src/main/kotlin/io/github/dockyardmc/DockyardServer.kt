@@ -13,8 +13,10 @@ import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.implementations.commands.DockyardCommands
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.Profiler
+import io.github.dockyardmc.protocol.decoders.FrameDecoder
 import io.github.dockyardmc.protocol.PacketParser
 import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.decoders.PacketDecoder
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.registry.MinecraftVersions
 import io.github.dockyardmc.registry.RegistryManager
@@ -163,15 +165,13 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 .channel(NioServerSocketChannel::class.java)
                 .childHandler(object : ChannelInitializer<SocketChannel>() {
                     override fun initChannel(ch: SocketChannel) {
+                        val processor = PacketProcessor()
                         channelPipeline = ch.pipeline()
-                            .addLast("processor", PacketProcessor())
+                            .addLast("frame-decoder", FrameDecoder())
+                            .addLast("packet-decoder", PacketDecoder(processor))
+                            .addLast("packet-processor", processor)
                     }
                 })
-                .option(ChannelOption.SO_BACKLOG, 128)
-                .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
             log("DockyardMC server running on $ip:$port", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent(this))
 
