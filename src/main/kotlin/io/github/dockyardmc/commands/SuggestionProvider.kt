@@ -6,6 +6,8 @@ object SuggestionProvider {
 
     fun simple(suggestion: List<String>): CommandSuggestions = withContext { suggestion }
 
+    fun simple(vararg suggestion: String): CommandSuggestions = withContext { suggestion.toList() }
+
     fun withContext(suggestion: (executor: Player) -> List<String>): CommandSuggestions =
         CommandSuggestions(suggestion)
 

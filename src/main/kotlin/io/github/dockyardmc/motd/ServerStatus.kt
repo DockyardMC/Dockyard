@@ -6,7 +6,6 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Branding
-import io.github.dockyardmc.utils.VersionToProtocolVersion
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -33,8 +32,8 @@ object ServerStatusManager {
 
         cache = ServerStatus(
             version = Version(
-                name = DockyardServer.versionInfo.minecraftVersion,
-                protocol = VersionToProtocolVersion.map[DockyardServer.versionInfo.minecraftVersion] ?: 0,
+                name = DockyardServer.minecraftVersion.versionName,
+                protocol = DockyardServer.minecraftVersion.protocolId,
             ),
             players = Players(
                 max = ConfigManager.config.maxPlayers,

@@ -19,6 +19,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.DamageType
+import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.resourcepack.Resourcepack
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -188,7 +190,7 @@ class Player(
 
                 if((world.worldAge % 5) == 0L) {
                     val viewers = world.players.values.toMutableList().filter { it != this }
-                    viewers.playSound("minecraft:entity.generic.eat", location, 1f, randomFloat(0.9f, 1.3f))
+                    viewers.playSound(item.material.eatingSound, location, 1f, randomFloat(0.9f, 1.3f))
                     viewers.spawnParticle(location.clone().apply { y += 1.5 }, Particles.ITEM, Vector3f(0.2f), 0.05f, 6, false, ItemParticleData(item))
                 }
 

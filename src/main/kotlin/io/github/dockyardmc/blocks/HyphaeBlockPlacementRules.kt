@@ -5,8 +5,6 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.getDirection
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.withBlockStates
 
 class HyphaeBlockPlacementRules: BlockPlacementRule {
     override val matchesIdentifier = "hyphae"

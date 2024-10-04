@@ -7,7 +7,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.registry.DamageType
+import io.github.dockyardmc.registry.registries.DamageType
 
 @WikiVGEntry("Damage Event")
 @ClientboundPacketInfo(0x1A, ProtocolState.PLAY)
@@ -15,7 +15,7 @@ class ClientboundDamageEventPacket(entity: Entity, type: DamageType, attacker: E
 
     init {
         data.writeVarInt(entity.entityId)
-        data.writeVarInt(type.id)
+        data.writeVarInt(type.getProtocolId())
         data.writeVarInt(if(attacker != null) attacker.entityId +1 else 0)
         var sourceDirectId = 0
         if(projectile != null) sourceDirectId = projectile.entityId

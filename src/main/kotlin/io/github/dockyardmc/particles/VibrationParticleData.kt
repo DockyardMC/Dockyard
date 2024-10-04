@@ -9,7 +9,7 @@ import io.netty.buffer.ByteBuf
 
 class VibrationParticleData(val vibrationSource: VibrationSource, val pos: Vector3, val entityId: Int, val entityEyeHeight: Float, val ticks: Int): ParticleData {
 
-    override var id: Int = Particles.VIBRATION.id
+    override var id: Int = Particles.VIBRATION.getProtocolId()
 
     override fun write(byteBuf: ByteBuf) {
         byteBuf.writeVarIntEnum<VibrationSource>(vibrationSource)

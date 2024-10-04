@@ -1,17 +1,24 @@
 package io.github.dockyardmc
 
 import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
+import io.github.dockyardmc.annotations.AnnotationProcessor
+import io.github.dockyardmc.config.Config
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.ServerStartEvent
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.*
-import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.implementations.commands.DockyardCommands
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.Profiler
+import io.github.dockyardmc.protocol.PacketParser
 import io.github.dockyardmc.protocol.PacketProcessor
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
+import io.github.dockyardmc.registry.MinecraftVersions
+import io.github.dockyardmc.registry.RegistryManager
+import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.github.dockyardmc.utils.Resources
 import io.netty.bootstrap.ServerBootstrap
@@ -22,15 +29,36 @@ import io.netty.channel.ChannelPipeline
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.annotations.AnnotationProcessor
-import io.github.dockyardmc.config.Config
-import io.github.dockyardmc.player.PlayerManager.getProcessor
-import io.github.dockyardmc.protocol.PacketParser
 import java.net.InetSocketAddress
 import java.util.*
 
 class DockyardServer(configBuilder: Config.() -> Unit) {
+
+    companion object {
+        lateinit var versionInfo: Resources.DockyardVersionInfo
+        lateinit var instance: DockyardServer
+        val minecraftVersion = MinecraftVersions.v1_21
+        var allowAnyVersion: Boolean = false
+
+        var tickRate: Int = 20
+        val debug get() = ConfigManager.config.debug
+
+        var mutePacketLogs = mutableListOf(
+            "ClientboundSystemChatMessagePacket",
+            "ServerboundSetPlayerPositionPacket",
+            "ServerboundSetPlayerPositionAndRotationPacket",
+            "ServerboundSetPlayerRotationPacket",
+            "ClientboundKeepAlivePacket",
+            "ServerboundKeepAlivePacket",
+            "ClientboundUpdateEntityPositionPacket",
+            "ClientboundUpdateEntityPositionAndRotationPacket",
+            "ClientboundUpdateEntityRotationPacket",
+            "ClientboundSetHeadYawPacket",
+            "ClientboundSendParticlePacket",
+            "ClientboundUpdateScorePacket",
+            "ClientboundChunkDataPacket",
+        )
+    }
 
     lateinit var bootstrap: ServerBootstrap
     lateinit var channelPipeline: ChannelPipeline
@@ -55,6 +83,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     init {
         instance = this
         configBuilder.invoke(config)
+        load()
     }
 
     //TODO rewrite and make good
@@ -63,7 +92,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         PlayerManager.players.forEach {
             it.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
             val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
-            if(!processor.respondedToLastKeepAlive) {
+            if (!processor.respondedToLastKeepAlive) {
                 log("$it failed to respond to keep alive", LogType.WARNING)
 //                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
                 return@forEach
@@ -75,7 +104,10 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
     fun start() {
         versionInfo = Resources.getDockyardVersion()
-        log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${versionInfo.minecraftVersion})", LogType.RUNTIME)
+        log(
+            "Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${minecraftVersion.versionName})",
+            LogType.RUNTIME
+        )
         log("DockyardMC is still under heavy development. Things will break (I warned you)", LogType.WARNING)
 
         runPacketServer()
@@ -92,26 +124,44 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
         AnnotationProcessor.addIdsToClientboundPackets()
 
+        innerProfiler.start("Load Registries")
+        RegistryManager.register(BlockRegistry)
+        RegistryManager.register(EntityTypeRegistry)
+        RegistryManager.register(DimensionTypeRegistry)
+        RegistryManager.register(WolfVariantRegistry)
+        RegistryManager.register(BannerPatternRegistry)
+        RegistryManager.register(DamageTypeRegistry)
+        RegistryManager.register(JukeboxSongRegistry)
+        RegistryManager.register(TrimMaterialRegistry)
+        RegistryManager.register(TrimPatternRegistry)
+        RegistryManager.register(ChatTypeRegistry)
+        RegistryManager.register(ParticleRegistry)
+        RegistryManager.register(PaintingVariantRegistry)
+        RegistryManager.register(PotionEffectRegistry)
+        RegistryManager.register(BiomeRegistry)
+        RegistryManager.register(ItemRegistry)
+        innerProfiler.end()
+
         innerProfiler.start("Load Default Implementations")
         val implementationsConfig = config.implementationConfig
-        if(implementationsConfig.dockyardCommands) DockyardCommands()
+        if (implementationsConfig.dockyardCommands) DockyardCommands()
 
         innerProfiler.end()
 
         log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))
-        keepAlivePacketTimer.run()
 
         profiler.end()
     }
 
     @Throws(Exception::class)
     private fun runPacketServer() {
+        keepAlivePacketTimer.run()
         try {
             bootstrap = ServerBootstrap()
             bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel::class.java)
-                .childHandler(object : ChannelInitializer<SocketChannel>(){
+                .childHandler(object : ChannelInitializer<SocketChannel>() {
                     override fun initChannel(ch: SocketChannel) {
                         channelPipeline = ch.pipeline()
                             .addLast("processor", PacketProcessor())
@@ -124,7 +174,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
             log("DockyardMC server running on $ip:$port", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent(this))
-            load()
 
             val future = bootstrap.bind(InetSocketAddress(ip, port)).sync()
             future.channel().closeFuture().sync()
@@ -132,30 +181,5 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             bossGroup.shutdownGracefully()
             workerGroup.shutdownGracefully()
         }
-    }
-
-    companion object {
-        lateinit var versionInfo: Resources.DockyardVersionInfo
-        lateinit var instance: DockyardServer
-        var allowAnyVersion: Boolean = false
-
-        var tickRate: Int = 20
-        val debug get() = ConfigManager.config.debug
-
-        var mutePacketLogs = mutableListOf(
-            "ClientboundSystemChatMessagePacket",
-            "ServerboundSetPlayerPositionPacket",
-            "ServerboundSetPlayerPositionAndRotationPacket",
-            "ServerboundSetPlayerRotationPacket",
-            "ClientboundKeepAlivePacket",
-            "ServerboundKeepAlivePacket",
-            "ClientboundUpdateEntityPositionPacket",
-            "ClientboundUpdateEntityPositionAndRotationPacket",
-            "ClientboundUpdateEntityRotationPacket",
-            "ClientboundSetHeadYawPacket",
-            "ClientboundSendParticlePacket",
-            "ClientboundUpdateScorePacket",
-            "ClientboundChunkDataPacket",
-        )
     }
 }

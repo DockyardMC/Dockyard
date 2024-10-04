@@ -3,8 +3,6 @@ package io.github.dockyardmc.blocks
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.withBlockStates
 
 class StairBlockPlacementRules: BlockPlacementRule {
     override val matchesIdentifier = "stair"

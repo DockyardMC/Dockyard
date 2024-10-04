@@ -31,7 +31,7 @@ class WorldCommand {
                     val message = buildString {
                         appendLine()
                         WorldManager.worlds.forEach { world ->
-                            appendLine("<gray>  - <yellow>${world.key} <gray>type: <lime>${world.value.generator::class.simpleName}<gray>, <orange>${world.value.dimensionType.identifier.replace("minecraft:", "")}<gray>, age: <aqua>${world.value.worldAge}")
+                            appendLine("<gray>  - <yellow>${world.key} <gray>type: <lime>${world.value.generator::class.simpleName}<gray>, <orange>${world.value.dimensionType::class.simpleName}<gray>, age: <aqua>${world.value.worldAge}")
                         }
                     }
                     it.sendMessage(message)

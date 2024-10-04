@@ -6,7 +6,7 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.registry.PotionEffect
+import io.github.dockyardmc.registry.registries.PotionEffect
 import kotlin.experimental.or
 
 @WikiVGEntry("Entity Effect")
@@ -31,7 +31,7 @@ class ClientboundEntityEffectPacket(
         if(amplifier <= -1) amplifier = 0
 
         data.writeVarInt(entity.entityId)
-        data.writeVarInt(effect.id)
+        data.writeVarInt(effect.getProtocolId())
         data.writeVarInt(amplifier)
         data.writeVarInt(duration)
         data.writeByte(0x02)

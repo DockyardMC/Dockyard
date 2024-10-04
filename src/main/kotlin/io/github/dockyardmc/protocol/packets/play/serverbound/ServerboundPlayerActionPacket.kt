@@ -39,7 +39,7 @@ class ServerboundPlayerActionPacket(
         if (action == PlayerAction.START_DIGGING) {
             if (player.gameMode.value == GameMode.CREATIVE) {
 
-                val previousBlock = player.world.getBlock(position)
+                val previousBlock = player.world.getBlock(position.toLocation(player.world))
                 val item = player.getHeldItem(PlayerHand.MAIN_HAND)
 
                 val event = PlayerBlockBreakEvent(player, previousBlock, position.toLocation(player.world))

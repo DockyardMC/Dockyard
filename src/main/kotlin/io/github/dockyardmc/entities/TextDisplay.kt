@@ -3,8 +3,8 @@ package io.github.dockyardmc.entities
 import cz.lukynka.Bindable
 import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.registry.EntityType
 import io.github.dockyardmc.registry.EntityTypes
+import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
 

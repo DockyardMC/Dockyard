@@ -7,7 +7,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.registry.AppliedPotionEffect
-import io.github.dockyardmc.registry.PotionEffect
+import io.github.dockyardmc.registry.registries.PotionEffect
 
 @WikiVGEntry("Remove Entity Effect")
 @ClientboundPacketInfo(0x43, ProtocolState.PLAY)
@@ -17,7 +17,7 @@ class ClientboundRemoveEntityEffectPacket(entity: Entity, effect: PotionEffect):
 
     init {
         data.writeVarInt(entity.entityId)
-        data.writeVarInt(effect.id)
+        data.writeVarInt(effect.getProtocolId())
     }
 
 }

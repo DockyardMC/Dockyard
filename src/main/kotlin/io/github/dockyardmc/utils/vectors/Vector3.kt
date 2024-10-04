@@ -104,6 +104,13 @@ data class Vector3(
                 (dx == 1 && dz == 1 && dy == 0) ||
                 (dy == 1 && dz == 1 && dx == 0)
     }
+
+    fun equalsBlock(end: Location): Boolean {
+        return (end.x.toInt() == x &&
+                end.y.toInt() == y &&
+                end.z.toInt() == z
+                )
+    }
 }
 
 fun ByteBuf.writeShortVector3(vector3: Vector3) {
