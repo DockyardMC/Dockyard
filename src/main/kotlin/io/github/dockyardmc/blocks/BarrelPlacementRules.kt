@@ -5,8 +5,8 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 
-class LogBlockPlacementRules: BlockPlacementRule {
-    override val matchesIdentifier = "log"
+class BarrelPlacementRules: BlockPlacementRule {
+    override val matchesIdentifier = "barrel"
 
     override fun getPlacement(
         player: Player,
@@ -19,16 +19,6 @@ class LogBlockPlacementRules: BlockPlacementRule {
         cursorY: Float,
         cursorZ: Float,
     ): Block? {
-
-        val axis: String = when(face) {
-            Direction.DOWN,
-            Direction.UP -> "y"
-            Direction.SOUTH,
-            Direction.NORTH -> "z"
-            Direction.EAST,
-            Direction.WEST -> "x"
-        }
-
-        return block.withBlockStates("axis" to axis)
+        return block.withBlockStates("facing" to face.name.lowercase())
     }
 }
