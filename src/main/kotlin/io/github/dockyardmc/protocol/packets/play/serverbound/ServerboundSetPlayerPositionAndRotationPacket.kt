@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
@@ -19,7 +19,7 @@ class ServerboundSetPlayerPositionAndRotationPacket(
     val isOnGround: Boolean
 ): ServerboundPacket {
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
+    override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.playHandler.handlePlayerPositionAndRotationUpdates(this, connection)
     }
 

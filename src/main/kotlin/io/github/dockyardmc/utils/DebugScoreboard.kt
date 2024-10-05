@@ -1,6 +1,6 @@
 package io.github.dockyardmc.utils
 
-import io.github.dockyardmc.ServerMetrics
+import io.github.dockyardmc.server.ServerMetrics
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.truncate

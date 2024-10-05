@@ -8,7 +8,7 @@ import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PlayerAction
 import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
@@ -21,7 +21,7 @@ import io.netty.channel.ChannelHandlerContext
 @ServerboundPacketInfo(37, ProtocolState.PLAY)
 class ServerboundPlayerCommandPacket(val entityId: Int, val action: PlayerAction): ServerboundPacket {
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
+    override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = PlayerManager.playerToEntityIdMap[entityId] ?: return
 
             val event = when(action) {

@@ -1,14 +1,14 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.FeatureFlags
+import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
@@ -21,7 +21,7 @@ import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 
-class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(processor) {
+class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(processor) {
 
     fun handlePluginMessage(packet: ServerboundConfigurationPluginMessagePacket, connection: ChannelHandlerContext) {
         val event = PluginMessageReceivedEvent(processor.player, packet.channel, packet.data)

@@ -1,6 +1,6 @@
 package io.github.dockyardmc.runnables
 
-import io.github.dockyardmc.ServerMetrics
+import io.github.dockyardmc.server.ServerMetrics
 import java.util.concurrent.LinkedTransferQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.SwingUtilities

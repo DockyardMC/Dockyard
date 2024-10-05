@@ -4,7 +4,7 @@ import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.readUUID
 import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
@@ -15,7 +15,7 @@ import java.util.UUID
 @ServerboundPacketInfo(0x00, ProtocolState.LOGIN)
 class ServerboundLoginStartPacket(val name: String, val uuid: UUID): ServerboundPacket {
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
+    override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.loginHandler.handleLoginStart(this, connection)
     }
 

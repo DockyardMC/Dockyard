@@ -9,13 +9,13 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.ServerStartEvent
 import io.github.dockyardmc.events.ServerTickEvent
-import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.implementations.commands.DockyardCommands
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.Profiler
+import io.github.dockyardmc.protocol.ChannelHandlers
 import io.github.dockyardmc.protocol.decoders.FrameDecoder
 import io.github.dockyardmc.protocol.PacketParser
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.decoders.PacketDecoder
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.registry.MinecraftVersions
@@ -24,15 +24,12 @@ import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.runnables.RepeatingTimerAsync
 import io.github.dockyardmc.utils.Resources
 import io.netty.bootstrap.ServerBootstrap
-import io.netty.buffer.PooledByteBufAllocator
 import io.netty.channel.ChannelInitializer
-import io.netty.channel.ChannelOption
 import io.netty.channel.ChannelPipeline
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import java.net.InetSocketAddress
-import java.util.*
 
 class DockyardServer(configBuilder: Config.() -> Unit) {
 
@@ -156,7 +153,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         profiler.end()
     }
 
-    @Throws(Exception::class)
     private fun runPacketServer() {
         keepAlivePacketTimer.run()
         try {
@@ -165,11 +161,11 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 .channel(NioServerSocketChannel::class.java)
                 .childHandler(object : ChannelInitializer<SocketChannel>() {
                     override fun initChannel(ch: SocketChannel) {
-                        val processor = PacketProcessor()
+                        val playerNetworkManager = PlayerNetworkManager()
                         channelPipeline = ch.pipeline()
-                            .addLast("frame-decoder", FrameDecoder())
-                            .addLast("packet-decoder", PacketDecoder(processor))
-                            .addLast("packet-processor", processor)
+                            .addLast(ChannelHandlers.FRAME_DECODER, FrameDecoder())
+                            .addLast(ChannelHandlers.PACKET_DECODER, PacketDecoder(playerNetworkManager))
+                            .addLast(ChannelHandlers.PLAYER_NETWORK_MANAGER, playerNetworkManager)
                     }
                 })
             log("DockyardMC server running on $ip:$port", LogType.SUCCESS)

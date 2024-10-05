@@ -1,4 +1,4 @@
-package io.github.dockyardmc
+package io.github.dockyardmc.server
 
 object FeatureFlags {
     var enabledFeatureFlags = mutableListOf(FeatureFlag.VANILLA)

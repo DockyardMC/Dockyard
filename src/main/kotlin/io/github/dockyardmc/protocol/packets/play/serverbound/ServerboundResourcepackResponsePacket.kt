@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.extentions.readUUID
 import io.github.dockyardmc.extentions.readVarIntEnum
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.resourcepack.ResourcepackManager
@@ -16,7 +16,7 @@ import java.util.UUID
 @ServerboundPacketInfo(0x2B, ProtocolState.PLAY)
 class ServerboundResourcepackResponsePacket(var uuid: UUID, var response: ResourcepackStatus): ServerboundPacket {
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
+    override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
 
         val player= processor.player
 

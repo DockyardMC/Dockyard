@@ -4,8 +4,7 @@ import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerConnectEvent
 import io.github.dockyardmc.events.ServerTickEvent
-import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.world.World
 import java.util.UUID
@@ -13,10 +12,10 @@ import java.util.UUID
 object PlayerManager {
 
     val players: MutableList<Player> = mutableListOf()
-    val playerToProcessorMap = mutableMapOf<UUID, PacketProcessor>()
+    val playerToProcessorMap = mutableMapOf<UUID, PlayerNetworkManager>()
     val playerToEntityIdMap = mutableMapOf<Int, Player>()
 
-    fun Player.getProcessor(): PacketProcessor = playerToProcessorMap[this.uuid]!!
+    fun Player.getProcessor(): PlayerNetworkManager = playerToProcessorMap[this.uuid]!!
 
     init {
         Events.on<ServerTickEvent> {
@@ -24,7 +23,7 @@ object PlayerManager {
         }
     }
 
-    fun add(player: Player, processor: PacketProcessor) {
+    fun add(player: Player, processor: PlayerNetworkManager) {
         players.add(player)
         playerToProcessorMap[player.uuid] = processor
         playerToEntityIdMap[player.entityId] = player

@@ -15,6 +15,7 @@ class FrameDecoder : ByteToMessageDecoder() {
         buffer.markReaderIndex()
         val length = buffer.readVarInt()
 
+        // reset the reader index if we dont have enough bytes and wait for next part of the message to arrive and check agian
         if(length > buffer.readableBytes()) {
             buffer.resetReaderIndex()
             return
