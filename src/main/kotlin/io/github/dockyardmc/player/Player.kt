@@ -14,7 +14,6 @@ import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.particles.ItemParticleData
 import io.github.dockyardmc.particles.spawnParticle
-import io.github.dockyardmc.player.PlayerManager.getProcessor
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -318,14 +317,14 @@ class Player(
 
     fun sendPacket(packet: ClientboundPacket) {
         if(!isConnected) return
-        if(packet.state != this.getProcessor().state) return
-        connection.sendPacket(packet, getProcessor())
+        if(packet.state != networkManager.state) return
+        connection.sendPacket(packet, networkManager)
         lastSentPacket = packet
     }
 
     fun sendToViewers(packet: ClientboundPacket) {
         viewers.forEach { viewer ->
-            if(viewer.getProcessor().state != ProtocolState.PLAY) return@forEach
+            if(networkManager.state != ProtocolState.PLAY) return@forEach
             viewer.sendPacket(packet)
         }
     }

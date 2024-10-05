@@ -10,7 +10,7 @@ import io.github.dockyardmc.runnables.RepeatingTimerAsync
 class PlayerKeepAliveTimer {
 
     var currentKeepAlive = 0L
-    val interval: Long = 50
+    val interval: Long = 10000
 
     val timer = RepeatingTimerAsync(interval) {
         PlayerManager.players.filter { it.networkManager.state == ProtocolState.PLAY }.forEach { player ->

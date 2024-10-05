@@ -62,12 +62,6 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
-    Commands.add("/cookie") {
-        execute {
-            it.getPlayerOrThrow().openDrawableScreen(CookieClickerScreen())
-        }
-    }
-
     Commands.add("/reset") {
         execute {
             val platformSize = 30
@@ -99,4 +93,10 @@ fun main(args: Array<String>) {
         }
     }
     server.start()
+
+        Commands.add("/cookie") {
+        execute {
+            it.getPlayerOrThrow().openDrawableScreen(CookieClickerScreen())
+        }
+    }
 }

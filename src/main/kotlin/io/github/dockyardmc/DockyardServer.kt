@@ -62,9 +62,9 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${minecraftVersion.versionName})", LogType.RUNTIME)
         log("DockyardMC is still under heavy development. Things will break (I warned you)", LogType.WARNING)
 
-        nettyServer.start()
         serverTickManager.start()
         playerKeepAliveTimer.start()
+        nettyServer.start()
     }
 
     companion object {
