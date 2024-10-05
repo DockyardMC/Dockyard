@@ -7,13 +7,10 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.GameMode
-import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.registry.registries.BiomeRegistry
 import io.github.dockyardmc.ui.CookieClickerScreen
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.Chunk
@@ -69,8 +66,6 @@ fun main(args: Array<String>) {
             val world = WorldManager.mainWorld
             val chunks = mutableListOf<Chunk>()
 
-            val hollow = BiomeRegistry["dockyardmc:the_hollow"]
-
             for (x in 0 until platformSize) {
                 for (z in 0 until platformSize) {
                     world.setBlock(x, 0, z, Blocks.STONE)
@@ -81,20 +76,11 @@ fun main(args: Array<String>) {
                     }
                 }
             }
-
-            chunks.forEach { chunk ->
-                chunk.sections.forEach {
-                    it.biomePalette.fill(hollow.getProtocolId())
-
-                }
-                chunk.updateCache()
-                PlayerManager.players.sendPacket(chunk.packet)
-            }
         }
     }
     server.start()
 
-        Commands.add("/cookie") {
+    Commands.add("/cookie") {
         execute {
             it.getPlayerOrThrow().openDrawableScreen(CookieClickerScreen())
         }
