@@ -21,6 +21,16 @@ import io.github.dockyardmc.world.WorldManager
 
 fun main(args: Array<String>) {
 
+    if (args.contains("validate-packets")) {
+        VerifyPacketIds()
+        return
+    }
+
+    if (args.contains("event-documentation")) {
+        EventsDocumentationGenerator()
+        return
+    }
+
     val server = DockyardServer {
         withIp("0.0.0.0")
         withMaxPlayers(50)
@@ -30,16 +40,6 @@ fun main(args: Array<String>) {
         withImplementations {
             dockyardCommands = true
         }
-    }
-
-    if (args.contains("validate-packets")) {
-        VerifyPacketIds()
-        return
-    }
-
-    if (args.contains("event-documentation")) {
-        EventsDocumentationGenerator()
-        return
     }
 
     Events.on<PlayerJoinEvent> {
