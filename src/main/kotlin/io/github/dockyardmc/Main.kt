@@ -4,7 +4,6 @@ import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -13,15 +12,10 @@ import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.registries.BiomeRegistry
-import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.CookieClickerScreen
-import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.utils.DebugScoreboard
-import io.github.dockyardmc.utils.customBiome
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
 
@@ -73,7 +67,6 @@ fun main(args: Array<String>) {
             it.getPlayerOrThrow().openDrawableScreen(CookieClickerScreen())
         }
     }
-
 
     Commands.add("/reset") {
         execute {

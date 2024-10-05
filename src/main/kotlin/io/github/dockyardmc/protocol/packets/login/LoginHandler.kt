@@ -64,6 +64,7 @@ class LoginHandler(var processor: PlayerNetworkManager) : PacketHandler(processo
             address = connection.channel().remoteAddress().address,
             crypto = dummyCrypto,
             connection = connection,
+            networkManager = processor
         )
 
         PlayerManager.add(player, processor)
