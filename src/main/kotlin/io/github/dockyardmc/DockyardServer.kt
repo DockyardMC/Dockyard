@@ -7,32 +7,65 @@ import io.github.dockyardmc.config.Config
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
-import io.github.dockyardmc.events.ServerStartEvent
-import io.github.dockyardmc.events.ServerTickEvent
-import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.implementations.commands.DockyardCommands
-import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.profiler.Profiler
 import io.github.dockyardmc.protocol.PacketParser
-import io.github.dockyardmc.protocol.PacketProcessor
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundKeepAlivePacket
 import io.github.dockyardmc.registry.MinecraftVersions
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.*
-import io.github.dockyardmc.runnables.RepeatingTimerAsync
+import io.github.dockyardmc.server.PlayerKeepAliveTimer
+import io.github.dockyardmc.server.NettyServer
+import io.github.dockyardmc.server.ServerTickManager
 import io.github.dockyardmc.utils.Resources
-import io.netty.bootstrap.ServerBootstrap
-import io.netty.buffer.PooledByteBufAllocator
-import io.netty.channel.ChannelInitializer
-import io.netty.channel.ChannelOption
-import io.netty.channel.ChannelPipeline
-import io.netty.channel.nio.NioEventLoopGroup
-import io.netty.channel.socket.SocketChannel
-import io.netty.channel.socket.nio.NioServerSocketChannel
-import java.net.InetSocketAddress
-import java.util.*
 
 class DockyardServer(configBuilder: Config.() -> Unit) {
+
+    val config: Config = Config()
+    val nettyServer: NettyServer = NettyServer(this)
+    val serverTickManager: ServerTickManager = ServerTickManager()
+    val playerKeepAliveTimer: PlayerKeepAliveTimer = PlayerKeepAliveTimer()
+
+    init {
+        instance = this
+        configBuilder.invoke(config)
+
+        val packetClasses = AnnotationProcessor.getServerboundPacketClassInfo()
+        PacketParser.idAndStatePairToPacketClass = packetClasses
+        AnnotationProcessor.addIdsToClientboundPackets()
+
+        RegistryManager.register(BlockRegistry)
+        RegistryManager.register(EntityTypeRegistry)
+        RegistryManager.register(DimensionTypeRegistry)
+        RegistryManager.register(WolfVariantRegistry)
+        RegistryManager.register(BannerPatternRegistry)
+        RegistryManager.register(DamageTypeRegistry)
+        RegistryManager.register(JukeboxSongRegistry)
+        RegistryManager.register(TrimMaterialRegistry)
+        RegistryManager.register(TrimPatternRegistry)
+        RegistryManager.register(ChatTypeRegistry)
+        RegistryManager.register(ParticleRegistry)
+        RegistryManager.register(PaintingVariantRegistry)
+        RegistryManager.register(PotionEffectRegistry)
+        RegistryManager.register(BiomeRegistry)
+        RegistryManager.register(ItemRegistry)
+
+        if(ConfigManager.config.implementationConfig.dockyardCommands) DockyardCommands()
+
+        log("DockyardMC finished loading", LogType.SUCCESS)
+        Events.dispatch(ServerFinishLoadEvent(this))
+    }
+
+    val ip get() = config.ip
+    val port get() = config.port
+
+    fun start() {
+        versionInfo = Resources.getDockyardVersion()
+        log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${minecraftVersion.versionName})", LogType.RUNTIME)
+        log("DockyardMC is still under heavy development. Things will break (I warned you)", LogType.WARNING)
+
+        serverTickManager.start()
+        playerKeepAliveTimer.start()
+        nettyServer.start()
+    }
 
     companion object {
         lateinit var versionInfo: Resources.DockyardVersionInfo
@@ -58,128 +91,5 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             "ClientboundUpdateScorePacket",
             "ClientboundChunkDataPacket",
         )
-    }
-
-    lateinit var bootstrap: ServerBootstrap
-    lateinit var channelPipeline: ChannelPipeline
-    val bossGroup = NioEventLoopGroup()
-    val workerGroup = NioEventLoopGroup()
-
-    val config = Config()
-
-    val ip get() = config.ip
-    val port get() = config.port
-
-    // Server ticks
-    val tickProfiler = Profiler()
-    var serverTicks: Int = 0
-    val tickTimer = RepeatingTimerAsync(50) {
-        tickProfiler.start("Tick", 5)
-        serverTicks++
-        Events.dispatch(ServerTickEvent(serverTicks))
-        tickProfiler.end()
-    }
-
-    init {
-        instance = this
-        configBuilder.invoke(config)
-        load()
-    }
-
-    //TODO rewrite and make good
-    var keepAliveId = 0L
-    val keepAlivePacketTimer = RepeatingTimerAsync(5000) {
-        PlayerManager.players.forEach {
-            it.sendPacket(ClientboundKeepAlivePacket(keepAliveId))
-            val processor = PlayerManager.playerToProcessorMap[it.uuid]!!
-            if (!processor.respondedToLastKeepAlive) {
-                log("$it failed to respond to keep alive", LogType.WARNING)
-//                it.kick(getSystemKickMessage(KickReason.FAILED_KEEP_ALIVE))
-                return@forEach
-            }
-            processor.respondedToLastKeepAlive = false
-        }
-        keepAliveId++
-    }
-
-    fun start() {
-        versionInfo = Resources.getDockyardVersion()
-        log(
-            "Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${minecraftVersion.versionName})",
-            LogType.RUNTIME
-        )
-        log("DockyardMC is still under heavy development. Things will break (I warned you)", LogType.WARNING)
-
-        runPacketServer()
-    }
-
-    private fun load() {
-        val profiler = Profiler()
-        val innerProfiler = Profiler()
-        profiler.start("DockyardMC Load")
-        tickTimer.run()
-
-        val packetClasses = AnnotationProcessor.getServerboundPacketClassInfo()
-        PacketParser.idAndStatePairToPacketClass = packetClasses
-
-        AnnotationProcessor.addIdsToClientboundPackets()
-
-        innerProfiler.start("Load Registries")
-        RegistryManager.register(BlockRegistry)
-        RegistryManager.register(EntityTypeRegistry)
-        RegistryManager.register(DimensionTypeRegistry)
-        RegistryManager.register(WolfVariantRegistry)
-        RegistryManager.register(BannerPatternRegistry)
-        RegistryManager.register(DamageTypeRegistry)
-        RegistryManager.register(JukeboxSongRegistry)
-        RegistryManager.register(TrimMaterialRegistry)
-        RegistryManager.register(TrimPatternRegistry)
-        RegistryManager.register(ChatTypeRegistry)
-        RegistryManager.register(ParticleRegistry)
-        RegistryManager.register(PaintingVariantRegistry)
-        RegistryManager.register(PotionEffectRegistry)
-        RegistryManager.register(BiomeRegistry)
-        RegistryManager.register(ItemRegistry)
-        innerProfiler.end()
-
-        innerProfiler.start("Load Default Implementations")
-        val implementationsConfig = config.implementationConfig
-        if (implementationsConfig.dockyardCommands) DockyardCommands()
-
-        innerProfiler.end()
-
-        log("DockyardMC finished loading", LogType.SUCCESS)
-        Events.dispatch(ServerFinishLoadEvent(this))
-
-        profiler.end()
-    }
-
-    @Throws(Exception::class)
-    private fun runPacketServer() {
-        keepAlivePacketTimer.run()
-        try {
-            bootstrap = ServerBootstrap()
-            bootstrap.group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel::class.java)
-                .childHandler(object : ChannelInitializer<SocketChannel>() {
-                    override fun initChannel(ch: SocketChannel) {
-                        channelPipeline = ch.pipeline()
-                            .addLast("processor", PacketProcessor())
-                    }
-                })
-                .option(ChannelOption.SO_BACKLOG, 128)
-                .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-            log("DockyardMC server running on $ip:$port", LogType.SUCCESS)
-            Events.dispatch(ServerStartEvent(this))
-
-            val future = bootstrap.bind(InetSocketAddress(ip, port)).sync()
-            future.channel().closeFuture().sync()
-        } finally {
-            bossGroup.shutdownGracefully()
-            workerGroup.shutdownGracefully()
-        }
     }
 }

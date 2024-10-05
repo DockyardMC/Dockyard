@@ -4,6 +4,7 @@ import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.vectors.Vector3d
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -40,7 +41,7 @@ object EntityTypeRegistry: DataDrivenRegistry {
     }
 
     override fun get(identifier: String): EntityType {
-        return entityTypes[identifier] ?: throw IllegalStateException("Biome with identifier $identifier is not present in the registry!")
+        return entityTypes[identifier] ?: throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getOrNull(identifier: String): EntityType? {
@@ -48,7 +49,7 @@ object EntityTypeRegistry: DataDrivenRegistry {
     }
 
     override fun getByProtocolId(id: Int): EntityType {
-        val identifier = protocolIds.reversed().getOrThrow(id)
+        val identifier = protocolIds.reversed()[id] ?: throw RegistryException(id, this.getMap().size)
         return entityTypes.getOrThrow(identifier)
     }
 

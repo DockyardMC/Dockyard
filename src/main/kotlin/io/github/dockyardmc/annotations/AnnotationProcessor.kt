@@ -10,7 +10,7 @@ object AnnotationProcessor {
 
     fun getServerboundPacketClassInfo(): MutableMap<Pair<Int, ProtocolState>, KClass<*>> {
         val annotationValues = mutableMapOf<Pair<Int, ProtocolState>, KClass<*>>()
-        val reflections = Reflections("io.github.dockyardmc")
+        val reflections = Reflections("io.github.dockyardmc.protocol.packets")
         val annotatedClasses = reflections.getTypesAnnotatedWith(ServerboundPacketInfo::class.java)
         
         annotatedClasses.forEach { loopClass ->

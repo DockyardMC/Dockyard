@@ -1,7 +1,6 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.FeatureFlag
+import io.github.dockyardmc.server.FeatureFlag
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeUtf

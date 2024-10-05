@@ -1,4 +1,4 @@
-package io.github.dockyardmc
+package io.github.dockyardmc.server
 
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent

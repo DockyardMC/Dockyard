@@ -9,7 +9,8 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.ChannelHandlers
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.cryptography.PacketDecryptionHandler
 import io.github.dockyardmc.protocol.cryptography.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
@@ -26,7 +27,7 @@ import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
-class LoginHandler(var processor: PacketProcessor) : PacketHandler(processor) {
+class LoginHandler(var processor: PlayerNetworkManager) : PacketHandler(processor) {
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
         processor.playerProtocolVersion = packet.version
@@ -63,6 +64,7 @@ class LoginHandler(var processor: PacketProcessor) : PacketHandler(processor) {
             address = connection.channel().remoteAddress().address,
             crypto = dummyCrypto,
             connection = connection,
+            networkManager = processor
         )
 
         PlayerManager.add(player, processor)
@@ -109,11 +111,11 @@ class LoginHandler(var processor: PacketProcessor) : PacketHandler(processor) {
 
         processor.player.crypto.sharedSecret = SecretKeySpec(sharedSecret, "AES")
         processor.player.crypto.isConnectionEncrypted = true
-        processor.encrypted = true
+        processor.encryptionEnabled = true
 
         val pipeline = connection.channel().pipeline()
-        pipeline.addBefore("processor", "decryptor", PacketDecryptionHandler(processor.player.crypto))
-        pipeline.addBefore("decryptor", "encryptor", PacketEncryptionHandler(processor.player.crypto))
+        pipeline.addBefore(ChannelHandlers.FRAME_DECODER, ChannelHandlers.PACKET_DECRYPTOR, PacketDecryptionHandler(processor.player.crypto))
+        pipeline.addBefore(ChannelHandlers.PACKET_DECRYPTOR, ChannelHandlers.PACKET_ENCRYPTOR, PacketEncryptionHandler(processor.player.crypto))
 
         val player = processor.player
         finishEncryption(player)

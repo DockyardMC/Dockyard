@@ -3,14 +3,14 @@ package io.github.dockyardmc.protocol.packets.play
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
 import io.github.dockyardmc.utils.vectors.Vector2f
 import io.netty.channel.ChannelHandlerContext
 
-class PlayHandler(var processor: PacketProcessor): PacketHandler(processor) {
+class PlayHandler(var processor: PlayerNetworkManager): PacketHandler(processor) {
 
     fun handleTeleportConfirmation(packet: ServerboundTeleportConfirmationPacket, connection: ChannelHandlerContext) {
     }

@@ -13,7 +13,7 @@ import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
@@ -71,7 +71,7 @@ class ServerboundUseItemOnPacket(
         }
     }
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
+    override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         val item = player.getHeldItem(hand)
 

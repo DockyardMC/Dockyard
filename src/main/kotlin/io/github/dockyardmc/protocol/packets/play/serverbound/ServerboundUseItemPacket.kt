@@ -9,7 +9,7 @@ import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.player.ItemInUse
 import io.github.dockyardmc.player.PlayerHand
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
@@ -19,7 +19,7 @@ import io.netty.channel.ChannelHandlerContext
 @ServerboundPacketInfo(0x39, ProtocolState.PLAY)
 class ServerboundUseItemPacket(val hand: PlayerHand, val sequence: Int, val yaw: Float, val pitch: Float): ServerboundPacket {
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
+    override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         val item = player.getHeldItem(PlayerHand.MAIN_HAND)
 

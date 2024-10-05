@@ -4,6 +4,7 @@ import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -46,8 +47,7 @@ object ItemRegistry : DataDrivenRegistry {
     }
 
     override fun get(identifier: String): Item {
-        return items[identifier]
-            ?: throw IllegalStateException("Registry entry with identifier $identifier was not found")
+        return items[identifier] ?: throw RegistryException(identifier, items.size)
     }
 
     override fun getOrNull(identifier: String): Item? {
@@ -55,7 +55,7 @@ object ItemRegistry : DataDrivenRegistry {
     }
 
     override fun getByProtocolId(id: Int): Item {
-        return protocolIdToItem[id] ?: throw IllegalStateException("Item with protocol id $id is not in the registry!")
+        return protocolIdToItem[id] ?: throw RegistryException(id, items.size)
     }
 
     override fun getMap(): Map<String, Item> {

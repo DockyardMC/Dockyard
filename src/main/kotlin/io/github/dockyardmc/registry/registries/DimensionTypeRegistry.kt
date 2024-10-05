@@ -5,6 +5,7 @@ import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.scroll.extensions.put
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
@@ -121,7 +122,7 @@ object DimensionTypeRegistry : DynamicRegistry {
     }
 
     override fun get(identifier: String): DimensionType {
-        return dimensionTypes[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
+        return dimensionTypes[identifier] ?: throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getOrNull(identifier: String): DimensionType? {
@@ -130,7 +131,7 @@ object DimensionTypeRegistry : DynamicRegistry {
 
     override fun getByProtocolId(id: Int): DimensionType {
         return dimensionTypes.values.toList().getOrNull(id)
-            ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+            ?: throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getMap(): Map<String, DimensionType> {

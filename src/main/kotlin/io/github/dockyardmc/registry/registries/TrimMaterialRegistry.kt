@@ -4,6 +4,7 @@ import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.scroll.extensions.put
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
@@ -49,7 +50,7 @@ object TrimMaterialRegistry: DynamicRegistry {
     }
 
     override fun get(identifier: String): TrimMaterial {
-        return trimMaterials[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
+        return trimMaterials[identifier] ?: throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getOrNull(identifier: String): TrimMaterial? {
@@ -57,7 +58,7 @@ object TrimMaterialRegistry: DynamicRegistry {
     }
 
     override fun getByProtocolId(id: Int): TrimMaterial {
-        return trimMaterials.values.toList().getOrNull(id) ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        return trimMaterials.values.toList().getOrNull(id) ?: throw RegistryException(id, this.getMap().size)
     }
 
     override fun getMap(): Map<String, TrimMaterial> {

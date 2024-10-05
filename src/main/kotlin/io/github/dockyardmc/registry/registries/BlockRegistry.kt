@@ -3,6 +3,7 @@ package io.github.dockyardmc.registry.registries
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.utils.CustomDataHolder
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -31,7 +32,7 @@ object BlockRegistry: DataDrivenRegistry {
     }
 
     override fun get(identifier: String): RegistryBlock {
-        return blocks[identifier] ?: throw IllegalStateException("Registry entry with identifier $identifier was not found")
+        return blocks[identifier] ?: throw RegistryException(identifier, getMap().size)
     }
 
     override fun getOrNull(identifier: String): RegistryBlock? {

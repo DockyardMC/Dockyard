@@ -14,7 +14,7 @@ import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.particles.ItemParticleData
 import io.github.dockyardmc.particles.spawnParticle
-import io.github.dockyardmc.player.PlayerManager.getProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
@@ -33,7 +33,6 @@ import io.github.dockyardmc.world.ConcurrentChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
-import java.time.Instant
 import java.util.*
 
 class Player(
@@ -46,6 +45,7 @@ class Player(
     val connection: ChannelHandlerContext,
     val address: String,
     var crypto: PlayerCrypto,
+    val networkManager: PlayerNetworkManager
 ): Entity(location) {
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var hasGravity: Boolean = true
@@ -308,8 +308,7 @@ class Player(
     fun sendActionBar(component: Component) { sendSystemMessage(component, true) }
     private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
         if(!isConnected) return
-        val processor = this.getProcessor()
-        if(processor.state != ProtocolState.PLAY) {
+        if(networkManager.state != ProtocolState.PLAY) {
             queuedMessages.add(component to isActionBar)
             return
         }
@@ -318,14 +317,14 @@ class Player(
 
     fun sendPacket(packet: ClientboundPacket) {
         if(!isConnected) return
-        if(packet.state != this.getProcessor().state) return
-        connection.sendPacket(packet, getProcessor())
+        if(packet.state != networkManager.state) return
+        connection.sendPacket(packet, networkManager)
         lastSentPacket = packet
     }
 
     fun sendToViewers(packet: ClientboundPacket) {
         viewers.forEach { viewer ->
-            if(viewer.getProcessor().state != ProtocolState.PLAY) return@forEach
+            if(networkManager.state != ProtocolState.PLAY) return@forEach
             viewer.sendPacket(packet)
         }
     }

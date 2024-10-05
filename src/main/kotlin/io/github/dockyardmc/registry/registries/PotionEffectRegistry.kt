@@ -3,6 +3,7 @@ package io.github.dockyardmc.registry.registries
 import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.registry.Registry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -62,7 +63,7 @@ object PotionEffectRegistry: Registry {
     }
 
     override fun get(identifier: String): PotionEffect {
-        return potionEffects[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
+        return potionEffects[identifier] ?: throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getOrNull(identifier: String): PotionEffect? {
@@ -70,7 +71,7 @@ object PotionEffectRegistry: Registry {
     }
 
     override fun getByProtocolId(id: Int): PotionEffect {
-        return potionEffects.values.toList().getOrNull(id) ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        return potionEffects.values.toList().getOrNull(id) ?: throw RegistryException(id, this.getMap().size)
     }
 
     override fun getMap(): Map<String, PotionEffect> {

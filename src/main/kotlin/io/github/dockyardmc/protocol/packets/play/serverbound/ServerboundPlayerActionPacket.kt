@@ -14,7 +14,7 @@ import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerHand
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
@@ -34,7 +34,7 @@ class ServerboundPlayerActionPacket(
     var sequence: Int,
 ) : ServerboundPacket {
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
+    override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         if (action == PlayerAction.START_DIGGING) {
             if (player.gameMode.value == GameMode.CREATIVE) {

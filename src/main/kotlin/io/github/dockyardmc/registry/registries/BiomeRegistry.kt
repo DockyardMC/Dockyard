@@ -5,7 +5,8 @@ import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryD
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
-import io.github.dockyardmc.registry.RegistryManager
+import io.github.dockyardmc.registry.RegistryException
+import io.github.dockyardmc.registry.registries.ItemRegistry.items
 import io.github.dockyardmc.scroll.extensions.put
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -61,7 +62,7 @@ object BiomeRegistry : DataDrivenRegistry, DynamicRegistry {
     }
 
     override fun get(identifier: String): Biome {
-        return biomes[identifier] ?: throw IllegalStateException("Biome with identifier $identifier is not present in the registry!")
+        return biomes[identifier] ?: throw RegistryException(identifier, getMap().size)
     }
 
     override fun getOrNull(identifier: String): Biome? {
@@ -69,8 +70,7 @@ object BiomeRegistry : DataDrivenRegistry, DynamicRegistry {
     }
 
     override fun getByProtocolId(id: Int): Biome {
-        return biomes.values.toList().getOrNull(id)
-            ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        return biomes.values.toList().getOrNull(id) ?: throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getMap(): Map<String, Biome> {
