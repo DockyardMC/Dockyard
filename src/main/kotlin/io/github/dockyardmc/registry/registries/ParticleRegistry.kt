@@ -3,6 +3,7 @@ package io.github.dockyardmc.registry.registries
 import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.registry.Registry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -133,7 +134,7 @@ object ParticleRegistry : Registry {
 
     override fun get(identifier: String): Particle {
         return particles[identifier]
-            ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
+            ?: throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getOrNull(identifier: String): Particle? {
@@ -141,8 +142,7 @@ object ParticleRegistry : Registry {
     }
 
     override fun getByProtocolId(id: Int): Particle {
-        return particles.values.toList().getOrNull(id)
-            ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        return particles.values.toList().getOrNull(id) ?: throw RegistryException(id, this.getMap().size)
     }
 
     override fun getMap(): Map<String, Particle> {

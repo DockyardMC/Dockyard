@@ -4,6 +4,7 @@ import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.scroll.extensions.put
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
@@ -83,7 +84,7 @@ object BannerPatternRegistry: DynamicRegistry {
 
 
     override fun get(identifier: String): BannerPattern {
-        return bannerPatterns[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
+        return bannerPatterns[identifier] ?: throw throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getOrNull(identifier: String): BannerPattern? {
@@ -91,7 +92,7 @@ object BannerPatternRegistry: DynamicRegistry {
     }
 
     override fun getByProtocolId(id: Int): BannerPattern {
-        return bannerPatterns.values.toList().getOrNull(id) ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        return bannerPatterns.values.toList().getOrNull(id) ?: throw throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getMap(): Map<String, BannerPattern> {

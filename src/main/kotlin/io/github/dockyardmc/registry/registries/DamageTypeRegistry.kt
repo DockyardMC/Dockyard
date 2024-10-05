@@ -4,6 +4,7 @@ import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.scroll.extensions.put
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
@@ -85,7 +86,7 @@ object DamageTypeRegistry: DynamicRegistry {
     }
 
     override fun get(identifier: String): DamageType {
-        return damageTypes[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
+        return damageTypes[identifier] ?: throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getOrNull(identifier: String): DamageType? {
@@ -93,7 +94,7 @@ object DamageTypeRegistry: DynamicRegistry {
     }
 
     override fun getByProtocolId(id: Int): DamageType {
-        return damageTypes.values.toList().getOrNull(id) ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        return damageTypes.values.toList().getOrNull(id) ?: throw RegistryException(id, this.getMap().size)
     }
 
     override fun getMap(): Map<String, DamageType> {

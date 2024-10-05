@@ -3,6 +3,7 @@ package io.github.dockyardmc.registry.registries
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import java.util.concurrent.atomic.AtomicInteger
 
 object ChatTypeRegistry: DynamicRegistry {
@@ -28,7 +29,7 @@ object ChatTypeRegistry: DynamicRegistry {
     }
 
     override fun get(identifier: String): RegistryEntry {
-        return chatTypes[identifier] ?: throw IllegalStateException("There is no registry entry with identifier $identifier")
+        return chatTypes[identifier] ?: throw RegistryException(identifier, this.getMap().size)
     }
 
     override fun getOrNull(identifier: String): RegistryEntry? {
@@ -36,7 +37,7 @@ object ChatTypeRegistry: DynamicRegistry {
     }
 
     override fun getByProtocolId(id: Int): RegistryEntry {
-        return chatTypes.values.toList().getOrNull(id) ?: throw IllegalStateException("There is no registry entry with protocol id $id")
+        return chatTypes.values.toList().getOrNull(id) ?: throw RegistryException(id, this.getMap().size)
     }
 
     override fun getMap(): Map<String, RegistryEntry> {
