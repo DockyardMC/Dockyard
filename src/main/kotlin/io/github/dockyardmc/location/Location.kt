@@ -161,7 +161,10 @@ fun ByteBuf.writeLocationWithoutRotation(location: Location) {
 }
 
 fun ByteBuf.writeBlockPosition(location: Location) {
-    val encoded = (((location.blockX and 0x3FFFFFF) shl 38) or ((location.blockZ and 0x3FFFFFF) shl 12) or (location.blockY and 0xFFF)).toLong()
+    val blockX = location.blockX.toLong()
+    val blockY = location.blockY.toLong()
+    val blockZ = location.blockZ.toLong()
+    val encoded = (((blockX and 0x3FFFFFF) shl 38) or ((blockZ and 0x3FFFFFF) shl 12) or (blockY and 0xFFF))
     this.writeLong(encoded)
 }
 

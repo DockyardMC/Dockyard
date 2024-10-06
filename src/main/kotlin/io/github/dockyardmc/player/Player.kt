@@ -281,7 +281,22 @@ class Player(
     }
 
     //TODO Add off-hand support
-    fun getHeldItem(hand: PlayerHand): ItemStack = inventory[selectedHotbarSlot.value]
+    fun getHeldItem(hand: PlayerHand): ItemStack {
+        if (hand == PlayerHand.MAIN_HAND) {
+            return inventory[selectedHotbarSlot.value]
+        } else if (hand == PlayerHand.OFF_HAND) {
+            return inventory[40]
+        }
+        return ItemStack.air
+    }
+
+    fun setHeldItem(hand: PlayerHand, item: ItemStack) {
+        if (hand == PlayerHand.MAIN_HAND) {
+            inventory[selectedHotbarSlot.value] = item
+        } else if (hand == PlayerHand.OFF_HAND) {
+            inventory[40] = item
+        }
+    }
 
     override fun removeViewer(player: Player, isDisconnect: Boolean) {
         if(player == this) return
