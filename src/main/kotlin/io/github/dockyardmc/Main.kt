@@ -1,6 +1,8 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.IntArgument
+import io.github.dockyardmc.commands.SuggestionProvider
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
@@ -11,7 +13,8 @@ import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.ui.CookieClickerScreen
+import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
+import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
@@ -83,7 +86,16 @@ fun main(args: Array<String>) {
     Commands.add("/cookie") {
         execute {
             val player = it.getPlayerOrThrow()
-            player.openInventory(CookieClickerScreen(player))
+            player.openInventory(ExampleCookieClickerScreen(player))
+        }
+    }
+
+    Commands.add("/minesweeper") {
+        addArgument("mines", IntArgument(), SuggestionProvider.simple("<num of mines>"))
+        execute {
+            val player = it.getPlayerOrThrow()
+            val mines = getArgument<Int>("mines")
+            player.openInventory(ExampleMinesweeperScreen(player, mines))
         }
     }
 }

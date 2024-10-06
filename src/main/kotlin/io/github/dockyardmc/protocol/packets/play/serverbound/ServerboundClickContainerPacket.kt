@@ -16,6 +16,7 @@ import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.playerInventoryCorrectSlot
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
+import java.lang.IllegalStateException
 
 @WikiVGEntry("Click Container")
 @ServerboundPacketInfo(0x0E, ProtocolState.PLAY)
@@ -36,7 +37,52 @@ class ServerboundClickContainerPacket(
 
         val clickedSlotItem = player.inventory[properSlot].clone()
         val empty = ItemStack.air
-        if(currentInventory != null && currentInventory is DrawableContainerScreen && properSlot >= 0) currentInventory.click(properSlot, player, DrawableClickType.LEFT_CLICK)
+
+        var drawableClickType = DrawableClickType.LEFT_CLICK
+        when(mode) {
+            ContainerClickMode.NORMAL -> {
+                val action = NormalButtonAction.entries.find { it.button == button } ?: return
+                drawableClickType = when(action) {
+                    NormalButtonAction.LEFT_MOUSE_CLICK -> DrawableClickType.LEFT_CLICK
+                    NormalButtonAction.RIGHT_MOUSE_CLICK -> DrawableClickType.RIGHT_CLICK
+                    NormalButtonAction.LEFT_CLICK_OUTSIDE_INVENTORY -> DrawableClickType.LEFT_CLICK_OUTSIDE_INVENTORY
+                    NormalButtonAction.RIGHT_CLICK_OUTSIDE_INVENTORY -> DrawableClickType.RIGHT_CLICK_OUTSIDE_INVENTORY
+                }
+            }
+            ContainerClickMode.NORMAL_SHIFT -> {
+                val action = NormalShiftButtonAction.entries.find { it.button == button } ?: return
+                drawableClickType = when(action) {
+                    NormalShiftButtonAction.SHIFT_LEFT_MOUSE_CLICK -> DrawableClickType.LEFT_CLICK_SHIFT
+                    NormalShiftButtonAction.SHIFT_RIGHT_MOUSE_CLICK -> DrawableClickType.RIGHT_CLICK_SHIFT
+                }
+            }
+            ContainerClickMode.HOTKEY -> {
+                val action = if(button == 40) HotkeyButtonAction.OFFHAND_SWAP else HotkeyButtonAction.CHANGE_TO_SLOT
+                drawableClickType = if(action == HotkeyButtonAction.OFFHAND_SWAP) DrawableClickType.OFFHAND else DrawableClickType.HOTKEY
+            }
+            ContainerClickMode.MIDDLE_CLICK -> drawableClickType = DrawableClickType.MIDDLE_CLICK
+            ContainerClickMode.DROP -> drawableClickType = DrawableClickType.DROP
+            ContainerClickMode.SLOT_DRAG -> {
+                val action = DragButtonAction.entries.find { it.button == button }
+                drawableClickType = when(action) {
+                    DragButtonAction.STARTING_LEFT_MOUSE_DRAG,
+                    DragButtonAction.ADD_SLOT_FOR_LEFT_MOUSE_DRAG,
+                    DragButtonAction.ENDING_LEFT_MOUSE_DRAG -> DrawableClickType.LEFT_CLICK
+
+                    DragButtonAction.STARTING_RIGHT_MOUSE_DRAG,
+                    DragButtonAction.ENDING_RIGHT_MOUSE_DRAG,
+                    DragButtonAction.ADD_SLOT_FOR_RIGHT_MOUSE_DRAG -> DrawableClickType.RIGHT_CLICK
+
+                    DragButtonAction.STARTING_MIDDLE_MOUSE_DRAG,
+                    DragButtonAction.ADD_SLOT_FOR_MIDDLE_MOUSE_DRAG,
+                    DragButtonAction.ENDING_MIDDLE_MOUSE_DRAG -> DrawableClickType.MIDDLE_CLICK
+                    null -> throw IllegalStateException("action with button $button of DragButtonAction not")
+                }
+            }
+            ContainerClickMode.DOUBLE_CLICK -> drawableClickType = DrawableClickType.LEFT_CLICK
+        }
+
+        if(currentInventory != null && currentInventory is DrawableContainerScreen && properSlot >= 0) currentInventory.click(properSlot, player, drawableClickType)
 
         if(windowId == 0) {
             if(mode == ContainerClickMode.NORMAL) {

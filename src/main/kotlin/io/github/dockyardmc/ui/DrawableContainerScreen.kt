@@ -30,6 +30,7 @@ abstract class DrawableContainerScreen(val player: Player): ContainerInventory, 
 
         slots.itemRemoved {
             val slot = getSlotIndexFromVector2(it.first, it.second)
+
             contents[slot] = ItemStack.air
             player.sendPacket(ClientboundSetInventorySlotPacket(1, 0, slot, ItemStack.air))
         }
@@ -52,6 +53,9 @@ abstract class DrawableContainerScreen(val player: Player): ContainerInventory, 
     }
 
     fun click(slot: Int, player: Player, clickType: DrawableClickType) {
+
+        if(clickType == DrawableClickType.OFFHAND) player.sendPacket(ClientboundSetInventorySlotPacket(0,  0, 45, ItemStack.air))
+
         val vec2 = getVector2FromSlotIndex(slot)
         val drawableItem = slots[PairKey(vec2.x, vec2.y)] ?: ItemStack.air.toDrawable()
 
@@ -63,6 +67,7 @@ abstract class DrawableContainerScreen(val player: Player): ContainerInventory, 
 
     override fun dispose() {
         eventPool.dispose()
+        slots.values.toMap().forEach { slots.remove(it.key) }
     }
 }
 

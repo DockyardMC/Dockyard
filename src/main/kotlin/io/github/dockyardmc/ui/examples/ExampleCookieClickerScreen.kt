@@ -1,4 +1,4 @@
-package io.github.dockyardmc.ui
+package io.github.dockyardmc.ui.examples
 
 import cz.lukynka.Bindable
 import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
@@ -7,9 +7,12 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.playSound
+import io.github.dockyardmc.ui.DrawableContainerScreen
+import io.github.dockyardmc.ui.drawableItemStack
+import io.github.dockyardmc.ui.toDrawable
 import io.github.dockyardmc.utils.randomFloat
 
-class CookieClickerScreen(player: Player): DrawableContainerScreen(player) {
+class ExampleCookieClickerScreen(player: Player): DrawableContainerScreen(player) {
 
     override var name: String = "<black><bold>Cookie Clicker"
     override var rows: Int = 5
