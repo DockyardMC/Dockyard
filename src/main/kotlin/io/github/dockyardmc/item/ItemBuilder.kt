@@ -2,8 +2,8 @@ package io.github.dockyardmc.item
 
 import io.github.dockyardmc.extentions.fromRGBInt
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.CustomColor
 
 class ItemBuilder() {
@@ -141,8 +141,7 @@ class ItemBuilder() {
         if (unbreakable) {
             itemStack.components.addOrUpdate(UnbreakableItemComponent(showInTooltip))
         } else {
-            itemStack.components.removeIfPresent(UnbreakableItemComponent())
-            itemStack.components.removeIfPresent(UnbreakableItemComponent(true))
+            itemStack.components.removeByType((UnbreakableItemComponent()::class))
         }
         return this
     }
@@ -208,6 +207,15 @@ class ItemBuilder() {
         return this
     }
 
+    /**
+     * Sets position for a compass to point to
+     *
+     * @param location Location
+     * @param tracked Boolean (default false)
+     * @return ItemBuilder
+     *
+     * @throws IllegalArgumentException if the item is not a compass
+     */
     fun withLodestoneTracker(location: Location, tracked: Boolean = false): ItemBuilder {
         if (itemStack.material != Items.COMPASS) {
             throw IllegalArgumentException("Item must be a compass")
