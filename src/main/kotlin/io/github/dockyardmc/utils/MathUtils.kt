@@ -75,7 +75,7 @@ fun toOriginalSlotIndex(correctedSlot: Int): Int {
         37 -> 6
         38 -> 7
         39 -> 8
-        45 -> 40
+        40 -> 45
         else -> 0
     }
 }

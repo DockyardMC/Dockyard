@@ -85,7 +85,7 @@ data class Item(
             ?: throw IllegalStateException("This item is not in the registry (how did you get hold of this object??)")
     }
 
-    fun toItemStack(): ItemStack {
-        return ItemStack(this)
+    fun toItemStack(amount: Int = 1): ItemStack {
+        return ItemStack(this, amount)
     }
 }

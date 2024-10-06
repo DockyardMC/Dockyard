@@ -1,6 +1,8 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.IntArgument
+import io.github.dockyardmc.commands.SuggestionProvider
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
@@ -11,7 +13,8 @@ import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.ui.CookieClickerScreen
+import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
+import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
@@ -20,6 +23,16 @@ import io.github.dockyardmc.world.WorldManager
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
 
 fun main(args: Array<String>) {
+
+    if (args.contains("validate-packets")) {
+        VerifyPacketIds()
+        return
+    }
+
+    if (args.contains("event-documentation")) {
+        EventsDocumentationGenerator()
+        return
+    }
 
     val server = DockyardServer {
         withIp("0.0.0.0")
@@ -30,16 +43,6 @@ fun main(args: Array<String>) {
         withImplementations {
             dockyardCommands = true
         }
-    }
-
-    if (args.contains("validate-packets")) {
-        VerifyPacketIds()
-        return
-    }
-
-    if (args.contains("event-documentation")) {
-        EventsDocumentationGenerator()
-        return
     }
 
     Events.on<PlayerJoinEvent> {
@@ -82,7 +85,17 @@ fun main(args: Array<String>) {
 
     Commands.add("/cookie") {
         execute {
-            it.getPlayerOrThrow().openDrawableScreen(CookieClickerScreen())
+            val player = it.getPlayerOrThrow()
+            player.openInventory(ExampleCookieClickerScreen(player))
+        }
+    }
+
+    Commands.add("/minesweeper") {
+        addArgument("mines", IntArgument(), SuggestionProvider.simple("<num of mines>"))
+        execute {
+            val player = it.getPlayerOrThrow()
+            val mines = getArgument<Int>("mines")
+            player.openInventory(ExampleMinesweeperScreen(player, mines))
         }
     }
 }

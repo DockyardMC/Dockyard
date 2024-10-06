@@ -9,6 +9,7 @@ import io.github.dockyardmc.events.PlayerDamageEvent
 import io.github.dockyardmc.events.PlayerDeathEvent
 import io.github.dockyardmc.events.PlayerRespawnEvent
 import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.inventory.Inventory
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
@@ -77,7 +78,7 @@ class Player(
     val food: Bindable<Double> = Bindable(20.0)
     val experienceLevel: Bindable<Int> = Bindable(0)
     val experienceBar: Bindable<Float> = Bindable(0f)
-    val currentOpenInventory: Bindable<DrawableContainerScreen?> = Bindable(null)
+    var currentOpenInventory: ContainerInventory? = null
     var hasSkin = false
     var itemInUse: ItemInUse? = null
     var lastRightClick = 0L
@@ -421,8 +422,16 @@ class Player(
         sendPacket(packet)
     }
 
-    fun openDrawableScreen(screen: DrawableContainerScreen) {
-        screen.open(this)
+    fun openInventory(inventory: ContainerInventory) {
+        this.currentOpenInventory = inventory
+        sendPacket(ClientboundOpenContainerPacket(InventoryType.valueOf("GENERIC_9X${inventory.rows}"), inventory.name))
+        inventory.contents.forEach {
+            sendPacket(ClientboundSetInventorySlotPacket(1, 0, it.key, it.value))
+        }
+        if(inventory is DrawableContainerScreen) {
+            inventory.slots.triggerUpdate()
+            inventory.onOpen(this)
+        }
     }
 
     fun playTotemAnimation(customModelData: Int? = null) {
