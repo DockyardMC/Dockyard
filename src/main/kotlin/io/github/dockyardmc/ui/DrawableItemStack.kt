@@ -1,13 +1,14 @@
 package io.github.dockyardmc.ui
 
+import io.github.dockyardmc.item.ItemComponent
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.registries.Item
 
-class DrawableItemStack() {
+class DrawableItemStack {
 
     var itemStack: ItemStack = ItemStack.air
-    var clickListener: ((Player, ClickType) -> Unit)? = null
+    var clickListener: ((Player, DrawableClickType) -> Unit)? = null
 
     fun withItem(itemStack: ItemStack) {
         this.itemStack = itemStack
@@ -17,7 +18,19 @@ class DrawableItemStack() {
         this.itemStack = item.toItemStack(amount)
     }
 
-    fun onClick(unit: (Player, ClickType) -> Unit) {
+    fun withName(name: String) {
+        itemStack.displayName.value = name
+    }
+
+    fun addLoreLine(lore: String) {
+        itemStack.lore.add(lore)
+    }
+
+    fun withComponent(component: ItemComponent) {
+        itemStack.components.add(component)
+    }
+
+    fun onClick(unit: (Player, DrawableClickType) -> Unit) {
         this.clickListener = unit
     }
 }
@@ -30,14 +43,18 @@ fun ItemStack.toDrawable(): DrawableItemStack {
     return drawableItemStack { withItem(this@toDrawable) }
 }
 
-
-enum class ClickType {
-    NORMAL,
-    SHIFT_NORMAL
-}
-
 fun drawableItemStack(unit: DrawableItemStack.() -> Unit): DrawableItemStack {
     val item = DrawableItemStack()
     unit.invoke(item)
     return item
+}
+
+enum class DrawableClickType {
+    LEFT_CLICK,
+    RIGHT_CLICK,
+    LEFT_CLICK_SHIFT,
+    RIGHT_CLICK_SHIFT,
+    MIDDLE_CLICK,
+    HOTKEY,
+    DROP,
 }

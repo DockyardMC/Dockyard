@@ -82,7 +82,8 @@ fun main(args: Array<String>) {
 
     Commands.add("/cookie") {
         execute {
-            it.getPlayerOrThrow().openDrawableScreen(CookieClickerScreen())
+            val player = it.getPlayerOrThrow()
+            player.openInventory(CookieClickerScreen(player))
         }
     }
 }

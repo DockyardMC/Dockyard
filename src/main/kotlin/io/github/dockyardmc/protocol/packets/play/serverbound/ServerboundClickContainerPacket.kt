@@ -11,6 +11,8 @@ import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.ui.DrawableClickType
+import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.playerInventoryCorrectSlot
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -29,12 +31,12 @@ class ServerboundClickContainerPacket(
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
-        val properSlot = if(player.currentOpenInventory.value == null) playerInventoryCorrectSlot(slot) else slot
+        val currentInventory = player.currentOpenInventory
+        val properSlot = if(player.currentOpenInventory == null) playerInventoryCorrectSlot(slot) else slot
 
         val clickedSlotItem = player.inventory[properSlot].clone()
         val empty = ItemStack.air
-//        player.sendMessage("<dark_gray>Clicked $properSlot ($slot) [ ${player.currentOpenInventory.value?.name?.scrollSanitized()} ]")
-        if(player.currentOpenInventory.value != null) player.currentOpenInventory.value!!.click(properSlot, player)
+        if(currentInventory != null && currentInventory is DrawableContainerScreen && properSlot >= 0) currentInventory.click(properSlot, player, DrawableClickType.LEFT_CLICK)
 
         if(windowId == 0) {
             if(mode == ContainerClickMode.NORMAL) {
