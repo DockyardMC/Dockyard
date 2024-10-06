@@ -8,7 +8,7 @@ class DustTransitionParticleData(val fromColor: CustomColor, val toColor: Custom
 
     constructor(hexFrom: String, hexTo: String, scale: Float = 1f): this(CustomColor.fromHex(hexFrom), CustomColor.fromHex(hexTo), scale)
 
-    override var id: Int = Particles.DUST_COLOR_TRANSITION.id
+    override var id: Int = Particles.DUST_COLOR_TRANSITION.getProtocolId()
 
     override fun write(byteBuf: ByteBuf) {
         byteBuf.writeFloat(fromColor.r / 255f)

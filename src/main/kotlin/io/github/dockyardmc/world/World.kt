@@ -4,6 +4,7 @@ import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager.despawnEntity
 import io.github.dockyardmc.events.*
@@ -11,6 +12,9 @@ import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.BlockRegistry
+import io.github.dockyardmc.registry.registries.DimensionType
+import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.runnables.AsyncQueueProcessor
 import io.github.dockyardmc.runnables.AsyncQueueTask
 import io.github.dockyardmc.scroll.Component
@@ -54,6 +58,8 @@ class World(
 
     var asyncChunkGenerator = AsyncQueueProcessor()
     var eventPool = EventPool()
+
+    val customDataBlocks: MutableMap<Int, Block> = mutableMapOf()
 
     fun join(player: Player) {
         if(player.world == this && player.isFullyInitialized) return
@@ -134,11 +140,17 @@ class World(
 
     fun getChunk(x: Int, z: Int): Chunk? = chunks[ChunkUtils.getChunkIndex(x, z)]
 
+    fun setBlock(x: Int, y: Int, z: Int, block: RegistryBlock) {
+        setBlock(x, y, z, block.toBlock())
+    }
+
     fun setBlock(x: Int, y: Int, z: Int, block: Block) {
         val chunk = getChunkAt(x, z) ?: return
         chunk.setBlock(x, y, z, block, true)
         players.values.forEach { it.sendPacket(chunk.packet) }
     }
+
+    fun getBlock(location: Location): Block = this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
         val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $z not generated!")
@@ -153,7 +165,7 @@ class World(
         newStates.putAll(existingBlockStates)
         states.forEach { newStates[it.key] = it.value }
 
-        setBlock(location, existingBlock.withBlockStates(newStates))
+        setBlock(location, Block(existingBlock.registryBlock, newStates,existingBlock.customData))
     }
 
     fun setBlockState(x: Int, y: Int, z: Int, vararg states: Pair<String, String>) {
@@ -168,35 +180,22 @@ class World(
         setBlockState(location.x.toInt(), location.y.toInt(), location.z.toInt(), states.toMap())
     }
 
-    fun getBlock(location: Location): Block = this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
-
-    fun getBlock(vector: Vector3f): Block = this.getBlock(vector.x.toInt(), vector.y.toInt(), vector.z.toInt())
-
-    fun getBlock(vector: Vector3): Block = this.getBlock(vector.x, vector.y, vector.z)
-
     fun setBlock(location: Location, block: Block) {
         this.setBlock(location.x.toInt(), location.y.toInt(), location.z.toInt(), block)
     }
 
+    fun setBlock(location: Location, registrBlock: RegistryBlock) {
+        this.setBlock(location, registrBlock.toBlock())
+    }
+
     fun setBlockRaw(location: Location, blockStateId: Int, updateChunk: Boolean = true) {
-        val chunk = getChunkAt(location.x.toInt(), location.z.toInt()) ?: return
-        chunk.setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId, updateChunk)
-        if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
+        setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId, updateChunk)
     }
 
     fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int, updateChunk: Boolean = true) {
-        val location = Location(x, y, z, this)
-        val chunk = getChunkAt(location.x.toInt(), location.z.toInt()) ?: return
-        chunk.setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId, updateChunk)
+        val chunk = getChunkAt(x, z) ?: return
+        chunk.setBlockRaw(x, y, z, blockStateId, updateChunk)
         if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
-    }
-
-    fun setBlock(vector3: Vector3, block: Block) {
-        this.setBlock(vector3.x, vector3.y, vector3.z, block)
-    }
-
-    fun setBlock(vector3: Vector3f, block: Block) {
-        this.setBlock(vector3.x.toInt(), vector3.y.toInt(), vector3.z.toInt(), block)
     }
 
     fun generateChunk(x: Int, z: Int) {
@@ -204,8 +203,8 @@ class World(
         // Special case for void world generator for fast void world loading. //TODO optimizations to rest of the world generators
         if(generator is VoidWorldGenerator) {
             chunk.sections.forEach { section ->
-                section.biomePalette.fill(Biomes.THE_VOID.id)
-                section.blockPalette.fill(Blocks.AIR.getId())
+                section.biomePalette.fill(Biomes.THE_VOID.getProtocolId())
+                section.blockPalette.fill(BlockRegistry.Air.defaultBlockStateId)
             }
         } else {
             for (localX in 0..<16) {
@@ -244,6 +243,7 @@ class World(
             if(it is Player) return@forEach
             despawnEntity(it)
         }
+        customDataBlocks.clear()
         canBeJoined.value = false
         chunks.clear()
 

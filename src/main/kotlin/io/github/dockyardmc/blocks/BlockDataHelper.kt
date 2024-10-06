@@ -1,15 +1,14 @@
 package io.github.dockyardmc.blocks
 
-import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
 
 //TODO Make this better this is pretty ugly, but idk where this info is actually stored in minecraft to make it data-driven
 object BlockDataHelper {
 
     fun isClickable(block: Block): Boolean {
-        if(block.identifier.contains("shulker_box")) return true
-        if(block.identifier.contains("door")) return true
-        return when(block) {
+        if(block.registryBlock.identifier.contains("shulker_box")) return true
+        if(block.registryBlock.identifier.contains("door")) return true
+        return when(block.registryBlock) {
             Blocks.CHISELED_BOOKSHELF -> true
             Blocks.DECORATED_POT -> true
             Blocks.NOTE_BLOCK -> true
@@ -117,5 +116,4 @@ object BlockDataHelper {
             else -> false
         }
     }
-
 }

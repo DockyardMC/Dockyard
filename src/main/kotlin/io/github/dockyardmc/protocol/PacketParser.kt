@@ -18,13 +18,13 @@ object PacketParser {
     // This is way better and easier approach than listing all the packets here in when() or in a map
 
     // It does this process in MainKt, and reads actual annotations using reflection in AnnotationProcessor.getServerboundPacketClassInfo()
-    fun parse(id: Int, buffer: ByteBuf, processor: PacketProcessor, size: Int): ServerboundPacket? {
+    fun parse(id: Int, buffer: ByteBuf, protocolState: ProtocolState): ServerboundPacket? {
         try {
-            val packetClass = idAndStatePairToPacketClass[id to processor.state] ?: return null
+            val packetClass = idAndStatePairToPacketClass[id to protocolState] ?: return null
             val companionObject = packetClass.companionObject ?: return null
             val readFunction = companionObject.declaredMemberFunctions.find { it.name == "read" } ?: return null
 
-            return readFunction.call(companionObject.objectInstance,  buffer) as ServerboundPacket
+            return readFunction.call(companionObject.objectInstance, buffer) as ServerboundPacket
         } catch (ex: Exception) {
             log("Failed to read packet: $ex", LogType.WARNING)
             return null

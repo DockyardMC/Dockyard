@@ -9,16 +9,19 @@ import io.github.dockyardmc.events.PlayerDamageEvent
 import io.github.dockyardmc.events.PlayerDeathEvent
 import io.github.dockyardmc.events.PlayerRespawnEvent
 import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.inventory.Inventory
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.particles.ItemParticleData
 import io.github.dockyardmc.particles.spawnParticle
-import io.github.dockyardmc.player.PlayerManager.getProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.DamageType
+import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.resourcepack.Resourcepack
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -31,7 +34,6 @@ import io.github.dockyardmc.world.ConcurrentChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
-import java.time.Instant
 import java.util.*
 
 class Player(
@@ -44,6 +46,7 @@ class Player(
     val connection: ChannelHandlerContext,
     val address: String,
     var crypto: PlayerCrypto,
+    val networkManager: PlayerNetworkManager
 ): Entity(location) {
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var hasGravity: Boolean = true
@@ -75,7 +78,7 @@ class Player(
     val food: Bindable<Double> = Bindable(20.0)
     val experienceLevel: Bindable<Int> = Bindable(0)
     val experienceBar: Bindable<Float> = Bindable(0f)
-    val currentOpenInventory: Bindable<DrawableContainerScreen?> = Bindable(null)
+    var currentOpenInventory: ContainerInventory? = null
     var hasSkin = false
     var itemInUse: ItemInUse? = null
     var lastRightClick = 0L
@@ -188,7 +191,7 @@ class Player(
 
                 if((world.worldAge % 5) == 0L) {
                     val viewers = world.players.values.toMutableList().filter { it != this }
-                    viewers.playSound("minecraft:entity.generic.eat", location, 1f, randomFloat(0.9f, 1.3f))
+                    viewers.playSound(item.material.eatingSound, location, 1f, randomFloat(0.9f, 1.3f))
                     viewers.spawnParticle(location.clone().apply { y += 1.5 }, Particles.ITEM, Vector3f(0.2f), 0.05f, 6, false, ItemParticleData(item))
                 }
 
@@ -314,15 +317,14 @@ class Player(
 
     override fun toString(): String = username
     fun kick(reason: String) { this.kick(reason.toComponent()) }
-    fun kick(reason: Component) { connection.sendPacket(ClientboundDisconnectPacket(reason)) }
+    fun kick(reason: Component) { sendPacket(ClientboundDisconnectPacket(reason)) }
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
     fun sendMessage(component: Component) { sendSystemMessage(component, false) }
     fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
     fun sendActionBar(component: Component) { sendSystemMessage(component, true) }
     private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
         if(!isConnected) return
-        val processor = this.getProcessor()
-        if(processor.state != ProtocolState.PLAY) {
+        if(networkManager.state != ProtocolState.PLAY) {
             queuedMessages.add(component to isActionBar)
             return
         }
@@ -331,14 +333,14 @@ class Player(
 
     fun sendPacket(packet: ClientboundPacket) {
         if(!isConnected) return
-        if(packet.state != this.getProcessor().state) return
-        connection.sendPacket(packet, this)
+        if(packet.state != networkManager.state) return
+        connection.sendPacket(packet, networkManager)
         lastSentPacket = packet
     }
 
     fun sendToViewers(packet: ClientboundPacket) {
         viewers.forEach { viewer ->
-            if(viewer.getProcessor().state != ProtocolState.PLAY) return@forEach
+            if(networkManager.state != ProtocolState.PLAY) return@forEach
             viewer.sendPacket(packet)
         }
     }
@@ -435,8 +437,16 @@ class Player(
         sendPacket(packet)
     }
 
-    fun openDrawableScreen(screen: DrawableContainerScreen) {
-        screen.open(this)
+    fun openInventory(inventory: ContainerInventory) {
+        this.currentOpenInventory = inventory
+        sendPacket(ClientboundOpenContainerPacket(InventoryType.valueOf("GENERIC_9X${inventory.rows}"), inventory.name))
+        inventory.contents.forEach {
+            sendPacket(ClientboundSetInventorySlotPacket(1, 0, it.key, it.value))
+        }
+        if(inventory is DrawableContainerScreen) {
+            inventory.slots.triggerUpdate()
+            inventory.onOpen(this)
+        }
     }
 
     fun playTotemAnimation(customModelData: Int? = null) {

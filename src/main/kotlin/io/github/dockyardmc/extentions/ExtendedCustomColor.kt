@@ -21,3 +21,8 @@ fun CustomColor.Companion.fromRGBInt(color: Int): CustomColor {
     val blue = color and 0xFF
     return CustomColor(red, green, blue)
 }
+
+fun CustomColor.Companion.fromRGBIntOrNull(color: Int?): CustomColor? {
+    if(color == null) return null
+    return fromRGBInt(color)
+}

@@ -7,7 +7,7 @@ import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.registry.Item
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.randomFloat
 

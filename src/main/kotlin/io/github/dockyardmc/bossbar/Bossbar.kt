@@ -3,7 +3,6 @@ package io.github.dockyardmc.bossbar
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.events.EventPool
-import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.BossbarPacketAction

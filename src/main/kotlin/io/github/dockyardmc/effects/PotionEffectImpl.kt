@@ -1,13 +1,13 @@
 package io.github.dockyardmc.effects
 
 import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.registry.PotionEffect
+import io.github.dockyardmc.registry.registries.PotionEffect
 
 object PotionEffectImpl {
 
     //TODO Implement attributes
     fun onEffectApply(entity: Entity, effect: PotionEffect) {
-        when(effect.namespace) {
+        when(effect.identifier) {
             "speed" -> {}
             "slowness" -> {}
             "haste" -> {}
@@ -26,7 +26,7 @@ object PotionEffectImpl {
     }
 
     fun onEffectRemoved(entity: Entity, effect: PotionEffect) {
-        when(effect.namespace) {
+        when(effect.identifier) {
             "speed" -> {}
             "slowness" -> {}
             "haste" -> {}

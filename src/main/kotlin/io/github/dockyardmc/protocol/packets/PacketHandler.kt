@@ -1,7 +1,7 @@
 package io.github.dockyardmc.protocol.packets
 
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 
-open class PacketHandler(packetProcessor: PacketProcessor) {
+open class PacketHandler(playerNetworkManager: PlayerNetworkManager) {
 
 }

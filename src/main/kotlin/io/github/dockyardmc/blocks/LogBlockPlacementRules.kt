@@ -4,8 +4,6 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.registry.Block
-import io.github.dockyardmc.registry.withBlockStates
 
 class LogBlockPlacementRules: BlockPlacementRule {
     override val matchesIdentifier = "log"
@@ -33,5 +31,4 @@ class LogBlockPlacementRules: BlockPlacementRule {
 
         return block.withBlockStates("axis" to axis)
     }
-
 }

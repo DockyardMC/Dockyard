@@ -7,16 +7,15 @@ import io.github.dockyardmc.world.World
 class DebugCommands {
 
     init {
-        Commands.add("chunks") {
+        Commands.add("debugworld") {
             addArgument("world", WorldArgument())
             execute {
-                val player = it.getPlayerOrThrow()
                 val world = getArgument<World>("world")
                 val message = buildString {
+                    append("\n")
                     appendLine("<lime>Chunks in memory: <aqua>${world.chunks.size}")
-                    appendLine("<lime>Surface: <aqua>${player.location.getChunk()!!.worldSurface}")
-                    appendLine("<lime>Motion blocking: <aqua>${player.location.getChunk()!!.motionBlocking}")
-                    appendLine("<lime>Index: <aqua>${player.location.getChunk()!!.getIndex()}")
+                    appendLine("<lime>Custom data blocks: <aqua>${world.customDataBlocks.size}")
+                    appendLine("<lime>Event pool size: <aqua>${world.eventPool.eventList.size}")
                 }
                 it.sendMessage(message)
             }

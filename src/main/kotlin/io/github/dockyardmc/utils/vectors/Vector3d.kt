@@ -2,9 +2,11 @@ package io.github.dockyardmc.utils.vectors
 
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.world.World
+import kotlinx.serialization.Serializable
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+@Serializable
 data class Vector3d(
     var x: Double,
     var y: Double,

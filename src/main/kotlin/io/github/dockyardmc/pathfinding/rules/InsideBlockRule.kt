@@ -3,7 +3,6 @@ package io.github.dockyardmc.pathfinding.rules
 import io.github.dockyardmc.pathfinding.Node
 import io.github.dockyardmc.pathfinding.Pathfinder
 import io.github.dockyardmc.pathfinding.PathfindingRule
-import io.github.dockyardmc.registry.isAir
 
 class InsideBlockRule: PathfindingRule {
 

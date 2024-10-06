@@ -1,26 +1,21 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.DockyardServer.Companion.debug
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.IntArgument
+import io.github.dockyardmc.commands.SuggestionProvider
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityManager.despawnEntity
-import io.github.dockyardmc.entities.EntityManager.spawnEntity
-import io.github.dockyardmc.entities.TestZombie
-import io.github.dockyardmc.events.*
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.GameMode
-import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.registry.addPotionEffect
+import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
+import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
-import io.github.dockyardmc.utils.debug
-import io.github.dockyardmc.utils.now
-import io.github.dockyardmc.utils.playerInventoryCorrectSlot
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
 
@@ -37,6 +32,17 @@ fun main(args: Array<String>) {
     if (args.contains("event-documentation")) {
         EventsDocumentationGenerator()
         return
+    }
+
+    val server = DockyardServer {
+        withIp("0.0.0.0")
+        withMaxPlayers(50)
+        withPort(25565)
+        useMojangAuth(true)
+        useDebugMode(true)
+        withImplementations {
+            dockyardCommands = true
+        }
     }
 
     Events.on<PlayerJoinEvent> {
@@ -73,22 +79,23 @@ fun main(args: Array<String>) {
                     }
                 }
             }
-            chunks.forEach { chunk ->
-                chunk.updateCache()
-                PlayerManager.players.sendPacket(chunk.packet)
-            }
-        }
-    }
-
-    val server = DockyardServer {
-        withIp("0.0.0.0")
-        withMaxPlayers(50)
-        withPort(25565)
-        useMojangAuth(false)
-        useDebugMode(true)
-        withImplementations {
-            dockyardCommands = true
         }
     }
     server.start()
+
+    Commands.add("/cookie") {
+        execute {
+            val player = it.getPlayerOrThrow()
+            player.openInventory(ExampleCookieClickerScreen(player))
+        }
+    }
+
+    Commands.add("/minesweeper") {
+        addArgument("mines", IntArgument(), SuggestionProvider.simple("<num of mines>"))
+        execute {
+            val player = it.getPlayerOrThrow()
+            val mines = getArgument<Int>("mines")
+            player.openInventory(ExampleMinesweeperScreen(player, mines))
+        }
+    }
 }

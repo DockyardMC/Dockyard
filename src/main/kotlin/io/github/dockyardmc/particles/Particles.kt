@@ -3,7 +3,7 @@ package io.github.dockyardmc.particles
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSendParticlePacket
-import io.github.dockyardmc.registry.Particle
+import io.github.dockyardmc.registry.registries.Particle
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.World
 

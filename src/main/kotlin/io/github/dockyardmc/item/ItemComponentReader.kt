@@ -8,9 +8,8 @@ import io.github.dockyardmc.blocks.readBlockSet
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.registry.AppliedPotionEffect
-import io.github.dockyardmc.registry.PotionEffect
-import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.registry.readAppliedPotionEffect
+import io.github.dockyardmc.registry.registries.PotionEffect
+import io.github.dockyardmc.registry.registries.PotionEffectRegistry
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.LegacyTextColor
@@ -165,8 +164,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         32 -> {
             val effects = mutableListOf<PotionEffect>()
             for (i in 0 until this.readVarInt()) {
-                PotionEffects.potions.values.firstOrNull { it.id == this.readVarInt() }
-                    ?: throw IllegalArgumentException("Potion effect with id $id was not found in the registry!")
+                PotionEffectRegistry.getByProtocolId(this.readVarInt())
             }
 
             return SuspiciousStewEffectsItemComponent(effects)

@@ -27,6 +27,11 @@ fun Player.playSound(identifier: String, location: Location = this.location, vol
     this.playSound(sound, location)
 }
 
+fun Player.playSound(identifier: String, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
+    val sound = Sound(identifier, volume, pitch, category)
+    this.playSound(sound, this.location)
+}
+
 fun Collection<Player>.playSound(sound: Sound, location: Location? = null) {
     this.forEach { it.playSound(sound, location ?: it.location) }
 }

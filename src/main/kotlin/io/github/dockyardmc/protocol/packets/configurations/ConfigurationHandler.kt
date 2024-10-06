@@ -1,14 +1,14 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.FeatureFlags
+import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
@@ -21,7 +21,7 @@ import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 
-class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(processor) {
+class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(processor) {
 
     fun handlePluginMessage(packet: ServerboundConfigurationPluginMessagePacket, connection: ChannelHandlerContext) {
         val event = PluginMessageReceivedEvent(processor.player, packet.channel, packet.data)
@@ -32,30 +32,18 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
         // Send server brand
         val serverBrandEvent = ServerBrandEvent("§bDockyardMC Server §7(https://github.com/DockyardMC/)")
         Events.dispatch(serverBrandEvent)
-        connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asPacket("minecraft:brand"))
+        connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"), processor)
 
         // Send feature flags
         val featureFlagsEvent = PlayerSendFeatureFlagsEvent(FeatureFlags.enabledFeatureFlags)
         Events.dispatch(featureFlagsEvent)
-        connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags))
+        connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), processor)
 
-        // Send registries
-        val registryPackets: MutableList<Registry> = mutableListOf(
-            BannerPatterns.registryCache,
-            ChatTypes.registryCache,
-            DamageTypes.registryCache,
-            DimensionTypes.registryCache,
-            PaintingVariants.registryCache,
-            WolfVariants.registryCache,
-            Biomes.registryCache
-        )
-
-        registryPackets.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it)) }
-
-        connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links))
+        RegistryManager.dynamicRegistries.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it), processor) }
+        connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), processor)
 
         val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
-        connection.sendPacket(finishConfigurationPacket)
+        connection.sendPacket(finishConfigurationPacket, processor)
     }
 
     fun handleClientInformation(packet: ServerboundClientInformationPacket, connection: ChannelHandlerContext) {
@@ -114,7 +102,7 @@ class ConfigurationHandler(val processor: PacketProcessor): PacketHandler(proces
             reducedDebugInfo = false,
             enableRespawnScreen = true,
             doLimitedCrafting = false,
-            dimensionType = world.dimensionType.id,
+            dimensionType = world.dimensionType.getProtocolId(),
             dimensionName = world.name,
             hashedSeed = world.seed,
             gameMode = player.gameMode.value,

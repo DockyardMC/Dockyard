@@ -2,12 +2,11 @@ package io.github.dockyardmc.item
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
-import io.github.dockyardmc.registry.Item
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.registries.Item
+import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.netty.buffer.ByteBuf
@@ -15,7 +14,7 @@ import io.netty.buffer.ByteBuf
 class ItemStack(var material: Item, var amount: Int = 1) {
 
     val components: BindableList<ItemComponent> = BindableList()
-    val displayName: Bindable<String> = Bindable(material.name)
+    val displayName: Bindable<String> = Bindable(material.displayName)
     val lore: BindableList<String> = BindableList()
     val customModelData: Bindable<Int> = Bindable(0)
     //TODO nice easy custom data api not like persistent containers or whatever the complicated fuck spigot uses
@@ -64,7 +63,7 @@ fun ByteBuf.readItemStack(): ItemStack {
 //        removeComponents.add(ItemCom)
     }
 
-    val item = ItemStack(Items.getItemById(itemId), count)
+    val item = ItemStack(ItemRegistry.getByProtocolId(itemId), count)
     components.forEach { item.components.add(it) }
 
     return item
@@ -78,7 +77,7 @@ fun ByteBuf.writeItemStack(itemStack: ItemStack) {
     }
 
     this.writeVarInt(itemStack.amount)
-    this.writeVarInt(itemStack.material.id)
+    this.writeVarInt(itemStack.material.getProtocolId())
     this.writeVarInt(itemStack.components.size)
     this.writeVarInt(0)
     itemStack.components.values.forEach(this::writeItemComponent)

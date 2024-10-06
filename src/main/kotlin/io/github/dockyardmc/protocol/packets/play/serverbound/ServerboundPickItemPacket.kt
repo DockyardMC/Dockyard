@@ -4,7 +4,7 @@ import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.protocol.PacketProcessor
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.toOriginalSlotIndex
@@ -15,7 +15,7 @@ import io.netty.channel.ChannelHandlerContext
 @ServerboundPacketInfo(0x20, ProtocolState.PLAY)
 class ServerboundPickItemPacket(var slot: Int): ServerboundPacket {
 
-    override fun handle(processor: PacketProcessor, connection: ChannelHandlerContext, size: Int, id: Int) {
+    override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         var newSlot = player.selectedHotbarSlot.value
         for (i in 1..9) {

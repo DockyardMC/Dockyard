@@ -6,9 +6,7 @@ import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.getDirection
 import io.github.dockyardmc.player.getOpposite
-import io.github.dockyardmc.registry.Block
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.withBlockStates
 
 class TorchBlockPlacementRules: BlockPlacementRule {
     override val matchesIdentifier = "torch"
@@ -28,14 +26,14 @@ class TorchBlockPlacementRules: BlockPlacementRule {
         if(face == Direction.DOWN) return null
         if(face == Direction.UP) return block
 
-        val final = when (block) {
+        val final = when (block.registryBlock) {
             Blocks.TORCH -> Blocks.WALL_TORCH
             Blocks.SOUL_TORCH -> Blocks.SOUL_WALL_TORCH
             Blocks.REDSTONE_TORCH -> Blocks.REDSTONE_WALL_TORCH
-            else -> block
+            else -> block.registryBlock
         }
 
-        return final.copy().withBlockStates("facing" to player.getDirection(true).getOpposite().name.lowercase())
+        return final.withBlockStates("facing" to player.getDirection(true).getOpposite().name.lowercase())
     }
 
 }
