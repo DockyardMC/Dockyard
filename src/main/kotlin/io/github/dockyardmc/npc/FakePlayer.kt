@@ -6,13 +6,11 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityMetaValue
 import io.github.dockyardmc.entities.EntityMetadata
 import io.github.dockyardmc.entities.EntityMetadataType
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityRemovePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoRemovePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoUpdatePacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSpawnEntityPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.runnables.AsyncRunnable
@@ -39,6 +37,11 @@ class FakePlayer(location: Location, username: String): Entity(location) {
 
     init {
 
+        isListed.valueChanged {
+            val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
+            viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
+        }
+
         displayedSkinParts.listUpdated {
             metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
             sendMetadataPacketToViewers()
@@ -48,14 +51,13 @@ class FakePlayer(location: Location, username: String): Entity(location) {
             val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
             val addPlayerUpdate = if(it.newValue != null) PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(it.newValue!!)) else null
 
-            viewers.forEach { viewer ->
-                viewer.sendPacket(ClientboundEntityRemovePacket(this))
-                viewer.sendPacket(ClientboundPlayerInfoRemovePacket(uuid))
+            viewers.sendPacket(ClientboundEntityRemovePacket(this))
+            viewers.sendPacket(ClientboundPlayerInfoRemovePacket(uuid))
+            if(addPlayerUpdate != null) viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
 
-                if(addPlayerUpdate != null) viewer.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
-                viewer.sendPacket(ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity))
-                viewer.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
-            }
+            viewers.sendPacket(ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity))
+            viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
+
             displayedSkinParts.triggerUpdate()
         }
 
@@ -79,6 +81,11 @@ class FakePlayer(location: Location, username: String): Entity(location) {
         sendPotionEffectsPacket(player)
 
         if(profile.value == null) setSkin(username.value)
+    }
+
+    fun swingHand() {
+        val packet = ClientboundEntityAnimationPacket(this, EntityAnimation.SWING_MAIN_ARM)
+        viewers.sendPacket(packet)
     }
 
     fun setSkin(uuid: UUID) {

@@ -10,7 +10,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Entity Animation")
 @ClientboundPacketInfo(0x03, ProtocolState.PLAY)
-class ClientboundEntityAnimation(entity: Entity, animation: EntityAnimation): ClientboundPacket() {
+class ClientboundEntityAnimationPacket(entity: Entity, animation: EntityAnimation): ClientboundPacket() {
 
     init {
         data.writeVarInt(entity.entityId)

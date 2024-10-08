@@ -10,14 +10,14 @@ class WorldCommand {
 
     init {
 
-        fun suggestWorlds(): CommandSuggestions = SuggestionProvider.withContext { WorldManager.worlds.keys.toList() }
+        fun suggestWorlds(player: Player): Collection<String> = WorldManager.worlds.keys.toList()
 
         Commands.add("/world") {
             withPermission("dockyard.commands.world")
             withDescription("Command for managing worlds (creation, tp, deletion etc.)")
 
             addSubcommand("tp") {
-                addArgument("world", StringArgument(), suggestWorlds())
+                addArgument("world", StringArgument(), ::suggestWorlds)
                 addOptionalArgument("player", PlayerArgument())
                 execute { ctx ->
                     val world = WorldManager.worlds[getArgument<String>("world")] ?: throw CommandException("World with that name not found")
@@ -39,7 +39,7 @@ class WorldCommand {
             }
 
             addSubcommand("delete") {
-                addArgument("world", StringArgument(), suggestWorlds())
+                addArgument("world", StringArgument(), ::suggestWorlds)
                 execute {
                     val world = WorldManager.worlds[getArgument<String>("world")] ?: throw CommandException("World with that name not found")
                     WorldManager.delete(world)
@@ -48,7 +48,7 @@ class WorldCommand {
             }
 
             addSubcommand("create") {
-                addArgument("world", StringArgument(), SuggestionProvider.simple("<name>"))
+                addArgument("world", StringArgument(), simpleSuggestion("<name>"))
                 execute {
                     val worldName = getArgument<String>("world")
                     WorldManager.create(worldName, FlatWorldGenerator(), DimensionTypes.OVERWORLD)

@@ -58,7 +58,7 @@ class Command: Cloneable {
         return arguments[argumentName]!!.returnedValue as T
     }
 
-    fun addArgument(name: String, argument: CommandArgument, suggestions: CommandSuggestions? = null) {
+    fun addArgument(name: String, argument: CommandArgument, suggestions: ((Player) -> Collection<String>)? = null) {
         if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands!")
         val data = CommandArgumentData(argument, false, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
         arguments[name] = data
@@ -68,7 +68,7 @@ class Command: Cloneable {
 
     }
 
-    fun addOptionalArgument(name: String, argument: CommandArgument, suggestions: CommandSuggestions? = null) {
+    fun addOptionalArgument(name: String, argument: CommandArgument, suggestions: ((Player) -> Collection<String>)? = null) {
         if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands at the same time!")
         arguments[name] = CommandArgumentData(argument, true, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
     }

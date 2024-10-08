@@ -2,7 +2,7 @@ package io.github.dockyardmc.implementations.commands
 
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.commands.SuggestionProvider
+import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.schematics.SchematicReader
 import io.github.dockyardmc.schematics.placeSchematic
@@ -14,7 +14,7 @@ class SchematicCommand {
             withPermission("dockyard.commands.schematic")
 
             addSubcommand("place") {
-                addArgument("path", StringArgument(), SuggestionProvider.simple("<path to schematic file>"))
+                addArgument("path", StringArgument(), simpleSuggestion("<path to schematic file>"))
                 execute {
                     val player = it.getPlayerOrThrow()
                     val path = getArgument<String>("path")
