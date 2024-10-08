@@ -10,7 +10,9 @@ class VersionAndHelpCommand {
             withDescription("Sends the server version")
             withAliases("ver", "info", "server", "dockyard")
             execute {
-                it.sendMessage("<aqua>DockyardMC <dark_gray>| <gray>This server is running <yellow>DockyardMC ${DockyardServer.versionInfo.dockyardVersion}<gray>. A custom Minecraft server implementation in Kotlin. <aqua><hover|'<aqua>https://github.com/DockyardMC/Dockyard'><click|open_url|https://github.com/DockyardMC/Dockyard>[Github]<reset>")
+                it.sendMessage("")
+                it.sendMessage("<gray>This server is running <yellow>DockyardMC ${DockyardServer.versionInfo.dockyardVersion}<gray>. A custom Minecraft server implementation in Kotlin. <aqua><hover|'<aqua>https://github.com/DockyardMC/Dockyard'><click|open_url|https://github.com/DockyardMC/Dockyard>[Github]<reset>")
+                it.sendMessage("")
             }
         }
 
@@ -28,7 +30,7 @@ class VersionAndHelpCommand {
                     }
 
                     appendLine(" ")
-                    appendLine("<aqua>DockyardMC <dark_gray>| <gray>There $commandSize<gray> loaded:")
+                    appendLine("<gray>There $commandSize<gray> loaded:")
 
                     accessibleCommands.forEach { command ->
                         val description = command.value.description.ifEmpty { "<dark_gray><italics>No Description" }

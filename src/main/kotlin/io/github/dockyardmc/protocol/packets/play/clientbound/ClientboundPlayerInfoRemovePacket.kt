@@ -6,14 +6,16 @@ import io.github.dockyardmc.extentions.writeUUIDArray
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import java.util.UUID
 
 @WikiVGEntry ("Player Info Remove")
 @ClientboundPacketInfo(0x3D, ProtocolState.PLAY)
-class ClientboundPlayerInfoRemovePacket(players: MutableList<Player>): ClientboundPacket() {
-    constructor(player: Player) : this(mutableListOf(player))
+class ClientboundPlayerInfoRemovePacket(uuidss: List<UUID>): ClientboundPacket() {
+    constructor(player: Player) : this(mutableListOf(player).map { it.uuid })
+    constructor(uuid: UUID) : this(mutableListOf(uuid))
 
     init {
-        data.writeUUIDArray(players.map { it.uuid })
+        data.writeUUIDArray(uuidss)
     }
 
 }

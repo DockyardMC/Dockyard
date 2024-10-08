@@ -36,6 +36,16 @@ class Location(
     val blockY: Int get() = floor(y).toInt()
     val blockZ: Int get() = floor(z).toInt()
 
+    override fun equals(other: Any?): Boolean {
+        if(other == null || other !is Location) return false
+        return x == other.x &&
+                y == other.y &&
+                z == other.z &&
+                pitch == other.pitch &&
+                yaw == other.yaw &&
+                world.name == other.world.name
+    }
+
     override fun toString(): String =
         "Location(x=${x.truncate(2)}, y=${y.truncate(2)}, z=${z.truncate(2)}, yaw=$yaw, pitch=$pitch, world=${world.name})"
 

@@ -1,20 +1,20 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.IntArgument
-import io.github.dockyardmc.commands.SuggestionProvider
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.scroll.LegacyTextColor
+import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
 import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
@@ -44,13 +44,18 @@ fun main(args: Array<String>) {
         useDebugMode(true)
         withImplementations {
             dockyardCommands = true
+            npcCommand = true
         }
     }
+
+    val test = TeamManager.create("test", LegacyTextColor.PINK)
+
 
     Events.on<PlayerJoinEvent> {
         val player = it.player
 
         DockyardServer.broadcastMessage("<yellow>${player} joined the game.")
+        player.team.value = test
         player.gameMode.value = GameMode.CREATIVE
         player.permissions.add("dockyard.all")
 
@@ -93,11 +98,17 @@ fun main(args: Array<String>) {
     }
 
     Commands.add("/minesweeper") {
-        addArgument("mines", IntArgument(), SuggestionProvider.simple("<num of mines>"))
+        addArgument("mines", IntArgument(), simpleSuggestion("<num of mines>"))
         execute {
             val player = it.getPlayerOrThrow()
             val mines = getArgument<Int>("mines")
             player.openInventory(ExampleMinesweeperScreen(player, mines))
         }
     }
+}
+
+
+enum class NpcViewerAction {
+    ADD,
+    REMOVE,
 }

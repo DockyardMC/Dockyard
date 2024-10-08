@@ -48,6 +48,7 @@ class ImplementationConfig {
     var cacheSchematics: Boolean = true
     var defaultEntityRenderDistanceBlocks: Int = 64
     var dockyardCommands: Boolean = false
+    var npcCommand: Boolean = false
 }
 
 

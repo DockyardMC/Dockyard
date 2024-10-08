@@ -232,5 +232,5 @@ class CommandArgumentData(
     val optional: Boolean = false,
     var returnedValue: Any? = null,
     var expectedReturnValueType: KClass<*>,
-    var suggestions: CommandSuggestions? = null
+    var suggestions: ((Player) -> Collection<String>)? = null
 )

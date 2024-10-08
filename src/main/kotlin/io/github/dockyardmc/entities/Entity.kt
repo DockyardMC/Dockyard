@@ -41,7 +41,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val viewers: MutableSet<Player> = mutableSetOf()
     open var hasGravity: Boolean = true
     open var isInvulnerable: Boolean = false
-    open var hasCollision: Boolean = true
     open var displayName: String = this::class.simpleName.toString()
     open var isOnGround: Boolean = true
     val metadata: BindableMap<EntityMetadataType, EntityMetadata> = BindableMap()
@@ -223,6 +222,16 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         teleport(newLoc)
     }
 
+    open fun lookAtClientside(target: Entity, player: Player) {
+        lookAtClientside(target, listOf(player))
+    }
+
+    open fun lookAtClientside(target: Entity, players: Collection<Player>) {
+        val clonedLoc = location.clone()
+        val newLoc = clonedLoc.setDirection(target.location.toVector3d() - (this.location).toVector3d())
+        teleportClientside(newLoc, players)
+    }
+
     open fun sendMetadataPacketToViewers() {
         viewers.forEach(this::sendMetadataPacket)
     }
@@ -256,6 +265,15 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         this.location = location
         viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
         viewers.sendPacket(ClientboundSetHeadYawPacket(this))
+    }
+
+    open fun teleportClientside(location: Location, player: Player) {
+        teleportClientside(location, listOf(player))
+    }
+
+    open fun teleportClientside(location: Location, players: Collection<Player>) {
+        players.sendPacket(ClientboundEntityTeleportPacket(this, location))
+        players.sendPacket(ClientboundSetHeadYawPacket(this, location))
     }
 
     open fun damage(damage: Float, damageType: DamageType, attacker: Entity? = null, projectile: Entity? = null) {

@@ -8,6 +8,7 @@ class TeleportCommand {
 
     init {
         Commands.add("/tp") {
+            withDescription("Lets you teleport players to other players")
             withPermission("dockyard.commands.teleport")
             withAliases("teleport")
             addArgument("first", PlayerArgument())

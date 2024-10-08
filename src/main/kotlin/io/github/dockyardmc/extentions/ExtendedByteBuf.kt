@@ -57,7 +57,7 @@ fun ByteBuf.writeUUID(uuid: UUID) {
     this.writeLong(uuid.leastSignificantBits)
 }
 
-fun ByteBuf.writeUUIDArray(uuids: List<UUID>) {
+fun ByteBuf.writeUUIDArray(uuids: Collection<UUID>) {
     this.writeVarInt(uuids.size)
     uuids.forEach { this.writeUUID(it) }
 }

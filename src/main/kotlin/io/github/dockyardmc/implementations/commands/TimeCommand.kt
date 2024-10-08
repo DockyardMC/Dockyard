@@ -8,10 +8,11 @@ class TimeCommand {
 
     init {
         Commands.add("/time") {
+            withDescription("Lets you change and freeze time of the world")
             withPermission("dockyard.commands.time")
 
             addSubcommand("set") {
-                addArgument("time", LongArgument(), SuggestionProvider.simple("<time>"))
+                addArgument("time", LongArgument(), simpleSuggestion("<time>"))
                 execute {
                     val time = getArgument<Long>("time")
                     val player = it.getPlayerOrThrow()
@@ -34,7 +35,7 @@ class TimeCommand {
 
             addSubcommand("player") {
                 addArgument("player", PlayerArgument())
-                addArgument("time", LongArgument(), SuggestionProvider.simple("<time (-1 to reset)>"))
+                addArgument("time", LongArgument(), simpleSuggestion("<time (-1 to reset)>"))
                 execute {
                     val player = getArgument<Player>("player")
                     val time = getArgument<Long>("time")
