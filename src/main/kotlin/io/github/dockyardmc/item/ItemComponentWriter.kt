@@ -1,6 +1,7 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.location.writeBlockPosition
 import io.github.dockyardmc.player.writeProfileProperties
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.Component
@@ -176,7 +177,7 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
         is LodestoneTrackerItemComponent -> {
             this.writeBoolean(comp.hasGlobalPosition)
             this.writeUtf(comp.dimension.name)
-            //TODO Position
+            this.writeBlockPosition(comp.position)
             this.writeBoolean(comp.tracked)
         }
         //TODO Firework Explosion
