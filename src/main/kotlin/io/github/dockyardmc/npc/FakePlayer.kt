@@ -6,6 +6,8 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityMetaValue
 import io.github.dockyardmc.entities.EntityMetadata
 import io.github.dockyardmc.entities.EntityMetadataType
+import io.github.dockyardmc.events.EventPool
+import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
@@ -35,7 +37,18 @@ class FakePlayer(location: Location, username: String): Entity(location) {
     val leggings: Bindable<ItemStack> = Bindable(ItemStack.air)
     val boots: Bindable<ItemStack> = Bindable(ItemStack.air)
 
+    var lookClose: Boolean = false
+
+    val eventPool = EventPool()
+
     init {
+
+        eventPool.on<PlayerMoveEvent> {
+            if(!lookClose) return@on
+            if(it.player.location.distance(location) <= 5) {
+                lookAt(it.player)
+            }
+        }
 
         isListed.valueChanged {
             val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
@@ -69,6 +82,11 @@ class FakePlayer(location: Location, username: String): Entity(location) {
         boots.valueChanged { equipment.value = equipment.value.apply { boots = it.newValue } }
     }
 
+    fun swingHand() {
+        val packet = ClientboundEntityAnimationPacket(this, EntityAnimation.SWING_MAIN_ARM)
+        viewers.sendPacket(packet)
+    }
+
     override fun addViewer(player: Player) {
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username.value, mutableListOf())))
         val listedPacket = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
@@ -83,9 +101,11 @@ class FakePlayer(location: Location, username: String): Entity(location) {
         if(profile.value == null) setSkin(username.value)
     }
 
-    fun swingHand() {
-        val packet = ClientboundEntityAnimationPacket(this, EntityAnimation.SWING_MAIN_ARM)
-        viewers.sendPacket(packet)
+    override fun removeViewer(player: Player, isDisconnect: Boolean) {
+        val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this.uuid)
+        player.sendPacket(playerRemovePacket)
+        viewers.remove(player)
+        super.removeViewer(player, isDisconnect)
     }
 
     fun setSkin(uuid: UUID) {
@@ -108,10 +128,8 @@ class FakePlayer(location: Location, username: String): Entity(location) {
         asyncRunnable.run()
     }
 
-    override fun removeViewer(player: Player, isDisconnect: Boolean) {
-        val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this.uuid)
-        player.sendPacket(playerRemovePacket)
-        viewers.remove(player)
-        super.removeViewer(player, isDisconnect)
+    override fun dispose() {
+        eventPool.dispose()
+        super.dispose()
     }
 }

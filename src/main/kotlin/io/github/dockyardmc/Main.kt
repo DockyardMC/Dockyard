@@ -12,6 +12,7 @@ import io.github.dockyardmc.npc.FakePlayer
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.sidebar.Sidebar
 import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
 import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
@@ -42,6 +43,13 @@ fun main(args: Array<String>) {
         withImplementations {
             dockyardCommands = true
         }
+    }
+
+    val sidebar = Sidebar("<pink>Cool Sidebar") {
+        setGlobalLine("1st line")
+        setPlayerLine { player -> "Welcome, <lime>${player.username}<white>!" }
+        setGlobalLine(9, "line at position 9")
+        setPlayerLine(6) { player -> "Your health: <red>${player.health}"}
     }
 
     Events.on<PlayerJoinEvent> {
@@ -150,6 +158,18 @@ fun main(args: Array<String>) {
 
                 val npc = npcs[id] ?: throw CommandException("Npc with id $id does not exist!")
                 npc.swingHand()
+            }
+        }
+
+        addSubcommand("look_close") {
+            addArgument("id", StringArgument(), ::suggestNpcIds)
+            addArgument("lookclose", BooleanArgument())
+            execute {
+                val id = getArgument<String>("id")
+                val lookClose = getArgument<Boolean>("lookclose")
+
+                val npc = npcs[id] ?: throw CommandException("Npc with id $id does not exist!")
+                npc.lookClose = lookClose
             }
         }
     }

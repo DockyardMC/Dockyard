@@ -34,6 +34,8 @@ class PlayHandler(var processor: PlayerNetworkManager): PacketHandler(processor)
         val player = processor.player
         val oldLocation = player.location
 
+        if(oldLocation == location) return
+
         val event = PlayerMoveEvent(oldLocation, location, player, isOnlyHeadMovement)
         Events.dispatch(event)
         if(event.cancelled) {
