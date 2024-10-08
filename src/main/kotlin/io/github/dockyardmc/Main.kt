@@ -1,18 +1,14 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.*
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.IntArgument
-import io.github.dockyardmc.commands.SuggestionProvider
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.player.*
-import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
