@@ -3,15 +3,12 @@ package io.github.dockyardmc.npc
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entities.EntityMetaValue
+import io.github.dockyardmc.entities.EntityMetadata
+import io.github.dockyardmc.entities.EntityMetadataType
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.AddPlayerInfoUpdateAction
-import io.github.dockyardmc.player.DisplayedSkinPart
-import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.PlayerInfoUpdate
-import io.github.dockyardmc.player.ProfileProperty
-import io.github.dockyardmc.player.ProfilePropertyMap
-import io.github.dockyardmc.player.SetListedInfoUpdateAction
+import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityRemovePacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoRemovePacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoUpdatePacket
@@ -41,17 +38,23 @@ class FakePlayer(location: Location, username: String): Entity(location) {
     val boots: Bindable<ItemStack> = Bindable(ItemStack.air)
 
     init {
+
+        displayedSkinParts.listUpdated {
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
+            sendMetadataPacketToViewers()
+        }
+
         profile.valueChanged {
-            val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(true))
+            val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
             val addPlayerUpdate = if(it.newValue != null) PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(it.newValue!!)) else null
 
-            viewers.forEach {
-                it.sendPacket(ClientboundPlayerInfoRemovePacket(uuid))
-                it.sendToViewers(ClientboundEntityRemovePacket(this))
+            viewers.forEach { viewer ->
+                viewer.sendPacket(ClientboundEntityRemovePacket(this))
+                viewer.sendPacket(ClientboundPlayerInfoRemovePacket(uuid))
 
-                if(addPlayerUpdate != null) it.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
-                it.sendToViewers(ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity))
-                it.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
+                if(addPlayerUpdate != null) viewer.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
+                viewer.sendPacket(ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity))
+                viewer.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
             }
             displayedSkinParts.triggerUpdate()
         }
@@ -66,7 +69,9 @@ class FakePlayer(location: Location, username: String): Entity(location) {
 
     override fun addViewer(player: Player) {
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username.value, mutableListOf())))
+        val listedPacket = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
+        player.sendPacket(ClientboundPlayerInfoUpdatePacket(listedPacket))
         super.addViewer(player)
 
         sendMetadataPacket(player)
@@ -79,7 +84,7 @@ class FakePlayer(location: Location, username: String): Entity(location) {
     fun setSkin(uuid: UUID) {
         val asyncRunnable = AsyncRunnable {
             val skin = MojangUtil.getSkinFromUUID(uuid)
-            profile.value = ProfilePropertyMap("textures", mutableListOf(skin))
+            profile.value = ProfilePropertyMap(username.value, mutableListOf(skin))
         }
         asyncRunnable.run()
     }
