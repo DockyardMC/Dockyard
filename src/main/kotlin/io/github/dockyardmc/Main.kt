@@ -2,13 +2,16 @@ package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.IntArgument
+import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.commands.SuggestionProvider
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
+import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.npc.FakePlayer
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
@@ -82,6 +85,35 @@ fun main(args: Array<String>) {
         }
     }
     server.start()
+
+    val npcs = mutableMapOf<String, FakePlayer>()
+
+    Commands.add("/npc") {
+        addSubcommand("spawn") {
+            addArgument("id", StringArgument())
+            addArgument("name", StringArgument())
+            execute {
+                val player = it.getPlayerOrThrow()
+                val id = getArgument<String>("id")
+                val name = getArgument<String>("name")
+
+                val npc = player.world.spawnEntity(FakePlayer(player.location, name)) as FakePlayer
+                npcs[id] = npc
+            }
+        }
+        addSubcommand("skin") {
+            addArgument("id", StringArgument())
+            addArgument("name", StringArgument())
+            execute {
+                val player = it.getPlayerOrThrow()
+                val id = getArgument<String>("id")
+                val name = getArgument<String>("name")
+
+                val npc = npcs[id]!!
+                npc.setSkin(name)
+            }
+        }
+    }
 
     Commands.add("/cookie") {
         execute {

@@ -53,11 +53,11 @@ fun getMergedEquipmentData(base: EntityEquipment, merge: EntityEquipmentLayer?):
 
 data class EntityEquipment(
     var mainHand: ItemStack = ItemStack.air,
-    val offHand: ItemStack = ItemStack.air,
-    val boots: ItemStack = ItemStack.air,
-    val leggings: ItemStack = ItemStack.air,
-    val chestplate: ItemStack = ItemStack.air,
-    val helmet: ItemStack = ItemStack.air,
+    var offHand: ItemStack = ItemStack.air,
+    var boots: ItemStack = ItemStack.air,
+    var leggings: ItemStack = ItemStack.air,
+    var chestplate: ItemStack = ItemStack.air,
+    var helmet: ItemStack = ItemStack.air,
     val body: ItemStack = ItemStack.air,
 )
 
