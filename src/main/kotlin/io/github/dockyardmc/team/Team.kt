@@ -4,7 +4,7 @@ import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.*
-import io.github.dockyardmc.npc.FakePlayer
+import io.github.dockyardmc.npc.PlayerNpc
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.AddEntitiesTeamPacketAction
@@ -78,7 +78,7 @@ class Team(
     fun mapEntities(): List<String> {
         return entities.values.map {
             val value = when(it) {
-                is FakePlayer -> it.username.value
+                is PlayerNpc -> it.username.value
                 is Player -> it.username
                 else -> it.uuid.toString()
             }

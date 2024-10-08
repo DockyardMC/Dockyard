@@ -12,7 +12,7 @@ class SchematicCommand {
     init {
         Commands.add("/schematic") {
             withPermission("dockyard.commands.schematic")
-
+            withDescription("Lets you manually place schematics")
             addSubcommand("place") {
                 addArgument("path", StringArgument(), simpleSuggestion("<path to schematic file>"))
                 execute {

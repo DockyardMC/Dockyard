@@ -8,6 +8,7 @@ class TimeCommand {
 
     init {
         Commands.add("/time") {
+            withDescription("Lets you change and freeze time of the world")
             withPermission("dockyard.commands.time")
 
             addSubcommand("set") {

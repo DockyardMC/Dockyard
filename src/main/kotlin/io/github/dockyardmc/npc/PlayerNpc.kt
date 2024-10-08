@@ -2,12 +2,9 @@ package io.github.dockyardmc.npc
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityMetaValue
 import io.github.dockyardmc.entities.EntityMetadata
 import io.github.dockyardmc.entities.EntityMetadataType
-import io.github.dockyardmc.events.EventPool
-import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
@@ -16,19 +13,23 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.runnables.AsyncRunnable
-import io.github.dockyardmc.scroll.LegacyTextColor
-import io.github.dockyardmc.team.TeamCollisionRule
-import io.github.dockyardmc.team.TeamManager
-import io.github.dockyardmc.team.TeamNameTagVisibility
 import io.github.dockyardmc.utils.MojangUtil
 import java.util.UUID
 
-class FakePlayer(location: Location, username: String): Entity(location) {
+class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     override var type: EntityType = EntityTypes.PLAYER
     override var health: Bindable<Float> = Bindable(20f)
-    override var inventorySize: Int = 35
+    override var inventorySize: Int = 0
 
-    var displayedSkinParts: BindableList<DisplayedSkinPart> = BindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
+    var displayedSkinParts: BindableList<DisplayedSkinPart> = BindableList(
+        DisplayedSkinPart.CAPE,
+        DisplayedSkinPart.JACKET,
+        DisplayedSkinPart.LEFT_PANTS,
+        DisplayedSkinPart.RIGHT_PANTS,
+        DisplayedSkinPart.LEFT_SLEEVE,
+        DisplayedSkinPart.RIGHT_SLEEVE,
+        DisplayedSkinPart.HAT
+    )
     val username: Bindable<String> = Bindable(username)
     val isListed: Bindable<Boolean> = Bindable(false)
 
@@ -41,36 +42,7 @@ class FakePlayer(location: Location, username: String): Entity(location) {
     val leggings: Bindable<ItemStack> = Bindable(ItemStack.air)
     val boots: Bindable<ItemStack> = Bindable(ItemStack.air)
 
-    var lookClose: LookCloseType = LookCloseType.NONE
-
-    val nametagVisible: Bindable<Boolean> = Bindable(true)
-    val hasCollision: Bindable<Boolean> = Bindable(true)
-    val customNametag: BindableList<String> = BindableList()
-
-    val npcTeam = TeamManager.create("npc", LegacyTextColor.AQUA, getTeamNametagVisibility(), getTeamCollision())
-
-    val eventPool = EventPool()
-
-    private fun getTeamNametagVisibility(): TeamNameTagVisibility {
-        return if(nametagVisible.value) TeamNameTagVisibility.VISIBLE else TeamNameTagVisibility.HIDDEN
-    }
-
-    private fun getTeamCollision(): TeamCollisionRule {
-        return if(hasCollision.value) TeamCollisionRule.ALWAYS else TeamCollisionRule.NEVER
-    }
-
     init {
-
-        nametagVisible.valueChanged { npcTeam.teamNameTagVisibility.value = getTeamNametagVisibility(); team.value = npcTeam }
-        hasCollision.valueChanged { npcTeam.teamCollisionRule.value = getTeamCollision(); team.value = npcTeam }
-
-        eventPool.on<PlayerMoveEvent> {
-            if(lookClose == LookCloseType.NONE) return@on
-
-            if(it.player.location.distance(location) <= 5) {
-                if(lookClose == LookCloseType.NORMAL) lookAt(it.player) else lookAtClientside(it.player, it.player)
-            }
-        }
 
         isListed.valueChanged {
             val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
@@ -78,22 +50,30 @@ class FakePlayer(location: Location, username: String): Entity(location) {
         }
 
         displayedSkinParts.listUpdated {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
+            metadata[EntityMetadataType.POSE] = EntityMetadata(
+                EntityMetadataType.DISPLAY_SKIN_PARTS,
+                EntityMetaValue.BYTE,
+                displayedSkinParts.values.getBitMask()
+            )
             sendMetadataPacketToViewers()
         }
 
         profile.valueChanged {
             val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
-            val addPlayerUpdate = if(it.newValue != null) PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(it.newValue!!)) else null
+            val addPlayerUpdate =
+                if (it.newValue != null) PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(it.newValue!!)) else null
 
             viewers.sendPacket(ClientboundEntityRemovePacket(this))
             viewers.sendPacket(ClientboundPlayerInfoRemovePacket(uuid))
-            if(addPlayerUpdate != null) viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
+            if (addPlayerUpdate != null) viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
 
-            viewers.sendPacket(ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity))
+            viewers.sendPacket(
+                ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
+            )
             viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
 
             displayedSkinParts.triggerUpdate()
+            equipment.triggerUpdate()
         }
 
         mainHandItem.valueChanged { equipment.value = equipment.value.apply { mainHand = it.newValue } }
@@ -112,7 +92,7 @@ class FakePlayer(location: Location, username: String): Entity(location) {
     }
 
     override fun addViewer(player: Player) {
-        val profileMap = if(profile.value == null) ProfilePropertyMap(username.value, mutableListOf()) else profile.value!!
+        val profileMap = if (profile.value == null) ProfilePropertyMap(username.value, mutableListOf()) else profile.value!!
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(profileMap))
         val listedPacket = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
@@ -124,7 +104,7 @@ class FakePlayer(location: Location, username: String): Entity(location) {
         sendEquipmentPacket(player)
         sendPotionEffectsPacket(player)
 
-        if(profile.value == null) setSkin(username.value)
+        if (profile.value == null) setSkin(username.value)
     }
 
     override fun removeViewer(player: Player, isDisconnect: Boolean) {
@@ -143,7 +123,6 @@ class FakePlayer(location: Location, username: String): Entity(location) {
     }
 
     fun setSkin(username: String) {
-
         var uuid: UUID? = null
         val asyncRunnable = AsyncRunnable {
             uuid = MojangUtil.getUUIDFromUsername(username)
@@ -152,10 +131,5 @@ class FakePlayer(location: Location, username: String): Entity(location) {
             uuid?.let { setSkin(it) }
         }
         asyncRunnable.run()
-    }
-
-    override fun dispose() {
-        eventPool.dispose()
-        super.dispose()
     }
 }

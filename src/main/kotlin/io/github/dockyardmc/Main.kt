@@ -3,23 +3,15 @@ package io.github.dockyardmc
 import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.npc.FakePlayer
-import io.github.dockyardmc.npc.LookCloseType
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundTeamsPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.CreateTeamPacketAction
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.scroll.LegacyTextColor
-import io.github.dockyardmc.sidebar.Sidebar
-import io.github.dockyardmc.team.TeamCollisionRule
 import io.github.dockyardmc.team.TeamManager
-import io.github.dockyardmc.team.TeamNameTagVisibility
 import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
 import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
@@ -49,6 +41,7 @@ fun main(args: Array<String>) {
         useDebugMode(true)
         withImplementations {
             dockyardCommands = true
+            npcCommand = true
         }
     }
 
@@ -73,7 +66,6 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
-
     Commands.add("/reset") {
         execute {
             val platformSize = 30
@@ -95,116 +87,6 @@ fun main(args: Array<String>) {
     }
     server.start()
 
-    val npcs = mutableMapOf<String, FakePlayer>()
-
-    fun suggestNpcIds(player: Player): (Collection<String>) {
-        return npcs.keys.toList()
-    }
-
-    Commands.add("/npc") {
-        addSubcommand("spawn") {
-            addArgument("id", StringArgument(), simpleSuggestion("<id>"))
-            addArgument("name", StringArgument())
-            execute {
-                val player = it.getPlayerOrThrow()
-                val id = getArgument<String>("id")
-                val name = getArgument<String>("name")
-
-                if(npcs[id] != null) throw CommandException("Npc with id $id already exists!")
-                val npc = player.world.spawnEntity(FakePlayer(player.location, name)) as FakePlayer
-                npcs[id] = npc
-            }
-        }
-
-        addSubcommand("skin") {
-            addArgument("id", StringArgument(), ::suggestNpcIds)
-            addArgument("name", StringArgument())
-            execute {
-                val player = it.getPlayerOrThrow()
-                val id = getArgument<String>("id")
-                val name = getArgument<String>("name")
-
-                val npc = npcs[id] ?: throw CommandException("Npc with id $id does not exist!")
-                npc.setSkin(name)
-            }
-        }
-
-        addSubcommand("pose") {
-            addArgument("id", StringArgument(), ::suggestNpcIds)
-            addArgument("pose", EnumArgument(EntityPose::class))
-            execute {
-                val player = it.getPlayerOrThrow()
-                val id = getArgument<String>("id")
-                val pose = getEnumArgument<EntityPose>("pose")
-
-                val npc = npcs[id] ?: throw CommandException("Npc with id $id does not exist!")
-                npc.pose.value = pose
-            }
-        }
-
-        addSubcommand("listed") {
-            addArgument("id", StringArgument(), ::suggestNpcIds)
-            addArgument("listed", BooleanArgument())
-            execute {
-                val player = it.getPlayerOrThrow()
-                val id = getArgument<String>("id")
-                val listed = getArgument<Boolean>("listed")
-
-                val npc = npcs[id] ?: throw CommandException("Npc with id $id does not exist!")
-                npc.isListed.value = listed
-            }
-        }
-
-        addSubcommand("swing_hand") {
-            addArgument("id", StringArgument(), ::suggestNpcIds)
-            execute {
-                val player = it.getPlayerOrThrow()
-                val id = getArgument<String>("id")
-
-                val npc = npcs[id] ?: throw CommandException("Npc with id $id does not exist!")
-                npc.swingHand()
-            }
-        }
-
-        addSubcommand("look_close") {
-            addArgument("id", StringArgument(), ::suggestNpcIds)
-            addArgument("lookclose", EnumArgument(LookCloseType::class))
-            execute {
-                val id = getArgument<String>("id")
-                val lookClose = getEnumArgument<LookCloseType>("lookclose")
-
-                val npc = npcs[id] ?: throw CommandException("Npc with id $id does not exist!")
-                npc.lookClose = lookClose
-            }
-        }
-
-        addSubcommand("nametag_visibility") {
-            addArgument("id", StringArgument(), ::suggestNpcIds)
-            addArgument("visible", BooleanArgument())
-            execute {
-                val player = it.getPlayerOrThrow()
-                val id = getArgument<String>("id")
-                val visible = getArgument<Boolean>("visible")
-
-                val npc = npcs[id] ?: throw CommandException("Npc with id $id does not exist!")
-                npc.nametagVisible.value = visible
-            }
-        }
-
-        addSubcommand("collision") {
-            addArgument("id", StringArgument(), ::suggestNpcIds)
-            addArgument("has_collision", BooleanArgument())
-            execute {
-                val player = it.getPlayerOrThrow()
-                val id = getArgument<String>("id")
-                val collision = getArgument<Boolean>("has_collision")
-
-                val npc = npcs[id] ?: throw CommandException("Npc with id $id does not exist!")
-                npc.hasCollision.value = collision
-            }
-        }
-    }
-
     Commands.add("/cookie") {
         execute {
             val player = it.getPlayerOrThrow()
@@ -220,4 +102,10 @@ fun main(args: Array<String>) {
             player.openInventory(ExampleMinesweeperScreen(player, mines))
         }
     }
+}
+
+
+enum class NpcViewerAction {
+    ADD,
+    REMOVE,
 }

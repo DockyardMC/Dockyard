@@ -8,6 +8,7 @@ import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.implementations.commands.DockyardCommands
+import io.github.dockyardmc.npc.NpcCommand
 import io.github.dockyardmc.protocol.PacketParser
 import io.github.dockyardmc.registry.MinecraftVersions
 import io.github.dockyardmc.registry.RegistryManager
@@ -49,6 +50,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         RegistryManager.register(ItemRegistry)
 
         if(ConfigManager.config.implementationConfig.dockyardCommands) DockyardCommands()
+        if(ConfigManager.config.implementationConfig.npcCommand) NpcCommand()
 
         log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))
