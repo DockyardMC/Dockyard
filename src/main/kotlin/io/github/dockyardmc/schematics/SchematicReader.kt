@@ -19,8 +19,13 @@ object SchematicReader {
             val cachedSchematic = cache[hash]
             if(cachedSchematic != null) return cachedSchematic
         }
+        return read(file.readBytes())
+    }
 
-        val nbt = NBTReader(file, CompressedProcesser.GZIP).readNamed().second as NBTCompound
+    fun read(byteArray: ByteArray): Schematic {
+
+
+        val nbt = NBTReader(byteArray, CompressedProcesser.GZIP).readNamed().second as NBTCompound
 
         val width: Int = (nbt.getShort("Width") ?: throw Exception("Field Width was not found in the schematic file!")).toInt()
         val height: Int = (nbt.getShort("Height") ?: throw Exception("Field Height was not found in the schematic file!")).toInt()
@@ -51,9 +56,8 @@ object SchematicReader {
 
         val blocks = mutableMapOf<Block, Int>()
         pallet.forEach { entry ->
-            val namespace = entry.key.replace("minecraft:", "")
             val id = (entry.value as NBTInt).getValue()
-            val block = Block.getBlockFromStateString(namespace) ?: return@forEach
+            val block = Block.getBlockFromStateString(entry.key) ?: return@forEach
             blocks[block] = id
         }
 
@@ -64,10 +68,9 @@ object SchematicReader {
             pallete = blocks.toMutableMap(),
             blocks = blockArray.copyArray()
         )
-        if(ConfigManager.config.implementationConfig.cacheSchematics) {
-            cache[getFileHash(file, "SHA-256")] = schematic
-        }
+//        if(ConfigManager.config.implementationConfig.cacheSchematics) {
+//            cache[getFileHash(file, "SHA-256")] = schematic
+//        }
         return schematic
     }
 }
-

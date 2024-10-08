@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry

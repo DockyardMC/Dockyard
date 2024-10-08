@@ -5,6 +5,7 @@ import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.CustomDataHolder
+import java.lang.IllegalArgumentException
 
 data class Block(
     val registryBlock: RegistryBlock,
@@ -74,7 +75,7 @@ data class Block(
             return block to states
         }
 
-        fun getBlockByStateId(stateId: Int): Block? {
+        fun getBlockByStateId(stateId: Int): Block {
             val registryBlock = BlockRegistry.getByProtocolIdOrNull(stateId)
 
             if (registryBlock != null) {
@@ -91,11 +92,14 @@ data class Block(
                 val states = parseBlockStateString(cachedState[stateId]!!).second.toMutableMap()
                 return Block(block.value, states)
             }
-            return null
+            throw IllegalArgumentException("No block state found with $stateId")
         }
 
         fun getBlockFromStateString(identifier: String): Block {
-            return BlockRegistry[identifier].toBlock()
+            val blockIdentifier = identifier.split("[")[0]
+            val block = BlockRegistry[blockIdentifier]
+            val id = block.possibleStates[identifier] ?: throw Exception("No matching state sequence found on ${block.identifier}")
+            return getBlockByStateId(id)
         }
     }
 }
