@@ -4,19 +4,18 @@ import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.npc.FakePlayer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.AddEntitiesTeamPacketAction
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundTeamsPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.UpdateTeamPacketAction
-import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.LegacyTextColor
-import io.github.dockyardmc.scroll.extensions.toComponent
 import io.netty.buffer.ByteBuf
 import java.lang.IllegalArgumentException
 import kotlin.experimental.or
 
-enum class TeamNameTagVisibility(val value: String) {
+enum class TeamNameTagVisibility(val vanilla: String) {
     VISIBLE("always"),
     HIDE_OTHER_TEAMS("hideForOtherTeams"),
     HIDE_OWN_TEAM("hideForOwnTeam"),
@@ -78,11 +77,12 @@ class Team(
 
     fun mapEntities(): List<String> {
         return entities.values.map {
-            if (it is Player) {
-                return@map it.username
-            } else {
-                return@map it.uuid.toString()
+            val value = when(it) {
+                is FakePlayer -> it.username.value
+                is Player -> it.username
+                else -> it.uuid.toString()
             }
+            return listOf(value)
         }
     }
 
@@ -105,7 +105,7 @@ class Team(
 fun ByteBuf.writeTeamInfo(team: Team) {
     this.writeTextComponent(team.displayName.value)
     this.writeByte(team.getFlags().toInt())
-    this.writeUtf(team.teamNameTagVisibility.value.value)
+    this.writeUtf(team.teamNameTagVisibility.value.vanilla)
     this.writeUtf(team.teamCollisionRule.value.value)
     this.writeVarInt(team.color.value.ordinal)
     this.writeTextComponent((team.prefix.value ?: ""))

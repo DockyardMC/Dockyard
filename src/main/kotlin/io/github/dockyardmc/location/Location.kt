@@ -41,6 +41,8 @@ class Location(
         return x == other.x &&
                 y == other.y &&
                 z == other.z &&
+                pitch == other.pitch &&
+                yaw == other.yaw &&
                 world.name == other.world.name
     }
 

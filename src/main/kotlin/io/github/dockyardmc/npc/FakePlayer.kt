@@ -16,6 +16,10 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.runnables.AsyncRunnable
+import io.github.dockyardmc.scroll.LegacyTextColor
+import io.github.dockyardmc.team.TeamCollisionRule
+import io.github.dockyardmc.team.TeamManager
+import io.github.dockyardmc.team.TeamNameTagVisibility
 import io.github.dockyardmc.utils.MojangUtil
 import java.util.UUID
 
@@ -37,16 +41,34 @@ class FakePlayer(location: Location, username: String): Entity(location) {
     val leggings: Bindable<ItemStack> = Bindable(ItemStack.air)
     val boots: Bindable<ItemStack> = Bindable(ItemStack.air)
 
-    var lookClose: Boolean = false
+    var lookClose: LookCloseType = LookCloseType.NONE
+
+    val nametagVisible: Bindable<Boolean> = Bindable(true)
+    val hasCollision: Bindable<Boolean> = Bindable(true)
+    val customNametag: BindableList<String> = BindableList()
+
+    val npcTeam = TeamManager.create("npc", LegacyTextColor.AQUA, getTeamNametagVisibility(), getTeamCollision())
 
     val eventPool = EventPool()
 
+    private fun getTeamNametagVisibility(): TeamNameTagVisibility {
+        return if(nametagVisible.value) TeamNameTagVisibility.VISIBLE else TeamNameTagVisibility.HIDDEN
+    }
+
+    private fun getTeamCollision(): TeamCollisionRule {
+        return if(hasCollision.value) TeamCollisionRule.ALWAYS else TeamCollisionRule.NEVER
+    }
+
     init {
 
+        nametagVisible.valueChanged { npcTeam.teamNameTagVisibility.value = getTeamNametagVisibility(); team.value = npcTeam }
+        hasCollision.valueChanged { npcTeam.teamCollisionRule.value = getTeamCollision(); team.value = npcTeam }
+
         eventPool.on<PlayerMoveEvent> {
-            if(!lookClose) return@on
+            if(lookClose == LookCloseType.NONE) return@on
+
             if(it.player.location.distance(location) <= 5) {
-                lookAt(it.player)
+                if(lookClose == LookCloseType.NORMAL) lookAt(it.player) else lookAtClientside(it.player, it.player)
             }
         }
 
@@ -80,6 +102,8 @@ class FakePlayer(location: Location, username: String): Entity(location) {
         chestplate.valueChanged { equipment.value = equipment.value.apply { chestplate = it.newValue } }
         leggings.valueChanged { equipment.value = equipment.value.apply { leggings = it.newValue } }
         boots.valueChanged { equipment.value = equipment.value.apply { boots = it.newValue } }
+
+        team.value = npcTeam
     }
 
     fun swingHand() {
@@ -88,10 +112,12 @@ class FakePlayer(location: Location, username: String): Entity(location) {
     }
 
     override fun addViewer(player: Player) {
-        val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username.value, mutableListOf())))
+        val profileMap = if(profile.value == null) ProfilePropertyMap(username.value, mutableListOf()) else profile.value!!
+        val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(profileMap))
         val listedPacket = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(listedPacket))
+
         super.addViewer(player)
 
         sendMetadataPacket(player)

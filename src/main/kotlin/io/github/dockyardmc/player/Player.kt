@@ -51,7 +51,6 @@ class Player(
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var hasGravity: Boolean = true
     override var isInvulnerable: Boolean = true
-    override var hasCollision: Boolean = true
     override var displayName: String = username
     override var isOnGround: Boolean = true
     override var health: Bindable<Float> = Bindable(20f)
