@@ -1,6 +1,5 @@
 package io.github.dockyardmc.item
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.fromRGBInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfileProperty
@@ -248,8 +247,6 @@ class ItemBuilder() {
         if (username == null && uuid == null && profile == null) {
             throw IllegalArgumentException("At least one of the parameters must be set")
         }
-
-        log("Username: $username, \nUUID: $uuid, \nProfile: $profile")
 
         itemStack.components.addOrUpdate(PlayerHeadProfileItemComponent(username, uuid, ProfilePropertyMap(username.orEmpty(),
             if (profile != null) mutableListOf(profile) else mutableListOf<ProfileProperty>())
