@@ -26,7 +26,7 @@ object ServerStatusManager {
 
     fun updateCache() {
         val playersOnline = mutableListOf<ServerListPlayer>()
-        PlayerManager.players.forEach {
+        PlayerManager.players.toList().forEach {
             playersOnline.add(ServerListPlayer(it.displayName, it.uuid.toString()))
         }
 

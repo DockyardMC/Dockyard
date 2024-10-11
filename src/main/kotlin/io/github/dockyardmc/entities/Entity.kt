@@ -233,7 +233,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun sendMetadataPacketToViewers() {
-        viewers.forEach(this::sendMetadataPacket)
+        viewers.toList().forEach(this::sendMetadataPacket)
     }
 
     open fun sendMetadataPacket(player: Player) {

@@ -71,6 +71,7 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
     override fun handlerRemoved(ctx: ChannelHandlerContext) {
         if (isPlayerInitialized()) {
             player.isConnected = false
+            player.team.value = null
             PlayerManager.remove(player)
             ResourcepackManager.pending.toList().filter { it.player == player }.forEach { pack ->
                 ResourcepackManager.pending.remove(pack)
