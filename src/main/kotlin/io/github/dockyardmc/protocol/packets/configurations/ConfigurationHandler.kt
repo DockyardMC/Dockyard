@@ -126,6 +126,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
             player.sendPacket(ClientboundTeamsPacket(CreateTeamPacketAction(team.value)))
         }
 
+        player.sendPacket(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(player.uuid, SetListedInfoUpdateAction(player.isListed.value))))
         if(ConfigManager.config.useMojangAuth) player.setSkin(player.uuid)
     }
 }
