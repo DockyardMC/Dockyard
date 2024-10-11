@@ -14,63 +14,63 @@ fun Collection<Player>.sendMessage(message: String) {
 }
 
 fun Collection<Player>.sendMessage(message: Component) {
-    this.forEach { it.sendMessage(message) }
+    this.toList().forEach { it.sendMessage(message) }
 }
 
 fun Collection<Player>.sendPacket(packet: ClientboundPacket) {
-    this.forEach { it.sendPacket(packet) }
+    this.toList().forEach { it.sendPacket(packet) }
 }
 
 fun Collection<Player>.sendActionBar(message: String) {
-    this.forEach { it.sendActionBar(message) }
+    this.toList().forEach { it.sendActionBar(message) }
 }
 
 fun Collection<Player>.sendActionBar(message: Component) {
-    this.forEach { it.sendActionBar(message) }
+    this.toList().forEach { it.sendActionBar(message) }
 }
 
 fun Collection<Player>.sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
-    this.forEach { it.sendTitle(title, subtitle, fadeIn, stay, fadeOut) }
+    this.toList().forEach { it.sendTitle(title, subtitle, fadeIn, stay, fadeOut) }
 }
 
 fun Collection<Player>.clearTitle(reset: Boolean = true) {
-    this.forEach { it.clearTitle(reset) }
+    this.toList().forEach { it.clearTitle(reset) }
 }
 
 fun Collection<Player>.setTabHeader(header: String) {
-    this.forEach { it.tabListHeader.value = header.toComponent() }
+    this.toList().forEach { it.tabListHeader.value = header.toComponent() }
 }
 
 fun Collection<Player>.setTabFooter(footer: String) {
-    this.forEach { it.tabListFooter.value = footer.toComponent() }
+    this.toList().forEach { it.tabListFooter.value = footer.toComponent() }
 }
 
 fun Collection<Player>.setGameMode(gameMode: GameMode) {
-    this.forEach { it.gameMode.value = gameMode }
+    this.toList().forEach { it.gameMode.value = gameMode }
 }
 
 fun Collection<Entity>.addViewer(player: Player) {
-    this.forEach { it.addViewer(player) }
+    this.toList().forEach { it.addViewer(player) }
 }
 
 fun Collection<Entity>.removeViewer(player: Player, isDisconnect: Boolean = false) {
-    this.forEach { it.removeViewer(player, isDisconnect) }
+    this.toList().forEach { it.removeViewer(player, isDisconnect) }
 }
 
 fun Collection<Player>.setCanFly(canFly: Boolean) {
-    this.forEach { it.canFly.value = canFly }
+    this.toList().forEach { it.canFly.value = canFly }
 }
 
 fun Collection<Player>.setSkin(uuid: UUID) {
-    this.forEach { it.setSkin(uuid) }
+    this.toList().forEach { it.setSkin(uuid) }
 }
 
 fun Collection<Player>.setSkin(username: String) {
-    this.forEach { it.setSkin(username) }
+    this.toList().forEach { it.setSkin(username) }
 }
 
 fun Collection<Player>.setIsFlying(isFlying: Boolean) {
-    this.forEach { it.isFlying.value = isFlying }
+    this.toList().forEach { it.isFlying.value = isFlying }
 }
 
 //fun Collection<Player>.give(itemStack: ItemStack) {

@@ -25,7 +25,7 @@ object EntityManager {
 
     init {
         Events.on<ServerTickEvent> {
-            entities.forEach { if(it.tickable) it.tick() }
+            entities.toList().forEach { if(it.tickable) it.tick() }
         }
     }
 }

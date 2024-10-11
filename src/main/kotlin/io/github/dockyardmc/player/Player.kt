@@ -169,7 +169,7 @@ class Player(
     }
 
     override fun tick() {
-        val entities = world.entities.values.filter { it.autoViewable && it != this }
+        val entities = world.entities.values.toList().filter { it.autoViewable && it != this }
 
         val add = entities.filter { it.location.distance(this.location) <= it.renderDistanceBlocks && !visibleEntities.contains(it) }
         val remove = entities.filter { it.location.distance(this.location) > it.renderDistanceBlocks && visibleEntities.contains(it) }
@@ -338,7 +338,7 @@ class Player(
     }
 
     fun sendToViewers(packet: ClientboundPacket) {
-        viewers.forEach { viewer ->
+        viewers.toList().forEach { viewer ->
             if(networkManager.state != ProtocolState.PLAY) return@forEach
             viewer.sendPacket(packet)
         }

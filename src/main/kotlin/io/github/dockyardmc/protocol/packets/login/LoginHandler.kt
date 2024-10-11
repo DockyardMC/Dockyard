@@ -84,7 +84,7 @@ class LoginHandler(var processor: PlayerNetworkManager) : PacketHandler(processo
             val playerCrypto = PlayerCrypto(publicKey, privateKey, verificationToken)
             player.crypto = playerCrypto
 
-            // pre-cache the skin
+            // pre-cache the
             val asyncRunnable = AsyncRunnable {
                 MojangUtil.getSkinFromUUID(player.uuid)
             }

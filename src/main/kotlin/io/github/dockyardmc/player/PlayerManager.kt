@@ -15,7 +15,7 @@ object PlayerManager {
 
     init {
         Events.on<ServerTickEvent> {
-            players.forEach(Player::tick)
+            players.toList().forEach(Player::tick)
         }
     }
 

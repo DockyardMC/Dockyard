@@ -40,22 +40,18 @@ fun main(args: Array<String>) {
         withIp("0.0.0.0")
         withMaxPlayers(50)
         withPort(25565)
-        useMojangAuth(true)
-        useDebugMode(true)
+        useMojangAuth(false)
+        useDebugMode(false)
         withImplementations {
             dockyardCommands = true
             npcCommand = true
         }
     }
 
-    val test = TeamManager.create("test", LegacyTextColor.PINK)
-
-
     Events.on<PlayerJoinEvent> {
         val player = it.player
 
         DockyardServer.broadcastMessage("<yellow>${player} joined the game.")
-        player.team.value = test
         player.gameMode.value = GameMode.CREATIVE
         player.permissions.add("dockyard.all")
 
