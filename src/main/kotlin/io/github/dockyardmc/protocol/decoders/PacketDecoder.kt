@@ -16,6 +16,7 @@ import java.lang.Exception
 
 class PacketDecoder(val processor: PlayerNetworkManager) : MessageToMessageDecoder<ByteBuf>() {
 
+    @OptIn(ExperimentalStdlibApi::class)
     override fun decode(connection: ChannelHandlerContext, buffer: ByteBuf, out: MutableList<Any>) {
         if (!connection.channel().isActive) return // connection was closed
 
