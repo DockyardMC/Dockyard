@@ -44,25 +44,25 @@ dependencies {
     implementation("com.akuleshov7:ktoml-file:0.5.1")
 
     // Minecraft
-    implementation("io.github.jglrxavpok.hephaistos:common:2.2.0")
-    implementation("io.github.jglrxavpok.hephaistos:gson:2.2.0")
-    implementation("io.github.dockyardmc:scroll:1.8")
+    api("io.github.jglrxavpok.hephaistos:common:2.2.0")
+    api("io.github.jglrxavpok.hephaistos:gson:2.2.0")
+    api("io.github.dockyardmc:scroll:1.8")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
 
     // Networking
-    implementation("io.ktor:ktor-server-netty:2.3.10")
-    implementation("io.ktor:ktor-network:2.3.10")
+    api("io.ktor:ktor-server-netty:2.3.10")
+    api("io.ktor:ktor-network:2.3.10")
 
     // Logging
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
-    implementation("cz.lukynka:pretty-log:1.4")
+    api("cz.lukynka:pretty-log:1.4")
 
     // Other
-    implementation("org.reflections:reflections:0.9.12")
+    api("org.reflections:reflections:0.9.12")
     implementation("com.google.guava:guava:33.2.0-jre")
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation("it.unimi.dsi:fastutil:8.5.13")
-    implementation("cz.lukynka:kotlin-bindables:1.1")
+    api("it.unimi.dsi:fastutil:8.5.13")
+    api("cz.lukynka:kotlin-bindables:1.1")
 }
 
 fun String.runCommand(
