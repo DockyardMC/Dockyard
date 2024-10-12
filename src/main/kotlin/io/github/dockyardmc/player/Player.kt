@@ -419,6 +419,7 @@ class Player(
 
     fun closeInventory() {
         sendPacket(ClientboundCloseInventoryPacket(0))
+        sendPacket(ClientboundCloseInventoryPacket(1))
     }
 
     fun resetExperience() {

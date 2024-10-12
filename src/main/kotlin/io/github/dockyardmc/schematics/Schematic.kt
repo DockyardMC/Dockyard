@@ -2,6 +2,8 @@
 
 package io.github.dockyardmc.schematics
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.sendPacket
@@ -77,7 +79,13 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
                 }
             }
         }
-        batchBlockUpdate.forEach { this.setBlockRaw(it.first, it.second, false) }
+        batchBlockUpdate.forEach {
+            try {
+                this.setBlockRaw(it.first, it.second, false)
+            } catch (ex: Exception) {
+                log("Error while placing block in schematic at ${it.first}: $ex", LogType.ERROR)
+            }
+        }
     }
 
     runnable.callback = {
