@@ -21,8 +21,6 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.utils.vectors.Vector2f
-import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
@@ -92,7 +90,7 @@ class World(
         player.updateWorldTime()
     }
 
-    init {
+    fun generate() {
         val runnable = AsyncQueueTask("generate-base-chunks") {
             generateBaseChunks(6)
         }

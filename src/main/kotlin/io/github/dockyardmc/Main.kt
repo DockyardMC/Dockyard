@@ -13,8 +13,6 @@ import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.scroll.LegacyTextColor
-import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
 import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
@@ -40,7 +38,7 @@ fun main(args: Array<String>) {
         withIp("0.0.0.0")
         withMaxPlayers(50)
         withPort(25565)
-        useMojangAuth(false)
+        useMojangAuth(true)
         useDebugMode(false)
         withImplementations {
             dockyardCommands = true

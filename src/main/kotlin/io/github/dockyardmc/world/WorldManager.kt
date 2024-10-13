@@ -14,9 +14,10 @@ object WorldManager {
     val worlds: MutableMap<String, World> = mutableMapOf()
     val mainWorld: World = World("main", VoidWorldGenerator(), DimensionTypes.OVERWORLD)
 
-    private var worldLoadListener: EventListener<Event>
+    private lateinit var worldLoadListener: EventListener<Event>
 
-    init {
+    fun loadDefaultWorld() {
+        mainWorld.generate()
         worlds["main"] = mainWorld
         worldLoadListener = Events.on<WorldFinishLoadingEvent> {
             if(it.world == mainWorld) generateStonePlatform(mainWorld)
@@ -43,7 +44,7 @@ object WorldManager {
         require(!worlds.keys.contains(name)) { "World with name $name already exists!" }
 
         val world = World(name, generator, dimensionType)
-
+        world.generate()
         worlds[name] = world
         return world
     }

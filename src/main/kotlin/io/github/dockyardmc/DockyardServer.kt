@@ -17,6 +17,7 @@ import io.github.dockyardmc.server.PlayerKeepAliveTimer
 import io.github.dockyardmc.server.NettyServer
 import io.github.dockyardmc.server.ServerTickManager
 import io.github.dockyardmc.utils.Resources
+import io.github.dockyardmc.world.WorldManager
 
 class DockyardServer(configBuilder: Config.() -> Unit) {
 
@@ -51,6 +52,8 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
         if(ConfigManager.config.implementationConfig.dockyardCommands) DockyardCommands()
         if(ConfigManager.config.implementationConfig.npcCommand) NpcCommand()
+
+        WorldManager.loadDefaultWorld()
 
         log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))
