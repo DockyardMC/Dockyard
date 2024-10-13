@@ -1,8 +1,8 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.IntArgument
+import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
@@ -82,6 +82,7 @@ fun main(args: Array<String>) {
             }
         }
     }
+
     server.start()
 
     Commands.add("/cookie") {

@@ -7,6 +7,7 @@ import io.github.dockyardmc.config.Config
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
+import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.commands.DockyardCommands
 import io.github.dockyardmc.npc.NpcCommand
 import io.github.dockyardmc.protocol.PacketParser
@@ -70,6 +71,8 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         serverTickManager.start()
         playerKeepAliveTimer.start()
         nettyServer.start()
+
+        Events.dispatch(WorldFinishLoadingEvent(WorldManager.mainWorld))
     }
 
     companion object {
