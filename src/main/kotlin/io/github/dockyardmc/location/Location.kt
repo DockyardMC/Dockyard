@@ -1,6 +1,7 @@
 package io.github.dockyardmc.location
 
 import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.bounds.Bound
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.utils.vectors.Vector2f
 import io.github.dockyardmc.utils.vectors.Vector3
@@ -35,6 +36,10 @@ class Location(
     val blockX: Int get() = floor(x).toInt()
     val blockY: Int get() = floor(y).toInt()
     val blockZ: Int get() = floor(z).toInt()
+
+    val fullX: Int get() = ceil(x).toInt()
+    val fullY: Int get() = ceil(y).toInt()
+    val fullZ: Int get() = ceil(z).toInt()
 
     override fun equals(other: Any?): Boolean {
         if(other == null || other !is Location) return false
@@ -73,7 +78,16 @@ class Location(
 
     fun distance(other: Location): Double = sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0))
 
+    fun distanceVector(other: Location): Vector3d {
+        val dx = this.x - other.x
+        val dy = this.y - other.y
+        val dz = this.z - other.z
+        val distance = sqrt(dx.pow(2.0) + dy.pow(2.0) + dz.pow(2.0))
+        return Vector3d(dx / distance, dy / distance, dz / distance)
+    }
+
     fun getBlockLocation(): Location = Location(blockX, blockY, blockZ, world)
+    fun getFullLocation(): Location = Location(fullX, fullY, fullZ, world)
 
     fun getRotation(): Vector2f = Vector2f(yaw, pitch)
 
@@ -150,6 +164,12 @@ class Location(
 
     fun sameBlock(blockX: Int, blockY: Int, blockZ: Int): Boolean {
         return this.blockX == blockX && this.blockY == blockY && this.blockZ == blockZ
+    }
+
+    fun isWithinBound(bound: Bound): Boolean {
+        return x >= bound.firstLocation.fullX && x <= bound.secondLocation.fullX &&
+                y >= bound.firstLocation.fullY && y <= bound.secondLocation.fullY &&
+                z >= bound.firstLocation.fullZ && z <= bound.secondLocation.fullZ
     }
 }
 
