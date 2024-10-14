@@ -84,6 +84,7 @@ class Player(
     val flySpeed: Bindable<Float> = bindablePool.provideBindable(0.05f)
     val redVignette: Bindable<Float> = bindablePool.provideBindable(0f)
     val time: Bindable<Long> = bindablePool.provideBindable(-1)
+    val fovModifier: Bindable<Float> = bindablePool.provideBindable(0.1f)
 
     val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
 
@@ -103,6 +104,9 @@ class Player(
 
         isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value)) }
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
+
+        fovModifier.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, it.newValue)) }
+
         gameMode.valueChanged {
             this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat()))
             when(it.newValue) {

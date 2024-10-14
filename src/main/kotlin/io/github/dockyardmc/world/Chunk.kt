@@ -5,7 +5,6 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.ChunkUtils
-import io.github.dockyardmc.utils.debug
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
 import org.jglrxavpok.hephaistos.nbt.NBT
 import java.lang.IllegalStateException

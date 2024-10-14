@@ -65,7 +65,7 @@ class ConcurrentChunkEngine(val player: Player) {
                     world.generateChunk(x, z)
                 }.apply {
                     callback = {
-                        player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
+                        player.sendPacket(world.getChunkAt(x, z)!!.packet)
                         loadedChunks.add(chunkIndex)
                     }
                 }

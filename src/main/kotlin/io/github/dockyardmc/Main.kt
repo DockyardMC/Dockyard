@@ -1,23 +1,27 @@
 package io.github.dockyardmc
 
+import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.IntArgument
-import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.schematics.SchematicReader
+import io.github.dockyardmc.schematics.placeSchematic
 import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
 import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
+import java.io.File
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -63,6 +67,15 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
+    Commands.add("/fov") {
+        addArgument("fov", FloatArgument())
+        execute {
+            val player = it.getPlayerOrThrow()
+            val fov = getArgument<Float>("fov")
+            player.fovModifier.value = fov
+        }
+    }
+
     Commands.add("/reset") {
         execute {
             val platformSize = 30
@@ -100,10 +113,4 @@ fun main(args: Array<String>) {
             player.openInventory(ExampleMinesweeperScreen(player, mines))
         }
     }
-}
-
-
-enum class NpcViewerAction {
-    ADD,
-    REMOVE,
 }

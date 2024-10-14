@@ -85,6 +85,7 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
                 this.setBlockRaw(it.first, it.second, false)
             } catch (ex: Exception) {
                 log("Error while placing block in schematic at ${it.first}: $ex", LogType.ERROR)
+                log(ex)
             }
         }
     }
