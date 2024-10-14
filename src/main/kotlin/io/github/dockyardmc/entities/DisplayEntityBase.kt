@@ -84,6 +84,16 @@ open class DisplayEntityBase(location: Location) : Entity(location) {
         interpolationDelay.value = -1
     }
 
+    fun setRightRotationFromQuaternion(quaternion: Quaternion) {
+        val type = EntityMetadataType.DISPLAY_ROTATION_RIGHT
+        metadata[type] = EntityMetadata(type, EntityMetaValue.QUATERNION, quaternion)
+    }
+
+    fun setLeftRotationFromQuaternion(quaternion: Quaternion) {
+        val type = EntityMetadataType.DISPLAY_ROTATION_LEFT
+        metadata[type] = EntityMetadata(type, EntityMetaValue.QUATERNION, quaternion)
+    }
+
     fun scaleTo(x: Float, y: Float, z: Float, interpolation: Int? = null) {
         if(interpolation != null) transformInterpolation.value = interpolation
         scale.value = Vector3f(x, y, z)

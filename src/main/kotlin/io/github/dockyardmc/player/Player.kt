@@ -53,37 +53,38 @@ class Player(
     override var isInvulnerable: Boolean = true
     override var displayName: String = username
     override var isOnGround: Boolean = true
-    override var health: Bindable<Float> = Bindable(20f)
+    override var health: Bindable<Float> = bindablePool.provideBindable(20f)
     override var inventorySize: Int = 35
     var brand: String = "minecraft:vanilla"
     var profile: ProfilePropertyMap? = null
     var clientConfiguration: ClientConfiguration? = null
-    var isFlying: Bindable<Boolean> = Bindable(false)
-    var canFly: Bindable<Boolean> = Bindable(false)
+    var isFlying: Bindable<Boolean> = bindablePool.provideBindable(false)
+    var canFly: Bindable<Boolean> = bindablePool.provideBindable(false)
     var isSneaking: Boolean = false
     var isSprinting: Boolean = false
-    var selectedHotbarSlot: Bindable<Int> = Bindable(0)
-    val permissions: BindableList<String> = BindableList()
+    var selectedHotbarSlot: Bindable<Int> = bindablePool.provideBindable(0)
+    val permissions: BindableList<String> = bindablePool.provideBindableList()
     var isFullyInitialized: Boolean = false
     var inventory: Inventory = Inventory(this)
-    var gameMode: Bindable<GameMode> = Bindable(GameMode.ADVENTURE)
-    var displayedSkinParts: BindableList<DisplayedSkinPart> = BindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
+    var gameMode: Bindable<GameMode> = bindablePool.provideBindable(GameMode.ADVENTURE)
+    var displayedSkinParts: BindableList<DisplayedSkinPart> = bindablePool.provideBindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     var isConnected: Boolean = true
-    val tabListHeader: Bindable<Component> = Bindable("".toComponent())
-    val tabListFooter: Bindable<Component> = Bindable("".toComponent())
-    val isListed: Bindable<Boolean> = Bindable(true)
+    val tabListHeader: Bindable<Component> = bindablePool.provideBindable("".toComponent())
+    val tabListFooter: Bindable<Component> = bindablePool.provideBindable("".toComponent())
+    val isListed: Bindable<Boolean> = bindablePool.provideBindable(true)
 
-    val saturation: Bindable<Float> = Bindable(0f)
-    val food: Bindable<Double> = Bindable(20.0)
-    val experienceLevel: Bindable<Int> = Bindable(0)
-    val experienceBar: Bindable<Float> = Bindable(0f)
+    val saturation: Bindable<Float> = bindablePool.provideBindable(0f)
+    val food: Bindable<Double> = bindablePool.provideBindable(20.0)
+    val experienceLevel: Bindable<Int> = bindablePool.provideBindable(0)
+    val experienceBar: Bindable<Float> = bindablePool.provideBindable(0f)
     var currentOpenInventory: ContainerInventory? = null
     var hasSkin = false
     var itemInUse: ItemInUse? = null
     var lastRightClick = 0L
-    val flySpeed: Bindable<Float> = Bindable(0.05f)
-    val redVignette: Bindable<Float> = Bindable(0f)
-    val time: Bindable<Long> = Bindable(-1)
+    val flySpeed: Bindable<Float> = bindablePool.provideBindable(0.05f)
+    val redVignette: Bindable<Float> = bindablePool.provideBindable(0f)
+    val time: Bindable<Long> = bindablePool.provideBindable(-1)
+    val fovModifier: Bindable<Float> = bindablePool.provideBindable(0.1f)
 
     val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
 
@@ -103,6 +104,9 @@ class Player(
 
         isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value)) }
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
+
+        fovModifier.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, it.newValue)) }
+
         gameMode.valueChanged {
             this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat()))
             when(it.newValue) {
@@ -169,7 +173,7 @@ class Player(
     }
 
     override fun tick() {
-        val entities = world.entities.values.filter { it.autoViewable && it != this }
+        val entities = world.entities.values.toList().filter { it.autoViewable && it != this }
 
         val add = entities.filter { it.location.distance(this.location) <= it.renderDistanceBlocks && !visibleEntities.contains(it) }
         val remove = entities.filter { it.location.distance(this.location) > it.renderDistanceBlocks && visibleEntities.contains(it) }
@@ -338,7 +342,7 @@ class Player(
     }
 
     fun sendToViewers(packet: ClientboundPacket) {
-        viewers.forEach { viewer ->
+        viewers.toList().forEach { viewer ->
             if(networkManager.state != ProtocolState.PLAY) return@forEach
             viewer.sendPacket(packet)
         }
@@ -419,6 +423,7 @@ class Player(
 
     fun closeInventory() {
         sendPacket(ClientboundCloseInventoryPacket(0))
+        sendPacket(ClientboundCloseInventoryPacket(1))
     }
 
     fun resetExperience() {

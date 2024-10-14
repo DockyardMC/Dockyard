@@ -2,6 +2,8 @@
 
 package io.github.dockyardmc.schematics
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.sendPacket
@@ -52,6 +54,7 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
 
     val blocks = schematic.blocks.toByteBuf()
     val updateChunks = mutableSetOf<Chunk>()
+    val loadChunk = mutableSetOf<Pair<Int, Int>>()
     val batchBlockUpdate = mutableListOf<Pair<Location, Int>>()
 
     val flippedPallet = schematic.pallete.entries.associateBy({ it.value }) { it.key }
@@ -60,24 +63,31 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
         for (y in 0 until schematic.size.y) {
             for (z in 0 until schematic.size.z) {
                 for (x in 0 until schematic.size.x) {
+
                     val placeLoc = Location(x, y, z, location.world).add(location)
                     val id = blocks.readVarInt()
                     val block = flippedPallet[id] ?: Blocks.RED_STAINED_GLASS.toBlock()
 
-                    val chunk = placeLoc.getChunk()
-                    if(chunk != null) {
-                        updateChunks.add(chunk)
-                    } else {
-                        val chunkX = ChunkUtils.getChunkCoordinate(placeLoc.x)
-                        val chunkZ = ChunkUtils.getChunkCoordinate(placeLoc.z)
-                        location.world.generateChunk(chunkX, chunkZ)
-                        updateChunks.add(placeLoc.getChunk()!!)
-                    }
+                    val chunkX = ChunkUtils.getChunkCoordinate(placeLoc.x)
+                    val chunkZ = ChunkUtils.getChunkCoordinate(placeLoc.z)
+
+                    loadChunk.add(chunkX to chunkZ)
+
+                    val chunk = placeLoc.world.getOrGenerateChunk(ChunkUtils.getChunkCoordinate(placeLoc.x), ChunkUtils.getChunkCoordinate(placeLoc.z))
+                    updateChunks.add(chunk)
                     batchBlockUpdate.add(placeLoc to block.getProtocolId())
                 }
             }
         }
-        batchBlockUpdate.forEach { this.setBlockRaw(it.first, it.second, false) }
+
+        batchBlockUpdate.forEach {
+            try {
+                this.setBlockRaw(it.first, it.second, false)
+            } catch (ex: Exception) {
+                log("Error while placing block in schematic at ${it.first}: $ex", LogType.ERROR)
+                log(ex)
+            }
+        }
     }
 
     runnable.callback = {

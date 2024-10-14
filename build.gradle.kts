@@ -50,8 +50,8 @@ dependencies {
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
 
     // Networking
-    api("io.ktor:ktor-server-netty:2.3.10")
-    api("io.ktor:ktor-network:2.3.10")
+    api("io.ktor:ktor-server-netty:2.3.12")
+    api("io.ktor:ktor-network:2.3.12")
 
     // Logging
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
@@ -62,7 +62,7 @@ dependencies {
     implementation("com.google.guava:guava:33.2.0-jre")
     implementation("com.google.code.gson:gson:2.10.1")
     api("it.unimi.dsi:fastutil:8.5.13")
-    api("cz.lukynka:kotlin-bindables:1.1")
+    api("cz.lukynka:kotlin-bindables:1.2")
 }
 
 fun String.runCommand(
@@ -159,16 +159,20 @@ fun sendWebhookToDiscord(webhookUrl: String) {
 }
 
 
+
+
 fun embed(): String {
     val target = if(dockyardVersion.toString().endsWith("-SNAPSHOT")) "https://mvn.devos.one/snapshots" else "https://mvn.devos.one/releases"
+    val color = if(dockyardVersion.toString().endsWith("-SNAPSHOT")) 16742912 else 65290
+    val title = if(dockyardVersion.toString().endsWith("-SNAPSHOT")) "Snapshot Published to Maven" else "Published to Maven"
     return """
         {
           "content": null,
           "embeds": [
             {
-              "title": "Published to Maven",
+              "title": "$title",
               "description": "`io.github.dockyardmc:dockyard:$dockyardVersion` was successfully published to maven **$target**!",
-              "color": 5046022
+              "color": $color
             }
           ],
           "username": "Mavenboo",

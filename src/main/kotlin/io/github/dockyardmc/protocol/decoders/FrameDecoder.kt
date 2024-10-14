@@ -27,7 +27,7 @@ class FrameDecoder : ByteToMessageDecoder() {
 
     override fun exceptionCaught(connection: ChannelHandlerContext, cause: Throwable) {
         log("Error occurred while decoding frame: ", LogType.ERROR)
-        log(cause as Exception)
+        log(cause.cause as Exception)
         connection.channel().close().sync()
     }
 }

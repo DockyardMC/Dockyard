@@ -1,6 +1,5 @@
 package io.github.dockyardmc.npc
 
-import io.github.dockyardmc.NpcViewerAction
 import io.github.dockyardmc.commands.BooleanArgument
 import io.github.dockyardmc.commands.CommandException
 import io.github.dockyardmc.commands.Commands
@@ -211,5 +210,10 @@ class NpcCommand {
                 }
             }
         }
+    }
+
+    enum class NpcViewerAction {
+        ADD,
+        REMOVE,
     }
 }

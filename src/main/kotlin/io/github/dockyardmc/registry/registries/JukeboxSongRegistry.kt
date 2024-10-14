@@ -30,46 +30,11 @@ object JukeboxSongRegistry : DynamicRegistry {
         addEntry(JukeboxSong("minecraft:11", 11, "jukebox_song.minecraft.11", 71.0f, "minecraft:music_disc.11"), false)
         addEntry(JukeboxSong("minecraft:13", 1, "jukebox_song.minecraft.13", 178.0f, "minecraft:music_disc.13"), false)
         addEntry(JukeboxSong("minecraft:5", 15, "jukebox_song.minecraft.5", 178.0f, "minecraft:music_disc.5"), false)
-        addEntry(
-            JukeboxSong(
-                "minecraft:blocks",
-                3,
-                "jukebox_song.minecraft.blocks",
-                345.0f,
-                "minecraft:music_disc.blocks"
-            ), false
-        )
-        addEntry(
-            JukeboxSong("minecraft:cat", 2, "jukebox_song.minecraft.cat", 185.0f, "minecraft:music_disc.cat"),
-            false
-        )
-        addEntry(
-            JukeboxSong(
-                "minecraft:chirp",
-                4,
-                "jukebox_song.minecraft.chirp",
-                185.0f,
-                "minecraft:music_disc.chirp"
-            ), false
-        )
-        addEntry(
-            JukeboxSong(
-                "minecraft:creator",
-                12,
-                "jukebox_song.minecraft.creator",
-                176.0f,
-                "minecraft:music_disc.creator"
-            ), false
-        )
-        addEntry(
-            JukeboxSong(
-                "minecraft:creator_music_box",
-                11,
-                "jukebox_song.minecraft.creator_music_box",
-                73.0f,
-                "minecraft:music_disc.creator_music_box"
-            ), false
-        )
+        addEntry(JukeboxSong("minecraft:blocks", 3, "jukebox_song.minecraft.blocks", 345.0f, "minecraft:music_disc.blocks"), false)
+        addEntry(JukeboxSong("minecraft:cat", 2, "jukebox_song.minecraft.cat", 185.0f, "minecraft:music_disc.cat"), false)
+        addEntry(JukeboxSong("minecraft:chirp", 4, "jukebox_song.minecraft.chirp", 185.0f, "minecraft:music_disc.chirp"), false)
+        addEntry(JukeboxSong("minecraft:creator", 12, "jukebox_song.minecraft.creator", 176.0f, "minecraft:music_disc.creator"), false)
+        addEntry(JukeboxSong("minecraft:creator_music_box", 11, "jukebox_song.minecraft.creator_music_box", 73.0f, "minecraft:music_disc.creator_music_box"), false)
         addEntry(
             JukeboxSong("minecraft:far", 5, "jukebox_song.minecraft.far", 174.0f, "minecraft:music_disc.far"),
             false

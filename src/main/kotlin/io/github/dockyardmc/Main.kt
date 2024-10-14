@@ -9,17 +9,19 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.scroll.LegacyTextColor
-import io.github.dockyardmc.team.TeamManager
+import io.github.dockyardmc.schematics.SchematicReader
+import io.github.dockyardmc.schematics.placeSchematic
 import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
 import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.Chunk
 import io.github.dockyardmc.world.WorldManager
+import java.io.File
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -41,21 +43,17 @@ fun main(args: Array<String>) {
         withMaxPlayers(50)
         withPort(25565)
         useMojangAuth(true)
-        useDebugMode(true)
+        useDebugMode(false)
         withImplementations {
             dockyardCommands = true
             npcCommand = true
         }
     }
 
-    val test = TeamManager.create("test", LegacyTextColor.PINK)
-
-
     Events.on<PlayerJoinEvent> {
         val player = it.player
 
         DockyardServer.broadcastMessage("<yellow>${player} joined the game.")
-        player.team.value = test
         player.gameMode.value = GameMode.CREATIVE
         player.permissions.add("dockyard.all")
 
@@ -67,6 +65,15 @@ fun main(args: Array<String>) {
 
     Events.on<PlayerLeaveEvent> {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
+    }
+
+    Commands.add("/fov") {
+        addArgument("fov", FloatArgument())
+        execute {
+            val player = it.getPlayerOrThrow()
+            val fov = getArgument<Float>("fov")
+            player.fovModifier.value = fov
+        }
     }
 
     Commands.add("/reset") {
@@ -88,6 +95,7 @@ fun main(args: Array<String>) {
             }
         }
     }
+
     server.start()
 
     Commands.add("/cookie") {
@@ -105,10 +113,4 @@ fun main(args: Array<String>) {
             player.openInventory(ExampleMinesweeperScreen(player, mines))
         }
     }
-}
-
-
-enum class NpcViewerAction {
-    ADD,
-    REMOVE,
 }

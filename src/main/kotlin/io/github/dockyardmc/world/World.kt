@@ -21,8 +21,6 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.utils.vectors.Vector2f
-import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
@@ -92,7 +90,7 @@ class World(
         player.updateWorldTime()
     }
 
-    init {
+    fun generate(then: ((World) -> Unit)? = null) {
         val runnable = AsyncQueueTask("generate-base-chunks") {
             generateBaseChunks(6)
         }
@@ -102,6 +100,7 @@ class World(
             canBeJoined.value = true
             joinQueue.forEach(::join)
             Events.dispatch(WorldFinishLoadingEvent(this))
+            then?.invoke(this)
         }
         asyncChunkGenerator.submit(runnable)
 
@@ -196,6 +195,16 @@ class World(
         val chunk = getChunkAt(x, z) ?: return
         chunk.setBlockRaw(x, y, z, blockStateId, updateChunk)
         if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
+    }
+
+    fun getOrGenerateChunk(x: Int, z: Int): Chunk {
+        val chunk = getChunk(x, z)
+        if(chunk == null) {
+            generateChunk(x, z)
+            return getChunk(x, z)!!
+        } else {
+            return chunk
+        }
     }
 
     fun generateChunk(x: Int, z: Int) {

@@ -2,6 +2,7 @@ package io.github.dockyardmc.entities
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableMap
+import cz.lukynka.BindablePool
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockIterator
 import io.github.dockyardmc.config.ConfigManager
@@ -34,6 +35,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 abstract class Entity(open var location: Location, open var world: World) : Disposable {
+
+    val bindablePool = BindablePool()
+
     open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
@@ -43,21 +47,21 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     open var isInvulnerable: Boolean = false
     open var displayName: String = this::class.simpleName.toString()
     open var isOnGround: Boolean = true
-    val metadata: BindableMap<EntityMetadataType, EntityMetadata> = BindableMap()
-    val pose: Bindable<EntityPose> = Bindable(EntityPose.STANDING)
+    val metadata: BindableMap<EntityMetadataType, EntityMetadata> = bindablePool.provideBindableMap()
+    val pose: Bindable<EntityPose> = bindablePool.provideBindable(EntityPose.STANDING)
     abstract var health: Bindable<Float>
     abstract var inventorySize: Int
-    val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = BindableMap()
+    val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = bindablePool.provideBindableMap()
     val walkSpeed: Bindable<Float> = Bindable(0.15f)
     open var tickable: Boolean = true
-    val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = BindableMap()
-    val isGlowing: Bindable<Boolean> = Bindable(false)
-    val isInvisible: Bindable<Boolean> = Bindable(false)
-    val team: Bindable<Team?> = Bindable(null)
-    val isOnFire: Bindable<Boolean> = Bindable(false)
-    val freezeTicks: Bindable<Int> = Bindable(0)
-    val equipment: Bindable<EntityEquipment> = Bindable(EntityEquipment())
-    val equipmentLayers: BindableMap<PersistentPlayer, EntityEquipmentLayer> = BindableMap()
+    val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = bindablePool.provideBindableMap()
+    val isGlowing: Bindable<Boolean> = bindablePool.provideBindable(false)
+    val isInvisible: Bindable<Boolean> = bindablePool.provideBindable(false)
+    val team: Bindable<Team?> = bindablePool.provideBindable(null)
+    val isOnFire: Bindable<Boolean> = bindablePool.provideBindable(false)
+    val freezeTicks: Bindable<Int> = bindablePool.provideBindable(0)
+    val equipment: Bindable<EntityEquipment> = bindablePool.provideBindable(EntityEquipment())
+    val equipmentLayers: BindableMap<PersistentPlayer, EntityEquipmentLayer> = bindablePool.provideBindableMap()
     var renderDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityRenderDistanceBlocks
     var autoViewable: Boolean = true
 
@@ -167,6 +171,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         metadataLayers.clear()
         EntityManager.entities.remove(this)
         world.entities.remove(this)
+        bindablePool.dispose()
     }
 
     fun updateEntity(player: Player, respawn: Boolean = false) {
@@ -233,7 +238,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun sendMetadataPacketToViewers() {
-        viewers.forEach(this::sendMetadataPacket)
+        viewers.toList().forEach(this::sendMetadataPacket)
     }
 
     open fun sendMetadataPacket(player: Player) {
