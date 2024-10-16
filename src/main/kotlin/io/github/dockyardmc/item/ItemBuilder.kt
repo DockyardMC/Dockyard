@@ -2,9 +2,12 @@ package io.github.dockyardmc.item
 
 import io.github.dockyardmc.extentions.fromRGBInt
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.player.ProfileProperty
+import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.CustomColor
+import java.util.UUID
 
 class ItemBuilder() {
 
@@ -222,6 +225,32 @@ class ItemBuilder() {
         }
 
         itemStack.components.addOrUpdate(LodestoneTrackerItemComponent(true, location.world, location, tracked))
+
+        return this
+    }
+
+
+    /**
+     * Sets the profile of the player head
+     *
+     * @param username String (default null)
+     * @param uuid UUID (default null)
+     * @param profile ProfileProperty (default null)
+     * @return ItemBuilder
+     *
+     * @throws IllegalArgumentException if the item is not a player head
+     */
+    fun withProfile(username: String? = null, uuid: UUID? = null, profile: ProfileProperty? = null): ItemBuilder {
+        if (itemStack.material != Items.PLAYER_HEAD) {
+            throw IllegalArgumentException("Item must be a player head")
+        }
+        if (username == null && uuid == null && profile == null) {
+            throw IllegalArgumentException("At least one of the parameters must be set")
+        }
+
+        itemStack.components.addOrUpdate(PlayerHeadProfileItemComponent(username, uuid, ProfilePropertyMap(username.orEmpty(),
+            if (profile != null) mutableListOf(profile) else mutableListOf<ProfileProperty>())
+        ))
 
         return this
     }
