@@ -4,6 +4,7 @@ import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.blocks.BatchBlockUpdate
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager.despawnEntity
@@ -17,6 +18,7 @@ import io.github.dockyardmc.registry.registries.DimensionType
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.runnables.AsyncQueueProcessor
 import io.github.dockyardmc.runnables.AsyncQueueTask
+import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.*
@@ -197,6 +199,40 @@ class World(
         if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
     }
 
+    fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit) {
+        val update = BatchBlockUpdate(this)
+        builder.invoke(update)
+
+        val runnable = AsyncRunnable {
+            val chunks: MutableList<Chunk> = mutableListOf()
+            update.updates.forEach { (location, block) ->
+                val chunk = getOrGenerateChunk(ChunkUtils.getChunkCoordinate(location.x), ChunkUtils.getChunkCoordinate(location.z))
+                if(!chunks.contains(chunk)) chunks.add(chunk)
+
+                setBlockRaw(location, block.getProtocolId(), false)
+            }
+            chunks.forEach { chunk ->
+                chunk.updateCache()
+                this@World.players.values.sendPacket(chunk.packet)
+            }
+        }
+        runnable.callback = {
+            update.then?.invoke()
+        }
+        runnable.run()
+    }
+
+    fun fill(from: Location, to: Location, block: RegistryBlock, thenRun: (() -> Unit)? = null) {
+        fill(from, to, block, thenRun)
+    }
+
+    fun fill(from: Location, to: Location, block: Block, thenRun: (() -> Unit)? = null) {
+        batchBlockUpdate {
+            fill(from, to, block)
+            then = thenRun
+        }
+    }
+
     fun getOrGenerateChunk(x: Int, z: Int): Chunk {
         val chunk = getChunk(x, z)
         if(chunk == null) {
@@ -257,7 +293,7 @@ class World(
         chunks.clear()
 
         WorldManager.worlds.remove(this.name)
-        this.asyncChunkGenerator.shutdown()
+        this.asyncChunkGenerator.dispose()
         eventPool.dispose()
     }
 }

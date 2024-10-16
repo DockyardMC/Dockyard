@@ -1,11 +1,12 @@
 package io.github.dockyardmc.runnables
 
 import io.github.dockyardmc.server.ServerMetrics
+import io.github.dockyardmc.utils.Disposable
 import java.util.concurrent.LinkedTransferQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.SwingUtilities
 
-class AsyncQueueProcessor : Runnable {
+class AsyncQueueProcessor : Runnable, Disposable {
     private val taskQueue = LinkedTransferQueue<AsyncQueueTask>()
     private val isRunning = AtomicBoolean(true)
     private val thread = Thread(this)
@@ -31,7 +32,7 @@ class AsyncQueueProcessor : Runnable {
         }
     }
 
-    fun shutdown() {
+    override fun dispose() {
         isRunning.set(false)
         thread.interrupt()
     }
