@@ -166,10 +166,17 @@ class Location(
         return this.blockX == blockX && this.blockY == blockY && this.blockZ == blockZ
     }
 
-    fun isWithinBound(bound: Bound): Boolean {
-        return x >= bound.firstLocation.fullX && x <= bound.secondLocation.fullX &&
-                y >= bound.firstLocation.fullY && y <= bound.secondLocation.fullY &&
-                z >= bound.firstLocation.fullZ && z <= bound.secondLocation.fullZ
+    fun isWithinBound(region: Bound): Boolean {
+        val minX = minOf(region.firstLocation.x, region.secondLocation.x)
+        val maxX = maxOf(region.firstLocation.x, region.secondLocation.x)
+        val minY = minOf(region.firstLocation.y, region.secondLocation.y)
+        val maxY = maxOf(region.firstLocation.y, region.secondLocation.y)
+        val minZ = minOf(region.firstLocation.z, region.secondLocation.z)
+        val maxZ = maxOf(region.firstLocation.z, region.secondLocation.z)
+
+        return x in minX..maxX &&
+                y >= minY && y <= maxY &&
+                z >= minZ && z <= maxZ
     }
 }
 

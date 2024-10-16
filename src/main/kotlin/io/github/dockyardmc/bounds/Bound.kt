@@ -5,20 +5,17 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
-import java.lang.IllegalArgumentException
 
 class Bound(
     var firstLocation: Location,
     var secondLocation: Location,
-): Disposable {
+) : Disposable {
     val world get() = firstLocation.world
     val size: Vector3 get() = firstLocation.distanceVector(secondLocation).toVector3()
 
@@ -31,7 +28,7 @@ class Bound(
     val metadata: CustomDataHolder = CustomDataHolder()
 
     val eventPool = EventPool()
-
+    var ticks: Boolean = true
 
     fun onEnter(unit: (player: Player) -> Unit) {
         onEnter = unit
@@ -41,14 +38,52 @@ class Bound(
         onLeave = unit
     }
 
+    val highestPoint: Location
+        get() {
+            val maxX = maxOf(firstLocation.x, secondLocation.x)
+            val maxY = maxOf(firstLocation.y, secondLocation.y)
+            val maxZ = maxOf(firstLocation.z, secondLocation.z)
+
+            return Location(maxX, maxY, maxZ, world)
+        }
+
+    val lowestPoint: Location
+        get() {
+            val minX = minOf(firstLocation.x, secondLocation.x)
+            val minY = minOf(firstLocation.y, secondLocation.y)
+            val minZ = minOf(firstLocation.z, secondLocation.z)
+
+            return Location(minX, minY, minZ, world)
+        }
+
+    fun fill(block: RegistryBlock, thenRun: (() -> Unit)? = null) {
+        fill(block.toBlock(), thenRun)
+    }
+
+    fun fill(block: Block, thenRun: (() -> Unit)? = null) {
+        world.batchBlockUpdate {
+            fill(highestPoint, lowestPoint, block)
+            then = thenRun
+        }
+    }
+
     fun getBlocks(): Map<Location, Block> {
         val allBlocks = mutableMapOf<Location, Block>()
-        val first = firstLocation.getFullLocation()
-        val second = secondLocation.getFullLocation()
-        for (iX in first.x.toInt()..second.x.toInt()) {
-            for (iY in first.y.toInt()..second.y.toInt()) {
-                for (iZ in first.z.toInt()..second.z.toInt()) {
-                    allBlocks[Location(iX, iY, iZ, world)] = world.getBlock(iX, iY, iZ)
+        val first = firstLocation
+        val second = secondLocation
+
+        val minX = minOf(first.x, second.x)
+        val maxX = maxOf(first.x, second.x)
+        val minY = minOf(first.y, second.y)
+        val maxY = maxOf(first.y, second.y)
+        val minZ = minOf(first.z, second.z)
+        val maxZ = maxOf(first.z, second.z)
+
+        for (iX in minX.toInt()..maxX.toInt()) {
+            for (iY in minY.toInt()..maxY.toInt()) {
+                for (iZ in minZ.toInt()..maxZ.toInt()) {
+                    val location = Location(iX, iY, iZ, world)
+                    allBlocks[location] = world.getBlock(iX, iY, iZ)
                 }
             }
         }
@@ -56,9 +91,21 @@ class Bound(
     }
 
     fun resize(newFirstLocation: Location, newSecondLocation: Location) {
-        if(newFirstLocation.world != newSecondLocation.world) throw IllegalArgumentException("The two locations cannot be in different worlds (${firstLocation.world.name} - ${secondLocation.world.name})")
-        this.firstLocation = newFirstLocation.getFullLocation()
-        this.secondLocation = newSecondLocation.getFullLocation()
+        if (newFirstLocation.world != newSecondLocation.world) throw IllegalArgumentException("The two locations cannot be in different worlds (${firstLocation.world.name} - ${secondLocation.world.name})")
+        this.firstLocation = getBoundPositionRelative(newFirstLocation, newSecondLocation)
+        this.secondLocation = getBoundPositionRelative(newSecondLocation, newFirstLocation)
+    }
+
+    private fun getBoundPositionRelative(first: Location, second: Location): Location {
+        var finalX = first.x
+        var finalY = first.y
+        var finalZ = first.z
+
+        if (first.x > second.x) finalX = first.x + 0.99999
+        if (first.y > second.y) finalY = first.y + 0.99999
+        if (first.z > second.z) finalZ = first.z + 0.99999
+
+        return Location(finalX, finalY, finalZ, first.world)
     }
 
     fun getEntities(): List<Entity> {
@@ -71,30 +118,18 @@ class Bound(
         resize(firstLocation, secondLocation)
 
         eventPool.on<ServerTickEvent> {
-            firstLocation.world.spawnParticle(firstLocation, Particles.ELECTRIC_SPARK, Vector3f(0f), 0f, 1)
-            secondLocation.world.spawnParticle(secondLocation, Particles.ELECTRIC_SPARK, Vector3f(0f), 0f, 1)
-
+            if (!ticks) return@on
             PlayerManager.players.toList().forEach { player ->
-                if(player.world != world) return@forEach
-                if(player.location.isWithinBound(this) && !members.contains(player)) {
+                if (player.world != world) return@forEach
+                if (player.location.isWithinBound(this) && !members.contains(player)) {
                     val event = PlayerEnterBoundEvent(player, this)
                     Events.dispatch(event)
 
-                    if(event.cancelled) {
-                        player.teleport(player.location)
-                        return@on
-                    }
-
                     members.add(player)
                     onEnter?.invoke(player)
-                } else if(!player.location.isWithinBound(this) && members.contains(player)) {
+                } else if (!player.location.isWithinBound(this) && members.contains(player)) {
                     val event = PlayerLeaveBoundEvent(player, this)
                     Events.dispatch(event)
-
-                    if(event.cancelled) {
-                        player.teleport(player.location)
-                        return@on
-                    }
 
                     members.remove(player)
                     onLeave?.invoke(player)
