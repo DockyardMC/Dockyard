@@ -30,7 +30,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         if(!event.cancelled) PluginMessages.handle(event.channel, event.data, processor.player)
 
         // Send server brand
-        val serverBrandEvent = ServerBrandEvent("§bDockyardMC Server §7(https://github.com/DockyardMC/)")
+        val serverBrandEvent = ServerBrandEvent("§bDockyardMC Server §7(https://github.com/DockyardMC/)§r")
         Events.dispatch(serverBrandEvent)
         connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"), processor)
 
