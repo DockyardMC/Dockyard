@@ -51,8 +51,15 @@ abstract class NpcEntity(location: Location) : Entity(location) {
             }
         }
 
-        eventPool.on<PlayerDamageEntityEvent> { onDamage?.invoke(it) }
-        eventPool.on<PlayerInteractWithEntityEvent> { onRightClick?.invoke(it) }
+        eventPool.on<PlayerDamageEntityEvent> {
+            if(it.entity != this) return@on
+            onDamage?.invoke(it)
+        }
+
+        eventPool.on<PlayerInteractWithEntityEvent> {
+            if(it.entity != this) return@on
+            onRightClick?.invoke(it)
+        }
 
         nametagVisible.valueChanged {
             npcTeam.teamNameTagVisibility.value = getTeamNametagVisibility(); team.value = npcTeam
