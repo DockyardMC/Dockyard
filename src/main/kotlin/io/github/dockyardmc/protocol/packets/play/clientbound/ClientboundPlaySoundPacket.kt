@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.location.Location
@@ -16,7 +16,7 @@ class ClientboundPlaySoundPacket(sound: Sound, location: Location): ClientboundP
 
     init {
         data.writeVarInt(0)
-        data.writeUtf(sound.identifier)
+        data.writeString(sound.identifier)
         data.writeBoolean(false)
         data.writeVarIntEnum<SoundCategory>(sound.category)
         data.writeInt((location.x * 8.0).toInt())

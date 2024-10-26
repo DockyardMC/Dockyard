@@ -1,7 +1,7 @@
 package io.github.dockyardmc.serverlinks
 
 import io.github.dockyardmc.extentions.writeNBT
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -48,6 +48,6 @@ fun ByteBuf.writeServerLinks(serverLinks: MutableList<ServerLink>) {
                 this.writeNBT(it.label.toNBT())
             }
         }
-        this.writeUtf(it.url)
+        this.writeString(it.url)
     }
 }

@@ -92,7 +92,7 @@ fun World.playSound(identifier: String, source: Entity, volume: Float = 0.5f, pi
 
 fun ByteBuf.writeSoundEvent(sound: String) {
     this.writeVarInt(0)
-    this.writeUtf(sound)
+    this.writeString(sound)
     this.writeBoolean(false)
 }
 

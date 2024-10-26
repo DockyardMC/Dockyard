@@ -1,6 +1,6 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.netty.buffer.ByteBuf
 
@@ -9,15 +9,15 @@ data class ProfilePropertyMap(val name: String, val properties: MutableList<Prof
 
 fun ByteBuf.writeProfileProperties(propertyMap: ProfilePropertyMap, disableUtf: Boolean = false) {
 
-    if(!disableUtf) this.writeUtf(propertyMap.name)
+    if(!disableUtf) this.writeString(propertyMap.name)
     this.writeVarInt(propertyMap.properties.size)
 
     propertyMap.properties.forEach {
-        this.writeUtf(it.name)
-        this.writeUtf(it.value)
+        this.writeString(it.name)
+        this.writeString(it.value)
         this.writeBoolean(it.isSigned)
         if(it.isSigned && it.signature != null) {
-            this.writeUtf(it.signature)
+            this.writeString(it.signature)
         }
     }
 }

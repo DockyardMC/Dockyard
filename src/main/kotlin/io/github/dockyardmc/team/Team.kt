@@ -105,8 +105,8 @@ class Team(
 fun ByteBuf.writeTeamInfo(team: Team) {
     this.writeTextComponent(team.displayName.value)
     this.writeByte(team.getFlags().toInt())
-    this.writeUtf(team.teamNameTagVisibility.value.vanilla)
-    this.writeUtf(team.teamCollisionRule.value.value)
+    this.writeString(team.teamNameTagVisibility.value.vanilla)
+    this.writeString(team.teamCollisionRule.value.value)
     this.writeVarInt(team.color.value.ordinal)
     this.writeTextComponent((team.prefix.value ?: ""))
     this.writeTextComponent((team.suffix.value ?: ""))

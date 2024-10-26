@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.configurations
 import io.github.dockyardmc.server.FeatureFlag
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -15,6 +15,6 @@ class ClientboundFeatureFlagsPacket(featureFlags: MutableList<FeatureFlag>): Cli
     init {
         data.writeVarInt(featureFlags.size)
         featureFlags.forEach {
-            data.writeUtf(it.identifier) }
+            data.writeString(it.identifier) }
     }
 }

@@ -198,7 +198,7 @@ fun ByteBuf.readVarInt(): Int {
 
 fun ByteBuf.writeStringArray(list: Collection<String>) {
     writeVarInt(list.size)
-    list.forEach { writeUtf(it) }
+    list.forEach { writeString(it) }
 }
 
 
@@ -239,7 +239,7 @@ fun ByteBuf.readUtfAndLength(i: Int): Pair<String, Int> {
     return string to size
 }
 
-fun ByteBuf.writeUtf(text: String) {
+fun ByteBuf.writeString(text: String) {
     val utf8Bytes = text.toByteArray(StandardCharsets.UTF_8)
     val length = utf8Bytes.size
     this.writeVarInt(length)

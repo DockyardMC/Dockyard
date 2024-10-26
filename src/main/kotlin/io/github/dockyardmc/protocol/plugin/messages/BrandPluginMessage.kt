@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.plugin.messages
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.player.Player
 import io.netty.buffer.ByteBuf
 
@@ -21,6 +21,6 @@ class BrandPluginMessage(val brand: String): PluginMessageHandler() {
     }
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeUtf(brand)
+        buffer.writeString(brand)
     }
 }

@@ -366,9 +366,9 @@ data class BookPage(
 fun ByteBuf.writeBookPages(pages: Collection<BookPage>) {
     this.writeVarInt(pages.size)
     pages.forEach {
-        this.writeUtf(it.rawContent)
+        this.writeString(it.rawContent)
         this.writeOptional(it.filteredContent) { op ->
-            op.writeUtf(it.filteredContent!!)
+            op.writeString(it.filteredContent!!)
         }
     }
 }

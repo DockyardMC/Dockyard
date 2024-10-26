@@ -5,7 +5,7 @@ import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeOptional
 import io.github.dockyardmc.extentions.writeTextComponent
 import io.github.dockyardmc.extentions.writeUUID
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.resourcepack.Resourcepack
@@ -16,8 +16,8 @@ class ClientboundAddResourcepackPacket(resourcepack: Resourcepack): ClientboundP
 
     init {
         data.writeUUID(resourcepack.uuid)
-        data.writeUtf(resourcepack.url)
-        data.writeUtf("what")
+        data.writeString(resourcepack.url)
+        data.writeString("what")
         data.writeBoolean(resourcepack.required)
         data.writeOptional(resourcepack.promptMessage) {
             it.writeTextComponent(resourcepack.promptMessage!!)

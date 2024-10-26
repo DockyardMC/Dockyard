@@ -39,6 +39,8 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         Events.dispatch(featureFlagsEvent)
         connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), processor)
 
+        connection.sendPacket(ClientboundUpdateTagsPacket(), processor)
+
         RegistryManager.dynamicRegistries.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it), processor) }
         connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), processor)
 

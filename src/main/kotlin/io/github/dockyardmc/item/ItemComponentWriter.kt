@@ -129,9 +129,9 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
             this.writeBookPages(comp.pages)
         }
         is WrittenBookContentItemComponent -> {
-            this.writeUtf(comp.title)
-            this.writeOptional(comp.filteredTitle) { op -> op.writeUtf(comp.filteredTitle!!) }
-            this.writeUtf(comp.author)
+            this.writeString(comp.title)
+            this.writeOptional(comp.filteredTitle) { op -> op.writeString(comp.filteredTitle!!) }
+            this.writeString(comp.author)
             this.writeVarInt(comp.generation)
             this.writeBookPages(comp.pages)
             this.writeBoolean(false)
@@ -161,7 +161,7 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
         is JukeboxPlayableItemComponent -> {
             this.writeBoolean(comp.directMode)
             if(!comp.directMode) {
-                this.writeUtf(comp.sound!!)
+                this.writeString(comp.sound!!)
             } else {
                 this.writeVarInt(0)
                 this.writeSoundEvent(comp.sound!!)
@@ -176,20 +176,20 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
         }
         is LodestoneTrackerItemComponent -> {
             this.writeBoolean(comp.hasGlobalPosition)
-            this.writeUtf(comp.dimension.name)
+            this.writeString(comp.dimension.name)
             this.writeBlockPosition(comp.position)
             this.writeBoolean(comp.tracked)
         }
         //TODO Firework Explosion
         //TODO Fireworks
         is PlayerHeadProfileItemComponent -> {
-            this.writeOptional(comp.name) { it.writeUtf(comp.name!!) }
+            this.writeOptional(comp.name) { it.writeString(comp.name!!) }
             this.writeOptional(comp.uuid) { it.writeUUID(comp.uuid!!) }
             this.writeProfileProperties(comp.propertyMap, disableUtf = true)
         }
 
         is NoteBlockSoundItemComponent -> {
-            this.writeUtf(comp.sound)
+            this.writeString(comp.sound)
         }
         //TODO Banner Patterns
         is BannerShieldBaseColorItemComponent -> {

@@ -13,7 +13,7 @@ import java.util.UUID
 class ClientboundLoginSuccessPacket(uuid: UUID, username: String, properties: MutableList<ProfilePropertyMap>): ClientboundPacket() {
     init {
         data.writeUUID(uuid)
-        data.writeUtf(username)
+        data.writeString(username)
         data.writeVarInt(0)
 //        properties.forEach(data::writeProfileProperties)
     }

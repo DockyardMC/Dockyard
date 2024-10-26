@@ -42,7 +42,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.VAR_INT -> this.writeVarInt(v as Int)
         EntityMetaValue.VAR_LONG -> this.writeVarLong(v as Long)
         EntityMetaValue.FLOAT -> this.writeFloat(v as Float)
-        EntityMetaValue.STRING -> this.writeUtf(v as String)
+        EntityMetaValue.STRING -> this.writeString(v as String)
         EntityMetaValue.TEXT_COMPONENT -> this.writeNBT((metadata.value as Component).toNBT())
         EntityMetaValue.OPTIONAL_TEXT_COMPONENT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeNBT((metadata.value as Component).toNBT()) }
         EntityMetaValue.ITEM_STACK -> this.writeItemStack(v as ItemStack)

@@ -1,11 +1,10 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeStringArray
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.team.Team
@@ -16,7 +15,7 @@ import io.netty.buffer.ByteBuf
 @ClientboundPacketInfo(0x60, ProtocolState.PLAY)
 class ClientboundTeamsPacket(teamPacketAction: TeamPacketAction): ClientboundPacket() {
     init {
-        data.writeUtf(teamPacketAction.team.name)
+        data.writeString(teamPacketAction.team.name)
         data.writeByte(teamPacketAction.id.toInt())
         teamPacketAction.write(data)
     }
