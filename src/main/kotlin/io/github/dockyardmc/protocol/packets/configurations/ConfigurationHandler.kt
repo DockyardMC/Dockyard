@@ -76,7 +76,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         val world = event.world
 
         processor.player.world = world
-        player.gameMode.value = GameMode.ADVENTURE
+//        player.gameMode.value = GameMode.ADVENTURE
 
         if(world.canBeJoined.value) {
             acceptPlayer(player, world)
@@ -88,12 +88,6 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
     }
 
     private fun acceptPlayer(player: Player, world: World) {
-
-        val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
-        player.sendPacket(chunkCenterChunkPacket)
-
-        val gameEventPacket = ClientboundGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
-        player.sendPacket(gameEventPacket)
 
         val playPacket = ClientboundLoginPacket(
             entityId = player.entityId,
@@ -118,9 +112,15 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         )
         player.sendPacket(playPacket)
 
+        val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
+        player.sendPacket(chunkCenterChunkPacket)
+
+        val gameEventPacket = ClientboundGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 0f)
+        player.sendPacket(gameEventPacket)
+
         world.join(player)
         ServerStatusManager.updateCache()
-        Events.dispatch(PlayerJoinEvent(processor.player))
+//        Events.dispatch(PlayerJoinEvent(processor.player))
 
         player.sendPacket(ClientboundCommandsPacket(buildCommandGraph(player)))
 

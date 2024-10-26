@@ -74,6 +74,7 @@ object DamageTypeRegistry: DynamicRegistry {
         addEntry(DamageType("minecraft:wind_charge", exhaustion = 0.1f, messageId = "mob", scaling = "when_caused_by_living_non_player"), false)
         addEntry(DamageType("minecraft:wither", exhaustion = 0.0f, messageId = "wither", scaling = "when_caused_by_living_non_player"), false)
         addEntry(DamageType("minecraft:wither_skull", exhaustion = 0.1f, messageId = "witherSkull", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:ender_pearl", exhaustion = 0f, messageId = "fall", scaling = "when_caused_by_living_non_player"), false)
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
