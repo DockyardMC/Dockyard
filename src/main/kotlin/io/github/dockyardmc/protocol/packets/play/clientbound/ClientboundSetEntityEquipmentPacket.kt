@@ -11,7 +11,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Set Equipment")
 @ClientboundPacketInfo(0x5B, ProtocolState.PLAY)
-class ClientboundSetEquipmentPacket(val entity: Entity, val equipment: EntityEquipment): ClientboundPacket() {
+class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: EntityEquipment): ClientboundPacket() {
 
     init {
         data.writeVarInt(entity.entityId)

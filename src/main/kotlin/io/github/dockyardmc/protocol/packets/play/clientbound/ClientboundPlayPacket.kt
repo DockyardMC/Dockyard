@@ -11,7 +11,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Login (play)")
 @ClientboundPacketInfo(0x2B, ProtocolState.PLAY)
-class ClientboundLoginPlayPacket(
+class ClientboundPlayPacket(
     entityId: Int,
     isHardcore: Boolean,
     dimensionNames: Collection<String>,

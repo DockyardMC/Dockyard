@@ -95,7 +95,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
         player.sendPacket(gameEventPacket)
 
-        val playPacket = ClientboundLoginPlayPacket(
+        val playPacket = ClientboundPlayPacket(
             entityId = player.entityId,
             isHardcore = world.isHardcore,
             dimensionNames = WorldManager.worlds.keys,

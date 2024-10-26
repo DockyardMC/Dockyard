@@ -2,19 +2,15 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
+import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.scroll.Component
 
-@WikiVGEntry("Set Title Animation Times")
-@ClientboundPacketInfo(0x66, ProtocolState.PLAY)
-class ClientboundTitleTimesPacket(
-    val fadeIn: Int,
-    val stay: Int,
-    val fadeOut: Int
-): ClientboundPacket() {
+@WikiVGEntry("Set Subtitle Text")
+@ClientboundPacketInfo(0x63, ProtocolState.PLAY)
+class ClientboundSetSubtitlePacket(component: Component): ClientboundPacket() {
     init {
-        data.writeInt(fadeIn)
-        data.writeInt(stay)
-        data.writeInt(fadeOut)
+        data.writeNBT(component.toNBT())
     }
 }

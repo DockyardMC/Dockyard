@@ -11,7 +11,7 @@ import io.github.dockyardmc.utils.vectors.writeShortVector3
 
 @WikiVGEntry("Set Entity Velocity")
 @ClientboundPacketInfo(0x5A, ProtocolState.PLAY)
-class ClientboundSetVelocityPacket(entity: Entity, velocity: Vector3): ClientboundPacket() {
+class ClientboundSetEntityVelocityPacket(entity: Entity, velocity: Vector3): ClientboundPacket() {
 
     init {
         data.writeVarInt(entity.entityId)

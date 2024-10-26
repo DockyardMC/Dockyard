@@ -217,7 +217,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     //TODO move to bindable
     open fun setEntityVelocity(velocity: Vector3) {
-        val packet = ClientboundSetVelocityPacket(this, velocity)
+        val packet = ClientboundSetEntityVelocityPacket(this, velocity)
         viewers.sendPacket(packet)
         sendSelfPacketIfPlayer(packet)
     }
@@ -249,7 +249,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     open fun sendEquipmentPacket(player: Player) {
         val equipment = getMergedEquipmentData(equipment.value, equipmentLayers[player.toPersistent()])
-        val packet = ClientboundSetEquipmentPacket(this, equipment)
+        val packet = ClientboundSetEntityEquipmentPacket(this, equipment)
         player.sendPacket(packet)
     }
 

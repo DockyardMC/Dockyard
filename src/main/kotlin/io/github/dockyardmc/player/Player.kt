@@ -386,8 +386,8 @@ class Player(
 
     fun sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
         val packets = mutableListOf(
-            ClientboundSubtitlePacket(subtitle.toComponent()),
-            ClientboundTitleTimesPacket(fadeIn, stay, fadeOut),
+            ClientboundSetSubtitlePacket(subtitle.toComponent()),
+            ClientboundSetTitleTimesPacket(fadeIn, stay, fadeOut),
             ClientboundSetTitlePacket(title.toComponent()),
         )
 

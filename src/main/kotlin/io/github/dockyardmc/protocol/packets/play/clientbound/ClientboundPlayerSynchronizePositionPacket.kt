@@ -17,12 +17,12 @@ class ClientboundPlayerSynchronizePositionPacket(location: Location): Clientboun
     }
 
     init {
+        data.writeVarInt(teleportId.incrementAndGet())
         data.writeDouble(location.x)
         data.writeDouble(location.y)
         data.writeDouble(location.z)
         data.writeFloat(location.yaw)
         data.writeFloat(location.pitch)
         data.writeByte(0x0)
-        data.writeVarInt(teleportId.incrementAndGet())
     }
 }
