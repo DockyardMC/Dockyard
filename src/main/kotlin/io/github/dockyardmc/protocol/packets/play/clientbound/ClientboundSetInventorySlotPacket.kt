@@ -13,9 +13,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 class ClientboundSetInventorySlotPacket(windowId: Int, stateId: Int, slot: Int, itemStack: ItemStack): ClientboundPacket() {
 
     init {
-        data.writeByte(windowId)
-        data.writeVarInt(stateId)
-        data.writeShort(slot)
+        data.writeVarInt(slot)
         data.writeItemStack(itemStack)
     }
 }

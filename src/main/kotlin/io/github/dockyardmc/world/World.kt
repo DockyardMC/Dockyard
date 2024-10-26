@@ -56,6 +56,8 @@ class World(
     var isHardcore: Boolean = false
     var freezeTime: Boolean = false
 
+    var seaLevel = 0
+
     var asyncChunkGenerator = AsyncQueueProcessor()
     var eventPool = EventPool()
 

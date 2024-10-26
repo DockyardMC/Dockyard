@@ -22,10 +22,11 @@ class ClientboundRespawnPacket(player: Player, dataKept: RespawnDataKept = Respa
         data.writeBoolean(player.world.generator::class == FlatWorldGenerator::class)
         data.writeBoolean(false)
         data.writeVarInt(0)
-        data.writeByte(dataKept.bitMask)
+        data.writeByte(dataKept.bitMask.toInt())
+        data.writeVarInt(player.world.seaLevel)
     }
 
-    enum class RespawnDataKept(val bitMask: Int) {
+    enum class RespawnDataKept(val bitMask: Byte) {
         NO_DATA_KEPT(0x00),
         KEEP_ATTRIBUTES(0x01),
         KEEP_METADATA(0x02),

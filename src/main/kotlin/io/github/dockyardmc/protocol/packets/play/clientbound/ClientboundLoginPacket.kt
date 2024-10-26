@@ -11,7 +11,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Login (play)")
 @ClientboundPacketInfo(0x2B, ProtocolState.PLAY)
-class ClientboundPlayPacket(
+class ClientboundLoginPacket(
     entityId: Int,
     isHardcore: Boolean,
     dimensionNames: Collection<String>,
@@ -29,6 +29,8 @@ class ClientboundPlayPacket(
     isDebug: Boolean,
     isFlat: Boolean,
     portalCooldown: Int,
+    seaLevel: Int,
+    enforcesSecureChat: Boolean
 ): ClientboundPacket() {
 
     init {
@@ -54,6 +56,7 @@ class ClientboundPlayPacket(
 //        data.writePosition(Location(0, 0, 0)) // death location
 
         data.writeVarInt(portalCooldown)
-        data.writeBoolean(false)
+        data.writeVarInt(seaLevel)
+        data.writeBoolean(enforcesSecureChat)
     }
 }

@@ -95,7 +95,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         val gameEventPacket = ClientboundGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
         player.sendPacket(gameEventPacket)
 
-        val playPacket = ClientboundPlayPacket(
+        val playPacket = ClientboundLoginPacket(
             entityId = player.entityId,
             isHardcore = world.isHardcore,
             dimensionNames = WorldManager.worlds.keys,
@@ -112,7 +112,9 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
             previousGameMode = player.gameMode.value,
             isDebug = false,
             isFlat = true,
-            portalCooldown = 0
+            portalCooldown = 0,
+            world.seaLevel,
+            false
         )
         player.sendPacket(playPacket)
 

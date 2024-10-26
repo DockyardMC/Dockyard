@@ -449,7 +449,7 @@ class Player(
 
     fun updateWorldTime() {
         val time = if(time.value == -1L) world.time.value else time.value
-        val packet = ClientboundUpdateTimePacket(world.worldAge, time)
+        val packet = ClientboundUpdateTimePacket(world.worldAge, time, world.freezeTime)
         sendPacket(packet)
     }
 
