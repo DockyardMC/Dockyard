@@ -7,7 +7,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Game Event")
 @ClientboundPacketInfo(0x22, ProtocolState.PLAY)
-class ClientboundPlayerGameEventPacket(
+class ClientboundGameEventPacket(
     event: GameEvent,
     value: Float,
 ): ClientboundPacket() {

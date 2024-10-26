@@ -11,6 +11,7 @@ import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.commands.DockyardCommands
 import io.github.dockyardmc.npc.NpcCommand
 import io.github.dockyardmc.protocol.PacketParser
+import io.github.dockyardmc.protocol.packets.ClientPacketRegistry
 import io.github.dockyardmc.registry.MinecraftVersions
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.*
@@ -34,6 +35,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         val packetClasses = AnnotationProcessor.getServerboundPacketClassInfo()
         PacketParser.idAndStatePairToPacketClass = packetClasses
         AnnotationProcessor.addIdsToClientboundPackets()
+        ClientPacketRegistry.load()
 
         RegistryManager.register(BlockRegistry)
         RegistryManager.register(EntityTypeRegistry)

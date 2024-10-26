@@ -92,7 +92,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
         player.sendPacket(chunkCenterChunkPacket)
 
-        val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
+        val gameEventPacket = ClientboundGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
         player.sendPacket(gameEventPacket)
 
         val playPacket = ClientboundPlayPacket(

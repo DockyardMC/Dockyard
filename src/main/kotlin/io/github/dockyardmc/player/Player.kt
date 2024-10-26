@@ -115,7 +115,7 @@ class Player(
         fovModifier.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, it.newValue)) }
 
         gameMode.valueChanged {
-            this.sendPacket(ClientboundPlayerGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat()))
+            this.sendPacket(ClientboundGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat()))
             when(it.newValue) {
                 GameMode.SPECTATOR,
                 GameMode.CREATIVE -> {
@@ -413,7 +413,7 @@ class Player(
     }
 
     fun refreshClientStateAfterRespawn() {
-        sendPacket(ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f))
+        sendPacket(ClientboundGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f))
         sendPacket(ClientboundChangeDifficultyPacket(world.difficulty.value, true))
         gameMode.value = gameMode.value
         sendHealthUpdatePacket()

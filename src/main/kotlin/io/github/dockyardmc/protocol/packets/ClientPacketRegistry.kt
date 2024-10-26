@@ -6,7 +6,9 @@ import io.github.dockyardmc.protocol.packets.handshake.ClientboundStatusResponse
 import io.github.dockyardmc.protocol.packets.login.ClientboundEncryptionRequestPacket
 import io.github.dockyardmc.protocol.packets.login.ClientboundLoginDisconnectPacket
 import io.github.dockyardmc.protocol.packets.login.ClientboundLoginSuccessPacket
+import io.github.dockyardmc.protocol.packets.login.ClientboundSetCompressionPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import java.lang.IllegalArgumentException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
@@ -24,6 +26,21 @@ object ClientPacketRegistry {
     val configurationPackets: MutableMap<KClass<*>, Int> = mutableMapOf()
     val playPackets: MutableMap<KClass<*>, Int> = mutableMapOf()
 
+    fun getIdAndStateOrThrow(packet: KClass<*>): Pair<Int, ProtocolState> {
+        val handshakePacket = handshakePackets[packet]
+        val statusPacket = statusPackets[packet]
+        val loginPacket = loginPackets[packet]
+        val configurationPacket = configurationPackets[packet]
+        val playPacket = playPackets[packet]
+        if(handshakePacket != null) return handshakePacket to ProtocolState.HANDSHAKE
+        if(statusPacket != null) return statusPacket to ProtocolState.STATUS
+        if(loginPacket != null) return loginPacket to ProtocolState.LOGIN
+        if(configurationPacket != null) return configurationPacket to ProtocolState.CONFIGURATION
+        if(playPacket != null) return playPacket to ProtocolState.PLAY
+
+        throw IllegalArgumentException("Packet class ${packet.simpleName} does not have assigned protocol id!")
+    }
+
     fun load() {
         addStatus(ClientboundStatusResponsePacket::class)
         addStatus(ClientboundPingResponsePacket::class)
@@ -31,6 +48,7 @@ object ClientPacketRegistry {
         addLogin(ClientboundLoginDisconnectPacket::class)
         addLogin(ClientboundEncryptionRequestPacket::class)
         addLogin(ClientboundLoginSuccessPacket::class)
+        addLogin(ClientboundSetCompressionPacket::class)
         skipLogin("Plugin Request")
         skipLogin("Cookie Request")
 
@@ -50,7 +68,7 @@ object ClientPacketRegistry {
         addConfiguration(ClientboundUpdateTagsPacket::class)
         addConfiguration(ClientboundKnownPacksPackets::class)
         skipConfiguration("Custom Reports")
-        addConfiguration(ClientboundServerLinksPacket::class)
+        addConfiguration(ClientboundConfigurationServerLinksPacket::class)
 
         skipPlay("Bundle")
         addPlay(ClientboundSpawnEntityPacket::class)
@@ -87,7 +105,7 @@ object ClientPacketRegistry {
         addPlay(ClientboundEntityPositionSyncPacket::class)
         skipPlay("Explosion")
         addPlay(ClientboundUnloadChunkPacket::class)
-        skipPlay("Change game state")
+        addPlay(ClientboundGameEventPacket::class)
         skipPlay("open horse inventory")
         skipPlay("hit animation")
         addPlay(ClientboundInitializeWorldBorderPacket::class)
@@ -140,7 +158,7 @@ object ClientPacketRegistry {
         skipPlay("world border warning delay")
         addPlay(ClientboundSetWorldBorderWarningDistance::class)
         skipPlay("camera")
-        skipPlay("update view")
+        addPlay(ClientboundSetCenterChunkPacket::class)
         skipPlay("view distance")
         skipPlay("cursor item")
         skipPlay("spawn position")
@@ -181,8 +199,7 @@ object ClientPacketRegistry {
         skipPlay("tags")
         skipPlay("projectile power")
         skipPlay("custom report details")
-        addPlay(ClientboundServerLinksPacket::class)
-
+        skipPlay("server links")
     }
 
     private fun addHandshake(packet: KClass<*>) {
@@ -206,10 +223,10 @@ object ClientPacketRegistry {
     }
 
     private fun skipHandshake(string: String) { handshakeCounter.getAndIncrement() }
-    private fun skipStatus(string: String) { handshakeCounter.getAndIncrement() }
-    private fun skipLogin(string: String) { handshakeCounter.getAndIncrement() }
-    private fun skipConfiguration(string: String) { handshakeCounter.getAndIncrement() }
-    private fun skipPlay(string: String) { handshakeCounter.getAndIncrement() }
+    private fun skipStatus(string: String) { statusCounter.getAndIncrement() }
+    private fun skipLogin(string: String) { loginCounter.getAndIncrement() }
+    private fun skipConfiguration(string: String) { configurationCounter.getAndIncrement() }
+    private fun skipPlay(string: String) { playCounter.getAndIncrement() }
 
 }
 
