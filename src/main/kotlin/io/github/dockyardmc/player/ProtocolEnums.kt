@@ -10,6 +10,12 @@ enum class PlayerHand {
     OFF_HAND
 }
 
+enum class ClientParticleSettings {
+    ALL,
+    DECREASED,
+    MINIMAL
+}
+
 enum class PlayerAction {
     SNEAKING_START,
     SNEAKING_STOP,

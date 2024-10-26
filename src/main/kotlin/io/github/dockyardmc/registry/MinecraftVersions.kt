@@ -1,6 +1,7 @@
 package io.github.dockyardmc.registry
 
 object MinecraftVersions {
+    val v1_21_3 = MinecraftVersion(768, "1.21.3")
     val v1_21 = MinecraftVersion(767, "1.21")
     val v1_20_6 = MinecraftVersion(766, "1.20.6")
     val v1_20_5 = MinecraftVersion(766, "1.20.5")

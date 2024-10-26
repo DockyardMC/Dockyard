@@ -46,7 +46,7 @@ class EventsDocumentationGenerator {
 
         val dir = File("./out/")
         dir.mkdirs()
-        val file = File("./out/events.md")
+        val file = File("./out/event-list.md")
         file.createNewFile()
         file.writeText(markdown)
 

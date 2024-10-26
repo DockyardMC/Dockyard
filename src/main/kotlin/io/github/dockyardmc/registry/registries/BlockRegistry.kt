@@ -30,6 +30,8 @@ object BlockRegistry: DataDrivenRegistry {
         val list = Json.decodeFromStream<List<RegistryBlock>>(stream)
         blocks += list.associateBy { it.identifier }
         protocolIdToBlock = list.associateBy { it.defaultBlockStateId }
+        log("Loaded ${blocks.size} blocks")
+        log("${getByProtocolIdOrNull(22)}")
     }
 
     override fun get(identifier: String): RegistryBlock {
