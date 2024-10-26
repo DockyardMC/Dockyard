@@ -56,6 +56,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
             packet.mainHandSide,
             packet.enableTextFiltering,
             packet.allowServerListing,
+            packet.particleSettings
         )
 
         val event = PlayerClientConfigurationEvent(clientConfiguration, processor.player)

@@ -6,7 +6,8 @@ class ClientConfiguration(
     var chatMode: Int,
     var chatColors: Boolean,
     var displayedSkinParts: Byte,
-    var mainHandSide: Int,
+    var mainHandSide: PlayerHand,
     var enableTextFiltering: Boolean,
-    var allowServerListing: Boolean
+    var allowServerListing: Boolean,
+    var particleSettings: ClientParticleSettings
 )
