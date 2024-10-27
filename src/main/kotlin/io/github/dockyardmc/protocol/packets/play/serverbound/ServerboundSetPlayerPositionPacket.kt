@@ -5,16 +5,18 @@ import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.bitMask
+import io.github.dockyardmc.utils.vectors.Vector3d
+import io.github.dockyardmc.utils.vectors.readVector3d
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 @WikiVGEntry("Set Player Position")
 @ServerboundPacketInfo(26, ProtocolState.PLAY)
 class ServerboundSetPlayerPositionPacket(
-    val x: Double,
-    val y: Double,
-    val z: Double,
-    val isOnGround: Boolean
+    val vector3d: Vector3d,
+    val isOnGround: Boolean,
+    val horizontalCollision: Boolean,
 ): ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
@@ -23,12 +25,13 @@ class ServerboundSetPlayerPositionPacket(
 
     companion object {
         fun read(buf: ByteBuf): ServerboundSetPlayerPositionPacket {
-            return ServerboundSetPlayerPositionPacket(
-                buf.readDouble(),
-                buf.readDouble(),
-                buf.readDouble(),
-                buf.readBoolean()
-            )
+            val vector3d = buf.readVector3d()
+            val mask = buf.readByte()
+
+            val isOnGround = bitMask(mask, 1)
+            val isHorizontalCollision = bitMask(mask, 2)
+
+            return ServerboundSetPlayerPositionPacket(vector3d, isOnGround, isHorizontalCollision)
         }
     }
 }

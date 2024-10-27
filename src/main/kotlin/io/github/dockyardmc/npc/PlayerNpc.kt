@@ -87,7 +87,7 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     }
 
     fun swingHand() {
-        val packet = ClientboundEntityAnimationPacket(this, EntityAnimation.SWING_MAIN_ARM)
+        val packet = ClientboundPlayerAnimationPacket(this, EntityAnimation.SWING_MAIN_ARM)
         viewers.sendPacket(packet)
     }
 

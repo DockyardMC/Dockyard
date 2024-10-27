@@ -33,6 +33,15 @@ class Location(
     constructor(x: Double, y: Double, z: Double, world: World):
             this(x, y, z, 0f, 0f, world)
 
+    constructor(vector: Vector3, yaw: Float, pitch: Float, world: World):
+            this(vector.x, vector.y, vector.z, yaw, pitch, world)
+
+    constructor(vector: Vector3d, yaw: Float, pitch: Float, world: World):
+            this(vector.x, vector.y, vector.z, yaw, pitch, world)
+
+    constructor(vector: Vector3f, yaw: Float, pitch: Float, world: World):
+            this(vector.x.toDouble(), vector.y.toDouble(), vector.z.toDouble(), yaw, pitch, world)
+
     val blockX: Int get() = floor(x).toInt()
     val blockY: Int get() = floor(y).toInt()
     val blockZ: Int get() = floor(z).toInt()

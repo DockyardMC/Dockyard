@@ -43,7 +43,7 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("Bundle")
         addPlay(ClientboundSpawnEntityPacket::class)
         skipPlay("Spawn experience orb")
-        addPlay(ClientboundEntityAnimationPacket::class)
+        addPlay(ClientboundPlayerAnimationPacket::class)
         skipPlay("Statistics")
         addPlay(ClientboundAcknowledgeBlockChangePacket::class)
         skipPlay("Block break animation")

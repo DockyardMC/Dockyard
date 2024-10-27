@@ -106,3 +106,11 @@ fun ByteBuf.writeVector3d(vector3: Vector3d) {
     this.writeDouble(vector3.y)
     this.writeDouble(vector3.z)
 }
+
+fun ByteBuf.readVector3d(): Vector3d {
+    return Vector3d(
+        this.readDouble(),
+        this.readDouble(),
+        this.readDouble()
+    )
+}

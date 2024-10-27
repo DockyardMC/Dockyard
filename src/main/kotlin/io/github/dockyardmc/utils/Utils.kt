@@ -7,10 +7,19 @@ import io.github.dockyardmc.entities.getEntityMetadataState
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
 import java.security.MessageDigest
+import kotlin.experimental.and
 import kotlin.reflect.KClass
 
 fun now(): Long {
     return System.currentTimeMillis()
+}
+
+fun bitMask(mask: Byte, compare: Byte): Boolean {
+    return mask and compare != (0).toByte()
+}
+
+fun bitMask(mask: Byte, compare: Int): Boolean {
+    return bitMask(mask, compare.toByte())
 }
 
 fun ticksToMs(ticks: Int): Int = ticks * 50

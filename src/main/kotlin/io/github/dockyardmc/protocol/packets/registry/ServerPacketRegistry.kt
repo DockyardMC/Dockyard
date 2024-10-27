@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.registry
 
 import io.github.dockyardmc.protocol.packets.configurations.ServerboundClientInformationPacket
+import io.github.dockyardmc.protocol.packets.configurations.ServerboundConfigurationPluginMessagePacket
 import io.github.dockyardmc.protocol.packets.configurations.ServerboundFinishConfigurationAcknowledgePacket
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundPingRequestPacket
@@ -10,7 +11,7 @@ import io.github.dockyardmc.protocol.packets.login.ServerboundLoginAcknowledgedP
 import io.github.dockyardmc.protocol.packets.login.ServerboundLoginStartPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
 
-object ServerPacketRegistry: PacketRegistry() {
+object ServerPacketRegistry : PacketRegistry() {
 
 
     override fun load() {
@@ -26,13 +27,13 @@ object ServerPacketRegistry: PacketRegistry() {
         skipLogin("cookie response")
 
         addConfiguration(ServerboundClientInformationPacket::class)
-        skipLogin("cookie response")
-        skipLogin("plugin message")
+        skipConfiguration("cookie response")
+        addConfiguration(ServerboundConfigurationPluginMessagePacket::class)
         addConfiguration(ServerboundFinishConfigurationAcknowledgePacket::class)
-        skipLogin("keep alive")
-        skipLogin("pong")
-        skipLogin("resourcepack status")
-        skipLogin("known packs")
+        skipConfiguration("keep alive")
+        skipConfiguration("pong")
+        skipConfiguration("resourcepack status")
+        skipConfiguration("known packs")
 
         addPlay(ServerboundTeleportConfirmationPacket::class)
         skipPlay("query block nbt")
@@ -41,12 +42,11 @@ object ServerPacketRegistry: PacketRegistry() {
         skipPlay("chat ack")
         addPlay(ServerboundChatCommandPacket::class)
         skipPlay("signed command")
-        skipPlay("signed chat")
         addPlay(ServerboundPlayerChatMessagePacket::class)
         skipPlay("chat session update")
         skipPlay("chunk batch received")
         addPlay(ServerboundClientStatusPacket::class)
-        skipPlay("tick end")
+        addPlay(ServerboundClientTickEndPacket::class)
         skipPlay("client settings update")
         addPlay(ServerboundCommandSuggestionPacket::class)
         skipPlay("configuration ack")
@@ -66,7 +66,7 @@ object ServerPacketRegistry: PacketRegistry() {
         addPlay(ServerboundSetPlayerPositionPacket::class)
         addPlay(ServerboundSetPlayerPositionAndRotationPacket::class)
         addPlay(ServerboundSetPlayerRotationPacket::class)
-        skipPlay("position status (is on ground)")
+        addPlay(ServerboundSetPlayerOnGroundPacket::class)
         skipPlay("vehicle move")
         skipPlay("steer boat")
         skipPlay("pick item")
@@ -74,8 +74,8 @@ object ServerPacketRegistry: PacketRegistry() {
         skipPlay("place recipe")
         addPlay(ServerboundPlayerAbilitiesPacket::class)
         skipPlay("player digging")
-        skipPlay("entity action")
-        skipPlay("client input")
+        addPlay(ServerboundPlayerCommandPacket::class)
+        addPlay(ServerboundClientInputPacket::class)
         skipPlay("client pong")
         skipPlay("set recipe book state")
         skipPlay("set recipe book seen")
@@ -91,7 +91,7 @@ object ServerPacketRegistry: PacketRegistry() {
         skipPlay("jigsaw update")
         skipPlay("structure update")
         skipPlay("update sign")
-        skipPlay("client animation")
+        addPlay(ServerboundPlayerSwingHandPacket::class)
         skipPlay("client spectate")
         skipPlay("block place")
         addPlay(ServerboundUseItemOnPacket::class)

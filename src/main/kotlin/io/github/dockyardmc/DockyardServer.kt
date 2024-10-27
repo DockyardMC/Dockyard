@@ -33,10 +33,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         instance = this
         configBuilder.invoke(config)
 
-        val packetClasses = AnnotationProcessor.getServerboundPacketClassInfo()
-        PacketParser.idAndStatePairToPacketClass = packetClasses
-        AnnotationProcessor.addIdsToClientboundPackets()
-
         ServerPacketRegistry.load()
         ClientPacketRegistry.load()
 
@@ -103,6 +99,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             "ClientboundSendParticlePacket",
             "ClientboundUpdateScorePacket",
             "ClientboundChunkDataPacket",
+            "ServerboundClientTickEndPacket"
         )
     }
 }

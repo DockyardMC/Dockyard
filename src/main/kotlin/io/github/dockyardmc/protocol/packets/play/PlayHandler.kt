@@ -17,7 +17,7 @@ class PlayHandler(var processor: PlayerNetworkManager): PacketHandler(processor)
 
     fun handlePlayerPositionAndRotationUpdates(packet: ServerboundSetPlayerPositionPacket, connection: ChannelHandlerContext) {
         val player = processor.player
-        this.handlePlayerPositionAndRotationUpdates(Location(packet.x, packet.y, packet.z, player.location.yaw, player.location.pitch, player.world), packet.isOnGround, connection)
+        this.handlePlayerPositionAndRotationUpdates(Location(packet.vector3d, player.location.yaw, player.location.pitch, player.world), packet.isOnGround, connection)
     }
 
     fun handlePlayerPositionAndRotationUpdates(packet: ServerboundSetPlayerPositionAndRotationPacket, connection: ChannelHandlerContext) {

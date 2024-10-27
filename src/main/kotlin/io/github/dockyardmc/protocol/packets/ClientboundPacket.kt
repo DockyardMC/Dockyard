@@ -11,7 +11,7 @@ open class ClientboundPacket() {
     var state: ProtocolState? = null
 
     init {
-        val packet = ClientPacketRegistry.getIdAndStateOrThrow(this::class)
+        val packet = ClientPacketRegistry.getIdAndState(this::class)
         id = packet.first
         state = packet.second
     }
