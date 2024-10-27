@@ -27,7 +27,6 @@ object DebugScoreboard {
             val fRented = (runtime.totalMemory().toDouble() / 1000000).truncate(1)
             val fMax = (runtime.maxMemory().toDouble() / 1000000).truncate(1)
 
-
             val msptColor = when {
                 mspt >= 60.0 -> "<red>"
                 mspt >= 58.0 -> "<orange>"

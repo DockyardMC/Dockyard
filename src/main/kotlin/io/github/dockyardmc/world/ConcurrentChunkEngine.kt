@@ -55,8 +55,9 @@ class ConcurrentChunkEngine(val player: Player) {
     }
 
     fun loadChunk(chunkIndex: Long, world: World) {
-        if (world.chunks.containsKey(chunkIndex)) {
-            player.sendPacket(world.getChunkFromIndex(chunkIndex)!!.packet)
+        val chunk = world.chunks[chunkIndex]
+        if (chunk != null) {
+            player.sendPacket(chunk.packet)
             loadedChunks.add(chunkIndex)
         } else {
             val (x, z) = ChunkUtils.getChunkCoordsFromIndex(chunkIndex)

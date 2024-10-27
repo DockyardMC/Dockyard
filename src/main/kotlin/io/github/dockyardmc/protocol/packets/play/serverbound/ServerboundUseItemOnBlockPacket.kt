@@ -29,7 +29,7 @@ val placementRules = mutableListOf<BlockPlacementRule>()
 
 @WikiVGEntry("Use Item On")
 @ServerboundPacketInfo(56, ProtocolState.PLAY)
-class ServerboundUseItemOnPacket(
+class ServerboundUseItemOnBlockPacket(
     var hand: PlayerHand,
     var pos: Vector3,
     var face: Direction,
@@ -37,6 +37,7 @@ class ServerboundUseItemOnPacket(
     var cursorY: Float,
     var cursorZ: Float,
     var insideBlock: Boolean,
+    var hitWorldBorder: Boolean,
     var sequence: Int,
 ) : ServerboundPacket {
 
@@ -172,14 +173,15 @@ class ServerboundUseItemOnPacket(
     }
 
     companion object {
-        fun read(buf: ByteBuf): ServerboundUseItemOnPacket {
-            return ServerboundUseItemOnPacket(
+        fun read(buf: ByteBuf): ServerboundUseItemOnBlockPacket {
+            return ServerboundUseItemOnBlockPacket(
                 buf.readVarIntEnum<PlayerHand>(),
                 buf.readBlockPosition(),
                 buf.readVarIntEnum<Direction>(),
                 buf.readFloat(),
                 buf.readFloat(),
                 buf.readFloat(),
+                buf.readBoolean(),
                 buf.readBoolean(),
                 buf.readVarInt()
             )

@@ -3,6 +3,7 @@ package io.github.dockyardmc.extentions
 import cz.lukynka.BindableList
 import io.github.dockyardmc.player.PersistentPlayer
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.packets.ClientboundPacket
 
 val BindableList<PersistentPlayer>.onlinePlayers: List<Player> get() {
     val players = mutableListOf<Player>()
@@ -10,4 +11,8 @@ val BindableList<PersistentPlayer>.onlinePlayers: List<Player> get() {
     onlinePersistent.forEach { players.add(it.toPlayer()!!) }
 
     return players.toList()
+}
+
+fun BindableList<Player>.sendPacket(packet: ClientboundPacket) {
+    values.sendPacket(packet)
 }

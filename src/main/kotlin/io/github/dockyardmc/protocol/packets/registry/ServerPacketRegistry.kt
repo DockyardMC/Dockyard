@@ -13,7 +13,6 @@ import io.github.dockyardmc.protocol.packets.play.serverbound.*
 
 object ServerPacketRegistry : PacketRegistry() {
 
-
     override fun load() {
         addHandshake(ServerboundHandshakePacket::class)
 
@@ -73,7 +72,7 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("ping request")
         skipPlay("place recipe")
         addPlay(ServerboundPlayerAbilitiesPacket::class)
-        skipPlay("player digging")
+        addPlay(ServerboundPlayerActionPacket::class)
         addPlay(ServerboundPlayerCommandPacket::class)
         addPlay(ServerboundClientInputPacket::class)
         skipPlay("client pong")
@@ -93,8 +92,7 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("update sign")
         addPlay(ServerboundPlayerSwingHandPacket::class)
         skipPlay("client spectate")
-        skipPlay("block place")
-        addPlay(ServerboundUseItemOnPacket::class)
+        addPlay(ServerboundUseItemOnBlockPacket::class)
         addPlay(ServerboundUseItemPacket::class)
     }
 }
