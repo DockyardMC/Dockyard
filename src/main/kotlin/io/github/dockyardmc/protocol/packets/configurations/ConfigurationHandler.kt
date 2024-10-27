@@ -120,7 +120,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
 
         world.join(player)
         ServerStatusManager.updateCache()
-//        Events.dispatch(PlayerJoinEvent(processor.player))
+        Events.dispatch(PlayerJoinEvent(processor.player))
 
         player.sendPacket(ClientboundCommandsPacket(buildCommandGraph(player)))
 

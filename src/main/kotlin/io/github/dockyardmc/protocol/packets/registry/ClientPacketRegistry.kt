@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.packets
+package io.github.dockyardmc.protocol.packets.registry
 
 import io.github.dockyardmc.protocol.packets.configurations.*
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundPingResponsePacket
@@ -8,40 +8,10 @@ import io.github.dockyardmc.protocol.packets.login.ClientboundLoginDisconnectPac
 import io.github.dockyardmc.protocol.packets.login.ClientboundLoginSuccessPacket
 import io.github.dockyardmc.protocol.packets.login.ClientboundSetCompressionPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import java.lang.IllegalArgumentException
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.reflect.KClass
 
-object ClientPacketRegistry {
+object ClientPacketRegistry : PacketRegistry() {
 
-    private val handshakeCounter = AtomicInteger()
-    private val statusCounter = AtomicInteger()
-    private val loginCounter = AtomicInteger()
-    private val configurationCounter = AtomicInteger()
-    private val playCounter = AtomicInteger()
-
-    val handshakePackets: MutableMap<KClass<*>, Int> = mutableMapOf()
-    val statusPackets: MutableMap<KClass<*>, Int> = mutableMapOf()
-    val loginPackets: MutableMap<KClass<*>, Int> = mutableMapOf()
-    val configurationPackets: MutableMap<KClass<*>, Int> = mutableMapOf()
-    val playPackets: MutableMap<KClass<*>, Int> = mutableMapOf()
-
-    fun getIdAndStateOrThrow(packet: KClass<*>): Pair<Int, ProtocolState> {
-        val handshakePacket = handshakePackets[packet]
-        val statusPacket = statusPackets[packet]
-        val loginPacket = loginPackets[packet]
-        val configurationPacket = configurationPackets[packet]
-        val playPacket = playPackets[packet]
-        if(handshakePacket != null) return handshakePacket to ProtocolState.HANDSHAKE
-        if(statusPacket != null) return statusPacket to ProtocolState.STATUS
-        if(loginPacket != null) return loginPacket to ProtocolState.LOGIN
-        if(configurationPacket != null) return configurationPacket to ProtocolState.CONFIGURATION
-        if(playPacket != null) return playPacket to ProtocolState.PLAY
-
-        throw IllegalArgumentException("Packet class ${packet.simpleName} does not have assigned protocol id!")
-    }
-
-    fun load() {
+    override fun load() {
         addStatus(ClientboundStatusResponsePacket::class)
         addStatus(ClientboundPingResponsePacket::class)
 
@@ -202,33 +172,6 @@ object ClientPacketRegistry {
         skipPlay("custom report details")
         skipPlay("server links")
     }
-
-    private fun addHandshake(packet: KClass<*>) {
-        handshakePackets[packet] = handshakeCounter.getAndIncrement()
-    }
-
-    private fun addStatus(packet: KClass<*>) {
-        statusPackets[packet] = statusCounter.getAndIncrement()
-    }
-
-    private fun addLogin(packet: KClass<*>) {
-        loginPackets[packet] = loginCounter.getAndIncrement()
-    }
-
-    private fun addConfiguration(packet: KClass<*>) {
-        configurationPackets[packet] = configurationCounter.getAndIncrement()
-    }
-
-    private fun addPlay(packet: KClass<*>) {
-        playPackets[packet] = playCounter.getAndIncrement()
-    }
-
-    private fun skipHandshake(string: String) { handshakeCounter.getAndIncrement() }
-    private fun skipStatus(string: String) { statusCounter.getAndIncrement() }
-    private fun skipLogin(string: String) { loginCounter.getAndIncrement() }
-    private fun skipConfiguration(string: String) { configurationCounter.getAndIncrement() }
-    private fun skipPlay(string: String) { playCounter.getAndIncrement() }
-
 }
 
 
