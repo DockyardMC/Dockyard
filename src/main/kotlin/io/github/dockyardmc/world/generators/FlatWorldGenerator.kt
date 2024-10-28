@@ -5,7 +5,7 @@ import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.Biome
 
-class FlatWorldGenerator() : WorldGenerator {
+class FlatWorldGenerator(val defaultBiome: Biome = Biomes.PLAINS) : WorldGenerator {
 
     override fun getBlock(x: Int, y: Int, z: Int): Block {
         return when {
@@ -16,5 +16,5 @@ class FlatWorldGenerator() : WorldGenerator {
         }
     }
 
-    override fun getBiome(x: Int, y: Int, z: Int): Biome = Biomes.PLAINS
+    override fun getBiome(x: Int, y: Int, z: Int): Biome = defaultBiome
 }

@@ -12,4 +12,6 @@ class PacketReceivedEvent(
     val connection: ChannelHandlerContext,
     val size: Int,
     val id: Int
-): CancellableEvent()
+): CancellableEvent() {
+    override val context = elements(processor)
+}

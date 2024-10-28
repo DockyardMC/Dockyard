@@ -6,4 +6,5 @@ import io.github.dockyardmc.player.Player
 
 @EventDocumentation("When player leaves a bound", false)
 class PlayerLeaveBoundEvent(val player: Player, val bound: Bound): Event {
+    override val context = elements(player, bound)
 }

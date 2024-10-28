@@ -2,19 +2,22 @@ package io.github.dockyardmc
 
 import io.github.dockyardmc.bounds.Bound
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
+import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.WorldManager
+import io.github.dockyardmc.world.generators.FlatWorldGenerator
+import io.github.dockyardmc.world.generators.VoidWorldGenerator
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -60,6 +63,8 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
+    val altWorld = WorldManager.create("altworld", FlatWorldGenerator(Biomes.BASALT_DELTAS), DimensionTypes.NETHER)
+
     Commands.add("/reset") {
         execute {
             val platformSize = 30
@@ -78,6 +83,23 @@ fun main(args: Array<String>) {
             }
         }
     }
+    Commands.add("/tp") {
+        addArgument("world", StringArgument()) { listOf("main", "alt") }
+        execute {
+            val world = getArgument<String>("world")
+            if (world == "main") {
+                it.player?.teleport(WorldManager.mainWorld.defaultSpawnLocation)
+            } else if (world == "alt") {
+                it.player?.teleport(altWorld.defaultSpawnLocation)
+            }
+        }
+    }
+
+    val poolMain = EventPool.withFilter { it.context.contains(WorldManager.mainWorld) }
+    val poolAlt = EventPool.withFilter { it.context.contains(altWorld) }
+
+    poolMain.on<PlayerChatMessageEvent> { DockyardServer.broadcastMessage("Player chatted in main world.") }
+    poolAlt.on<PlayerChatMessageEvent> { DockyardServer.broadcastMessage("Player chatted in alt world.") }
 
     server.start()
 }

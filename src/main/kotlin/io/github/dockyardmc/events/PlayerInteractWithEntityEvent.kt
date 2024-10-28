@@ -7,4 +7,5 @@ import io.github.dockyardmc.player.PlayerHand
 
 @EventDocumentation("when player interacts with an entity", true)
 class PlayerInteractWithEntityEvent(var player: Player, var entity: Entity, var interactionHand: PlayerHand): CancellableEvent() {
+    override val context = elements(player, entity)
 }

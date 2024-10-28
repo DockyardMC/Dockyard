@@ -5,4 +5,6 @@ import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when viewer is removed from entity viewer list", true)
-class EntityViewerRemoveEvent(var entity: Entity, var viewer: Player): CancellableEvent()
+class EntityViewerRemoveEvent(var entity: Entity, var viewer: Player): CancellableEvent() {
+    override val context = elements(entity, viewer)
+}

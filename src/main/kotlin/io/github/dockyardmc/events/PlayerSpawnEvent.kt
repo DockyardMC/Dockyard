@@ -6,4 +6,5 @@ import io.github.dockyardmc.world.World
 
 @EventDocumentation("when player is in configuration phase and needs initial world to spawn in", false)
 class PlayerSpawnEvent(val player: Player, var world: World): Event {
+    override val context = elements(player, world)
 }
