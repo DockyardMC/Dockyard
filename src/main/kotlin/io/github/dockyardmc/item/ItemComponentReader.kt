@@ -7,36 +7,34 @@ import io.github.dockyardmc.blocks.readBlockPredicate
 import io.github.dockyardmc.blocks.readBlockSet
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.readBlockPosition
-import io.github.dockyardmc.registry.AppliedPotionEffect
+import io.github.dockyardmc.player.readProfilePropertyMap
+import io.github.dockyardmc.registry.registries.DamageTypeRegistry
 import io.github.dockyardmc.registry.registries.PotionEffect
-import io.github.dockyardmc.registry.registries.PotionEffectRegistry
+import io.github.dockyardmc.registry.registries.TrimMaterialRegistry
+import io.github.dockyardmc.registry.registries.TrimPatternRegistry
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
-import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.readSoundEvent
 import io.github.dockyardmc.world.WorldManager
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import org.jglrxavpok.hephaistos.nbt.NBTString
+import java.util.*
 
 fun ByteBuf.readComponent(id: Int): ItemComponent {
-    return when (id) {
-        0 -> CustomDataItemComponent(this.readNBT() as NBTCompound)
-        1 -> MaxStackSizeItemComponent(this.readVarInt())
-        2 -> MaxDamageItemComponent(this.readVarInt())
-        3 -> DamageItemComponent(this.readVarInt())
-        4 -> UnbreakableItemComponent(this.readBoolean())
-        5 -> {
-            val nbt = this.readNBT() as NBTCompound
-            return CustomNameItemComponent(nbt.toComponent())
-        }
 
-        6 -> {
-            val nbt = this.readNBT() as NBTCompound
-            return ItemNameItemComponent(nbt.toComponent())
-        }
-
-        7 -> {
+    return when (ItemComponents.components[id]) {
+        CustomDataItemComponent::class -> CustomDataItemComponent(this.readNBT() as NBTCompound)
+        MaxStackSizeItemComponent::class -> MaxStackSizeItemComponent(this.readVarInt())
+        MaxDamageItemComponent::class -> MaxDamageItemComponent(this.readVarInt())
+        DamageItemComponent::class -> DamageItemComponent(this.readVarInt())
+        UnbreakableItemComponent::class -> UnbreakableItemComponent(this.readBoolean())
+        CustomNameItemComponent::class -> CustomNameItemComponent((this.readNBT() as NBTCompound).toComponent())
+        ItemNameItemComponent::class -> ItemNameItemComponent((this.readNBT() as NBTCompound).toComponent())
+        ItemModelItemComponent::class -> ItemModelItemComponent(this.readString())
+        LoreItemComponent::class -> {
             val size = this.readVarInt()
             val lines = mutableListOf<Component>()
             for (i in 0 until size) {
@@ -46,9 +44,8 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             return LoreItemComponent(lines)
         }
 
-        8 -> RarityItemComponent(this.readVarIntEnum<ItemRarity>())
-        //TODO 9 -> Enchantments
-        9 -> {
+        RarityItemComponent::class -> RarityItemComponent(this.readVarIntEnum<ItemRarity>())
+        EnchantmentsItemComponent::class -> {
             val size = this.readVarInt()
             for (i in 0 until size) {
                 this.readVarInt()
@@ -58,7 +55,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             return EnchantmentsItemComponent()
         }
 
-        10 -> {
+        CanBePlacedOnItemComponent::class -> {
             val size = this.readVarInt()
             val predicates = mutableListOf<BlockPredicate>()
             for (i in 0 until size) {
@@ -69,7 +66,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             return CanBePlacedOnItemComponent(predicates, showInTooltip)
         }
 
-        11 -> {
+        CanBreakItemComponent::class -> {
             val size = this.readVarInt()
             val predicates = mutableListOf<BlockPredicate>()
             for (i in 0 until size) {
@@ -80,7 +77,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             return CanBreakItemComponent(predicates, showInTooltip)
         }
 
-        12 -> {
+        AttributeModifiersItemComponent::class -> {
             val size = this.readVarInt()
             val attributes = mutableListOf<Attribute>()
             for (i in 0 until size) attributes.add(this.readAttribute())
@@ -89,23 +86,31 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             return AttributeModifiersItemComponent(attributes, showInTooltip)
         }
 
-        13 -> CustomModelDataItemComponent(this.readVarInt())
-        14 -> HideAdditionalTooltipItemComponent()
-        15 -> HideTooltipItemComponent()
-        16 -> RepairCostItemComponent(this.readVarInt())
-        17 -> CreativeSlotLockItemComponent()
-        18 -> EnchantmentGlintOverrideItemComponent(this.readVarInt() == 1)
-        19 -> IntangibleProjectileItemComponent()
-        20 -> {
+        CustomModelDataItemComponent::class -> CustomModelDataItemComponent(this.readVarInt())
+        HideAdditionalTooltipItemComponent::class -> HideAdditionalTooltipItemComponent()
+        HideTooltipItemComponent::class -> HideTooltipItemComponent()
+        RepairCostItemComponent::class -> RepairCostItemComponent(this.readVarInt())
+        CreativeSlotLockItemComponent::class -> CreativeSlotLockItemComponent()
+        EnchantmentGlintOverrideItemComponent::class -> EnchantmentGlintOverrideItemComponent(this.readVarInt() == 1)
+        IntangibleProjectileItemComponent::class -> IntangibleProjectileItemComponent()
+        FoodItemComponent::class -> FoodItemComponent(this.readVarInt(), this.readFloat(), this.readBoolean())
+        ConsumableItemComponent::class -> ConsumableItemComponent(
+            this.readFloat(),
+            this.readVarIntEnum<ConsumableAnimation>(),
+            Sound(this.readSoundEvent()),
+            this.readBoolean(),
+            this.readConsumeEffect()
+        )
 
-            val food = this.readVarInt()
-            val saturation = this.readFloat() // memory leak was here!!
-
-            return FoodItemComponent(food, true, this.readBoolean(), this.readFloat())
+        UseRemainderItemComponent::class -> UseRemainderItemComponent(this.readItemStack())
+        UseCooldownItemComponent::class -> {
+            val cooldown = this.readFloat()
+            val group = this.readOptionalOrDefault("minecraft:all")
+            return UseCooldownItemComponent(cooldown, group)
         }
 
-        21 -> FireResistantItemComponent()
-        22 -> {
+        DamageResistantItemComponent::class -> DamageResistantItemComponent(DamageTypeRegistry[this.readString()])
+        ToolItemComponent::class -> {
             val rules = mutableListOf<ToolRule>()
             val size = this.readVarInt()
             for (i in 0 until size) {
@@ -118,81 +123,78 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             val damagePerBlock = this.readVarInt()
             ToolItemComponent(rules, defaultMiningSpeed, damagePerBlock)
         }
-        //TODO 23 -> Stored Enchantments
-        23 -> {
-            val size = this.readVarInt()
-            for (i in 0 until size) {
-                this.readVarInt()
-                this.readVarInt()
-            }
+
+        EnchantableItemComponent::class -> EnchantableItemComponent(this.readVarInt())
+        EquippableItemComponent::class -> {
+            val slot = this.readVarIntEnum<EquipmentSlot>()
+            val sound = Sound(this.readSoundEvent())
+            val model = this.readOptionalOrDefault<String>("minecraft:item")
+            val cameraOverlay = this.readOptionalOrDefault<String>("minecraft:pumpkin_blur")
+            val entityType = this.readEntityTypeList()
+            val dispensable = this.readBoolean()
+            val swappable = this.readBoolean()
+            val damageOnHurt = this.readBoolean()
+
+            return EquippableItemComponent(
+                slot,
+                sound,
+                model,
+                cameraOverlay,
+                entityType,
+                dispensable,
+                swappable,
+                damageOnHurt
+            )
+        }
+
+        RepairableItemComponent::class -> RepairableItemComponent(this.readItemList())
+        GliderItemComponent::class -> GliderItemComponent()
+        TooltipStyleItemComponent::class -> TooltipStyleItemComponent(this.readString())
+        DeathProtectionItemComponent::class -> DeathProtectionItemComponent(readConsumeEffect())
+        StoredEnchantments::class -> StoredEnchantments(this.readStringList(), this.readBoolean())
+        DyedColorItemComponent::class -> DyedColorItemComponent(
+            CustomColor.fromRGBInt(this.readInt()),
             this.readBoolean()
-            return StoredEnchantmentsItemComponent()
+        )
+
+        MapColorItemComponent::class -> MapColorItemComponent(CustomColor.fromRGBInt(this.readInt()))
+        MapIdItemComponent::class -> MapIdItemComponent(this.readVarInt())
+        MapDecorationsItemComponent::class -> MapDecorationsItemComponent(this.readNBT() as NBTCompound)
+        MapPostProcessingItemComponent::class -> MapPostProcessingItemComponent(this.readVarIntEnum<MapPostProcessing>())
+        ChargedProjectilesItemComponent::class -> ChargedProjectilesItemComponent(this.readItemStackList())
+        BundleContentsItemComponent::class -> BundleContentsItemComponent(this.readItemStackList())
+        PotionContentsItemComponent::class -> {
+            val potion = this.readOptionalOrNull<PotionEffect>()
+            val color = this.readOptionalOrNull<CustomColor>()
+            val effects = this.readAppliedPotionEffectsList()
+            val customName = this.readOptionalOrNull<String>()
+
+            return PotionContentsItemComponent(potion, color, effects, customName)
         }
 
-        24 -> DyedColorItemComponent(CustomColor.fromRGBInt(this.readInt()), this.readBoolean())
-        25 -> MapColorItemComponent(CustomColor.fromRGBInt(this.readInt()))
-        26 -> MapIdItemComponent(this.readVarInt())
-        27 -> MapDecorationsItemComponent(this.readNBT() as NBTCompound)
-        28 -> MapPostProcessingItemComponent(this.readVarIntEnum<MapPostProcessing>())
-        29 -> {
-            val projectiles = mutableListOf<ItemStack>()
-            val size = this.readVarInt()
-            for (i in 0 until size) {
-                projectiles.add(this.readItemStack())
-            }
-            ChargedProjectilesItemComponent(projectiles)
-        }
+        SuspiciousStewEffectsItemComponent::class -> SuspiciousStewEffectsItemComponent(this.readAppliedPotionEffectsList())
+        WritableBookContentItemComponent::class -> WritableBookContentItemComponent(this.readBookPages())
+        WrittenBookContentItemComponent::class -> WrittenBookContentItemComponent(
+            this.readString(),
+            this.readOptionalOrNull<String>(),
+            this.readString(),
+            this.readVarInt(),
+            this.readBookPages()
+        )
 
-        30 -> {
-            val bundleContents = mutableListOf<ItemStack>()
-            val size = this.readVarInt()
-            for (i in 0 until size) {
-                bundleContents.add(this.readItemStack())
-            }
-            BundleContentsItemComponent(bundleContents)
-        }
-
-        31 -> {
-            val potionId = if (this.readBoolean()) this.readVarInt() else null
-            val customColor = if (this.readBoolean()) CustomColor.fromRGBInt(this.readVarInt()) else null
-            val effects = mutableListOf<AppliedPotionEffect>()
-            for (i in 0 until this.readVarInt()) effects.add(this.readAppliedPotionEffect())
-
-            return PotionContentsItemComponent(potionId, customColor, effects)
-        }
-
-        32 -> {
-            val effects = mutableListOf<PotionEffect>()
-            for (i in 0 until this.readVarInt()) {
-                PotionEffectRegistry.getByProtocolId(this.readVarInt())
-            }
-
-            return SuspiciousStewEffectsItemComponent(effects)
-        }
-
-        33 -> WritableBookContentItemComponent(this.readBookPages())
-        34 -> {
-            val title = this.readString()
-            val filteredTitle = if (this.readBoolean()) this.readString() else null
-            val author = this.readString()
-            val generation = this.readVarInt()
-            val pages = this.readBookPages()
+        TrimItemComponent::class -> TrimItemComponent(
+            TrimMaterialRegistry[this.readString()],
+            TrimPatternRegistry[this.readString()],
             this.readBoolean()
-            WrittenBookContentItemComponent(title, filteredTitle, author, generation, pages)
-        }
+        )
 
-        35 -> TODO("Trims are not implemented")
-        36 -> DebugStickItemComponent(this.readNBT() as NBTCompound)
-        37 -> EntityDataItemComponent(this.readNBT() as NBTCompound)
-        38 -> BucketEntityDataItemComponent(this.readNBT() as NBTCompound)
-        39 -> BlockEntityDataItemComponent(this.readNBT() as NBTCompound)
-        40 -> {
-            val type = this.readVarInt()
-            NoteBlockInstrumentItemComponent(this.readSoundEvent(), this.readFloat(), this.readFloat())
-        }
-
-        41 -> OminousBottleAmplifierItemComponent(this.readVarInt())
-        42 -> {
+        DebugStickItemComponent::class -> DebugStickItemComponent(this.readNBT() as NBTCompound)
+        EntityDataItemComponent::class -> EntityDataItemComponent(this.readNBT() as NBTCompound)
+        BucketEntityDataItemComponent::class -> BucketEntityDataItemComponent(this.readNBT() as NBTCompound)
+        BlockEntityDataItemComponent::class -> BlockEntityDataItemComponent(this.readNBT() as NBTCompound)
+        NoteBlockInstrumentItemComponent::class -> NoteBlockInstrumentItemComponent(this.readString())
+        OminousBottleAmplifierItemComponent::class -> OminousBottleAmplifierItemComponent(this.readVarInt())
+        JukeboxPlayableItemComponent::class -> {
             val directMode = this.readBoolean()
             val identifier = if (directMode) this.readString() else null
             val type = if (directMode) this.readVarInt() else null
@@ -205,8 +207,8 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             JukeboxPlayableItemComponent(directMode, identifier, description, duration, output, showInTooltip)
         }
 
-        43 -> RecipesItemComponent(this.readNBT() as NBTCompound)
-        44 -> {
+        RecipesItemComponent::class -> RecipesItemComponent(this.readStringList())
+        LodestoneTrackerItemComponent::class -> {
             val hasGlobalPosition = this.readBoolean()
             val dimensionIdentifier = this.readString()
             val world = WorldManager.worlds[dimensionIdentifier]
@@ -218,32 +220,35 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             LodestoneTrackerItemComponent(hasGlobalPosition, world, location, tracked)
         }
 
-        45 -> TODO("Firework Explosion Data is not implemented yet")
-        46 -> TODO("Fireworks are not implemented yet")
-        47 -> TODO("Player head profiles are not implemented yet")
-        48 -> NoteBlockSoundItemComponent(this.readString())
-        49 -> TODO("Banner Patterns are not implemented yet")
-        50 -> BannerShieldBaseColorItemComponent(this.readVarIntEnum<LegacyTextColor>())
-        51 -> TODO("Pot Decorations are not implemented yet")
-        52 -> {
-            val containerItems = mutableListOf<ItemStack>()
-            val size = this.readVarInt()
-            for (i in 0 until size) {
-                containerItems.add(this.readItemStack())
-            }
-            ContainerItemComponent(containerItems)
-        }
+        FireworkExplosionItemComponent::class -> FireworkExplosionItemComponent(
+            this.readVarIntEnum<FireworkShape>(),
+            this.readCustomColorList(),
+            this.readCustomColorList(),
+            this.readBoolean(),
+            this.readBoolean()
+        )
 
-        53 -> {
-            val states = mutableMapOf<String, String>()
+        FireworksItemComponent::class -> FireworksItemComponent(this.readByte(), this.readFireworkExplosionList())
+        PlayerHeadProfileItemComponent::class -> PlayerHeadProfileItemComponent(
+            this.readOptionalOrNull<String>(),
+            this.readOptionalOrNull<UUID>(),
+            this.readProfilePropertyMap()
+        )
+
+        NoteBlockSoundItemComponent::class -> NoteBlockSoundItemComponent(this.readString())
+        BannerPatternsItemComponent::class -> BannerPatternsItemComponent(this.readBannerPatternLayerList())
+        BaseColorItemComponent::class -> BaseColorItemComponent(this.readVarIntEnum<DyeColor>())
+        PotDecorationsItemComponent::class -> PotDecorationsItemComponent()
+        ContainerItemComponent::class -> ContainerItemComponent(this.readItemStackList())
+        BlockStateItemComponent::class -> {
+            val map = mutableMapOf<String, String>()
             for (i in 0 until this.readVarInt()) {
-                states[this.readString()] = this.readString()
+                map[this.readString()] = this.readString()
             }
-
-            BlockStateItemComponent(states)
+            return BlockStateItemComponent(map)
         }
 
-        54 -> {
+        BeesItemComponent::class -> {
             val bees = mutableListOf<BeeInsideBeehive>()
             val size = this.readVarInt()
             for (i in 0 until size) {
@@ -255,8 +260,8 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             BeesItemComponent(bees)
         }
 
-        55 -> LockItemComponent(this.readNBT() as NBTCompound)
-        56 -> ContainerLootItemComponent(this.readNBT() as NBTCompound)
+        LockItemComponent::class -> LockItemComponent(this.readNBT() as NBTString)
+        ContainerLootItemComponent::class -> ContainerLootItemComponent(this.readNBT() as NBTCompound)
         else -> throw Exception("Tried to read item component with id $id but that id does not exist or is not implement yet!")
     }
 }

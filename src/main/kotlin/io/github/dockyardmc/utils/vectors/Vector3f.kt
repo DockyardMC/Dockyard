@@ -80,7 +80,8 @@ data class Vector3f(
         )
     }
 
-    fun distance(other: Vector3f): Double = sqrt((this.x - other.x).pow(2f) + (this.y - other.y).pow(2f) + (this.z - other.z).pow(2f)).toDouble()
+    fun distance(other: Vector3f): Double =
+        sqrt((this.x - other.x).pow(2f) + (this.y - other.y).pow(2f) + (this.z - other.z).pow(2f)).toDouble()
 
     fun normalized(): Vector3f {
         val vector = this.copy()
@@ -103,4 +104,12 @@ fun ByteBuf.writeVector3f(vector3: Vector3f) {
     this.writeFloat(vector3.x)
     this.writeFloat(vector3.y)
     this.writeFloat(vector3.z)
+}
+
+fun ByteBuf.readVector3f(): Vector3f {
+    return Vector3f(
+        this.readFloat(),
+        this.readFloat(),
+        this.readFloat()
+    )
 }

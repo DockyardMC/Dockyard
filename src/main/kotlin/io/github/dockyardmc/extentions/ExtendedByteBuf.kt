@@ -1,12 +1,15 @@
 package io.github.dockyardmc.extentions
 
-import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.writeItemStack
+import io.github.dockyardmc.item.*
 import io.github.dockyardmc.registry.AppliedPotionEffect
-import io.github.dockyardmc.registry.registries.PotionEffectRegistry
+import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.sounds.Sound
+import io.github.dockyardmc.sounds.readSoundEvent
 import io.github.dockyardmc.utils.positiveCeilDiv
+import io.github.dockyardmc.utils.vectors.*
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
@@ -228,6 +231,14 @@ fun ByteBuf.readString(i: Int): String {
     return string
 }
 
+fun ByteBuf.readStringList(): List<String> {
+    val list = mutableListOf<String>()
+    for (i in 0 until this.readVarInt()) {
+        list.add(this.readString())
+    }
+    return list
+}
+
 fun ByteBuf.readUtfAndLength(i: Int): Pair<String, Int> {
     val maxSize = i * 3
     val size = this.readVarInt()
@@ -270,4 +281,107 @@ fun ByteBuf.readAppliedPotionEffect(): AppliedPotionEffect {
     return AppliedPotionEffect(effect, duration, amplifier, showParticles, ambient, showIcon)
 }
 
+fun ByteBuf.readAppliedPotionEffectsList(): List<AppliedPotionEffect> {
+    val list = mutableListOf<AppliedPotionEffect>()
+    for (i in 0 until this.readVarInt()) {
+        list.add(this.readAppliedPotionEffect())
+    }
+    return list
+}
+
 fun ByteArray.toByteBuf(): ByteBuf = Unpooled.copiedBuffer(this)
+
+inline fun <reified T: Any> ByteBuf.readOptionalOrDefault(default: T): T {
+    val optional = this.readOptionalOrNull<T>() ?: return default
+    return optional
+}
+
+inline fun <reified T: Any> ByteBuf.readOptionalOrNull(): T? {
+    val isPresent = this.readBoolean()
+    if(!isPresent) return null
+    return when(T::class) {
+        Int::class -> this.readVarInt() as T
+        String::class -> this.readString() as T
+        Boolean::class -> this.readBoolean() as T
+        Float::class -> this.readFloat() as T
+        Double::class -> this.readDouble() as T
+        Long::class -> this.readLong() as T
+        UUID::class -> this.readUUID() as T
+        ItemStack::class -> this.readItemStack() as T
+        Byte::class -> this.readByte() as T
+        Vector3::class -> this.readVector3() as T
+        Vector3d::class -> this.readVector3d() as T
+        Vector3f::class -> this.readVector3f() as T
+        NBT::class -> (this.readNBT() as NBTCompound) as T
+        NBTCompound::class -> this.readNBT() as T
+        Sound::class -> Sound(this.readSoundEvent()) as T
+        EntityType::class -> EntityTypeRegistry[this.readString()] as T
+        PotionEffect::class -> PotionEffectRegistry.getByProtocolId(this.readVarInt()) as T
+        CustomColor::class -> CustomColor(this.readInt()) as T
+        else -> throw IllegalArgumentException("This primitive doesn't have serializer")
+    }
+}
+
+
+fun ByteBuf.readEntityTypeList(): MutableList<EntityType> {
+    val size = this.readVarInt()
+    val list = mutableListOf<EntityType>()
+    for (i in 0 until size) {
+        list.add(EntityTypeRegistry[this.readString()])
+    }
+    return list
+}
+
+fun ByteBuf.readItemList(): MutableList<Item> {
+    val size = this.readVarInt()
+    val list = mutableListOf<Item>()
+    for (i in 0 until size) {
+        list.add(ItemRegistry[this.readString()])
+    }
+    return list
+}
+
+fun ByteBuf.readConsumeEffect(): List<ConsumeEffect> {
+    val size = this.readVarInt()
+    val effects = mutableListOf<ConsumeEffect>()
+    for (i in 0 until size) {
+        val type = this.readVarInt()
+        val effect = when(type) {
+            0 -> ApplyEffectsConsumeEffect(this.readAppliedPotionEffectsList(), this.readFloat())
+            1 -> RemoveEffectsConsumeEffect(this.readAppliedPotionEffectsList())
+            2 -> ClearAllEffectsConsumeEffect()
+            3 -> TeleportRandomlyConsumeEffect(this.readOptionalOrDefault<Float>(16f))
+            4 -> PlaySoundConsumeEffect(Sound(this.readSoundEvent()))
+            else -> throw IllegalStateException("Invalid consume effect")
+        }
+    }
+}
+
+fun ByteBuf.readCustomColor(): CustomColor {
+    return CustomColor.fromRGBInt(this.readInt())
+}
+
+fun ByteBuf.readCustomColorList(): List<CustomColor> {
+    val list = mutableListOf<CustomColor>()
+    for (i in 0 until this.readVarInt()) {
+        list.add(this.readCustomColor())
+    }
+}
+
+fun ByteBuf.readFireworkExplosionList(): List<FireworkExplosionItemComponent> {
+    val list = mutableListOf<FireworkExplosionItemComponent>()
+    for (i in 0 until this.readVarInt()) {
+        list.add(this.readFireworkExplosion())
+    }
+}
+
+
+fun ByteBuf.readFireworkExplosion(): FireworkExplosionItemComponent {
+    return FireworkExplosionItemComponent(
+        this.readVarIntEnum<FireworkShape>(),
+        this.readCustomColorList(),
+        this.readCustomColorList(),
+        this.readBoolean(),
+        this.readBoolean()
+    )
+}

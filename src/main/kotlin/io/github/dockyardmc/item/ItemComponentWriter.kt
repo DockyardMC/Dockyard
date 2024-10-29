@@ -85,7 +85,7 @@ fun ByteBuf.writeItemComponent(comp: ItemComponent) {
             this.writeVarInt(0) //temp: 0 effects
         }
 
-        is FireResistantItemComponent -> {} // Empty
+        is DamageResistantItemComponent -> {} // Empty
         is ToolItemComponent -> {
             this.writeVarInt(comp.toolRules.size)
             comp.toolRules.forEach {

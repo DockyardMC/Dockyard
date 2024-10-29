@@ -42,6 +42,14 @@ class ItemStack(var material: Item, var amount: Int = 1) {
 }
 
 
+fun ByteBuf.readItemStackList(): List<ItemStack> {
+    val list = mutableListOf<ItemStack>()
+    for (i in 0 until this.readVarInt()) {
+        list.add(this.readItemStack())
+    }
+    return list
+}
+
 fun ByteBuf.readItemStack(): ItemStack {
     val count = this.readVarInt()
     if(count <= 0) return ItemStack.air
