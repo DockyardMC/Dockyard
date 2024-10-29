@@ -37,7 +37,7 @@ fun main(args: Array<String>) {
         withIp("0.0.0.0")
         withMaxPlayers(50)
         withPort(25565)
-        useMojangAuth(false)
+        useMojangAuth(true)
         useDebugMode(true)
         withImplementations {
             dockyardCommands = true

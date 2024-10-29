@@ -1,9 +1,6 @@
 package io.github.dockyardmc.attributes
 
-import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.extentions.readUUID
-import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.*
 import io.netty.buffer.ByteBuf
 import java.util.UUID
 
@@ -43,4 +40,13 @@ fun ByteBuf.readAttribute(): Attribute {
     val operation = this.readVarIntEnum<AttributeOperation>()
     val slot = this.readVarIntEnum<AttributeSlot>()
     return Attribute(id, uuid, name, value, operation, slot)
+}
+
+fun ByteBuf.writeAttribute(attribute: Attribute) {
+    this.writeVarInt(attribute.id)
+    this.writeUUID(attribute.uuid)
+    this.writeString(attribute.name)
+    this.writeDouble(attribute.value)
+    this.writeVarIntEnum(attribute.operation)
+    this.writeVarIntEnum(attribute.slot)
 }

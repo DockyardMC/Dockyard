@@ -7,6 +7,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.ItemRegistry
+import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.netty.buffer.ByteBuf
@@ -41,6 +42,11 @@ class ItemStack(var material: Item, var amount: Int = 1) {
     override fun toString(): String = "ItemStack(${material.identifier}, ${components.values}, $amount)".stripComponentTags()
 }
 
+fun Collection<String>.toComponents(): Collection<Component> {
+    val components = mutableListOf<Component>()
+    this.forEach { components.add(it.toComponent()) }
+    return components
+}
 
 fun ByteBuf.readItemStackList(): List<ItemStack> {
     val list = mutableListOf<ItemStack>()
@@ -88,7 +94,7 @@ fun ByteBuf.writeItemStack(itemStack: ItemStack) {
     this.writeVarInt(itemStack.material.getProtocolId())
     this.writeVarInt(itemStack.components.size)
     this.writeVarInt(0)
-    itemStack.components.values.forEach(this::writeItemComponent)
+    itemStack.components.values.forEach { this.writeItemComponent(it) }
 }
 
 fun ItemStack.clone(): ItemStack {

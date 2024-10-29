@@ -216,8 +216,8 @@ data class EnchantableItemComponent(var value: Int): ItemComponent
 data class EquippableItemComponent(
     val slot: EquipmentSlot,
     val equipSound: Sound,
-    val model: String,
-    val cameraOverlay: String,
+    val model: String?,
+    val cameraOverlay: String?,
     val allowedEntities: List<EntityType>,
     val dispensable: Boolean,
     val swappable: Boolean,
@@ -342,6 +342,38 @@ class PotDecorationsItemComponent(
 
 data class ContainerItemComponent(var items: Collection<ItemStack>): ItemComponent
 
+data class ContainerItemStack(
+    val slot: Int,
+    val itemStack: ItemStack
+)
+
+fun ByteBuf.readContainerItemStack(): ContainerItemStack {
+    return ContainerItemStack(
+        this.readVarInt(),
+        this.readItemStack()
+    )
+}
+
+fun ByteBuf.readContainerItemStackList(): Collection<ContainerItemStack> {
+    val list = mutableListOf<ContainerItemStack>()
+    for (i in 0 until this.readVarInt()) {
+        list.add(this.readContainerItemStack())
+    }
+    return list
+}
+
+fun ByteBuf.writeContainerItemStackList(list: Collection<ContainerItemStack>) {
+    this.writeVarInt(list.size)
+    list.forEach {
+        this.writeContainerItemStack(it)
+    }
+}
+
+fun ByteBuf.writeContainerItemStack(containerItemStack: ContainerItemStack) {
+    this.writeVarInt(containerItemStack.slot)
+    this.writeItemStack(containerItemStack.itemStack)
+}
+
 data class BlockStateItemComponent(val states: Map<String, String>): ItemComponent
 
 data class BeesItemComponent(var bees: Collection<BeeInsideBeehive>): ItemComponent
@@ -351,10 +383,6 @@ data class LockItemComponent(var key: NBTString): ItemComponent
 
 data class ContainerLootItemComponent(var loot: NBTCompound): ItemComponent
 
-
-
-
-
 data class BeeInsideBeehive(
     var entityData: NBTCompound,
     var ticksInHive: Int,
@@ -363,16 +391,34 @@ data class BeeInsideBeehive(
 
 data class BannerPatternLayer(
     var pattern: BannerPattern,
-    var translationKey: String,
     var color: DyeColor
 )
 
 fun ByteBuf.readBannerPatternLayer(): BannerPatternLayer {
+    val bannerPattern: BannerPattern
+    val type = this.readVarInt() - 1
+
+    bannerPattern = if(type != -1) BannerPatternRegistry.getByProtocolId(type + 1) else BannerPatternRegistry[this.readString()]
+    val dyeColor = this.readVarIntEnum<DyeColor>()
+
     return BannerPatternLayer(
-        BannerPatternRegistry[this.readString()],
-        this.readString(),
-        this.readVarIntEnum<DyeColor>()
+        bannerPattern,
+        dyeColor
     )
+}
+
+fun ByteBuf.writeBannerPatternLayer(bannerPattern: BannerPattern, dyeColor: DyeColor) {
+    if(bannerPattern.identifier.contains("minecraft:")) {
+        this.writeVarInt(bannerPattern.getProtocolId())
+    } else {
+        this.writeString(bannerPattern.identifier)
+    }
+    this.writeVarIntEnum<DyeColor>(dyeColor)
+}
+
+fun ByteBuf.writeBannerPatternLayerList(list: Collection<BannerPatternLayer>) {
+    this.writeVarInt(list.size)
+    list.forEach { this.writeBannerPatternLayer(it.pattern, it.color) }
 }
 
 fun ByteBuf.readBannerPatternLayerList(): List<BannerPatternLayer> {

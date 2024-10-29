@@ -1,5 +1,6 @@
 package io.github.dockyardmc.item
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.Attribute
 import io.github.dockyardmc.attributes.readAttribute
 import io.github.dockyardmc.blocks.BlockPredicate
@@ -8,6 +9,7 @@ import io.github.dockyardmc.blocks.readBlockSet
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.player.readProfilePropertyMap
+import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.DamageTypeRegistry
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.registry.registries.TrimMaterialRegistry
@@ -24,8 +26,9 @@ import org.jglrxavpok.hephaistos.nbt.NBTString
 import java.util.*
 
 fun ByteBuf.readComponent(id: Int): ItemComponent {
-
-    return when (ItemComponents.components[id]) {
+    val component = ItemComponents.components[id]
+    log("Reading item component ${component.simpleName} ($id)")
+    return when (component) {
         CustomDataItemComponent::class -> CustomDataItemComponent(this.readNBT() as NBTCompound)
         MaxStackSizeItemComponent::class -> MaxStackSizeItemComponent(this.readVarInt())
         MaxDamageItemComponent::class -> MaxDamageItemComponent(this.readVarInt())
@@ -38,8 +41,8 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             val size = this.readVarInt()
             val lines = mutableListOf<Component>()
             for (i in 0 until size) {
-                val nbt = this.readNBT() as NBTCompound
-                lines.add(nbt.toComponent())
+                val nbt = this.readNBT()
+                lines.add(if(nbt is NBTString) nbt.value.toComponent() else (nbt as NBTCompound).toComponent())
             }
             return LoreItemComponent(lines)
         }
@@ -97,7 +100,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         ConsumableItemComponent::class -> ConsumableItemComponent(
             this.readFloat(),
             this.readVarIntEnum<ConsumableAnimation>(),
-            Sound(this.readSoundEvent()),
+            this.readOptionalOrDefault<Sound>(Sound(Sounds.ENTITY_GENERIC_EAT)),
             this.readBoolean(),
             this.readConsumeEffect()
         )

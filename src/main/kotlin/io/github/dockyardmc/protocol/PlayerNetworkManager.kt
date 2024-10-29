@@ -11,6 +11,8 @@ import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.player.kick.KickReason
+import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.handshake.HandshakeHandler
@@ -103,6 +105,9 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
         log(cause as Exception)
+        if(player.isFullyInitialized) {
+            player.kick(getSystemKickMessage("There was an error while writing packet: ${cause.message}", KickReason.ERROR_WHILE_WRITING_PACKET.name))
+        }
         ctx.flush()
         ctx.close()
     }

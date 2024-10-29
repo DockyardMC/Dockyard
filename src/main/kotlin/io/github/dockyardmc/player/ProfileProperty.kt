@@ -24,21 +24,6 @@ fun ByteBuf.writeProfileProperties(propertyMap: ProfilePropertyMap, disableUtf: 
     }
 }
 
-fun ByteBuf.writeProfileProperties(propertyMap: ProfilePropertyMap, disableUtf: Boolean = false) {
-
-    if(!disableUtf) this.writeString(propertyMap.name)
-    this.writeVarInt(propertyMap.properties.size)
-
-    propertyMap.properties.forEach {
-        this.writeString(it.name)
-        this.writeString(it.value)
-        this.writeBoolean(it.isSigned)
-        if(it.isSigned && it.signature != null) {
-            this.writeString(it.signature)
-        }
-    }
-}
-
 fun ByteBuf.readProfilePropertyMap(): ProfilePropertyMap {
 
     val username = this.readString()
