@@ -12,7 +12,6 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.utils.toOriginalSlotIndex
 
 class Inventory(var entity: Entity) {
     val name: String = "Inventory"
@@ -36,7 +35,7 @@ class Inventory(var entity: Entity) {
             }
             sendInventoryUpdate(it.key)
         }
-        carriedItem.valueChanged { sendInventoryUpdate(-1) }
+        carriedItem.valueChanged { sendInventoryUpdate(46) }
 
         for (i in 0 until entity.inventorySize) {
             set(i, ItemStack.air)
@@ -58,15 +57,13 @@ class Inventory(var entity: Entity) {
 
     fun sendInventoryUpdate(slot: Int) {
         val player = entity as Player
-        val clientSlot =  toOriginalSlotIndex(slot)
-        val item = if(slot == -1) carriedItem.value else slots[slot]
-        val windowId = if(slot == -1) -1 else 0
-        val packet = ClientboundSetInventorySlotPacket(windowId, 0, clientSlot, item ?: ItemStack.air)
+        val item = if(slot == 46) carriedItem.value else slots[slot]
+        val packet = ClientboundSetInventorySlotPacket(slot, item ?: ItemStack.air)
         player.sendPacket(packet)
     }
 
     fun sendFullInventoryUpdate() {
-        sendInventoryUpdate(-1)
+        sendInventoryUpdate(46)
         repeat(size) {
             sendInventoryUpdate(it)
         }

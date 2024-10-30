@@ -1,13 +1,14 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
-import io.github.dockyardmc.utils.playerInventoryCorrectSlot
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -18,8 +19,8 @@ class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: ItemS
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
 
         val player = processor.player
-        val correctSlot = playerInventoryCorrectSlot(slot)
-        player.inventory[correctSlot] = clickedItem
+        DockyardServer.broadcastMessage("<pink>$slot")
+        player.inventory[slot] = clickedItem
     }
 
     companion object {

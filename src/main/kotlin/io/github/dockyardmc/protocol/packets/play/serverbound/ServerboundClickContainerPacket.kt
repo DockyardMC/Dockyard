@@ -13,7 +13,6 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.ui.DrawableClickType
 import io.github.dockyardmc.ui.DrawableContainerScreen
-import io.github.dockyardmc.utils.playerInventoryCorrectSlot
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import java.lang.IllegalStateException
@@ -33,7 +32,7 @@ class ServerboundClickContainerPacket(
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         val currentInventory = player.currentOpenInventory
-        val properSlot = if(player.currentOpenInventory == null) playerInventoryCorrectSlot(slot) else slot
+        val properSlot = slot
 
         val clickedSlotItem = player.inventory[properSlot].clone()
         val empty = ItemStack.air

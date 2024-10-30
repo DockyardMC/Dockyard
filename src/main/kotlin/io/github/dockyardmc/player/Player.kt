@@ -457,7 +457,7 @@ class Player(
         this.currentOpenInventory = inventory
         sendPacket(ClientboundOpenContainerPacket(InventoryType.valueOf("GENERIC_9X${inventory.rows}"), inventory.name))
         inventory.contents.forEach {
-            sendPacket(ClientboundSetInventorySlotPacket(1, 0, it.key, it.value))
+            sendPacket(ClientboundSetInventorySlotPacket(it.key, it.value))
         }
         if(inventory is DrawableContainerScreen) {
             inventory.slots.triggerUpdate()
