@@ -95,11 +95,11 @@ fun main(args: Array<String>) {
         }
     }
 
-    val poolMain = EventPool.withFilter { it.context.contains(WorldManager.mainWorld) && !it.context.isGlobalEvent }
-    val poolAlt = EventPool.withFilter { it.context.contains(altWorld) && !it.context.isGlobalEvent }
+    val poolMain = EventPool.withFilter { it.context.contains(WorldManager.mainWorld) || it.context.isGlobalEvent }
+    val poolAlt = EventPool.withFilter { it.context.contains(altWorld) || it.context.isGlobalEvent }
 
     poolMain.on<PlayerBlockBreakEvent> { it.cancelled = true }
-    poolAlt.on<PlayerChatMessageEvent> { DockyardServer.broadcastMessage("Player chatted in alt world.") }
+    poolAlt.on<PlayerBlockBreakEvent> { DockyardServer.broadcastMessage("Player blocked in alt world.") }
 
     server.start()
 }

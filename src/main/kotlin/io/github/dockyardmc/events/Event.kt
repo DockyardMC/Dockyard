@@ -12,17 +12,17 @@ interface Event {
         players: Set<Player> = setOf<Player>(),
         entities: Set<Entity> = setOf<Entity>(),
         worlds: Set<World> = setOf<World>(),
-        location: Set<Location> = setOf<Location>(),
+        locations: Set<Location> = setOf<Location>(),
         other: Set<Any> = setOf<Any>(),
         val isGlobalEvent: Boolean = false
     ) {
         // what the fuck
         val players = players + entities.filterIsInstance<Player>()
         val entities = entities + players
-        val locations = location + this.entities.map { it.location }
+        val locations = locations + this.entities.map { it.location }
         val worlds = worlds + this.locations.map { it.world }
 
-        val other: Set<Any> = players + entities + worlds + location + other
+        val other: Set<Any> = this.players + this.entities + this.worlds + this.locations + other
 
         operator fun contains(element: Any) = other.contains(element)
 
