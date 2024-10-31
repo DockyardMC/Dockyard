@@ -5,5 +5,5 @@ import io.github.dockyardmc.annotations.EventDocumentation
 
 @EventDocumentation("server finishes loading", false)
 class ServerFinishLoadEvent(val server: DockyardServer): Event {
-    override val context = elements()
+    override val context = Event.Context(isGlobalEvent = true)
 }

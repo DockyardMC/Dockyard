@@ -6,5 +6,5 @@ import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when viewer is added to an entity viewer list", true)
 class EntityViewerAddEvent(var entity: Entity, var viewer: Player): CancellableEvent() {
-    override val context = elements(entity, viewer)
+    override val context = Event.Context(players = setOf(viewer), entities = setOf(entity))
 }

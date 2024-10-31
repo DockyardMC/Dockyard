@@ -5,5 +5,5 @@ import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when player respawns after dying", false)
 class PlayerRespawnEvent(val player: Player): Event {
-    override val context = elements(player)
+    override val context = Event.Context(players = setOf(player))
 }

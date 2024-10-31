@@ -5,5 +5,5 @@ import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when client requests command suggestions", true)
 class CommandSuggestionEvent(var command: String, val player: Player): CancellableEvent() {
-    override val context = elements(command, player)
+    override val context = Event.Context(players = setOf(player))
 }

@@ -7,5 +7,5 @@ import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when player right clicks with item in hand", true)
 class PlayerRightClickWithItemEvent(val player: Player, val item: ItemStack): CancellableEvent() {
-    override val context = elements(player, item)
+    override val context = Event.Context(players = setOf(player), other = setOf(item))
 }

@@ -7,5 +7,5 @@ import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when player breaks a block", true)
 class PlayerBlockBreakEvent(val player: Player, var block: Block, var location: Location): CancellableEvent() {
-    override val context = elements(player, block, location)
+    override val context = Event.Context(players = setOf(player), location = setOf(location))
 }

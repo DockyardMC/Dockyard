@@ -11,5 +11,5 @@ class PacketSentEvent(
     val processor: PlayerNetworkManager,
     var connection: ChannelHandlerContext
 ) : CancellableEvent() {
-    override val context = elements(processor)
+    override val context = Event.Context(other = setOf(processor))
 }

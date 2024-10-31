@@ -6,5 +6,5 @@ import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when player drops item", true)
 class PlayerDropItemEvent(val player: Player, var itemStack: ItemStack): CancellableEvent() {
-    override val context = elements(player, itemStack)
+    override val context = Event.Context(players = setOf(player))
 }

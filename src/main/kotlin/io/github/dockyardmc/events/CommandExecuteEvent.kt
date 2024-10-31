@@ -6,5 +6,5 @@ import io.github.dockyardmc.commands.CommandExecutor
 
 @EventDocumentation("when command gets executed", true)
 class CommandExecuteEvent(var raw: String, var command: Command, var executor: CommandExecutor): CancellableEvent() {
-    override val context = elements(command, executor)
+    override val context = Event.Context(players = setOfNotNull(executor.player), other = setOf(command, executor))
 }

@@ -13,5 +13,5 @@ class PacketReceivedEvent(
     val size: Int,
     val id: Int
 ): CancellableEvent() {
-    override val context = elements(processor)
+    override val context = Event.Context(other = setOf(processor))
 }

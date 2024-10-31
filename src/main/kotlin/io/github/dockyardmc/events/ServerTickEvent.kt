@@ -4,5 +4,5 @@ import io.github.dockyardmc.annotations.EventDocumentation
 
 @EventDocumentation("when server ticks", false)
 class ServerTickEvent(val serverTicks: Int): Event {
-    override val context = elements()
+    override val context = Event.Context(isGlobalEvent = true)
 }

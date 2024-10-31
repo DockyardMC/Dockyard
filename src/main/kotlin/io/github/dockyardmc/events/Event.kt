@@ -1,29 +1,32 @@
 package io.github.dockyardmc.events
 
-import io.github.dockyardmc.bounds.Bound
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.world.Chunk
+import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.world.World
 
 interface Event {
-    val context: Collection<Any>
+    val context: Context
 
-    fun Event.elements(vararg elements: Any?): Collection<Any> {
-        return buildSet {
-            elements.forEach {
-                if (it != null) addAll(it.convertContext())
-            }
-        }
-    }
+    class Context(
+        players: Set<Player> = setOf<Player>(),
+        entities: Set<Entity> = setOf<Entity>(),
+        worlds: Set<World> = setOf<World>(),
+        location: Set<Location> = setOf<Location>(),
+        other: Set<Any> = setOf<Any>(),
+        val isGlobalEvent: Boolean = false
+    ) {
+        // what the fuck
+        val players = players + entities.filterIsInstance<Player>()
+        val entities = entities + players
+        val locations = location + this.entities.map { it.location }
+        val worlds = worlds + this.locations.map { it.world }
 
-    fun Any.convertContext(): List<Any> {
-        return when (this) {
-            // return any additional properties which may be associated with this property
-            is Entity -> listOf(this.location, this.world)
-            is Location -> listOf(this.world)
-            is Bound -> listOf(this.world, this.firstLocation, this.secondLocation)
-            is Chunk -> listOf(this.world)
-            else -> listOf()
-        } + this
+        val other: Set<Any> = players + entities + worlds + location + other
+
+        operator fun contains(element: Any) = other.contains(element)
+
+        // i hate everything about this
+        // please suggest something better.
     }
 }

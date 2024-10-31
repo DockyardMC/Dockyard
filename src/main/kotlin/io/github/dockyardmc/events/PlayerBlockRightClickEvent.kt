@@ -9,5 +9,5 @@ import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when player interacts with block (right click)", false)
 class PlayerBlockRightClickEvent(val player: Player, var heldItem: ItemStack, var block: Block, var face: Direction, var location: Location): CancellableEvent() {
-    override val context = elements(player, block, location)
+    override val context = Event.Context(players = setOf(player), location = setOf(location))
 }

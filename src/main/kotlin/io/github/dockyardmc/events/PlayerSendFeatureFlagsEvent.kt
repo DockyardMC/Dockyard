@@ -5,5 +5,5 @@ import io.github.dockyardmc.annotations.EventDocumentation
 
 @EventDocumentation("server sends feature flags to client during configuration", false)
 class PlayerSendFeatureFlagsEvent(var featureFlags: MutableList<FeatureFlag>): Event {
-    override val context = elements()
+    override val context = Event.Context()
 }

@@ -5,5 +5,5 @@ import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when player leaves bed", false)
 class PlayerBedLeaveEvent(val player: Player): Event {
-    override val context = elements(player)
+    override val context = Event.Context(players = setOf(player))
 }

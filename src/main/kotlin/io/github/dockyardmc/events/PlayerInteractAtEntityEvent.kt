@@ -8,5 +8,5 @@ import io.github.dockyardmc.utils.vectors.Vector3f
 
 @EventDocumentation("when player interacts with entity. Provides XYZ of click point unlike normal PlayerInteractWithEntityEvent", true)
 class PlayerInteractAtEntityEvent(var player: Player, var entity: Entity, var clickPoint: Vector3f, var interactionHand: PlayerHand): CancellableEvent() {
-    override val context = elements(player, entity)
+    override val context = Event.Context(players = setOf(player), entities = setOf(entity))
 }

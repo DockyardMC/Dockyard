@@ -6,5 +6,5 @@ import io.github.dockyardmc.registry.registries.DamageType
 
 @EventDocumentation("when entity takes damage", true)
 class EntityDamageEvent(val entity: Entity, var damage: Float, var damageType: DamageType, var attacker: Entity? = null, var projectile: Entity? = null): CancellableEvent() {
-    override val context = elements(entity, damageType, attacker, projectile)
+    override val context = Event.Context(entities = setOfNotNull(entity, attacker, projectile), other = setOf(damageType))
 }

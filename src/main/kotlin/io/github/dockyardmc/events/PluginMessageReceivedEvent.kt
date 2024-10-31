@@ -6,5 +6,5 @@ import io.netty.buffer.ByteBuf
 
 @EventDocumentation("server receives plugin message from client (Custom Payload Packet)", true)
 class PluginMessageReceivedEvent(val player: Player, var channel: String, var data: ByteBuf): CancellableEvent() {
-    override val context = elements(player)
+    override val context = Event.Context(players = setOf(player))
 }

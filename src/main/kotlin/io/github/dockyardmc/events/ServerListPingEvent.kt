@@ -5,5 +5,5 @@ import io.github.dockyardmc.motd.ServerStatus
 
 @EventDocumentation("client requests motd/status", false)
 class ServerListPingEvent(var status: ServerStatus): Event {
-    override val context = elements()
+    override val context = Event.Context(isGlobalEvent = true)
 }

@@ -5,5 +5,5 @@ import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when player sends a chat message", true)
 class PlayerChatMessageEvent(var message: String, val player: Player): CancellableEvent() {
-    override val context = elements(player)
+    override val context = Event.Context(players = setOf(player))
 }
