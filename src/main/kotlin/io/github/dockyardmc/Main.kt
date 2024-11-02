@@ -1,6 +1,7 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.bounds.Bound
+import io.github.dockyardmc.commands.CommandExecutor
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
@@ -18,6 +19,7 @@ import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
+import kotlin.random.Random
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -42,6 +44,7 @@ fun main(args: Array<String>) {
         useDebugMode(false)
         withImplementations {
             dockyardCommands = true
+            debug = true
             npcCommand = true
         }
     }
@@ -83,23 +86,46 @@ fun main(args: Array<String>) {
             }
         }
     }
-    Commands.add("/tp") {
-        addArgument("world", StringArgument()) { listOf("main", "alt") }
-        execute {
-            val world = getArgument<String>("world")
-            if (world == "main") {
-                it.player?.teleport(WorldManager.mainWorld.defaultSpawnLocation)
-            } else if (world == "alt") {
-                it.player?.teleport(altWorld.defaultSpawnLocation)
-            }
-        }
-    }
 
-    val poolMain = EventPool.withFilter { it.context.contains(WorldManager.mainWorld) || it.context.isGlobalEvent }
-    val poolAlt = EventPool.withFilter { it.context.contains(altWorld) || it.context.isGlobalEvent }
+    val poolMain = EventPool.withFilter("mainworldpool") { it.context.contains(WorldManager.mainWorld) || it.context.isGlobalEvent }
+    val poolAlt = EventPool.withFilter("altworldpool") { it.context.contains(altWorld) || it.context.isGlobalEvent }
 
     poolMain.on<PlayerBlockBreakEvent> { it.cancelled = true }
     poolAlt.on<PlayerBlockBreakEvent> { DockyardServer.broadcastMessage("Player blocked in alt world.") }
 
+
+    val customPool = EventPool(parent = null, name = "custompool")
+    customPool.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] pool -> custom event! ${it.int++}") }
+
+    val subPool = EventPool(parent = customPool, name = "subpool-1")
+    subPool.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] subpool1 -> custom event! ${it.int++}") }
+
+    val subPool2 = EventPool(parent = subPool, name = "subpool-2")
+    subPool2.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] subpool2 -> custom event! ${it.int++}") }
+    poolAlt.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] openpool -> custom event! ${it.int++}") }
+
+    Commands.add("eventtest") {
+        addArgument("area", StringArgument()) { listOf("open", "0", "1", "2", "unregister") }
+        execute {
+            val area = getArgument<String>("area")
+            val event = CustomEvent()
+            when (area) {
+                "open" -> Events
+                "0" -> customPool
+                "1" -> subPool
+                "2" -> subPool2
+                "unregister" -> {
+                    subPool2.dispose(); return@execute
+                }
+                else -> return@execute it.sendMessage(customPool.debugTree())
+            }.dispatch(event)
+            it.sendMessage("dispatched ${event.value}.")
+        }
+    }
+
     server.start()
+}
+
+class CustomEvent(val value: Int = Random.nextInt(0, 99), var int: Int = 0) : Event {
+    override val context = Event.Context(isGlobalEvent = true)
 }
