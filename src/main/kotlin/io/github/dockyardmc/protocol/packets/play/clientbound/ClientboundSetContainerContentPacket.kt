@@ -17,6 +17,6 @@ class ClientboundSetContainerContentPacket(player: Player): ClientboundPacket() 
         data.writeByte(0)
         data.writeVarInt(0)
         data.writeItemStackList(player.inventory.slots.values.values.reversed())
-        data.writeItemStack(player.inventory.carriedItem.value)
+        data.writeItemStack(player.inventory.cursorItem.value)
     }
 }

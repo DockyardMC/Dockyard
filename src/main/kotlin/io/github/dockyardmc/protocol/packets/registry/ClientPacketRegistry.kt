@@ -130,7 +130,7 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("camera")
         addPlay(ClientboundSetCenterChunkPacket::class)
         skipPlay("view distance")
-        skipPlay("cursor item")
+        addPlay(ClientboundSetInventoryCursorPacket::class)
         skipPlay("spawn position")
         addPlay(ClientboundDisplayObjectivePacket::class)
         addPlay(ClientboundSetEntityMetadataPacket::class)

@@ -10,7 +10,7 @@ import io.github.dockyardmc.world.World
 class ItemDisplay(location: Location, world: World): DisplayEntityBase(location) {
 
     override var type: EntityType = EntityTypes.ITEM_DISPLAY
-    val item: Bindable<ItemStack> = Bindable(ItemStack.air)
+    val item: Bindable<ItemStack> = Bindable(ItemStack.AIR)
     val renderType: Bindable<ItemDisplayRenderType> = Bindable(ItemDisplayRenderType.NONE)
 
     init {

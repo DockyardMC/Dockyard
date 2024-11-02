@@ -35,12 +35,12 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
 
     var profile: Bindable<ProfilePropertyMap?> = Bindable(null)
 
-    val mainHandItem: Bindable<ItemStack> = Bindable(ItemStack.air)
-    val offHandItem: Bindable<ItemStack> = Bindable(ItemStack.air)
-    val helmet: Bindable<ItemStack> = Bindable(ItemStack.air)
-    val chestplate: Bindable<ItemStack> = Bindable(ItemStack.air)
-    val leggings: Bindable<ItemStack> = Bindable(ItemStack.air)
-    val boots: Bindable<ItemStack> = Bindable(ItemStack.air)
+    val mainHandItem: Bindable<ItemStack> = Bindable(ItemStack.AIR)
+    val offHandItem: Bindable<ItemStack> = Bindable(ItemStack.AIR)
+    val helmet: Bindable<ItemStack> = Bindable(ItemStack.AIR)
+    val chestplate: Bindable<ItemStack> = Bindable(ItemStack.AIR)
+    val leggings: Bindable<ItemStack> = Bindable(ItemStack.AIR)
+    val boots: Bindable<ItemStack> = Bindable(ItemStack.AIR)
 
     init {
 

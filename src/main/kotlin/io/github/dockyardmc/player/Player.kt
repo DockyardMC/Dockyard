@@ -10,7 +10,7 @@ import io.github.dockyardmc.events.PlayerDeathEvent
 import io.github.dockyardmc.events.PlayerRespawnEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.ContainerInventory
-import io.github.dockyardmc.inventory.Inventory
+import io.github.dockyardmc.inventory.PlayerInventory
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.particles.ItemParticleData
@@ -61,10 +61,10 @@ class Player(
     var canFly: Bindable<Boolean> = bindablePool.provideBindable(false)
     var isSneaking: Boolean = false
     var isSprinting: Boolean = false
-    var selectedHotbarSlot: Bindable<Int> = bindablePool.provideBindable(0)
+    var heldSlot: Bindable<Int> = bindablePool.provideBindable(0)
     val permissions: BindableList<String> = bindablePool.provideBindableList()
     var isFullyInitialized: Boolean = false
-    var inventory: Inventory = Inventory(this)
+    var inventory: PlayerInventory = PlayerInventory(this)
     var gameMode: Bindable<GameMode> = bindablePool.provideBindable(GameMode.ADVENTURE)
     var displayedSkinParts: BindableList<DisplayedSkinPart> = bindablePool.provideBindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     var isConnected: Boolean = true
@@ -103,7 +103,7 @@ class Player(
             viewers.sendPacket(packet)
         }
 
-        selectedHotbarSlot.valueChanged {
+        heldSlot.valueChanged {
             this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
             val item = inventory[it.newValue]
             equipment.value = equipment.value.apply { mainHand = item }
@@ -224,11 +224,11 @@ class Player(
                     // notify the client that eating is finished
                     sendPacket(ClientboundEntityEventPacket(this, EntityEvent.PLAYER_ITEM_USE_FINISHED))
 
-                    val newItem = if(item.amount == 1) ItemStack.air else item.clone().apply { amount -= 1 }
-                    inventory[selectedHotbarSlot.value] = newItem
+                    val newItem = if(item.amount == 1) ItemStack.AIR else item.clone().apply { amount -= 1 }
+                    inventory[heldSlot.value] = newItem
 
                     // if new item is air, stop eating, if not, reset eating time
-                    if(!newItem.isSameAs(ItemStack.air)) {
+                    if(!newItem.isSameAs(ItemStack.AIR)) {
                         itemInUse!!.startTime = world.worldAge
                         itemInUse!!.item = newItem
                     } else {
@@ -298,16 +298,16 @@ class Player(
     //TODO Add off-hand support
     fun getHeldItem(hand: PlayerHand): ItemStack {
         if (hand == PlayerHand.MAIN_HAND) {
-            return inventory[selectedHotbarSlot.value]
+            return inventory[heldSlot.value]
         } else if (hand == PlayerHand.OFF_HAND) {
             return inventory[40]
         }
-        return ItemStack.air
+        return ItemStack.AIR
     }
 
     fun setHeldItem(hand: PlayerHand, item: ItemStack) {
         if (hand == PlayerHand.MAIN_HAND) {
-            inventory[selectedHotbarSlot.value] = item
+            inventory[heldSlot.value] = item
         } else if (hand == PlayerHand.OFF_HAND) {
             inventory[40] = item
         }
@@ -470,13 +470,13 @@ class Player(
         if(customModelData != null) {
             val totem = ItemStack(Items.TOTEM_OF_UNDYING)
             totem.customModelData.value = customModelData
-            inventory[selectedHotbarSlot.value] = totem
+            inventory[heldSlot.value] = totem
         }
         val packet = ClientboundEntityEventPacket(this, EntityEvent.PLAYER_PLAY_TOTEM_ANIMATION)
         sendPacket(packet)
 
         if(customModelData != null) {
-            inventory[selectedHotbarSlot.value] = held
+            inventory[heldSlot.value] = held
         }
     }
 }

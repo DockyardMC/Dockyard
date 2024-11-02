@@ -2,17 +2,21 @@ package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.StringArgument
+import io.github.dockyardmc.commands.IntArgument
+import io.github.dockyardmc.commands.ItemArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.GameMode
-import io.github.dockyardmc.player.add
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.registry.registries.Item
+import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
+import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
@@ -65,6 +69,20 @@ fun main(args: Array<String>) {
     }
 
     val altWorld = WorldManager.create("altworld", FlatWorldGenerator(Biomes.BASALT_DELTAS), DimensionTypes.NETHER)
+
+    Commands.add("/slot") {
+        addSubcommand("set") {
+            addArgument("slot", IntArgument())
+            addArgument("material", ItemArgument())
+            execute {
+                val player = it.getPlayerOrThrow()
+                val slot = getArgument<Int>("slot")
+                val material = getArgument<Item>("material")
+
+                player.inventory[slot] = material.toItemStack()
+            }
+        }
+    }
 
     Commands.add("/reset") {
         execute {
@@ -136,6 +154,19 @@ fun main(args: Array<String>) {
                 else -> return@execute it.sendMessage(customPool.debugTree())
             }
             it.sendMessage("dispatched ${event.value}.")
+    Commands.add("/minigame") {
+        addSubcommand("cookie_clicker") {
+            execute {
+                val player = it.getPlayerOrThrow()
+                player.openInventory(ExampleCookieClickerScreen(player))
+            }
+        }
+
+        addSubcommand("minigame") {
+            execute {
+                val player = it.getPlayerOrThrow()
+                player.openInventory(ExampleMinesweeperScreen(player, 10))
+            }
         }
     }
 

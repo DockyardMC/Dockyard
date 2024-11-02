@@ -31,8 +31,8 @@ abstract class DrawableContainerScreen(val player: Player): ContainerInventory, 
         slots.itemRemoved {
             val slot = getSlotIndexFromVector2(it.first, it.second)
 
-            contents[slot] = ItemStack.air
-            player.sendPacket(ClientboundSetInventorySlotPacket(slot, ItemStack.air))
+            contents[slot] = ItemStack.AIR
+            player.sendPacket(ClientboundSetInventorySlotPacket(slot, ItemStack.AIR))
         }
     }
 
@@ -54,13 +54,13 @@ abstract class DrawableContainerScreen(val player: Player): ContainerInventory, 
 
     fun click(slot: Int, player: Player, clickType: DrawableClickType) {
 
-        if(clickType == DrawableClickType.OFFHAND) player.sendPacket(ClientboundSetInventorySlotPacket(45, ItemStack.air))
+        if(clickType == DrawableClickType.OFFHAND) player.sendPacket(ClientboundSetInventorySlotPacket(45, ItemStack.AIR))
 
         val vec2 = getVector2FromSlotIndex(slot)
-        val drawableItem = slots[PairKey(vec2.x, vec2.y)] ?: ItemStack.air.toDrawable()
+        val drawableItem = slots[PairKey(vec2.x, vec2.y)] ?: ItemStack.AIR.toDrawable()
 
         slots[vec2.x, vec2.y] = drawableItem
-        player.inventory.carriedItem.value = ItemStack.air
+        player.inventory.cursorItem.value = ItemStack.AIR
 
         drawableItem.clickListener?.invoke(player, clickType)
     }

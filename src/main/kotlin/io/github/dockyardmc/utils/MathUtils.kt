@@ -3,7 +3,6 @@ package io.github.dockyardmc.utils
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.utils.vectors.Vector3f
 import java.io.File
-import java.lang.IllegalStateException
 import java.security.MessageDigest
 import kotlin.math.PI
 import kotlin.math.cos
@@ -67,6 +66,10 @@ fun positiveCeilDiv(i: Int, j: Int): Int = -Math.floorDiv(-i, j)
 fun bitsToRepresent(n: Int): Int {
     if (n < 1) throw Exception("n must be greater than 0")
     return Integer.SIZE - Integer.numberOfLeadingZeros(n)
+}
+
+fun isBetween(number: Int, min: Int, max: Int): Boolean {
+    return number in min..max
 }
 
 fun randomInt(min: Int, max: Int): Int = (min..max).shuffled().last()

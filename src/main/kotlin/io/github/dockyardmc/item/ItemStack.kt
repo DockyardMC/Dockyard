@@ -34,10 +34,10 @@ class ItemStack(var material: Item, var amount: Int = 1) {
     }
 
     companion object {
-        val air = ItemStack(Items.AIR, 0)
+        val AIR = ItemStack(Items.AIR, 0)
     }
 
-    fun isEmpty(): Boolean = this.isSameAs(air)
+    fun isEmpty(): Boolean = this.isSameAs(AIR)
 
     override fun toString(): String = "ItemStack(${material.identifier}, ${components.values}, $amount)".stripComponentTags()
 }
@@ -58,7 +58,7 @@ fun ByteBuf.readItemStackList(): List<ItemStack> {
 
 fun ByteBuf.readItemStack(): ItemStack {
     val count = this.readVarInt()
-    if(count <= 0) return ItemStack.air
+    if(count <= 0) return ItemStack.AIR
 
     val itemId = this.readVarInt()
     val componentsToAdd = this.readVarInt()
