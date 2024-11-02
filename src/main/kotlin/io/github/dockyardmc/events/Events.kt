@@ -12,6 +12,11 @@ object Events : EventSystem() {
         super.dispatch(event)
         profiler.end()
     }
+
+    override fun dispose() {
+        this.children.clear()
+        this.eventMap.clear()
+    }
 }
 
 typealias EventListenerFunction<T> = (event: T) -> Unit

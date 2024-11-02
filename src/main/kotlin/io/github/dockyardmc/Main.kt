@@ -93,14 +93,13 @@ fun main(args: Array<String>) {
     poolMain.on<PlayerBlockBreakEvent> { it.cancelled = true }
     poolAlt.on<PlayerBlockBreakEvent> { DockyardServer.broadcastMessage("Player blocked in alt world.") }
 
-
     val customPool = EventPool(parent = null, name = "custompool")
     customPool.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] pool -> custom event! ${it.int++}") }
 
-    val subPool = EventPool(parent = customPool, name = "subpool-1")
+    val subPool = customPool.subPool("subpool-1")
     subPool.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] subpool1 -> custom event! ${it.int++}") }
 
-    val subPool2 = EventPool(parent = subPool, name = "subpool-2")
+    val subPool2 = subPool.subPool("subpool-2")
     subPool2.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] subpool2 -> custom event! ${it.int++}") }
     poolAlt.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] openpool -> custom event! ${it.int++}") }
 

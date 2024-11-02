@@ -49,6 +49,13 @@ abstract class EventSystem : Disposable {
         children -= child
         child.parent = null
     }
+    fun fork() {
+        dispose()
+        Events.addChild(this)
+    }
+    fun subPool(name: String? = null): EventPool {
+        return EventPool(parent = this, name = name)
+    }
 
     override fun dispose() {
         parent?.removeChild(this)
