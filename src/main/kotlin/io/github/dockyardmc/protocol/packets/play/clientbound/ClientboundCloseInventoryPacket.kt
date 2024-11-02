@@ -6,11 +6,9 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
 @WikiVGEntry("Close Container")
-@ClientboundPacketInfo(0x0F, ProtocolState.PLAY)
+@ClientboundPacketInfo(0x12, ProtocolState.PLAY)
 class ClientboundCloseInventoryPacket(id: Int): ClientboundPacket() {
-
     init {
         data.writeByte(id)
     }
-
 }
