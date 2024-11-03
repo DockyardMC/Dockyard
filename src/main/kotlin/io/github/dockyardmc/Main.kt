@@ -5,6 +5,7 @@ import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.events.*
+import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
@@ -83,8 +84,8 @@ fun main(args: Array<String>) {
         }
     }
 
-    val poolMain = EventPool.withFilter("mainworldpool") { it.context.contains(WorldManager.mainWorld) || it.context.isGlobalEvent }
-    val poolAlt = EventPool.withFilter("altworldpool") { it.context.contains(altWorld) || it.context.isGlobalEvent }
+    val poolMain = EventPool.withFilter("mainworldpool", EventFilter.containsWorld(WorldManager.mainWorld))
+    val poolAlt = EventPool.withFilter("altworldpool", EventFilter.containsWorld(altWorld))
 
     poolMain.on<PlayerBlockBreakEvent> { it.cancelled = true }
     poolAlt.on<PlayerBlockBreakEvent> { DockyardServer.broadcastMessage("Player blocked in alt world.") }
@@ -100,20 +101,29 @@ fun main(args: Array<String>) {
     poolAlt.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] openpool -> custom event! ${it.int++}") }
 
     Commands.add("eventtest") {
-        addArgument("area", StringArgument()) { listOf("open", "0", "1", "2", "unregister") }
+        addArgument("area", StringArgument()) { listOf("open", "0", "1", "2", "unregister", "fork") }
         execute {
             val area = getArgument<String>("area")
             val event = CustomEvent()
             when (area) {
-                "open" -> Events
-                "0" -> customPool
-                "1" -> subPool
-                "2" -> subPool2
+                "open" -> Events.dispatch(event)
+                "0" -> customPool.dispatch(event)
+                "1" -> subPool.dispatch(event)
+                "2" -> subPool2.dispatch(event)
                 "unregister" -> {
-                    subPool2.dispose(); return@execute
+                    subPool2.dispose()
+                }
+                "fork" -> {
+                    subPool.fork()
+                }
+                "clear_children" -> {
+                    customPool.clearChildren()
+                }
+                "unregister_listeners" -> {
+                    poolAlt.unregisterAllListeners()
                 }
                 else -> return@execute it.sendMessage(customPool.debugTree())
-            }.dispatch(event)
+            }
             it.sendMessage("dispatched ${event.value}.")
         }
     }
