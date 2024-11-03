@@ -10,4 +10,6 @@ class PacketSentEvent(
     var packet: ClientboundPacket,
     val processor: PlayerNetworkManager,
     var connection: ChannelHandlerContext
-) : CancellableEvent()
+) : CancellableEvent() {
+    override val context = Event.Context(other = setOf(processor))
+}

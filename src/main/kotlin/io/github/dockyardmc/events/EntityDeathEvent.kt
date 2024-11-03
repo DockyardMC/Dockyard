@@ -4,4 +4,6 @@ import io.github.dockyardmc.annotations.EventDocumentation
 import io.github.dockyardmc.entities.Entity
 
 @EventDocumentation("when entity dies", true)
-class EntityDeathEvent(val entity: Entity): CancellableEvent()
+class EntityDeathEvent(val entity: Entity): CancellableEvent() {
+    override val context = Event.Context(entities = setOf(entity))
+}

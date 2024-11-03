@@ -5,4 +5,6 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerHand
 
 @EventDocumentation("when player swings their hand", false)
-class PlayerSwingHandEvent(val player: Player, val hand: PlayerHand): Event
+class PlayerSwingHandEvent(val player: Player, val hand: PlayerHand): Event {
+    override val context = Event.Context(players = setOf(player))
+}

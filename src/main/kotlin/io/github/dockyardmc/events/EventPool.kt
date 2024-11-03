@@ -1,23 +1,37 @@
 package io.github.dockyardmc.events
 
-import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.events.system.EventFilter
+import io.github.dockyardmc.events.system.EventSystem
 
-class EventPool: Disposable {
-    val eventList = mutableListOf<EventListener<Event>>()
+class EventPool(override var parent: EventSystem? = Events, name: String? = null) : EventSystem() {
+    override var name: String = name ?: super.name.replace("eventsystem", "eventpool")
 
-    inline fun <reified T : Event> on(noinline function: (event: T) -> Unit): EventListener<Event> {
-        val listener = Events.on<T>(function)
-        eventList.add(listener)
-        return listener
+    init {
+        parent?.addChild(this)
     }
 
-    fun unregister(event: EventListener<Event>) {
-        eventList.remove(event)
-        Events.unregister(event)
+    /**
+     * Attaches a new filter to this EventPool
+     *
+     * @param filter The new filter to attach
+     * @return this
+     */
+    fun withFilter(filter: EventFilter): EventPool {
+        this.filter = filter
+        return this
     }
 
-    override fun dispose() {
-        eventList.forEach(Events::unregister)
-        eventList.clear()
+    override fun toString(): String {
+        return "EventPool($name)"
+    }
+
+    companion object {
+        /**
+         * Creates a new EventPool with the given name, and given filter
+         * @param name The name
+         * @param filter The filter
+         */
+        fun withFilter(name: String? = null, filter: EventFilter) = EventPool(name = name)
+            .withFilter(filter)
     }
 }
