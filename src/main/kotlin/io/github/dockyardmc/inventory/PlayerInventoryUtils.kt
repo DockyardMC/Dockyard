@@ -1,5 +1,9 @@
 package io.github.dockyardmc.inventory
 
+import io.github.dockyardmc.item.EquipmentSlot
+import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.registries.Item
+
 object PlayerInventoryUtils {
     const val OFFSET: Int = 9
 
@@ -14,6 +18,41 @@ object PlayerInventoryUtils {
     const val LEGGINGS_SLOT: Int = 43
     const val BOOTS_SLOT: Int = 44
     const val OFFHAND_SLOT: Int = 45
+
+    fun getDefaultEquipmentSlot(item: Item): EquipmentSlot?{
+        return when(item) {
+
+            Items.LEATHER_HELMET,
+            Items.GOLDEN_HELMET,
+            Items.CHAINMAIL_HELMET,
+            Items.IRON_HELMET,
+            Items.DIAMOND_HELMET,
+            Items.NETHERITE_HELMET -> EquipmentSlot.HEAD
+
+            Items.LEATHER_BOOTS,
+            Items.GOLDEN_BOOTS,
+            Items.CHAINMAIL_BOOTS,
+            Items.IRON_BOOTS,
+            Items.DIAMOND_BOOTS,
+            Items.NETHERITE_BOOTS -> EquipmentSlot.FEET
+
+            Items.LEATHER_CHESTPLATE,
+            Items.GOLDEN_CHESTPLATE,
+            Items.CHAINMAIL_CHESTPLATE,
+            Items.IRON_CHESTPLATE,
+            Items.DIAMOND_CHESTPLATE,
+            Items.NETHERITE_CHESTPLATE -> EquipmentSlot.CHEST
+
+            Items.LEATHER_LEGGINGS,
+            Items.GOLDEN_LEGGINGS,
+            Items.CHAINMAIL_LEGGINGS,
+            Items.IRON_LEGGINGS,
+            Items.DIAMOND_LEGGINGS,
+            Items.NETHERITE_LEGGINGS -> EquipmentSlot.LEGS
+
+            else -> null
+        }
+    }
 
     fun convertPlayerInventorySlot(slot: Int, offset: Int): Int {
         return when (slot) {

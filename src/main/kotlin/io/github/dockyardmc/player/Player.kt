@@ -3,7 +3,10 @@ package io.github.dockyardmc.player
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.commands.buildCommandGraph
-import io.github.dockyardmc.entities.*
+import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entities.EntityMetaValue
+import io.github.dockyardmc.entities.EntityMetadata
+import io.github.dockyardmc.entities.EntityMetadataType
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEvent
 import io.github.dockyardmc.events.PlayerDeathEvent
@@ -19,7 +22,9 @@ import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.EntityTypes
+import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.resourcepack.Resourcepack
@@ -27,7 +32,9 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableContainerScreen
-import io.github.dockyardmc.utils.*
+import io.github.dockyardmc.utils.ChunkUtils
+import io.github.dockyardmc.utils.percentOf
+import io.github.dockyardmc.utils.randomFloat
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.ConcurrentChunkEngine
@@ -84,6 +91,9 @@ class Player(
     val redVignette: Bindable<Float> = bindablePool.provideBindable(0f)
     val time: Bindable<Long> = bindablePool.provideBindable(-1)
     val fovModifier: Bindable<Float> = bindablePool.provideBindable(0.1f)
+
+    // Used internally to allow the closing of inventory within the inventory listener
+    var didCloseInventory = false
 
     val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
 

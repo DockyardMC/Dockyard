@@ -473,6 +473,13 @@ fun BindableList<ItemComponent>.hasType(type: KClass<*>): Boolean =
     this.values.firstOrNull { it::class == type } != null
 
 @Suppress("UNCHECKED_CAST")
+fun <T : ItemComponent> BindableList<ItemComponent>.getOrNull(type: KClass<T>): T? {
+    val component =  this.values.firstOrNull { it::class == type }
+    return if(component == null) null else component as T
+}
+
+
+@Suppress("UNCHECKED_CAST")
 fun <T> BindableList<ItemComponent>.firstOrNullByType(type: KClass<*>): T? {
     val value = this.values.firstOrNull { it::class == type } ?: return null
     return value as T

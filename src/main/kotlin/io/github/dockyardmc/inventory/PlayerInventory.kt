@@ -141,7 +141,6 @@ fun Player.clearInventory() {
     this.inventory.clear()
 }
 
-
 data class DragButtonInventoryActionData(
     val type: DragButtonInventoryAction,
     val item: ItemStack,
