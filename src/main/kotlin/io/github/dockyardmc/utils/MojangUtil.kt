@@ -21,7 +21,6 @@ object MojangUtil {
     fun getUUIDFromUsername(username: String): UUID? {
 
         try {
-            log("Getting uuid of $username from Mojang API", LogType.NETWORK)
             val request = HttpRequest.newBuilder()
                 .uri(URI("https://api.mojang.com/users/profiles/minecraft/$username"))
                 .GET()
@@ -29,10 +28,9 @@ object MojangUtil {
 
             val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
             val decodedResponse = json.decodeFromString<ProfileResponse>(response.body())
-            log("$decodedResponse", LogType.SUCCESS)
 
             val uuid = UUID.fromString(getFullUUIDFromTrimmedUUID(decodedResponse.id))
-            log(uuid.toString())
+            log("Fetched uuid of $username from Mojang API", LogType.NETWORK)
             return uuid
 
         } catch (ex: Exception) {
@@ -53,6 +51,7 @@ object MojangUtil {
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
         val decodedResponse = json.decodeFromString<SkinResponseRoot>(response.body())
 
+        log("Fetched skin of $uuid from Mojang API", LogType.NETWORK)
         val property = ProfileProperty("textures", decodedResponse.properties[0].value, true, decodedResponse.properties[0].signature)
         skinCache[uuid] = property
         return property

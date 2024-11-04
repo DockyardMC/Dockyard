@@ -20,6 +20,7 @@ import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.isDoubleInteract
 import io.github.dockyardmc.registry.registries.BlockRegistry
+import io.github.dockyardmc.runnables.runLaterAsync
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -102,14 +103,23 @@ class ServerboundUseItemOnPacket(
         if (event.cancelled) cancelled = true
         Events.dispatch(event)
 
+
         val rightClickEvent = PlayerRightClickWithItemEvent(player, item)
         Events.dispatch(rightClickEvent)
         if(rightClickEvent.cancelled) cancelled = true
 
-        //TODO Move to block implementation or something idk?
-        if (!player.isSneaking && originalBlock.identifier.contains("trapdoor") && !cancelled) {
-            val open = originalBlock.blockStates["open"] != "true"
-            player.world.setBlockState(pos.toLocation(player.world), "open" to open.toString().lowercase())
+        //TODO make block handlers or something so its not all here
+        if(originalBlock.identifier.contains("trapdoor")) {
+            var opensTrapdoor = true
+            if(player.isSneaking && !item.isEmpty() && BlockRegistry.getMap().containsKey(item.material.identifier)) {
+                opensTrapdoor = false
+            }
+            if(event.cancelled) opensTrapdoor = false
+
+            var newState = originalBlock.blockStates["open"] != "true"
+            if(!opensTrapdoor) newState = originalBlock.blockStates["open"]!!.toBoolean()
+
+            player.world.setBlockState(pos.toLocation(player.world), "open" to newState.toString().lowercase())
         }
 
         if (item.material.isBlock && item.material != Items.AIR) {

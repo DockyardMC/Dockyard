@@ -46,6 +46,7 @@ fun main(args: Array<String>) {
         }
     }
 
+
     Events.on<PlayerJoinEvent> {
         val player = it.player
 

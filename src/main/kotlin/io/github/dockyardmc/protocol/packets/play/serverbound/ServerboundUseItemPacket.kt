@@ -31,7 +31,6 @@ class ServerboundUseItemPacket(val hand: PlayerHand, val sequence: Int, val yaw:
         if(isFood) {
             if(player.itemInUse != null) return
             val component = item.components.firstOrNullByType<FoodItemComponent>(FoodItemComponent::class)!!
-            player.sendMessage("<lime>start eating ${item.displayName}")
             val eatingTime = component.secondsToEat
             val useTime = (eatingTime * 20f).toInt()
             val startTime = player.world.worldAge
