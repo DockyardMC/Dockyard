@@ -9,6 +9,8 @@ import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.effects.PotionEffectImpl
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.item.EquipmentSlot
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PersistentPlayer
@@ -60,8 +62,8 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val team: Bindable<Team?> = bindablePool.provideBindable(null)
     val isOnFire: Bindable<Boolean> = bindablePool.provideBindable(false)
     val freezeTicks: Bindable<Int> = bindablePool.provideBindable(0)
-    val equipment: Bindable<EntityEquipment> = bindablePool.provideBindable(EntityEquipment())
-    val equipmentLayers: BindableMap<PersistentPlayer, EntityEquipmentLayer> = bindablePool.provideBindableMap()
+    val equipment: BindableMap<EquipmentSlot, ItemStack> = bindablePool.provideBindableMap()
+    val equipmentLayers: BindableMap<PersistentPlayer, Map<EquipmentSlot, ItemStack>> = bindablePool.provideBindableMap()
     var renderDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityRenderDistanceBlocks
     var autoViewable: Boolean = true
 
@@ -69,7 +71,15 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     init {
 
-        equipment.valueChanged { viewers.forEach(::sendEquipmentPacket) }
+        equipment.itemSet {
+            if(this !is Player) return@itemSet
+            this.inventory.unsafeUpdateEquipmentSlot(it.key, this.heldSlotIndex.value, it.value)
+        }
+
+        equipment.mapUpdated {
+            if(this is Player) sendEquipmentPacket(this)
+            viewers.forEach { viewer -> sendEquipmentPacket(viewer) }
+        }
 
         equipmentLayers.itemSet {
             val player = it.key.toPlayer()
@@ -248,7 +258,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun sendEquipmentPacket(player: Player) {
-        val equipment = getMergedEquipmentData(equipment.value, equipmentLayers[player.toPersistent()])
+        val equipment = getMergedEquipmentData(equipment.values, equipmentLayers[player.toPersistent()])
         val packet = ClientboundSetEntityEquipmentPacket(this, equipment)
         player.sendPacket(packet)
     }

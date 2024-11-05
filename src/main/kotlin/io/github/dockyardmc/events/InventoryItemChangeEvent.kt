@@ -9,6 +9,7 @@ class InventoryItemChangeEvent(
     val inventory: EntityInventory,
     var slot: Int,
     var newItem: ItemStack,
-    var oldItem: ItemStack
+    var oldItem: ItemStack,
+    override val context: Event.Context
 ): Event {
 }

@@ -13,4 +13,5 @@ class ClientInputEvent(
     val jump: Boolean,
     val shift: Boolean,
     val sprint: Boolean,
+    override val context: Event.Context,
 ): Event

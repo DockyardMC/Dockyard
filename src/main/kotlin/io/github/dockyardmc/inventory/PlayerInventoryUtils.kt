@@ -27,28 +27,28 @@ object PlayerInventoryUtils {
             Items.CHAINMAIL_HELMET,
             Items.IRON_HELMET,
             Items.DIAMOND_HELMET,
-            Items.NETHERITE_HELMET -> EquipmentSlot.HEAD
+            Items.NETHERITE_HELMET -> EquipmentSlot.HELMET
 
             Items.LEATHER_BOOTS,
             Items.GOLDEN_BOOTS,
             Items.CHAINMAIL_BOOTS,
             Items.IRON_BOOTS,
             Items.DIAMOND_BOOTS,
-            Items.NETHERITE_BOOTS -> EquipmentSlot.FEET
+            Items.NETHERITE_BOOTS -> EquipmentSlot.BOOTS
 
             Items.LEATHER_CHESTPLATE,
             Items.GOLDEN_CHESTPLATE,
             Items.CHAINMAIL_CHESTPLATE,
             Items.IRON_CHESTPLATE,
             Items.DIAMOND_CHESTPLATE,
-            Items.NETHERITE_CHESTPLATE -> EquipmentSlot.CHEST
+            Items.NETHERITE_CHESTPLATE -> EquipmentSlot.CHESTPLATE
 
             Items.LEATHER_LEGGINGS,
             Items.GOLDEN_LEGGINGS,
             Items.CHAINMAIL_LEGGINGS,
             Items.IRON_LEGGINGS,
             Items.DIAMOND_LEGGINGS,
-            Items.NETHERITE_LEGGINGS -> EquipmentSlot.LEGS
+            Items.NETHERITE_LEGGINGS -> EquipmentSlot.LEGGINGS
 
             else -> null
         }

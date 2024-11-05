@@ -11,6 +11,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventoryCursorPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
+import io.github.dockyardmc.utils.getPlayerEventContext
 
 class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SIZE) {
     val name: String = "Inventory"
@@ -30,17 +31,17 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
         cursorItem.value = ItemStack.AIR
         super.clear()
 
-        //TODO Update equipment
+        player.equipment.clear()
     }
 
     fun getSlotId(slot: EquipmentSlot, heldSlot: Int): Int {
         return when (slot) {
             EquipmentSlot.MAIN_HAND -> heldSlot
             EquipmentSlot.OFF_HAND -> PlayerInventoryUtils.OFFHAND_SLOT
-            EquipmentSlot.HEAD -> PlayerInventoryUtils.HELMET_SLOT
-            EquipmentSlot.CHEST -> PlayerInventoryUtils.CHESTPLATE_SLOT
-            EquipmentSlot.LEGS -> PlayerInventoryUtils.LEGGINGS_SLOT
-            EquipmentSlot.FEET -> PlayerInventoryUtils.BOOTS_SLOT
+            EquipmentSlot.HELMET -> PlayerInventoryUtils.HELMET_SLOT
+            EquipmentSlot.CHESTPLATE -> PlayerInventoryUtils.CHESTPLATE_SLOT
+            EquipmentSlot.LEGGINGS -> PlayerInventoryUtils.LEGGINGS_SLOT
+            EquipmentSlot.BOOTS -> PlayerInventoryUtils.BOOTS_SLOT
             EquipmentSlot.BODY -> PlayerInventoryUtils.CHESTPLATE_SLOT
         }
     }
@@ -48,29 +49,24 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
     fun getEquipmentSlot(slot: Int, heldSlot: Int): EquipmentSlot? {
         return when (slot) {
             PlayerInventoryUtils.OFFHAND_SLOT -> EquipmentSlot.OFF_HAND
-            PlayerInventoryUtils.HELMET_SLOT -> EquipmentSlot.HEAD
-            PlayerInventoryUtils.CHESTPLATE_SLOT -> EquipmentSlot.CHEST
-            PlayerInventoryUtils.LEGGINGS_SLOT -> EquipmentSlot.LEGS
-            PlayerInventoryUtils.BOOTS_SLOT -> EquipmentSlot.FEET
+            PlayerInventoryUtils.HELMET_SLOT -> EquipmentSlot.HELMET
+            PlayerInventoryUtils.CHESTPLATE_SLOT -> EquipmentSlot.CHESTPLATE
+            PlayerInventoryUtils.LEGGINGS_SLOT -> EquipmentSlot.LEGGINGS
+            PlayerInventoryUtils.BOOTS_SLOT -> EquipmentSlot.BOOTS
             else -> if (slot == heldSlot) EquipmentSlot.MAIN_HAND else null
         }
     }
 
-    fun getEquipment(slot: EquipmentSlot, heldSlot: Int): ItemStack {
-        if (slot == EquipmentSlot.CHEST) return ItemStack.AIR
-        return slots[getSlotId(slot, heldSlot)] ?: ItemStack.AIR
-    }
-
-    fun setEquipment(slot: EquipmentSlot, heldSlot: Int, itemStack: ItemStack) {
-        if (slot == EquipmentSlot.CHEST) throw IllegalArgumentException("PlayerInventory does not support chest slot")
-        slots[getSlotId(slot, heldSlot)] = itemStack
+    fun unsafeUpdateEquipmentSlot(slot: EquipmentSlot, heldSlot: Int, itemStack: ItemStack) {
+        if (slot == EquipmentSlot.CHESTPLATE) throw IllegalArgumentException("PlayerInventory does not support chest slot")
+        slots.setSilently(getSlotId(slot, heldSlot), itemStack)
     }
 
     override fun set(slot: Int, item: ItemStack) {
         var newItem = item
-        val equipmentSlot = getEquipmentSlot(slot, player.heldSlot.value)
+        val equipmentSlot = getEquipmentSlot(slot, player.heldSlotIndex.value)
         if(equipmentSlot != null) {
-            val event = PlayerEquipEvent(player, item, equipmentSlot)
+            val event = PlayerEquipEvent(player, item, equipmentSlot, getPlayerEventContext(player))
             Events.dispatch(event)
             newItem = event.item
         }
@@ -86,22 +82,22 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
         slots.itemSet {
             sendInventoryUpdate(it.key)
-            if (it.key == player.heldSlot.value) {
-                entity.equipment.value = entity.equipment.value.apply { mainHand = it.value }
+            if (it.key == player.heldSlotIndex.value) {
+                entity.equipment[EquipmentSlot.MAIN_HAND] = it.value
             }
         }
 
         slots.itemRemoved {
             sendInventoryUpdate(it.key)
-            if (it.key == player.heldSlot.value) {
-                entity.equipment.value = entity.equipment.value.apply { mainHand = it.value }
+            if (it.key == player.heldSlotIndex.value) {
+                entity.equipment[EquipmentSlot.MAIN_HAND] = it.value
             }
         }
     }
 
     override fun sendInventoryUpdate(slot: Int) {
 
-        val equipmentSlot = getEquipmentSlot(slot, player.heldSlot.value)
+        val equipmentSlot = getEquipmentSlot(slot, player.heldSlotIndex.value)
         if(equipmentSlot != null) {
             //TODO redo entity equipment
         }
@@ -128,7 +124,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
             } else {
                 ItemStack.AIR
             }
-            player.inventory[player.heldSlot.value] = newItem
+            player.inventory[player.heldSlotIndex.value] = newItem
         }
     }
 }

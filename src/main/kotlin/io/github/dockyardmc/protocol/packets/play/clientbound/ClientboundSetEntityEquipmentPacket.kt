@@ -1,28 +1,24 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.annotations.ClientboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.writeItemStack
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.packets.ProtocolState
 
-@WikiVGEntry("Set Equipment")
-@ClientboundPacketInfo(0x5B, ProtocolState.PLAY)
-class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: EntityEquipment): ClientboundPacket() {
+class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: Map<EquipmentSlot, ItemStack>): ClientboundPacket() {
 
     init {
         data.writeVarInt(entity.entityId)
         val equipmentList = mutableMapOf<Int, ItemStack>()
-        equipmentList[0] = equipment.mainHand
-        equipmentList[1] = equipment.offHand
-        equipmentList[2] = equipment.boots
-        equipmentList[3] = equipment.leggings
-        equipmentList[4] = equipment.chestplate
-        equipmentList[5] = equipment.helmet
-        equipmentList[6] = equipment.body
+        equipmentList[0] = equipment.getOrDefault(EquipmentSlot.MAIN_HAND, ItemStack.AIR)
+        equipmentList[1] = equipment.getOrDefault(EquipmentSlot.OFF_HAND, ItemStack.AIR)
+        equipmentList[2] = equipment.getOrDefault(EquipmentSlot.BOOTS, ItemStack.AIR)
+        equipmentList[3] = equipment.getOrDefault(EquipmentSlot.LEGGINGS, ItemStack.AIR)
+        equipmentList[4] = equipment.getOrDefault(EquipmentSlot.CHESTPLATE, ItemStack.AIR)
+        equipmentList[5] = equipment.getOrDefault(EquipmentSlot.HELMET, ItemStack.AIR)
+        equipmentList[6] = equipment.getOrDefault(EquipmentSlot.BODY, ItemStack.AIR)
 
         var index = 0
         equipmentList.forEach {
@@ -38,35 +34,14 @@ class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: Ent
 }
 
 
-fun getMergedEquipmentData(base: EntityEquipment, merge: EntityEquipmentLayer?): EntityEquipment {
+fun getMergedEquipmentData(base: Map<EquipmentSlot, ItemStack>, merge: Map<EquipmentSlot, ItemStack>?): Map<EquipmentSlot, ItemStack> {
     if(merge == null) return base
-    val mainHand = merge.mainHand ?: base.mainHand
-    val offHand = merge.offHand ?: base.offHand
-    val boots = merge.boots ?: base.boots
-    val leggings = merge.leggings ?: base.leggings
-    val chestplate = merge.chestplate ?: base.chestplate
-    val helmet = merge.helmet ?: base.helmet
-    val body = merge.body ?: base.body
+    val newMap: MutableMap<EquipmentSlot, ItemStack> = mutableMapOf()
 
-    return EntityEquipment(mainHand, offHand, boots, leggings, chestplate, helmet, body)
+    newMap.putAll(base)
+    merge.forEach {
+        newMap[it.key] = it.value
+    }
+
+    return newMap
 }
-
-data class EntityEquipment(
-    var mainHand: ItemStack = ItemStack.AIR,
-    var offHand: ItemStack = ItemStack.AIR,
-    var boots: ItemStack = ItemStack.AIR,
-    var leggings: ItemStack = ItemStack.AIR,
-    var chestplate: ItemStack = ItemStack.AIR,
-    var helmet: ItemStack = ItemStack.AIR,
-    val body: ItemStack = ItemStack.AIR,
-)
-
-data class EntityEquipmentLayer(
-    val mainHand: ItemStack? = null,
-    val offHand: ItemStack? = null,
-    val boots: ItemStack? = null,
-    val leggings: ItemStack? = null,
-    val chestplate: ItemStack? = null,
-    val helmet: ItemStack? = null,
-    val body: ItemStack? = null,
-)

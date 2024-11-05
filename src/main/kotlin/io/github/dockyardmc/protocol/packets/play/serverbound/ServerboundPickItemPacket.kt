@@ -16,7 +16,7 @@ class ServerboundPickItemPacket(var slot: Int): ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
-        var newSlot = player.heldSlot.value
+        var newSlot = player.heldSlotIndex.value
         for (i in 1..9) {
             if (newSlot > 8) {newSlot = 0}
             if (player.inventory[newSlot] == ItemStack.AIR) {
@@ -28,7 +28,7 @@ class ServerboundPickItemPacket(var slot: Int): ServerboundPacket {
         val oldItem = player.inventory[newSlot]
         player.inventory[newSlot] = player.inventory[oldSlot]
         player.inventory[oldSlot] = oldItem
-        player.heldSlot.value = newSlot
+        player.heldSlotIndex.value = newSlot
     }
 
     companion object {

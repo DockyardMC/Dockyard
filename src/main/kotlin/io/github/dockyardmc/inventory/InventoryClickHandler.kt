@@ -8,7 +8,7 @@ import kotlin.math.ceil
 object InventoryClickHandler {
 
     fun leftClick(player: Player, slot: Int): Boolean {
-        val converted = PlayerInventoryUtils.convertPlayerInventorySlot(slot, player.heldSlot.value)
+        val converted = PlayerInventoryUtils.convertPlayerInventorySlot(slot, player.heldSlotIndex.value)
         val cursor = player.inventory.cursorItem.value
         val clicked = player.inventory[converted]
         val clickResult = handleLeftClick(player, player.inventory, slot, clicked, cursor)
@@ -23,7 +23,7 @@ object InventoryClickHandler {
     }
 
     fun rightClick(player: Player, slot: Int): Boolean {
-        val converted = PlayerInventoryUtils.convertPlayerInventorySlot(slot, player.heldSlot.value)
+        val converted = PlayerInventoryUtils.convertPlayerInventorySlot(slot, player.heldSlotIndex.value)
         val cursor = player.inventory.cursorItem.value
         val clicked = player.inventory[converted]
         val clickResult = handleLeftClick(player, player.inventory, slot, clicked, cursor)
@@ -126,7 +126,7 @@ object InventoryClickHandler {
             }
 
             if(equipmentSlot != null) {
-                val current = player.equipment.value.body //TODO redo equipment
+                val current = player.equipment.values.getOrDefault(equipmentSlot, ItemStack.AIR) //TODO redo equipment
                 if(current.isEmpty()) {
                     result.clicked = ItemStack.AIR
                     result.cursor = cursor

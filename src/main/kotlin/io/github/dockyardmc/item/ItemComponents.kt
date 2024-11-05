@@ -539,10 +539,10 @@ class PlaySoundConsumeEffect(
 ): ConsumeEffect
 
 enum class EquipmentSlot {
-    HEAD,
-    CHEST,
-    LEGS,
-    FEET,
+    HELMET,
+    CHESTPLATE,
+    LEGGINGS,
+    BOOTS,
     BODY,
     MAIN_HAND,
     OFF_HAND

@@ -68,7 +68,7 @@ class Player(
     var canFly: Bindable<Boolean> = bindablePool.provideBindable(false)
     var isSneaking: Boolean = false
     var isSprinting: Boolean = false
-    var heldSlot: Bindable<Int> = bindablePool.provideBindable(0)
+    var heldSlotIndex: Bindable<Int> = bindablePool.provideBindable(0)
     val permissions: BindableList<String> = bindablePool.provideBindableList()
     var isFullyInitialized: Boolean = false
     var inventory: PlayerInventory = PlayerInventory(this)
@@ -113,10 +113,10 @@ class Player(
             viewers.sendPacket(packet)
         }
 
-        heldSlot.valueChanged {
+        heldSlotIndex.valueChanged {
             this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
             val item = inventory[it.newValue]
-            equipment.value = equipment.value.apply { mainHand = item }
+            equipment[EquipmentSlot.MAIN_HAND] = item
         }
 
         isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value)) }
@@ -235,7 +235,7 @@ class Player(
                     sendPacket(ClientboundEntityEventPacket(this, EntityEvent.PLAYER_ITEM_USE_FINISHED))
 
                     val newItem = if(item.amount == 1) ItemStack.AIR else item.clone().apply { amount -= 1 }
-                    inventory[heldSlot.value] = newItem
+                    inventory[heldSlotIndex.value] = newItem
 
                     // if new item is air, stop eating, if not, reset eating time
                     if(!newItem.isSameAs(ItemStack.AIR)) {
@@ -308,7 +308,7 @@ class Player(
     //TODO Add off-hand support
     fun getHeldItem(hand: PlayerHand): ItemStack {
         if (hand == PlayerHand.MAIN_HAND) {
-            return inventory[heldSlot.value]
+            return inventory[heldSlotIndex.value]
         } else if (hand == PlayerHand.OFF_HAND) {
             return inventory[40]
         }
@@ -317,7 +317,7 @@ class Player(
 
     fun setHeldItem(hand: PlayerHand, item: ItemStack) {
         if (hand == PlayerHand.MAIN_HAND) {
-            inventory[heldSlot.value] = item
+            inventory[heldSlotIndex.value] = item
         } else if (hand == PlayerHand.OFF_HAND) {
             inventory[40] = item
         }
@@ -480,13 +480,13 @@ class Player(
         if(customModelData != null) {
             val totem = ItemStack(Items.TOTEM_OF_UNDYING)
             totem.customModelData.value = customModelData
-            inventory[heldSlot.value] = totem
+            inventory[heldSlotIndex.value] = totem
         }
         val packet = ClientboundEntityEventPacket(this, EntityEvent.PLAYER_PLAY_TOTEM_ANIMATION)
         sendPacket(packet)
 
         if(customModelData != null) {
-            inventory[heldSlot.value] = held
+            inventory[heldSlotIndex.value] = held
         }
     }
 }

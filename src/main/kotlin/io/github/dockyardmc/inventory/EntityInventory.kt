@@ -6,6 +6,7 @@ import io.github.dockyardmc.events.InventoryItemChangeEvent
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.utils.getEntityEventContext
 import io.github.dockyardmc.utils.isBetween
 
 abstract class EntityInventory(val entity: Entity, val size: Int) {
@@ -20,7 +21,7 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
 
         val oldItem = slots[slot] ?: ItemStack.AIR
 
-        val event = InventoryItemChangeEvent(entity, this, slot, newItem, oldItem)
+        val event = InventoryItemChangeEvent(entity, this, slot, newItem, oldItem, getEntityEventContext(entity))
         slots[event.slot] = event.newItem
     }
 

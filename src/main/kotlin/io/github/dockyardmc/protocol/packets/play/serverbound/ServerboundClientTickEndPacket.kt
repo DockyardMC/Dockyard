@@ -4,13 +4,14 @@ import io.github.dockyardmc.events.ClientTickEndEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 class ServerboundClientTickEndPacket: ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        Events.dispatch(ClientTickEndEvent(processor.player))
+        Events.dispatch(ClientTickEndEvent(processor.player, getPlayerEventContext(processor.player)))
     }
 
     companion object {

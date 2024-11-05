@@ -6,6 +6,7 @@ import io.github.dockyardmc.entities.EntityMetaValue
 import io.github.dockyardmc.entities.EntityMetadata
 import io.github.dockyardmc.entities.EntityMetadataType
 import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
@@ -34,13 +35,6 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     val isListed: Bindable<Boolean> = Bindable(false)
 
     var profile: Bindable<ProfilePropertyMap?> = Bindable(null)
-
-    val mainHandItem: Bindable<ItemStack> = Bindable(ItemStack.AIR)
-    val offHandItem: Bindable<ItemStack> = Bindable(ItemStack.AIR)
-    val helmet: Bindable<ItemStack> = Bindable(ItemStack.AIR)
-    val chestplate: Bindable<ItemStack> = Bindable(ItemStack.AIR)
-    val leggings: Bindable<ItemStack> = Bindable(ItemStack.AIR)
-    val boots: Bindable<ItemStack> = Bindable(ItemStack.AIR)
 
     init {
 
@@ -75,13 +69,6 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
             displayedSkinParts.triggerUpdate()
             equipment.triggerUpdate()
         }
-
-        mainHandItem.valueChanged { equipment.value = equipment.value.apply { mainHand = it.newValue } }
-        offHandItem.valueChanged { equipment.value = equipment.value.apply { offHand = it.newValue } }
-        helmet.valueChanged { equipment.value = equipment.value.apply { helmet = it.newValue } }
-        chestplate.valueChanged { equipment.value = equipment.value.apply { chestplate = it.newValue } }
-        leggings.valueChanged { equipment.value = equipment.value.apply { leggings = it.newValue } }
-        boots.valueChanged { equipment.value = equipment.value.apply { boots = it.newValue } }
 
         team.value = npcTeam
     }

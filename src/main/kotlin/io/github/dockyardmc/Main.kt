@@ -1,26 +1,20 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.commands.IntArgument
-import io.github.dockyardmc.commands.ItemArgument
+import io.github.dockyardmc.commands.EnumArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.events.*
-import io.github.dockyardmc.events.system.EventFilter
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.player.GameMode
-import io.github.dockyardmc.registry.Biomes
-import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.DimensionTypes
+import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
 import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
-import io.github.dockyardmc.world.WorldManager
-import io.github.dockyardmc.world.generators.FlatWorldGenerator
-import kotlin.random.Random
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -50,6 +44,14 @@ fun main(args: Array<String>) {
         }
     }
 
+    Commands.add("equip") {
+        addArgument("slot", EnumArgument(EquipmentSlot::class))
+        execute {
+            val player = it.getPlayerOrThrow()
+            val slot = getEnumArgument<EquipmentSlot>("slot")
+            player.equipment[slot] = player.getHeldItem(PlayerHand.MAIN_HAND)
+        }
+    }
 
     Events.on<PlayerJoinEvent> {
         val player = it.player
@@ -65,7 +67,7 @@ fun main(args: Array<String>) {
     }
 
     Events.on<PlayerLeaveEvent> {
-        DockyardServer.broadcastMessage("<yellow>${it.player} left the game. (${it.player.lastSentPacket::class.simpleName})")
+        DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
     val altWorld = WorldManager.create("altworld", FlatWorldGenerator(Biomes.BASALT_DELTAS), DimensionTypes.NETHER)
@@ -154,6 +156,7 @@ fun main(args: Array<String>) {
                 else -> return@execute it.sendMessage(customPool.debugTree())
             }
             it.sendMessage("dispatched ${event.value}.")
+
     Commands.add("/minigame") {
         addSubcommand("cookie_clicker") {
             execute {
