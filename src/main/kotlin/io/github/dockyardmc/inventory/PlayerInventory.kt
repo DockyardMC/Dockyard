@@ -98,9 +98,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
     override fun sendInventoryUpdate(slot: Int) {
 
         val equipmentSlot = getEquipmentSlot(slot, player.heldSlotIndex.value)
-        if(equipmentSlot != null) {
-            //TODO redo entity equipment
-        }
+        if(equipmentSlot != null) player.equipment.triggerUpdate()
         player.sendPacket(ClientboundSetInventorySlotPacket(slot, slots[slot] ?: ItemStack.AIR))
     }
 

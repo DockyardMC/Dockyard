@@ -16,6 +16,7 @@ import io.github.dockyardmc.protocol.cryptography.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
+import io.github.dockyardmc.registry.registries.MinecraftVersionRegistry
 import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.MojangUtil
 import io.github.dockyardmc.utils.debug
@@ -40,7 +41,7 @@ class LoginHandler(var processor: PlayerNetworkManager) : PacketHandler(processo
         debug("Received login start packet with name $name and UUID $uuid", logType = LogType.DEBUG)
 
         if (!DockyardServer.allowAnyVersion) {
-            val playerVersion = processor.playerProtocolVersion
+            val playerVersion = MinecraftVersionRegistry.getOrNull(processor.playerProtocolVersion) ?: "unknown"
             val requiredVersion = DockyardServer.minecraftVersion.protocolId
             if (processor.playerProtocolVersion != requiredVersion) {
                 connection.sendPacket(
