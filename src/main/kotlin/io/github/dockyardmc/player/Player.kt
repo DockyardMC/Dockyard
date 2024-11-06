@@ -2,6 +2,7 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import cz.lukynka.main
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.entities.EntityMetaValue
@@ -92,6 +93,9 @@ class Player(
     val time: Bindable<Long> = bindablePool.provideBindable(-1)
     val fovModifier: Bindable<Float> = bindablePool.provideBindable(0.1f)
 
+    val mainHandItem: Bindable<ItemStack> = bindablePool.provideBindable(ItemStack.AIR)
+    val offHandItem: Bindable<ItemStack> = bindablePool.provideBindable(ItemStack.AIR)
+
     // Used internally to allow the closing of inventory within the inventory listener
     var didCloseInventory = false
 
@@ -112,6 +116,8 @@ class Player(
             this.sendPacket(packet)
             viewers.sendPacket(packet)
         }
+        mainHandItem.valueChanged { setHeldItem(PlayerHand.MAIN_HAND, it.newValue) }
+        offHandItem.valueChanged { setHeldItem(PlayerHand.OFF_HAND, it.newValue) }
 
         heldSlotIndex.valueChanged {
             this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
@@ -305,12 +311,11 @@ class Player(
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))))
     }
 
-    //TODO Add off-hand support
     fun getHeldItem(hand: PlayerHand): ItemStack {
         if (hand == PlayerHand.MAIN_HAND) {
             return inventory[heldSlotIndex.value]
         } else if (hand == PlayerHand.OFF_HAND) {
-            return inventory[40]
+            return equipment[EquipmentSlot.OFF_HAND] ?: ItemStack.AIR
         }
         return ItemStack.AIR
     }
@@ -319,7 +324,7 @@ class Player(
         if (hand == PlayerHand.MAIN_HAND) {
             inventory[heldSlotIndex.value] = item
         } else if (hand == PlayerHand.OFF_HAND) {
-            inventory[40] = item
+            equipment[EquipmentSlot.OFF_HAND] = item
         }
     }
 

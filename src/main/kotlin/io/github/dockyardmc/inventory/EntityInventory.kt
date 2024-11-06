@@ -1,10 +1,13 @@
 package io.github.dockyardmc.inventory
 
 import cz.lukynka.BindableMap
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.events.InventoryItemChangeEvent
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.isSameAs
+import io.github.dockyardmc.protocol.packets.play.serverbound.placementRules
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.getEntityEventContext
 import io.github.dockyardmc.utils.isBetween
@@ -28,28 +31,39 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
     open operator fun get(slot: Int): ItemStack = slots[slot] ?: ItemStack.AIR
 
     open fun clear() {
-        slots.clear(false)
+        slots.values.forEach {
+            slots[it.key] = ItemStack.AIR
+        }
     }
 
     open fun give(item: ItemStack) {
-        for (slot in slots.values) {
-            if (slot.value.isSameAs(item) && slot.value.amount < slot.value.maxStackSize.value) {
-                val remaining = slot.value.amount + item.amount - slot.value.maxStackSize.value
-                if (remaining > 0) {
-                    this[slot.key] = slot.value.apply { amount = slot.value.maxStackSize.value }
-                    give(item.apply { amount = remaining })
+        for (i in 0 until size) {
+            val slot = slots[i] ?: ItemStack.AIR
+            if(slot.isEmpty()) {
+                slots[i] = item
+                return
+            } else {
+
+                val canStack = slot.isSameAs(item) &&
+                        slot.amount != slot.maxStackSize.value &&
+                        slot.amount + item.amount <= slot.maxStackSize.value
+
+                if(canStack) {
+                    DockyardServer.broadcastMessage("<green>can stack")
+                    slots[i] = slot.withAmount(slot.amount + item.amount)
                     return
                 } else {
-                    this[slot.key] = slot.value.apply { amount += item.amount }
-                    return
+                    if(slot.isSameAs(item) && slot.amount != slot.maxStackSize.value) {
+                        DockyardServer.broadcastMessage("<green>can stack partially")
+                        val totalAmount = item.amount + slot.amount
+                        val newClicked = slot.maxStackSize.value
+                        slots[i] = slot.withAmount(newClicked)
+                        val remainder = totalAmount - slot.maxStackSize.value
+                        give(item.withAmount(remainder))
+                        return
+                    }
                 }
             }
-        }
-
-        slots.values.forEach {
-            if(!it.value.isSameAs(ItemStack.AIR)) return@forEach
-            this[it.key] = item
-            return
         }
     }
 

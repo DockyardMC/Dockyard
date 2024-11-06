@@ -34,7 +34,7 @@ class ItemStack(var material: Item, var amount: Int = 1) {
     }
 
     companion object {
-        val AIR = ItemStack(Items.AIR, 0)
+        val AIR = ItemStack(Items.AIR, 1)
     }
 
     fun isEmpty(): Boolean = this.isSameAs(AIR)

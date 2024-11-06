@@ -3,12 +3,16 @@ package io.github.dockyardmc.entities
 import cz.lukynka.Bindable
 import cz.lukynka.BindableMap
 import cz.lukynka.BindablePool
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockIterator
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.effects.PotionEffectImpl
+import io.github.dockyardmc.entities.EntityManager.despawnEntity
 import io.github.dockyardmc.events.*
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
@@ -21,12 +25,14 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.getEntityEventContext
 import io.github.dockyardmc.utils.mergeEntityMetadata
 import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.vectors.Vector3
@@ -194,6 +200,35 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
                 potionEffects.remove(it.key)
             }
         }
+
+        // try to pickup items
+        val drops = world.entities.values.filterIsInstance<ItemDropEntity>()
+        synchronized(drops) {
+            drops.toList().forEach { drop ->
+                if(drop.location.distance(location) <= 0.5) {
+                    if(pickupItem(drop, drop.itemStack.value)) return
+                }
+            }
+        }
+    }
+
+    open fun pickupItem(dropEntity: ItemDropEntity, item: ItemStack): Boolean {
+        val eventContext = Event.Context(
+            setOf(),
+            setOf(dropEntity, this),
+            setOf(this.world),
+            setOf(this.location, dropEntity.location)
+        )
+        val event = EntityPickupItemEvent(this, item, eventContext)
+        if(event.cancelled) return false
+        dropEntity.world.despawnEntity(dropEntity)
+        if(this is Player) {
+//            if(this.inventory)
+            //TODO check if inventory is full
+            this.give(item)
+            this.sendMessage("picked up item")
+        }
+        return true
     }
 
     open fun addViewer(player: Player) {
@@ -202,8 +237,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         if (event.cancelled) return
 
         sendMetadataPacket(player)
-        val entitySpawnPacket =
-            ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
+        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
         isOnGround = true
 
         player.visibleEntities.add(this)

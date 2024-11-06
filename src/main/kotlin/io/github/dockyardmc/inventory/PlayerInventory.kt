@@ -75,7 +75,6 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
     init {
         cursorItem.valueChanged {
-            if(cursorItem.value == it.newValue) return@valueChanged
             player.sendPacket(ClientboundSetInventoryCursorPacket(it.newValue))
         }
 

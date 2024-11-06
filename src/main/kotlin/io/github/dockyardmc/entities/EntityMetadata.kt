@@ -131,6 +131,7 @@ enum class EntityMetadataType(var index: Int) {
     POSE(6),
     FROZEN_TICKS(7),
     HAND_STATE(8),
+    ITEM_DROP_ITEM_STACK(8),
     MOB(16),
     WARDEN_ANGER_LEVEL(16),
     DISPLAY_SKIN_PARTS(17),

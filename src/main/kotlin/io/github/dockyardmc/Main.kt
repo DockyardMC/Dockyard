@@ -4,13 +4,17 @@ import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.EnumArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
+import io.github.dockyardmc.entities.EntityManager.spawnEntity
+import io.github.dockyardmc.entities.ItemDropEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.item.EquipmentSlot
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerHand
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
 import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
@@ -156,6 +160,14 @@ fun main(args: Array<String>) {
                 else -> return@execute it.sendMessage(customPool.debugTree())
             }
             it.sendMessage("dispatched ${event.value}.")
+
+    Commands.add("/drop") {
+        execute {
+            val player = it.getPlayerOrThrow()
+            val entity = player.world.spawnEntity(ItemDropEntity(player.location, ItemStack(Items.DIAMOND, 1))) as ItemDropEntity
+            entity.autoViewable = true
+        }
+    }
 
     Commands.add("/minigame") {
         addSubcommand("cookie_clicker") {
