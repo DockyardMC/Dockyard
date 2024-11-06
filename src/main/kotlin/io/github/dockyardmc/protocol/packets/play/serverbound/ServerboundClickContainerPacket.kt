@@ -15,7 +15,6 @@ import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.randomFloat
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import java.lang.IllegalArgumentException
 import kotlin.math.ceil
 
 class ServerboundClickContainerPacket(
@@ -56,15 +55,19 @@ class ServerboundClickContainerPacket(
                     if (slot == -999) {
 
                         val cursor = player.inventory.cursorItem.value
-                        if(!cursor.isEmpty()) {
-                            player.inventory.drop(cursor)
+                        if (!cursor.isEmpty()) {
+                            val cancelled = player.inventory.drop(cursor)
+                            if (cancelled) {
+                                player.inventory.sendFullInventoryUpdate()
+                                return
+                            }
                             player.inventory.cursorItem.value = empty
                             return
                         }
                     }
 
                     if (handleClickEquipAndUnequip(player, properSlot, clickedSlotItem)) return
-                    if(handleOffhandClick(player, properSlot, clickedSlotItem, false)) return
+                    if (handleOffhandClick(player, properSlot, clickedSlotItem, false)) return
 
                     val clickResult = InventoryClickHandler.handleLeftClick(
                         player,
@@ -88,16 +91,21 @@ class ServerboundClickContainerPacket(
 
                     if (slot == -999) {
                         val cursor = player.inventory.cursorItem.value
-                        if(!cursor.isEmpty()) {
-                            player.inventory.drop(cursor.withAmount(1))
-                            val newItem = if(cursor.amount - 1 == 0) ItemStack.AIR else cursor.withAmount(cursor.amount - 1)
+                        if (!cursor.isEmpty()) {
+                            val cancelled = player.inventory.drop(cursor.withAmount(1))
+                            if (cancelled) {
+                                player.inventory.sendFullInventoryUpdate()
+                                return
+                            }
+                            val newItem =
+                                if (cursor.amount - 1 == 0) ItemStack.AIR else cursor.withAmount(cursor.amount - 1)
                             player.inventory.cursorItem.value = newItem
                             return
                         }
                     }
 
                     if (handleClickEquipAndUnequip(player, properSlot, clickedSlotItem)) return
-                    if(handleOffhandClick(player, properSlot, clickedSlotItem, true)) return
+                    if (handleOffhandClick(player, properSlot, clickedSlotItem, true)) return
 
                     val clickResult = InventoryClickHandler.handleRightClick(
                         player,
@@ -241,16 +249,26 @@ class ServerboundClickContainerPacket(
                     val existingItem = player.inventory[properSlot].clone()
                     if (existingItem.isSameAs(empty)) return
 
-                    val newItem = if (existingItem.amount - 1 == 0) empty else existingItem.withAmount(existingItem.amount - 1)
+                    val cancelled = player.inventory.drop(existingItem.withAmount(1))
+                    if (cancelled) {
+                        player.inventory.sendFullInventoryUpdate()
+                        return
+                    }
 
-                    player.inventory.drop(existingItem.withAmount(1))
+                    val newItem =
+                        if (existingItem.amount - 1 == 0) empty else existingItem.withAmount(existingItem.amount - 1)
                     player.inventory[properSlot] = newItem
                 }
                 if (action == DropButtonAction.CONTROL_DROP) {
                     val existingItem = player.inventory[properSlot].clone()
                     if (existingItem.isSameAs(empty)) return
 
-                    player.inventory.drop(existingItem)
+                    val cancelled = player.inventory.drop(existingItem)
+                    if (cancelled) {
+                        player.inventory.sendFullInventoryUpdate()
+                        return
+                    }
+
                     player.inventory[properSlot] = empty
                 }
             }
@@ -260,7 +278,7 @@ class ServerboundClickContainerPacket(
                     return
                 }
 
-                if(action.name.contains("end")) {
+                if (action.name.contains("end")) {
                     player.inventory.sendFullInventoryUpdate()
                     player.inventory.cursorItem.value = player.inventory.cursorItem.value
                     return
@@ -284,19 +302,19 @@ class ServerboundClickContainerPacket(
     fun handleOffhandClick(player: Player, properSlot: Int, clicked: ItemStack, isRightClick: Boolean): Boolean {
 
         val equipmentSlot = player.inventory.getEquipmentSlot(properSlot, player.heldSlotIndex.value)
-        if(equipmentSlot != null && equipmentSlot == EquipmentSlot.OFF_HAND) {
+        if (equipmentSlot != null && equipmentSlot == EquipmentSlot.OFF_HAND) {
 
             val offhandItem = player.equipment.values.getOrDefault(equipmentSlot, ItemStack.AIR)
             val cursor = player.inventory.cursorItem.value
 
-            val cursorAmount = if(isRightClick) 1 else cursor.amount
+            val cursorAmount = if (isRightClick) 1 else cursor.amount
 
-            if(!offhandItem.isEmpty()) {
-                if(cursor.isEmpty()) {
+            if (!offhandItem.isEmpty()) {
+                if (cursor.isEmpty()) {
 
-                    if(isRightClick) {
+                    if (isRightClick) {
 
-                        if(offhandItem.amount == 1 ) {
+                        if (offhandItem.amount == 1) {
                             player.inventory.cursorItem.value = offhandItem
                             player.equipment[EquipmentSlot.OFF_HAND] = ItemStack.AIR
                             return true
@@ -316,24 +334,26 @@ class ServerboundClickContainerPacket(
 
                 } else {
 
-                    if(offhandItem.isSameAs(cursor)) {
+                    if (offhandItem.isSameAs(cursor)) {
                         //same item
 
                         val canStack = offhandItem.amount != offhandItem.maxStackSize.value &&
                                 offhandItem.amount + cursorAmount <= offhandItem.maxStackSize.value
 
-                        if(canStack) {
+                        if (canStack) {
                             //can fully stack
-                            player.equipment[EquipmentSlot.OFF_HAND] = offhandItem.withAmount(offhandItem.amount + cursorAmount)
-                            if(isRightClick) {
-                                val newItem = if(cursor.amount - cursorAmount <= 0) ItemStack.AIR else cursor.withAmount(cursor.amount - cursorAmount)
+                            player.equipment[EquipmentSlot.OFF_HAND] =
+                                offhandItem.withAmount(offhandItem.amount + cursorAmount)
+                            if (isRightClick) {
+                                val newItem =
+                                    if (cursor.amount - cursorAmount <= 0) ItemStack.AIR else cursor.withAmount(cursor.amount - cursorAmount)
                                 player.inventory.cursorItem.value = newItem
                             } else {
                                 player.inventory.cursorItem.value = ItemStack.AIR
                             }
                             return true
                         } else {
-                            if(offhandItem.amount != offhandItem.maxStackSize.value){
+                            if (offhandItem.amount != offhandItem.maxStackSize.value) {
                                 // can partially stack
                                 val totalAmount = offhandItem.amount + cursorAmount
                                 val newClicked = offhandItem.maxStackSize.value
@@ -358,10 +378,10 @@ class ServerboundClickContainerPacket(
                 }
             } else {
                 // offhand is empty
-                if(cursor.isEmpty()) return true
-                if(isRightClick) {
+                if (cursor.isEmpty()) return true
+                if (isRightClick) {
                     player.equipment[EquipmentSlot.OFF_HAND] = cursor.withAmount(cursorAmount)
-                    if(cursor.amount - cursorAmount <= 0) {
+                    if (cursor.amount - cursorAmount <= 0) {
                         player.inventory.cursorItem.value = ItemStack.AIR
                     } else {
                         player.inventory.cursorItem.value = cursor.withAmount(cursor.amount - cursorAmount)
@@ -433,7 +453,8 @@ class ServerboundClickContainerPacket(
         var drawableClickType: DrawableClickType = DrawableClickType.LEFT_CLICK
         when (mode) {
             ContainerClickMode.NORMAL -> {
-                val action = NormalButtonAction.entries.find { it.button == button } ?: throw IllegalArgumentException("Button $button is not part of NormalButtonAction")
+                val action = NormalButtonAction.entries.find { it.button == button }
+                    ?: throw IllegalArgumentException("Button $button is not part of NormalButtonAction")
                 drawableClickType = when (action) {
                     NormalButtonAction.LEFT_MOUSE_CLICK -> DrawableClickType.LEFT_CLICK
                     NormalButtonAction.RIGHT_MOUSE_CLICK -> DrawableClickType.RIGHT_CLICK
@@ -443,7 +464,8 @@ class ServerboundClickContainerPacket(
             }
 
             ContainerClickMode.NORMAL_SHIFT -> {
-                val action = NormalShiftButtonAction.entries.find { it.button == button } ?: throw IllegalArgumentException("Button $button is not part of NormalShiftButtonAction")
+                val action = NormalShiftButtonAction.entries.find { it.button == button }
+                    ?: throw IllegalArgumentException("Button $button is not part of NormalShiftButtonAction")
                 drawableClickType = when (action) {
                     NormalShiftButtonAction.SHIFT_LEFT_MOUSE_CLICK -> DrawableClickType.LEFT_CLICK_SHIFT
                     NormalShiftButtonAction.SHIFT_RIGHT_MOUSE_CLICK -> DrawableClickType.RIGHT_CLICK_SHIFT

@@ -17,7 +17,12 @@ class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: ItemS
         if(player.gameMode.value != GameMode.CREATIVE) return
         if(slot == -1) {
             //drop
-            player.inventory.drop(clickedItem)
+            val cancelled = player.inventory.drop(clickedItem)
+            if(cancelled) {
+                player.inventory.sendFullInventoryUpdate()
+                player.inventory.cursorItem.value = clickedItem
+                return
+            }
             return
         }
 

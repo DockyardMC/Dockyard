@@ -1,7 +1,5 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.annotations.ServerboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockBreakEvent
 import io.github.dockyardmc.extentions.readByteEnum
@@ -15,7 +13,6 @@ import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PlayerNetworkManager
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
@@ -76,7 +73,11 @@ class ServerboundPlayerActionPacket(
         if (action == PlayerAction.DROP_ITEM) {
             val held = player.getHeldItem(PlayerHand.MAIN_HAND)
             if (held.isEmpty()) return
-            player.inventory.drop(held.withAmount(1))
+            val cancelled = player.inventory.drop(held.withAmount(1))
+            if(cancelled) {
+                player.inventory.sendFullInventoryUpdate()
+                return
+            }
             val newItem = if(held.amount - 1 == 0) ItemStack.AIR else held.withAmount(held.amount - 1)
             player.setHeldItem(PlayerHand.MAIN_HAND, newItem)
         }
@@ -84,7 +85,11 @@ class ServerboundPlayerActionPacket(
         if (action == PlayerAction.DROP_ITEM_STACK) {
             val held = player.getHeldItem(PlayerHand.MAIN_HAND)
             if (held.isEmpty()) return
-            player.inventory.drop(held)
+            val cancelled = player.inventory.drop(held)
+            if(cancelled) {
+                player.inventory.sendFullInventoryUpdate()
+                return
+            }
             player.setHeldItem(PlayerHand.MAIN_HAND, ItemStack.AIR)
         }
     }

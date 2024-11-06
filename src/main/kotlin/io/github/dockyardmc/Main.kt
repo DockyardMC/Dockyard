@@ -7,6 +7,7 @@ import io.github.dockyardmc.datagen.VerifyPacketIds
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.entities.ItemDropEntity
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -160,6 +161,10 @@ fun main(args: Array<String>) {
                 else -> return@execute it.sendMessage(customPool.debugTree())
             }
             it.sendMessage("dispatched ${event.value}.")
+
+    Events.on<PlayerDropItemEvent> {
+        it.cancelled = true
+    }
 
     Commands.add("/drop") {
         execute {

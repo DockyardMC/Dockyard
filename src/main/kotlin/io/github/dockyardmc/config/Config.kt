@@ -49,6 +49,7 @@ class ImplementationConfig {
     var defaultEntityRenderDistanceBlocks: Int = 64
     var dockyardCommands: Boolean = false
     var npcCommand: Boolean = false
+    var itemDroppingAndPickup: Boolean = false
 }
 
 

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.inventory
 
 import cz.lukynka.Bindable
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.entities.ItemDropEntity
 import io.github.dockyardmc.events.Events
@@ -107,17 +108,20 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
         player.inventory.cursorItem.triggerUpdate()
     }
 
-    fun drop(itemStack: ItemStack) {
+    fun drop(itemStack: ItemStack): Boolean {
         val player = entity as Player
 
         val event = PlayerDropItemEvent(player, itemStack)
         Events.dispatch(event)
         if (event.cancelled) {
             sendFullInventoryUpdate()
-            return
+            return true
         }
 
-        player.world.spawnEntity(ItemDropEntity(player.location, itemStack))
+        if(ConfigManager.config.implementationConfig.itemDroppingAndPickup) {
+            player.world.spawnEntity(ItemDropEntity(player.location, itemStack))
+        }
+        return false
     }
 }
 

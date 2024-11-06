@@ -1,9 +1,10 @@
 package io.github.dockyardmc.entities
 
+import io.github.dockyardmc.events.EntitySpawnEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
-import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.utils.getEntityEventContext
 import io.github.dockyardmc.world.World
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -24,6 +25,13 @@ object EntityManager {
         synchronized(entities) {
             innerEntities.add(entity)
             entity.world.addEntity(entity)
+        }
+
+        val event = EntitySpawnEvent(entity, entity.world, getEntityEventContext(entity))
+        Events.dispatch(event)
+
+        if(event.cancelled) {
+            entity.world.despawnEntity(entity)
         }
 
         return entity

@@ -192,6 +192,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         }
 
         // try to pickup items
+        if(!ConfigManager.config.implementationConfig.itemDroppingAndPickup) return
         val drops = world.entities.filterIsInstance<ItemDropEntity>()
         if (inventorySize <= 0) return
         drops.toList().forEach { drop ->
