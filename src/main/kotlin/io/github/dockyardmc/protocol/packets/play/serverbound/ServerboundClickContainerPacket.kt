@@ -2,14 +2,17 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
-import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.clone
-import io.github.dockyardmc.item.isSameAs
-import io.github.dockyardmc.item.readItemStack
+import io.github.dockyardmc.inventory.InventoryClickHandler
+import io.github.dockyardmc.inventory.PlayerInventoryUtils
+import io.github.dockyardmc.item.*
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.registry.Sounds
+import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableClickType
 import io.github.dockyardmc.ui.DrawableContainerScreen
+import io.github.dockyardmc.utils.randomFloat
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -26,10 +29,12 @@ class ServerboundClickContainerPacket(
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         val currentInventory = player.currentOpenInventory
-        val properSlot = slot
+        val properSlot = PlayerInventoryUtils.convertPlayerInventorySlot(slot, PlayerInventoryUtils.OFFSET)
 
         val clickedSlotItem = player.inventory[properSlot].clone()
         val empty = ItemStack.AIR
+
+        player.sendMessage("<yellow>$properSlot (${mode.name}, $button)")
 
         var drawableClickType = DrawableClickType.LEFT_CLICK
         when (mode) {
@@ -95,117 +100,62 @@ class ServerboundClickContainerPacket(
                 }
                 if (action == NormalButtonAction.LEFT_MOUSE_CLICK) {
 
-                    // drop
+                    // drop the item
                     if (slot == -999) {
-                        player.inventory.drop(player.inventory.cursorItem.value, isEntireStack = true, isHeld = true)
-                        player.inventory.cursorItem.value = empty
+                        //TODO redo dropping
+                        player.inventory.sendFullInventoryUpdate()
                         return
                     }
 
-                    if (clickedSlotItem.isSameAs(empty) && player.inventory.cursorItem.value.isSameAs(empty)) {
-                        player.inventory[properSlot] = empty
+                    if (handleClickEquipAndUnequip(player, properSlot, clickedSlotItem)) return
+
+                    val clickResult = InventoryClickHandler.handleLeftClick(
+                        player,
+                        player.inventory,
+                        properSlot,
+                        clickedSlotItem,
+                        player.inventory.cursorItem.value
+                    )
+
+                    if (clickResult.cancelled) {
+                        player.inventory.sendFullInventoryUpdate()
                         return
                     }
 
-                    // Set carried item to what player clicked
-                    if (clickedSlotItem.isSameAs(empty)) {
-                        if (player.inventory.cursorItem.value != empty) {
-                            player.inventory[properSlot] = player.inventory.cursorItem.value
-                            player.inventory.cursorItem.value = empty
-                            return
-                        }
-
-                    } else {
-
-                        // Set carried slot to what player clicks on item with no carried
-                        if (player.inventory.cursorItem.value.isSameAs(empty)) {
-                            val before = player.inventory[properSlot].clone()
-                            player.inventory.cursorItem.value = before
-                            player.inventory[properSlot] = empty
-                            return
-                        }
-
-                        if (!player.inventory.cursorItem.value.isSameAs(empty)) {
-                            // Combine items if they are the same item stack
-                            if (player.inventory.cursorItem.value.isSameAs(clickedSlotItem)) {
-                                player.inventory[properSlot] = player.inventory[properSlot].clone()
-                                    .apply { amount += player.inventory.cursorItem.value.amount }
-                                player.inventory.cursorItem.value = empty
-                                return
-                            }
-                            // Swap the items if they are not the same item stack
-                            val before = player.inventory[properSlot].clone()
-                            player.inventory[properSlot] = player.inventory.cursorItem.value
-                            player.inventory.cursorItem.value = before
-                            return
-                        }
-                    }
+                    player.inventory[properSlot] = clickResult.clicked
+                    player.inventory.cursorItem.value = clickResult.cursor
+                    return
                 }
 
                 if (action == NormalButtonAction.RIGHT_MOUSE_CLICK) {
 
                     if (slot == -999) {
-                        player.inventory.drop(
-                            player.inventory.cursorItem.value.clone().apply { amount = 1 },
-                            isEntireStack = false,
-                            isHeld = false
-                        )
-                        val item = player.inventory.cursorItem.value.clone().apply { amount -= 1 }
-                        val newItem = if (item.amount == 0) empty else item
-                        player.inventory.cursorItem.value = newItem
+                        //TODO redo dropping
+                        player.inventory.sendFullInventoryUpdate()
                         return
                     }
 
-                    if (clickedSlotItem.isSameAs(empty)) {
+                    if (handleClickEquipAndUnequip(player, properSlot, clickedSlotItem)) return
 
-                        // put 1 to new slot
-                        if (!player.inventory.cursorItem.value.isSameAs(empty)) {
-                            player.inventory[properSlot] =
-                                player.inventory.cursorItem.value.clone().apply { amount = 1 }
-                            val newCarried = player.inventory.cursorItem.value.clone().apply { amount -= 1 }
-                            val newItem = if (newCarried.amount == 0) empty else newCarried
-                            player.inventory.cursorItem.value = newItem
-                            return
-                        }
+                    val clickResult = InventoryClickHandler.handleRightClick(
+                        player,
+                        player.inventory,
+                        properSlot,
+                        clickedSlotItem,
+                        player.inventory.cursorItem.value
+                    )
 
-                    } else {
-
-                        // combine the current +1
-                        if (player.inventory.cursorItem.value.isSameAs(clickedSlotItem)) {
-                            player.inventory[properSlot] = clickedSlotItem.clone().apply { amount += 1 }
-                            val newCarried = player.inventory.cursorItem.value.clone().apply { amount -= 1 }
-                            val newItem = if (newCarried.amount == 0) empty else newCarried
-                            player.inventory.cursorItem.value = newItem
-                            return
-                        } else {
-                            // make sure its item not nothing
-                            if (!player.inventory.cursorItem.value.isSameAs(empty)) {
-                                val before = player.inventory[properSlot].clone()
-
-                                player.inventory[properSlot] = player.inventory.cursorItem.value
-                                player.inventory.cursorItem.value = before
-                            }
-                        }
-
-                        if (player.inventory.cursorItem.value.isSameAs(empty)) {
-                            val before = player.inventory[properSlot].clone()
-
-                            var half = before.amount.div(2)
-                            if (half == 0) half = 1
-
-                            val newSlotAmount = before.amount - half
-
-                            val newSlotItem =
-                                if (newSlotAmount == 0) empty else before.clone().apply { amount = newSlotAmount }
-
-                            player.inventory[properSlot] = newSlotItem
-                            player.inventory.cursorItem.value = before.clone().apply { amount = half }
-
-                            return
-                        }
+                    if (clickResult.cancelled) {
+                        player.inventory.sendFullInventoryUpdate()
+                        return
                     }
+
+                    player.inventory[properSlot] = clickResult.clicked
+                    player.inventory.cursorItem.value = clickResult.cursor
+                    return
                 }
             }
+
             if (mode == ContainerClickMode.NORMAL_SHIFT) {
                 val action = NormalShiftButtonAction.entries.find { it.button == button }
                 if (action == null) {
@@ -214,49 +164,90 @@ class ServerboundClickContainerPacket(
 
                 if (action == NormalShiftButtonAction.SHIFT_LEFT_MOUSE_CLICK || action == NormalShiftButtonAction.SHIFT_RIGHT_MOUSE_CLICK) {
 
-                    // Move from hotbar if more than 9, else move to hotbar
-                    val suitableSlotIndex = if (properSlot <= 9) {
-                        (27..35).firstOrNull {
-                            player.inventory[it] == empty || player.inventory[it].isSameAs(
-                                clickedSlotItem
-                            )
-                        } ?: (0..26).firstOrNull {
-                            player.inventory[it] == empty || player.inventory[it].isSameAs(
-                                clickedSlotItem
-                            )
-                        }
+                    var equipmentSlot: EquipmentSlot? = null
+                    val equipmentComponent = clickedSlotItem.components.getOrNull<EquippableItemComponent>(EquippableItemComponent::class)
+                    if (equipmentComponent == null) {
+                        val defaultEquipment = PlayerInventoryUtils.getDefaultEquipmentSlot(clickedSlotItem.material)
+                        if (defaultEquipment != null) equipmentSlot = defaultEquipment
                     } else {
-                        (0..8).firstOrNull {
-                            player.inventory[it] == empty || player.inventory[it].isSameAs(
-                                clickedSlotItem
-                            )
+                        if (equipmentComponent.allowedEntities.contains(player.type)) equipmentSlot = equipmentComponent.slot
+                    }
+
+                    if (EquipmentSlot.isBody(equipmentSlot)) {
+                        val current = player.equipment.values.getOrDefault(equipmentSlot, ItemStack.AIR)
+                        if (current.isEmpty() && !clickedSlotItem.isEmpty()) {
+                            equip(player, properSlot, equipmentSlot!!, clickedSlotItem, equipmentComponent)
+                            return
                         }
                     }
 
-//                    player.sendMessage("<pink>$suitableSlotIndex")
+                    val clickedEquipmentSlot = player.inventory.getEquipmentSlot(properSlot, player.heldSlotIndex.value)
+                    if ((clickedEquipmentSlot != null && clickedEquipmentSlot != EquipmentSlot.MAIN_HAND) && player.equipment[clickedEquipmentSlot] != null && !player.equipment[clickedEquipmentSlot]!!.isEmpty()) {
+                        unequip(player, clickedEquipmentSlot, equipmentComponent)
+                    }
+
+                    var suitableSlotIndex: Int? = null
+
+                    if (properSlot <= 8) {
+                        //we are in hotbar
+
+                        //find slot in the rest of the inventory
+                        for (i in 9 until 35) {
+                            val item = player.inventory[i]
+                            if (item == empty || item.isSameAs(clickedSlotItem) && item.amount != item.maxStackSize.value) {
+                                suitableSlotIndex = i
+                                break
+                            }
+                        }
+
+                    } else {
+                        // we are elsewhere in inventory
+
+                        //find slot in the hotbar
+                        for (i in 0 until 8) {
+                            val item = player.inventory[i]
+                            if (item == empty || item.isSameAs(clickedSlotItem) && item.amount != item.maxStackSize.value) {
+                                suitableSlotIndex = i
+                                break
+                            }
+                        }
+                    }
+
                     if (suitableSlotIndex == null) return
                     val existingItem = player.inventory[suitableSlotIndex].clone()
 
-                    if (player.inventory[properSlot].isSameAs(empty)) return
+                    if (clickedSlotItem.isSameAs(empty)) return
 
-                    if (!existingItem.isSameAs(empty) && existingItem.isSameAs(clickedSlotItem)) {
-                        val totalAmount = existingItem.amount + clickedSlotItem.amount
-                        if (totalAmount <= existingItem.maxStackSize.value) {
-                            player.inventory[properSlot] = empty
-                            player.inventory[suitableSlotIndex] = existingItem.clone().apply { amount = totalAmount }
+                    val shouldStack = !existingItem.isSameAs(empty) &&
+                            existingItem.isSameAs(clickedSlotItem) &&
+                            (existingItem.amount + clickedSlotItem.amount) <= existingItem.maxStackSize.value
+
+                    if (shouldStack) {
+                        player.inventory[properSlot] = empty
+                        player.inventory[suitableSlotIndex] =
+                            existingItem.withAmount(existingItem.amount + clickedSlotItem.amount)
+
+                    } else {
+
+                        val isSameItemButCantFullyStack =
+                            existingItem.isSameAs(clickedSlotItem) && (existingItem.amount + clickedSlotItem.amount) > existingItem.maxStackSize.value
+                        if (isSameItemButCantFullyStack) {
+                            //is the same item but cant stack everything so we only stack what we can and leave the rest
+                            val totalAmount = existingItem.amount + clickedSlotItem.amount
+                            val newClicked = existingItem.maxStackSize.value
+                            val remainder = totalAmount - existingItem.maxStackSize.value
+
+                            player.inventory[properSlot] = clickedSlotItem.withAmount(remainder)
+                            player.inventory[suitableSlotIndex] = existingItem.withAmount(newClicked)
 
                         } else {
-                            player.inventory[properSlot] = clickedSlotItem.clone()
-                                .apply { clickedSlotItem.amount = (totalAmount - existingItem.maxStackSize.value) }
-                            player.inventory[suitableSlotIndex] =
-                                existingItem.clone().apply { existingItem.amount = existingItem.maxStackSize.value }
+                            player.inventory[properSlot] = empty
+                            player.inventory[suitableSlotIndex] = clickedSlotItem
                         }
-                    } else {
-                        player.inventory[properSlot] = empty
-                        player.inventory[suitableSlotIndex] = clickedSlotItem.clone()
                     }
                 }
             }
+
 
             if (mode == ContainerClickMode.HOTKEY) {
                 val action = if (button == 40) HotkeyButtonAction.OFFHAND_SWAP else HotkeyButtonAction.CHANGE_TO_SLOT
@@ -270,10 +261,10 @@ class ServerboundClickContainerPacket(
                 }
                 if (action == HotkeyButtonAction.OFFHAND_SWAP) {
                     val existingItem = player.inventory[properSlot].clone()
-                    val swappedItem = player.inventory[40].clone()
+                    val swappedItem = player.inventory[PlayerInventoryUtils.OFFHAND_SLOT].clone()
 
                     player.inventory[properSlot] = swappedItem
-                    player.inventory[40] = existingItem
+                    player.inventory[PlayerInventoryUtils.OFFHAND_SLOT] = existingItem
                 }
             }
             if (mode == ContainerClickMode.DROP) {
@@ -340,16 +331,66 @@ class ServerboundClickContainerPacket(
 //                // set the actual slots via player.inventory[slot int] = even amount of items from one item (player.inventory.dragData.item)
 //                // player.inventory.carriedItem = leftover item
 //            }
-
-                player.inventory.sendFullInventoryUpdate()
             }
         }
         player.inventory.sendFullInventoryUpdate()
     }
 
+    fun getEquipmentSlot(item: ItemStack): Pair<EquipmentSlot?, EquippableItemComponent?> {
+        val component = item.components.getOrNull<EquippableItemComponent>(EquippableItemComponent::class)
+        if (component != null) return component.slot to component
+
+        return PlayerInventoryUtils.getDefaultEquipmentSlot(item.material) to null
+    }
+
+    fun handleClickEquipAndUnequip(player: Player, properSlot: Int, clickedSlotItem: ItemStack): Boolean {
+        val equipmentSlot = player.inventory.getEquipmentSlot(properSlot, player.heldSlotIndex.value)
+        if (EquipmentSlot.isBody(equipmentSlot)) {
+            if (!player.inventory.cursorItem.value.isEmpty() && clickedSlotItem.isEmpty()) {
+                //clicking into armor slot, players cursor item is not empty
+                val cursorEquipmentSlot = getEquipmentSlot(player.inventory.cursorItem.value)
+                if (cursorEquipmentSlot.first == equipmentSlot!!) {
+                    equip(player, properSlot, equipmentSlot, player.inventory.cursorItem.value, cursorEquipmentSlot.second)
+                    player.inventory.cursorItem.value = ItemStack.AIR
+                    return true
+                } else {
+                    player.inventory.sendFullInventoryUpdate()
+                    return true
+                }
+            }
+            if (player.inventory.cursorItem.value.isEmpty() && player.equipment[equipmentSlot!!] != null) {
+                player.inventory.cursorItem.value = player.equipment[equipmentSlot]!!
+                unequip(player, equipmentSlot, null)
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun equip(
+        player: Player,
+        clickedSlot: Int,
+        equipmentSlot: EquipmentSlot,
+        item: ItemStack,
+        component: EquippableItemComponent?
+    ) {
+        player.equipment[equipmentSlot] = item
+        player.inventory[clickedSlot] = ItemStack.AIR
+
+        val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
+        player.playSound(sound, pitch = randomFloat(1.0f, 1.2f))
+    }
+
+    private fun unequip(player: Player, equipmentSlot: EquipmentSlot, component: EquippableItemComponent?) {
+        player.equipment[equipmentSlot] = ItemStack.AIR
+
+        val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
+        player.playSound(sound, pitch = randomFloat(0.6f, 0.8f))
+    }
+
     companion object {
         fun read(buf: ByteBuf): ServerboundClickContainerPacket {
-            val windowsId = buf.readByte().toInt()
+            val windowsId = buf.readVarInt()
             val stateId = buf.readVarInt()
             val slot = buf.readShort().toInt()
             val button = buf.readByte().toInt()

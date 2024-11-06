@@ -58,7 +58,6 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
     }
 
     fun unsafeUpdateEquipmentSlot(slot: EquipmentSlot, heldSlot: Int, itemStack: ItemStack) {
-        if (slot == EquipmentSlot.CHESTPLATE) throw IllegalArgumentException("PlayerInventory does not support chest slot")
         slots.setSilently(getSlotId(slot, heldSlot), itemStack)
     }
 
@@ -103,6 +102,10 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
     }
 
     fun sendFullInventoryUpdate() {
+        for (i in 0 until size) {
+            sendInventoryUpdate(i)
+        }
+        player.inventory.cursorItem.triggerUpdate()
     }
 
     override fun drop(itemStack: ItemStack, isEntireStack: Boolean, isHeld: Boolean) {

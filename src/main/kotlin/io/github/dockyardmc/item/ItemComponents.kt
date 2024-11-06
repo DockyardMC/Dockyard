@@ -545,7 +545,16 @@ enum class EquipmentSlot {
     BOOTS,
     BODY,
     MAIN_HAND,
-    OFF_HAND
+    OFF_HAND;
+
+    companion object {
+        fun isBody(equipmentSlot: EquipmentSlot?): Boolean {
+            if(equipmentSlot == null) return false
+            if(equipmentSlot == MAIN_HAND) return false
+            if(equipmentSlot == OFF_HAND) return false
+            return true
+        }
+    }
 }
 
 enum class FireworkShape {

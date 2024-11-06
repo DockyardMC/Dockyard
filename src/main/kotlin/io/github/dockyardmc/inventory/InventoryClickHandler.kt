@@ -7,36 +7,6 @@ import kotlin.math.ceil
 
 object InventoryClickHandler {
 
-    fun leftClick(player: Player, slot: Int): Boolean {
-        val converted = PlayerInventoryUtils.convertPlayerInventorySlot(slot, player.heldSlotIndex.value)
-        val cursor = player.inventory.cursorItem.value
-        val clicked = player.inventory[converted]
-        val clickResult = handleLeftClick(player, player.inventory, slot, clicked, cursor)
-
-        if(clickResult.cancelled) {
-            return false
-        }
-
-        player.inventory[converted] = clickResult.clicked
-        player.inventory.cursorItem.value = clickResult.cursor
-        return true
-    }
-
-    fun rightClick(player: Player, slot: Int): Boolean {
-        val converted = PlayerInventoryUtils.convertPlayerInventorySlot(slot, player.heldSlotIndex.value)
-        val cursor = player.inventory.cursorItem.value
-        val clicked = player.inventory[converted]
-        val clickResult = handleLeftClick(player, player.inventory, slot, clicked, cursor)
-
-        if(clickResult.cancelled) {
-            return false
-        }
-
-        player.inventory[converted] = clickResult.clicked
-        player.inventory.cursorItem.value = clickResult.cursor
-        return true
-    }
-
     fun handleLeftClick(player: Player, inventory: PlayerInventory, slot: Int, clicked: ItemStack, cursor: ItemStack): InventoryClickResult {
         val result = InventoryClickResult(clicked, cursor, false)
 
@@ -70,13 +40,13 @@ object InventoryClickHandler {
         if(clicked.isSameAs(cursor)) {
             //can be stacked
             val amount = clicked.amount + 1
-            if(isBetween(amount, 0, clicked.maxStackSize.value)){
+            if(!isBetween(amount, 0, clicked.maxStackSize.value)){
                 //too large
                 return result
             } else {
                 //add 1 to clicked
-                result.cursor = cursor.clone().apply { this.amount -= 1 }
-                result.clicked = clicked.clone().apply { this.amount = amount }
+                result.cursor = cursor.withAmount { it - 1 }
+                result.clicked = clicked.withAmount(amount)
             }
         } else {
             // cant stack
@@ -84,7 +54,7 @@ object InventoryClickHandler {
                 //take half
                 val amount = ceil(clicked.amount.toDouble() / 2.0).toInt()
                 result.cursor = clicked.withAmount(amount)
-                result.clicked = clicked.withAmount { it / 2 }
+                result.clicked = clicked.withAmount(clicked.amount - amount)
             } else {
                 if(clicked.isEmpty()) {
                     // put 1 to clicked
@@ -126,11 +96,10 @@ object InventoryClickHandler {
             }
 
             if(equipmentSlot != null) {
-                val current = player.equipment.values.getOrDefault(equipmentSlot, ItemStack.AIR) //TODO redo equipment
+                val current = player.equipment.values.getOrDefault(equipmentSlot, ItemStack.AIR)
                 if(current.isEmpty()) {
                     result.clicked = ItemStack.AIR
                     result.cursor = cursor
-                    //TODO set equipment
                 }
                 return result
             }
@@ -138,6 +107,18 @@ object InventoryClickHandler {
 
         result.cancelled = true
         //TODO shit clicking to other inventory
+
+        return result
+    }
+
+
+    fun handleDoubleCLick(player: Player, inventory: PlayerInventory, slot: Int, clicked: ItemStack, cursor: ItemStack): InventoryClickResult {
+        val result = InventoryClickResult(clicked, cursor, false)
+
+        val amount = cursor.amount
+        val maxSize = cursor.maxStackSize.value
+        val remainingAmount = maxSize - amount
+        if(remainingAmount == 0) return result
 
         return result
     }

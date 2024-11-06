@@ -1,15 +1,10 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
-import io.github.dockyardmc.annotations.ClientboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.netty.buffer.ByteBuf
 
-@WikiVGEntry("Update Tags (configuration)")
-@ClientboundPacketInfo(0x0D, ProtocolState.CONFIGURATION)
 class ClientboundUpdateTagsPacket: ClientboundPacket() {
 
     val tags = mapOf<String, List<Tag>>(

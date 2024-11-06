@@ -40,13 +40,17 @@ class ItemStack(var material: Item, var amount: Int = 1) {
     fun isEmpty(): Boolean = this.isSameAs(AIR)
 
     fun withAmount(amount: Int): ItemStack {
-        return this.clone().apply { this.amount = amount }
+        val newItemStack = ItemStack(material, amount)
+        newItemStack.components.addAll(components.values, true)
+        return newItemStack
     }
 
     fun withAmount(amount: (Int) -> Int): ItemStack {
-        val newAmount = this.amount
+        val newAmount = this.amount + 0
         amount.invoke(newAmount)
-        return this.clone().apply { this.amount = newAmount }
+        val newItemStack = ItemStack(material, newAmount)
+        newItemStack.components.addAll(components.values, true)
+        return newItemStack
     }
 
     override fun toString(): String = "ItemStack(${material.identifier}, ${components.values}, $amount)".stripComponentTags()

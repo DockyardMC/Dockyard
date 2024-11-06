@@ -23,6 +23,7 @@ object PlayerInventoryUtils {
         return when(item) {
 
             Items.LEATHER_HELMET,
+            Items.TURTLE_HELMET,
             Items.GOLDEN_HELMET,
             Items.CHAINMAIL_HELMET,
             Items.IRON_HELMET,
