@@ -9,7 +9,6 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityPlaySoundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlaySoundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
-import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import kotlin.random.Random
@@ -46,7 +45,7 @@ fun Collection<Player>.playSound(identifier: String, location: Location? = null,
 }
 
 fun World.playSound(sound: Sound, location: Location? = null) {
-    this.players.values.playSound(sound, location)
+    this.players.playSound(sound, location)
 }
 
 fun World.playSound(identifier: String, location: Location? = null, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {

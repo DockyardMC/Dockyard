@@ -2,12 +2,8 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import cz.lukynka.main
 import io.github.dockyardmc.commands.buildCommandGraph
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityMetaValue
-import io.github.dockyardmc.entities.EntityMetadata
-import io.github.dockyardmc.entities.EntityMetadataType
+import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEvent
 import io.github.dockyardmc.events.PlayerDeathEvent
@@ -15,6 +11,7 @@ import io.github.dockyardmc.events.PlayerRespawnEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.inventory.PlayerInventory
+import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.particles.ItemParticleData
@@ -57,7 +54,6 @@ class Player(
     val networkManager: PlayerNetworkManager
 ): Entity(location) {
     override var velocity: Vector3 = Vector3(0, 0, 0)
-    override var hasGravity: Boolean = true
     override var isInvulnerable: Boolean = true
     override var isOnGround: Boolean = true
     override var health: Bindable<Float> = bindablePool.provideBindable(20f)
@@ -196,10 +192,15 @@ class Player(
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
         time.valueChanged { updateWorldTime() }
+        hasNoGravity.value = false
     }
 
-    override fun tick() {
-        val entities = world.entities.values.toList().filter { it.autoViewable && it != this }
+    override fun canPickupItem(dropEntity: ItemDropEntity, item: ItemStack): Boolean {
+        return this.give(item)
+    }
+
+    override fun tick(ticks: Int) {
+        val entities = world.entities.toList().filter { it.autoViewable && it != this }
 
         val add = entities.filter { it.location.distance(this.location) <= it.renderDistanceBlocks && !visibleEntities.contains(it) }
         val remove = entities.filter { it.location.distance(this.location) > it.renderDistanceBlocks && visibleEntities.contains(it) }
@@ -219,7 +220,7 @@ class Player(
             if(isFood) {
 
                 if((world.worldAge % 5) == 0L) {
-                    val viewers = world.players.values.toMutableList().filter { it != this }
+                    val viewers = world.players.toMutableList().filter { it != this }
                     viewers.playSound(item.material.consumeSound, location, 1f, randomFloat(0.9f, 1.3f))
                     viewers.spawnParticle(location.clone().apply { y += 1.5 }, Particles.ITEM, Vector3f(0.2f), 0.05f, 6, false, ItemParticleData(item))
                 }
@@ -253,7 +254,7 @@ class Player(
                 }
             }
         }
-        super.tick()
+        super.tick(ticks)
     }
 
     fun sendHealthUpdatePacket() {

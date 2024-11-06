@@ -20,7 +20,7 @@ object GeneralBlockPlacementRules {
             CancelReason(false, "Block at new location is not air (${placementLocation.identifier})")
         if (isLocationInsideBoundingBox(
                 where,
-                placer.world.entities.values
+                placer.world.entities
             ) && newBlock.registryBlock.isSolid
         ) canBePlaced = CancelReason(false, "Block collides with entity")
         if (!clickedBlock.registryBlock.isSolid) canBePlaced =

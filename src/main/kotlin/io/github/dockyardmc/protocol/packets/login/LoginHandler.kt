@@ -69,7 +69,6 @@ class LoginHandler(var processor: PlayerNetworkManager) : PacketHandler(processo
         )
 
         PlayerManager.add(player, processor)
-        EntityManager.entities.add(player)
 
         if (ConfigManager.config.useMojangAuth) {
             val generator = KeyPairGenerator.getInstance("RSA")

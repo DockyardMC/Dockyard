@@ -54,9 +54,13 @@ class ServerboundClickContainerPacket(
 
                     // drop the item
                     if (slot == -999) {
-                        //TODO redo dropping
-                        player.inventory.sendFullInventoryUpdate()
-                        return
+
+                        val cursor = player.inventory.cursorItem.value
+                        if(!cursor.isEmpty()) {
+                            player.inventory.drop(cursor)
+                            player.inventory.cursorItem.value = empty
+                            return
+                        }
                     }
 
                     if (handleClickEquipAndUnequip(player, properSlot, clickedSlotItem)) return
@@ -83,14 +87,17 @@ class ServerboundClickContainerPacket(
                 if (action == NormalButtonAction.RIGHT_MOUSE_CLICK) {
 
                     if (slot == -999) {
-                        //TODO redo dropping
-                        player.inventory.sendFullInventoryUpdate()
-                        return
+                        val cursor = player.inventory.cursorItem.value
+                        if(!cursor.isEmpty()) {
+                            player.inventory.drop(cursor.withAmount(1))
+                            val newItem = if(cursor.amount - 1 == 0) ItemStack.AIR else cursor.withAmount(cursor.amount - 1)
+                            player.inventory.cursorItem.value = newItem
+                            return
+                        }
                     }
 
                     if (handleClickEquipAndUnequip(player, properSlot, clickedSlotItem)) return
                     if(handleOffhandClick(player, properSlot, clickedSlotItem, true)) return
-
 
                     val clickResult = InventoryClickHandler.handleRightClick(
                         player,
@@ -205,7 +212,6 @@ class ServerboundClickContainerPacket(
                 }
             }
 
-
             if (mode == ContainerClickMode.HOTKEY) {
                 val action = if (button == 40) HotkeyButtonAction.OFFHAND_SWAP else HotkeyButtonAction.CHANGE_TO_SLOT
 
@@ -235,15 +241,16 @@ class ServerboundClickContainerPacket(
                     val existingItem = player.inventory[properSlot].clone()
                     if (existingItem.isSameAs(empty)) return
 
-                    val newItem = if (existingItem.amount == 1) empty else existingItem.clone().apply { amount -= 1 }
-                    player.inventory.drop(existingItem.apply { amount = 1 }, isEntireStack = false, isHeld = false)
+                    val newItem = if (existingItem.amount - 1 == 0) empty else existingItem.withAmount(existingItem.amount - 1)
+
+                    player.inventory.drop(existingItem.withAmount(1))
                     player.inventory[properSlot] = newItem
                 }
                 if (action == DropButtonAction.CONTROL_DROP) {
                     val existingItem = player.inventory[properSlot].clone()
                     if (existingItem.isSameAs(empty)) return
 
-                    player.inventory.drop(existingItem, isEntireStack = false, isHeld = false)
+                    player.inventory.drop(existingItem)
                     player.inventory[properSlot] = empty
                 }
             }

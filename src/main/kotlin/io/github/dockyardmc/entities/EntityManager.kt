@@ -2,30 +2,51 @@ package io.github.dockyardmc.entities
 
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
-import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.world.World
 import java.util.concurrent.atomic.AtomicInteger
 
 object EntityManager {
 
     var entityIdCounter = AtomicInteger()
-    val entities: MutableList<Entity> = mutableListOf()
+    private val innerEntities: MutableList<Entity> = mutableListOf()
 
-    fun World.spawnEntity(entity: Entity, noViewers: Boolean = false): Entity {
-        this@EntityManager.entities.add(entity)
-        this.entities.add(entity)
-        if(!noViewers) PlayerManager.players.forEach(entity::addViewer)
+    val entities get() = innerEntities.toList()
+
+    fun addPlayer(player: Player) {
+        synchronized(entities) {
+            innerEntities.add(player)
+        }
+    }
+
+    fun spawnEntity(entity: Entity): Entity {
+        synchronized(entities) {
+            innerEntities.add(entity)
+            entity.world.addEntity(entity)
+        }
+
         return entity
+    }
+
+    fun despawnEntity(entity: Entity) {
+        synchronized(entities) {
+            innerEntities.remove(entity)
+            entity.world.removeEntity(entity)
+        }
+    }
+
+    fun World.spawnEntity(entity: Entity): Entity {
+        return this@EntityManager.spawnEntity(entity)
     }
 
     fun World.despawnEntity(entity: Entity) {
         entity.dispose()
-
     }
 
     init {
-        Events.on<ServerTickEvent> {
-            entities.toList().forEach { if(it.tickable) it.tick() }
+        Events.on<ServerTickEvent> { event ->
+            innerEntities.toList().forEach { if(it.tickable) it.tick(event.serverTicks) }
         }
     }
 }

@@ -1,13 +1,10 @@
 package io.github.dockyardmc.inventory
 
 import cz.lukynka.BindableMap
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.events.InventoryItemChangeEvent
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.isSameAs
-import io.github.dockyardmc.protocol.packets.play.serverbound.placementRules
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.getEntityEventContext
 import io.github.dockyardmc.utils.isBetween
@@ -36,38 +33,35 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
         }
     }
 
-    open fun give(item: ItemStack) {
+    open fun give(item: ItemStack): Boolean {
         for (i in 0 until size) {
             val slot = slots[i] ?: ItemStack.AIR
-            if(slot.isEmpty()) {
+            if (slot.isEmpty()) {
                 slots[i] = item
-                return
+                return true
             } else {
 
                 val canStack = slot.isSameAs(item) &&
                         slot.amount != slot.maxStackSize.value &&
                         slot.amount + item.amount <= slot.maxStackSize.value
 
-                if(canStack) {
-                    DockyardServer.broadcastMessage("<green>can stack")
+                if (canStack) {
                     slots[i] = slot.withAmount(slot.amount + item.amount)
-                    return
+                    return true
                 } else {
-                    if(slot.isSameAs(item) && slot.amount != slot.maxStackSize.value) {
-                        DockyardServer.broadcastMessage("<green>can stack partially")
+                    if (slot.isSameAs(item) && slot.amount != slot.maxStackSize.value) {
                         val totalAmount = item.amount + slot.amount
                         val newClicked = slot.maxStackSize.value
                         slots[i] = slot.withAmount(newClicked)
                         val remainder = totalAmount - slot.maxStackSize.value
                         give(item.withAmount(remainder))
-                        return
+                        return true
                     }
                 }
             }
         }
+        return false
     }
 
     abstract fun sendInventoryUpdate(slot: Int)
-    abstract fun drop(itemStack: ItemStack, isEntireStack: Boolean, isHeld: Boolean)
-
 }

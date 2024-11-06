@@ -13,6 +13,12 @@ class ItemDropEntity(override var location: Location, initialItem: ItemStack) : 
     override var health: Bindable<Float> = Bindable(9999f)
 
     val itemStack: Bindable<ItemStack> = Bindable(initialItem)
+    var canBePickedUp: Boolean = false
+    var canBePickedUpAfter: Int = 20
+    var pickupDistance: Int = 1
+    var pickupAnimation: Boolean = true
+
+    private var lifetime: Int = 0
 
     init {
         itemStack.valueChanged {
@@ -20,6 +26,21 @@ class ItemDropEntity(override var location: Location, initialItem: ItemStack) : 
             metadata[type] = EntityMetadata(type, EntityMetaValue.ITEM_STACK, it.newValue)
         }
         itemStack.triggerUpdate()
+        if(canBePickedUpAfter == 0 || canBePickedUpAfter == -1) canBePickedUp = true
+        hasNoGravity.value = true
     }
 
+    override fun tick(ticks: Int) {
+        if(!canBePickedUp) {
+            lifetime++
+            if(lifetime == canBePickedUpAfter) {
+                canBePickedUp = true
+            }
+        }
+    }
+
+    override fun dispose() {
+        itemStack.dispose()
+        super.dispose()
+    }
 }

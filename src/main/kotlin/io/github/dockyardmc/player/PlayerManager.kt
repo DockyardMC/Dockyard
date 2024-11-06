@@ -3,38 +3,46 @@ package io.github.dockyardmc.player
 import io.github.dockyardmc.entities.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerConnectEvent
-import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.world.World
 
 object PlayerManager {
 
-    val players: MutableList<Player> = mutableListOf()
-    val playerToEntityIdMap = mutableMapOf<Int, Player>()
+    val innerPlayers: MutableList<Player> = mutableListOf()
+    val players get() = innerPlayers.toList()
 
-    init {
-        Events.on<ServerTickEvent> {
-            players.toList().forEach(Player::tick)
-        }
-    }
+    private val innerPlayerToEntityIdMap = mutableMapOf<Int, Player>()
+    val playerToEntityIdMap get() = innerPlayerToEntityIdMap.toMap()
 
     fun add(player: Player, processor: PlayerNetworkManager) {
-        players.add(player)
-        playerToEntityIdMap[player.entityId] = player
+        synchronized(innerPlayers) {
+            innerPlayers.add(player)
+        }
+        synchronized(innerPlayerToEntityIdMap) {
+            innerPlayerToEntityIdMap[player.entityId] = player
+        }
+
         processor.player = player
+        EntityManager.addPlayer(player)
         Events.dispatch(PlayerConnectEvent(player))
     }
 
     fun remove(player: Player) {
         player.isConnected = false
-        player.viewers.toMutableList().forEach { player.removeViewer(it, true); it.removeViewer(player, true) }
+        player.viewers.toList().forEach {
+            player.removeViewer(it, true);
+            it.removeViewer(player, true)
+        }
 
-        players.remove(player)
-        playerToEntityIdMap.remove(player.entityId)
-        EntityManager.entities.remove(player)
-        player.world.players.removeIfPresent(player)
-        player.world.entities.removeIfPresent(player)
+        synchronized(innerPlayers) {
+            innerPlayers.remove(player)
+        }
+        synchronized(playerToEntityIdMap) {
+            innerPlayerToEntityIdMap.remove(player.entityId)
+        }
+        player.world.removePlayer(player)
+        player.world.removeEntity(player)
         player.dispose()
     }
 

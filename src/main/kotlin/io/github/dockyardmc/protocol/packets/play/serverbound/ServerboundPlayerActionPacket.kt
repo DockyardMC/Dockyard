@@ -25,8 +25,6 @@ import io.github.dockyardmc.utils.vectors.Vector3f
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-@WikiVGEntry("Player Action")
-@ServerboundPacketInfo(36, ProtocolState.PLAY)
 class ServerboundPlayerActionPacket(
     var action: PlayerAction,
     var position: Vector3,
@@ -55,7 +53,7 @@ class ServerboundPlayerActionPacket(
                 }
 
                 player.world.setBlock(event.location, Blocks.AIR)
-                player.world.players.values.filter { it != player }.spawnParticle(
+                player.world.players.filter { it != player }.spawnParticle(
                     event.location.getBlockLocation(),
                     Particles.BLOCK,
                     amount = 50,
@@ -78,13 +76,16 @@ class ServerboundPlayerActionPacket(
         if (action == PlayerAction.DROP_ITEM) {
             val held = player.getHeldItem(PlayerHand.MAIN_HAND)
             if (held.isEmpty()) return
-            player.inventory.drop(held, isEntireStack = false, isHeld = true)
+            player.inventory.drop(held.withAmount(1))
+            val newItem = if(held.amount - 1 == 0) ItemStack.AIR else held.withAmount(held.amount - 1)
+            player.setHeldItem(PlayerHand.MAIN_HAND, newItem)
         }
 
         if (action == PlayerAction.DROP_ITEM_STACK) {
             val held = player.getHeldItem(PlayerHand.MAIN_HAND)
             if (held.isEmpty()) return
-            player.inventory.drop(held, isEntireStack = true, isHeld = true)
+            player.inventory.drop(held)
+            player.setHeldItem(PlayerHand.MAIN_HAND, ItemStack.AIR)
         }
     }
 

@@ -158,7 +158,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addPlay(ClientboundSystemChatMessagePacket::class)
         addPlay(ClientboundTabListPacket::class)
         skipPlay("nbt query response")
-        skipPlay("collect item")
+        addPlay(ClientboundPickupItemPacket::class)
         addPlay(ClientboundEntityTeleportPacket::class)
         addPlay(ClientboundSetTickingStatePacket::class)
         skipPlay("tick step")

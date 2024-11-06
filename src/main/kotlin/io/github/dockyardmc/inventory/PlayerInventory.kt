@@ -1,14 +1,14 @@
 package io.github.dockyardmc.inventory
 
 import cz.lukynka.Bindable
+import io.github.dockyardmc.entities.EntityManager.spawnEntity
+import io.github.dockyardmc.entities.ItemDropEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.events.PlayerEquipEvent
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.clone
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventoryCursorPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.utils.getPlayerEventContext
@@ -64,7 +64,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
     override fun set(slot: Int, item: ItemStack) {
         var newItem = item
         val equipmentSlot = getEquipmentSlot(slot, player.heldSlotIndex.value)
-        if(equipmentSlot != null) {
+        if (equipmentSlot != null) {
             val event = PlayerEquipEvent(player, item, equipmentSlot, getPlayerEventContext(player))
             Events.dispatch(event)
             newItem = event.item
@@ -96,18 +96,18 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
     override fun sendInventoryUpdate(slot: Int) {
 
         val equipmentSlot = getEquipmentSlot(slot, player.heldSlotIndex.value)
-        if(equipmentSlot != null) player.equipment.triggerUpdate()
+        if (equipmentSlot != null) player.equipment.triggerUpdate()
         player.sendPacket(ClientboundSetInventorySlotPacket(slot, slots[slot] ?: ItemStack.AIR))
     }
 
     fun sendFullInventoryUpdate() {
-        for (i in 0 until size) {
+        for (i in 0 until INNER_INVENTORY_SIZE) {
             sendInventoryUpdate(i)
         }
         player.inventory.cursorItem.triggerUpdate()
     }
 
-    override fun drop(itemStack: ItemStack, isEntireStack: Boolean, isHeld: Boolean) {
+    fun drop(itemStack: ItemStack) {
         val player = entity as Player
 
         val event = PlayerDropItemEvent(player, itemStack)
@@ -117,20 +117,12 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
             return
         }
 
-        if (isHeld) {
-            val held = player.getHeldItem(PlayerHand.MAIN_HAND)
-            val newItem = if (isEntireStack) {
-                if (held.amount == 1) ItemStack.AIR else held.clone().apply { amount -= 1 }
-            } else {
-                ItemStack.AIR
-            }
-            player.inventory[player.heldSlotIndex.value] = newItem
-        }
+        player.world.spawnEntity(ItemDropEntity(player.location, itemStack))
     }
 }
 
-fun Player.give(itemStack: ItemStack) {
-    this.inventory.give(itemStack)
+fun Player.give(itemStack: ItemStack): Boolean {
+    return this.inventory.give(itemStack)
 }
 
 fun Player.clearInventory() {

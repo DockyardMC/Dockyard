@@ -93,7 +93,7 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
     runnable.callback = {
         updateChunks.forEach { chunk ->
             chunk.updateCache()
-            location.world.players.values.sendPacket(chunk.packet)
+            location.world.players.sendPacket(chunk.packet)
         }
         placer.then?.invoke()
     }

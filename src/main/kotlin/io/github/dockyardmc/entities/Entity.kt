@@ -3,16 +3,13 @@ package io.github.dockyardmc.entities
 import cz.lukynka.Bindable
 import cz.lukynka.BindableMap
 import cz.lukynka.BindablePool
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockIterator
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.effects.PotionEffectImpl
 import io.github.dockyardmc.entities.EntityManager.despawnEntity
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
@@ -22,17 +19,15 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
-import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.getEntityEventContext
 import io.github.dockyardmc.utils.mergeEntityMetadata
 import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.vectors.Vector3
@@ -51,7 +46,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     abstract var type: EntityType
     open var velocity: Vector3 = Vector3()
     val viewers: MutableSet<Player> = mutableSetOf()
-    open var hasGravity: Boolean = true
     open var isInvulnerable: Boolean = false
     val displayName: Bindable<String?> = bindablePool.provideBindable(null)
     open var isOnGround: Boolean = true
@@ -62,28 +56,36 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = bindablePool.provideBindableMap()
     val walkSpeed: Bindable<Float> = Bindable(0.15f)
     open var tickable: Boolean = true
-    val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = bindablePool.provideBindableMap()
+    val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> =
+        bindablePool.provideBindableMap()
     val isGlowing: Bindable<Boolean> = bindablePool.provideBindable(false)
     val isInvisible: Bindable<Boolean> = bindablePool.provideBindable(false)
     val team: Bindable<Team?> = bindablePool.provideBindable(null)
     val isOnFire: Bindable<Boolean> = bindablePool.provideBindable(false)
     val freezeTicks: Bindable<Int> = bindablePool.provideBindable(0)
     val equipment: BindableMap<EquipmentSlot, ItemStack> = bindablePool.provideBindableMap()
-    val equipmentLayers: BindableMap<PersistentPlayer, Map<EquipmentSlot, ItemStack>> = bindablePool.provideBindableMap()
+    val equipmentLayers: BindableMap<PersistentPlayer, Map<EquipmentSlot, ItemStack>> =
+        bindablePool.provideBindableMap()
     var renderDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityRenderDistanceBlocks
     var autoViewable: Boolean = true
+    var hasNoGravity: Bindable<Boolean> = Bindable(true)
 
     constructor(location: Location) : this(location, location.world)
 
     init {
 
+        hasNoGravity.valueChanged {
+            val noGravityType = EntityMetadataType.HAS_NO_GRAVITY
+            metadata[noGravityType] = EntityMetadata(noGravityType, EntityMetaValue.BOOLEAN, it.newValue)
+        }
+
         equipment.itemSet {
-            if(this !is Player) return@itemSet
+            if (this !is Player) return@itemSet
             this.inventory.unsafeUpdateEquipmentSlot(it.key, this.heldSlotIndex.value, it.value)
         }
 
         equipment.mapUpdated {
-            if(this is Player) sendEquipmentPacket(this)
+            if (this is Player) sendEquipmentPacket(this)
             viewers.forEach { viewer -> sendEquipmentPacket(viewer) }
         }
 
@@ -173,28 +175,16 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             if (it.newValue != null && !TeamManager.teams.values.containsKey(it.newValue!!.name)) throw IllegalArgumentException(
                 "Team ${it.newValue!!.name} is not registered!"
             )
-            this.team.value?.entities?.remove(this)
+            it.oldValue?.entities?.remove(this)
             it.newValue?.entities?.add(this)
         }
-    }
-
-    override fun dispose() {
-        autoViewable = false
-        team.value?.entities?.remove(this)
-        team.value = null
-        equipmentLayers.clear()
-        viewers.iterator().forEach { removeViewer(it, false) }
-        metadataLayers.clear()
-        EntityManager.entities.remove(this)
-        world.entities.remove(this)
-        bindablePool.dispose()
     }
 
     fun updateEntity(player: Player, respawn: Boolean = false) {
         sendMetadataPacketToViewers()
     }
 
-    open fun tick() {
+    open fun tick(ticks: Int) {
         potionEffects.values.forEach {
             if (System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.duration)) {
                 potionEffects.remove(it.key)
@@ -202,33 +192,38 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         }
 
         // try to pickup items
-        val drops = world.entities.values.filterIsInstance<ItemDropEntity>()
-        synchronized(drops) {
-            drops.toList().forEach { drop ->
-                if(drop.location.distance(location) <= 0.5) {
-                    if(pickupItem(drop, drop.itemStack.value)) return
+        val drops = world.entities.filterIsInstance<ItemDropEntity>()
+        if (inventorySize <= 0) return
+        drops.toList().forEach { drop ->
+            if (this is Player && !drop.viewers.contains(this)) return@forEach
+            if (!drop.canBePickedUp) return@forEach
+            if (drop.location.distance(location) > drop.pickupDistance) return@forEach
+
+            val itemStack = drop.itemStack.value
+
+            val eventContext = Event.Context(
+                setOf(),
+                setOf(drop, this),
+                setOf(this.world),
+                setOf(this.location, drop.location)
+            )
+            val event = EntityPickupItemEvent(this, itemStack, eventContext)
+            if (event.cancelled) return@forEach
+
+            if (canPickupItem(drop, itemStack)) {
+                val mutualViewers = drop.viewers.filter { viewers.contains(it) }
+                if (drop.pickupAnimation) {
+                    val packet = ClientboundPickupItemPacket(drop, this, itemStack)
+                    mutualViewers.sendPacket(packet)
+                    if (this is Player) this.sendPacket(packet)
                 }
+                drop.world.despawnEntity(drop)
             }
         }
     }
 
-    open fun pickupItem(dropEntity: ItemDropEntity, item: ItemStack): Boolean {
-        val eventContext = Event.Context(
-            setOf(),
-            setOf(dropEntity, this),
-            setOf(this.world),
-            setOf(this.location, dropEntity.location)
-        )
-        val event = EntityPickupItemEvent(this, item, eventContext)
-        if(event.cancelled) return false
-        dropEntity.world.despawnEntity(dropEntity)
-        if(this is Player) {
-//            if(this.inventory)
-            //TODO check if inventory is full
-            this.give(item)
-            this.sendMessage("picked up item")
-        }
-        return true
+    open fun canPickupItem(dropEntity: ItemDropEntity, item: ItemStack): Boolean {
+        return false
     }
 
     open fun addViewer(player: Player) {
@@ -237,11 +232,16 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         if (event.cancelled) return
 
         sendMetadataPacket(player)
-        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
+        val entitySpawnPacket =
+            ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
         isOnGround = true
 
-        player.visibleEntities.add(this)
-        viewers.add(player)
+        synchronized(player.visibleEntities) {
+            player.visibleEntities.add(this)
+        }
+        synchronized(viewers) {
+            viewers.add(player)
+        }
         player.sendPacket(entitySpawnPacket)
         sendMetadataPacket(player)
         sendMetadataPacketToViewers()
@@ -253,10 +253,16 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         Events.dispatch(event)
         if (event.cancelled) return
 
-        viewers.remove(player)
+        synchronized(viewers) {
+            viewers.remove(player)
+        }
+
         val entityDespawnPacket = ClientboundEntityRemovePacket(this)
         player.sendPacket(entityDespawnPacket)
-        player.visibleEntities.remove(this)
+
+        synchronized(player.visibleEntities) {
+            player.visibleEntities.remove(this)
+        }
     }
 
     //TODO move to bindable
@@ -452,4 +458,12 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         return Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
     }
 
+    override fun dispose() {
+        team.value = null
+        equipmentLayers.clear()
+        viewers.toList().forEach { removeViewer(it, false) }
+        metadataLayers.clear()
+        bindablePool.dispose()
+        EntityManager.despawnEntity(this)
+    }
 }

@@ -1,7 +1,6 @@
 package io.github.dockyardmc.world
 
 import cz.lukynka.Bindable
-import cz.lukynka.BindableList
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.blocks.BatchBlockUpdate
@@ -30,11 +29,8 @@ import java.lang.IllegalStateException
 import java.util.Random
 import java.util.UUID
 
-class World(
-    var name: String,
-    var generator: WorldGenerator,
-    var dimensionType: DimensionType
-): Disposable {
+class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType): Disposable {
+
     val worldSeed = UUID.randomUUID().leastSignificantBits.toString()
     var seed: Long = worldSeed.SHA256Long()
 
@@ -47,8 +43,11 @@ class World(
     var chunks: MutableMap<Long, Chunk> = mutableMapOf()
     var defaultSpawnLocation = Location(0, 0, 0, this)
 
-    val players: BindableList<Player> = BindableList()
-    val entities: BindableList<Entity> = BindableList()
+    private val innerPlayers: MutableList<Player> = mutableListOf()
+    private val innerEntities: MutableList<Entity> = mutableListOf()
+
+    val players get() = innerPlayers.toList()
+    val entities get() = innerEntities.toList()
 
     var canBeJoined: Bindable<Boolean> = Bindable(false)
     val joinQueue: MutableList<Player> = mutableListOf()
@@ -63,6 +62,30 @@ class World(
 
     val customDataBlocks: MutableMap<Int, Block> = mutableMapOf()
 
+    fun addEntity(entity: Entity) {
+        synchronized(innerEntities) {
+            innerEntities.add(entity)
+        }
+    }
+
+    fun removeEntity(entity: Entity) {
+        synchronized(innerEntities) {
+            innerEntities.remove(entity)
+        }
+    }
+
+    fun removePlayer(entity: Entity) {
+        synchronized(innerPlayers) {
+            innerPlayers.remove(entity)
+        }
+    }
+
+    fun addPlayer(player: Player) {
+        synchronized(innerPlayers) {
+            innerPlayers.add(player)
+        }
+    }
+
     fun join(player: Player) {
         if(player.world == this && player.isFullyInitialized) return
         if(!canBeJoined.value && !joinQueue.contains(player)) {
@@ -73,16 +96,17 @@ class World(
 
         val oldWorld = player.world
 
-        oldWorld.entities.values.filter { it != player }.forEach { it.removeViewer(player, false) }
-        oldWorld.players.values.filter { it != player }.forEach {
+        oldWorld.entities.filter { it != player }.forEach { it.removeViewer(player, false) }
+        oldWorld.players.filter { it != player }.forEach {
             it.removeViewer(player, false)
             player.removeViewer(it, false)
         }
 
-        player.world.players.removeIfPresent(player)
+        player.world.innerPlayers.removeIfPresent(player)
         player.world = this
-        players.add(player)
-        entities.add(player)
+
+        addEntity(player)
+        addPlayer(player)
 
         Events.dispatch(PlayerChangeWorldEvent(player, oldWorld, this))
 
@@ -109,7 +133,7 @@ class World(
         asyncChunkGenerator.submit(runnable)
 
         time.valueChanged {
-            players.values.forEach { player ->
+            innerPlayers.forEach { player ->
                 player.updateWorldTime()
             }
         }
@@ -127,9 +151,9 @@ class World(
     }
 
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
-    fun sendMessage(component: Component) { players.values.sendMessage(component) }
+    fun sendMessage(component: Component) { players.sendMessage(component) }
     fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
-    fun sendActionBar(component: Component) { players.values.sendActionBar(component) }
+    fun sendActionBar(component: Component) { players.sendActionBar(component) }
 
     fun getChunkAt(x: Int, z: Int): Chunk? {
         val chunkX = ChunkUtils.getChunkCoordinate(x)
@@ -150,7 +174,7 @@ class World(
     fun setBlock(x: Int, y: Int, z: Int, block: Block) {
         val chunk = getChunkAt(x, z) ?: return
         chunk.setBlock(x, y, z, block, true)
-        players.values.forEach { it.sendPacket(chunk.packet) }
+        players.forEach { it.sendPacket(chunk.packet) }
     }
 
     fun getBlock(location: Location): Block = this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
@@ -198,7 +222,7 @@ class World(
     fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int, updateChunk: Boolean = true) {
         val chunk = getChunkAt(x, z) ?: return
         chunk.setBlockRaw(x, y, z, blockStateId, updateChunk)
-        if(updateChunk) players.values.forEach { it.sendPacket(chunk.packet) }
+        if(updateChunk) players.forEach { it.sendPacket(chunk.packet) }
     }
 
     fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit) {
@@ -215,7 +239,7 @@ class World(
             }
             chunks.forEach { chunk ->
                 chunk.updateCache()
-                this@World.players.values.sendPacket(chunk.packet)
+                this@World.players.sendPacket(chunk.packet)
             }
         }
         runnable.callback = {
@@ -282,11 +306,11 @@ class World(
     fun getRandom(): Random = Random(seed)
 
     override fun dispose() {
-        players.values.forEach {
+        players.forEach {
             it.teleport(mainWorld.defaultSpawnLocation)
-            players.remove(it)
+            innerPlayers.remove(it)
         }
-        entities.values.forEach {
+        entities.forEach {
             if(it is Player) return@forEach
             despawnEntity(it)
         }
