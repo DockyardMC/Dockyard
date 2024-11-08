@@ -29,6 +29,7 @@ object TeamManager {
         team.entities.values.forEach(team.entities::remove)
         val removePacket = ClientboundTeamsPacket(RemoveTeamPacketAction(team))
         PlayerManager.players.sendPacket(removePacket)
+        teams.remove(name)
     }
 
     fun remove(team: Team) {

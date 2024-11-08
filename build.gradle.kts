@@ -103,9 +103,21 @@ tasks.processResources {
 sourceSets["main"].resources.srcDir("${buildDir}/generated/resources/")
 
 
-val sourcesJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
+tasks {
+    val sourcesJar by creating(Jar::class) {
+        dependsOn(JavaPlugin.CLASSES_TASK_NAME)
+        archiveClassifier = "sources"
+        from(sourceSets["main"].allSource)
+    }
+
+    artifacts {
+        add("archives", sourcesJar)
+    }
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 publishing {
@@ -128,7 +140,6 @@ publishing {
             artifactId = "dockyard"
             version = dockyardVersion.toString()
             from(components["java"])
-            artifact(sourcesJar)
         }
     }
 }
