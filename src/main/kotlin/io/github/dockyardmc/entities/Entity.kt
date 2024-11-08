@@ -45,7 +45,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val viewers: MutableSet<Player> = mutableSetOf()
     open var hasGravity: Boolean = true
     open var isInvulnerable: Boolean = false
-    open var displayName: String = this::class.simpleName.toString()
+    val displayName: Bindable<String?> = bindablePool.provideBindable(null)
     open var isOnGround: Boolean = true
     val metadata: BindableMap<EntityMetadataType, EntityMetadata> = bindablePool.provideBindableMap()
     val pose: Bindable<EntityPose> = bindablePool.provideBindable(EntityPose.STANDING)

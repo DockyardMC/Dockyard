@@ -41,7 +41,6 @@ class UpdateLatencyInfoUpdateAction(
 
 class SetDisplayNameInfoUpdateAction(
 
-    val hasDisplayName: Boolean,
     val displayName: String?,
     override val bitMask: Byte = 0x20
 

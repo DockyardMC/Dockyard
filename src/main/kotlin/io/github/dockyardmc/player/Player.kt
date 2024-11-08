@@ -51,7 +51,6 @@ class Player(
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var hasGravity: Boolean = true
     override var isInvulnerable: Boolean = true
-    override var displayName: String = username
     override var isOnGround: Boolean = true
     override var health: Bindable<Float> = bindablePool.provideBindable(20f)
     override var inventorySize: Int = 35
@@ -91,11 +90,19 @@ class Player(
     val chunkEngine = ConcurrentChunkEngine(this)
     var visibleEntities: MutableList<Entity> = mutableListOf()
 
+
     var lastInteractionTime: Long = -1L
 
     lateinit var lastSentPacket: ClientboundPacket
 
     init {
+
+        displayName.valueChanged {
+            val packet = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(it.newValue)))
+            this.sendPacket(packet)
+            viewers.sendPacket(packet)
+        }
+
         selectedHotbarSlot.valueChanged {
             this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
             val item = inventory[it.newValue]
@@ -163,8 +170,11 @@ class Player(
         isListed.valueChanged {
             val update = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(it.newValue))
             val packet = ClientboundPlayerInfoUpdatePacket(update)
+            val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(displayName.value)))
             sendToViewers(packet)
+            sendToViewers(namePacket)
             sendPacket(packet)
+            sendPacket(namePacket)
         }
 
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
@@ -273,6 +283,8 @@ class Player(
         if(player == this) return
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
+        val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(displayName.value)))
+        player.sendPacket(namePacket)
 
         super.addViewer(player)
 

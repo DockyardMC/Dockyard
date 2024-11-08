@@ -130,6 +130,17 @@ fun main(args: Array<String>) {
     }
 
     server.start()
+
+
+    Commands.add("/displayname") {
+        addArgument("name", StringArgument())
+        execute {
+            val player = it.getPlayerOrThrow()
+            val name = getArgument<String>("name")
+
+            player.displayName.value = name
+        }
+    }
 }
 
 class CustomEvent(val value: Int = Random.nextInt(0, 99), var int: Int = 0) : Event {
