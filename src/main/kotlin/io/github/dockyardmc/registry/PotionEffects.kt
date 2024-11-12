@@ -1,7 +1,11 @@
 package io.github.dockyardmc.registry
 
+import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.extentions.writeOptional
+import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.registry.registries.PotionEffectRegistry
+import io.netty.buffer.ByteBuf
 
 object PotionEffects {
     val SPEED = PotionEffectRegistry["minecraft:speed"]
@@ -47,10 +51,42 @@ object PotionEffects {
 
 data class AppliedPotionEffect(
     var effect: PotionEffect,
-    var duration: Int,
-    var level: Int = 1,
-    var showParticles: Boolean = false,
-    var showBlueBorder: Boolean = false,
-    var showIconOnHud: Boolean = false,
+    val settings: AppliedPotionEffectSettings,
     var startTime: Long? = null,
 )
+
+data class AppliedPotionEffectSettings(
+    val amplifier: Int,
+    val duration: Int,
+    val isAmbient: Boolean,
+    val showParticles: Boolean,
+    val showIcon: Boolean,
+    val hiddenEffect: AppliedPotionEffectSettings? = null
+) {
+    companion object {
+        fun read(buffer: ByteBuf): AppliedPotionEffectSettings {
+            val amplifier: Int = buffer.readVarInt()
+            val duration: Int = buffer.readVarInt()
+            val isAmbient: Boolean = buffer.readBoolean()
+            val showParticles: Boolean = buffer.readBoolean()
+            val showIcon: Boolean = buffer.readBoolean()
+            var hiddenEffect: AppliedPotionEffectSettings? = null
+
+            if(buffer.readBoolean()) {
+                hiddenEffect = read(buffer)
+            }
+            return AppliedPotionEffectSettings(amplifier, duration, isAmbient, showParticles, showIcon, hiddenEffect)
+        }
+    }
+
+    fun write(buffer: ByteBuf) {
+        buffer.writeVarInt(amplifier)
+        buffer.writeVarInt(duration)
+        buffer.writeBoolean(isAmbient)
+        buffer.writeBoolean(showIcon)
+        buffer.writeBoolean(showIcon)
+        buffer.writeOptional(hiddenEffect) {
+            write(it)
+        }
+    }
+}

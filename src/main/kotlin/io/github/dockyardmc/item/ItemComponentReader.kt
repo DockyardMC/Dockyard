@@ -1,8 +1,7 @@
 package io.github.dockyardmc.item
 
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.attributes.Attribute
-import io.github.dockyardmc.attributes.readAttribute
+import io.github.dockyardmc.attributes.readModifierList
 import io.github.dockyardmc.blocks.BlockPredicate
 import io.github.dockyardmc.blocks.readBlockPredicate
 import io.github.dockyardmc.blocks.readBlockSet
@@ -80,15 +79,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             return CanBreakItemComponent(predicates, showInTooltip)
         }
 
-        AttributeModifiersItemComponent::class -> {
-            val size = this.readVarInt()
-            val attributes = mutableListOf<Attribute>()
-            for (i in 0 until size) attributes.add(this.readAttribute())
-
-            val showInTooltip = this.readBoolean()
-            return AttributeModifiersItemComponent(attributes, showInTooltip)
-        }
-
+        AttributeModifiersItemComponent::class -> this.readModifierList()
         CustomModelDataItemComponent::class -> CustomModelDataItemComponent(this.readVarInt())
         HideAdditionalTooltipItemComponent::class -> HideAdditionalTooltipItemComponent()
         HideTooltipItemComponent::class -> HideTooltipItemComponent()
@@ -102,7 +93,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             this.readVarIntEnum<ConsumableAnimation>(),
             this.readOptionalOrDefault<Sound>(Sound(Sounds.ENTITY_GENERIC_EAT)),
             this.readBoolean(),
-            this.readConsumeEffect()
+            this.readConsumeEffects()
         )
 
         UseRemainderItemComponent::class -> UseRemainderItemComponent(this.readItemStack())
@@ -133,7 +124,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             val sound = Sound(this.readSoundEvent())
             val model = this.readOptionalOrDefault<String>("minecraft:item")
             val cameraOverlay = this.readOptionalOrDefault<String>("minecraft:pumpkin_blur")
-            val entityType = this.readEntityTypeList()
+            val entityType = this.readEntityTypes()
             val dispensable = this.readBoolean()
             val swappable = this.readBoolean()
             val damageOnHurt = this.readBoolean()
@@ -150,10 +141,10 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             )
         }
 
-        RepairableItemComponent::class -> RepairableItemComponent(this.readItemList())
+        RepairableItemComponent::class -> RepairableItemComponent(this.readRepairable())
         GliderItemComponent::class -> GliderItemComponent()
         TooltipStyleItemComponent::class -> TooltipStyleItemComponent(this.readString())
-        DeathProtectionItemComponent::class -> DeathProtectionItemComponent(readConsumeEffect())
+        DeathProtectionItemComponent::class -> DeathProtectionItemComponent(readConsumeEffects())
         StoredEnchantments::class -> StoredEnchantments(this.readStringList(), this.readBoolean())
         DyedColorItemComponent::class -> DyedColorItemComponent(
             CustomColor.fromRGBInt(this.readInt()),

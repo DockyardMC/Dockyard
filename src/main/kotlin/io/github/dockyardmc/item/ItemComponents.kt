@@ -2,6 +2,7 @@ package io.github.dockyardmc.item
 
 import cz.lukynka.BindableList
 import io.github.dockyardmc.attributes.Attribute
+import io.github.dockyardmc.attributes.Modifier
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockPredicate
 import io.github.dockyardmc.extentions.*
@@ -153,7 +154,7 @@ data class CanBreakItemComponent(
 
 //TODO Attributes
 data class AttributeModifiersItemComponent(
-    val attributes: Collection<Attribute>,
+    val attributes: Collection<Modifier>,
     val showInTooltip: Boolean,
 ): ItemComponent
 
@@ -525,7 +526,7 @@ class ApplyEffectsConsumeEffect(
 ): ConsumeEffect
 
 class RemoveEffectsConsumeEffect(
-    val effects: List<AppliedPotionEffect>,
+    val effects: List<PotionEffect>,
 ): ConsumeEffect
 
 class ClearAllEffectsConsumeEffect: ConsumeEffect

@@ -1,7 +1,12 @@
 package io.github.dockyardmc.registry.registries
 
+import cz.lukynka.prettylog.log
+import io.github.dockyardmc.extentions.readString
+import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.reversed
+import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.readComponent
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
@@ -34,16 +39,23 @@ object ItemRegistry : DataDrivenRegistry {
         }
 
         //TODO Figure default components out for future release, keeping this not implement for the time being so this update can move on
-//        list.forEach {
-//            val components = mutableListOf<ItemComponent>()
-//            it.encodedComponents.forEach { component ->
-//                val id = component.key
-//                val buffer = Unpooled.copiedBuffer(component.value, Charset.defaultCharset())
-//                val itemComponent = buffer.readComponent(id)
-//                components.add(itemComponent)
-//                log(itemComponent.toString())
-//            }
-//        }
+        val ass = ClassLoader.getSystemResource("registry/components.bin").openStream()
+        val byteArray = ass.readAllBytes()
+        ass.close()
+        val buffer = byteArray.toByteBuf()
+        val size = buffer.readVarInt()
+        for (i in 0 until size) {
+            val identifier = buffer.readString()
+            log("Reading component for $identifier")
+            val mapSize = buffer.readVarInt()
+            for (i1 in 0 until mapSize) {
+                val componentId = buffer.readVarInt()
+                log(" - component $componentId")
+                val length = buffer.readVarInt()
+                val component = buffer.readBytes(length)
+                val readComponent = component.readComponent(componentId)
+            }
+        }
     }
 
     override fun get(identifier: String): Item {
@@ -74,7 +86,6 @@ data class Item(
     val isStackable: Boolean,
     val isDamageable: Boolean,
     val isBlock: Boolean,
-    val encodedComponents: MutableMap<Int, String>,
 ) : RegistryEntry {
 
     override fun getNbt(): NBTCompound? = null

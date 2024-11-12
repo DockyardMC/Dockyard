@@ -1,6 +1,5 @@
 package io.github.dockyardmc.item
 
-import io.github.dockyardmc.attributes.writeAttribute
 import io.github.dockyardmc.blocks.BlockSet
 import io.github.dockyardmc.blocks.writeBlockPredicate
 import io.github.dockyardmc.blocks.writeBlockSet
@@ -42,9 +41,9 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         }
 
         is AttributeModifiersItemComponent -> {
-            this.writeVarInt(component.attributes.size)
-            component.attributes.forEach { this.writeAttribute(it) }
-            this.writeBoolean(component.showInTooltip)
+//            this.writeVarInt(component.attributes.size)
+//            component.attributes.forEach { this.writeAttribute(it) }
+//            this.writeBoolean(component.showInTooltip)
         }
 
         is CustomModelDataItemComponent -> this.writeVarInt(component.customModelData)

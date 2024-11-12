@@ -20,6 +20,7 @@ import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.AppliedPotionEffect
+import io.github.dockyardmc.registry.AppliedPotionEffectSettings
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.PotionEffect
@@ -152,11 +153,11 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             val packet = ClientboundEntityEffectPacket(
                 this,
                 it.value.effect,
-                it.value.level,
-                it.value.duration,
-                it.value.showParticles,
-                it.value.showBlueBorder,
-                it.value.showIconOnHud
+                it.value.settings.amplifier,
+                it.value.settings.duration,
+                it.value.settings.showParticles,
+                it.value.settings.isAmbient,
+                it.value.settings.showIcon
             )
 
             viewers.sendPacket(packet)
@@ -186,7 +187,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     open fun tick(ticks: Int) {
         potionEffects.values.forEach {
-            if (System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.duration)) {
+            if (System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.settings.duration)) {
                 potionEffects.remove(it.key)
             }
         }
@@ -385,12 +386,12 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     fun addPotionEffect(
         effect: PotionEffect,
         duration: Int,
-        level: Int = 1,
+        amplifier: Int = 1,
         showParticles: Boolean = false,
         showBlueBorder: Boolean = false,
         showIconOnHud: Boolean = false,
     ) {
-        val potionEffect = AppliedPotionEffect(effect, duration, level, showParticles, showBlueBorder, showIconOnHud)
+        val potionEffect = AppliedPotionEffect(effect, AppliedPotionEffectSettings(duration, amplifier, showBlueBorder, showParticles, showIconOnHud))
         this.potionEffects[effect] = potionEffect
     }
 
@@ -416,11 +417,11 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             val packet = ClientboundEntityEffectPacket(
                 this,
                 it.effect,
-                it.level,
-                it.duration,
-                it.showParticles,
-                it.showBlueBorder,
-                it.showIconOnHud
+                it.settings.amplifier,
+                it.settings.duration,
+                it.settings.showParticles,
+                it.settings.isAmbient,
+                it.settings.showIcon
             )
             player.sendPacket(packet)
         }
