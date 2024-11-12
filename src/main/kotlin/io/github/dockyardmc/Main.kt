@@ -101,6 +101,14 @@ fun main(args: Array<String>) {
     subPool2.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] subpool2 -> custom event! ${it.int++}") }
     poolAlt.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] openpool -> custom event! ${it.int++}") }
 
+    Events.on<CommandExecuteEvent> {
+        if (!it.raw.startsWith("eventtest register_new")) return@on
+
+        val newPool = EventPool(name = "new_pool")
+        newPool.on<CommandExecuteEvent> { evt -> DockyardServer.broadcastMessage("Did command ${evt.raw}!!!") }
+        DockyardServer.broadcastMessage("registered new")
+    }
+
     Commands.add("eventtest") {
         addArgument("area", StringArgument()) { listOf("open", "0", "1", "2", "unregister", "fork") }
         execute {
@@ -122,6 +130,8 @@ fun main(args: Array<String>) {
                 }
                 "unregister_listeners" -> {
                     poolAlt.unregisterAllListeners()
+                }
+                "register_new" -> {
                 }
                 else -> return@execute it.sendMessage(customPool.debugTree())
             }
