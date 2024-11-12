@@ -4,6 +4,7 @@ import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.inventory.InventoryClickHandler
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
+import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.PlayerNetworkManager
@@ -154,8 +155,9 @@ class ServerboundClickContainerPacket(
                     }
 
                     val clickedEquipmentSlot = player.inventory.getEquipmentSlot(properSlot, player.heldSlotIndex.value)
-                    if ((clickedEquipmentSlot != null && clickedEquipmentSlot != EquipmentSlot.MAIN_HAND) && player.equipment[clickedEquipmentSlot] != null && !player.equipment[clickedEquipmentSlot]!!.isEmpty()) {
+                    if ((clickedEquipmentSlot != null && clickedEquipmentSlot != EquipmentSlot.MAIN_HAND) && (player.equipment[clickedEquipmentSlot] != null && player.equipment[clickedEquipmentSlot] != empty) && !player.equipment[clickedEquipmentSlot]!!.isEmpty()) {
                         unequip(player, clickedEquipmentSlot, equipmentComponent)
+                        return
                     }
 
                     var suitableSlotIndex: Int? = null
@@ -166,7 +168,7 @@ class ServerboundClickContainerPacket(
                         //find slot in the rest of the inventory
                         for (i in 9 until 35) {
                             val item = player.inventory[i]
-                            if (item == empty || item.isSameAs(clickedSlotItem) && item.amount != item.maxStackSize.value) {
+                            if (item == empty || (item.isSameAs(clickedSlotItem) && item.amount != item.maxStackSize.value)) {
                                 suitableSlotIndex = i
                                 break
                             }
@@ -178,7 +180,7 @@ class ServerboundClickContainerPacket(
                         //find slot in the hotbar
                         for (i in 0 until 8) {
                             val item = player.inventory[i]
-                            if (item == empty || item.isSameAs(clickedSlotItem) && item.amount != item.maxStackSize.value) {
+                            if (item == empty || (item.isSameAs(clickedSlotItem) && item.amount != item.maxStackSize.value)) {
                                 suitableSlotIndex = i
                                 break
                             }
@@ -419,7 +421,7 @@ class ServerboundClickContainerPacket(
                     return true
                 }
             }
-            if (player.inventory.cursorItem.value.isEmpty() && player.equipment[equipmentSlot!!] != null) {
+            if (player.inventory.cursorItem.value.isEmpty() && player.equipment.values.getOrDefault(equipmentSlot!!, ItemStack.AIR) != ItemStack.AIR) {
                 player.inventory.cursorItem.value = player.equipment[equipmentSlot]!!
                 unequip(player, equipmentSlot, null)
                 return true
@@ -443,7 +445,9 @@ class ServerboundClickContainerPacket(
     }
 
     private fun unequip(player: Player, equipmentSlot: EquipmentSlot, component: EquippableItemComponent?) {
+        player.give(player.equipment[equipmentSlot]!!)
         player.equipment[equipmentSlot] = ItemStack.AIR
+        player.inventory.sendFullInventoryUpdate()
 
         val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
         player.playSound(sound, pitch = randomFloat(0.6f, 0.8f))

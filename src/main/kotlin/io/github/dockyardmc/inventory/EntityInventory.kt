@@ -35,7 +35,7 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
 
     open fun give(item: ItemStack): Boolean {
         for (i in 0 until size) {
-            val slot = slots[i] ?: ItemStack.AIR
+            val slot = get(i)
             if (slot.isEmpty()) {
                 slots[i] = item
                 return true

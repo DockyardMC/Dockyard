@@ -45,7 +45,8 @@ object InventoryClickHandler {
                 return result
             } else {
                 //add 1 to clicked
-                result.cursor = cursor.withAmount { it - 1 }
+                result.cursor = cursor.withAmount(cursor.amount - 1)
+                if(cursor.amount - 1 == 0) result.cursor = ItemStack.AIR
                 result.clicked = clicked.withAmount(amount)
             }
         } else {
