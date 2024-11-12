@@ -2,12 +2,13 @@ package io.github.dockyardmc.events.system
 
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.debug
 import java.lang.IllegalStateException
 import java.util.UUID
 import kotlin.reflect.KClass
 
 abstract class EventSystem : Disposable {
-    val eventMap = mutableMapOf<KClass<out Event>, MutableList<EventListener<Event>>>()
+    val eventMap = mutableMapOf<KClass<out Event>, HandlerList>()
     var filter = EventFilter.empty()
 
     val children = mutableSetOf<EventSystem>()
@@ -23,16 +24,18 @@ abstract class EventSystem : Disposable {
      */
     inline fun <reified T : Event> on(noinline function: EventListenerFunction<T>): EventListener<Event> {
         val eventType = T::class
-        val eventList = eventMap.getOrPut(eventType) { mutableListOf() }
         val eventListener = EventListener(T::class, function as (Event) -> Unit)
-        eventList.add(eventListener)
+        synchronized(eventMap) {
+            val eventList = eventMap.getOrPut(eventType) { HandlerList() }
+            eventList.add(eventListener)
+        }
         return eventListener
     }
 
     /**
      * @return A flat list of all EventListeners registered to this EventSystem
      */
-    fun eventList() = eventMap.flatMap { it.value }
+    fun eventList() = eventMap.flatMap { it.value.list }
 
     /**
      * Dispatches a new event into this EventSystem, this will call
@@ -44,12 +47,16 @@ abstract class EventSystem : Disposable {
      * filtered
      */
     open fun dispatch(event: Event): Boolean {
-        if (!filter.check(event)) return false
+        if (!event.context.isGlobalEvent && !filter.check(event)) return false
 
         val eventType = event::class
-        eventMap[eventType]?.let { eventList ->
-            val eventListCopy = eventList.toList()
-            eventListCopy.forEach { executableEvent ->
+
+        // we create a copy of the children array before running any handlers to
+        //  ensure that if any children are added in the following listeners,
+        //  we don't call the newly registered events
+        val children = children.toTypedArray()
+        eventMap[eventType]?.let { handlers ->
+            handlers.listeners.forEach { executableEvent ->
                 executableEvent.function.invoke(event)
             }
         }
@@ -61,6 +68,7 @@ abstract class EventSystem : Disposable {
      * Unregisters a listener
      * @param event The EventListener object (returned from `EventSystem.on { ... }`)
      */
+    @Synchronized
     open fun unregister(event: EventListener<Event>) {
         val events = eventMap[event.type] ?: return
         events.remove(event)
@@ -73,6 +81,7 @@ abstract class EventSystem : Disposable {
      * **This does not remove children, use `clearChildren()` to remove all children**
      * @see clearChildren
      */
+    @Synchronized
     open fun unregisterAllListeners() {
         eventMap.clear()
     }
@@ -87,14 +96,17 @@ abstract class EventSystem : Disposable {
         if (child.parent != null && child.parent != this)
             throw IllegalStateException("$child is already registered to parent ${child.parent}.")
 
-        children += child
-        child.parent = this
+        synchronized(children) {
+            children += child
+            child.parent = this
+        }
     }
 
     /**
      * Removes a child from this object
      * @param child The child EventSystem to remove
      */
+    @Synchronized
     open fun removeChild(child: EventSystem) {
         children -= child
         child.parent = null
@@ -103,6 +115,7 @@ abstract class EventSystem : Disposable {
     /**
      * Removes all child EventSystems from this object
      */
+    @Synchronized
     open fun clearChildren() {
         this.children.forEach { it.parent = null }
         this.children.clear()

@@ -18,12 +18,11 @@ fun interface EventFilter {
          * An empty EventFilter, always allows events through
          */
         fun empty() = EventFilter { true }
-        fun isGlobalOr(filter: EventFilter) = EventFilter { it.context.isGlobalEvent || filter.check(it) }
 
-        fun containsPlayer(obj: Player) = isGlobalOr { it.context.players.contains(obj) }
-        fun containsEntity(obj: Entity) = isGlobalOr { it.context.entities.contains(obj) }
-        fun containsWorld(obj: World) = isGlobalOr { it.context.worlds.contains(obj) }
-        fun containsObject(obj: Any) = isGlobalOr { it.context.other.contains(obj) }
+        fun containsPlayer(obj: Player) = EventFilter { it.context.players.contains(obj) }
+        fun containsEntity(obj: Entity) = EventFilter { it.context.entities.contains(obj) }
+        fun containsWorld(obj: World) = EventFilter { it.context.worlds.contains(obj) }
+        fun containsObject(obj: Any) = EventFilter { it.context.other.contains(obj) }
 
         fun all(vararg filters: EventFilter) = EventFilter { evt -> filters.all { it.check(evt) } }
         fun any(vararg filters: EventFilter) = EventFilter { evt -> filters.any { it.check(evt) } }

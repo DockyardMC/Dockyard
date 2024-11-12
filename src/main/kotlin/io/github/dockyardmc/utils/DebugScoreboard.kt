@@ -61,7 +61,7 @@ object DebugScoreboard {
 
             var totalEvents: Int = 0
             Events.eventMap.values.forEach {
-                totalEvents += it.size
+                totalEvents += it.list.size
             }
 
             sidebar.setGlobalLine(14, " Ms per tick: ${msptColor}${mspt}ms")
