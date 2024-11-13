@@ -1,10 +1,10 @@
 package io.github.dockyardmc.registry.registries
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.extentions.toByteBuf
+import io.github.dockyardmc.item.ItemComponent
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.readComponent
 import io.github.dockyardmc.registry.DataDrivenRegistry
@@ -12,6 +12,7 @@ import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
@@ -33,28 +34,34 @@ object ItemRegistry : DataDrivenRegistry {
         val protocolIdCounter = AtomicInteger()
 
         list.forEach {
-
             items[it.identifier] = it
             protocolIdToItem[protocolIdCounter.getAndIncrement()] = it
         }
 
         //TODO Figure default components out for future release, keeping this not implement for the time being so this update can move on
-        val ass = ClassLoader.getSystemResource("registry/components.bin").openStream()
-        val byteArray = ass.readAllBytes()
-        ass.close()
+
+        val componentsBinary = ClassLoader.getSystemResource("registry/components.bin").openStream()
+        val byteArray = componentsBinary.readAllBytes()
+        componentsBinary.close()
+
         val buffer = byteArray.toByteBuf()
         val size = buffer.readVarInt()
+
         for (i in 0 until size) {
-            val identifier = buffer.readString()
-            log("Reading component for $identifier")
+            val itemIdentifier = buffer.readString()
             val mapSize = buffer.readVarInt()
+
+            val defaultComponents = mutableListOf<ItemComponent>()
+
             for (i1 in 0 until mapSize) {
                 val componentId = buffer.readVarInt()
-                log(" - component $componentId")
                 val length = buffer.readVarInt()
                 val component = buffer.readBytes(length)
                 val readComponent = component.readComponent(componentId)
+                defaultComponents.add(readComponent)
             }
+
+            ItemRegistry[itemIdentifier].defaultComponents = defaultComponents
         }
     }
 
@@ -86,6 +93,8 @@ data class Item(
     val isStackable: Boolean,
     val isDamageable: Boolean,
     val isBlock: Boolean,
+    @Transient
+    var defaultComponents: List<ItemComponent>? = null
 ) : RegistryEntry {
 
     override fun getNbt(): NBTCompound? = null

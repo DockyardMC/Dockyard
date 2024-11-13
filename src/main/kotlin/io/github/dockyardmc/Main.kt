@@ -49,6 +49,9 @@ fun main(args: Array<String>) {
         }
     }
 
+    val list = listOf<String>()
+    list.size
+
     Commands.add("equip") {
         addArgument("slot", EnumArgument(EquipmentSlot::class))
         execute {

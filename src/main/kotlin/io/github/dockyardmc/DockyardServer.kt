@@ -36,6 +36,8 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         ServerPacketRegistry.load()
         ClientPacketRegistry.load()
 
+        SoundRegistry.initialize(RegistryManager.getStreamFromPath("registry/sound_registry.json.gz"))
+
         RegistryManager.register(BlockRegistry)
         RegistryManager.register(EntityTypeRegistry)
         RegistryManager.register(DimensionTypeRegistry)

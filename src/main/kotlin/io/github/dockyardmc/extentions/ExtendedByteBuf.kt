@@ -342,7 +342,6 @@ fun ByteBuf.readConsumeEffects(): List<ConsumeEffect> {
     val effects = mutableListOf<ConsumeEffect>()
     for (i in 0 until size) {
         val type = this.readVarInt()
-        log("Reading consumable effects, type: $type", LogType.TRACE)
         val effect = when (type) {
             0 -> ApplyEffectsConsumeEffect(this.readAppliedPotionEffectsList(), this.readFloat())
             1 -> readRemoveEffectsConsumeEffect()
@@ -350,7 +349,7 @@ fun ByteBuf.readConsumeEffects(): List<ConsumeEffect> {
 //            3 -> TeleportRandomlyConsumeEffect(this.readOptionalOrDefault<Float>(16f))
             3 -> TeleportRandomlyConsumeEffect(this.readFloat())
             4 -> PlaySoundConsumeEffect(Sound(this.readSoundEvent()))
-            else -> throw IllegalStateException("Invalid consume effect")
+            else -> throw IllegalStateException("Invalid consume effect $type")
         }
     }
     return effects
@@ -358,7 +357,6 @@ fun ByteBuf.readConsumeEffects(): List<ConsumeEffect> {
 
 fun ByteBuf.readRemoveEffectsConsumeEffect(): RemoveEffectsConsumeEffect {
     val type = this.readVarInt() - 1
-    log("TYPEEEEEE $type")
     if (type == -1) {
         val identifier = this.readString()
         return RemoveEffectsConsumeEffect(listOf())

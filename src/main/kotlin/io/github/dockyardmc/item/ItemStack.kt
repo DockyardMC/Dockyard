@@ -31,6 +31,10 @@ class ItemStack(var material: Item, var amount: Int = 1) {
         unbreakable.valueChanged { components.addOrUpdate(UnbreakableItemComponent(true)) }
         hasGlint.valueChanged { components.addOrUpdate(EnchantmentGlintOverrideItemComponent(it.newValue)) }
         if(amount <= 0) amount = 1
+
+        material.defaultComponents?.forEach {
+            components.add(it)
+        }
     }
 
     companion object {

@@ -1,6 +1,5 @@
 package io.github.dockyardmc.sounds
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.*
@@ -10,8 +9,7 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityPlaySoundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlaySoundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
-import io.github.dockyardmc.registry.registries.EntityType
-import io.github.dockyardmc.registry.registries.EntityTypeRegistry
+import io.github.dockyardmc.registry.registries.SoundRegistry
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import kotlin.random.Random
@@ -101,7 +99,7 @@ fun ByteBuf.writeSoundEvent(sound: String) {
 
 fun ByteBuf.readSoundEvent(): String {
     val type = this.readVarInt() - 1
-    if(type != -1) return "minecraft:item.firecharge.use"
+    if(type != -1) return SoundRegistry.getByProtocolId(type)
 
     val identifier = this.readString()
     val hasFixedRange = this.readBoolean()

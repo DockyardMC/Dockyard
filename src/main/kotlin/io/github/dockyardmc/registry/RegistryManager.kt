@@ -1,9 +1,8 @@
 package io.github.dockyardmc.registry
 
-import io.github.dockyardmc.registry.registries.BiomeRegistry
-import io.github.dockyardmc.registry.registries.BlockRegistry
-import io.github.dockyardmc.registry.registries.EntityTypeRegistry
-import io.github.dockyardmc.registry.registries.ItemRegistry
+import cz.lukynka.prettylog.log
+import io.github.dockyardmc.registry.registries.*
+import java.io.InputStream
 import kotlin.reflect.KClass
 
 object RegistryManager {
@@ -12,7 +11,8 @@ object RegistryManager {
         EntityTypeRegistry::class to "registry/entity_type_registry.json.gz",
         BlockRegistry::class to "registry/block_registry.json.gz",
         BiomeRegistry::class to "registry/biome_registry.json.gz",
-        ItemRegistry::class to "registry/item_registry.json.gz"
+        ItemRegistry::class to "registry/item_registry.json.gz",
+        SoundRegistry::class to "registry/sound_registry.json.gz"
     )
 
     val dynamicRegistries: MutableList<Registry> = mutableListOf()
@@ -27,5 +27,15 @@ object RegistryManager {
         }
 
         dynamicRegistries.add(registry)
+    }
+
+    fun getStreamForClass(registry: KClass<*>): InputStream {
+        log(dataDrivenRegisterSources.toString())
+        return ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]!!).openStream()
+    }
+
+    fun getStreamFromPath(path: String): InputStream {
+        log(dataDrivenRegisterSources.toString())
+        return ClassLoader.getSystemResource(path).openStream()
     }
 }
