@@ -1,27 +1,16 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.EnumArgument
-import io.github.dockyardmc.commands.IntArgument
-import io.github.dockyardmc.commands.ItemArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
-import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.ui.drawableItemStack
-import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
-import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.WorldManager
 
@@ -29,11 +18,6 @@ import io.github.dockyardmc.world.WorldManager
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
 
 fun main(args: Array<String>) {
-
-    if (args.contains("validate-packets")) {
-        VerifyPacketIds()
-        return
-    }
 
     if (args.contains("event-documentation")) {
         EventsDocumentationGenerator()
@@ -54,18 +38,6 @@ fun main(args: Array<String>) {
         }
     }
 
-    val list = listOf<String>()
-    list.size
-
-    Commands.add("equip") {
-        addArgument("slot", EnumArgument(EquipmentSlot::class))
-        execute {
-            val player = it.getPlayerOrThrow()
-            val slot = getEnumArgument<EquipmentSlot>("slot")
-            player.equipment[slot] = player.getHeldItem(PlayerHand.MAIN_HAND)
-        }
-    }
-
     Events.on<PlayerJoinEvent> {
         val player = it.player
 
@@ -82,42 +54,18 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
-    Commands.add("/slot") {
-        addSubcommand("set") {
-            addArgument("slot", IntArgument())
-            addArgument("material", ItemArgument())
-            execute {
-                val player = it.getPlayerOrThrow()
-                val slot = getArgument<Int>("slot")
-                val material = getArgument<Item>("material")
-
-                player.inventory[slot] = material.toItemStack()
-            }
-        }
+    Events.on<PlayerRightClickWithItemEvent> {
+        it.player.setCooldown(it.item.material, 200)
     }
 
-    Commands.add("/minigame") {
-        addSubcommand("cookie") {
-            execute {
-                val player = it.getPlayerOrThrow()
-                player.openInventory(ExampleCookieClickerScreen(player))
-            }
-        }
-
-        addSubcommand("mines") {
-            execute {
-                val player = it.getPlayerOrThrow()
-                player.openInventory(ExampleMinesweeperScreen(player, 10))
-            }
-        }
+    Events.on<ItemGroupCooldownStartEvent> {
+        it.player.sendMessage("<lime>${it.cooldown.group} started for ${it.cooldown.durationTicks}")
     }
 
-    Commands.add("/test") {
-        execute {
-            val player = it.getPlayerOrThrow()
-            player.openInventory(TestScreen(player))
-        }
+    Events.on<ItemGroupCooldownEndEvent> {
+        it.player.sendMessage("<red>${it.cooldown.group} ended (lasted ${it.cooldown.durationTicks})")
     }
+
 
     Commands.add("/reset") {
         execute {
@@ -141,7 +89,7 @@ fun main(args: Array<String>) {
     server.start()
 }
 
-class TestScreen(player: Player): DrawableContainerScreen(player) {
+class TestScreen(player: Player) : DrawableContainerScreen(player) {
 
     init {
         for (i in 0 until 9) {

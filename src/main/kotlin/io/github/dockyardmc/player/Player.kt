@@ -2,12 +2,10 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import cz.lukynka.BindableMap
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.entities.*
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerDamageEvent
-import io.github.dockyardmc.events.PlayerDeathEvent
-import io.github.dockyardmc.events.PlayerRespawnEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.inventory.PlayerInventory
@@ -25,14 +23,13 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.resourcepack.Resourcepack
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableContainerScreen
-import io.github.dockyardmc.utils.ChunkUtils
-import io.github.dockyardmc.utils.percentOf
-import io.github.dockyardmc.utils.randomFloat
+import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.ConcurrentChunkEngine
@@ -100,6 +97,7 @@ class Player(
     val chunkEngine = ConcurrentChunkEngine(this)
     var visibleEntities: MutableList<Entity> = mutableListOf()
 
+    val cooldowns: BindableMap<String, ItemGroupCooldown> = bindablePool.provideBindableMap()
 
     var lastInteractionTime: Long = -1L
 
@@ -207,6 +205,13 @@ class Player(
 
         add.forEach { it.addViewer(this) }
         remove.forEach { it.removeViewer(this, false) }
+
+        cooldowns.values.forEach { (group, cooldown) ->
+            if (System.currentTimeMillis() >= cooldown.startTime + ticksToMs(cooldown.durationTicks)) {
+                cooldowns.remove(group)
+                Events.dispatch(ItemGroupCooldownEndEvent(this, cooldown, getPlayerEventContext(this)))
+            }
+        }
 
         if(itemInUse != null) {
             val item = itemInUse!!.item
@@ -474,7 +479,6 @@ class Player(
         sendPacket(ClientboundOpenContainerPacket(InventoryType.valueOf("GENERIC_9X${inventory.rows}"), inventory.name))
         inventory.contents.forEach {
             sendPacket(ClientboundSetContainerSlotPacket(it.key, it.value))
-//            sendPacket(ClientboundSetContainerContentPacket(this, inventory.contents.values.toList()))
         }
         if(inventory is DrawableContainerScreen) {
             inventory.slots.triggerUpdate()
@@ -496,4 +500,32 @@ class Player(
             inventory[heldSlotIndex.value] = held
         }
     }
+
+    fun setCooldown(item: Item, cooldownTicks: Int) {
+        setCooldown(item.identifier, cooldownTicks)
+    }
+
+    fun setCooldown(group: String, cooldownTicks: Int) {
+        val cooldown = ItemGroupCooldown(group, System.currentTimeMillis(), cooldownTicks)
+        val event = ItemGroupCooldownStartEvent(this, cooldown, getPlayerEventContext(this))
+        Events.dispatch(event)
+        if(event.cancelled) return
+
+        cooldowns[group] = event.cooldown
+        sendPacket(SetItemCooldownPacket(event.cooldown.group, event.cooldown.durationTicks))
+    }
+
+    fun isOnCooldown(group: String): Boolean {
+        return cooldowns[group] != null
+    }
+
+    fun isOnCooldown(item: Item): Boolean {
+        return isOnCooldown(item.identifier)
+    }
+
+    data class ItemGroupCooldown(
+        var group: String,
+        var startTime: Long,
+        var durationTicks: Int
+    )
 }

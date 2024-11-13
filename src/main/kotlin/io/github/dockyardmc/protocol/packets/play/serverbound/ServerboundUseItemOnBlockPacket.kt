@@ -20,7 +20,6 @@ import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.isDoubleInteract
 import io.github.dockyardmc.registry.registries.BlockRegistry
-import io.github.dockyardmc.runnables.runLaterAsync
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext

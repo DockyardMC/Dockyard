@@ -6,6 +6,7 @@ import io.github.dockyardmc.extentions.writeUUID
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
+import io.github.dockyardmc.location.writeRotation
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.utils.vectors.Vector3
@@ -28,7 +29,8 @@ class ClientboundSpawnEntityPacket(
         data.writeVarInt(entityId)
         data.writeUUID(entityUUID)
         data.writeVarInt(entityType)
-        data.writeLocation(location, true)
+        data.writeLocation(location)
+        data.writeRotation(location, true)
         data.writeByte((headYaw  * 256 / 360).toInt())
         data.writeVarInt(entityData)
         data.writeVelocity(velocity)

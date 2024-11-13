@@ -29,12 +29,14 @@ class EventsDocumentationGenerator {
                 appendLine("Event is cancellable: `${annotation.cancellable}`")
                 appendLine("")
                 appendLine("Fields:")
-                fields.forEach { field ->
+                fields.forEach fieldLoop@{ field ->
                     val fullTypeName = field.javaField!!.genericType.toString()
                         .replace("java.lang.", "")
                         .replace(Regex("(\\w+\\.)+(\\w+)"), "$2") // Keep only the last part of any package name
                         .replace("class ", "")
                         .replace("interface ", "")
+
+                    if(fullTypeName.contains("Event\$Context")) return@fieldLoop
 
                     val nullableIndicator = if (field.returnType.isMarkedNullable) "?" else ""
                     appendLine("- ${field.name}: `${fullTypeName}$nullableIndicator`")
