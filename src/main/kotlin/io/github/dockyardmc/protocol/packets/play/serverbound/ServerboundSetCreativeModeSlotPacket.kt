@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
+import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.readItemStack
 import io.github.dockyardmc.player.GameMode
@@ -31,6 +32,14 @@ class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: ItemS
 
         val newSlot = PlayerInventoryUtils.convertPlayerInventorySlot(slot, PlayerInventoryUtils.OFFSET)
         if(player.inventory[newSlot] == clickedItem) return
+
+        val equipmentSlot = player.inventory.getEquipmentSlot(newSlot, player.heldSlotIndex.value)
+        if(equipmentSlot != null) {
+            player.equipment[equipmentSlot] = clickedItem
+            player.inventory.cursorItem.value = ItemStack.AIR
+            return
+        }
+
 
         player.inventory[newSlot] = clickedItem
     }
