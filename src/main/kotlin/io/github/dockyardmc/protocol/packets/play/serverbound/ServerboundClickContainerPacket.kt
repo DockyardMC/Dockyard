@@ -39,7 +39,7 @@ class ServerboundClickContainerPacket(
         val drawableClickType = getDrawableClick(mode)
 
         if (currentInventory != null && currentInventory is DrawableContainerScreen && properSlot >= 0) currentInventory.click(
-            properSlot,
+            slot,
             player,
             drawableClickType
         )

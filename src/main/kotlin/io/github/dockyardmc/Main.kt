@@ -12,10 +12,16 @@ import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.player.GameMode
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.registries.Item
+import io.github.dockyardmc.ui.DrawableContainerScreen
+import io.github.dockyardmc.ui.drawableItemStack
+import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
+import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.WorldManager
 
@@ -90,6 +96,29 @@ fun main(args: Array<String>) {
         }
     }
 
+    Commands.add("/minigame") {
+        addSubcommand("cookie") {
+            execute {
+                val player = it.getPlayerOrThrow()
+                player.openInventory(ExampleCookieClickerScreen(player))
+            }
+        }
+
+        addSubcommand("mines") {
+            execute {
+                val player = it.getPlayerOrThrow()
+                player.openInventory(ExampleMinesweeperScreen(player, 10))
+            }
+        }
+    }
+
+    Commands.add("/test") {
+        execute {
+            val player = it.getPlayerOrThrow()
+            player.openInventory(TestScreen(player))
+        }
+    }
+
     Commands.add("/reset") {
         execute {
             val platformSize = 30
@@ -110,4 +139,15 @@ fun main(args: Array<String>) {
     }
 
     server.start()
+}
+
+class TestScreen(player: Player): DrawableContainerScreen(player) {
+
+    init {
+        for (i in 0 until 9) {
+            slots[i, 0] = drawableItemStack {
+                withItem(Items.BLACK_STAINED_GLASS, i)
+            }
+        }
+    }
 }

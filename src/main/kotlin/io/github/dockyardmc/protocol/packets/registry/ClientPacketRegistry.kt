@@ -61,7 +61,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addPlay(ClientboundCloseInventoryPacket::class)
         addPlay(ClientboundSetContainerContentPacket::class)
         skipPlay("Container property")
-        addPlay(ClientboundSetInventorySlotPacket::class)
+        addPlay(ClientboundSetContainerSlotPacket::class)
         skipPlay("Cookie request")
         skipPlay("Item cooldown")
         skipPlay("Chat suggestion")

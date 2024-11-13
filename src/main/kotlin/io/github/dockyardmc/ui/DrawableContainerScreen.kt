@@ -6,6 +6,7 @@ import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetContainerSlotPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.vectors.Vector2
@@ -25,14 +26,14 @@ abstract class DrawableContainerScreen(val player: Player): ContainerInventory, 
         slots.itemSet {
             val slot = getSlotIndexFromVector2(it.first, it.second)
             contents[slot] = it.value.itemStack
-            player.sendPacket(ClientboundSetInventorySlotPacket(slot, it.value.itemStack))
+            player.sendPacket(ClientboundSetContainerSlotPacket(slot, it.value.itemStack))
         }
 
         slots.itemRemoved {
             val slot = getSlotIndexFromVector2(it.first, it.second)
 
             contents[slot] = ItemStack.AIR
-            player.sendPacket(ClientboundSetInventorySlotPacket(slot, ItemStack.AIR))
+            player.sendPacket(ClientboundSetContainerSlotPacket(slot, ItemStack.AIR))
         }
     }
 
