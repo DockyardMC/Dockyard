@@ -187,6 +187,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     open fun tick(ticks: Int) {
         potionEffects.values.forEach {
+            if(it.value.settings.duration == -1) return@forEach
             if (System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.settings.duration)) {
                 potionEffects.remove(it.key)
             }
@@ -391,7 +392,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         showBlueBorder: Boolean = false,
         showIconOnHud: Boolean = false,
     ) {
-        val potionEffect = AppliedPotionEffect(effect, AppliedPotionEffectSettings(duration, amplifier, showBlueBorder, showParticles, showIconOnHud))
+        val potionEffect = AppliedPotionEffect(effect, AppliedPotionEffectSettings(amplifier, duration, showBlueBorder, showParticles, showIconOnHud))
         this.potionEffects[effect] = potionEffect
     }
 

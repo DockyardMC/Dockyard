@@ -98,13 +98,15 @@ fun ByteBuf.writeSoundEvent(sound: String) {
 }
 
 fun ByteBuf.readSoundEvent(): String {
-    val type = this.readVarInt() - 1
-    if(type != -1) return SoundRegistry.getByProtocolId(type)
-
-    val identifier = this.readString()
-    val hasFixedRange = this.readBoolean()
-    if(hasFixedRange) {
-        val fixedRange = this.readFloat()
+    val type = this.readVarInt()
+    if(type == 0) {
+        val identifier = this.readString()
+        val hasFixedRange = this.readBoolean()
+        if(hasFixedRange) {
+            val fixedRange = this.readFloat()
+        }
+        return identifier
+    } else {
+        return SoundRegistry.getByProtocolId(type - 1)
     }
-    return identifier
 }

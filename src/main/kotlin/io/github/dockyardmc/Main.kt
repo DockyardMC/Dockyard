@@ -2,24 +2,22 @@ package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.EnumArgument
+import io.github.dockyardmc.commands.IntArgument
+import io.github.dockyardmc.commands.ItemArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
-import io.github.dockyardmc.entities.EntityManager.spawnEntity
-import io.github.dockyardmc.entities.ItemDropEntity
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.item.EquipmentSlot
-import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerHand
-import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
-import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.world.WorldManager
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -70,15 +68,13 @@ fun main(args: Array<String>) {
 
         DebugScoreboard.sidebar.viewers.add(player)
 
-        player.addPotionEffect(PotionEffects.NIGHT_VISION, 99999, 0, false)
-        player.addPotionEffect(PotionEffects.SPEED, 99999, 3, false)
+        player.addPotionEffect(PotionEffects.NIGHT_VISION, -1, 0, false)
     }
 
     Events.on<PlayerLeaveEvent> {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
-    val altWorld = WorldManager.create("altworld", FlatWorldGenerator(Biomes.BASALT_DELTAS), DimensionTypes.NETHER)
 
     Commands.add("/slot") {
         addSubcommand("set") {
@@ -109,87 +105,6 @@ fun main(args: Array<String>) {
                         }
                     }
                 }
-            }
-        }
-    }
-
-    val poolMain = EventPool.withFilter("mainworldpool", EventFilter.containsWorld(WorldManager.mainWorld))
-    val poolAlt = EventPool.withFilter("altworldpool", EventFilter.containsWorld(altWorld))
-
-    poolMain.on<PlayerBlockBreakEvent> { it.cancelled = true }
-    poolAlt.on<PlayerBlockBreakEvent> { DockyardServer.broadcastMessage("Player blocked in alt world.") }
-
-    val customPool = EventPool(parent = null, name = "custompool")
-    customPool.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] pool -> custom event! ${it.int++}") }
-
-    val subPool = customPool.subPool("subpool-1")
-    subPool.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] subpool1 -> custom event! ${it.int++}") }
-
-    val subPool2 = subPool.subPool("subpool-2")
-    subPool2.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] subpool2 -> custom event! ${it.int++}") }
-    poolAlt.on<CustomEvent> { DockyardServer.broadcastMessage("[${it.value}] openpool -> custom event! ${it.int++}") }
-
-    Events.on<CommandExecuteEvent> {
-        if (!it.raw.startsWith("eventtest register_new")) return@on
-
-        val newPool = EventPool(name = "new_pool")
-        newPool.on<CommandExecuteEvent> { evt -> DockyardServer.broadcastMessage("Did command ${evt.raw}!!!") }
-        DockyardServer.broadcastMessage("registered new")
-    }
-
-    Commands.add("eventtest") {
-        addArgument("area", StringArgument()) { listOf("open", "0", "1", "2", "unregister", "fork") }
-        execute {
-            val area = getArgument<String>("area")
-            val event = CustomEvent()
-            when (area) {
-                "open" -> Events.dispatch(event)
-                "0" -> customPool.dispatch(event)
-                "1" -> subPool.dispatch(event)
-                "2" -> subPool2.dispatch(event)
-                "unregister" -> {
-                    subPool2.dispose()
-                }
-                "fork" -> {
-                    subPool.fork()
-                }
-                "clear_children" -> {
-                    customPool.clearChildren()
-                }
-                "unregister_listeners" -> {
-                    poolAlt.unregisterAllListeners()
-                }
-                "register_new" -> {
-                }
-                else -> return@execute it.sendMessage(customPool.debugTree())
-            }
-            it.sendMessage("dispatched ${event.value}.")
-
-    Events.on<PlayerDropItemEvent> {
-        it.cancelled = true
-    }
-
-    Commands.add("/drop") {
-        execute {
-            val player = it.getPlayerOrThrow()
-            val entity =
-                player.world.spawnEntity(ItemDropEntity(player.location, ItemStack(Items.DIAMOND, 1))) as ItemDropEntity
-            entity.autoViewable = true
-        }
-    }
-
-    Commands.add("/minigame") {
-        addSubcommand("cookie_clicker") {
-            execute {
-                val player = it.getPlayerOrThrow()
-                player.openInventory(ExampleCookieClickerScreen(player))
-            }
-        }
-
-        addSubcommand("minigame") {
-            execute {
-                val player = it.getPlayerOrThrow()
-                player.openInventory(ExampleMinesweeperScreen(player, 10))
             }
         }
     }
