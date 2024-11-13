@@ -52,6 +52,13 @@ object InventoryClickHandler {
         } else {
             // cant stack
             if(cursor.isEmpty()) {
+
+                if(clicked.amount == 1) {
+                    result.cursor = clicked
+                    result.clicked = ItemStack.AIR
+                    return result
+                }
+
                 //take half
                 val amount = ceil(clicked.amount.toDouble() / 2.0).toInt()
                 result.cursor = clicked.withAmount(amount)
