@@ -1,8 +1,6 @@
 package io.github.dockyardmc.item
 
-import io.github.dockyardmc.blocks.BlockSet
 import io.github.dockyardmc.blocks.writeBlockPredicate
-import io.github.dockyardmc.blocks.writeBlockSet
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.writeBlockPosition
 import io.github.dockyardmc.player.writeProfileProperties
@@ -29,7 +27,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         }
 
         is RarityItemComponent -> this.writeVarIntEnum(component.rarity)
-        //TODO EnchantmentsItemComponent
+        is EnchantmentsItemComponent -> TODO()
         is CanBePlacedOnItemComponent -> {
             this.writeVarInt(component.blocks.size)
             component.blocks.forEach(this::writeBlockPredicate)
@@ -41,9 +39,12 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         }
 
         is AttributeModifiersItemComponent -> {
-//            this.writeVarInt(component.attributes.size)
-//            component.attributes.forEach { this.writeAttribute(it) }
-//            this.writeBoolean(component.showInTooltip)
+
+            this.writeVarInt(component.attributes.size)
+            component.attributes.forEach { modifier ->
+                modifier.write(this)
+            }
+            this.writeBoolean(component.showInTooltip)
         }
 
         is CustomModelDataItemComponent -> this.writeVarInt(component.customModelData)
@@ -74,19 +75,20 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
 
         is DamageResistantItemComponent -> this.writeString(component.type.identifier)
         is ToolItemComponent -> {
-            this.writeVarInt(component.toolRules.size)
-            component.toolRules.forEach { rule ->
-                this.writeBlockSet(
-                    BlockSet(
-                        0,
-                        tagName = null,
-                        blockIds = rule.blocks.map { block -> block.getProtocolId() })
-                )
-                this.writeOptional(rule.speed) { it.writeFloat(rule.speed!!) }
-                this.writeOptional(rule.correctDropForBlocks) { it.writeBoolean(rule.correctDropForBlocks!!) }
-            }
-            this.writeFloat(component.defaultMiningSpeed)
-            this.writeVarInt(component.damagePerBlock)
+            TODO()
+//            this.writeVarInt(component.toolRules.size)
+//            component.toolRules.forEach { rule ->
+//                this.writeBlockSet(
+//                    BlockSet(
+//                        0,
+//                        tagName = "#minecraft:mineable/pickaxe",
+//                        blockIds = rule.blocks.map { block -> block.getProtocolId() })
+//                )
+//                this.writeOptional(rule.speed) { it.writeFloat(rule.speed!!) }
+//                this.writeOptional(rule.correctDropForBlocks) { it.writeBoolean(rule.correctDropForBlocks!!) }
+//            }
+//            this.writeFloat(component.defaultMiningSpeed)
+//            this.writeVarInt(component.damagePerBlock)
         }
 
         is EnchantableItemComponent -> this.writeVarInt(component.value)
@@ -105,8 +107,9 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         }
 
         is RepairableItemComponent -> {
-            this.writeVarInt(component.materials.size)
-            component.materials.forEach { this.writeString(it.identifier) }
+            TODO("needs tag registry")
+//            this.writeVarInt(component.materials.size)
+//            component.materials.forEach { this.writeString(it.identifier) }
         }
 
         is GliderItemComponent -> {}
@@ -160,7 +163,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         is BlockEntityDataItemComponent -> this.writeNBT(component.data)
         is NoteBlockInstrumentItemComponent -> this.writeString(component.instrument)
         is OminousBottleAmplifierItemComponent -> this.writeVarInt(component.amplifier)
-        //TODO who tf uses this anyway Im not dealing with it     is JukeboxPlayableItemComponent -> {}
+        is JukeboxPlayableItemComponent -> TODO("nobody uses this..")
         is RecipesItemComponent -> {
             this.writeStringArray(component.recipes)
         }

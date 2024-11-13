@@ -1,5 +1,6 @@
 package io.github.dockyardmc.sounds
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.*

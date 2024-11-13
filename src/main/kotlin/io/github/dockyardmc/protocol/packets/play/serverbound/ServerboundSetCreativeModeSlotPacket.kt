@@ -1,6 +1,5 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.readItemStack
@@ -34,7 +33,6 @@ class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: ItemS
         if(player.inventory[newSlot] == clickedItem) return
 
         player.inventory[newSlot] = clickedItem
-        log("Set creative mode slot $newSlot to $clickedItem")
     }
 
     companion object {

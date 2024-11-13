@@ -26,7 +26,6 @@ import java.util.*
 
 fun ByteBuf.readComponent(id: Int): ItemComponent {
     val component = ItemComponents.components[id]
-    log("Reading item component ${component.simpleName} ($id)")
     return when (component) {
         CustomDataItemComponent::class -> CustomDataItemComponent(this.readNBT() as NBTCompound)
         MaxStackSizeItemComponent::class -> MaxStackSizeItemComponent(this.readVarInt())

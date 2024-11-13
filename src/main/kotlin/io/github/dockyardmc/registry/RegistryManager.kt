@@ -35,7 +35,6 @@ object RegistryManager {
     }
 
     fun getStreamFromPath(path: String): InputStream {
-        log(dataDrivenRegisterSources.toString())
         return ClassLoader.getSystemResource(path).openStream()
     }
 }

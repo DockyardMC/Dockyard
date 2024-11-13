@@ -10,10 +10,13 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.EquipmentSlot
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.utils.DebugScoreboard
@@ -44,6 +47,7 @@ fun main(args: Array<String>) {
             dockyardCommands = true
             debug = true
             npcCommand = true
+            itemDroppingAndPickup = true
         }
     }
 
@@ -75,6 +79,15 @@ fun main(args: Array<String>) {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }
 
+
+    Commands.add("/customdataitem") {
+        execute {
+            val player = it.getPlayerOrThrow()
+            val item = ItemStack(Items.BRICK, 1)
+            item.setCustomData("bitches", 0)
+            player.give(item)
+        }
+    }
 
     Commands.add("/slot") {
         addSubcommand("set") {
