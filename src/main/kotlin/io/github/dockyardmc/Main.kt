@@ -1,6 +1,8 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.PlayerArgument
+import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -68,6 +70,7 @@ fun main(args: Array<String>) {
 
 
     Commands.add("/reset") {
+        addArgument("player", PlayerArgument(), simpleSuggestion(""))
         execute {
             val platformSize = 30
 

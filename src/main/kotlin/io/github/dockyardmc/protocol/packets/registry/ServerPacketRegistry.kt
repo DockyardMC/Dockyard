@@ -9,6 +9,7 @@ import io.github.dockyardmc.protocol.packets.handshake.ServerboundStatusRequestP
 import io.github.dockyardmc.protocol.packets.login.ServerboundEncryptionResponsePacket
 import io.github.dockyardmc.protocol.packets.login.ServerboundLoginAcknowledgedPacket
 import io.github.dockyardmc.protocol.packets.login.ServerboundLoginStartPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ServerboundChatSessionUpdatePacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
 
 object ServerPacketRegistry : PacketRegistry() {
@@ -42,7 +43,7 @@ object ServerPacketRegistry : PacketRegistry() {
         addPlay(ServerboundChatCommandPacket::class)
         skipPlay("signed command")
         addPlay(ServerboundPlayerChatMessagePacket::class)
-        skipPlay("chat session update")
+        addPlay(ServerboundChatSessionUpdatePacket::class)
         skipPlay("chunk batch received")
         addPlay(ServerboundClientStatusPacket::class)
         addPlay(ServerboundClientTickEndPacket::class)
