@@ -205,6 +205,28 @@ fun ByteBuf.writeLocation(location: Location) {
     this.writeDouble(location.z)
 }
 
+fun ByteBuf.readPoint(): Point {
+    return Point(
+        this.readDouble(),
+        this.readDouble(),
+        this.readDouble(),
+        this.readFloat(),
+        this.readFloat()
+    )
+}
+
+data class Point(
+    val x: Double,
+    val y: Double,
+    val z: Double,
+    val yaw: Float,
+    val pitch: Float,
+) {
+    fun toLocation(world: World): Location {
+        return Location(x, y, z, yaw, pitch, world)
+    }
+}
+
 fun ByteBuf.writeBlockPosition(location: Location) {
     val blockX = location.blockX.toLong()
     val blockY = location.blockY.toLong()

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.entities
 
 import cz.lukynka.Bindable
+import cz.lukynka.BindableList
 import cz.lukynka.BindableMap
 import cz.lukynka.BindablePool
 import io.github.dockyardmc.blocks.Block
@@ -24,6 +25,7 @@ import io.github.dockyardmc.registry.AppliedPotionEffectSettings
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.PotionEffect
+import io.github.dockyardmc.runnables.runLaterAsync
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
@@ -70,6 +72,8 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     var renderDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityRenderDistanceBlocks
     var autoViewable: Boolean = true
     var hasNoGravity: Bindable<Boolean> = Bindable(true)
+    var passengers: BindableList<Entity> = BindableList()
+    var vehicle: Entity? = null
 
     constructor(location: Location) : this(location, location.world)
 
@@ -144,6 +148,54 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             metadata[EntityMetadataType.POSE] =
                 EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
         }
+
+        passengers.itemAdded {
+
+            val contextPlayers = mutableSetOf<Player>()
+            if(this is Player) contextPlayers.add(this)
+            if(it.item is Player) contextPlayers.add(it.item as Player)
+
+            val event = EntityRideVehicleEvent(this, it.item, Event.Context(
+                contextPlayers,
+                setOf(this, it.item),
+                setOf(world),
+                setOf(location),
+            ))
+
+            Events.dispatch(event)
+            if(event.cancelled) {
+                passengers.remove(it.item)
+                return@itemAdded
+            }
+
+            it.item.vehicle = this
+            val packet = ClientboundSetPassengersPacket(this, passengers.values)
+            viewers.sendPacket(packet)
+        }
+
+        passengers.itemRemoved {
+            val contextPlayers = mutableSetOf<Player>()
+            if(this is Player) contextPlayers.add(this)
+            if(it.item is Player) contextPlayers.add(it.item as Player)
+
+            val event = EntityDismountVehicleEvent(this, it.item, Event.Context(
+                contextPlayers,
+                setOf(this, it.item),
+                setOf(world),
+                setOf(location),
+            ))
+
+            Events.dispatch(event)
+            if(event.cancelled) {
+                passengers.remove(it.item)
+                return@itemRemoved
+            }
+
+            it.item.vehicle = null
+            val packet = ClientboundSetPassengersPacket(this, passengers.values)
+            viewers.sendPacket(packet)
+        }
+
 
         //TODO add attribute modifiers
         walkSpeed.valueChanged {}
@@ -323,6 +375,10 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         this.location = location
         viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
         viewers.sendPacket(ClientboundSetHeadYawPacket(this))
+
+        if(passengers.values.isNotEmpty()) {
+            viewers.sendPacket(ClientboundMoveVehiclePacket(this))
+        }
     }
 
     open fun teleportClientside(location: Location, player: Player) {
@@ -459,6 +515,12 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         val z = cos(yawRadians) * cos(pitchRadians)
 
         return Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
+    }
+
+    fun dismountCurrentVehicle() {
+        if(vehicle != null && vehicle!!.passengers.contains(this)) {
+            vehicle!!.passengers.remove(this)
+        }
     }
 
     override fun dispose() {

@@ -104,10 +104,6 @@ class ServerboundUseItemOnBlockPacket(
         Events.dispatch(event)
 
 
-        val rightClickEvent = PlayerRightClickWithItemEvent(player, item)
-        Events.dispatch(rightClickEvent)
-        if(rightClickEvent.cancelled) cancelled = true
-
         //TODO make block handlers or something so its not all here
         if(originalBlock.identifier.contains("trapdoor")) {
             var opensTrapdoor = true

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.registry
 
+import io.github.dockyardmc.events.ClientboundMoveVehiclePacket
 import io.github.dockyardmc.protocol.packets.configurations.*
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundPingResponsePacket
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundStatusResponsePacket
@@ -91,7 +92,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addPlay(ClientboundUpdateEntityPositionAndRotationPacket::class)
         skipPlay("move minecart")
         addPlay(ClientboundUpdateEntityRotationPacket::class)
-        skipPlay("vehicle move")
+        addPlay(ClientboundMoveVehiclePacket::class)
         skipPlay("open book")
         addPlay(ClientboundOpenContainerPacket::class)
         skipPlay("open signed book")
@@ -141,7 +142,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addPlay(ClientboundSetHealthPacket::class)
         addPlay(ClientboundSetHeldItemPacket::class)
         addPlay(ClientboundScoreboardObjectivePacket::class)
-        skipPlay("set passenger")
+        addPlay(ClientboundSetPassengersPacket::class)
         addPlay(ClientboundSetInventorySlotPacket::class)
         addPlay(ClientboundTeamsPacket::class)
         addPlay(ClientboundUpdateScorePacket::class)

@@ -9,9 +9,8 @@ import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.EntityType
-import io.github.dockyardmc.world.World
 
-class Parrot(override var world: World, override var location: Location): Entity(location, world) {
+class Parrot(location: Location): Entity(location) {
     override var type: EntityType = EntityTypes.PARROT
     override var health: Bindable<Float> = Bindable(6f)
     override var inventorySize: Int = 0

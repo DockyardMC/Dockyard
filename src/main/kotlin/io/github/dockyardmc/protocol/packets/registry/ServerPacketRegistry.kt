@@ -67,7 +67,7 @@ object ServerPacketRegistry : PacketRegistry() {
         addPlay(ServerboundSetPlayerPositionAndRotationPacket::class)
         addPlay(ServerboundSetPlayerRotationPacket::class)
         addPlay(ServerboundSetPlayerOnGroundPacket::class)
-        skipPlay("vehicle move")
+        addPlay(ServerboundMoveVehiclePacket::class)
         skipPlay("steer boat")
         skipPlay("pick item")
         skipPlay("ping request")

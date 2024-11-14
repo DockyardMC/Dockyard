@@ -4,17 +4,20 @@ import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
+import io.github.dockyardmc.entities.EntityManager.spawnEntity
+import io.github.dockyardmc.entities.Parrot
+import io.github.dockyardmc.entities.TestZombie
+import io.github.dockyardmc.entities.Warden
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.ui.DrawableContainerScreen
-import io.github.dockyardmc.ui.drawableItemStack
 import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.utils.randomInt
 import io.github.dockyardmc.world.WorldManager
+import java.lang.IllegalStateException
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -38,6 +41,40 @@ fun main(args: Array<String>) {
             npcCommand = true
             itemDroppingAndPickup = true
         }
+    }
+
+    Commands.add("/entity") {
+        execute {
+            val random = randomInt(1, 3)
+            val player = it.getPlayerOrThrow()
+            val entity = when(random) {
+                1 -> TestZombie(player.location)
+                2 -> Warden(player.location)
+                3 -> Parrot(player.location)
+                else -> throw IllegalStateException("a")
+            }
+
+            player.world.spawnEntity(entity)
+        }
+    }
+
+    Commands.add("/vehicletp") {
+        execute {
+            val player = it.getPlayerOrThrow()
+            if(player.vehicle == null) return@execute
+            val random = player.location.add(randomInt(-5, 5), 0, randomInt(-5, 5))
+
+            player.vehicle!!.teleport(random)
+        }
+    }
+
+    Events.on<PlayerInteractWithEntityEvent> {
+        it.entity.passengers.add(it.player)
+    }
+
+    Events.on<EntityDismountVehicleEvent> {
+        if(it.passenger !is Player) return@on
+        it.passenger.sendMessage("<red>Dismounted vehicle")
     }
 
     Events.on<PlayerJoinEvent> {
@@ -90,15 +127,4 @@ fun main(args: Array<String>) {
     }
 
     server.start()
-}
-
-class TestScreen(player: Player) : DrawableContainerScreen(player) {
-
-    init {
-        for (i in 0 until 9) {
-            slots[i, 0] = drawableItemStack {
-                withItem(Items.BLACK_STAINED_GLASS, i)
-            }
-        }
-    }
 }
