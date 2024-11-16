@@ -1,8 +1,6 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.PlayerArgument
-import io.github.dockyardmc.commands.simpleSuggestion
+import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.entities.Parrot
@@ -103,6 +101,17 @@ fun main(args: Array<String>) {
 
     Events.on<ItemGroupCooldownEndEvent> {
         it.player.sendMessage("<red>${it.cooldown.group} ended (lasted ${it.cooldown.durationTicks})")
+    }
+
+    Commands.add("/greedy") {
+        addArgument("player", PlayerArgument())
+        addArgument("world", WorldArgument())
+        addArgument("message", StringArgument(BrigadierStringType.GREEDY_PHRASE))
+        execute {
+            val player = it.getPlayerOrThrow()
+            val message = getArgument<String>("message")
+            player.sendMessage("You said: <rainbow>$message")
+        }
     }
 
 

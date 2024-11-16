@@ -92,11 +92,24 @@ object CommandHandler {
             }
         }
 
+        var foundGreedyString: Boolean = false
+
         tokens.forEachIndexed { index, value ->
             if (index == 0) return@forEachIndexed
             if (index > command.arguments.size) return@forEachIndexed
+            if(foundGreedyString) return@forEachIndexed
 
             val argumentData = command.arguments.values.toList()[index - 1]
+
+            if(argumentData.argument is StringArgument) {
+                val argument = argumentData.argument as StringArgument
+                if(argument.type == BrigadierStringType.GREEDY_PHRASE) {
+                    foundGreedyString = true
+                    val string = tokens.subList(index, tokens.size).joinToString(" ")
+                    argumentData.returnedValue = string
+                    return@forEachIndexed
+                }
+            }
 
             argumentData.returnedValue = when (argumentData.expectedReturnValueType) {
                 Boolean::class -> value == "true"
