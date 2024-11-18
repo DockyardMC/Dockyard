@@ -11,8 +11,9 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlaySou
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
+import kotlin.random.Random
 
-class Sound(var identifier: String, var volume: Float = 0.5f, var pitch: Float = 1.0f, var category: SoundCategory = SoundCategory.MASTER, var seed: Long = 0L) {
+class Sound(var identifier: String, var volume: Float = 0.5f, var pitch: Float = 1.0f, var category: SoundCategory = SoundCategory.MASTER, var seed: Long = Random.nextLong()) {
 
     init {
         if(!identifier.contains(":")) identifier = "minecraft:$identifier"
