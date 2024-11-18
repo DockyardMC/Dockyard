@@ -4,18 +4,21 @@ import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.datagen.VerifyPacketIds
+import io.github.dockyardmc.entities.BlockDisplay
+import io.github.dockyardmc.entities.EntityManager.spawnEntity
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.add
-import io.github.dockyardmc.registry.Biomes
-import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.DimensionTypes
-import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.sounds.Sound
+import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.random.Random
 
 // This is just testing/development environment.
@@ -107,6 +110,25 @@ fun main(args: Array<String>) {
         val newPool = EventPool(name = "new_pool")
         newPool.on<CommandExecuteEvent> { evt -> DockyardServer.broadcastMessage("Did command ${evt.raw}!!!") }
         DockyardServer.broadcastMessage("registered new")
+    }
+
+    Commands.add("disco") {
+        description = "Spawns an orbiting jukebox that plays music!"
+        execute {
+            val player = it.getPlayerOrThrow()
+            val entity = BlockDisplay(player.location)
+            val sound = Sound(identifier = Sounds.MUSIC_DISC_OTHERSIDE)
+            entity.block.value = Blocks.JUKEBOX.toBlock()
+
+            player.world.spawnEntity(entity)
+            player.playSound(sound, entity)
+
+            Events.on<ServerTickEvent> { e ->
+                val x = 5 * sin(e.serverTicks.toDouble() / 20)
+                val z = 5 * cos(e.serverTicks.toDouble() / 20)
+                entity.teleport(player.location.withNoRotation().add(x, 0.0, z))
+            }
+        }
     }
 
     Commands.add("eventtest") {

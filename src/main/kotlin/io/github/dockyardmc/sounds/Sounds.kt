@@ -1,16 +1,18 @@
 package io.github.dockyardmc.sounds
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityPlaySoundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlaySoundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 
-class Sound(var identifier: String, var volume: Float = 0.5f, var pitch: Float = 1.0f, var category: SoundCategory = SoundCategory.MASTER) {
+class Sound(var identifier: String, var volume: Float = 0.5f, var pitch: Float = 1.0f, var category: SoundCategory = SoundCategory.MASTER, var seed: Long = 0L) {
 
     init {
         if(!identifier.contains(":")) identifier = "minecraft:$identifier"
@@ -38,7 +40,7 @@ fun Collection<Player>.playSound(sound: Sound, location: Location? = null) {
 
 fun Collection<Player>.playSound(identifier: String, location: Location? = null, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
     val sound = Sound(identifier, volume, pitch, category)
-    this.playSound(sound)
+    this.playSound(sound, location)
 }
 
 fun World.playSound(sound: Sound, location: Location? = null) {
@@ -57,6 +59,34 @@ fun DockyardServer.playSound(sound: Sound, location: Location? = null) {
 fun DockyardServer.playSound(identifier: String, location: Location? = null, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
     val sound = Sound(identifier, volume, pitch, category)
     this.playSound(sound, location)
+}
+
+fun Player.playSound(sound: Sound, source: Entity) {
+    val packet = ClientboundEntityPlaySoundPacket(sound, source)
+    this.sendPacket(packet)
+}
+
+fun Player.playSound(identifier: String, source: Entity, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
+    val sound = Sound(identifier, volume, pitch, category)
+    this.playSound(sound, source)
+}
+
+fun Collection<Player>.playSound(sound: Sound, source: Entity) {
+    this.forEach { it.playSound(sound, source) }
+}
+
+fun Collection<Player>.playSound(identifier: String, source: Entity, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
+    val sound = Sound(identifier, volume, pitch, category)
+    this.playSound(sound, source)
+}
+
+fun World.playSound(sound: Sound, source: Entity) {
+    this.players.values.playSound(sound, source)
+}
+
+fun World.playSound(identifier: String, source: Entity, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
+    val sound = Sound(identifier, volume, pitch, category)
+    this.playSound(sound, source)
 }
 
 fun ByteBuf.writeSoundEvent(sound: String) {
