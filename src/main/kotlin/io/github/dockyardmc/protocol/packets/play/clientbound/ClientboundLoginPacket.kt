@@ -5,12 +5,10 @@ import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeStringArray
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
-import io.github.dockyardmc.player.GameMode
+import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
-@WikiVGEntry("Login (play)")
-@ClientboundPacketInfo(0x2B, ProtocolState.PLAY)
 class ClientboundLoginPacket(
     entityId: Int,
     isHardcore: Boolean,

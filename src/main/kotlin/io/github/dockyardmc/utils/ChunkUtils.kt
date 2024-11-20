@@ -1,8 +1,9 @@
 package io.github.dockyardmc.utils
 
 import io.github.dockyardmc.world.Chunk
+import io.github.dockyardmc.world.ChunkPos
+import kotlin.math.abs
 import kotlin.math.sin
-import kotlin.math.sqrt
 
 object ChunkUtils {
 
@@ -12,8 +13,7 @@ object ChunkUtils {
     )
     private val SIN = FloatArray(65536) { sin(it.toDouble() * Math.PI * 2.0 / 65536.0).toFloat() }
     const val EPSILON: Float = 1.0E-5F
-    private const val TO_RADIANS_FACTOR = Math.PI.toFloat() / 180F
-
+    const val TO_RADIANS_FACTOR = Math.PI.toFloat() / 180F
 
     fun getChunkCoordinate(xz: Int): Int = xz shr 4
 
@@ -31,33 +31,16 @@ object ChunkUtils {
 
     fun getChunkCoordsFromIndex(index: Long): Pair<Int, Int> = getChunkX(index) to getChunkZ(index)
 
-    fun chunkInSpiral(id: Int, xOffset: Int = 0, zOffset: Int = 0): Pair<Int, Int> {
-        // if the id is 0 then we know we're in the centre
-        if (id == 0) return 0 + xOffset to 0 + zOffset
-
-        val index = id - 1
-
-        // compute radius (inverse arithmetic sum of 8 + 16 + 24 + ...)
-        val radius = floor((sqrt(index + 1.0) - 1) / 2) + 1
-
-        // compute total point on radius -1 (arithmetic sum of 8 + 16 + 24 + ...)
-        val p = 8 * radius * (radius - 1) / 2
-
-        // points by face
-        val en = radius * 2
-
-        // compute de position and shift it so the first is (-r, -r) but (-r + 1, -r)
-        // so the square can connect
-        val a = (1 + index - p) % (radius * 8)
-
-        return when (a / (radius * 2)) {
-            // find the face (0 = top, 1 = right, 2 = bottom, 3 = left)
-            0 -> a - radius + xOffset to -radius + zOffset
-            1 -> radius + xOffset to a % en - radius + zOffset
-            2 -> radius - a % en + xOffset to radius + zOffset
-            3 -> -radius + xOffset to radius - a % en + zOffset
-            else -> 0 to 0
+    fun forDifferingChunksInRange(chunkX: Int, chunkZ: Int, oldChunkX: Int, oldChunkZ: Int, range: Int): List<ChunkPos> {
+        val list = mutableListOf<ChunkPos>()
+        for (x in chunkX - range..chunkX + range) {
+            for (z in chunkZ - range..chunkZ + range) {
+                // If the difference between either the x and old x or z and old z is > range, then the chunk is
+                // newly in range, and we can process it.
+                if (abs(x - oldChunkX) > range || abs(z - oldChunkZ) > range) list.add(ChunkPos(x, z))
+            }
         }
+        return list
     }
 
     @JvmStatic

@@ -2,7 +2,6 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import cz.lukynka.BindableMap
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.entities.*
 import io.github.dockyardmc.events.*
@@ -12,27 +11,23 @@ import io.github.dockyardmc.inventory.PlayerInventory
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.particles.ItemParticleData
-import io.github.dockyardmc.particles.spawnParticle
+import io.github.dockyardmc.player.systems.*
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.resourcepack.Resourcepack
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
-import io.github.dockyardmc.world.ConcurrentChunkEngine
+import io.github.dockyardmc.world.PlayerChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
@@ -55,61 +50,65 @@ class Player(
     override var isOnGround: Boolean = true
     override var health: Bindable<Float> = bindablePool.provideBindable(20f)
     override var inventorySize: Int = 35
+
     var brand: String = "minecraft:vanilla"
     var profile: ProfilePropertyMap? = null
     var clientConfiguration: ClientConfiguration? = null
-    var isFlying: Bindable<Boolean> = bindablePool.provideBindable(false)
-    var canFly: Bindable<Boolean> = bindablePool.provideBindable(false)
+
     var isSneaking: Boolean = false
     var isSprinting: Boolean = false
-    var heldSlotIndex: Bindable<Int> = bindablePool.provideBindable(0)
-    val permissions: BindableList<String> = bindablePool.provideBindableList()
     var isFullyInitialized: Boolean = false
-    var inventory: PlayerInventory = PlayerInventory(this)
-    var gameMode: Bindable<GameMode> = bindablePool.provideBindable(GameMode.ADVENTURE)
-    var displayedSkinParts: BindableList<DisplayedSkinPart> = bindablePool.provideBindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     var isConnected: Boolean = true
+
+    var gameMode: Bindable<GameMode> = bindablePool.provideBindable(GameMode.ADVENTURE)
+    var isFlying: Bindable<Boolean> = bindablePool.provideBindable(false)
+    var canFly: Bindable<Boolean> = bindablePool.provideBindable(false)
+    val flySpeed: Bindable<Float> = bindablePool.provideBindable(0.05f)
+
+    val permissions: BindableList<String> = bindablePool.provideBindableList()
+
+    var inventory: PlayerInventory = PlayerInventory(this)
+    var heldSlotIndex: Bindable<Int> = bindablePool.provideBindable(0)
+    val mainHandItem: Bindable<ItemStack> = bindablePool.provideBindable(ItemStack.AIR)
+    val offHandItem: Bindable<ItemStack> = bindablePool.provideBindable(ItemStack.AIR)
+
+    var displayedSkinParts: BindableList<DisplayedSkinPart> = bindablePool.provideBindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
+    val isListed: Bindable<Boolean> = bindablePool.provideBindable(true)
+
     val tabListHeader: Bindable<Component> = bindablePool.provideBindable("".toComponent())
     val tabListFooter: Bindable<Component> = bindablePool.provideBindable("".toComponent())
-    val isListed: Bindable<Boolean> = bindablePool.provideBindable(true)
 
     val saturation: Bindable<Float> = bindablePool.provideBindable(0f)
     val food: Bindable<Double> = bindablePool.provideBindable(20.0)
     val experienceLevel: Bindable<Int> = bindablePool.provideBindable(0)
     val experienceBar: Bindable<Float> = bindablePool.provideBindable(0f)
-    var currentOpenInventory: ContainerInventory? = null
-    var hasSkin = false
-    var itemInUse: ItemInUse? = null
-    var lastRightClick = 0L
-    val flySpeed: Bindable<Float> = bindablePool.provideBindable(0.05f)
+
     val redVignette: Bindable<Float> = bindablePool.provideBindable(0f)
     val time: Bindable<Long> = bindablePool.provideBindable(-1)
     val fovModifier: Bindable<Float> = bindablePool.provideBindable(0.1f)
 
-    val mainHandItem: Bindable<ItemStack> = bindablePool.provideBindable(ItemStack.AIR)
-    val offHandItem: Bindable<ItemStack> = bindablePool.provideBindable(ItemStack.AIR)
-
-    // Used internally to allow the closing of inventory within the inventory listener
-    var didCloseInventory = false
+    val cooldownSystem = CooldownSystem(this)
+    val foodEatingSystem = FoodEatingSystem(this)
+    val chunkEngine = PlayerChunkEngine(this)
+    val gameModeSystem = GameModeSystem(this)
+    val playerInfoSystem = PlayerInfoSystem(this)
+    val entityViewSystem = EntityViewSystem(this)
 
     val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
 
-    val chunkEngine = ConcurrentChunkEngine(this)
-    var visibleEntities: MutableList<Entity> = mutableListOf()
-
-    val cooldowns: BindableMap<String, ItemGroupCooldown> = bindablePool.provideBindableMap()
-
     var lastInteractionTime: Long = -1L
+    var currentOpenInventory: ContainerInventory? = null
+    var itemInUse: ItemInUse? = null
 
     lateinit var lastSentPacket: ClientboundPacket
 
+    override fun toString(): String = username
+
     init {
 
-        displayName.valueChanged {
-            val packet = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(it.newValue)))
-            this.sendPacket(packet)
-            viewers.sendPacket(packet)
-        }
+        gameModeSystem.handle(gameMode)
+        playerInfoSystem.handle(displayName, isListed)
+
         mainHandItem.valueChanged { setHeldItem(PlayerHand.MAIN_HAND, it.newValue) }
         offHandItem.valueChanged { setHeldItem(PlayerHand.OFF_HAND, it.newValue) }
 
@@ -123,32 +122,6 @@ class Player(
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
 
         fovModifier.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, it.newValue)) }
-
-        gameMode.valueChanged {
-            this.sendPacket(ClientboundGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat()))
-            when(it.newValue) {
-                GameMode.SPECTATOR,
-                GameMode.CREATIVE -> {
-                    canFly.value = true
-                    isFlying.value = isFlying.value
-                    isInvulnerable = true
-                }
-                GameMode.ADVENTURE,
-                GameMode.SURVIVAL -> {
-                    if (it.oldValue == GameMode.CREATIVE || it.oldValue == GameMode.SPECTATOR) {
-                        canFly.value = false
-                        isFlying.value = false
-                        isInvulnerable = false
-                    }
-                }
-            }
-
-            isInvisible.value = it.newValue == GameMode.SPECTATOR
-            refreshAbilities()
-            val updatePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, UpdateGamemodeInfoUpdateAction(gameMode.value)))
-            sendPacket(updatePacket)
-            sendToViewers(updatePacket)
-        }
 
         permissions.itemAdded { rebuildCommandNodeGraph() }
         permissions.itemRemoved { rebuildCommandNodeGraph() }
@@ -173,23 +146,12 @@ class Player(
 
         displayedSkinParts.listUpdated {
             metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
-            sendMetadataPacketToViewers()
-            sendSelfMetadataPacket()
-        }
-
-        isListed.valueChanged {
-            val update = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(it.newValue))
-            val packet = ClientboundPlayerInfoUpdatePacket(update)
-            val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(displayName.value)))
-            sendToViewers(packet)
-            sendToViewers(namePacket)
-            sendPacket(packet)
-            sendPacket(namePacket)
         }
 
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
         time.valueChanged { updateWorldTime() }
+
         hasNoGravity.value = false
     }
 
@@ -197,69 +159,11 @@ class Player(
         return this.give(item)
     }
 
-    override fun tick(ticks: Int) {
-        val entities = world.entities.toList().filter { it.autoViewable && it != this }
-
-        val add = entities.filter { it.location.distance(this.location) <= it.renderDistanceBlocks && !visibleEntities.contains(it) }
-        val remove = entities.filter { it.location.distance(this.location) > it.renderDistanceBlocks && visibleEntities.contains(it) }
-
-        add.forEach { it.addViewer(this) }
-        remove.forEach { it.removeViewer(this, false) }
-
-        cooldowns.values.forEach { (group, cooldown) ->
-            if (System.currentTimeMillis() >= cooldown.startTime + ticksToMs(cooldown.durationTicks)) {
-                cooldowns.remove(group)
-                Events.dispatch(ItemGroupCooldownEndEvent(this, cooldown, getPlayerEventContext(this)))
-            }
-        }
-
-        if(itemInUse != null) {
-            val item = itemInUse!!.item
-
-            if(!item.isSameAs(getHeldItem(PlayerHand.MAIN_HAND))) {
-                itemInUse = null
-                return
-            }
-
-            val isFood = item.components.hasType(FoodItemComponent::class)
-            if(isFood) {
-
-                if((world.worldAge % 5) == 0L) {
-                    val viewers = world.players.toMutableList().filter { it != this }
-                    viewers.playSound(item.material.consumeSound, location, 1f, randomFloat(0.9f, 1.3f))
-                    viewers.spawnParticle(location.clone().apply { y += 1.5 }, Particles.ITEM, Vector3f(0.2f), 0.05f, 6, false, ItemParticleData(item))
-                }
-
-                if(world.worldAge - itemInUse!!.startTime >= itemInUse!!.time && itemInUse!!.time > 0) {
-                    world.playSound("minecraft:entity.player.burp", location)
-                    val component = item.components.firstOrNullByType<FoodItemComponent>(FoodItemComponent::class)!!
-
-                    val foodToAdd = component.nutrition + food.value
-                    if(foodToAdd > 20) {
-                        val saturationToAdd = food.value - 20
-                        food.value = 20.0
-                        saturation.value = saturationToAdd.toFloat()
-                    } else {
-                        food.value = foodToAdd
-                    }
-
-                    // notify the client that eating is finished
-                    sendPacket(ClientboundEntityEventPacket(this, EntityEvent.PLAYER_ITEM_USE_FINISHED))
-
-                    val newItem = if(item.amount == 1) ItemStack.AIR else item.clone().apply { amount -= 1 }
-                    inventory[heldSlotIndex.value] = newItem
-
-                    // if new item is air, stop eating, if not, reset eating time
-                    if(!newItem.isSameAs(ItemStack.AIR)) {
-                        itemInUse!!.startTime = world.worldAge
-                        itemInUse!!.item = newItem
-                    } else {
-                        itemInUse = null
-                    }
-                }
-            }
-        }
-        super.tick(ticks)
+    override fun tick() {
+        entityViewSystem.tick()
+        cooldownSystem.tick()
+        foodEatingSystem.tick()
+        super.tick()
     }
 
     fun sendHealthUpdatePacket() {
@@ -351,13 +255,15 @@ class Player(
         queuedMessages.clear()
     }
 
-    override fun toString(): String = username
+
     fun kick(reason: String) { this.kick(reason.toComponent()) }
     fun kick(reason: Component) { sendPacket(ClientboundDisconnectPacket(reason)) }
+
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
     fun sendMessage(component: Component) { sendSystemMessage(component, false) }
     fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
     fun sendActionBar(component: Component) { sendSystemMessage(component, true) }
+
     private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
         if(!isConnected) return
         if(networkManager.state != ProtocolState.PLAY) {
@@ -425,12 +331,13 @@ class Player(
         location = this.world.defaultSpawnLocation
 
         this.world.chunks.values.toList().forEach {
-            chunkEngine.loadChunk(ChunkUtils.getChunkIndex(it), world)
+            chunkEngine.loadChunk(it.chunkPos)
         }
 
         refreshClientStateAfterRespawn()
 
         if(isBecauseDeath) Events.dispatch(PlayerRespawnEvent(this))
+        chunkEngine.sendFullReload()
     }
 
     fun refreshClientStateAfterRespawn() {
@@ -511,12 +418,12 @@ class Player(
         Events.dispatch(event)
         if(event.cancelled) return
 
-        cooldowns[group] = event.cooldown
+        cooldownSystem.cooldowns[group] = event.cooldown
         sendPacket(SetItemCooldownPacket(event.cooldown.group, event.cooldown.durationTicks))
     }
 
     fun isOnCooldown(group: String): Boolean {
-        return cooldowns[group] != null
+        return cooldownSystem.cooldowns[group] != null
     }
 
     fun isOnCooldown(item: Item): Boolean {

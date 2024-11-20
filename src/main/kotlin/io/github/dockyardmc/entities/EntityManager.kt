@@ -51,10 +51,4 @@ object EntityManager {
     fun World.despawnEntity(entity: Entity) {
         entity.dispose()
     }
-
-    init {
-        Events.on<ServerTickEvent> { event ->
-            innerEntities.toList().forEach { if(it.tickable) it.tick(event.serverTicks) }
-        }
-    }
 }

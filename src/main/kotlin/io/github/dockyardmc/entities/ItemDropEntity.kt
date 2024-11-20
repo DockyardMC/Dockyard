@@ -30,7 +30,7 @@ class ItemDropEntity(override var location: Location, initialItem: ItemStack) : 
         hasNoGravity.value = true
     }
 
-    override fun tick(ticks: Int) {
+    override fun tick() {
         if(!canBePickedUp) {
             lifetime++
             if(lifetime == canBePickedUpAfter) {

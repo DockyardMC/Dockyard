@@ -17,7 +17,6 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
 import io.github.dockyardmc.registry.registries.MinecraftVersionRegistry
-import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.MojangUtil
 import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.world.WorldManager
@@ -84,11 +83,10 @@ class LoginHandler(var processor: PlayerNetworkManager) : PacketHandler(processo
             val playerCrypto = PlayerCrypto(publicKey, privateKey, verificationToken)
             player.crypto = playerCrypto
 
-            // pre-cache the
-            val asyncRunnable = AsyncRunnable {
+            // pre-cache the skin
+            DockyardServer.scheduler.runAsync {
                 MojangUtil.getSkinFromUUID(player.uuid)
             }
-            asyncRunnable.run()
             val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken, true)
             connection.sendPacket(out, processor)
         } else {

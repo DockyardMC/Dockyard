@@ -1,17 +1,13 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.annotations.ClientboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.world.ChunkPos
 
-@WikiVGEntry("Unload Chunk")
-@ClientboundPacketInfo(0x21, ProtocolState.PLAY)
-class ClientboundUnloadChunkPacket(chunkX: Int, chunkZ: Int): ClientboundPacket() {
+class ClientboundUnloadChunkPacket(chunkPos: ChunkPos): ClientboundPacket() {
 
     init {
-        data.writeInt(chunkX)
-        data.writeInt(chunkZ)
+        data.writeInt(chunkPos.z)
+        data.writeInt(chunkPos.x)
     }
 
 }

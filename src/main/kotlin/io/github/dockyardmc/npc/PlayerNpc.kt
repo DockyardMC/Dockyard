@@ -6,14 +6,11 @@ import io.github.dockyardmc.entities.EntityMetaValue
 import io.github.dockyardmc.entities.EntityMetadata
 import io.github.dockyardmc.entities.EntityMetadataType
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.item.EquipmentSlot
-import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
-import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.MojangUtil
 import java.util.UUID
 
@@ -102,21 +99,19 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     }
 
     fun setSkin(uuid: UUID) {
-        val asyncRunnable = AsyncRunnable {
+        world.scheduler.runAsync {
             val skin = MojangUtil.getSkinFromUUID(uuid)
             profile.value = ProfilePropertyMap(username.value, mutableListOf(skin))
         }
-        asyncRunnable.run()
     }
 
     fun setSkin(username: String) {
         var uuid: UUID? = null
-        val asyncRunnable = AsyncRunnable {
+        val asyncRunnable = world.scheduler.runAsync {
             uuid = MojangUtil.getUUIDFromUsername(username)
         }
-        asyncRunnable.callback = {
+        asyncRunnable.thenAccept {
             uuid?.let { setSkin(it) }
         }
-        asyncRunnable.run()
     }
 }

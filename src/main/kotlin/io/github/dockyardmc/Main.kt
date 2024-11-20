@@ -8,14 +8,19 @@ import io.github.dockyardmc.entities.TestZombie
 import io.github.dockyardmc.entities.Warden
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.runnables.ticks
+import io.github.dockyardmc.scheduler.Scheduler
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.utils.randomInt
 import io.github.dockyardmc.world.WorldManager
+import io.github.dockyardmc.world.generators.FlatWorldGenerator
 import java.lang.IllegalStateException
+import kotlin.time.Duration.Companion.seconds
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -40,6 +45,9 @@ fun main(args: Array<String>) {
             itemDroppingAndPickup = true
         }
     }
+
+    val customWorld = WorldManager.create("custom", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
+    customWorld.defaultSpawnLocation = customWorld.defaultSpawnLocation.add(0, 201, 0)
 
     Commands.add("/entity") {
         execute {
@@ -85,6 +93,7 @@ fun main(args: Array<String>) {
         DebugScoreboard.sidebar.viewers.add(player)
 
         player.addPotionEffect(PotionEffects.NIGHT_VISION, -1, 0, false)
+        player.teleport(customWorld.defaultSpawnLocation)
     }
 
     Events.on<PlayerLeaveEvent> {
@@ -103,17 +112,28 @@ fun main(args: Array<String>) {
         it.player.sendMessage("<red>${it.cooldown.group} ended (lasted ${it.cooldown.durationTicks})")
     }
 
+    val scheduler = Scheduler("test")
+    scheduler.makeGlobal()
+
     Commands.add("/greedy") {
-        addArgument("player", PlayerArgument())
-        addArgument("world", WorldArgument())
+        addArgument("interval", IntArgument())
         addArgument("message", StringArgument(BrigadierStringType.GREEDY_PHRASE))
         execute {
             val player = it.getPlayerOrThrow()
             val message = getArgument<String>("message")
-            player.sendMessage("You said: <rainbow>$message")
+            val interval = getArgument<Int>("interval")
+
+            val repeatingTask = scheduler.runRepeating(interval.ticks) {
+                player.sendMessage("<rainbow>$message")
+            }
+            scheduler.runLaterAsync(5.seconds) {
+                player.sendMessage("<red>5")
+                Thread.sleep(5000)
+                player.sendMessage("<red>10")
+                repeatingTask.cancel()
+            }
         }
     }
-
 
     Commands.add("/reset") {
         addArgument("player", PlayerArgument(), simpleSuggestion(""))

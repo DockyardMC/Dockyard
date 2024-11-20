@@ -25,7 +25,6 @@ import io.github.dockyardmc.registry.AppliedPotionEffectSettings
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.PotionEffect
-import io.github.dockyardmc.runnables.runLaterAsync
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
@@ -35,6 +34,8 @@ import io.github.dockyardmc.utils.mergeEntityMetadata
 import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.world.Chunk
+import io.github.dockyardmc.world.ChunkPos
 import io.github.dockyardmc.world.World
 import java.util.*
 import kotlin.math.cos
@@ -76,6 +77,14 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     var vehicle: Entity? = null
 
     constructor(location: Location) : this(location, location.world)
+
+    fun getCurrentChunk(): Chunk? {
+        return world.chunks[getCurrentChunkPos().pack()]
+    }
+
+    fun getCurrentChunkPos(): ChunkPos {
+        return ChunkPos.fromLocation(location)
+    }
 
     init {
 
@@ -237,7 +246,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         sendMetadataPacketToViewers()
     }
 
-    open fun tick(ticks: Int) {
+    open fun tick() {
         potionEffects.values.forEach {
             if(it.value.settings.duration == -1) return@forEach
             if (System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.settings.duration)) {
@@ -291,12 +300,14 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
         isOnGround = true
 
-        synchronized(player.visibleEntities) {
-            player.visibleEntities.add(this)
+        synchronized(player.entityViewSystem.visibleEntities) {
+            player.entityViewSystem.visibleEntities.add(this)
         }
+
         synchronized(viewers) {
             viewers.add(player)
         }
+
         player.sendPacket(entitySpawnPacket)
         sendMetadataPacket(player)
         sendMetadataPacketToViewers()
@@ -315,8 +326,8 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         val entityDespawnPacket = ClientboundEntityRemovePacket(this)
         player.sendPacket(entityDespawnPacket)
 
-        synchronized(player.visibleEntities) {
-            player.visibleEntities.remove(this)
+        synchronized(player.entityViewSystem.visibleEntities) {
+            player.entityViewSystem.visibleEntities.remove(this)
         }
     }
 

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.player
 
+import io.github.dockyardmc.player.systems.GameMode
 import java.util.UUID
 
 class PlayerInfoUpdate(

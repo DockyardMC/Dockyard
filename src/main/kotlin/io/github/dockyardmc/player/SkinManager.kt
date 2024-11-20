@@ -1,7 +1,7 @@
 package io.github.dockyardmc.player
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.MojangUtil
 import java.util.*
 
@@ -13,21 +13,20 @@ object SkinManager {
     fun setSkinOf(player: Player, username: String) {
 
         var uuid: UUID? = null
-        val asyncRunnable = AsyncRunnable {
+        val asyncRunnable = DockyardServer.scheduler.runAsync {
             uuid = MojangUtil.getUUIDFromUsername(username)
         }
-        asyncRunnable.callback = {
+        asyncRunnable.thenAccept {
             uuid?.let { setSkinOf(player, it) }
         }
-        asyncRunnable.run()
     }
 
     fun setSkinOf(player: Player, uuid: UUID) {
-        val asyncRunnable = AsyncRunnable {
+        val asyncRunnable = DockyardServer.scheduler.runAsync {
             val skin = MojangUtil.getSkinFromUUID(uuid)
             player.profile!!.properties[0] = skin
         }
-        asyncRunnable.callback = {
+        asyncRunnable.thenAccept {
             player.respawn(false)
             player.sendPacket(ClientboundPlayerInfoRemovePacket(player))
             val addPlayerUpdate = PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!))
@@ -43,7 +42,6 @@ object SkinManager {
             player.sendToViewers(ClientboundSpawnEntityPacket(player.entityId, player.uuid, player.type.getProtocolId(), player.location, player.location.yaw, 0, player.velocity))
             player.displayedSkinParts.triggerUpdate()
         }
-        asyncRunnable.run()
     }
 }
 

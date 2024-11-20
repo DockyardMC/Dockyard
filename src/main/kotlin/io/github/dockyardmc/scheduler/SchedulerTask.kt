@@ -3,7 +3,7 @@ package io.github.dockyardmc.scheduler
 import cz.lukynka.prettylog.log
 import java.lang.Exception
 
-class SchedulerTask(val task: ((serverTicks: Long, schedulerTicks: Long) -> Unit), val type: Type, val name: String? = null) {
+class SchedulerTask(val task: (() -> Unit), val type: Type, val name: String? = null) {
 
     private var innerStatus = Status.WAITING
     val status get() = innerStatus
@@ -12,7 +12,7 @@ class SchedulerTask(val task: ((serverTicks: Long, schedulerTicks: Long) -> Unit
     fun run(serverTicks: Long, schedulerTicks: Long) {
         innerStatus = Status.RUNNING
         try {
-            task.invoke(serverTicks, schedulerTicks)
+            task.invoke()
             innerStatus = Status.FINISHED
         } catch (ex: Exception) {
             innerStatus = Status.THROW
@@ -26,6 +26,10 @@ class SchedulerTask(val task: ((serverTicks: Long, schedulerTicks: Long) -> Unit
         }
     }
 
+    fun cancel() {
+        cancelled = true
+    }
+
     enum class Status {
         WAITING,
         RUNNING,
@@ -35,9 +39,11 @@ class SchedulerTask(val task: ((serverTicks: Long, schedulerTicks: Long) -> Unit
 
     enum class Type {
         IMMEDIATE,
-        TICK_START,
-        TICK_END,
-        REPEATING_TICK_START,
-        REPEATING_TICK_END,
+        TICK,
+        REPEATING,
+    }
+
+    override fun toString(): String {
+        return "SchedulerTask(type=${type.name}, status=${status.name}, cancelled=${cancelled})"
     }
 }

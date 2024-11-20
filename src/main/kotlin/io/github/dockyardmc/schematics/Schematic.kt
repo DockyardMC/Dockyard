@@ -10,7 +10,6 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.world.Chunk
@@ -59,7 +58,7 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
 
     val flippedPallet = schematic.pallete.entries.associateBy({ it.value }) { it.key }
 
-    val runnable = AsyncRunnable {
+    val runnable = location.world.scheduler.runAsync {
         for (y in 0 until schematic.size.y) {
             for (z in 0 until schematic.size.z) {
                 for (x in 0 until schematic.size.x) {
@@ -90,14 +89,13 @@ fun World.placeSchematic(builder: SchematicPlacer.() -> Unit) {
         }
     }
 
-    runnable.callback = {
+    runnable.thenAccept {
         updateChunks.forEach { chunk ->
             chunk.updateCache()
             location.world.players.sendPacket(chunk.packet)
         }
         placer.then?.invoke()
     }
-    runnable.run()
 }
 
 enum class SchematicRotation {

@@ -2,7 +2,6 @@ package io.github.dockyardmc
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.annotations.AnnotationProcessor
 import io.github.dockyardmc.config.Config
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
@@ -10,12 +9,12 @@ import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.commands.DockyardCommands
 import io.github.dockyardmc.npc.NpcCommand
-import io.github.dockyardmc.protocol.PacketParser
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
 import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.github.dockyardmc.registry.MinecraftVersions
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.*
+import io.github.dockyardmc.scheduler.Scheduler
 import io.github.dockyardmc.server.PlayerKeepAliveTimer
 import io.github.dockyardmc.server.NettyServer
 import io.github.dockyardmc.server.ServerTickManager
@@ -83,6 +82,8 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         lateinit var instance: DockyardServer
         val minecraftVersion = MinecraftVersions.v1_21_3
         var allowAnyVersion: Boolean = false
+
+        val scheduler = Scheduler("main_scheduler").makeGlobal()
 
         var tickRate: Int = 20
         val debug get() = ConfigManager.config.debug

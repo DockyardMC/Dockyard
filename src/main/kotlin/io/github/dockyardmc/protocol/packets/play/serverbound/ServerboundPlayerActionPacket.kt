@@ -10,8 +10,8 @@ import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.particles.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Direction
-import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerHand
+import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
