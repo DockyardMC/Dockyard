@@ -48,13 +48,13 @@ class PlayHandler(var processor: PlayerNetworkManager): PacketHandler(processor)
 
         if(isOnlyHeadMovement) {
             val packet = ClientboundUpdateEntityRotationPacket(player, Vector2f(player.location.yaw, player.location.pitch))
-            player.sendToViewers(packet)
+            player.sendPacketToViewers(packet)
         } else {
             val packet = ClientboundUpdateEntityPositionAndRotationPacket(player, oldLocation)
-            player.sendToViewers(packet)
+            player.sendPacketToViewers(packet)
         }
         val headRotPacket = ClientboundSetHeadYawPacket(player)
-        player.sendToViewers(headRotPacket)
+        player.sendPacketToViewers(headRotPacket)
 
         player.chunkEngine.update()
     }

@@ -53,7 +53,6 @@ class PlayerChunkEngine(val player: Player) {
         }
     }
 
-
     fun resendChunks() {
         player.world.scheduler.runAsync {
             getChunksInRange(player.getCurrentChunkPos()).forEach {

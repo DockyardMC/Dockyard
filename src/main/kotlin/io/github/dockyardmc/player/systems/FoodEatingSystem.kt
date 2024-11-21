@@ -67,7 +67,4 @@ class FoodEatingSystem(val player: Player): TickablePlayerSystem {
             }
         }
     }
-
-    override fun dispose() {
-    }
 }

@@ -17,8 +17,4 @@ class EntityViewSystem(val player: Player): TickablePlayerSystem {
         remove.forEach { it.removeViewer(player) }
 
     }
-
-    override fun dispose() {
-        TODO("Not yet implemented")
-    }
 }

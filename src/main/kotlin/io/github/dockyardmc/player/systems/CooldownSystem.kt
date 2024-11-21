@@ -20,9 +20,4 @@ class CooldownSystem(val player: Player): TickablePlayerSystem {
             }
         }
     }
-
-    override fun dispose() {
-        cooldowns.dispose()
-    }
-
 }

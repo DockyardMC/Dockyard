@@ -228,10 +228,13 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         )
     }
 
+
     open fun teleport(location: Location) {
+        val oldLocation = this.location
         this.location = location
         viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
         viewers.sendPacket(ClientboundSetHeadYawPacket(this))
+        viewers.sendPacket(ClientboundUpdateEntityPositionAndRotationPacket(this, oldLocation))
 
         if(passengers.values.isNotEmpty()) {
             viewers.sendPacket(ClientboundMoveVehiclePacket(this))

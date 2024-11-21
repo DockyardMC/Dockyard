@@ -41,9 +41,6 @@ class GameModeSystem(val player: Player): PlayerSystem {
         }
     }
 
-
-    override fun dispose() {
-    }
 }
 
 enum class GameMode {
