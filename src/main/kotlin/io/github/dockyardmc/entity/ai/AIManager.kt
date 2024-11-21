@@ -1,7 +1,7 @@
-package io.github.dockyardmc.entities.ai
+package io.github.dockyardmc.entity.ai
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.broadcastActionBar

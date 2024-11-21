@@ -1,4 +1,4 @@
-package io.github.dockyardmc.entities
+package io.github.dockyardmc.entity
 
 import cz.lukynka.Bindable
 import io.github.dockyardmc.blocks.Block

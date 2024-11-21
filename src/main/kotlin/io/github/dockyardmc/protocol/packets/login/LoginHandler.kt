@@ -4,7 +4,7 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.entities.EntityManager
+import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.player.kick.KickReason

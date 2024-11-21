@@ -1,4 +1,4 @@
-package io.github.dockyardmc.entities
+package io.github.dockyardmc.entity
 
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.extentions.*

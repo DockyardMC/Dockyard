@@ -1,8 +1,7 @@
-package io.github.dockyardmc.entities
+package io.github.dockyardmc.entity
 
 import io.github.dockyardmc.events.EntitySpawnEvent
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.utils.getEntityEventContext
 import io.github.dockyardmc.world.World

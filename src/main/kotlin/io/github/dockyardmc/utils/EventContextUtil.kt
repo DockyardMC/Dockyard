@@ -1,6 +1,6 @@
 package io.github.dockyardmc.utils
 
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.events.Event
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player

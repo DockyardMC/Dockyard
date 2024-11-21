@@ -5,8 +5,8 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.blocks.BatchBlockUpdate
 import io.github.dockyardmc.blocks.Block
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityManager.despawnEntity
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
@@ -118,10 +118,10 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
         val oldWorld = player.world
 
-        oldWorld.entities.filter { it != player }.forEach { it.removeViewer(player, false) }
+        oldWorld.entities.filter { it != player }.forEach { it.removeViewer(player) }
         oldWorld.players.filter { it != player }.forEach {
-            it.removeViewer(player, false)
-            player.removeViewer(it, false)
+            it.removeViewer(player)
+            player.removeViewer(it)
         }
 
         player.world.innerPlayers.removeIfPresent(player)

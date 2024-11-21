@@ -1,4 +1,4 @@
-package io.github.dockyardmc.entities
+package io.github.dockyardmc.entity
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
@@ -7,8 +7,7 @@ import cz.lukynka.BindablePool
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockIterator
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.effects.PotionEffectImpl
-import io.github.dockyardmc.entities.EntityManager.despawnEntity
+import io.github.dockyardmc.entity.handlers.*
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.item.EquipmentSlot
@@ -30,8 +29,8 @@ import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.utils.mergeEntityMetadata
-import io.github.dockyardmc.utils.ticksToMs
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.Chunk
@@ -41,197 +40,72 @@ import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
 
-abstract class Entity(open var location: Location, open var world: World) : Disposable {
+abstract class Entity(open var location: Location, open var world: World) : Disposable, Viewable() {
 
     val bindablePool = BindablePool()
 
-    open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
-    open var uuid: UUID = UUID.randomUUID()
     abstract var type: EntityType
-    open var velocity: Vector3 = Vector3()
-    val viewers: MutableSet<Player> = mutableSetOf()
-    open var isInvulnerable: Boolean = false
-    val displayName: Bindable<String?> = bindablePool.provideBindable(null)
-    open var isOnGround: Boolean = true
-    val metadata: BindableMap<EntityMetadataType, EntityMetadata> = bindablePool.provideBindableMap()
-    val pose: Bindable<EntityPose> = bindablePool.provideBindable(EntityPose.STANDING)
     abstract var health: Bindable<Float>
     abstract var inventorySize: Int
-    val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = bindablePool.provideBindableMap()
-    val walkSpeed: Bindable<Float> = Bindable(0.15f)
+
+    open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
+    open var uuid: UUID = UUID.randomUUID()
+    open var velocity: Vector3 = Vector3()
+    open var isInvulnerable: Boolean = false
+    open var isOnGround: Boolean = true
     open var tickable: Boolean = true
-    val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> =
-        bindablePool.provideBindableMap()
-    val isGlowing: Bindable<Boolean> = bindablePool.provideBindable(false)
-    val isInvisible: Bindable<Boolean> = bindablePool.provideBindable(false)
-    val team: Bindable<Team?> = bindablePool.provideBindable(null)
+
+    val displayName: Bindable<String?> = bindablePool.provideBindable(null)
+    val metadata: BindableMap<EntityMetadataType, EntityMetadata> = bindablePool.provideBindableMap()
+    val pose: Bindable<EntityPose> = bindablePool.provideBindable(EntityPose.STANDING)
+    val walkSpeed: Bindable<Float> = Bindable(0.15f)
+    val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = bindablePool.provideBindableMap()
     val isOnFire: Bindable<Boolean> = bindablePool.provideBindable(false)
     val freezeTicks: Bindable<Int> = bindablePool.provideBindable(0)
-    val equipment: BindableMap<EquipmentSlot, ItemStack> = bindablePool.provideBindableMap()
-    val equipmentLayers: BindableMap<PersistentPlayer, Map<EquipmentSlot, ItemStack>> =
-        bindablePool.provideBindableMap()
-    var renderDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityRenderDistanceBlocks
-    var autoViewable: Boolean = true
     var hasNoGravity: Bindable<Boolean> = Bindable(true)
+
+    val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = bindablePool.provideBindableMap()
+    val isInvisible: Bindable<Boolean> = bindablePool.provideBindable(false)
+    val isGlowing: Bindable<Boolean> = bindablePool.provideBindable(false)
+
+    val team: Bindable<Team?> = bindablePool.provideBindable(null)
+
+    val equipment: BindableMap<EquipmentSlot, ItemStack> = bindablePool.provideBindableMap()
+    val equipmentLayers: BindableMap<PersistentPlayer, Map<EquipmentSlot, ItemStack>> = bindablePool.provideBindableMap()
+
+    var renderDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityRenderDistanceBlocks
+
     var passengers: BindableList<Entity> = BindableList()
     var vehicle: Entity? = null
 
+    val equipmentHandler = EntityEquipmentHandler(this)
+    val metadataHandler = EntityMetadataHandler(this)
+    val vehicleHandler = EntityVehicleHandler(this)
+    val potionEffectsHandler = EntityPotionEffectsHandler(this)
+    val itemPickupHandler = EntityItemPickupHandler(this)
+
+    override var autoViewable: Boolean = true
+
     constructor(location: Location) : this(location, location.world)
-
-    fun getCurrentChunk(): Chunk? {
-        return world.chunks[getCurrentChunkPos().pack()]
-    }
-
-    fun getCurrentChunkPos(): ChunkPos {
-        return ChunkPos.fromLocation(location)
-    }
 
     init {
 
-        hasNoGravity.valueChanged {
-            val noGravityType = EntityMetadataType.HAS_NO_GRAVITY
-            metadata[noGravityType] = EntityMetadata(noGravityType, EntityMetaValue.BOOLEAN, it.newValue)
-        }
-
-        equipment.itemSet {
-            if (this !is Player) return@itemSet
-            this.inventory.unsafeUpdateEquipmentSlot(it.key, this.heldSlotIndex.value, it.value)
-        }
-
-        equipment.mapUpdated {
-            if (this is Player) sendEquipmentPacket(this)
-            viewers.forEach { viewer -> sendEquipmentPacket(viewer) }
-        }
-
-        equipmentLayers.itemSet {
-            val player = it.key.toPlayer()
-            if (player != null) sendEquipmentPacket(player)
-        }
-
-        equipmentLayers.itemRemoved {
-            val player = it.key.toPlayer()
-            if (player != null) sendEquipmentPacket(player)
-        }
-
-        isOnFire.valueChanged {
-            val meta = getEntityMetadataState(this) {
-                isOnFire = it.newValue
-            }
-            metadata[EntityMetadataType.STATE] = meta
-        }
-
-        freezeTicks.valueChanged {
-            val meta = EntityMetadata(EntityMetadataType.FROZEN_TICKS, EntityMetaValue.VAR_INT, it.newValue)
-            metadata[EntityMetadataType.FROZEN_TICKS] = meta
-        }
-
-        metadata.mapUpdated {
-            sendMetadataPacketToViewers()
-            sendSelfMetadataIfPlayer()
-        }
-
-        metadata.itemSet {
-            sendMetadataPacketToViewers()
-            sendSelfMetadataIfPlayer()
-        }
-
-        isGlowing.valueChanged {
-            metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
-        }
-
-        isInvisible.valueChanged {
-            metadata[EntityMetadataType.STATE] = getEntityMetadataState(this)
-        }
-
-        metadataLayers.itemSet {
-            val player = it.key.toPlayer()
-            if (player != null) sendMetadataPacket(player)
-        }
-
-        metadataLayers.itemRemoved {
-            val player = it.key.toPlayer()
-            if (player != null) sendMetadataPacket(player)
-        }
-
-        pose.valueChanged {
-            metadata[EntityMetadataType.POSE] =
-                EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
-        }
-
-        passengers.itemAdded {
-
-            val contextPlayers = mutableSetOf<Player>()
-            if(this is Player) contextPlayers.add(this)
-            if(it.item is Player) contextPlayers.add(it.item as Player)
-
-            val event = EntityRideVehicleEvent(this, it.item, Event.Context(
-                contextPlayers,
-                setOf(this, it.item),
-                setOf(world),
-                setOf(location),
-            ))
-
-            Events.dispatch(event)
-            if(event.cancelled) {
-                passengers.remove(it.item)
-                return@itemAdded
-            }
-
-            it.item.vehicle = this
-            val packet = ClientboundSetPassengersPacket(this, passengers.values)
-            viewers.sendPacket(packet)
-        }
-
-        passengers.itemRemoved {
-            val contextPlayers = mutableSetOf<Player>()
-            if(this is Player) contextPlayers.add(this)
-            if(it.item is Player) contextPlayers.add(it.item as Player)
-
-            val event = EntityDismountVehicleEvent(this, it.item, Event.Context(
-                contextPlayers,
-                setOf(this, it.item),
-                setOf(world),
-                setOf(location),
-            ))
-
-            Events.dispatch(event)
-            if(event.cancelled) {
-                passengers.remove(it.item)
-                return@itemRemoved
-            }
-
-            it.item.vehicle = null
-            val packet = ClientboundSetPassengersPacket(this, passengers.values)
-            viewers.sendPacket(packet)
-        }
-
+        equipmentHandler.handle(equipment, equipmentLayers)
+        vehicleHandler.handle(passengers)
+        potionEffectsHandler.handle(potionEffects)
+        metadataHandler.handle(
+            hasNoGravity = hasNoGravity,
+            entityIsOnFire = isOnFire,
+            freezeTicks = freezeTicks,
+            metadata = metadata,
+            metadataLayers = metadataLayers,
+            isGlowing = isGlowing,
+            isInvisible = isInvisible,
+            pose = pose
+        )
 
         //TODO add attribute modifiers
         walkSpeed.valueChanged {}
-
-        potionEffects.itemSet {
-            it.value.startTime = System.currentTimeMillis()
-            val packet = ClientboundEntityEffectPacket(
-                this,
-                it.value.effect,
-                it.value.settings.amplifier,
-                it.value.settings.duration,
-                it.value.settings.showParticles,
-                it.value.settings.isAmbient,
-                it.value.settings.showIcon
-            )
-
-            viewers.sendPacket(packet)
-            sendSelfPacketIfPlayer(packet)
-            PotionEffectImpl.onEffectApply(this, it.value.effect)
-        }
-
-        potionEffects.itemRemoved {
-            val packet = ClientboundRemoveEntityEffectPacket(this, it.value)
-            viewers.sendPacket(packet)
-            PotionEffectImpl.onEffectRemoved(this, it.value.effect)
-            sendSelfPacketIfPlayer(packet)
-        }
 
         team.valueChanged {
             if (it.newValue != null && !TeamManager.teams.values.containsKey(it.newValue!!.name)) throw IllegalArgumentException(
@@ -242,62 +116,34 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         }
     }
 
+    fun getCurrentChunk(): Chunk? {
+        return world.chunks[getCurrentChunkPos().pack()]
+    }
+
+    fun getCurrentChunkPos(): ChunkPos {
+        return ChunkPos.fromLocation(location)
+    }
+
     fun updateEntity(player: Player, respawn: Boolean = false) {
         sendMetadataPacketToViewers()
     }
 
     open fun tick() {
-        potionEffects.values.forEach {
-            if(it.value.settings.duration == -1) return@forEach
-            if (System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.settings.duration)) {
-                potionEffects.remove(it.key)
-            }
-        }
-
-        // try to pickup items
-        if(!ConfigManager.config.implementationConfig.itemDroppingAndPickup) return
-        val drops = world.entities.filterIsInstance<ItemDropEntity>()
-        if (inventorySize <= 0) return
-        drops.toList().forEach { drop ->
-            if (this is Player && !drop.viewers.contains(this)) return@forEach
-            if (!drop.canBePickedUp) return@forEach
-            if (drop.location.distance(location) > drop.pickupDistance) return@forEach
-
-            val itemStack = drop.itemStack.value
-
-            val eventContext = Event.Context(
-                setOf(),
-                setOf(drop, this),
-                setOf(this.world),
-                setOf(this.location, drop.location)
-            )
-            val event = EntityPickupItemEvent(this, itemStack, eventContext)
-            if (event.cancelled) return@forEach
-
-            if (canPickupItem(drop, itemStack)) {
-                val mutualViewers = drop.viewers.filter { viewers.contains(it) }
-                if (drop.pickupAnimation) {
-                    val packet = ClientboundPickupItemPacket(drop, this, itemStack)
-                    mutualViewers.sendPacket(packet)
-                    if (this is Player) this.sendPacket(packet)
-                }
-                drop.world.despawnEntity(drop)
-            }
-        }
+        potionEffectsHandler.tick()
+        itemPickupHandler.tick()
     }
 
     open fun canPickupItem(dropEntity: ItemDropEntity, item: ItemStack): Boolean {
         return false
     }
 
-    open fun addViewer(player: Player) {
+    override fun addViewer(player: Player) {
         val event = EntityViewerAddEvent(this, player)
         Events.dispatch(event)
         if (event.cancelled) return
 
         sendMetadataPacket(player)
-        val entitySpawnPacket =
-            ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
+        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
         isOnGround = true
 
         synchronized(player.entityViewSystem.visibleEntities) {
@@ -313,7 +159,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         sendMetadataPacketToViewers()
     }
 
-    open fun removeViewer(player: Player, isDisconnect: Boolean) {
+    override fun removeViewer(player: Player) {
 
         val event = EntityViewerRemoveEvent(this, player)
         Events.dispatch(event)
@@ -443,11 +289,11 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         val maxZ: Double,
     )
 
-    private fun sendSelfPacketIfPlayer(packet: ClientboundPacket) {
+    fun sendSelfPacketIfPlayer(packet: ClientboundPacket) {
         if (this is Player) this.sendPacket(packet)
     }
 
-    private fun sendSelfMetadataIfPlayer() {
+    fun sendSelfMetadataIfPlayer() {
         if (this is Player) sendMetadataPacket(this)
     }
 
@@ -537,7 +383,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     override fun dispose() {
         team.value = null
         equipmentLayers.clear()
-        viewers.toList().forEach { removeViewer(it, false) }
+        viewers.toList().forEach { removeViewer(it) }
         metadataLayers.clear()
         bindablePool.dispose()
         EntityManager.despawnEntity(this)

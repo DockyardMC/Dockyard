@@ -2,9 +2,9 @@ package io.github.dockyardmc.npc
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import io.github.dockyardmc.entities.EntityMetaValue
-import io.github.dockyardmc.entities.EntityMetadata
-import io.github.dockyardmc.entities.EntityMetadataType
+import io.github.dockyardmc.entity.EntityMetaValue
+import io.github.dockyardmc.entity.EntityMetadata
+import io.github.dockyardmc.entity.EntityMetadataType
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
@@ -91,11 +91,11 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
         if (profile.value == null) setSkin(username.value)
     }
 
-    override fun removeViewer(player: Player, isDisconnect: Boolean) {
+    override fun removeViewer(player: Player) {
         val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this.uuid)
         player.sendPacket(playerRemovePacket)
         viewers.remove(player)
-        super.removeViewer(player, isDisconnect)
+        super.removeViewer(player)
     }
 
     fun setSkin(uuid: UUID) {

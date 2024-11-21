@@ -2,8 +2,8 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityManager
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.events.PlayerInteractAtEntityEvent

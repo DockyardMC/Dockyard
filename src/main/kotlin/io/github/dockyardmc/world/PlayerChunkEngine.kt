@@ -56,7 +56,7 @@ class PlayerChunkEngine(val player: Player) {
     }
 
 
-    fun sendFullReload() {
+    fun resendChunks() {
         player.world.scheduler.runAsync {
             getChunksInRange(player.getCurrentChunkPos()).forEach {
                 loadChunk(ChunkPos.fromIndex(it))

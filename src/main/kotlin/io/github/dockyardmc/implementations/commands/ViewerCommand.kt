@@ -31,7 +31,7 @@ class ViewerCommand {
                     val player = getArgument<Player>("viewer")
                     val isDisconnect = getArgumentOrNull<Boolean>("is_disconnect") ?: false
 
-                    entity.removeViewer(player, isDisconnect)
+                    entity.removeViewer(player)
                 }
             }
         }

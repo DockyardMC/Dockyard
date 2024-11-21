@@ -1,6 +1,6 @@
 package io.github.dockyardmc.effects
 
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.registry.registries.PotionEffect
 
 object PotionEffectImpl {

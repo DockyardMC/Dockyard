@@ -1,7 +1,7 @@
 package io.github.dockyardmc.inventory
 
 import cz.lukynka.BindableMap
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.events.InventoryItemChangeEvent
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.isSameAs

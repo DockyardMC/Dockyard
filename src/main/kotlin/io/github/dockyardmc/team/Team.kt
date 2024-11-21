@@ -2,7 +2,7 @@ package io.github.dockyardmc.team
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.npc.PlayerNpc
 import io.github.dockyardmc.player.Player

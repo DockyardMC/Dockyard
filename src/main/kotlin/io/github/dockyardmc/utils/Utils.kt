@@ -1,9 +1,9 @@
 package io.github.dockyardmc.utils
 
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityMetadata
-import io.github.dockyardmc.entities.EntityMetadataType
-import io.github.dockyardmc.entities.getEntityMetadataState
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.EntityMetadata
+import io.github.dockyardmc.entity.EntityMetadataType
+import io.github.dockyardmc.entity.getEntityMetadataState
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
 import java.security.MessageDigest

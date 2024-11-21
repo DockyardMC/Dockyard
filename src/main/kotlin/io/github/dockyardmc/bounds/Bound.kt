@@ -1,8 +1,8 @@
 package io.github.dockyardmc.bounds
 
 import io.github.dockyardmc.blocks.Block
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityManager
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player

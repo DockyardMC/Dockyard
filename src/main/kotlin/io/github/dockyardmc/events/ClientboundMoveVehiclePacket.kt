@@ -1,6 +1,6 @@
 package io.github.dockyardmc.events
 
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.location.writeRotation
 import io.github.dockyardmc.protocol.packets.ClientboundPacket

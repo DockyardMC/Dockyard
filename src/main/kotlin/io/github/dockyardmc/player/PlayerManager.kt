@@ -1,6 +1,6 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.entities.EntityManager
+import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerConnectEvent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
@@ -30,9 +30,10 @@ object PlayerManager {
 
     fun remove(player: Player) {
         player.isConnected = false
+        //TODO send remove player info packets
         player.viewers.toList().forEach {
-            player.removeViewer(it, true);
-            it.removeViewer(player, true)
+            player.removeViewer(it);
+            it.removeViewer(player)
         }
 
         synchronized(innerPlayers) {

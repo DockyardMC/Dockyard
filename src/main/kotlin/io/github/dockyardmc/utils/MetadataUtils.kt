@@ -1,8 +1,8 @@
 package io.github.dockyardmc.utils
 
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityMetadataType
-import io.github.dockyardmc.entities.EntityMetadata
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.EntityMetadataType
+import io.github.dockyardmc.entity.EntityMetadata
 
 fun mergeEntityMetadata(base: Entity, layer: Map<EntityMetadataType, EntityMetadata>?): List<EntityMetadata> {
     if(layer == null) return base.metadata.values.values.toList()

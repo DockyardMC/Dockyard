@@ -3,7 +3,7 @@ package io.github.dockyardmc.player
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.commands.buildCommandGraph
-import io.github.dockyardmc.entities.*
+import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.ContainerInventory
@@ -238,14 +238,15 @@ class Player(
         }
     }
 
-    override fun removeViewer(player: Player, isDisconnect: Boolean) {
+    override fun removeViewer(player: Player) {
         if(player == this) return
-        if(isDisconnect) {
-            val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this)
-            player.sendPacket(playerRemovePacket)
-        }
+//        //
+//        if(isDisconnect) {
+//            val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this)
+//            player.sendPacket(playerRemovePacket)
+//        }
         viewers.remove(player)
-        super.removeViewer(player, isDisconnect)
+        super.removeViewer(player)
     }
 
     // Hold messages client receives before state is PLAY, then send them after state changes to PLAY
@@ -294,6 +295,7 @@ class Player(
 
         val teleportPacket = ClientboundPlayerSynchronizePositionPacket(location)
         this.sendPacket(teleportPacket)
+        chunkEngine.resendChunks()
         super.teleport(location)
     }
 
@@ -330,14 +332,11 @@ class Player(
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
 
-        this.world.chunks.values.toList().forEach {
-            chunkEngine.loadChunk(it.chunkPos)
-        }
+        chunkEngine.resendChunks()
 
         refreshClientStateAfterRespawn()
 
         if(isBecauseDeath) Events.dispatch(PlayerRespawnEvent(this))
-        chunkEngine.sendFullReload()
     }
 
     fun refreshClientStateAfterRespawn() {
@@ -349,6 +348,7 @@ class Player(
         experienceLevel.triggerUpdate()
         inventory.sendFullInventoryUpdate()
         refreshPotionEffects()
+        teleport(location)
 
         pose.triggerUpdate()
         refreshAbilities()

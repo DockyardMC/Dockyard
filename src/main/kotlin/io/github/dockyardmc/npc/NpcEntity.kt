@@ -1,7 +1,7 @@
 package io.github.dockyardmc.npc
 
 import cz.lukynka.Bindable
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
@@ -66,14 +66,6 @@ abstract class NpcEntity(location: Location) : Entity(location) {
         }
         hasCollision.valueChanged { npcTeam.teamCollisionRule.value = getTeamCollision(); team.value = npcTeam }
         teamColor.valueChanged { npcTeam.color.value = it.newValue }
-    }
-
-    override fun removeViewer(player: Player, isDisconnect: Boolean) {
-        super.removeViewer(player, isDisconnect)
-    }
-
-    override fun addViewer(player: Player) {
-        super.addViewer(player)
     }
 
     override fun dispose() {

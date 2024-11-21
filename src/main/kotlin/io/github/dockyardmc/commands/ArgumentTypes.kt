@@ -1,6 +1,6 @@
 package io.github.dockyardmc.commands
 
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.player.Player

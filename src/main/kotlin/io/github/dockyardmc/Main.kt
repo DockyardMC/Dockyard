@@ -1,26 +1,26 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.commands.*
+import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.PlayerArgument
+import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
-import io.github.dockyardmc.entities.EntityManager.spawnEntity
-import io.github.dockyardmc.entities.Parrot
-import io.github.dockyardmc.entities.TestZombie
-import io.github.dockyardmc.entities.Warden
-import io.github.dockyardmc.events.*
+import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.Parrot
+import io.github.dockyardmc.entity.TestZombie
+import io.github.dockyardmc.entity.Warden
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.events.PlayerSpawnEvent
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.runnables.ticks
-import io.github.dockyardmc.scheduler.Scheduler
 import io.github.dockyardmc.utils.DebugScoreboard
 import io.github.dockyardmc.utils.randomInt
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
-import java.lang.IllegalStateException
-import kotlin.time.Duration.Companion.seconds
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -53,7 +53,7 @@ fun main(args: Array<String>) {
         execute {
             val random = randomInt(1, 3)
             val player = it.getPlayerOrThrow()
-            val entity = when(random) {
+            val entity = when (random) {
                 1 -> TestZombie(player.location)
                 2 -> Warden(player.location)
                 3 -> Parrot(player.location)
@@ -64,23 +64,8 @@ fun main(args: Array<String>) {
         }
     }
 
-    Commands.add("/vehicletp") {
-        execute {
-            val player = it.getPlayerOrThrow()
-            if(player.vehicle == null) return@execute
-            val random = player.location.add(randomInt(-5, 5), 0, randomInt(-5, 5))
-
-            player.vehicle!!.teleport(random)
-        }
-    }
-
-    Events.on<PlayerInteractWithEntityEvent> {
-        it.entity.passengers.add(it.player)
-    }
-
-    Events.on<EntityDismountVehicleEvent> {
-        if(it.passenger !is Player) return@on
-        it.passenger.sendMessage("<red>Dismounted vehicle")
+    Events.on<PlayerSpawnEvent> {
+        it.world = customWorld
     }
 
     Events.on<PlayerJoinEvent> {
@@ -93,46 +78,10 @@ fun main(args: Array<String>) {
         DebugScoreboard.sidebar.viewers.add(player)
 
         player.addPotionEffect(PotionEffects.NIGHT_VISION, -1, 0, false)
-        player.teleport(customWorld.defaultSpawnLocation)
     }
 
     Events.on<PlayerLeaveEvent> {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
-    }
-
-    Events.on<PlayerRightClickWithItemEvent> {
-        it.player.setCooldown(it.item.material, 200)
-    }
-
-    Events.on<ItemGroupCooldownStartEvent> {
-        it.player.sendMessage("<lime>${it.cooldown.group} started for ${it.cooldown.durationTicks}")
-    }
-
-    Events.on<ItemGroupCooldownEndEvent> {
-        it.player.sendMessage("<red>${it.cooldown.group} ended (lasted ${it.cooldown.durationTicks})")
-    }
-
-    val scheduler = Scheduler("test")
-    scheduler.makeGlobal()
-
-    Commands.add("/greedy") {
-        addArgument("interval", IntArgument())
-        addArgument("message", StringArgument(BrigadierStringType.GREEDY_PHRASE))
-        execute {
-            val player = it.getPlayerOrThrow()
-            val message = getArgument<String>("message")
-            val interval = getArgument<Int>("interval")
-
-            val repeatingTask = scheduler.runRepeating(interval.ticks) {
-                player.sendMessage("<rainbow>$message")
-            }
-            scheduler.runLaterAsync(5.seconds) {
-                player.sendMessage("<red>5")
-                Thread.sleep(5000)
-                player.sendMessage("<red>10")
-                repeatingTask.cancel()
-            }
-        }
     }
 
     Commands.add("/reset") {

@@ -2,8 +2,8 @@ package io.github.dockyardmc.inventory
 
 import cz.lukynka.Bindable
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.entities.EntityManager.spawnEntity
-import io.github.dockyardmc.entities.ItemDropEntity
+import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.ItemDropEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.events.PlayerEquipEvent

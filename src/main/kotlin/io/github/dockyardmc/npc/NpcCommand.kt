@@ -8,8 +8,8 @@ import io.github.dockyardmc.commands.LegacyTextColorArgument
 import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.commands.simpleSuggestion
-import io.github.dockyardmc.entities.EntityManager.despawnEntity
-import io.github.dockyardmc.entities.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.EntityManager.despawnEntity
+import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.extentions.toScrollText
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
@@ -82,7 +82,7 @@ class NpcCommand {
 
                         NpcViewerAction.REMOVE -> {
                             if (!npc.viewers.contains(player)) throw CommandException("Player $player is not a viewer of npc $id")
-                            npc.removeViewer(player, false)
+                            npc.removeViewer(player)
                             executor.sendMessage("<lime>Removed <aqua>$player <lime>from viewer list of npc <yellow>$id")
                         }
                     }

@@ -1,6 +1,6 @@
 package io.github.dockyardmc.player.systems
 
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.player.Player
 
 class EntityViewSystem(val player: Player): TickablePlayerSystem {
@@ -14,7 +14,7 @@ class EntityViewSystem(val player: Player): TickablePlayerSystem {
         val remove = entities.filter { it.location.distance(player.location) > it.renderDistanceBlocks && visibleEntities.contains(it) }
 
         add.forEach { it.addViewer(player) }
-        remove.forEach { it.removeViewer(player, false) }
+        remove.forEach { it.removeViewer(player) }
 
     }
 
