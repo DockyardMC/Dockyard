@@ -11,6 +11,7 @@ import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityTeleportPacket
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.DimensionType
@@ -134,6 +135,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
         joinQueue.removeIfPresent(player)
         player.respawn()
+        player.sendPacketToViewers(ClientboundEntityTeleportPacket(player, player.location))
 
         player.isFullyInitialized = true
         player.updateWorldTime()

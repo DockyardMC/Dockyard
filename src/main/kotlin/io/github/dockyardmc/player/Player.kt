@@ -11,7 +11,6 @@ import io.github.dockyardmc.inventory.PlayerInventory
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.systems.*
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
@@ -19,7 +18,6 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.Item
@@ -29,7 +27,6 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.PlayerChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
@@ -163,7 +160,6 @@ class Player(
     }
 
     override fun tick() {
-        world.spawnParticle(location, Particles.ELECTRIC_SPARK, Vector3f(), 0f)
         entityViewSystem.tick()
         cooldownSystem.tick()
         foodEatingSystem.tick()
@@ -357,6 +353,7 @@ class Player(
         refreshAbilities()
         displayedSkinParts.triggerUpdate()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(location))
+        sendPacketToViewers(ClientboundEntityTeleportPacket(this, location))
     }
 
     fun refreshAbilities() {

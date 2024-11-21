@@ -50,7 +50,7 @@ class PlayHandler(var processor: PlayerNetworkManager): PacketHandler(processor)
             val packet = ClientboundUpdateEntityRotationPacket(player, Vector2f(player.location.yaw, player.location.pitch))
             player.sendPacketToViewers(packet)
         } else {
-            val packet = ClientboundUpdateEntityPositionAndRotationPacket(player, oldLocation)
+            val packet = ClientboundEntityTeleportPacket(player, oldLocation)
             player.sendPacketToViewers(packet)
         }
         val headRotPacket = ClientboundSetHeadYawPacket(player)
