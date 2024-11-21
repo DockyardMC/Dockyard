@@ -1,6 +1,5 @@
 package io.github.dockyardmc.world
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerEnterChunkEvent
 import io.github.dockyardmc.player.Player
@@ -43,7 +42,6 @@ class PlayerChunkEngine(val player: Player) {
                 )
             )
 
-            player.sendActionBar("${currentChunkPos.x}, ${currentChunkPos.z}")
             player.sendPacket(ClientboundSetCenterChunkPacket(currentChunkPos))
 
             // new chunks
@@ -65,14 +63,12 @@ class PlayerChunkEngine(val player: Player) {
     }
 
     fun loadChunk(pos: ChunkPos) {
-        log("loading chunk")
         val world = player.world
 
         var chunk: Chunk? = world.getChunk(pos.x, pos.z)
         if (chunk != null) {
             player.sendPacket(chunk.packet)
         } else {
-            log("generating ${pos.x} ${pos.z}")
             chunk = world.generateChunk(pos.x, pos.z)
             player.sendPacket(chunk.packet)
         }
