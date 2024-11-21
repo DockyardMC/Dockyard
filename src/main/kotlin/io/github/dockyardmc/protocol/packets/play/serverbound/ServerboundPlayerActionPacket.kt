@@ -51,7 +51,7 @@ class ServerboundPlayerActionPacket(
 
                 player.world.setBlock(event.location, Blocks.AIR)
                 player.world.players.filter { it != player }.spawnParticle(
-                    event.location.getBlockLocation(),
+                    event.location.add(0.5, 0.5, 0.5),
                     Particles.BLOCK,
                     amount = 50,
                     offset = Vector3f(0.3f),
