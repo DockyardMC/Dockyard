@@ -1,8 +1,7 @@
 package io.github.dockyardmc.sounds
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
@@ -84,7 +83,7 @@ fun Collection<Player>.playSound(identifier: String, source: Entity, volume: Flo
 }
 
 fun World.playSound(sound: Sound, source: Entity) {
-    this.players.values.playSound(sound, source)
+    this.players.playSound(sound, source)
 }
 
 fun World.playSound(identifier: String, source: Entity, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
