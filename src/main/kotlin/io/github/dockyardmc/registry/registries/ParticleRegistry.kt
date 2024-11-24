@@ -67,6 +67,7 @@ object ParticleRegistry : Registry {
         addEntry(Particle("minecraft:instant_effect"))
         addEntry(Particle("minecraft:item"))
         addEntry(Particle("minecraft:vibration"))
+        addEntry(Particle("minecraft:trail"))
         addEntry(Particle("minecraft:item_slime"))
         addEntry(Particle("minecraft:item_cobweb"))
         addEntry(Particle("minecraft:item_snowball"))
