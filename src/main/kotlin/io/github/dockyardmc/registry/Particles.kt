@@ -49,6 +49,7 @@ object Particles {
     val INSTANT_EFFECT = ParticleRegistry["minecraft:instant_effect"]
     val ITEM = ParticleRegistry["minecraft:item"]
     val VIBRATION = ParticleRegistry["minecraft:vibration"]
+    val TRAIL = ParticleRegistry["minecraft:trail"]
     val ITEM_SLIME = ParticleRegistry["minecraft:item_slime"]
     val ITEM_COBWEB = ParticleRegistry["minecraft:item_cobweb"]
     val ITEM_SNOWBALL = ParticleRegistry["minecraft:item_snowball"]
@@ -112,4 +113,5 @@ object Particles {
     val OMINOUS_SPAWNING = ParticleRegistry["minecraft:ominous_spawning"]
     val RAID_OMEN = ParticleRegistry["minecraft:raid_omen"]
     val TRIAL_OMEN = ParticleRegistry["minecraft:trial_omen"]
+    val BLOCK_CRUMBLE = ParticleRegistry["minecraft:block_crumble"]
 }
