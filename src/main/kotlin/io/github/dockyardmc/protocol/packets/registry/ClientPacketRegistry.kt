@@ -151,7 +151,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addPlay(ClientboundUpdateTimePacket::class)
         addPlay(ClientboundSetTitlePacket::class)
         addPlay(ClientboundSetTitleTimesPacket::class)
-        skipPlay("entity sound effect")
+        addPlay(ClientboundEntityPlaySoundPacket::class)
         addPlay(ClientboundPlaySoundPacket::class)
         skipPlay("start configuration")
         skipPlay("stop sound")
