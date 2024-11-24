@@ -131,6 +131,7 @@ object ParticleRegistry : Registry {
         addEntry(Particle("minecraft:ominous_spawning"))
         addEntry(Particle("minecraft:raid_omen"))
         addEntry(Particle("minecraft:trial_omen"))
+        addEntry(Particle("minecraft:block_crumble"))
     }
 
     override fun get(identifier: String): Particle {
