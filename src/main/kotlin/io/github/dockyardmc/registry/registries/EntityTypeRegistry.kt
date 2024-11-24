@@ -5,7 +5,6 @@ import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.vectors.Vector3d
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -13,7 +12,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.io.InputStream
-import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
 

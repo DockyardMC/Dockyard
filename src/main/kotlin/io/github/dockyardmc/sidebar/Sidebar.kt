@@ -4,18 +4,15 @@ import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.extentions.onlinePlayers
-import io.github.dockyardmc.player.PersistentPlayer
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.contains
-import io.github.dockyardmc.player.sendPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import java.util.UUID
 
 class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
 
     val title: Bindable<String> = Bindable(initialTitle)
-    val viewers: BindableList<PersistentPlayer> = BindableList()
+    val viewers: BindableList<Player> = BindableList()
     private val innerLines: MutableMap<Int, SidebarLine> = mutableMapOf()
     val lines get() = innerLines.toList()
 
@@ -36,12 +33,12 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
     fun setGlobalLine(line: Int, value: String) {
         val before = innerLines[line] as GlobalSidebarLine?
         innerLines[line] = GlobalSidebarLine(value)
-        if(before?.value != value) viewers.onlinePlayers.forEach { sendLinePacket(it, line) }
+        if(before?.value != value) viewers.values.forEach { sendLinePacket(it, line) }
     }
 
     fun setPlayerLine(line: Int, value: (Player) -> String) {
         innerLines[line] = PersonalizedSidebarLine(value)
-        viewers.onlinePlayers.forEach { sendLinePacket(it, line) }
+        viewers.values.forEach { sendLinePacket(it, line) }
     }
 
     private fun sendCreatePackets(player: Player) {
@@ -71,24 +68,15 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
     init {
         builder.invoke(this)
         viewers.itemAdded { event ->
-            val player = event.item.toPlayer() ?: return@itemAdded
-            sendCreatePackets(player)
-            sendLinesPackets(player)
+            sendCreatePackets(event.item)
+            sendLinesPackets(event.item)
         }
         viewers.itemRemoved { event ->
-            val player = event.item.toPlayer()
-            player?.sendPacket(removePacket)
+            event.item.sendPacket(removePacket)
         }
         title.valueChanged {
             val packet = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.EDIT_TEXT, it.newValue, ScoreboardType.INTEGER)
             viewers.sendPacket(packet)
-        }
-
-        Events.on<PlayerJoinEvent> {
-            if(viewers.contains(it.player)) {
-                sendCreatePackets(it.player)
-                sendLinesPackets(it.player)
-            }
         }
     }
 }

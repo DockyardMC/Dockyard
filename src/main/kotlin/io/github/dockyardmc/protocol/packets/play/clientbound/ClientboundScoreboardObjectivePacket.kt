@@ -11,7 +11,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 class ClientboundScoreboardObjectivePacket(name: String, mode: ScoreboardMode, value: String?, type: ScoreboardType?): ClientboundPacket() {
 
     init {
-        data.writeUtf(name)
+        data.writeString(name)
         data.writeByte(mode.ordinal)
         if(mode == ScoreboardMode.CREATE || mode == ScoreboardMode.EDIT_TEXT) {
             if(value == null) throw Exception("value needs to be not null when using CREATE or EDIT_TEXT mode!")

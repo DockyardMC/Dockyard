@@ -1,7 +1,7 @@
 package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.extentions.reversed
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.player.Player
 import io.netty.buffer.ByteBuf
@@ -90,14 +90,14 @@ fun ByteBuf.writeCommandNode(node: CommandNode, indices: MutableMap<Int, Command
         this.writeVarInt(childIndex)
     }
     if(node.redirectNode != null) this.writeVarInt(getCommandNodeIndex(node.redirectNode, indices))
-    if(node is LiteralCommandNode) this.writeUtf(node.name)
+    if(node is LiteralCommandNode) this.writeString(node.name)
     if(node is ArgumentCommandNode) {
         val parser = node.argument.parser
-        this.writeUtf(node.name)
+        this.writeString(node.name)
         this.writeVarInt(parser.ordinal)
         node.argument.write(this)
 
-        if(node.suggestionType != null) this.writeUtf(node.suggestionType!!.getIdentifier())
+        if(node.suggestionType != null) this.writeString(node.suggestionType!!.getIdentifier())
     }
 }
 

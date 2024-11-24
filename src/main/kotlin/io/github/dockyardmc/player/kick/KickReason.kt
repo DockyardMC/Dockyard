@@ -8,7 +8,8 @@ enum class KickReason(val description: String) {
     FAILED_ENCRYPTION("You have sent invalid RSA public/private key"),
     FAILED_SESSION("Your session has expired (try restarting your game)"),
     INVALID_PLAYER_DATA("You have sent invalid player data, try again"),
-    INCOMPATIBLE_VERSION("You are trying to join on unsupported version")
+    INCOMPATIBLE_VERSION("You are trying to join on unsupported version"),
+    ERROR_WHILE_WRITING_PACKET("There was an error while writing packet")
 }
 
 fun getSystemKickMessage(kickReason: KickReason): Component = getSystemKickMessage(kickReason.description, kickReason.name)

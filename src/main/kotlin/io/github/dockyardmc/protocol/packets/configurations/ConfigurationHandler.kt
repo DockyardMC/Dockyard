@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
+import cz.lukynka.BindablePool
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.commands.buildCommandGraph
@@ -17,6 +18,7 @@ import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.protocol.plugin.PluginMessages
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
+import io.github.dockyardmc.world.ChunkPos
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
@@ -39,6 +41,8 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         Events.dispatch(featureFlagsEvent)
         connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), processor)
 
+        connection.sendPacket(ClientboundUpdateTagsPacket(), processor)
+
         RegistryManager.dynamicRegistries.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it), processor) }
         connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), processor)
 
@@ -56,6 +60,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
             packet.mainHandSide,
             packet.enableTextFiltering,
             packet.allowServerListing,
+            packet.particleSettings
         )
 
         val event = PlayerClientConfigurationEvent(clientConfiguration, processor.player)
@@ -73,7 +78,6 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         val world = event.world
 
         processor.player.world = world
-        player.gameMode.value = GameMode.ADVENTURE
 
         if(world.canBeJoined.value) {
             acceptPlayer(player, world)
@@ -86,13 +90,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
 
     private fun acceptPlayer(player: Player, world: World) {
 
-        val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(0, 0)
-        player.sendPacket(chunkCenterChunkPacket)
-
-        val gameEventPacket = ClientboundPlayerGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 1f)
-        player.sendPacket(gameEventPacket)
-
-        val playPacket = ClientboundLoginPlayPacket(
+        val playPacket = ClientboundLoginPacket(
             entityId = player.entityId,
             isHardcore = world.isHardcore,
             dimensionNames = WorldManager.worlds.keys,
@@ -109,9 +107,17 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
             previousGameMode = player.gameMode.value,
             isDebug = false,
             isFlat = true,
-            portalCooldown = 0
+            portalCooldown = 0,
+            world.seaLevel,
+            false
         )
         player.sendPacket(playPacket)
+
+        val chunkCenterChunkPacket = ClientboundSetCenterChunkPacket(ChunkPos.ZERO)
+        player.sendPacket(chunkCenterChunkPacket)
+
+        val gameEventPacket = ClientboundGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 0f)
+        player.sendPacket(gameEventPacket)
 
         world.join(player)
         ServerStatusManager.updateCache()

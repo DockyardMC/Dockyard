@@ -2,7 +2,7 @@ package io.github.dockyardmc.team
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.npc.PlayerNpc
 import io.github.dockyardmc.player.Player
@@ -105,8 +105,8 @@ class Team(
 fun ByteBuf.writeTeamInfo(team: Team) {
     this.writeTextComponent(team.displayName.value)
     this.writeByte(team.getFlags().toInt())
-    this.writeUtf(team.teamNameTagVisibility.value.vanilla)
-    this.writeUtf(team.teamCollisionRule.value.value)
+    this.writeString(team.teamNameTagVisibility.value.vanilla)
+    this.writeString(team.teamCollisionRule.value.value)
     this.writeVarInt(team.color.value.ordinal)
     this.writeTextComponent((team.prefix.value ?: ""))
     this.writeTextComponent((team.suffix.value ?: ""))

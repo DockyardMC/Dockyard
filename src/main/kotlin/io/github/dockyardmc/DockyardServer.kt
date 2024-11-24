@@ -2,7 +2,6 @@ package io.github.dockyardmc
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.annotations.AnnotationProcessor
 import io.github.dockyardmc.config.Config
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
@@ -10,10 +9,12 @@ import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.commands.DockyardCommands
 import io.github.dockyardmc.npc.NpcCommand
-import io.github.dockyardmc.protocol.PacketParser
+import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
+import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.github.dockyardmc.registry.MinecraftVersions
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.*
+import io.github.dockyardmc.scheduler.Scheduler
 import io.github.dockyardmc.server.PlayerKeepAliveTimer
 import io.github.dockyardmc.server.NettyServer
 import io.github.dockyardmc.server.ServerTickManager
@@ -31,9 +32,10 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         instance = this
         configBuilder.invoke(config)
 
-        val packetClasses = AnnotationProcessor.getServerboundPacketClassInfo()
-        PacketParser.idAndStatePairToPacketClass = packetClasses
-        AnnotationProcessor.addIdsToClientboundPackets()
+        ServerPacketRegistry.load()
+        ClientPacketRegistry.load()
+
+        SoundRegistry.initialize(RegistryManager.getStreamFromPath("registry/sound_registry.json.gz"))
 
         RegistryManager.register(BlockRegistry)
         RegistryManager.register(EntityTypeRegistry)
@@ -78,8 +80,10 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     companion object {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         lateinit var instance: DockyardServer
-        val minecraftVersion = MinecraftVersions.v1_21
+        val minecraftVersion = MinecraftVersions.v1_21_3
         var allowAnyVersion: Boolean = false
+
+        val scheduler = Scheduler("main_scheduler").makeGlobal()
 
         var tickRate: Int = 20
         val debug get() = ConfigManager.config.debug
@@ -98,6 +102,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             "ClientboundSendParticlePacket",
             "ClientboundUpdateScorePacket",
             "ClientboundChunkDataPacket",
+            "ServerboundClientTickEndPacket"
         )
     }
 }

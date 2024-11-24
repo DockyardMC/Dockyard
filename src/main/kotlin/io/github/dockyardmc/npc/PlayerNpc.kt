@@ -2,17 +2,15 @@ package io.github.dockyardmc.npc
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import io.github.dockyardmc.entities.EntityMetaValue
-import io.github.dockyardmc.entities.EntityMetadata
-import io.github.dockyardmc.entities.EntityMetadataType
+import io.github.dockyardmc.entity.EntityMetaValue
+import io.github.dockyardmc.entity.EntityMetadata
+import io.github.dockyardmc.entity.EntityMetadataType
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
-import io.github.dockyardmc.runnables.AsyncRunnable
 import io.github.dockyardmc.utils.MojangUtil
 import java.util.UUID
 
@@ -34,13 +32,6 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     val isListed: Bindable<Boolean> = Bindable(false)
 
     var profile: Bindable<ProfilePropertyMap?> = Bindable(null)
-
-    val mainHandItem: Bindable<ItemStack> = Bindable(ItemStack.air)
-    val offHandItem: Bindable<ItemStack> = Bindable(ItemStack.air)
-    val helmet: Bindable<ItemStack> = Bindable(ItemStack.air)
-    val chestplate: Bindable<ItemStack> = Bindable(ItemStack.air)
-    val leggings: Bindable<ItemStack> = Bindable(ItemStack.air)
-    val boots: Bindable<ItemStack> = Bindable(ItemStack.air)
 
     init {
 
@@ -76,18 +67,11 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
             equipment.triggerUpdate()
         }
 
-        mainHandItem.valueChanged { equipment.value = equipment.value.apply { mainHand = it.newValue } }
-        offHandItem.valueChanged { equipment.value = equipment.value.apply { offHand = it.newValue } }
-        helmet.valueChanged { equipment.value = equipment.value.apply { helmet = it.newValue } }
-        chestplate.valueChanged { equipment.value = equipment.value.apply { chestplate = it.newValue } }
-        leggings.valueChanged { equipment.value = equipment.value.apply { leggings = it.newValue } }
-        boots.valueChanged { equipment.value = equipment.value.apply { boots = it.newValue } }
-
         team.value = npcTeam
     }
 
     fun swingHand() {
-        val packet = ClientboundEntityAnimationPacket(this, EntityAnimation.SWING_MAIN_ARM)
+        val packet = ClientboundPlayerAnimationPacket(this, EntityAnimation.SWING_MAIN_ARM)
         viewers.sendPacket(packet)
     }
 
@@ -107,29 +91,27 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
         if (profile.value == null) setSkin(username.value)
     }
 
-    override fun removeViewer(player: Player, isDisconnect: Boolean) {
+    override fun removeViewer(player: Player) {
         val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this.uuid)
         player.sendPacket(playerRemovePacket)
         viewers.remove(player)
-        super.removeViewer(player, isDisconnect)
+        super.removeViewer(player)
     }
 
     fun setSkin(uuid: UUID) {
-        val asyncRunnable = AsyncRunnable {
+        world.scheduler.runAsync {
             val skin = MojangUtil.getSkinFromUUID(uuid)
             profile.value = ProfilePropertyMap(username.value, mutableListOf(skin))
         }
-        asyncRunnable.run()
     }
 
     fun setSkin(username: String) {
         var uuid: UUID? = null
-        val asyncRunnable = AsyncRunnable {
+        val asyncRunnable = world.scheduler.runAsync {
             uuid = MojangUtil.getUUIDFromUsername(username)
         }
-        asyncRunnable.callback = {
+        asyncRunnable.thenAccept {
             uuid?.let { setSkin(it) }
         }
-        asyncRunnable.run()
     }
 }

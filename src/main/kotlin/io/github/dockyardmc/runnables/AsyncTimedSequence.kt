@@ -1,5 +1,6 @@
 package io.github.dockyardmc.runnables
 
+import io.github.dockyardmc.DockyardServer
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -7,16 +8,14 @@ import kotlin.time.toDuration
 
 fun timedSequenceAsync(unit: (AsyncTimedSequence) -> Unit) {
 
-    val runnable = AsyncRunnable {
+    val runnable = DockyardServer.scheduler.runAsync {
         unit.invoke(AsyncTimedSequence())
     }
-    runnable.run()
 }
 
 
 class AsyncTimedSequence() {
 
-    @Deprecated("Use int instead of using duration", ReplaceWith("wait(ticks: Int)"))
     fun wait(ticks: Duration) {
         Thread.sleep(ticks.inWholeMilliseconds)
     }

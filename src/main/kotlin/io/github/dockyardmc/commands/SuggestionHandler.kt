@@ -19,14 +19,13 @@ object SuggestionHandler {
 
         if(tokens.size >= 2 && command.subcommands[tokens[1]] != null) {
             val subcommand = command.subcommands[tokens[1]]!!
-            val current = subcommand.arguments.values.toList()[tokens.size - 3]
+            val current = subcommand.arguments.values.toList().getOrNull(tokens.size - 3) ?: return
             handleSuggestion(current, inputCommand, currentlyTyped, player, transactionId)
         } else {
-            val current = command.arguments.values.toList()[tokens.size - 2]
+            val current = command.arguments.values.toList().getOrNull(tokens.size - 2) ?: return
             handleSuggestion(current, inputCommand, currentlyTyped, player, transactionId)
         }
     }
-
 
     fun suggestWorlds(player: Player): List<String> {
         return WorldManager.worlds.keys.toList()

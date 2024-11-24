@@ -1,226 +1,220 @@
 package io.github.dockyardmc.item
 
+import io.github.dockyardmc.blocks.writeBlockPredicate
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.writeBlockPosition
 import io.github.dockyardmc.player.writeProfileProperties
-import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.scroll.Component
-import io.github.dockyardmc.scroll.LegacyTextColor
-import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.writeSoundEvent
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBT
 
-fun ByteBuf.writeItemComponent(comp: ItemComponent) {
-    this.writeVarInt(comp.id)
-    when(comp) {
-        is CustomDataItemComponent -> {
-            this.writeNBT(comp.data)
-        }
-        is MaxStackSizeItemComponent -> {
-            this.writeVarInt(comp.maxStackSize)
-        }
-        is MaxDamageItemComponent -> {
-            this.writeVarInt(comp.maxDamage)
-        }
-        is DamageItemComponent -> {
-            this.writeVarInt(comp.damage)
-        }
-        is UnbreakableItemComponent -> {
-            this.writeBoolean(comp.showInTooltip)
-        }
-        is CustomNameItemComponent -> {
-            this.writeTextComponent(comp.name)
-        }
-        is ItemNameItemComponent -> {
-            this.writeNBT(comp.name.toNBT())
-        }
+fun ByteBuf.writeItemComponent(component: ItemComponent) {
+    this.writeVarInt(ItemComponents.components.indexOf(component::class))
+
+    when (component) {
+        is CustomDataItemComponent -> this.writeNBT(component.data)
+        is MaxStackSizeItemComponent -> this.writeVarInt(component.maxStackSize)
+        is MaxDamageItemComponent -> this.writeVarInt(component.maxDamage)
+        is DamageItemComponent -> this.writeVarInt(component.damage)
+        is UnbreakableItemComponent -> this.writeBoolean(component.showInTooltip)
+        is CustomNameItemComponent -> this.writeTextComponent(component.name)
+        is ItemNameItemComponent -> this.writeTextComponent(component.name)
+        is ItemModelItemComponent -> this.writeString(component.model)
         is LoreItemComponent -> {
-            this.writeVarInt(comp.lines.size)
-            comp.lines.forEach { this.writeTextComponent(it) }
+            this.writeVarInt(component.lines.size)
+            component.lines.forEach {
+                this.writeTextComponent(it)
+            }
         }
-        is RarityItemComponent -> {
-            this.writeVarIntEnum<ItemRarity>(comp.rarity)
-        }
-        //TODO Enchantments
 
-        //TODO figure out Block Predicates
+        is RarityItemComponent -> this.writeVarIntEnum(component.rarity)
+        is EnchantmentsItemComponent -> TODO()
         is CanBePlacedOnItemComponent -> {
+            this.writeVarInt(component.blocks.size)
+            component.blocks.forEach(this::writeBlockPredicate)
         }
-        //TODO figure out Block Predicates
+
         is CanBreakItemComponent -> {
+            this.writeVarInt(component.blocks.size)
+            component.blocks.forEach(this::writeBlockPredicate)
         }
-        //TODO figure out item attributes
+
         is AttributeModifiersItemComponent -> {
-        }
-        is CustomModelDataItemComponent -> {
-            this.writeVarInt(comp.customModelData)
-        }
-        is HideAdditionalTooltipItemComponent -> {} // Empty
-        is HideTooltipItemComponent -> {} // Empty
-        is RepairCostItemComponent -> {
-            this.writeVarInt(comp.repairCost)
-        }
-        is CreativeSlotLockItemComponent -> {} // Empty
-        is EnchantmentGlintOverrideItemComponent -> {
-            this.writeBoolean(comp.hasGlint)
+
+            this.writeVarInt(component.attributes.size)
+            component.attributes.forEach { modifier ->
+                modifier.write(this)
+            }
+            this.writeBoolean(component.showInTooltip)
         }
 
-        //The Notchian client utilizes the codec meant for
-        //chat parsing (and NBT in general) when handling this component, even
-        //though it contains no data. This causes an empty
-        //Compound Tag to be written, which is likely an unintended bug.
-        is IntangibleProjectileItemComponent -> {
-            val emptyCompound = NBT.Compound()
-            this.writeNBT(emptyCompound)
-        }
+        is CustomModelDataItemComponent -> this.writeVarInt(component.customModelData)
+        is HideAdditionalTooltipItemComponent -> {}
+        is RepairCostItemComponent -> this.writeVarInt(component.repairCost)
+        is CreativeSlotLockItemComponent -> {}
+        is EnchantmentGlintOverrideItemComponent -> this.writeVarInt(component.hasGlint.toInt())
+        is IntangibleProjectileItemComponent -> {}
         is FoodItemComponent -> {
-            this.writeVarInt(comp.nutrition)
-//            this.writeBoolean(comp.saturation)
-            this.writeFloat(0f)
-            this.writeBoolean(comp.canAlwaysEat)
-            this.writeFloat(comp.secondsToEat)
-            this.writeItemStack(ItemStack(Items.AIR, 1))
-            //TODO Potion Effects
-            this.writeVarInt(0) //temp: 0 effects
+            this.writeVarInt(component.nutrition)
+            this.writeFloat(component.saturation)
+            this.writeBoolean(component.canAlwaysEat)
         }
 
-        is FireResistantItemComponent -> {} // Empty
+        is ConsumableItemComponent -> {
+            this.writeFloat(component.consumeSeconds)
+            this.writeVarIntEnum(component.animation)
+            this.writeSoundEvent(component.sound.identifier)
+            this.writeBoolean(component.hasConsumeParticles)
+            this.writeConsumeEffects(component.consumeEffects)
+        }
+
+        is UseRemainderItemComponent -> this.writeItemStack(component.itemStack)
+        is UseCooldownItemComponent -> {
+            this.writeFloat(component.cooldownSeconds)
+            this.writeOptional(component.cooldownGroup) { it.writeString(component.cooldownGroup!!) }
+        }
+
+        is DamageResistantItemComponent -> this.writeString(component.type.identifier)
         is ToolItemComponent -> {
-            this.writeVarInt(comp.toolRules.size)
-            comp.toolRules.forEach {
-                //TODO Block Set
-                this.writeBoolean(it.speed != null)
-                if(it.speed != null) this.writeFloat(it.speed)
-                this.writeBoolean(it.correctDropForBlocks != null)
-                if(it.correctDropForBlocks != null) this.writeBoolean(it.correctDropForBlocks)
-            }
-            this.writeFloat(comp.defaultMiningSpeed)
-            this.writeVarInt(comp.damagePerBlock)
-        }
-        //TODO StoredEnchantments
-        is DyedColorItemComponent -> {
-            this.writeInt(comp.color.toRgbInt())
-            this.writeBoolean(comp.showInTooltip)
-        }
-        is MapColorItemComponent -> {
-            this.writeInt(comp.color.toRgbInt())
-        }
-        is MapIdItemComponent -> {
-            this.writeVarInt(comp.mapId)
-        }
-        is MapDecorationsItemComponent -> {
-            this.writeNBT(comp.nbt)
-        }
-        is MapPostProcessingItemComponent -> {
-            this.writeVarIntEnum<MapPostProcessing>(comp.type)
-        }
-        is ChargedProjectilesItemComponent -> {
-            this.writeVarInt(comp.projectiles.size)
-            comp.projectiles.forEach(this::writeItemStack)
-        }
-        is BundleContentsItemComponent -> {
-            this.writeVarInt(comp.items.size)
-            comp.items.forEach(this::writeItemStack)
-        }
-        //TODO PotionsContent
-        //TODO Sus Stew
-        is WritableBookContentItemComponent -> {
-            this.writeBookPages(comp.pages)
-        }
-        is WrittenBookContentItemComponent -> {
-            this.writeUtf(comp.title)
-            this.writeOptional(comp.filteredTitle) { op -> op.writeUtf(comp.filteredTitle!!) }
-            this.writeUtf(comp.author)
-            this.writeVarInt(comp.generation)
-            this.writeBookPages(comp.pages)
-            this.writeBoolean(false)
-        }
-        //TODO Trims
-        is DebugStickItemComponent -> {
-            this.writeNBT(comp.data)
-        }
-        is EntityDataItemComponent -> {
-            this.writeNBT(comp.data)
-        }
-        is BucketEntityDataItemComponent -> {
-            this.writeNBT(comp.data)
-        }
-        is BlockEntityDataItemComponent -> {
-            this.writeNBT(comp.data)
-        }
-        is NoteBlockInstrumentItemComponent -> {
-            this.writeVarInt(0)
-            this.writeSoundEvent(comp.instrument)
-            this.writeFloat(comp.maxSoundRange)
-            this.writeFloat(comp.currentRange)
-        }
-        is OminousBottleAmplifierItemComponent -> {
-            this.writeVarInt(comp.amplifier)
-        }
-        is JukeboxPlayableItemComponent -> {
-            this.writeBoolean(comp.directMode)
-            if(!comp.directMode) {
-                this.writeUtf(comp.sound!!)
-            } else {
-                this.writeVarInt(0)
-                this.writeSoundEvent(comp.sound!!)
-                this.writeTextComponent(comp.description!!)
-                this.writeFloat(comp.duration!!)
-                this.writeVarInt(comp.output!!)
-            }
-            this.writeBoolean(comp.showInTooltip)
-        }
-        is RecipesItemComponent -> {
-            this.writeNBT(comp.data)
-        }
-        is LodestoneTrackerItemComponent -> {
-            this.writeBoolean(comp.hasGlobalPosition)
-            this.writeUtf(comp.dimension.name)
-            this.writeBlockPosition(comp.position)
-            this.writeBoolean(comp.tracked)
-        }
-        //TODO Firework Explosion
-        //TODO Fireworks
-        is PlayerHeadProfileItemComponent -> {
-            this.writeOptional(comp.name) { it.writeUtf(comp.name!!) }
-            this.writeOptional(comp.uuid) { it.writeUUID(comp.uuid!!) }
-            this.writeProfileProperties(comp.propertyMap, disableUtf = true)
+            TODO()
+//            this.writeVarInt(component.toolRules.size)
+//            component.toolRules.forEach { rule ->
+//                this.writeBlockSet(
+//                    BlockSet(
+//                        0,
+//                        tagName = "#minecraft:mineable/pickaxe",
+//                        blockIds = rule.blocks.map { block -> block.getProtocolId() })
+//                )
+//                this.writeOptional(rule.speed) { it.writeFloat(rule.speed!!) }
+//                this.writeOptional(rule.correctDropForBlocks) { it.writeBoolean(rule.correctDropForBlocks!!) }
+//            }
+//            this.writeFloat(component.defaultMiningSpeed)
+//            this.writeVarInt(component.damagePerBlock)
         }
 
-        is NoteBlockSoundItemComponent -> {
-            this.writeUtf(comp.sound)
+        is EnchantableItemComponent -> this.writeVarInt(component.value)
+        is EquippableItemComponent -> {
+            this.writeVarIntEnum<EquipmentSlot>(component.slot)
+            this.writeSoundEvent(component.equipSound.identifier)
+            this.writeOptional(component.model) { it.writeString(component.model!!) }
+            this.writeOptional(component.cameraOverlay) { it.writeString(component.cameraOverlay!!) }
+
+            this.writeVarInt(component.allowedEntities.size)
+            component.allowedEntities.forEach { this.writeString(it.identifier) }
+
+            this.writeBoolean(component.dispensable)
+            this.writeBoolean(component.swappable)
+            this.writeBoolean(component.damageOnHurt)
         }
-        //TODO Banner Patterns
-        is BannerShieldBaseColorItemComponent -> {
-            this.writeVarIntEnum<LegacyTextColor>(comp.color)
+
+        is RepairableItemComponent -> {
+            TODO("needs tag registry")
+//            this.writeVarInt(component.materials.size)
+//            component.materials.forEach { this.writeString(it.identifier) }
         }
-        //TODO Pot Decorations
-        is ContainerItemComponent -> {
-            this.writeItemStackList(comp.items)
+
+        is GliderItemComponent -> {}
+        is TooltipStyleItemComponent -> this.writeString(component.texture)
+        is DeathProtectionItemComponent -> this.writeConsumeEffects(component.effects)
+        is StoredEnchantments -> {
+            this.writeStringArray(component.enchantments)
+            this.writeBoolean(component.showInTooltip)
         }
-        //TODO Block State
+
+        is DyedColorItemComponent -> {
+            this.writeInt(component.color.toRgbInt())
+            this.writeBoolean(component.showInTooltip)
+        }
+
+        is MapColorItemComponent -> {
+            this.writeInt(component.color.toRgbInt())
+        }
+
+        is MapIdItemComponent -> this.writeVarInt(component.mapId)
+        is MapDecorationsItemComponent -> this.writeNBT(component.nbt)
+        is MapPostProcessingItemComponent -> this.writeVarIntEnum<MapPostProcessing>(component.type)
+        is ChargedProjectilesItemComponent -> this.writeItemStackList(component.projectiles)
+        is BundleContentsItemComponent -> this.writeItemStackList(component.items)
+        is PotionContentsItemComponent -> {
+            this.writeOptional(component.potion) { this.writeVarInt(component.potion!!.getProtocolId()) }
+            this.writeOptional(component.customColor) { this.writeVarInt(component.customColor!!.toRgbInt()) }
+            this.writeAppliedPotionEffectsList(component.potionEffects)
+            this.writeOptional(component.customName) { this.writeString(component.customName!!) }
+        }
+
+        is SuspiciousStewEffectsItemComponent -> this.writeAppliedPotionEffectsList(component.potionEffects)
+        is WritableBookContentItemComponent -> this.writeBookPages(component.pages)
+        is WrittenBookContentItemComponent -> {
+            this.writeString(component.title)
+            this.writeOptional(component.filteredTitle) { this.writeString(component.filteredTitle!!) }
+            this.writeString(component.author)
+            this.writeVarInt(component.generation)
+            this.writeBookPages(component.pages)
+        }
+
+        is TrimItemComponent -> {
+            this.writeString(component.material.identifier)
+            this.writeString(component.pattern.identifier)
+            this.writeBoolean(component.showInTooltip)
+        }
+
+        is DebugStickItemComponent -> this.writeNBT(component.data)
+        is EntityDataItemComponent -> this.writeNBT(component.data)
+        is BucketEntityDataItemComponent -> this.writeNBT(component.data)
+        is BlockEntityDataItemComponent -> this.writeNBT(component.data)
+        is NoteBlockInstrumentItemComponent -> this.writeString(component.instrument)
+        is OminousBottleAmplifierItemComponent -> this.writeVarInt(component.amplifier)
+        is JukeboxPlayableItemComponent -> TODO("nobody uses this..")
+        is RecipesItemComponent -> {
+            this.writeStringArray(component.recipes)
+        }
+
+        is LodestoneTrackerItemComponent -> {
+            this.writeBoolean(component.hasGlobalPosition)
+            this.writeString(component.dimension.name)
+            this.writeBlockPosition(component.position)
+            this.writeBoolean(component.tracked)
+        }
+
+        is FireworkExplosionItemComponent -> {
+            this.writeFireworkExplosion(component)
+        }
+
+        is FireworksItemComponent -> {
+            this.writeByte(component.flightDuration.toInt())
+            this.writeVarInt(component.explosions.size)
+            component.explosions.forEach { this.writeFireworkExplosion(it) }
+        }
+
+        is PlayerHeadProfileItemComponent -> {
+            this.writeOptional(component.name) { this.writeString(component.name!!) }
+            this.writeOptional(component.uuid) { this.writeUUID(component.uuid!!) }
+            this.writeProfileProperties(component.propertyMap)
+        }
+
+        is NoteBlockSoundItemComponent -> this.writeString(component.sound)
+        is BannerPatternsItemComponent -> this.writeBannerPatternLayerList(component.layers)
+        is BaseColorItemComponent -> this.writeVarIntEnum(component.color)
+        is PotDecorationsItemComponent -> {}
+        is ContainerItemComponent -> this.writeItemStackList(component.items)
+        is BlockStateItemComponent -> {
+            this.writeVarInt(component.states.size)
+            component.states.forEach {
+                this.writeString(it.key)
+                this.writeString(it.value)
+            }
+        }
+
         is BeesItemComponent -> {
-            this.writeVarInt(comp.bees.size)
-            comp.bees.forEach {
+            this.writeVarInt(component.bees.size)
+            component.bees.forEach {
                 this.writeNBT(it.entityData)
                 this.writeVarInt(it.ticksInHive)
                 this.writeVarInt(it.minTicksInHive)
             }
         }
-        is LockItemComponent -> {
-            this.writeNBT(comp.key)
-        }
-        is ContainerLootItemComponent -> {
-            this.writeNBT(comp.loot)
-        }
 
-        else -> throw Exception("${comp::class.simpleName} is missing implementation in ItemComponentWriter")
+        is LockItemComponent -> this.writeNBT(component.key)
+        is ContainerLootItemComponent -> this.writeNBT(component.loot)
+        else -> throw Exception("Tried to write ${component::class.simpleName} but that writer for that component is not implemented!")
     }
-}
-
-fun Collection<String>.toComponents(): List<Component> {
-    val list = mutableListOf<Component>()
-    this.forEach { list.add(it.toComponent()) }
-    return list
 }

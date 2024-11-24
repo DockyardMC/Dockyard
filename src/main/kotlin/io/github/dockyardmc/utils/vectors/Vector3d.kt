@@ -2,6 +2,7 @@ package io.github.dockyardmc.utils.vectors
 
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.world.World
+import io.netty.buffer.ByteBuf
 import kotlinx.serialization.Serializable
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -98,4 +99,18 @@ data class Vector3d(
     fun toLocation(world: World): Location = Location(this.x, this.y, this.z, world)
     fun toVector3f() = Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
     fun toVector3() = Vector3(x.toInt(), y.toInt(), z.toInt())
+}
+
+fun ByteBuf.writeVector3d(vector3: Vector3d) {
+    this.writeDouble(vector3.x)
+    this.writeDouble(vector3.y)
+    this.writeDouble(vector3.z)
+}
+
+fun ByteBuf.readVector3d(): Vector3d {
+    return Vector3d(
+        this.readDouble(),
+        this.readDouble(),
+        this.readDouble()
+    )
 }

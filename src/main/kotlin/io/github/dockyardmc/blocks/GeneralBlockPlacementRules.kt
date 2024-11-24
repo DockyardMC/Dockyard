@@ -1,6 +1,6 @@
 package io.github.dockyardmc.blocks
 
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Blocks
@@ -20,7 +20,7 @@ object GeneralBlockPlacementRules {
             CancelReason(false, "Block at new location is not air (${placementLocation.identifier})")
         if (isLocationInsideBoundingBox(
                 where,
-                placer.world.entities.values
+                placer.world.entities
             ) && newBlock.registryBlock.isSolid
         ) canBePlaced = CancelReason(false, "Block collides with entity")
         if (!clickedBlock.registryBlock.isSolid) canBePlaced =

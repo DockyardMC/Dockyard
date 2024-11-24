@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -14,9 +14,9 @@ class ClientboundKnownPacksPackets(knowPackets: MutableList<KnownPack>): Clientb
     init {
         data.writeVarInt(knowPackets.size)
         knowPackets.forEach {
-            data.writeUtf(it.namespace)
-            data.writeUtf(it.id)
-            data.writeUtf(it.version)
+            data.writeString(it.namespace)
+            data.writeString(it.id)
+            data.writeString(it.version)
         }
     }
 }

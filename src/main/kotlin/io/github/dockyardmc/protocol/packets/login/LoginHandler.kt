@@ -4,7 +4,7 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.entities.EntityManager
+import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.player.kick.KickReason
@@ -16,7 +16,7 @@ import io.github.dockyardmc.protocol.cryptography.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
-import io.github.dockyardmc.runnables.AsyncRunnable
+import io.github.dockyardmc.registry.registries.MinecraftVersionRegistry
 import io.github.dockyardmc.utils.MojangUtil
 import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.world.WorldManager
@@ -40,7 +40,7 @@ class LoginHandler(var processor: PlayerNetworkManager) : PacketHandler(processo
         debug("Received login start packet with name $name and UUID $uuid", logType = LogType.DEBUG)
 
         if (!DockyardServer.allowAnyVersion) {
-            val playerVersion = processor.playerProtocolVersion
+            val playerVersion = MinecraftVersionRegistry.getOrNull(processor.playerProtocolVersion) ?: "unknown"
             val requiredVersion = DockyardServer.minecraftVersion.protocolId
             if (processor.playerProtocolVersion != requiredVersion) {
                 connection.sendPacket(
@@ -68,7 +68,6 @@ class LoginHandler(var processor: PlayerNetworkManager) : PacketHandler(processo
         )
 
         PlayerManager.add(player, processor)
-        EntityManager.entities.add(player)
 
         if (ConfigManager.config.useMojangAuth) {
             val generator = KeyPairGenerator.getInstance("RSA")
@@ -84,11 +83,10 @@ class LoginHandler(var processor: PlayerNetworkManager) : PacketHandler(processo
             val playerCrypto = PlayerCrypto(publicKey, privateKey, verificationToken)
             player.crypto = playerCrypto
 
-            // pre-cache the
-            val asyncRunnable = AsyncRunnable {
+            // pre-cache the skin
+            DockyardServer.scheduler.runAsync {
                 MojangUtil.getSkinFromUUID(player.uuid)
             }
-            asyncRunnable.run()
             val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken, true)
             connection.sendPacket(out, processor)
         } else {

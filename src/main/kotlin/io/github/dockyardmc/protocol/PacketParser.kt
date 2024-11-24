@@ -4,6 +4,7 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.netty.buffer.ByteBuf
 import java.lang.Exception
 import kotlin.reflect.KClass
@@ -20,7 +21,7 @@ object PacketParser {
     // It does this process in MainKt, and reads actual annotations using reflection in AnnotationProcessor.getServerboundPacketClassInfo()
     fun parse(id: Int, buffer: ByteBuf, protocolState: ProtocolState): ServerboundPacket? {
         try {
-            val packetClass = idAndStatePairToPacketClass[id to protocolState] ?: return null
+            val packetClass = ServerPacketRegistry.getFromIdOrNull(id, protocolState) ?: return null
             val companionObject = packetClass.companionObject ?: return null
             val readFunction = companionObject.declaredMemberFunctions.find { it.name == "read" } ?: return null
 

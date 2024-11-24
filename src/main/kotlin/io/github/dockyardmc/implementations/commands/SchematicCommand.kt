@@ -5,7 +5,7 @@ import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.schematics.SchematicReader
-import io.github.dockyardmc.schematics.placeSchematic
+import io.github.dockyardmc.schematics.placeSchematicAsync
 import java.io.File
 
 class SchematicCommand {
@@ -19,18 +19,14 @@ class SchematicCommand {
                     val player = it.getPlayerOrThrow()
                     val path = getArgument<String>("path")
                     val start = System.currentTimeMillis()
-                    player.world.placeSchematic {
-                        schematic = SchematicReader.read(File(path))
-                        location = player.location
-                        then = {
-                            val end = System.currentTimeMillis()
-                            player.sendMessage("<gray>Schematic pasted in <lime>${end - start}ms")
-                        }
+                    player.world.placeSchematicAsync(SchematicReader.read(File(path)), player.location).thenAccept {
+                        val end = System.currentTimeMillis()
+                        player.sendMessage("<gray>Schematic pasted in <lime>${end - start}ms")
                     }
                 }
             }
 
-            if(ConfigManager.config.implementationConfig.cacheSchematics) {
+            if (ConfigManager.config.implementationConfig.cacheSchematics) {
                 addSubcommand("cache") {
                     execute {
                         val message = buildString {

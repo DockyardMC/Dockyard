@@ -7,7 +7,7 @@ import io.github.dockyardmc.registry.registries.Item
 
 class DrawableItemStack {
 
-    var itemStack: ItemStack = ItemStack.air
+    var itemStack: ItemStack = ItemStack.AIR
     var clickListener: ((Player, DrawableClickType) -> Unit)? = null
 
     fun withItem(itemStack: ItemStack) {

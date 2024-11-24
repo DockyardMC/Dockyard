@@ -1,5 +1,6 @@
 package io.github.dockyardmc.server
 
+import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
@@ -19,7 +20,7 @@ class ServerTickManager {
             Events.dispatch(ServerTickEvent(serverTicks))
             profiler.end()
         } catch (ex: Exception) {
-            log("Exception was thrown in the tick timer thread:")
+            log("Exception was thrown in the tick timer thread:", LogType.EXCEPTION)
             log(ex)
         }
     }

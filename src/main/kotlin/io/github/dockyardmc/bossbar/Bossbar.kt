@@ -4,6 +4,7 @@ import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.BossbarPacketAction
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundBossbarPacket
@@ -15,7 +16,7 @@ class Bossbar(
     val progress: Bindable<Float> = Bindable(0f),
     val color: Bindable<BossbarColor> = Bindable(BossbarColor.WHITE),
     val notches: Bindable<BossbarNotches> = Bindable(BossbarNotches.NO_NOTCHES),
-    val viewers: BindableList<PersistentPlayer> = BindableList(),
+    val viewers: BindableList<Player> = BindableList(),
 ): Disposable {
 
     constructor(
@@ -30,7 +31,7 @@ class Bossbar(
                 Bindable(progress),
                 Bindable(color),
                 Bindable(notches),
-                BindableList(viewers.toPersistent())
+                BindableList(viewers)
             )
 
     val eventPool = EventPool()
@@ -52,14 +53,6 @@ class Bossbar(
         viewers.itemRemoved {
             val removePacket = ClientboundBossbarPacket(BossbarPacketAction.REMOVE, this)
             it.item.sendPacket(removePacket)
-        }
-
-        // if player joins and is part of viewers, the bossbar should show for them
-        eventPool.on<PlayerJoinEvent> {
-            if (viewers.contains(it.player)) {
-                val createPacket = ClientboundBossbarPacket(BossbarPacketAction.ADD, this)
-                it.player.sendPacket(createPacket)
-            }
         }
     }
 

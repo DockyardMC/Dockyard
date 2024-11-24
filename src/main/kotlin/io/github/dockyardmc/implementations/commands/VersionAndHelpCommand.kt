@@ -2,6 +2,7 @@ package io.github.dockyardmc.implementations.commands
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.utils.Branding
 
 class VersionAndHelpCommand {
 
@@ -11,7 +12,7 @@ class VersionAndHelpCommand {
             withAliases("ver", "info", "server", "dockyard")
             execute {
                 it.sendMessage("")
-                it.sendMessage("<gray>This server is running <yellow>DockyardMC ${DockyardServer.versionInfo.dockyardVersion}<gray>. A custom Minecraft server implementation in Kotlin. <aqua><hover|'<aqua>https://github.com/DockyardMC/Dockyard'><click|open_url|https://github.com/DockyardMC/Dockyard>[Github]<reset>")
+                it.sendMessage("<gray>This server is running <${Branding.COLOR}>DockyardMC ${DockyardServer.versionInfo.dockyardVersion}<gray>. A custom Minecraft server implementation in Kotlin. <yellow><hover|'<yellow>https://github.com/DockyardMC/Dockyard'><click|open_url|https://github.com/DockyardMC/Dockyard>[Github]<reset>")
                 it.sendMessage("")
             }
         }

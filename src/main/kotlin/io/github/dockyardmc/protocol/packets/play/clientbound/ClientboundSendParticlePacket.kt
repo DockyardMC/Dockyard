@@ -4,7 +4,7 @@ import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.location.writeLocationWithoutRotation
+import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.particles.ParticleData
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -29,7 +29,7 @@ class ClientboundSendParticlePacket(
         if(particleData == null && ParticleData.requiresData(particle.getProtocolId())) throw Exception("Particle ${particle.identifier} requires particle data")
 
         data.writeBoolean(longDistance)
-        data.writeLocationWithoutRotation(location)
+        data.writeLocation(location)
         data.writeVector3f(offset)
         data.writeFloat(speed)
         data.writeInt(count)

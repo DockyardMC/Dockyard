@@ -7,7 +7,7 @@ import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.CustomColor
-import java.util.UUID
+import java.util.*
 
 class ItemBuilder() {
 
@@ -205,8 +205,8 @@ class ItemBuilder() {
      * @return ItemBuilder
      */
     @Deprecated("Breaks in 1.21.2. Will be reworked in the future")
-    fun withFood(nutrition: Int, giveSaturation: Boolean = false, canAlwaysEat: Boolean = true , secondsToEat: Float = 2f): ItemBuilder {
-        itemStack.components.addOrUpdate(FoodItemComponent(nutrition, giveSaturation, canAlwaysEat, secondsToEat))
+    fun withFood(nutrition: Int, saturation: Float = 1f, canAlwaysEat: Boolean = true): ItemBuilder {
+        itemStack.components.addOrUpdate(FoodItemComponent(nutrition, saturation, canAlwaysEat))
         return this
     }
 
@@ -248,9 +248,14 @@ class ItemBuilder() {
             throw IllegalArgumentException("At least one of the parameters must be set")
         }
 
-        itemStack.components.addOrUpdate(PlayerHeadProfileItemComponent(username, uuid, ProfilePropertyMap(username.orEmpty(),
-            if (profile != null) mutableListOf(profile) else mutableListOf<ProfileProperty>())
-        ))
+        itemStack.components.addOrUpdate(
+            PlayerHeadProfileItemComponent(
+                username, uuid, ProfilePropertyMap(
+                    username.orEmpty(),
+                    if (profile != null) mutableListOf(profile) else mutableListOf<ProfileProperty>()
+                )
+            )
+        )
 
         return this
     }

@@ -1,9 +1,9 @@
 package io.github.dockyardmc.extentions
 
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.player.GameMode
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.setSkin
+import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -54,7 +54,7 @@ fun Collection<Entity>.addViewer(player: Player) {
 }
 
 fun Collection<Entity>.removeViewer(player: Player, isDisconnect: Boolean = false) {
-    this.toList().forEach { it.removeViewer(player, isDisconnect) }
+    this.toList().forEach { it.removeViewer(player) }
 }
 
 fun Collection<Player>.setCanFly(canFly: Boolean) {

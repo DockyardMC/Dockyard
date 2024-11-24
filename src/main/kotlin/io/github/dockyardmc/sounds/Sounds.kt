@@ -1,5 +1,6 @@
 package io.github.dockyardmc.sounds
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entities.Entity
 import io.github.dockyardmc.extentions.*
@@ -9,6 +10,7 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityPlaySoundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlaySoundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
+import io.github.dockyardmc.registry.registries.SoundRegistry
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import kotlin.random.Random
@@ -45,7 +47,7 @@ fun Collection<Player>.playSound(identifier: String, location: Location? = null,
 }
 
 fun World.playSound(sound: Sound, location: Location? = null) {
-    this.players.values.playSound(sound, location)
+    this.players.playSound(sound, location)
 }
 
 fun World.playSound(identifier: String, location: Location? = null, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
@@ -92,16 +94,20 @@ fun World.playSound(identifier: String, source: Entity, volume: Float = 0.5f, pi
 
 fun ByteBuf.writeSoundEvent(sound: String) {
     this.writeVarInt(0)
-    this.writeUtf(sound)
+    this.writeString(sound)
     this.writeBoolean(false)
 }
 
 fun ByteBuf.readSoundEvent(): String {
     val type = this.readVarInt()
-    val identifier = this.readString()
-    val hasFixedRange = this.readBoolean()
-    if(hasFixedRange) {
-        val fixedRange = this.readFloat()
+    if(type == 0) {
+        val identifier = this.readString()
+        val hasFixedRange = this.readBoolean()
+        if(hasFixedRange) {
+            val fixedRange = this.readFloat()
+        }
+        return identifier
+    } else {
+        return SoundRegistry.getByProtocolId(type - 1)
     }
-    return identifier
 }

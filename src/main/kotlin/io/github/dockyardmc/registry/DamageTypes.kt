@@ -50,4 +50,5 @@ object DamageTypes {
     val WIND_CHARGE = DamageTypeRegistry["minecraft:wind_charge"]
     val WITHER = DamageTypeRegistry["minecraft:wither"]
     val WITHER_SKULL = DamageTypeRegistry["minecraft:wither_skull"]
+    val ENDER_PEARL = DamageTypeRegistry["minecraft:ender_pearl"]
 }

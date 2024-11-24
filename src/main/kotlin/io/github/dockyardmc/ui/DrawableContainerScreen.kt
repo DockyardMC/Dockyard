@@ -6,6 +6,7 @@ import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetContainerSlotPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.vectors.Vector2
@@ -25,14 +26,14 @@ abstract class DrawableContainerScreen(val player: Player): ContainerInventory, 
         slots.itemSet {
             val slot = getSlotIndexFromVector2(it.first, it.second)
             contents[slot] = it.value.itemStack
-            player.sendPacket(ClientboundSetInventorySlotPacket(1, 0, slot, it.value.itemStack))
+            player.sendPacket(ClientboundSetContainerSlotPacket(slot, it.value.itemStack))
         }
 
         slots.itemRemoved {
             val slot = getSlotIndexFromVector2(it.first, it.second)
 
-            contents[slot] = ItemStack.air
-            player.sendPacket(ClientboundSetInventorySlotPacket(1, 0, slot, ItemStack.air))
+            contents[slot] = ItemStack.AIR
+            player.sendPacket(ClientboundSetContainerSlotPacket(slot, ItemStack.AIR))
         }
     }
 
@@ -54,13 +55,13 @@ abstract class DrawableContainerScreen(val player: Player): ContainerInventory, 
 
     fun click(slot: Int, player: Player, clickType: DrawableClickType) {
 
-        if(clickType == DrawableClickType.OFFHAND) player.sendPacket(ClientboundSetInventorySlotPacket(0,  0, 45, ItemStack.air))
+        if(clickType == DrawableClickType.OFFHAND) player.sendPacket(ClientboundSetInventorySlotPacket(45, ItemStack.AIR))
 
         val vec2 = getVector2FromSlotIndex(slot)
-        val drawableItem = slots[PairKey(vec2.x, vec2.y)] ?: ItemStack.air.toDrawable()
+        val drawableItem = slots[PairKey(vec2.x, vec2.y)] ?: ItemStack.AIR.toDrawable()
 
         slots[vec2.x, vec2.y] = drawableItem
-        player.inventory.carriedItem.value = ItemStack.air
+        player.inventory.cursorItem.value = ItemStack.AIR
 
         drawableItem.clickListener?.invoke(player, clickType)
     }

@@ -4,6 +4,9 @@ import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.player.ClientParticleSettings
+import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -18,9 +21,10 @@ class ServerboundClientInformationPacket(
     var chatMode: Int,
     var chatColors: Boolean,
     var displayedSkinParts: Byte,
-    var mainHandSide: Int,
+    var mainHandSide: PlayerHand,
     var enableTextFiltering: Boolean,
-    var allowServerListing: Boolean
+    var allowServerListing: Boolean,
+    var particleSettings: ClientParticleSettings
 ): ServerboundPacket {
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.configurationHandler.handleClientInformation(this, connection)
@@ -34,9 +38,10 @@ class ServerboundClientInformationPacket(
                 buf.readVarInt(),
                 buf.readBoolean(),
                 buf.readByte(),
-                buf.readVarInt(),
+                buf.readVarIntEnum<PlayerHand>(),
                 buf.readBoolean(),
-                buf.readBoolean()
+                buf.readBoolean(),
+                buf.readVarIntEnum<ClientParticleSettings>()
             )
         }
     }

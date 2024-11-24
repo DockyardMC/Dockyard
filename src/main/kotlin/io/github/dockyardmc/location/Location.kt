@@ -33,6 +33,15 @@ class Location(
     constructor(x: Double, y: Double, z: Double, world: World):
             this(x, y, z, 0f, 0f, world)
 
+    constructor(vector: Vector3, yaw: Float, pitch: Float, world: World):
+            this(vector.x, vector.y, vector.z, yaw, pitch, world)
+
+    constructor(vector: Vector3d, yaw: Float, pitch: Float, world: World):
+            this(vector.x, vector.y, vector.z, yaw, pitch, world)
+
+    constructor(vector: Vector3f, yaw: Float, pitch: Float, world: World):
+            this(vector.x.toDouble(), vector.y.toDouble(), vector.z.toDouble(), yaw, pitch, world)
+
     val blockX: Int get() = floor(x).toInt()
     val blockY: Int get() = floor(y).toInt()
     val blockZ: Int get() = floor(z).toInt()
@@ -180,21 +189,42 @@ class Location(
     }
 }
 
-fun ByteBuf.writeLocation(location: Location, rotDelta: Boolean = false) {
-    this.writeLocationWithoutRotation(location)
-    if(rotDelta) {
+fun ByteBuf.writeRotation(location: Location, delta: Boolean) {
+    if(delta) {
         this.writeByte((location.pitch  * 256f / 360f).toInt())
         this.writeByte((location.yaw  * 256f / 360f).toInt())
     } else {
-        this.writeByte(location.yaw.toInt())
-        this.writeByte(location.pitch.toInt())
+        this.writeFloat(location.yaw)
+        this.writeFloat(location.pitch)
     }
 }
 
-fun ByteBuf.writeLocationWithoutRotation(location: Location) {
+fun ByteBuf.writeLocation(location: Location) {
     this.writeDouble(location.x)
     this.writeDouble(location.y)
     this.writeDouble(location.z)
+}
+
+fun ByteBuf.readPoint(): Point {
+    return Point(
+        this.readDouble(),
+        this.readDouble(),
+        this.readDouble(),
+        this.readFloat(),
+        this.readFloat()
+    )
+}
+
+data class Point(
+    val x: Double,
+    val y: Double,
+    val z: Double,
+    val yaw: Float,
+    val pitch: Float,
+) {
+    fun toLocation(world: World): Location {
+        return Location(x, y, z, yaw, pitch, world)
+    }
 }
 
 fun ByteBuf.writeBlockPosition(location: Location) {

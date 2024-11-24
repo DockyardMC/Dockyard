@@ -1,13 +1,14 @@
 package io.github.dockyardmc.utils
 
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.utils.ChunkUtils.floor
 import io.github.dockyardmc.utils.vectors.Vector3f
 import java.io.File
-import java.lang.IllegalStateException
 import java.security.MessageDigest
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 fun multiplyQuaternions(q1: Quaternion, q2: Quaternion): Quaternion {
     val x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y
@@ -49,37 +50,6 @@ fun remap(value: Double, fromMin: Double, fromMax: Double, toMin: Double, toMax:
 
 fun square(num: Double): Double = num * num
 
-fun playerInventoryCorrectSlot(slot: Int): Int {
-    return when (slot) {
-        in 36..44 -> slot - 36
-        in 27..35 -> slot - 18
-        in 18..26 -> slot
-        in 9..17 -> slot + 18
-        5 -> 36
-        6 -> 37
-        7 -> 38
-        8 -> 39
-        45 -> 40
-        else -> 0
-    }
-}
-
-
-fun toOriginalSlotIndex(correctedSlot: Int): Int {
-    return when (correctedSlot) {
-        in 0..8 -> correctedSlot + 36
-        in 9..17 -> correctedSlot + 18
-        in 18..26 -> correctedSlot
-        in 27..35 -> correctedSlot - 18
-        36 -> 5
-        37 -> 6
-        38 -> 7
-        39 -> 8
-        40 -> 45
-        else -> 0
-    }
-}
-
 fun getRelativeLocation(current: Location, previous: Location): Location {
     require(current.world == previous.world) { "The two locations need to be in the same world!" }
     val x = getRelativeCoords(current.x, previous.x)
@@ -98,6 +68,10 @@ fun positiveCeilDiv(i: Int, j: Int): Int = -Math.floorDiv(-i, j)
 fun bitsToRepresent(n: Int): Int {
     if (n < 1) throw Exception("n must be greater than 0")
     return Integer.SIZE - Integer.numberOfLeadingZeros(n)
+}
+
+fun isBetween(number: Int, min: Int, max: Int): Boolean {
+    return number in min..max
 }
 
 fun randomInt(min: Int, max: Int): Int = (min..max).shuffled().last()
@@ -132,4 +106,33 @@ fun locationLerp(from: Location, to: Location, t: Float): Location {
     val y = lerp(from.y, to.y, t)
     val z = lerp(from.z, to.z, t)
     return Location(x, y, z, from.world)
+}
+
+fun chunkInSpiral(id: Int, xOffset: Int = 0, zOffset: Int = 0): Pair<Int, Int> {
+    // if the id is 0 then we know we're in the centre
+    if (id == 0) return 0 + xOffset to 0 + zOffset
+
+    val index = id - 1
+
+    // compute radius (inverse arithmetic sum of 8 + 16 + 24 + ...)
+    val radius = floor((sqrt(index + 1.0) - 1) / 2) + 1
+
+    // compute total point on radius -1 (arithmetic sum of 8 + 16 + 24 + ...)
+    val p = 8 * radius * (radius - 1) / 2
+
+    // points by face
+    val en = radius * 2
+
+    // compute de position and shift it so the first is (-r, -r) but (-r + 1, -r)
+    // so the square can connect
+    val a = (1 + index - p) % (radius * 8)
+
+    return when (a / (radius * 2)) {
+        // find the face (0 = top, 1 = right, 2 = bottom, 3 = left)
+        0 -> a - radius + xOffset to -radius + zOffset
+        1 -> radius + xOffset to a % en - radius + zOffset
+        2 -> radius - a % en + xOffset to radius + zOffset
+        3 -> -radius + xOffset to radius - a % en + zOffset
+        else -> 0 to 0
+    }
 }

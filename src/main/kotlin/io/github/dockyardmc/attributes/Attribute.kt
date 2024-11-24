@@ -1,19 +1,11 @@
 package io.github.dockyardmc.attributes
 
-import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.extentions.readUUID
-import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.item.AttributeModifiersItemComponent
 import io.netty.buffer.ByteBuf
-import java.util.UUID
 
 data class Attribute(
-    val id: Int,
-    val uuid: UUID,
-    val name: String,
-    val value: Double,
-    val operation: AttributeOperation,
-    val slot: AttributeSlot,
+    val id: Int
 )
 
 enum class AttributeOperation {
@@ -35,12 +27,71 @@ enum class AttributeSlot {
     BODY
 }
 
-fun ByteBuf.readAttribute(): Attribute {
-    val id = this.readVarInt()
-    val uuid = this.readUUID()
-    val name = this.readString()
-    val value = this.readDouble()
-    val operation = this.readVarIntEnum<AttributeOperation>()
-    val slot = this.readVarIntEnum<AttributeSlot>()
-    return Attribute(id, uuid, name, value, operation, slot)
+fun ByteBuf.readModifierList(): AttributeModifiersItemComponent {
+    val size = this.readVarInt()
+    val list = mutableListOf<Modifier>()
+    for (i in 0 until size) {
+        val modifier = Modifier.read(this)
+        list.add(modifier)
+    }
+    val showInTooltip = this.readBoolean()
+    return AttributeModifiersItemComponent(list, showInTooltip)
+}
+
+
+data class Modifier(
+    val attribute: Attribute,
+    val attributeModifier: AttributeModifier,
+    val equipmentSlot: EquipmentSlotGroup
+) {
+    fun write(buffer: ByteBuf) {
+        buffer.writeVarInt(attribute.id)
+        attributeModifier.write(buffer)
+        buffer.writeVarIntEnum<EquipmentSlotGroup>(equipmentSlot)
+    }
+
+    companion object {
+        fun read(buffer: ByteBuf): Modifier {
+            val attribute = Attribute(buffer.readVarInt())
+            val attributeModifier = AttributeModifier.read(buffer)
+            val slot = buffer.readVarIntEnum<EquipmentSlotGroup>()
+
+            return Modifier(attribute, attributeModifier, slot)
+        }
+    }
+}
+
+data class AttributeModifier(
+    val id: String,
+    val amount: Double,
+    val operation: AttributeOperation
+) {
+    fun write(buffer: ByteBuf) {
+        buffer.writeString(id)
+        buffer.writeDouble(amount)
+        buffer.writeVarIntEnum<AttributeOperation>(operation)
+    }
+
+    companion object {
+        fun read(buffer: ByteBuf): AttributeModifier {
+            return AttributeModifier(
+                buffer.readString(),
+                buffer.readDouble(),
+                buffer.readVarIntEnum<AttributeOperation>()
+            )
+        }
+    }
+}
+
+enum class EquipmentSlotGroup {
+    ANY,
+    MAIN_HAND,
+    OFF_HAND,
+    HAND,
+    FEET,
+    LEGS,
+    CHEST,
+    HEAD,
+    ARMOR,
+    BODY
 }

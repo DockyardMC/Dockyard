@@ -1,7 +1,7 @@
 package io.github.dockyardmc.commands
 
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.registries.Item
@@ -49,7 +49,7 @@ class SoundArgument(
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.RESOURCE
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeUtf("minecraft:sound")
+        buffer.writeString("minecraft:sound")
     }
 }
 
@@ -58,7 +58,7 @@ class RegistryResourceArgument(val registryResource: String): CommandArgument {
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.RESOURCE
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeUtf(registryResource)
+        buffer.writeString(registryResource)
     }
 }
 

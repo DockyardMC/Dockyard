@@ -2,213 +2,266 @@ package io.github.dockyardmc.item
 
 import cz.lukynka.BindableList
 import io.github.dockyardmc.attributes.Attribute
+import io.github.dockyardmc.attributes.Modifier
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockPredicate
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
-import io.github.dockyardmc.registry.*
-import io.github.dockyardmc.registry.registries.BannerPattern
-import io.github.dockyardmc.registry.registries.PotionEffect
+import io.github.dockyardmc.registry.AppliedPotionEffect
+import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
-import io.github.dockyardmc.scroll.LegacyTextColor
+import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import java.util.UUID
+import org.jglrxavpok.hephaistos.nbt.NBTString
+import java.util.*
 import kotlin.reflect.KClass
 
+object ItemComponents  {
+    val components: MutableList<KClass<*>> = mutableListOf(
+        CustomDataItemComponent::class,
+        MaxStackSizeItemComponent::class,
+        MaxDamageItemComponent::class,
+        DamageItemComponent::class,
+        UnbreakableItemComponent::class,
+        CustomNameItemComponent::class,
+        ItemNameItemComponent::class,
+        ItemModelItemComponent::class,
+        LoreItemComponent::class,
+        RarityItemComponent::class,
+        EnchantmentsItemComponent::class,
+        CanBePlacedOnItemComponent::class,
+        CanBreakItemComponent::class,
+        AttributeModifiersItemComponent::class,
+        CustomModelDataItemComponent::class,
+        HideAdditionalTooltipItemComponent::class,
+        HideTooltipItemComponent::class,
+        RepairCostItemComponent::class,
+        CreativeSlotLockItemComponent::class,
+        EnchantmentGlintOverrideItemComponent::class,
+        IntangibleProjectileItemComponent::class,
+        FoodItemComponent::class,
+        ConsumableItemComponent::class,
+        UseRemainderItemComponent::class,
+        UseCooldownItemComponent::class,
+        DamageResistantItemComponent::class,
+        ToolItemComponent::class,
+        EnchantableItemComponent::class,
+        EquippableItemComponent::class,
+        RepairableItemComponent::class,
+        GliderItemComponent::class,
+        TooltipStyleItemComponent::class,
+        DeathProtectionItemComponent::class,
+        StoredEnchantments::class,
+        DyedColorItemComponent::class,
+        MapColorItemComponent::class,
+        MapIdItemComponent::class,
+        MapDecorationsItemComponent::class,
+        MapPostProcessingItemComponent::class,
+        ChargedProjectilesItemComponent::class,
+        BundleContentsItemComponent::class,
+        PotionContentsItemComponent::class,
+        SuspiciousStewEffectsItemComponent::class,
+        WritableBookContentItemComponent::class,
+        WrittenBookContentItemComponent::class,
+        TrimItemComponent::class,
+        DebugStickItemComponent::class,
+        EntityDataItemComponent::class,
+        BucketEntityDataItemComponent::class,
+        BlockEntityDataItemComponent::class,
+        NoteBlockInstrumentItemComponent::class,
+        OminousBottleAmplifierItemComponent::class,
+        JukeboxPlayableItemComponent::class,
+        RecipesItemComponent::class,
+        LodestoneTrackerItemComponent::class,
+        FireworkExplosionItemComponent::class,
+        FireworksItemComponent::class,
+        PlayerHeadProfileItemComponent::class,
+        NoteBlockSoundItemComponent::class,
+        BannerPatternsItemComponent::class,
+        BaseColorItemComponent::class,
+        PotDecorationsItemComponent::class,
+        ContainerItemComponent::class,
+        BlockStateItemComponent::class,
+        BeesItemComponent::class,
+        LockItemComponent::class,
+        ContainerLootItemComponent::class
+    )
+
+    fun register() {
+    }
+
+}
+
 interface ItemComponent {
-    val id: Int
 }
 
 data class CustomDataItemComponent(
     var data: NBTCompound,
-    override val id: Int = 0
 ): ItemComponent
 
 data class MaxStackSizeItemComponent(
     var maxStackSize: Int,
-    override val id: Int = 1
 ): ItemComponent
 
 data class MaxDamageItemComponent(
     var maxDamage: Int,
-    override val id: Int = 2
 ): ItemComponent
 
 data class DamageItemComponent(
     var damage: Int,
-    override val id: Int = 3
 ): ItemComponent
 
 data class UnbreakableItemComponent(
     var showInTooltip: Boolean = false,
-    override val id: Int = 4
 ): ItemComponent
 
 data class CustomNameItemComponent(
     var name: Component,
-    override val id: Int = 5
 ): ItemComponent
 
 data class ItemNameItemComponent(
     var name: Component,
-    override val id: Int = 6
+): ItemComponent
+
+data class ItemModelItemComponent(
+    val model: String
 ): ItemComponent
 
 data class LoreItemComponent(
     var lines: Collection<Component>,
-    override val id: Int = 7
 ): ItemComponent
 
 data class RarityItemComponent(
     var rarity: ItemRarity,
-    override val id: Int = 8
 ): ItemComponent
 
 //TODO Enchantments
-data class EnchantmentsItemComponent(
-    override val id: Int = 9
-): ItemComponent
+class EnchantmentsItemComponent(): ItemComponent
 
 data class CanBePlacedOnItemComponent(
     var blocks: Collection<BlockPredicate>,
     var showInTooltip: Boolean = true,
-    override val id: Int = 10
 ): ItemComponent
 
 data class CanBreakItemComponent(
     var blocks: Collection<BlockPredicate>,
     var showInTooltip: Boolean = true,
-    override val id: Int = 11
 ): ItemComponent
 
 //TODO Attributes
 data class AttributeModifiersItemComponent(
-    val attributes: Collection<Attribute>,
+    val attributes: Collection<Modifier>,
     val showInTooltip: Boolean,
-    override val id: Int = 12
 ): ItemComponent
 
 data class CustomModelDataItemComponent(
     var customModelData: Int,
-    override val id: Int = 13
 ): ItemComponent
 
 
 //what is this? even wiki.vg doesnt know
-data class HideAdditionalTooltipItemComponent(
-    override val id: Int = 14
-): ItemComponent
+class HideAdditionalTooltipItemComponent(): ItemComponent
 
-data class HideTooltipItemComponent(
-    override val id: Int = 15
-): ItemComponent
+class HideTooltipItemComponent(): ItemComponent
 
-data class RepairCostItemComponent(
-    var repairCost: Int,
-    override val id: Int = 16
-): ItemComponent
+data class RepairCostItemComponent(var repairCost: Int): ItemComponent
 
-data class CreativeSlotLockItemComponent(
-    override val id: Int = 17
-): ItemComponent
+class CreativeSlotLockItemComponent(): ItemComponent
 
-data class EnchantmentGlintOverrideItemComponent(
-    var hasGlint: Boolean,
-    override val id: Int = 18
-): ItemComponent
-
+class EnchantmentGlintOverrideItemComponent(var hasGlint: Boolean): ItemComponent
 
 //note: write empty nbt compound as data
-data class IntangibleProjectileItemComponent(
-    override val id: Int = 19
-): ItemComponent
+class IntangibleProjectileItemComponent(): ItemComponent
 
 //TODO Potion effects
 data class FoodItemComponent(
-    var nutrition: Int = 0,
-    var giveSaturation: Boolean = false,
+    var nutrition: Int,
+    var saturation: Float,
     var canAlwaysEat: Boolean = true,
-    var secondsToEat: Float = 2f,
-    var potionEffects: MutableList<PotionEffect> = mutableListOf(),
-    override val id: Int = 20
 ): ItemComponent
 
-data class FireResistantItemComponent(
-    override val id: Int = 21
+data class ConsumableItemComponent(
+    val consumeSeconds: Float = 1.6f,
+    val animation: ConsumableAnimation = ConsumableAnimation.EAT,
+    val sound: Sound,
+    val hasConsumeParticles: Boolean,
+    val consumeEffects: List<ConsumeEffect>
+): ItemComponent
+
+data class UseRemainderItemComponent(
+    val itemStack: ItemStack
+): ItemComponent
+
+data class UseCooldownItemComponent(
+    val cooldownSeconds: Float,
+    val cooldownGroup: String? = null
+): ItemComponent
+
+class DamageResistantItemComponent(
+    val type: DamageType
 ): ItemComponent
 
 data class ToolItemComponent(
     var toolRules: Collection<ToolRule>,
     var defaultMiningSpeed: Float,
     var damagePerBlock: Int,
-    override val id: Int = 22
 ): ItemComponent
 
 //TODO Enchantments
-data class StoredEnchantmentsItemComponent(
-    override val id: Int = 23
+data class EnchantableItemComponent(var value: Int): ItemComponent
+
+data class EquippableItemComponent(
+    val slot: EquipmentSlot,
+    val equipSound: Sound,
+    val model: String?,
+    val cameraOverlay: String?,
+    val allowedEntities: List<EntityType>,
+    val dispensable: Boolean,
+    val swappable: Boolean,
+    val damageOnHurt: Boolean
 ): ItemComponent
 
-data class DyedColorItemComponent(
-    var color: CustomColor,
-    var showInTooltip: Boolean = false,
-    override val id: Int = 24
+data class RepairableItemComponent(
+    val materials: List<Item>
 ): ItemComponent
 
-data class MapColorItemComponent(
-    var color: CustomColor,
-    override val id: Int = 25
-): ItemComponent
+class GliderItemComponent(): ItemComponent
 
-data class MapIdItemComponent(
-    var mapId: Int,
-    override val id: Int = 26
-): ItemComponent
+data class TooltipStyleItemComponent(val texture: String): ItemComponent
 
-data class MapDecorationsItemComponent(
-    var nbt: NBTCompound,
-    override val id: Int = 27
-): ItemComponent
+data class DeathProtectionItemComponent(val effects: List<ConsumeEffect>): ItemComponent
 
-data class MapPostProcessingItemComponent(
-    var type: MapPostProcessing,
-    override val id: Int = 28
-): ItemComponent
+//TODO
+data class StoredEnchantments(val enchantments: List<String>, var showInTooltip: Boolean = true): ItemComponent
 
-data class ChargedProjectilesItemComponent(
-    var projectiles: Collection<ItemStack>,
-    override val id: Int = 29
-): ItemComponent
+data class DyedColorItemComponent(var color: CustomColor, var showInTooltip: Boolean = false): ItemComponent
 
-data class BundleContentsItemComponent(
-    var items: Collection<ItemStack>,
-    override val id: Int = 30
-): ItemComponent
+data class MapColorItemComponent(var color: CustomColor): ItemComponent
 
+data class MapIdItemComponent(var mapId: Int): ItemComponent
 
-//TODO Potions
+data class MapDecorationsItemComponent(var nbt: NBTCompound): ItemComponent
+
+data class MapPostProcessingItemComponent(var type: MapPostProcessing): ItemComponent
+
+data class ChargedProjectilesItemComponent(var projectiles: Collection<ItemStack>): ItemComponent
+
+data class BundleContentsItemComponent(var items: Collection<ItemStack>): ItemComponent
+
 data class PotionContentsItemComponent(
-    var potionId: Int?,
+    var potion: PotionEffect?,
     var customColor: CustomColor?,
-    var potionEffects: Collection<AppliedPotionEffect>,
-
-    override val id: Int = 31
+    var potionEffects: Collection<AppliedPotionEffect> = listOf(),
+    val customName: String?
 ): ItemComponent
 
-//TODO Potions
-data class SuspiciousStewEffectsItemComponent(
-    var potionEffects: Collection<PotionEffect>,
-    override val id: Int = 32
-): ItemComponent
+data class SuspiciousStewEffectsItemComponent(var potionEffects: Collection<AppliedPotionEffect>): ItemComponent
 
-data class WritableBookContentItemComponent(
-    var pages: Collection<BookPage>,
-    override val id: Int = 33
-): ItemComponent
+data class WritableBookContentItemComponent(var pages: Collection<BookPage>): ItemComponent
 
 data class WrittenBookContentItemComponent(
     var title: String,
@@ -216,46 +269,27 @@ data class WrittenBookContentItemComponent(
     var author: String,
     var generation: Int,
     var pages: Collection<BookPage>,
-    override val id: Int = 34
 ): ItemComponent
 
-//TODO Armor trims
 data class TrimItemComponent(
-    override val id: Int = 35
+    val material: TrimMaterial,
+    val pattern: TrimPattern,
+    val showInTooltip: Boolean
 ): ItemComponent
 
+data class DebugStickItemComponent(var data: NBTCompound): ItemComponent
 
-data class DebugStickItemComponent(
-    var data: NBTCompound,
-    override val id: Int = 36
-): ItemComponent
+data class EntityDataItemComponent(var data: NBTCompound): ItemComponent
 
-data class EntityDataItemComponent(
-    var data: NBTCompound,
-    override val id: Int = 37
-): ItemComponent
+data class BucketEntityDataItemComponent(var data: NBTCompound): ItemComponent
 
-data class BucketEntityDataItemComponent(
-    var data: NBTCompound,
-    override val id: Int = 38
-): ItemComponent
-
-data class BlockEntityDataItemComponent(
-    var data: NBTCompound,
-    override val id: Int = 39
-): ItemComponent
+data class BlockEntityDataItemComponent(var data: NBTCompound): ItemComponent
 
 data class NoteBlockInstrumentItemComponent(
     var instrument: String,
-    var maxSoundRange: Float,
-    var currentRange: Float,
-    override val id: Int = 40
 ): ItemComponent
 
-data class OminousBottleAmplifierItemComponent(
-    var amplifier: Int,
-    override val id: Int = 41
-): ItemComponent
+data class OminousBottleAmplifierItemComponent(var amplifier: Int): ItemComponent
 
 data class JukeboxPlayableItemComponent(
     var directMode: Boolean,
@@ -264,86 +298,91 @@ data class JukeboxPlayableItemComponent(
     var duration: Float?,
     var output: Int? = 15,
     var showInTooltip: Boolean,
-    override val id: Int = 42
 ): ItemComponent
 
-data class RecipesItemComponent(
-    var data: NBTCompound,
-    override val id: Int = 43
-): ItemComponent
+data class RecipesItemComponent(var recipes: List<String>): ItemComponent
 
 data class LodestoneTrackerItemComponent(
     var hasGlobalPosition: Boolean,
     var dimension: World,
     var position: Location,
     var tracked: Boolean,
-    override val id: Int = 44
 ): ItemComponent
 
-//TODO FireworkExplosion data
 data class FireworkExplosionItemComponent(
-    override val id: Int = 45
+    val shape: FireworkShape,
+    val colors: Collection<CustomColor>,
+    val fadeColors: Collection<CustomColor>,
+    val hasTrail: Boolean,
+    val hasTwinkle: Boolean
 ): ItemComponent
 
-//TODO Firework data
 data class FireworksItemComponent(
-    override val id: Int = 46
+    val flightDuration: Byte,
+    val explosions: Collection<FireworkExplosionItemComponent>
 ): ItemComponent
 
 data class PlayerHeadProfileItemComponent(
     var name: String?,
     var uuid: UUID?,
     var propertyMap: ProfilePropertyMap,
-    override val id: Int = 47
 ): ItemComponent
 
-data class NoteBlockSoundItemComponent(
-    var sound: String,
-    override val id: Int = 48
-): ItemComponent
+data class NoteBlockSoundItemComponent(val sound: String): ItemComponent
 
-data class BannerPatternsItemComponent(
-    var layers: Collection<BannerPatternLayer>,
-    override val id: Int = 49
-): ItemComponent
+data class BannerPatternsItemComponent(val layers: Collection<BannerPatternLayer>): ItemComponent
 
-data class BannerShieldBaseColorItemComponent(
-    var color: LegacyTextColor,
-    override val id: Int = 50
-): ItemComponent
+data class BaseColorItemComponent(val color: DyeColor): ItemComponent
 
 //TODO pot decoration registry
-data class PotDecorationsItemComponent(
+class PotDecorationsItemComponent(
 //    var decorations: Collection<>,
-    override val id: Int = 51
 ): ItemComponent
 
-data class ContainerItemComponent(
-    var items: Collection<ItemStack>,
-    override val id: Int = 52
-): ItemComponent
+//data class BannerShieldBaseColorItemComponent(var color: LegacyTextColor): ItemComponent
 
-//TODO Block States
-data class BlockStateItemComponent(
-    val states: Map<String, String>,
-    override val id: Int = 53
-): ItemComponent
+data class ContainerItemComponent(var items: Collection<ItemStack>): ItemComponent
 
-data class BeesItemComponent(
-    var bees: Collection<BeeInsideBeehive>,
-    override val id: Int = 54
-): ItemComponent
+data class ContainerItemStack(
+    val slot: Int,
+    val itemStack: ItemStack
+)
 
-data class LockItemComponent(
-    var key: NBTCompound,
-    override val id: Int = 55
-): ItemComponent
+fun ByteBuf.readContainerItemStack(): ContainerItemStack {
+    return ContainerItemStack(
+        this.readVarInt(),
+        this.readItemStack()
+    )
+}
 
-data class ContainerLootItemComponent(
-    var loot: NBTCompound,
-    override val id: Int = 56
-): ItemComponent
+fun ByteBuf.readContainerItemStackList(): Collection<ContainerItemStack> {
+    val list = mutableListOf<ContainerItemStack>()
+    for (i in 0 until this.readVarInt()) {
+        list.add(this.readContainerItemStack())
+    }
+    return list
+}
 
+fun ByteBuf.writeContainerItemStackList(list: Collection<ContainerItemStack>) {
+    this.writeVarInt(list.size)
+    list.forEach {
+        this.writeContainerItemStack(it)
+    }
+}
+
+fun ByteBuf.writeContainerItemStack(containerItemStack: ContainerItemStack) {
+    this.writeVarInt(containerItemStack.slot)
+    this.writeItemStack(containerItemStack.itemStack)
+}
+
+data class BlockStateItemComponent(val states: Map<String, String>): ItemComponent
+
+data class BeesItemComponent(var bees: Collection<BeeInsideBeehive>): ItemComponent
+
+// TODO(1.21.2) Updated NBT format > https://minecraft.wiki/w/Java_Edition_1.21.2#Data_components_3
+data class LockItemComponent(var key: NBTString): ItemComponent
+
+data class ContainerLootItemComponent(var loot: NBTCompound): ItemComponent
 
 data class BeeInsideBeehive(
     var entityData: NBTCompound,
@@ -353,9 +392,43 @@ data class BeeInsideBeehive(
 
 data class BannerPatternLayer(
     var pattern: BannerPattern,
-    var translationKey: String,
-    var color: CustomColor
+    var color: DyeColor
 )
+
+fun ByteBuf.readBannerPatternLayer(): BannerPatternLayer {
+    val bannerPattern: BannerPattern
+    val type = this.readVarInt() - 1
+
+    bannerPattern = if(type != -1) BannerPatternRegistry.getByProtocolId(type + 1) else BannerPatternRegistry[this.readString()]
+    val dyeColor = this.readVarIntEnum<DyeColor>()
+
+    return BannerPatternLayer(
+        bannerPattern,
+        dyeColor
+    )
+}
+
+fun ByteBuf.writeBannerPatternLayer(bannerPattern: BannerPattern, dyeColor: DyeColor) {
+    if(bannerPattern.identifier.contains("minecraft:")) {
+        this.writeVarInt(bannerPattern.getProtocolId())
+    } else {
+        this.writeString(bannerPattern.identifier)
+    }
+    this.writeVarIntEnum<DyeColor>(dyeColor)
+}
+
+fun ByteBuf.writeBannerPatternLayerList(list: Collection<BannerPatternLayer>) {
+    this.writeVarInt(list.size)
+    list.forEach { this.writeBannerPatternLayer(it.pattern, it.color) }
+}
+
+fun ByteBuf.readBannerPatternLayerList(): List<BannerPatternLayer> {
+    val list = mutableListOf<BannerPatternLayer>()
+    for (i in 0 until this.readVarInt()) {
+        list.add(this.readBannerPatternLayer())
+    }
+    return list
+}
 
 
 data class BookPage(
@@ -366,9 +439,9 @@ data class BookPage(
 fun ByteBuf.writeBookPages(pages: Collection<BookPage>) {
     this.writeVarInt(pages.size)
     pages.forEach {
-        this.writeUtf(it.rawContent)
+        this.writeString(it.rawContent)
         this.writeOptional(it.filteredContent) { op ->
-            op.writeUtf(it.filteredContent!!)
+            op.writeString(it.filteredContent!!)
         }
     }
 }
@@ -401,6 +474,13 @@ fun BindableList<ItemComponent>.hasType(type: KClass<*>): Boolean =
     this.values.firstOrNull { it::class == type } != null
 
 @Suppress("UNCHECKED_CAST")
+fun <T : ItemComponent> BindableList<ItemComponent>.getOrNull(type: KClass<T>): T? {
+    val component =  this.values.firstOrNull { it::class == type }
+    return if(component == null) null else component as T
+}
+
+
+@Suppress("UNCHECKED_CAST")
 fun <T> BindableList<ItemComponent>.firstOrNullByType(type: KClass<*>): T? {
     val value = this.values.firstOrNull { it::class == type } ?: return null
     return value as T
@@ -423,4 +503,84 @@ enum class ItemRarity {
     UNCOMMON,
     RARE,
     EPIC
+}
+
+enum class ConsumableAnimation {
+    NONE,
+    EAT,
+    DRINK,
+    BLOCK,
+    BOW,
+    SPEAR,
+    CROSSBOW,
+    SPYGLASS,
+    TOOT_HORN,
+    BRUSH
+}
+
+interface ConsumeEffect
+
+class ApplyEffectsConsumeEffect(
+    val effects: List<AppliedPotionEffect>,
+    val probability: Float = 1f
+): ConsumeEffect
+
+class RemoveEffectsConsumeEffect(
+    val effects: List<PotionEffect>,
+): ConsumeEffect
+
+class ClearAllEffectsConsumeEffect: ConsumeEffect
+
+class TeleportRandomlyConsumeEffect(
+    val diameter: Float = 16.0f,
+): ConsumeEffect
+
+class PlaySoundConsumeEffect(
+    val sound: Sound
+): ConsumeEffect
+
+enum class EquipmentSlot {
+    HELMET,
+    CHESTPLATE,
+    LEGGINGS,
+    BOOTS,
+    BODY,
+    MAIN_HAND,
+    OFF_HAND;
+
+    companion object {
+        fun isBody(equipmentSlot: EquipmentSlot?): Boolean {
+            if(equipmentSlot == null) return false
+            if(equipmentSlot == MAIN_HAND) return false
+            if(equipmentSlot == OFF_HAND) return false
+            return true
+        }
+    }
+}
+
+enum class FireworkShape {
+    SMALL_BALL,
+    LARGE_BALL,
+    STAR,
+    CREEPER,
+    BURST
+}
+
+enum class DyeColor {
+    WHITE,
+    ORANGE,
+    MAGENTA,
+    LIGHT_BLUE,
+    YELLOW,
+    LIME,
+    PINK,
+    GRAY,
+    LIGHT_GRAY,
+    CYAN,
+    PURPLE,
+    BLUE,
+    BROWN,
+    GREEN,
+    RED,
+    BLACK
 }

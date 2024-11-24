@@ -1,6 +1,6 @@
 package io.github.dockyardmc.player
 
-import io.github.dockyardmc.entities.Entity
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.utils.vectors.Vector3f
 import kotlin.experimental.or
@@ -8,6 +8,12 @@ import kotlin.experimental.or
 enum class PlayerHand {
     MAIN_HAND,
     OFF_HAND
+}
+
+enum class ClientParticleSettings {
+    ALL,
+    DECREASED,
+    MINIMAL
 }
 
 enum class PlayerAction {

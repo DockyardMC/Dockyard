@@ -8,6 +8,7 @@ import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.protocol.PacketParser
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.WrappedServerboundPacket
+import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.DecoderException
@@ -23,14 +24,15 @@ class PacketDecoder(val processor: PlayerNetworkManager) : MessageToMessageDecod
         try {
             val packetId = buffer.readVarInt()
             val packetIdByteRep = "0x${packetId.toByte().toHexString()}"
+            val state = processor.state
 
             val size = buffer.readableBytes()
 
-            val packet = PacketParser.parse(packetId, buffer, processor.state)
+            val packet = PacketParser.parse(packetId, buffer, state)
 
-            // no packet class was found to handle this packet so we skip the bytes and log error
+            // no packet class was found to handle this packet, so we skip the bytes and log error
             if (packet == null) {
-                log("Received unknown packet with id $packetId ($packetIdByteRep) during phase: ${processor.state.name}", LogType.ERROR)
+                log("Received unknown packet with id $packetId ($packetIdByteRep) during phase: ${state.name} [${ServerPacketRegistry.getSkippedFromIdOrNull(packetId, state)}]", LogType.ERROR)
                 buffer.skipBytes(buffer.readableBytes())
                 return
             }

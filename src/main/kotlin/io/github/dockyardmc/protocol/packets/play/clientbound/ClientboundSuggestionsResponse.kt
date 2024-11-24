@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -17,7 +17,7 @@ class ClientboundSuggestionsResponse(transactionId: Int, start: Int, length: Int
         data.writeVarInt(length)
         data.writeVarInt(suggestions.size)
         suggestions.forEach {
-            data.writeUtf(it)
+            data.writeString(it)
             data.writeBoolean(false)
         }
     }

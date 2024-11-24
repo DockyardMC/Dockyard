@@ -113,4 +113,6 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
     fun getSectionAt(y: Int): ChunkSection = getSection(ChunkUtils.getChunkCoordinate(y))
 
     fun getIndex(): Long = ChunkUtils.getChunkIndex(this)
+
+    val chunkPos get() = ChunkPos(chunkX, chunkZ)
 }

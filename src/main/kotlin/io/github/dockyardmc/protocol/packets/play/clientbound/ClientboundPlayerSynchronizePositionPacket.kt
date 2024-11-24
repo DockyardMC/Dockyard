@@ -6,6 +6,8 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.utils.vectors.Vector3d
+import io.github.dockyardmc.utils.vectors.writeVector3d
 import java.util.concurrent.atomic.AtomicInteger
 
 @WikiVGEntry("Synchronize Player Position")
@@ -17,12 +19,11 @@ class ClientboundPlayerSynchronizePositionPacket(location: Location): Clientboun
     }
 
     init {
-        data.writeDouble(location.x)
-        data.writeDouble(location.y)
-        data.writeDouble(location.z)
+        data.writeVarInt(teleportId.incrementAndGet())
+        data.writeVector3d(location.toVector3d())
+        data.writeVector3d(Vector3d())
         data.writeFloat(location.yaw)
         data.writeFloat(location.pitch)
-        data.writeByte(0x0)
-        data.writeVarInt(teleportId.incrementAndGet())
+        data.writeInt(0)
     }
 }

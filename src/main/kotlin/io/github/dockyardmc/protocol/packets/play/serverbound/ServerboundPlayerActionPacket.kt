@@ -1,7 +1,5 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.annotations.ServerboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockBreakEvent
 import io.github.dockyardmc.extentions.readByteEnum
@@ -12,10 +10,9 @@ import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.particles.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Direction
-import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.player.PlayerHand
+import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.PlayerNetworkManager
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
@@ -25,8 +22,6 @@ import io.github.dockyardmc.utils.vectors.Vector3f
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-@WikiVGEntry("Player Action")
-@ServerboundPacketInfo(36, ProtocolState.PLAY)
 class ServerboundPlayerActionPacket(
     var action: PlayerAction,
     var position: Vector3,
@@ -55,8 +50,8 @@ class ServerboundPlayerActionPacket(
                 }
 
                 player.world.setBlock(event.location, Blocks.AIR)
-                player.world.players.values.filter { it != player }.spawnParticle(
-                    event.location.getBlockLocation(),
+                player.world.players.filter { it != player }.spawnParticle(
+                    event.location.add(0.5, 0.5, 0.5),
                     Particles.BLOCK,
                     amount = 50,
                     offset = Vector3f(0.3f),
@@ -78,13 +73,24 @@ class ServerboundPlayerActionPacket(
         if (action == PlayerAction.DROP_ITEM) {
             val held = player.getHeldItem(PlayerHand.MAIN_HAND)
             if (held.isEmpty()) return
-            player.inventory.drop(held, isEntireStack = false, isHeld = true)
+            val cancelled = player.inventory.drop(held.withAmount(1))
+            if(cancelled) {
+                player.inventory.sendFullInventoryUpdate()
+                return
+            }
+            val newItem = if(held.amount - 1 == 0) ItemStack.AIR else held.withAmount(held.amount - 1)
+            player.setHeldItem(PlayerHand.MAIN_HAND, newItem)
         }
 
         if (action == PlayerAction.DROP_ITEM_STACK) {
             val held = player.getHeldItem(PlayerHand.MAIN_HAND)
             if (held.isEmpty()) return
-            player.inventory.drop(held, isEntireStack = true, isHeld = true)
+            val cancelled = player.inventory.drop(held)
+            if(cancelled) {
+                player.inventory.sendFullInventoryUpdate()
+                return
+            }
+            player.setHeldItem(PlayerHand.MAIN_HAND, ItemStack.AIR)
         }
     }
 

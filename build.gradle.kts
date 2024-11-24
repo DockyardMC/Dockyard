@@ -102,6 +102,7 @@ tasks.processResources {
 
 sourceSets["main"].resources.srcDir("${buildDir}/generated/resources/")
 
+sourceSets["main"].java.srcDir("src/main/kotlin")
 
 tasks {
     val sourcesJar by creating(Jar::class) {

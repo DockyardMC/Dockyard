@@ -3,8 +3,8 @@ package io.github.dockyardmc.commands
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.entities.Entity
-import io.github.dockyardmc.entities.EntityManager
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.getLegacyTextColorNameFromVanilla
@@ -92,11 +92,24 @@ object CommandHandler {
             }
         }
 
+        var foundGreedyString: Boolean = false
+
         tokens.forEachIndexed { index, value ->
             if (index == 0) return@forEachIndexed
             if (index > command.arguments.size) return@forEachIndexed
+            if(foundGreedyString) return@forEachIndexed
 
             val argumentData = command.arguments.values.toList()[index - 1]
+
+            if(argumentData.argument is StringArgument) {
+                val argument = argumentData.argument as StringArgument
+                if(argument.type == BrigadierStringType.GREEDY_PHRASE) {
+                    foundGreedyString = true
+                    val string = tokens.subList(index, tokens.size).joinToString(" ")
+                    argumentData.returnedValue = string
+                    return@forEachIndexed
+                }
+            }
 
             argumentData.returnedValue = when (argumentData.expectedReturnValueType) {
                 Boolean::class -> value == "true"

@@ -10,10 +10,12 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 class ClientboundUpdateTimePacket(
     val worldAge: Long,
     val time: Long,
+    val isFrozen: Boolean
 ): ClientboundPacket() {
 
     init {
         data.writeLong(worldAge)
         data.writeLong(time)
+        data.writeBoolean(isFrozen)
     }
 }

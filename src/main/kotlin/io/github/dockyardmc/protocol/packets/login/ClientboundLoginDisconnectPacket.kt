@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.login
 
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.scroll.Component
@@ -12,6 +12,6 @@ import io.github.dockyardmc.scroll.Component
 class ClientboundLoginDisconnectPacket(component: Component): ClientboundPacket() {
 
     init {
-        data.writeUtf(component.toJson())
+        data.writeString(component.toJson())
     }
 }

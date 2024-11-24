@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.configurations
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeNBT
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -20,13 +20,13 @@ class ClientboundRegistryDataPacket(val registry: Registry): ClientboundPacket()
 }
 
 private fun ByteBuf.writeRegistry(registry: Registry) {
-    this.writeUtf(registry.identifier)
+    this.writeString(registry.identifier)
     this.writeVarInt(registry.getMap().size)
     registry.getMap().forEach {
         val data = it.value.getNbt()
         val isDataPresent = it.value.getNbt() != null
 
-        this.writeUtf(it.key)
+        this.writeString(it.key)
         this.writeBoolean(isDataPresent)
         if(isDataPresent) {
             this.writeNBT(data!!)

@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.login
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeByteArray
-import io.github.dockyardmc.extentions.writeUtf
+import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 
@@ -17,7 +17,7 @@ class ClientboundEncryptionRequestPacket(
 ): ClientboundPacket() {
 
     init {
-        data.writeUtf(serverID)
+        data.writeString(serverID)
         data.writeByteArray(pubKey)
         data.writeByteArray(verToken)
         data.writeBoolean(shouldAuthenticate)
