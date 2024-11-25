@@ -7,6 +7,7 @@ import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.CustomColor
+import io.github.dockyardmc.sounds.Sound
 import java.util.*
 
 class ItemBuilder() {
@@ -69,6 +70,16 @@ class ItemBuilder() {
     }
 
     /**
+     * Set the lore of the item
+     *
+     * @param lore String
+     * @return ItemBuilder
+     */
+    fun withLore(lore: String): ItemBuilder {
+        return withLore(listOf(lore))
+    }
+
+    /**
      * Adds a line of lore to the item
      *
      * @param lore String
@@ -76,6 +87,11 @@ class ItemBuilder() {
      */
     fun addLore(lore: String): ItemBuilder {
         itemStack.lore.add(lore)
+        return this
+    }
+
+    fun addLore(lore: List<String>): ItemBuilder {
+        itemStack.lore.addAll(lore, true)
         return this
     }
 
@@ -199,14 +215,32 @@ class ItemBuilder() {
      * Set the food of the item
      *
      * @param nutrition Int
-     * @param giveSaturation Boolean (default false)
+     * @param saturation Float (default 1f)
      * @param canAlwaysEat Boolean (default true)
-     * @param secondsToEat Float (default 2f)
+     * @return ItemBuilder
+     *
+     * @throws IllegalArgumentException if the item is not a consumable
+     */
+    fun withFood(nutrition: Int, saturation: Float = 1f, canAlwaysEat: Boolean = true): ItemBuilder {
+        if (!itemStack.components.hasType(ConsumableItemComponent::class)) {
+            throw IllegalArgumentException("Item must be consumable")
+        }
+        itemStack.components.addOrUpdate(FoodItemComponent(nutrition, saturation, canAlwaysEat))
+        return this
+    }
+
+    /**
+     * Set the consumable of the item
+     *
+     * @param consumeSeconds Float (default 1.6f)
+     * @param animation ConsumableAnimation (default EAT)
+     * @param sound Sound
+     * @param hasConsumeParticles Boolean (default true)
+     * @param consumeEffects List<ConsumeEffect>
      * @return ItemBuilder
      */
-    @Deprecated("Breaks in 1.21.2. Will be reworked in the future")
-    fun withFood(nutrition: Int, saturation: Float = 1f, canAlwaysEat: Boolean = true): ItemBuilder {
-        itemStack.components.addOrUpdate(FoodItemComponent(nutrition, saturation, canAlwaysEat))
+    fun withConsumable(consumeSeconds: Float = 1.6f, animation: ConsumableAnimation = ConsumableAnimation.EAT, sound: Sound, hasConsumeParticles: Boolean = true, consumeEffects: List<ConsumeEffect>): ItemBuilder {
+        itemStack.components.addOrUpdate(ConsumableItemComponent(consumeSeconds, animation, sound, hasConsumeParticles, consumeEffects))
         return this
     }
 
@@ -257,6 +291,27 @@ class ItemBuilder() {
             )
         )
 
+        return this
+    }
+
+    /**
+     * Hides the additional tooltip of the item
+     *
+     * @return ItemBuilder
+     */
+    fun hideAdditionalTooltip(): ItemBuilder {
+        itemStack.components.addOrUpdate(HideAdditionalTooltipItemComponent())
+        return this
+    }
+
+
+    /**
+     * Hides the tooltip of the item
+     *
+     * @return ItemBuilder
+     */
+    fun hideTooltip(): ItemBuilder {
+        itemStack.components.addOrUpdate(HideTooltipItemComponent())
         return this
     }
 
