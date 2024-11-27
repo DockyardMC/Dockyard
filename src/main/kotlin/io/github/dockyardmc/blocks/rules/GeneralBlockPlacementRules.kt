@@ -1,5 +1,7 @@
-package io.github.dockyardmc.blocks
+package io.github.dockyardmc.blocks.rules
 
+import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.blocks.BlockDataHelper
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player

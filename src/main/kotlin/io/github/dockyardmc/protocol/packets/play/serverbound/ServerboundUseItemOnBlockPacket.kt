@@ -1,33 +1,31 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.annotations.ServerboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.blocks.*
+import io.github.dockyardmc.blocks.BarrelPlacementRules
+import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.blocks.ShulkerboxPlacementRules
+import io.github.dockyardmc.blocks.rules.*
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
 import io.github.dockyardmc.events.PlayerBlockRightClickEvent
-import io.github.dockyardmc.events.PlayerRightClickWithItemEvent
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
+import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.PlayerNetworkManager
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.utils.isDoubleInteract
 import io.github.dockyardmc.registry.registries.BlockRegistry
+import io.github.dockyardmc.utils.isDoubleInteract
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 val placementRules = mutableListOf<BlockPlacementRule>()
 
-@WikiVGEntry("Use Item On")
-@ServerboundPacketInfo(56, ProtocolState.PLAY)
 class ServerboundUseItemOnBlockPacket(
     var hand: PlayerHand,
     var pos: Vector3,
@@ -52,6 +50,9 @@ class ServerboundUseItemOnBlockPacket(
                 "observer",
                 "end_portal_frame",
                 "campfire",
+                "chest",
+                "trapped_chest",
+                "bookshelf",
             )
 
             placementRules.add(LogBlockPlacementRules())
@@ -68,6 +69,7 @@ class ServerboundUseItemOnBlockPacket(
             placementRules.add(LanternPlacementRules())
             placementRules.add(TorchBlockPlacementRules())
             placementRules.add(BarrelPlacementRules())
+            placementRules.add(ShulkerboxPlacementRules())
             placementRules.add(RotationPlacementRules(rotational))
         }
     }
@@ -77,7 +79,7 @@ class ServerboundUseItemOnBlockPacket(
         val item = player.getHeldItem(hand)
 
         // since minecraft sends 2 packets at once, we need to make sure that only one gets handled
-        if(isDoubleInteract(player)) return
+        if (isDoubleInteract(player)) return
 
         var cancelled = false
 
@@ -105,20 +107,20 @@ class ServerboundUseItemOnBlockPacket(
 
 
         //TODO make block handlers or something so its not all here
-        if(originalBlock.identifier.contains("trapdoor")) {
+        if (originalBlock.identifier.contains("trapdoor")) {
             var opensTrapdoor = true
-            if(player.isSneaking && !item.isEmpty() && BlockRegistry.getMap().containsKey(item.material.identifier)) {
+            if (player.isSneaking && !item.isEmpty() && BlockRegistry.getMap().containsKey(item.material.identifier)) {
                 opensTrapdoor = false
             }
-            if(event.cancelled) opensTrapdoor = false
+            if (event.cancelled) opensTrapdoor = false
 
             var newState = originalBlock.blockStates["open"] != "true"
-            if(!opensTrapdoor) newState = originalBlock.blockStates["open"]!!.toBoolean()
+            if (!opensTrapdoor) newState = originalBlock.blockStates["open"]!!.toBoolean()
 
             player.world.setBlockState(pos.toLocation(player.world), "open" to newState.toString().lowercase())
         }
 
-        if (item.material.isBlock && item.material != Items.AIR) {
+        if ((item.material.isBlock) && (item.material != Items.AIR) && (player.gameMode.value != GameMode.ADVENTURE && player.gameMode.value != GameMode.SPECTATOR)) {
             var block: Block = (BlockRegistry.getOrNull(item.material.identifier) ?: Blocks.AIR).toBlock()
 
             placementRules.forEach {

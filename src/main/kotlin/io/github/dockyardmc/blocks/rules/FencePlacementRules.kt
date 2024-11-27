@@ -1,12 +1,13 @@
-package io.github.dockyardmc.blocks
+package io.github.dockyardmc.blocks.rules
 
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 
-class GlassPanePlacementRules: BlockPlacementRule {
-    override val matchesIdentifier = "glass_pane"
+class FencePlacementRules: BlockPlacementRule {
+    override val matchesIdentifier = "fence"
 
     override fun getPlacement(
         player: Player,

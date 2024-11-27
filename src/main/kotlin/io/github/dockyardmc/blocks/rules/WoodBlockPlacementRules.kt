@@ -1,13 +1,14 @@
-package io.github.dockyardmc.blocks
+package io.github.dockyardmc.blocks.rules
 
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.getDirection
 
-class HyphaeBlockPlacementRules: BlockPlacementRule {
-    override val matchesIdentifier = "hyphae"
+class WoodBlockPlacementRules: BlockPlacementRule {
+    override val matchesIdentifier = "wood"
 
     override fun getPlacement(
         player: Player,

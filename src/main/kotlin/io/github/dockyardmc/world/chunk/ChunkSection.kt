@@ -1,4 +1,4 @@
-package io.github.dockyardmc.world
+package io.github.dockyardmc.world.chunk
 
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks

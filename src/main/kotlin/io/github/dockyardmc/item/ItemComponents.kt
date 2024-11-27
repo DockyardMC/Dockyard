@@ -490,7 +490,7 @@ fun <T> BindableList<ItemComponent>.firstOrNullByType(type: KClass<*>): T? {
 data class ToolRule(
     val blocks: Collection<Block>,
     val speed: Float?,
-    val correctDropForBlocks: Boolean?
+    val correctDropForBlocks: Boolean
 )
 
 enum class MapPostProcessing {

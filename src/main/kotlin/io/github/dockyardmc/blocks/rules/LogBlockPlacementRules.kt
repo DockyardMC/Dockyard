@@ -1,13 +1,13 @@
-package io.github.dockyardmc.blocks
+package io.github.dockyardmc.blocks.rules
 
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.getDirection
 
-class WoodBlockPlacementRules: BlockPlacementRule {
-    override val matchesIdentifier = "wood"
+class LogBlockPlacementRules: BlockPlacementRule {
+    override val matchesIdentifier = "log"
 
     override fun getPlacement(
         player: Player,
@@ -19,14 +19,9 @@ class WoodBlockPlacementRules: BlockPlacementRule {
         cursorX: Float,
         cursorY: Float,
         cursorZ: Float,
-    ): Block {
+    ): Block? {
 
-        var inputDirection = face
-        if(face == Direction.UP) {
-            inputDirection = player.getDirection(true)
-        }
-
-        val axis: String = when(inputDirection) {
+        val axis: String = when(face) {
             Direction.DOWN,
             Direction.UP -> "y"
             Direction.SOUTH,
@@ -37,5 +32,4 @@ class WoodBlockPlacementRules: BlockPlacementRule {
 
         return block.withBlockStates("axis" to axis)
     }
-
 }

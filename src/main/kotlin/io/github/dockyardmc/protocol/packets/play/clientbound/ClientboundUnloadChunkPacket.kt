@@ -1,7 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.world.ChunkPos
+import io.github.dockyardmc.world.chunk.ChunkPos
 
 class ClientboundUnloadChunkPacket(chunkPos: ChunkPos): ClientboundPacket() {
 

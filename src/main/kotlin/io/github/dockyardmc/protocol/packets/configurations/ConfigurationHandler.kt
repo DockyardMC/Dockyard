@@ -1,6 +1,5 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
-import cz.lukynka.BindablePool
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.commands.buildCommandGraph
@@ -18,7 +17,7 @@ import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.protocol.plugin.PluginMessages
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
-import io.github.dockyardmc.world.ChunkPos
+import io.github.dockyardmc.world.chunk.ChunkPos
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
