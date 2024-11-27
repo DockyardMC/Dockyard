@@ -5,6 +5,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
+import kotlin.time.Duration.Companion.milliseconds
 
 class WorldCommand {
 
@@ -23,6 +24,17 @@ class WorldCommand {
                     val world = WorldManager.worlds[getArgument<String>("world")] ?: throw CommandException("World with that name not found")
                     val player = getArgumentOrNull<Player>("player") ?: ctx.getPlayerOrThrow()
                     player.teleport(world.defaultSpawnLocation)
+                }
+            }
+
+            addSubcommand("tickrate") {
+                addArgument("world", StringArgument(), ::suggestWorlds)
+                addArgument("time", LongArgument())
+                execute {
+                    val world = WorldManager.worlds[getArgument<String>("world")] ?: throw CommandException("World with that name not found")
+                    val rate = getArgument<Long>("time")
+                    world.scheduler.tickRate.value = rate.milliseconds
+                    it.sendMessage("<lime>Set tick rate of world <aqua>${world.name} to <yellow>$rate<lime>!")
                 }
             }
 

@@ -17,7 +17,7 @@ import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.utils.DebugSidebar
 import io.github.dockyardmc.utils.randomInt
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
@@ -76,7 +76,7 @@ fun main(args: Array<String>) {
         player.gameMode.value = GameMode.CREATIVE
         player.permissions.add("dockyard.all")
 
-        DebugScoreboard.sidebar.viewers.add(player)
+        DebugSidebar.sidebar.viewers.add(player)
 
         player.addPotionEffect(PotionEffects.NIGHT_VISION, -1, 0, false)
     }

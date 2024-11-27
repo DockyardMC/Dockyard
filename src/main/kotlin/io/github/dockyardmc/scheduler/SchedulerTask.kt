@@ -9,7 +9,7 @@ class SchedulerTask(val task: (() -> Unit), val type: Type, val name: String? = 
     val status get() = innerStatus
     var cancelled: Boolean = false
 
-    fun run(serverTicks: Long, schedulerTicks: Long) {
+    fun run(tick: Long) {
         innerStatus = Status.RUNNING
         try {
             task.invoke()

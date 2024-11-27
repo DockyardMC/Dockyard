@@ -1,49 +1,39 @@
 package io.github.dockyardmc.scheduler
 
-import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.runnables.ticks
 import io.github.dockyardmc.utils.Disposable
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.internal.synchronized
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import kotlin.time.Duration
 
-@OptIn(InternalCoroutinesApi::class)
-class Scheduler(val name: String) : Disposable {
+abstract class Scheduler : Disposable {
 
-    companion object {
-        val executorService: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor {
-            val thread = Thread(it)
-            thread.isDaemon = true
-            thread
-        }
+    var ticks: Long = 0
+
+    val executorService: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor {
+        val thread = Thread(it)
+        thread.isDaemon = true
+        thread
     }
 
-    fun makeGlobal(): Scheduler {
-        SchedulerManager.registerGlobal(this)
-        return this
-    }
+    private val scheduledTasks: MutableMap<Long, MutableList<SchedulerTask>> =
+        mutableMapOf() // scheduler tick time to task
+    private val scheduledTasksAsync: MutableMap<Long, MutableList<AsyncSchedulerTask<*>>> =
+        mutableMapOf() // scheduler tick time to task
+    private val repeatingTasks: MutableMap<Long, MutableList<SchedulerTask>> =
+        mutableMapOf() // scheduler tick % interval to task
+    private val repeatingTasksAsync: MutableMap<Long, MutableList<AsyncSchedulerTask<*>>> =
+        mutableMapOf() // scheduler tick % interval to task
 
-    private val scheduledTasks: MutableMap<Long, MutableList<SchedulerTask>> = mutableMapOf() // scheduler tick time to task
-    private val scheduledTasksAsync: MutableMap<Long, MutableList<AsyncSchedulerTask<*>>> = mutableMapOf() // scheduler tick time to task
-    private val repeatingTasks: MutableMap<Long, MutableList<SchedulerTask>> = mutableMapOf() // scheduler tick % interval to task
-    private val repeatingTasksAsync: MutableMap<Long, MutableList<AsyncSchedulerTask<*>>> = mutableMapOf() // scheduler tick % interval to task
-
-    private var ticks: Long = 0
-    private var serverTicks: Long = 0
-
-    fun tick(serverTicks: Int) {
-        this.serverTicks = serverTicks.toLong()
+    open fun tick() {
         ticks++
+    }
+
+    private fun handleTickTasks() {
         val tickStartTasks = scheduledTasks[ticks]
         if (tickStartTasks != null) handleTickQueue(scheduledTasks)
-        handleRepeatingTasks(repeatingTasks)
-        tickAsync()
-    }
 
-    fun tickAsync() {
+        handleRepeatingTasks(repeatingTasks)
         handleTickQueueAsync(scheduledTasksAsync)
         handleRepeatingTasksAsync(repeatingTasksAsync)
     }
@@ -57,7 +47,7 @@ class Scheduler(val name: String) : Disposable {
                         return@taskLoop
                     }
                     executorService.submit {
-                        it.run(serverTicks, ticks)
+                        it.run(ticks)
                     }
                 }
             }
@@ -73,7 +63,7 @@ class Scheduler(val name: String) : Disposable {
                         return@taskLoop
                     }
                     runAsync {
-                        it.run()
+                        it.run(ticks)
                     }
                 }
             }
@@ -101,18 +91,18 @@ class Scheduler(val name: String) : Disposable {
     }
 
     private fun handleTask(task: SchedulerTask) {
-        if (!task.cancelled) task.run(serverTicks, ticks)
+        if (!task.cancelled) task.run(ticks)
         scheduledTasks[ticks]?.remove(task)
     }
 
     private fun handleTaskAsync(task: AsyncSchedulerTask<*>) {
-        if (!task.cancelled) runAsync { task.run() }
+        if (!task.cancelled) runAsync { task.run(ticks) }
         scheduledTasksAsync[ticks]?.remove(task)
     }
 
-    fun addTask(task: SchedulerTask, time: Duration) {
+    open fun addTask(task: SchedulerTask, time: Duration) {
         val timeInTicks = (time.inWholeMilliseconds / 50)
-        val ticks = if(task.type == SchedulerTask.Type.TICK) timeInTicks + ticks else timeInTicks
+        val ticks = if (task.type == SchedulerTask.Type.TICK) timeInTicks + ticks else timeInTicks
         when (task.type) {
             SchedulerTask.Type.IMMEDIATE -> handleTask(task)
             SchedulerTask.Type.TICK -> {
@@ -136,14 +126,14 @@ class Scheduler(val name: String) : Disposable {
         }
     }
 
-    fun runLater(duration: Duration, unit: () -> Unit): SchedulerTask {
+    open fun runLater(duration: Duration, unit: () -> Unit): SchedulerTask {
         val task = SchedulerTask(unit, SchedulerTask.Type.TICK)
         addTask(task, duration)
 
         return task
     }
 
-    fun run(unit: () -> Unit) {
+    open fun run(unit: () -> Unit) {
         executorService.submit(unit)
     }
 
@@ -153,7 +143,7 @@ class Scheduler(val name: String) : Disposable {
         val task = AsyncSchedulerTask(unit, SchedulerTask.Type.TICK)
 
         var list = scheduledTasksAsync[ticks]
-        if(list == null) {
+        if (list == null) {
             scheduledTasksAsync[ticks] = mutableListOf()
             list = scheduledTasksAsync[ticks]!!
         }
@@ -162,10 +152,10 @@ class Scheduler(val name: String) : Disposable {
         return task.future
     }
 
-    fun runRepeatingAsync(interval: Duration, unit: () -> Unit): AsyncSchedulerTask<Unit> {
+    open fun runRepeatingAsync(interval: Duration, unit: () -> Unit): AsyncSchedulerTask<Unit> {
         val task = AsyncSchedulerTask(unit, SchedulerTask.Type.REPEATING)
         var list = repeatingTasksAsync[ticks]
-        if(list == null) {
+        if (list == null) {
             repeatingTasksAsync[ticks] = mutableListOf()
             list = scheduledTasksAsync[ticks]!!
         }
@@ -174,7 +164,7 @@ class Scheduler(val name: String) : Disposable {
         return task
     }
 
-    fun runRepeating(interval: Duration, unit: () -> Unit): SchedulerTask {
+    open fun runRepeating(interval: Duration, unit: () -> Unit): SchedulerTask {
         val task = SchedulerTask(unit, SchedulerTask.Type.REPEATING)
         addTask(task, interval)
         return task
@@ -203,29 +193,9 @@ class Scheduler(val name: String) : Disposable {
     }
 
     override fun dispose() {
-        if(SchedulerManager.list.contains(this)) SchedulerManager.unregisterGlobal(this)
         executorService.shutdown()
         scheduledTasks.clear()
         repeatingTasks.clear()
     }
-}
 
-@JvmName("runLaterAsyncTyped")
-fun <T> runLaterAsync(duration: Duration, unit: () -> T): CompletableFuture<T> {
-    return DockyardServer.scheduler.runLaterAsync(duration, unit)
-}
-
-@JvmName("runLaterAsyncTypedTicks")
-fun <T> runLaterAsync(ticks: Int, unit: () -> T): CompletableFuture<T> {
-    return DockyardServer.scheduler.runLaterAsync(ticks.ticks, unit)
-}
-
-@JvmName("runLaterAsyncVoid")
-fun runLaterAsync(duration: Duration, unit: () -> Unit): CompletableFuture<Unit> {
-    return DockyardServer.scheduler.runLaterAsync<Unit>(duration, unit)
-}
-
-@JvmName("runLaterAsyncVoidTicks")
-fun runLaterAsync(ticks: Int, unit: () -> Unit): CompletableFuture<Unit> {
-    return DockyardServer.scheduler.runLaterAsync<Unit>(ticks.ticks, unit)
 }
