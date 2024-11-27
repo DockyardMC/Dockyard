@@ -1,6 +1,5 @@
 package io.github.dockyardmc.item
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.readModifierList
 import io.github.dockyardmc.blocks.BlockPredicate
 import io.github.dockyardmc.blocks.readBlockPredicate
@@ -40,7 +39,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             val lines = mutableListOf<Component>()
             for (i in 0 until size) {
                 val nbt = this.readNBT()
-                lines.add(if(nbt is NBTString) nbt.value.toComponent() else (nbt as NBTCompound).toComponent())
+                lines.add(if (nbt is NBTString) nbt.value.toComponent() else (nbt as NBTCompound).toComponent())
             }
             return LoreItemComponent(lines)
         }
@@ -109,7 +108,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             for (i in 0 until size) {
                 val blocks = this.readBlockSet()
                 val speed = if (this.readBoolean()) this.readFloat() else null
-                val correctDropForBlocks = if (this.readBoolean()) this.readBoolean() else null
+                val correctDropForBlocks = if (this.readBoolean()) this.readBoolean() else false
                 rules.add(ToolRule(listOf(), speed, correctDropForBlocks))
             }
             val defaultMiningSpeed = this.readFloat()

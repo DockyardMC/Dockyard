@@ -2,6 +2,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockBreakEvent
+import io.github.dockyardmc.events.PlayerStartDiggingBlockEvent
 import io.github.dockyardmc.extentions.readByteEnum
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
@@ -17,6 +18,7 @@ import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.netty.buffer.ByteBuf
@@ -31,10 +33,14 @@ class ServerboundPlayerActionPacket(
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
+        val previousBlock = player.world.getBlock(position.toLocation(player.world))
+
+        Events.dispatch(PlayerStartDiggingBlockEvent(player, position.toLocation(player.world), previousBlock, getPlayerEventContext(player)))
+
         if (action == PlayerAction.START_DIGGING) {
+
             if (player.gameMode.value == GameMode.CREATIVE) {
 
-                val previousBlock = player.world.getBlock(position.toLocation(player.world))
                 val item = player.getHeldItem(PlayerHand.MAIN_HAND)
 
                 val event = PlayerBlockBreakEvent(player, previousBlock, position.toLocation(player.world))

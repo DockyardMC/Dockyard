@@ -69,6 +69,8 @@ data class RegistryBlock(
     val isSolid: Boolean,
     val isLiquid: Boolean,
     val isFlammable: Boolean,
+    val breakSpeed: Float,
+    val requiresToolToBreak: Boolean,
     val canOcclude: Boolean,
     val replaceable: Boolean,
     val states: List<RegistryBlockState>,
