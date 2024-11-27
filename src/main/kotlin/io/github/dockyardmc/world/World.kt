@@ -25,6 +25,8 @@ import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.vectors.Vector2f
 import io.github.dockyardmc.world.WorldManager.mainWorld
+import io.github.dockyardmc.world.chunk.Chunk
+import io.github.dockyardmc.world.chunk.ChunkPos
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 import java.util.*

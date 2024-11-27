@@ -33,8 +33,8 @@ import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.utils.mergeEntityMetadata
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
-import io.github.dockyardmc.world.Chunk
-import io.github.dockyardmc.world.ChunkPos
+import io.github.dockyardmc.world.chunk.Chunk
+import io.github.dockyardmc.world.chunk.ChunkPos
 import io.github.dockyardmc.world.World
 import java.util.*
 import kotlin.math.cos

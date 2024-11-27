@@ -43,6 +43,7 @@ fun main(args: Array<String>) {
             debug = true
             npcCommand = true
             itemDroppingAndPickup = true
+            applyBlockPlacementRules = true
         }
     }
 

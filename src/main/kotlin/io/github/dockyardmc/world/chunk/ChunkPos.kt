@@ -1,4 +1,4 @@
-package io.github.dockyardmc.world
+package io.github.dockyardmc.world.chunk
 
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.utils.ChunkUtils

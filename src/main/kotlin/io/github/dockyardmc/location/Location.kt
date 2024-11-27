@@ -7,7 +7,7 @@ import io.github.dockyardmc.utils.vectors.Vector2f
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3d
 import io.github.dockyardmc.utils.vectors.Vector3f
-import io.github.dockyardmc.world.Chunk
+import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import kotlin.math.*

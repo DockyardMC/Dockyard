@@ -8,6 +8,8 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadC
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.chunkInSpiral
 import io.github.dockyardmc.utils.getPlayerEventContext
+import io.github.dockyardmc.world.chunk.Chunk
+import io.github.dockyardmc.world.chunk.ChunkPos
 
 class PlayerChunkEngine(val player: Player) {
 

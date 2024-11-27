@@ -1,5 +1,6 @@
-package io.github.dockyardmc.blocks
+package io.github.dockyardmc.blocks.rules
 
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
@@ -7,8 +8,8 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.getDirection
 import io.github.dockyardmc.player.getOpposite
 
-class ButtonBlockPlacementRule: BlockPlacementRule {
-    override val matchesIdentifier = "button"
+class RotationPlacementRules(var matches: List<String>): BlockPlacementRule {
+    override val matchesIdentifier = ""
 
     override fun getPlacement(
         player: Player,
@@ -21,15 +22,10 @@ class ButtonBlockPlacementRule: BlockPlacementRule {
         cursorY: Float,
         cursorZ: Float,
     ): Block {
-        val states = mutableMapOf<String, String>()
-
-        if(face == Direction.UP) states["face"] = "floor"
-        if(face == Direction.DOWN) states["face"] = "ceiling"
+        if(!matches.contains(block.identifier.replace("minecraft:", ""))) return block
 
         var dir = face
         if(face == Direction.UP || face == Direction.DOWN) dir = player.getDirection(true).getOpposite()
-        states["facing"] = dir.name.lowercase()
-
-        return block.withBlockStates(states)
+        return block.withBlockStates("facing" to dir.name.lowercase() )
     }
 }

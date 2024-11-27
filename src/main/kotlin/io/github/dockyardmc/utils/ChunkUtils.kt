@@ -1,7 +1,8 @@
 package io.github.dockyardmc.utils
 
-import io.github.dockyardmc.world.Chunk
-import io.github.dockyardmc.world.ChunkPos
+import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.world.chunk.Chunk
+import io.github.dockyardmc.world.chunk.ChunkPos
 import kotlin.math.abs
 import kotlin.math.sin
 
@@ -14,6 +15,49 @@ object ChunkUtils {
     private val SIN = FloatArray(65536) { sin(it.toDouble() * Math.PI * 2.0 / 65536.0).toFloat() }
     const val EPSILON: Float = 1.0E-5F
     const val TO_RADIANS_FACTOR = Math.PI.toFloat() / 180F
+
+    fun chunkBlockIndex(x: Int, y: Int, z: Int): Int {
+        var xCoord = x
+        var zCoord = z
+        xCoord = globalToSectionRelative(xCoord)
+        zCoord = globalToSectionRelative(zCoord)
+
+        var index = xCoord and 0xF // 4 bits
+        if (y > 0) {
+            index = index or ((y shl 4) and 0x07FFFFF0) // 23 bits (24th bit is always 0 because y is positive)
+        } else {
+            index = index or (((-y) shl 4) and 0x7FFFFF0) // Make positive and use 23 bits
+            index = index or (1 shl 27) // Set negative sign at 24th bit
+        }
+        index = index or ((zCoord shl 28) and -0x10000000) // 4 bits
+        return index
+    }
+
+    fun chunkBlockIndexGetX(index: Int): Int {
+        return index and 0xF // 0-4 bits
+    }
+
+    fun chunkBlockIndexGetY(index: Int): Int {
+        var y = (index and 0x07FFFFF0) ushr 4
+        if (((index ushr 27) and 1) == 1) y = -y // Sign bit set, invert sign
+
+        return y // 4-28 bits
+    }
+
+    fun chunkBlockIndexGetZ(index: Int): Int {
+        return (index shr 28) and 0xF // 28-32 bits
+    }
+
+    fun chunkBlockIndexGetGlobal(index: Int, chunkX: Int, chunkZ: Int): Vector3 {
+        val x: Int = chunkBlockIndexGetX(index) + 16 * chunkX
+        val y: Int = chunkBlockIndexGetY(index)
+        val z: Int = chunkBlockIndexGetZ(index) + 16 * chunkZ
+        return Vector3(x, y, z)
+    }
+
+    fun globalToSectionRelative(xyz: Int): Int {
+        return xyz and 0xF
+    }
 
     fun getChunkCoordinate(xz: Int): Int = xz shr 4
 

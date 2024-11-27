@@ -63,6 +63,7 @@ data class RegistryBlock(
     val isSignalSource: Boolean,
     val lightEmission: Int,
     val isBlockEntity: Boolean,
+    val blockEntityId: Int?,
     val lightFilter: Int,
     val isAir: Boolean,
     val isSolid: Boolean,

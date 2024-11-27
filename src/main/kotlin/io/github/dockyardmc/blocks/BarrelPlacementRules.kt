@@ -1,5 +1,6 @@
 package io.github.dockyardmc.blocks
 
+import io.github.dockyardmc.blocks.rules.BlockPlacementRule
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
@@ -18,7 +19,7 @@ class BarrelPlacementRules: BlockPlacementRule {
         cursorX: Float,
         cursorY: Float,
         cursorZ: Float,
-    ): Block? {
+    ): Block {
         return block.withBlockStates("facing" to face.name.lowercase())
     }
 }
