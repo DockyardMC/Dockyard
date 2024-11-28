@@ -52,7 +52,7 @@ fun main(args: Array<String>) {
 
     Commands.add("/entity") {
         execute {
-            val random = randomInt(1, 3)
+            val random = randomInt(1, 1)
             val player = it.getPlayerOrThrow()
             val entity = when (random) {
                 1 -> TestZombie(player.location)
@@ -62,6 +62,7 @@ fun main(args: Array<String>) {
             }
 
             player.world.spawnEntity(entity)
+            entity.addViewer(player)
         }
     }
 

@@ -13,6 +13,7 @@ class DockyardCommands {
         TeleportCommand()
         SchematicCommand()
         TimeCommand()
+        TickRateCommand()
         if(ConfigManager.config.debug) {
             ViewerCommand()
             DebugCommands()

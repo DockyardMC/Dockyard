@@ -27,17 +27,6 @@ class WorldCommand {
                 }
             }
 
-            addSubcommand("tickrate") {
-                addArgument("world", StringArgument(), ::suggestWorlds)
-                addArgument("time", LongArgument())
-                execute {
-                    val world = WorldManager.worlds[getArgument<String>("world")] ?: throw CommandException("World with that name not found")
-                    val rate = getArgument<Long>("time")
-                    world.scheduler.tickRate.value = rate.milliseconds
-                    it.sendMessage("<lime>Set tick rate of world <aqua>${world.name} to <yellow>$rate<lime>!")
-                }
-            }
-
             addSubcommand("list") {
                 execute {
                     val message = buildString {

@@ -42,7 +42,7 @@ class CustomRateScheduler(initialTickRate: Duration = 50.milliseconds) : Schedul
     }
 
     fun resume() {
-        paused.value = true
+        paused.value = false
     }
 
     init {
@@ -50,7 +50,7 @@ class CustomRateScheduler(initialTickRate: Duration = 50.milliseconds) : Schedul
             tickRateMs = it.newValue.inWholeMilliseconds
 
             if(::tickRateTimer.isInitialized) tickRateTimer.dispose()
-            tickRateTimer = RepeatingTimer(initialTickRate.inWholeMilliseconds) {
+            tickRateTimer = RepeatingTimer(tickRateMs) {
                 executorService.submit {
                     tick()
                 }
@@ -60,6 +60,8 @@ class CustomRateScheduler(initialTickRate: Duration = 50.milliseconds) : Schedul
         tickRate.triggerUpdate()
 
         paused.valueChanged { tickRateTimer.paused = it.newValue }
+
+        tickRate.triggerUpdate()
     }
 
     override fun dispose() {

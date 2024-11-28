@@ -27,6 +27,7 @@ abstract class Scheduler : Disposable {
 
     open fun tick() {
         ticks++
+        handleTickTasks()
     }
 
     private fun handleTickTasks() {
