@@ -24,6 +24,7 @@ import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getWorldEventContext
 import io.github.dockyardmc.utils.vectors.Vector2f
+import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
@@ -221,6 +222,9 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     fun getBlock(location: Location): Block =
         this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
+
+    fun getBlock(vector3: Vector3): Block =
+        this.getBlock(vector3.x, vector3.y, vector3.z)
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
         val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $z not generated!")
