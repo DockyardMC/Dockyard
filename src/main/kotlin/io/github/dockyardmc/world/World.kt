@@ -44,12 +44,6 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         scheduler.runRepeating(1.ticks) {
             tick()
         }
-
-        var counter = 0
-        scheduler.runRepeating(20.ticks) {
-            counter++
-            players.sendActionBar("<red><bold>you have been ticked $counter times")
-        }
     }
 
     val worldSeed = UUID.randomUUID().leastSignificantBits.toString()

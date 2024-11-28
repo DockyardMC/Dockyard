@@ -5,7 +5,6 @@ import io.github.dockyardmc.blocks.BlockEntity
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.registry.registries.Biome
-import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.World
@@ -59,16 +58,6 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeX = ChunkUtils.sectionRelative(x)
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
-
-        val block = BlockRegistry.getByProtocolId(blockStateId)
-        val index = ChunkUtils.chunkBlockIndex(x, y, z)
-
-        if (block.isBlockEntity) {
-            val blockEntity = BlockEntity(index, block, NBT.Compound())
-            blockEntities[index] = blockEntity
-        } else {
-            blockEntities.remove(index)
-        }
 
         section.blockPalette[relativeX, relativeY, relativeZ] = blockStateId
         world.customDataBlocks.remove(Location(x, y, z, world).blockHash)
