@@ -58,7 +58,7 @@ data class Block(
 
     companion object {
 
-        val Air = Block(BlockRegistry.Air)
+        val AIR = Block(BlockRegistry.Air)
 
         fun parseBlockStateString(string: String): Pair<String, Map<String, String>> {
             val index = string.indexOf('[')
