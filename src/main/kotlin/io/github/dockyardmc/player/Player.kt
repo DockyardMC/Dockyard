@@ -22,6 +22,8 @@ import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.resourcepack.Resourcepack
+import io.github.dockyardmc.runnables.ticks
+import io.github.dockyardmc.scheduler.GlobalScheduler
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.DrawableContainerScreen
@@ -94,6 +96,8 @@ class Player(
     val playerInfoSystem = PlayerInfoSystem(this)
     val entityViewSystem = EntityViewSystem(this)
 
+    val decoupledViewSystemScheduler = GlobalScheduler("${username}-view-engine-scheduler")
+
     val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
 
     var lastInteractionTime: Long = -1L
@@ -101,6 +105,7 @@ class Player(
     var itemInUse: ItemInUse? = null
 
     lateinit var lastSentPacket: ClientboundPacket
+
 
     override fun toString(): String = username
 
@@ -153,6 +158,12 @@ class Player(
         time.valueChanged { updateWorldTime() }
 
         hasNoGravity.value = false
+
+        // Keep this decoupled from world scheduler so when world ticking is paused or slowed down
+        // it doesn't make entity and chunk loading slow/impossible
+        decoupledViewSystemScheduler.runRepeating(1.ticks) {
+            entityViewSystem.tick()
+        }
     }
 
     override fun canPickupItem(dropEntity: ItemDropEntity, item: ItemStack): Boolean {
@@ -160,7 +171,6 @@ class Player(
     }
 
     override fun tick() {
-        entityViewSystem.tick()
         cooldownSystem.tick()
         foodEatingSystem.tick()
         super.tick()
@@ -435,4 +445,9 @@ class Player(
         var startTime: Long,
         var durationTicks: Int
     )
+
+    override fun dispose() {
+        decoupledViewSystemScheduler.dispose()
+        super.dispose()
+    }
 }

@@ -4,6 +4,7 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
+import io.github.dockyardmc.events.WorldTickEvent
 import io.github.dockyardmc.extentions.broadcastActionBar
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.utils.randomInt
@@ -22,7 +23,8 @@ class AIManager(val entity: Entity) {
     val goals: List<AIGoal> get() = innerGoals.toList()
 
     init {
-        Events.on<ServerTickEvent> {
+        Events.on<WorldTickEvent> {
+            if(it.world != entity.world) return@on
             tick()
         }
     }
@@ -52,7 +54,7 @@ class AIManager(val entity: Entity) {
     }
 
     fun tick() {
-        DockyardServer.broadcastActionBar("<yellow>$currentGoal <dark_gray>| <gray>${currentGoal?.cooldown}")
+//        DockyardServer.broadcastActionBar("<yellow>$currentGoal <dark_gray>| <gray>${currentGoal?.cooldown}")
         if(forcedNextGoal != null && !forcedNextGoalWaitForFinish) {
             if(currentGoal != null) {
                 currentGoal!!.end()

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.utils
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.server.ServerMetrics
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
@@ -7,8 +8,9 @@ import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.sidebar.Sidebar
 import java.lang.management.GarbageCollectorMXBean
 import java.lang.management.ManagementFactory
+import kotlin.time.Duration.Companion.milliseconds
 
-object DebugScoreboard {
+object DebugSidebar {
 
     val sidebar = Sidebar("<#fc4903><bold>Debug Sidebar") {
         setGlobalLine(15, "                                      ")
@@ -63,13 +65,21 @@ object DebugScoreboard {
                 totalEvents += it.list.size
             }
 
-            sidebar.setGlobalLine(14, " Ms per tick: ${msptColor}${mspt}ms")
-            sidebar.setGlobalLine(13, " Memory: $memoryPercentColor${memUsagePercent.truncate(1)}%")
-            sidebar.setGlobalLine(12, " ◾ Using $memoryPercentColor${fMem}mb")
-            sidebar.setGlobalLine(11, " ◾ Rented <aqua>${fRented}mb")
-            sidebar.setGlobalLine(10, " ◾ Allocated <aqua>${fMax}mb")
-            sidebar.setGlobalLine(9, " ")
-            sidebar.setGlobalLine(8, " AsyncQueueProcessor: <#cba3ff>${ServerMetrics.asyncQueueProcessorTasks}")
+
+
+            sidebar.setGlobalLine(14, " Global: ${msptColor}${mspt}ms")
+            sidebar.setPlayerLine(13) {
+                var worldSchedulerColor = if(it.world.scheduler.tickRate.value == 50.milliseconds) "<lime>" else "<orange>"
+                if(it.world.scheduler.paused.value) worldSchedulerColor = "<red>"
+
+                " Rate: <gray>(<lime>50ms<gray> global, ${worldSchedulerColor}${it.world.scheduler.tickRate.value} <gray>local)"
+            }
+            sidebar.setGlobalLine(12, " Memory: $memoryPercentColor${memUsagePercent.truncate(1)}%")
+            sidebar.setGlobalLine(11, " ◾ Using $memoryPercentColor${fMem}mb")
+            sidebar.setGlobalLine(10, " ◾ Rented <aqua>${fRented}mb")
+            sidebar.setGlobalLine(9, " ◾ Allocated <aqua>${fMax}mb")
+            sidebar.setGlobalLine(8, " ")
+            sidebar.setGlobalLine(7, " AsyncQueueProcessor: <#cba3ff>${ServerMetrics.asyncQueueProcessorTasks}")
             sidebar.setGlobalLine(6, " Packets: <#cba3ff>↑${ServerMetrics.packetsSentAverage} ↓${ServerMetrics.packetsReceivedAverage}")
             sidebar.setGlobalLine(5, " ")
             sidebar.setGlobalLine(4, " Event Listeners: <lime>$totalEvents")

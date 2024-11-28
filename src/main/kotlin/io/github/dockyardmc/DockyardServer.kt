@@ -14,7 +14,7 @@ import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.github.dockyardmc.registry.MinecraftVersions
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.*
-import io.github.dockyardmc.scheduler.Scheduler
+import io.github.dockyardmc.scheduler.GlobalScheduler
 import io.github.dockyardmc.server.PlayerKeepAliveTimer
 import io.github.dockyardmc.server.NettyServer
 import io.github.dockyardmc.server.ServerTickManager
@@ -83,7 +83,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         val minecraftVersion = MinecraftVersions.v1_21_3
         var allowAnyVersion: Boolean = false
 
-        val scheduler = Scheduler("main_scheduler").makeGlobal()
+        val scheduler = GlobalScheduler("main_scheduler")
 
         var tickRate: Int = 20
         val debug get() = ConfigManager.config.debug

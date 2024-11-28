@@ -17,12 +17,13 @@ import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.DimensionType
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.runnables.ticks
-import io.github.dockyardmc.scheduler.Scheduler
+import io.github.dockyardmc.scheduler.CustomRateScheduler
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.debug
+import io.github.dockyardmc.utils.getWorldEventContext
 import io.github.dockyardmc.utils.vectors.Vector2f
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.chunk.Chunk
@@ -34,17 +35,20 @@ import java.util.*
 class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType) : Disposable {
 
     var eventPool = EventPool()
-    val scheduler = Scheduler("${name}_world_scheduler")
+    val scheduler = CustomRateScheduler()
 
     init {
         if (name.hasUpperCase()) throw IllegalArgumentException("World name cannot contain uppercase characters")
 
-        eventPool.on<ServerTickEvent> {
-            scheduler.tick(it.serverTicks)
-        }
-
+        scheduler.syncWithGlobalScheduler()
         scheduler.runRepeating(1.ticks) {
             tick()
+        }
+
+        var counter = 0
+        scheduler.runRepeating(20.ticks) {
+            counter++
+            players.sendActionBar("<red><bold>you have been ticked $counter times")
         }
     }
 
@@ -77,6 +81,11 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     val customDataBlocks: MutableMap<Int, Block> = mutableMapOf()
 
     fun tick() {
+        val event = WorldTickEvent(this, scheduler, getWorldEventContext(this))
+        Events.dispatch(event)
+
+        if(event.cancelled) return
+
         // tick entities
         synchronized(entities) {
             scheduler.run {

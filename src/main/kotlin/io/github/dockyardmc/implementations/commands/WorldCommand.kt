@@ -5,6 +5,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
+import kotlin.time.Duration.Companion.milliseconds
 
 class WorldCommand {
 

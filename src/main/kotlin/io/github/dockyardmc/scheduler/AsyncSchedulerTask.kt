@@ -12,7 +12,7 @@ class AsyncSchedulerTask<T>(val task: (() -> T), val type: Type, val name: Strin
 
     val future = CompletableFuture<T>()
 
-    fun run() {
+    fun run(tick: Long) {
         innerStatus = Status.RUNNING
         try {
             innerStatus = Status.FINISHED

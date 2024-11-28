@@ -5,7 +5,7 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.profiler.Profiler
-import io.github.dockyardmc.runnables.RepeatingTimerAsync
+import io.github.dockyardmc.runnables.RepeatingTimer
 
 class ServerTickManager {
 
@@ -13,7 +13,7 @@ class ServerTickManager {
     var serverTicks: Int = 0
     val interval: Long = 50
 
-    var timer: RepeatingTimerAsync = RepeatingTimerAsync(interval) {
+    var timer: RepeatingTimer = RepeatingTimer(interval) {
         try {
             profiler.start("Tick", 5)
             serverTicks++
@@ -27,6 +27,6 @@ class ServerTickManager {
 
 
     fun start() {
-        timer.run()
+        timer.start()
     }
 }

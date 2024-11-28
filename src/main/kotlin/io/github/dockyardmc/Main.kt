@@ -17,7 +17,7 @@ import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.utils.DebugScoreboard
+import io.github.dockyardmc.utils.DebugSidebar
 import io.github.dockyardmc.utils.randomInt
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
@@ -52,7 +52,7 @@ fun main(args: Array<String>) {
 
     Commands.add("/entity") {
         execute {
-            val random = randomInt(1, 3)
+            val random = randomInt(1, 1)
             val player = it.getPlayerOrThrow()
             val entity = when (random) {
                 1 -> TestZombie(player.location)
@@ -62,6 +62,7 @@ fun main(args: Array<String>) {
             }
 
             player.world.spawnEntity(entity)
+            entity.addViewer(player)
         }
     }
 
@@ -76,7 +77,7 @@ fun main(args: Array<String>) {
         player.gameMode.value = GameMode.CREATIVE
         player.permissions.add("dockyard.all")
 
-        DebugScoreboard.sidebar.viewers.add(player)
+        DebugSidebar.sidebar.viewers.add(player)
 
         player.addPotionEffect(PotionEffects.NIGHT_VISION, -1, 0, false)
     }

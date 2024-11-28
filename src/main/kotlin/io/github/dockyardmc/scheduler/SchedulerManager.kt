@@ -6,21 +6,21 @@ import java.lang.IllegalStateException
 
 object SchedulerManager {
 
-    private val innerList: MutableList<Scheduler> = mutableListOf()
+    private val innerList: MutableList<GlobalScheduler> = mutableListOf()
     val list get() = innerList.toList()
 
-    fun registerGlobal(scheduler: Scheduler) {
+    fun registerGlobal(scheduler: GlobalScheduler) {
         if(innerList.contains(scheduler)) throw IllegalStateException("That schedules is already registered")
         innerList.add(scheduler)
     }
 
-    fun unregisterGlobal(scheduler: Scheduler) {
+    fun unregisterGlobal(scheduler: GlobalScheduler) {
         innerList.remove(scheduler)
     }
 
     init {
         Events.on<ServerTickEvent> { event ->
-            innerList.forEach { it.tick(event.serverTicks) }
+            innerList.forEach { it.tick() }
         }
     }
 }
