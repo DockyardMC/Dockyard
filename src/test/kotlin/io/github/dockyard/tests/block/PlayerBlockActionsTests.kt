@@ -22,7 +22,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class BlockRuleTests {
+class PlayerBlockActionsTests {
 
     val pool = EventPool()
 
@@ -35,6 +35,7 @@ class BlockRuleTests {
     fun cleanup() {
         WorldManager.mainWorld.setBlock(0, 1, 0, Block.AIR)
         PlayerTestUtil.getOrCreateFakePlayer().mainHandItem.value = ItemStack.AIR
+        PlayerTestUtil.getOrCreateFakePlayer().gameMode.value = GameMode.SURVIVAL
         pool.dispose()
     }
 
