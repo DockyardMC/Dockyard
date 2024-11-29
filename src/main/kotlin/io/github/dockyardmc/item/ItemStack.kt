@@ -2,6 +2,8 @@ package io.github.dockyardmc.item
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
@@ -122,6 +124,11 @@ class ItemStack(var material: Item, var amount: Int = 1) {
     }
 
     override fun toString(): String = "ItemStack(${material.identifier}, ${components.values}, $amount)".stripComponentTags()
+
+    override fun equals(other: Any?): Boolean {
+        if(other == null || other !is ItemStack) return false
+        return isSameAs(other)
+    }
 }
 
 fun Collection<String>.toComponents(): Collection<Component> {
@@ -188,4 +195,6 @@ fun ItemStack.clone(): ItemStack {
 
 fun ItemStack.toComparisonString(): String = "ItemStack(${this.components.values};${this.material.identifier})".stripComponentTags()
 
-fun ItemStack.isSameAs(other: ItemStack): Boolean = this.toComparisonString() == other.toComparisonString()
+fun ItemStack.isSameAs(other: ItemStack): Boolean {
+    return this.toComparisonString() == other.toComparisonString()
+}

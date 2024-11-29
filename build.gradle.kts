@@ -46,7 +46,7 @@ dependencies {
     // Minecraft
     api("io.github.jglrxavpok.hephaistos:common:2.2.0")
     api("io.github.jglrxavpok.hephaistos:gson:2.2.0")
-    api("io.github.dockyardmc:scroll:1.9")
+    api("io.github.dockyardmc:scroll:1.10")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
 
     // Networking

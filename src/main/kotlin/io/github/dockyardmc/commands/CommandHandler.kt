@@ -26,7 +26,7 @@ object CommandHandler {
 
     fun handleCommandInput(inputCommand: String, executor: CommandExecutor) {
         val tokens = inputCommand.removePrefix("/").split(" ").toMutableList()
-        val commandName = tokens[0]
+        val commandName = tokens[0].lowercase()
         try {
             if (Commands.commands[commandName] == null) {
                 var message = "Command with that name does not exist!"

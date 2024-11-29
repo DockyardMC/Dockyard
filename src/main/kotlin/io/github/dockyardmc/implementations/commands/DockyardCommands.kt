@@ -14,6 +14,7 @@ class DockyardCommands {
         SchematicCommand()
         TimeCommand()
         TickRateCommand()
+        ClearCommand()
         if(ConfigManager.config.debug) {
             ViewerCommand()
             DebugCommands()

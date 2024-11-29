@@ -1,7 +1,6 @@
 package io.github.dockyardmc.item
 
 import cz.lukynka.BindableList
-import io.github.dockyardmc.attributes.Attribute
 import io.github.dockyardmc.attributes.Modifier
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockPredicate
