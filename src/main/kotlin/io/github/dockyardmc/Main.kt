@@ -4,23 +4,15 @@ import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
-import io.github.dockyardmc.entity.EntityManager.spawnEntity
-import io.github.dockyardmc.entity.Parrot
-import io.github.dockyardmc.entity.TestZombie
-import io.github.dockyardmc.entity.Warden
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
-import io.github.dockyardmc.events.PlayerSpawnEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.utils.DebugSidebar
-import io.github.dockyardmc.utils.randomInt
 import io.github.dockyardmc.world.WorldManager
-import io.github.dockyardmc.world.generators.FlatWorldGenerator
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -45,29 +37,6 @@ fun main(args: Array<String>) {
             itemDroppingAndPickup = true
             applyBlockPlacementRules = true
         }
-    }
-
-    val customWorld = WorldManager.create("custom", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
-    customWorld.defaultSpawnLocation = customWorld.defaultSpawnLocation.add(0, 201, 0)
-
-    Commands.add("/entity") {
-        execute {
-            val random = randomInt(1, 1)
-            val player = it.getPlayerOrThrow()
-            val entity = when (random) {
-                1 -> TestZombie(player.location)
-                2 -> Warden(player.location)
-                3 -> Parrot(player.location)
-                else -> throw IllegalStateException("a")
-            }
-
-            player.world.spawnEntity(entity)
-            entity.addViewer(player)
-        }
-    }
-
-    Events.on<PlayerSpawnEvent> {
-        it.world = customWorld
     }
 
     Events.on<PlayerJoinEvent> {
