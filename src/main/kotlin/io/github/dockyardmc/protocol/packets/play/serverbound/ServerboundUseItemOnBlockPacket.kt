@@ -14,6 +14,7 @@ import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.systems.GameMode
+import io.github.dockyardmc.player.systems.startConsumingIfApplicable
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
@@ -102,9 +103,10 @@ class ServerboundUseItemOnBlockPacket(
             face,
             pos.toLocation(player.world)
         )
-        if (event.cancelled) cancelled = true
         Events.dispatch(event)
+        if (event.cancelled) cancelled = true
 
+        if(!event.cancelled) startConsumingIfApplicable(item, player)
 
         //TODO make block handlers or something so its not all here
         if (originalBlock.identifier.contains("trapdoor")) {

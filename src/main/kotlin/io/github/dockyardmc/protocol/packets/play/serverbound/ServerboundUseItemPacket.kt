@@ -4,9 +4,8 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerRightClickWithItemEvent
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
-import io.github.dockyardmc.item.*
-import io.github.dockyardmc.player.ItemInUse
 import io.github.dockyardmc.player.PlayerHand
+import io.github.dockyardmc.player.systems.startConsumingIfApplicable
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
@@ -22,15 +21,7 @@ class ServerboundUseItemPacket(val hand: PlayerHand, val sequence: Int, val yaw:
         Events.dispatch(event)
         if(event.cancelled) return
 
-        val hasConsumableComponent = item.components.hasType(ConsumableItemComponent::class)
-        if(hasConsumableComponent) {
-            if(player.itemInUse != null) return
-            val component = item.components.firstOrNullByType<ConsumableItemComponent>(ConsumableItemComponent::class)!!
-            val eatingTime = component.consumeSeconds
-            val useTime = (eatingTime * 20f).toInt()
-            val startTime = player.world.worldAge
-            player.itemInUse = ItemInUse(item, startTime, useTime.toLong())
-        }
+        startConsumingIfApplicable(item, player)
     }
 
     companion object {

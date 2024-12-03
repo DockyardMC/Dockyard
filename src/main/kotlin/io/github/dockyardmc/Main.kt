@@ -13,10 +13,13 @@ import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.events.PlayerSpawnEvent
 import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.inventory.give
+import io.github.dockyardmc.item.ConsumableAnimation
+import io.github.dockyardmc.item.ConsumableItemComponent
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.systems.GameMode
-import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.DimensionTypes
-import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.utils.DebugSidebar
 import io.github.dockyardmc.utils.randomInt
 import io.github.dockyardmc.world.WorldManager
@@ -47,29 +50,6 @@ fun main(args: Array<String>) {
         }
     }
 
-    val customWorld = WorldManager.create("custom", FlatWorldGenerator(), DimensionTypes.OVERWORLD)
-    customWorld.defaultSpawnLocation = customWorld.defaultSpawnLocation.add(0, 201, 0)
-
-    Commands.add("/entity") {
-        execute {
-            val random = randomInt(1, 1)
-            val player = it.getPlayerOrThrow()
-            val entity = when (random) {
-                1 -> TestZombie(player.location)
-                2 -> Warden(player.location)
-                3 -> Parrot(player.location)
-                else -> throw IllegalStateException("a")
-            }
-
-            player.world.spawnEntity(entity)
-            entity.addViewer(player)
-        }
-    }
-
-    Events.on<PlayerSpawnEvent> {
-        it.world = customWorld
-    }
-
     Events.on<PlayerJoinEvent> {
         val player = it.player
 
@@ -80,6 +60,11 @@ fun main(args: Array<String>) {
         DebugSidebar.sidebar.viewers.add(player)
 
         player.addPotionEffect(PotionEffects.NIGHT_VISION, -1, 0, false)
+
+        val item = ItemStack(Items.SWEET_BERRIES, 10)
+        item.components.add(ConsumableItemComponent(2f, ConsumableAnimation.EAT, Sound(Sounds.ENTITY_GENERIC_EAT), true, listOf()))
+
+        player.give(item)
     }
 
     Events.on<PlayerLeaveEvent> {

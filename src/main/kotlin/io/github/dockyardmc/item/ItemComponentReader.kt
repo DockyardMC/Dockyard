@@ -89,7 +89,8 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         ConsumableItemComponent::class -> ConsumableItemComponent(
             this.readFloat(),
             this.readVarIntEnum<ConsumableAnimation>(),
-            this.readOptionalOrDefault<Sound>(Sound(Sounds.ENTITY_GENERIC_EAT)),
+//            this.readOptionalOrDefault<Sound>(Sound(Sounds.ENTITY_GENERIC_EAT)),
+            Sound(this.readSoundEvent()),
             this.readBoolean(),
             this.readConsumeEffects()
         )

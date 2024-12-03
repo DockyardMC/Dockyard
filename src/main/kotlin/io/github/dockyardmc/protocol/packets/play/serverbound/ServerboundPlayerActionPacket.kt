@@ -68,10 +68,9 @@ class ServerboundPlayerActionPacket(
 
         if (action == PlayerAction.HELD_ITEM_UPDATE) {
 
-            //TODO Add multi hand support
             val item = player.getHeldItem(PlayerHand.MAIN_HAND)
-            val isFood = item.components.hasType(FoodItemComponent::class)
-            if (isFood) {
+            val isConsumable = item.components.hasType(ConsumableItemComponent::class)
+            if (isConsumable) {
                 player.itemInUse = null
             }
         }

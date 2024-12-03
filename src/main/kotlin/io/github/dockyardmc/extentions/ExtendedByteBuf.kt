@@ -1,5 +1,6 @@
 package io.github.dockyardmc.extentions
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.AppliedPotionEffectSettings
@@ -344,7 +345,6 @@ fun ByteBuf.readConsumeEffects(): List<ConsumeEffect> {
             0 -> ApplyEffectsConsumeEffect(this.readAppliedPotionEffectsList(), this.readFloat())
             1 -> readRemoveEffectsConsumeEffect()
             2 -> ClearAllEffectsConsumeEffect()
-//            3 -> TeleportRandomlyConsumeEffect(this.readOptionalOrDefault<Float>(16f))
             3 -> TeleportRandomlyConsumeEffect(this.readFloat())
             4 -> PlaySoundConsumeEffect(Sound(this.readSoundEvent()))
             else -> throw IllegalStateException("Invalid consume effect $type")
