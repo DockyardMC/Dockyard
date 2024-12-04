@@ -189,7 +189,11 @@ data class ConsumableItemComponent(
     val sound: Sound,
     val hasConsumeParticles: Boolean,
     val consumeEffects: List<ConsumeEffect>
-): ItemComponent
+): ItemComponent {
+    override fun toString(): String {
+        return "ConsumableItemComponent(consumeSeconds=$consumeSeconds, animation=${animation.name}, sound=${sound.identifier}, hasConsumeParticles=$hasConsumeParticles)"
+    }
+}
 
 data class UseRemainderItemComponent(
     val itemStack: ItemStack
