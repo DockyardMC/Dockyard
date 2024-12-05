@@ -25,7 +25,6 @@ class ServerTickManager {
         }
     }
 
-
     fun start() {
         timer.start()
     }

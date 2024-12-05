@@ -6,6 +6,7 @@ import io.github.dockyardmc.utils.ChunkUtils.floor
 import io.github.dockyardmc.utils.vectors.Vector3f
 import java.io.File
 import java.security.MessageDigest
+import java.util.Random
 import kotlin.math.*
 
 fun multiplyQuaternions(q1: Quaternion, q2: Quaternion): Quaternion {
@@ -74,7 +75,8 @@ fun isBetween(number: Int, min: Int, max: Int): Boolean {
     return number in min..max
 }
 
-fun randomInt(min: Int, max: Int): Int = (min..max).shuffled().last()
+fun randomInt(min: Int, max: Int): Int = Random().nextInt(min, max)
+
 fun randomFloat(min: Float, max: Float): Float {
     val random = java.util.Random()
     return min + random.nextFloat() * (max - min)

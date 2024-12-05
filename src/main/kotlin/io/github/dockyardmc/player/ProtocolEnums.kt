@@ -80,31 +80,32 @@ enum class Direction {
 
 fun Entity.getDirection(noPitch: Boolean = false): Direction = getDirection(this.location, noPitch)
 
-fun getDirection(location: Location, noPitch: Boolean = false): Direction = getDirection(location.yaw, location.pitch, noPitch)
+fun getDirection(location: Location, noPitch: Boolean = false): Direction =
+    getDirection(location.yaw, location.pitch, noPitch)
 
 fun getDirection(yaw: Float, pitch: Float, noPitch: Boolean = false): Direction {
     val normalizedYaw = if (yaw < 0) yaw + 360 else yaw % 360
 
-    if(!noPitch) {
+    if (!noPitch) {
         return when {
-            pitch < -45  -> Direction.UP
-            pitch > 45   -> Direction.DOWN
+            pitch < -45 -> Direction.UP
+            pitch > 45 -> Direction.DOWN
             else -> throw IllegalStateException("Invalid pitch value: $yaw")
         }
     }
 
     return when {
-        normalizedYaw < 45  || normalizedYaw >= 315  -> Direction.SOUTH
-        normalizedYaw in 45.0..135.0                  -> Direction.WEST
-        normalizedYaw in 135.0..225.0                 -> Direction.NORTH
-        normalizedYaw in 225.0..315.0                 -> Direction.EAST
+        normalizedYaw < 45 || normalizedYaw >= 315 -> Direction.SOUTH
+        normalizedYaw in 45.0..135.0 -> Direction.WEST
+        normalizedYaw in 135.0..225.0 -> Direction.NORTH
+        normalizedYaw in 225.0..315.0 -> Direction.EAST
 
         else -> throw IllegalStateException("Invalid yaw value: $yaw")
     }
 }
 
 fun Direction.getOpposite(): Direction {
-    return when(this) {
+    return when (this) {
         Direction.DOWN -> Direction.UP
         Direction.SOUTH -> Direction.NORTH
         Direction.WEST -> Direction.EAST
