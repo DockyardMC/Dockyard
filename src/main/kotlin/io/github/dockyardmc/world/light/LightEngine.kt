@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.shorts.ShortArrayFIFOQueue
 import java.util.*
 import kotlin.math.max
 
-object LightingEngine {
+object LightEngine {
     val DIRECTIONS: List<Direction> = Direction.entries.toList()
     const val LIGHT_LENGTH: Int = 16 * 16 * 16 / 2
     const val SECTION_SIZE: Int = 16
@@ -111,5 +111,41 @@ object LightingEngine {
             lightMax[i] = (lower.toInt() or (upper.toInt() shl 4)).toByte()
         }
         return lightMax
+    }
+
+    fun compareBorders(
+        content: ByteArray?,
+        contentPropagation: ByteArray?,
+        contentPropagationTemp: ByteArray?,
+        face: Direction
+    ): Boolean {
+        if (content == null && contentPropagation == null && contentPropagationTemp == null) return true
+
+        val k = when (face) {
+            Direction.WEST, Direction.DOWN, Direction.NORTH -> 0
+            Direction.EAST, Direction.UP, Direction.SOUTH -> 15
+        }
+
+        for (bx in 0 until SECTION_SIZE) {
+            for (by in 0 until SECTION_SIZE) {
+                val posFrom = when (face) {
+                    Direction.NORTH, Direction.SOUTH -> bx or (k shl 4) or (by shl 8)
+                    Direction.WEST, Direction.EAST -> k or (by shl 4) or (bx shl 8)
+                    else -> bx or (by shl 4) or (k shl 8)
+                }
+
+                val valueFrom: Int = if (content == null && contentPropagation == null) 0
+                else if (content != null && contentPropagation == null) getLight(content, posFrom)
+                else if (content == null) getLight(contentPropagation!!, posFrom)
+                else max(
+                    getLight(content, posFrom).toDouble(),
+                    getLight(contentPropagation!!, posFrom).toDouble()
+                ).toInt()
+
+                val valueTo: Int = getLight(contentPropagationTemp!!, posFrom)
+                if (valueFrom < valueTo) return false
+            }
+        }
+        return true
     }
 }

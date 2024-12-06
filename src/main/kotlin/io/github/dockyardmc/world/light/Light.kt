@@ -44,15 +44,16 @@ interface Light {
     fun set(copyArray: ByteArray)
 
     fun calculateInternal(
-        palette: Palette,
+        blockPalette: Palette,
         chunkPos: ChunkPos,
+        chunkY: Int,
         heightmap: IntArray,
         maxY: Int,
         lookup: LightLookup,
     ): Set<Vector3>
 
     fun calculateExternal(
-        palette: Palette,
+        blockPalette: Palette,
         neighbours: List<Vector3>,
         lightLookup: LightLookup,
         paletteLookup: PaletteLookup,

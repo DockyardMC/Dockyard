@@ -4,9 +4,6 @@ import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.world.chunk.ChunkPos
-import io.github.dockyardmc.world.light.LightingEngine.EMPTY_CONTENT
-import io.github.dockyardmc.world.light.LightingEngine.getBlock
-import io.github.dockyardmc.world.light.LightingEngine.getLight
 import io.github.dockyardmc.world.palette.Palette
 import it.unimi.dsi.fastutil.shorts.ShortArrayFIFOQueue
 import java.util.concurrent.atomic.AtomicBoolean
@@ -94,28 +91,28 @@ class BlockLight : Light {
                     }
 
                     if (content != null) {
-                        val internalEmission = (max(getLight(content, posTo) - 1, 0))
+                        val internalEmission = (max(LightEngine.getLight(content, posTo) - 1, 0))
                         if (lightEmission <= internalEmission) continue
                     }
 
                     val blockTo: Block = when (face) {
                         Direction.NORTH,
-                        Direction.SOUTH -> getBlock(blockPalette, bx, by, k)
+                        Direction.SOUTH -> LightEngine.getBlock(blockPalette, bx, by, k)
 
                         Direction.WEST,
-                        Direction.EAST -> getBlock(blockPalette, k, bx, by)
+                        Direction.EAST -> LightEngine.getBlock(blockPalette, k, bx, by)
 
-                        else -> getBlock(blockPalette, bx, k, by)
+                        else -> LightEngine.getBlock(blockPalette, bx, k, by)
                     }
 
                     val blockFrom = (when (face) {
                         Direction.NORTH,
-                        Direction.SOUTH -> getBlock(otherPalette, bx, by, 15 - k)
+                        Direction.SOUTH -> LightEngine.getBlock(otherPalette, bx, by, 15 - k)
 
                         Direction.WEST,
-                        Direction.EAST -> getBlock(otherPalette, 15 - k, bx, by)
+                        Direction.EAST -> LightEngine.getBlock(otherPalette, 15 - k, bx, by)
 
-                        else -> getBlock(otherPalette, bx, 15 - k, by)
+                        else -> LightEngine.getBlock(otherPalette, bx, 15 - k, by)
                     })
 
                     //TODO Shape registry & occlusion
@@ -133,9 +130,8 @@ class BlockLight : Light {
     override fun getLevel(x: Int, y: Int, z: Int): Int {
         if (content == null) return 0
         val index = x or (z shl 4) or (y shl 8)
-        if (contentPropagation == null) return getLight(content!!, index)
-        return max(getLight(contentPropagation!!, index), getLight(content!!, index))
-
+        if (contentPropagation == null) return LightEngine.getLight(content!!, index)
+        return max(LightEngine.getLight(contentPropagation!!, index), LightEngine.getLight(content!!, index))
     }
 
     override fun invalidate() {
@@ -156,30 +152,69 @@ class BlockLight : Light {
     }
 
     override fun calculateInternal(
-        palette: Palette,
+        blockPalette: Palette,
         chunkPos: ChunkPos,
+        chunkY: Int,
         heightmap: IntArray,
         maxY: Int,
         lookup: LightLookup
     ): Set<Vector3> {
-        TODO("Not yet implemented")
+        this.isValidBorders = true
+        // Update single section with base lighting changes
+        val queue = buildInternalQueue(blockPalette)
+        this.content = LightEngine.compute(blockPalette, queue)
+
+        val toUpdate = mutableSetOf<Vector3>()
+        for (i in -1..1) {
+            for (j in -1..1) {
+                for (k in -1..1) {
+                    val neighborX: Int = chunkPos.x + i
+                    val neighborY: Int = chunkY + j
+                    val neighborZ: Int = chunkPos.z + k
+
+                    val light = lookup.light(neighborX, neighborY, neighborZ)
+                    if (light !is BlockLight) continue
+
+                    light.contentPropagation = null
+                }
+            }
+        }
+        toUpdate.add(Vector3(chunkPos.x, chunkY, chunkPos.z))
+        return toUpdate
     }
 
     override fun calculateExternal(
-        palette: Palette,
+        blockPalette: Palette,
         neighbours: List<Vector3>,
         lightLookup: LightLookup,
         paletteLookup: PaletteLookup
     ): Set<Vector3> {
-        TODO("Not yet implemented")
+
+        if (!isValidBorders) return emptySet()
+        val queue = buildExternalQueue(blockPalette, neighbours, content, lightLookup, paletteLookup)
+        val contentPropagationTemp: ByteArray = LightEngine.compute(blockPalette, queue)
+        this.contentPropagationSwap = LightEngine.bake(contentPropagationSwap, contentPropagationTemp)
+
+        // Propagate changes to neighbors and self
+        // Propagate changes to neighbors and self
+        val toUpdate: MutableSet<Vector3> = mutableSetOf()
+        for (i in neighbours.indices) {
+            val neighbor = neighbours[i] ?: continue
+            val face = Direction.entries[i]
+            if (!LightEngine.compareBorders(content, contentPropagation, contentPropagationTemp, face)) {
+                toUpdate.add(neighbor)
+            }
+        }
+        return toUpdate
     }
 
     override val requiresSend: Boolean get() = needsSend.getAndSet(false)
-    override val byteArray: ByteArray get() {
-        if(content == null) ByteArray(0)
-        if(contentPropagation == null) return content!!
-        val res = LightingEngine.bake(contentPropagation, content)
-        if(res.contentEquals(EMPTY_CONTENT)) return ByteArray(0)
-        return res
-    }
+    override val byteArray: ByteArray
+        get() {
+            if (content == null) ByteArray(0)
+            if (contentPropagation == null) return content!!
+            val res = LightEngine.bake(contentPropagation, content)
+            if (res.contentEquals(LightEngine.EMPTY_CONTENT)) return ByteArray(0)
+            return res
+        }
 }
