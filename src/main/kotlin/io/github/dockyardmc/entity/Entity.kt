@@ -24,6 +24,7 @@ import io.github.dockyardmc.registry.AppliedPotionEffectSettings
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.PotionEffect
+import io.github.dockyardmc.shapes.BoundingBox
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
@@ -281,14 +282,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         health.value = 0f;
     }
 
-    data class BoundingBox(
-        val minX: Double,
-        val maxX: Double,
-        val minY: Double,
-        val maxY: Double,
-        val minZ: Double,
-        val maxZ: Double,
-    )
 
     fun sendSelfPacketIfPlayer(packet: ClientboundPacket) {
         if (this is Player) this.sendPacket(packet)

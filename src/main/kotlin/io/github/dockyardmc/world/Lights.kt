@@ -2,6 +2,7 @@ package io.github.dockyardmc.world
 
 import java.util.*
 
+
 data class Light(
     var skyMask: BitSet = BitSet(),
     var blockMask: BitSet = BitSet(),

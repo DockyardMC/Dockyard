@@ -196,7 +196,6 @@ class BlockLight : Light {
         this.contentPropagationSwap = LightEngine.bake(contentPropagationSwap, contentPropagationTemp)
 
         // Propagate changes to neighbors and self
-        // Propagate changes to neighbors and self
         val toUpdate: MutableSet<Vector3> = mutableSetOf()
         for (i in neighbours.indices) {
             val neighbor = neighbours[i] ?: continue

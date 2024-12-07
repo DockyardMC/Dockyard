@@ -4,8 +4,10 @@ import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.RegistryBlock
+import io.github.dockyardmc.shapes.Shape
 import io.github.dockyardmc.utils.CustomDataHolder
 import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 
 data class Block(
     val registryBlock: RegistryBlock,
@@ -54,6 +56,12 @@ data class Block(
 
     fun isAir(): Boolean {
         return this.registryBlock == Blocks.AIR
+    }
+
+    fun getShape(): Shape {
+        val shapeData = BlockRegistry.shapeCache[this.registryBlock] ?: throw IllegalStateException("Missing shape data for block ${registryBlock.identifier}")
+        val shape = shapeData[getProtocolId()] ?: throw IllegalStateException("Missing shape data for block state ${getProtocolId()} of block ${registryBlock.identifier}")
+        return shape
     }
 
     companion object {

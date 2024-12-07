@@ -4,6 +4,7 @@ import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockEntity
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
+import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.world.Light
@@ -12,8 +13,66 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
 import org.jglrxavpok.hephaistos.nbt.NBT
 import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantLock
 
 class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
+
+    companion object {
+        private val pool: ExecutorService = Executors.newWorkStealingPool()
+
+        val DIFFUSE_SKY_LIGHT = setOf<String>(
+            Blocks.COBWEB.identifier,
+            Blocks.ICE.identifier,
+            Blocks.HONEY_BLOCK.identifier,
+            Blocks.SLIME_BLOCK.identifier,
+            Blocks.WATER.identifier,
+            Blocks.ACACIA_LEAVES.identifier,
+            Blocks.AZALEA_LEAVES.identifier,
+            Blocks.BIRCH_LEAVES.identifier,
+            Blocks.DARK_OAK_LEAVES.identifier,
+            Blocks.FLOWERING_AZALEA_LEAVES.identifier,
+            Blocks.JUNGLE_LEAVES.identifier,
+            Blocks.CHERRY_LEAVES.identifier,
+            Blocks.OAK_LEAVES.identifier,
+            Blocks.SPRUCE_LEAVES.identifier,
+            Blocks.SPAWNER.identifier,
+            Blocks.BEACON.identifier,
+            Blocks.END_GATEWAY.identifier,
+            Blocks.CHORUS_PLANT.identifier,
+            Blocks.CHORUS_FLOWER.identifier,
+            Blocks.FROSTED_ICE.identifier,
+            Blocks.SEAGRASS.identifier,
+            Blocks.TALL_SEAGRASS.identifier,
+            Blocks.LAVA.identifier
+        )
+    }
+
+    private val occlusionMap: IntArray = IntArray(0)
+
+    private var partialLightData: Light? = null
+    private var fullLightData: Light? = null
+
+    private val highestBlock = 0
+    private val freezeInvalidation = false
+
+    private val packetGenerationLock = ReentrantLock()
+    private val resendTimer = AtomicInteger(-1)
+    private val resendDelay: Int = 100
+
+    private val doneInit = false
+
+    enum class LightType {
+        SKY,
+        BLOCK
+    }
+
+    private enum class QueueType {
+        INTERNAL,
+        EXTERNAL
+    }
 
     val id: UUID = UUID.randomUUID()
     val minSection = world.dimensionType.minY / 16
@@ -26,7 +85,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
     val sections: MutableList<ChunkSection> = mutableListOf()
     val blockEntities: Int2ObjectOpenHashMap<BlockEntity> = Int2ObjectOpenHashMap(0)
 
-    val light: Light = Light(
+    var light: Light = Light(
         skyLight = ByteArray(0),
         blockLight = ByteArray(0),
     )
@@ -36,6 +95,11 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
             if (!this::cachedPacket.isInitialized) updateCache()
             return cachedPacket
         }
+
+    fun invalidateLightData() {
+        this.partialLightData = null
+        this.fullLightData = null
+    }
 
     fun updateCache() {
         val heightMap = NBT.Compound {

@@ -5,6 +5,7 @@ import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -45,7 +46,6 @@ fun main(args: Array<String>) {
             applyBlockPlacementRules = true
         }
     }
-
 
     Events.on<PlayerJoinEvent> {
         val player = it.player

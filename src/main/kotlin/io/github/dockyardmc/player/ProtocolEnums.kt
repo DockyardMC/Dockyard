@@ -75,7 +75,18 @@ enum class Direction(val normalX: Int, val normalY: Int, val normalZ: Int) {
     NORTH(0, 0, -1),
     SOUTH(0, 0, 1),
     WEST(-1, 0, 0),
-    EAST(1, 0, 0)
+    EAST(1, 0, 0);
+
+    fun getOppositeFace(): Direction {
+        return when(this) {
+            DOWN -> UP
+            UP -> DOWN
+            NORTH -> SOUTH
+            SOUTH -> NORTH
+            WEST -> EAST
+            EAST -> WEST
+        }
+    }
 }
 
 fun Entity.getDirection(noPitch: Boolean = false): Direction = getDirection(this.location, noPitch)

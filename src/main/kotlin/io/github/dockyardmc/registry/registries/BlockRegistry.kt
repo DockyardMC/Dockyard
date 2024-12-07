@@ -1,11 +1,12 @@
 package io.github.dockyardmc.registry.registries
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
+import io.github.dockyardmc.shapes.Shape
 import io.github.dockyardmc.utils.CustomDataHolder
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -24,12 +25,25 @@ object BlockRegistry: DataDrivenRegistry {
 
     var blocks: Map<String, RegistryBlock> = mapOf()
     var protocolIdToBlock: Map<Int, RegistryBlock> = mapOf()
+    var shapeCache: MutableMap<RegistryBlock, Map<Int, Shape>> = mutableMapOf()
 
     override fun initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<RegistryBlock>>(stream)
         blocks += list.associateBy { it.identifier }
         protocolIdToBlock = list.associateBy { it.defaultBlockStateId }
+
+        list.forEach { block ->
+            val blockStateShapes = mutableMapOf<Int, Shape>()
+            block.shape.forEach { (blockStateId, aabbString) ->
+                val collisionShape = block.collisionShape[blockStateId] ?: throw IllegalStateException("Missing collision shape for block state $blockStateId for block ${block.identifier}")
+                val occlusionShape = block.occlusionShape[blockStateId] ?: throw IllegalStateException("Missing occlusion shape for block state $blockStateId for block ${block.identifier}")
+
+                val shape = Shape.parseBlockFromRegistry(collisionShape, occlusionShape, block.canOcclude, block.lightEmission)
+                blockStateShapes[blockStateId] = shape
+            }
+            shapeCache[block] = blockStateShapes
+        }
     }
 
     override fun get(identifier: String): RegistryBlock {
@@ -80,6 +94,11 @@ data class RegistryBlock(
     val sounds: RegistryBlockSounds,
     val tags: List<String>,
     val possibleStates: Map<String, Int>,
+    val shape: Map<Int, String>,
+    val collisionShape: Map<Int, String>,
+    val interactionShape: Map<Int, String>,
+    val occlusionShape: Map<Int, String>,
+    val visualShape: Map<Int, String>,
 ): RegistryEntry {
     override fun getProtocolId(): Int {
         return defaultBlockStateId
@@ -103,6 +122,14 @@ data class RegistryBlock(
 
     override fun getNbt(): NBTCompound? = null
 }
+
+data class BlockShapeData(
+    val shape: Map<Int, Shape>,
+    val collisionShape: Map<Int, Shape>,
+    val interactionShape: Map<Int, Shape>,
+    val occlusionShape: Map<Int, Shape>,
+    val visualShape: Map<Int, Shape>,
+)
 
 @Serializable
 data class RegistryBlockSounds(
