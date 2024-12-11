@@ -16,6 +16,23 @@ object ChunkUtils {
     const val EPSILON: Float = 1.0E-5F
     const val TO_RADIANS_FACTOR = Math.PI.toFloat() / 180F
 
+    fun globalToChunk(xz: Int): Int {
+        return xz shr 4
+    }
+
+    fun getHighestBlockSection(chunk: Chunk): Int {
+        var y = chunk.world.dimensionType.height
+
+        val sectionCount = chunk.maxSection - chunk.minSection
+        for (i in 0 until sectionCount) {
+            val sectionY = chunk.maxSection - i - 1
+            val blockPalette = chunk.getSection(sectionY).blockPalette
+            if(blockPalette.count() != 0) break
+            y -= 16
+        }
+        return y
+    }
+
     fun chunkBlockIndex(x: Int, y: Int, z: Int): Int {
         var xCoord = x
         var zCoord = z

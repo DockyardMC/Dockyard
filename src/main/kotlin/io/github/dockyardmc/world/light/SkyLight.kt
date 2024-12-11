@@ -3,6 +3,7 @@ package io.github.dockyardmc.world.light
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3d
 import io.github.dockyardmc.world.chunk.ChunkPos
 import io.github.dockyardmc.world.light.LightEngine.CONTENT_FULLY_LIT
 import io.github.dockyardmc.world.light.LightEngine.SECTION_SIZE
@@ -51,7 +52,7 @@ class SkyLight : Light {
 
         fun buildExternalQueue(
             blockPalette: Palette,
-            neighbors: List<Vector3?>,
+            neighbors: List<Vector3d?>,
             content: ByteArray?,
             lightLookup: LightLookup,
             paletteLookup: PaletteLookup
@@ -61,8 +62,8 @@ class SkyLight : Light {
                 val face = Direction.entries[i]
                 val neighborSection = neighbors[i] ?: continue
 
-                val otherPalette = paletteLookup.palette(neighborSection.x, neighborSection.y, neighborSection.z)
-                val otherLight = lightLookup.light(neighborSection.x, neighborSection.y, neighborSection.z)
+                val otherPalette = paletteLookup.palette(neighborSection.x.toInt(), neighborSection.y.toInt(), neighborSection.z.toInt())!!
+                val otherLight = lightLookup.light(neighborSection.x.toInt(), neighborSection.y.toInt(), neighborSection.z.toInt())!!
 
                 for (bx in 0 until 16) {
                     for (by in 0 until 16) {
@@ -120,7 +121,10 @@ class SkyLight : Light {
                             else -> LightEngine.getBlock(otherPalette, bx, 15 - k, by)
                         })
 
-                        //TODO Shape registry & occlusion
+                        if(blockFrom.getShape().isOccluded(blockTo.getShape(), face.getOppositeFace())){
+                            continue
+                        }
+
                         val index = posTo or (lightEmission shl 12)
 
                         if (lightEmission > 0) {
@@ -165,7 +169,7 @@ class SkyLight : Light {
         heightmap: IntArray,
         maxY: Int,
         lookup: LightLookup
-    ): Set<Vector3> {
+    ): Set<Vector3d> {
 
         this.isValidBorders = true
         var queueSize: Int = SECTION_SIZE * SECTION_SIZE * SECTION_SIZE
@@ -182,7 +186,7 @@ class SkyLight : Light {
         } else {
             this.content = LightEngine.compute(blockPalette, queue)
         }
-        val toUpdate: MutableSet<Vector3> = mutableSetOf()
+        val toUpdate: MutableSet<Vector3d> = mutableSetOf()
 
         for (i in -1..1) {
             for (j in -1..1) {
@@ -196,20 +200,20 @@ class SkyLight : Light {
                     if (light !is SkyLight) continue
 
                     light.contentPropagation = null
-                    toUpdate.add(Vector3(neighborX, neighborY, neighborZ))
+                    toUpdate.add(Vector3(neighborX, neighborY, neighborZ).toVector3d())
                 }
             }
         }
-        toUpdate.add(Vector3(chunkPos.x, chunkY, chunkPos.z))
+        toUpdate.add(Vector3(chunkPos.x, chunkY, chunkPos.z).toVector3d())
         return toUpdate
     }
 
     override fun calculateExternal(
         blockPalette: Palette,
-        neighbours: List<Vector3>,
+        neighbours: List<Vector3d>,
         lightLookup: LightLookup,
         paletteLookup: PaletteLookup
-    ): Set<Vector3> {
+    ): Set<Vector3d> {
         if (!isValidBorders) return emptySet()
 
         var contentPropagationTemp = CONTENT_FULLY_LIT
@@ -221,7 +225,7 @@ class SkyLight : Light {
             this.contentPropagationSwap = null
         }
 
-        val toUpdate: MutableSet<Vector3> = mutableSetOf()
+        val toUpdate: MutableSet<Vector3d> = mutableSetOf()
         for (i in neighbours.indices) {
             val neighbor = neighbours[i] ?: continue
             val face = Direction.entries[i]

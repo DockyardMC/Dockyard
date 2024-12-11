@@ -1,13 +1,13 @@
-package io.github.dockyardmc.world
+package io.github.dockyardmc.world.chunk
 
 import java.util.*
 
 
-data class Light(
+data class ChunkLightData(
     var skyMask: BitSet = BitSet(),
     var blockMask: BitSet = BitSet(),
     var emptySkyMask: BitSet = BitSet(),
     var emptyBlockMask: BitSet = BitSet(),
-    var skyLight: ByteArray = ByteArray(0),
-    var blockLight: ByteArray = ByteArray(0)
+    var skyLight: List<ByteArray> = listOf(),
+    var blockLight: List<ByteArray> = listOf(),
 )

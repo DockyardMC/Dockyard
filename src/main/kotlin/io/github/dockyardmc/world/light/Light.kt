@@ -2,31 +2,30 @@ package io.github.dockyardmc.world.light
 
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3d
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
 import io.github.dockyardmc.world.palette.Palette
 
 interface Light {
     companion object {
-//        fun sky(): Light
-//        fun block(): Light
 
-        fun getNeighbours(chunk: Chunk, sectionY: Int): Array<Vector3?> {
+        fun getNeighbours(chunk: Chunk, sectionY: Int): Array<Vector3d> {
             val chunkX = chunk.chunkX
             val chunkZ = chunk.chunkZ
 
-            val links = arrayOfNulls<Vector3>(Direction.entries.size)
+            val links = arrayOfNulls<Vector3d>(Direction.entries.size)
             Direction.entries.forEach { direction ->
                 val x = chunkX + direction.normalX
-                val y = chunkX + direction.normalZ
-                val z = chunkX + direction.normalY
+                val y = sectionY + direction.normalY
+                val z = chunkZ + direction.normalZ
 
                 val foundChunk = chunk.world.getChunk(x, z) ?: return@forEach
                 if(y - foundChunk.minSection > foundChunk.maxSection || y - foundChunk.minSection < 0) return@forEach
 
-                links[direction.ordinal] = Vector3()
+                links[direction.ordinal] = Vector3d(foundChunk.chunkX.toDouble(), y.toDouble(), foundChunk.chunkZ.toDouble())
             }
-            return links
+            return links.requireNoNulls()
         }
     }
 
@@ -50,20 +49,22 @@ interface Light {
         heightmap: IntArray,
         maxY: Int,
         lookup: LightLookup,
-    ): Set<Vector3>
+    ): Set<Vector3d>
 
     fun calculateExternal(
         blockPalette: Palette,
-        neighbours: List<Vector3>,
+        neighbours: List<Vector3d>,
         lightLookup: LightLookup,
         paletteLookup: PaletteLookup,
-    ): Set<Vector3>
+    ): Set<Vector3d>
 }
 
-interface LightLookup {
-    fun light(x: Int, y: Int, z: Int): Light
+@FunctionalInterface
+fun interface LightLookup {
+    fun light(x: Int, y: Int, z: Int): Light?
 }
 
-interface PaletteLookup {
-    fun palette(x: Int, y: Int, z: Int): Palette
+@FunctionalInterface
+fun interface PaletteLookup {
+    fun palette(x: Int, y: Int, z: Int): Palette?
 }
