@@ -10,6 +10,7 @@ import io.github.dockyardmc.events.PlayerBlockPlaceEvent
 import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
@@ -164,10 +165,14 @@ class ServerboundUseItemOnBlockPacket(
 
             if (cancelled) {
                 player.world.getChunkAt(newPos.x, newPos.z)?.let { player.sendPacket(it.packet) }
+                player.inventory.sendInventoryUpdate(player.heldSlotIndex.value)
                 return
             }
 
             player.world.setBlock(blockPlaceEvent.location, blockPlaceEvent.block)
+            val heldItem = player.getHeldItem(PlayerHand.MAIN_HAND)
+            val newItem = if(heldItem.amount - 1 == 0) ItemStack.AIR else heldItem.withAmount(heldItem.amount - 1)
+            player.setHeldItem(PlayerHand.MAIN_HAND, newItem)
         }
     }
 

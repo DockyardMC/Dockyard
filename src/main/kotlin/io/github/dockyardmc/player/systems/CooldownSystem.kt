@@ -4,7 +4,6 @@ import cz.lukynka.BindableMap
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ItemGroupCooldownEndEvent
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.Player.ItemGroupCooldown
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.ticksToMs
 
@@ -21,3 +20,9 @@ class CooldownSystem(val player: Player): TickablePlayerSystem {
         }
     }
 }
+
+data class ItemGroupCooldown(
+    var group: String,
+    var startTime: Long,
+    var durationTicks: Int
+)

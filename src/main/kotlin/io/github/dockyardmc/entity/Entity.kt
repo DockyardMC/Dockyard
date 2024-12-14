@@ -342,17 +342,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         }
     }
 
-    fun placeBlock(location: Location, block: Block) {
-
-    }
-
-    fun interact() {
-
-    }
-
-    fun breakBlock() {
-
-    }
 
     fun getTargetBlock(maxDistance: Int): Location? {
         val it: Iterator<Vector3> = BlockIterator(this, maxDistance)

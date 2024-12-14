@@ -2,6 +2,7 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.events.*
@@ -11,13 +12,17 @@ import io.github.dockyardmc.inventory.PlayerInventory
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.particles.BlockParticleData
+import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.systems.*
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.Item
@@ -29,6 +34,7 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.PlayerChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
@@ -61,6 +67,7 @@ class Player(
     var isSprinting: Boolean = false
     var isFullyInitialized: Boolean = false
     var isConnected: Boolean = true
+    var isDigging: Boolean = false
 
     var gameMode: Bindable<GameMode> = bindablePool.provideBindable(GameMode.ADVENTURE)
     var isFlying: Bindable<Boolean> = bindablePool.provideBindable(false)
@@ -444,11 +451,31 @@ class Player(
         return isOnCooldown(item.identifier)
     }
 
-    data class ItemGroupCooldown(
-        var group: String,
-        var startTime: Long,
-        var durationTicks: Int
-    )
+    fun breakBlock(location: Location, block: Block, face: Direction) {
+
+        val event = PlayerBlockBreakEvent(this, block, location)
+        val item = this.getHeldItem(PlayerHand.MAIN_HAND)
+        var cancelled = false
+
+        Events.dispatch(event)
+        if (event.cancelled) cancelled = true
+        if (item.material == Items.DEBUG_STICK) cancelled = true
+
+        if(cancelled) {
+            this.world.getChunkAt(location)?.let { this.sendPacket(it.packet) }
+            return
+        }
+
+        this.world.setBlock(event.location, Blocks.AIR)
+        this.world.players.filter { it != this }.spawnParticle(
+            event.location.add(0.5, 0.5, 0.5),
+            Particles.BLOCK,
+            amount = 50,
+            offset = Vector3f(0.3f),
+            particleData = BlockParticleData(block)
+        )
+        this.isDigging = false
+    }
 
     override fun dispose() {
         decoupledViewSystemScheduler.dispose()
