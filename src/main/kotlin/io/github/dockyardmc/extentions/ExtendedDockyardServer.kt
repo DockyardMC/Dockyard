@@ -13,3 +13,7 @@ fun DockyardServer.Companion.broadcastActionBar(component: Component) { PlayerMa
 fun DockyardServer.Companion.sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
     PlayerManager.players.sendTitle(title, subtitle, fadeIn, stay, fadeOut)
 }
+
+fun broadcastMessage(message: String) {
+    DockyardServer.broadcastMessage(message)
+}

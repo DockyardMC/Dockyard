@@ -43,6 +43,7 @@ class EntityItemPickupHandler(override val entity: Entity) : TickableEntityHandl
                     if (entity is Player) entity.sendPacket(packet)
                 }
                 drop.world.despawnEntity(drop)
+                return@forEach
             }
         }
     }

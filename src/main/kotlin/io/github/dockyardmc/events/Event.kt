@@ -1,6 +1,7 @@
 package io.github.dockyardmc.events
 
 import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.world.World
@@ -29,4 +30,8 @@ interface Event {
         // i hate everything about this
         // please suggest something better.
     }
+}
+
+operator fun EventFilter.not(): EventFilter {
+    return EventFilter { !this.check(it) }
 }
