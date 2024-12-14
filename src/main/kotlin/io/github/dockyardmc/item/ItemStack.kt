@@ -2,8 +2,6 @@ package io.github.dockyardmc.item
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
-import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
@@ -24,12 +22,33 @@ class ItemStack(var material: Item, var amount: Int = 1) {
 
     val components: BindableList<ItemComponent> = BindableList()
     val displayName: Bindable<String> = Bindable(material.displayName)
-    val lore: BindableList<String> = BindableList()
-    val customModelData: Bindable<Int> = Bindable(0)
-    //TODO nice easy custom data api not like persistent containers or whatever the complicated fuck spigot uses
-    val maxStackSize: Bindable<Int> = Bindable(64)
-    val unbreakable: Bindable<Boolean> = Bindable(false)
-    val hasGlint: Bindable<Boolean> = Bindable(false)
+
+    var lore: List<String>
+        get() { return components.getOrNull(LoreItemComponent::class)?.lines?.map { it.toString() } ?: listOf() }
+        set(value) { components.addOrUpdate(LoreItemComponent(value.map { it.toComponent() })) }
+
+    var customModelData: Int
+        get() { return components.getOrNull(CustomModelDataItemComponent::class)?.customModelData ?: 0 }
+        set(value) { components.addOrUpdate(CustomModelDataItemComponent(value)) }
+
+    var maxStackSize: Int
+        get() { return components.getOrNull(MaxStackSizeItemComponent::class)?.maxStackSize ?: 64 }
+        set(value) { components.addOrUpdate(MaxStackSizeItemComponent(value)) }
+
+    var unbreakable: Boolean
+        get() { return components.getOrNull(UnbreakableItemComponent::class) != null }
+        set(value) {
+            if(value) {
+                components.removeByType(UnbreakableItemComponent::class)
+            } else {
+                components.addOrUpdate(UnbreakableItemComponent(false))
+            }
+        }
+
+    var hasGlint: Boolean
+        get() { return components.getOrNull(EnchantmentGlintOverrideItemComponent::class)?.hasGlint ?: false }
+        set(value) { components.addOrUpdate(EnchantmentGlintOverrideItemComponent(value)) }
+
 
     private val customDataHolder = CustomDataHolder()
     var customData: Bindable<NBTCompound> = Bindable(NBT.Compound())
@@ -89,18 +108,8 @@ class ItemStack(var material: Item, var amount: Int = 1) {
 
     init {
         displayName.valueChanged { components.addOrUpdate(CustomNameItemComponent(it.newValue.toComponent())) }
-        lore.listUpdated { components.addOrUpdate(LoreItemComponent(lore.values.toComponents())) }
-        customModelData.valueChanged { components.addOrUpdate(CustomModelDataItemComponent(it.newValue)) }
-        maxStackSize.valueChanged { components.addOrUpdate(MaxStackSizeItemComponent(it.newValue)) }
-        unbreakable.valueChanged { components.addOrUpdate(UnbreakableItemComponent(true)) }
-        hasGlint.valueChanged { components.addOrUpdate(EnchantmentGlintOverrideItemComponent(it.newValue)) }
         customData.valueChanged { components.addOrUpdate(CustomDataItemComponent(it.newValue)) }
         if(amount <= 0) amount = 1
-
-        //TODO this will be added back once im 100% confident item components are fully working
-//        material.defaultComponents?.forEach {
-//            components.add(it)
-//        }
     }
 
     companion object {

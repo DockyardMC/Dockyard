@@ -13,9 +13,9 @@ object InventoryClickHandler {
         if(cursor.isSameAs(clicked)) {
             //try to stack
             val totalAmount = cursor.amount + clicked.amount
-            val maxSize = cursor.maxStackSize.value
+            val maxSize = cursor.maxStackSize
 
-            if(!isBetween(totalAmount, 0, clicked.maxStackSize.value)) {
+            if(!isBetween(totalAmount, 0, clicked.maxStackSize)) {
                 //too big, stuck only amount you can
                 result.cursor = cursor.clone().apply { amount = totalAmount - maxSize }
                 result.clicked = clicked.clone().apply { amount = maxSize }
@@ -40,7 +40,7 @@ object InventoryClickHandler {
         if(clicked.isSameAs(cursor)) {
             //can be stacked
             val amount = clicked.amount + 1
-            if(!isBetween(amount, 0, clicked.maxStackSize.value)){
+            if(!isBetween(amount, 0, clicked.maxStackSize)){
                 //too large
                 return result
             } else {

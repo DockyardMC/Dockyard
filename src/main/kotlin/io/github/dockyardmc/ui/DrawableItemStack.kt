@@ -23,7 +23,9 @@ class DrawableItemStack {
     }
 
     fun addLoreLine(lore: String) {
-        itemStack.lore.add(lore)
+        val mut = itemStack.lore.toMutableList()
+        mut.add(lore)
+        itemStack.lore = mut
     }
 
     fun withComponent(component: ItemComponent) {

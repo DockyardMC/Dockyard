@@ -42,18 +42,18 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
             } else {
 
                 val canStack = slot.isSameAs(item) &&
-                        slot.amount != slot.maxStackSize.value &&
-                        slot.amount + item.amount <= slot.maxStackSize.value
+                        slot.amount != slot.maxStackSize &&
+                        slot.amount + item.amount <= slot.maxStackSize
 
                 if (canStack) {
                     slots[i] = slot.withAmount(slot.amount + item.amount)
                     return true
                 } else {
-                    if (slot.isSameAs(item) && slot.amount != slot.maxStackSize.value) {
+                    if (slot.isSameAs(item) && slot.amount != slot.maxStackSize) {
                         val totalAmount = item.amount + slot.amount
-                        val newClicked = slot.maxStackSize.value
+                        val newClicked = slot.maxStackSize
                         slots[i] = slot.withAmount(newClicked)
-                        val remainder = totalAmount - slot.maxStackSize.value
+                        val remainder = totalAmount - slot.maxStackSize
                         give(item.withAmount(remainder))
                         return true
                     }

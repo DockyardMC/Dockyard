@@ -168,7 +168,7 @@ class ServerboundClickContainerPacket(
                         //find slot in the rest of the inventory
                         for (i in 9 until 35) {
                             val item = player.inventory[i]
-                            if (item == empty || (item.isSameAs(clickedSlotItem) && item.amount != item.maxStackSize.value)) {
+                            if (item == empty || (item.isSameAs(clickedSlotItem) && item.amount != item.maxStackSize)) {
                                 suitableSlotIndex = i
                                 break
                             }
@@ -180,7 +180,7 @@ class ServerboundClickContainerPacket(
                         //find slot in the hotbar
                         for (i in 0 until 8) {
                             val item = player.inventory[i]
-                            if (item == empty || (item.isSameAs(clickedSlotItem) && item.amount != item.maxStackSize.value)) {
+                            if (item == empty || (item.isSameAs(clickedSlotItem) && item.amount != item.maxStackSize)) {
                                 suitableSlotIndex = i
                                 break
                             }
@@ -194,7 +194,7 @@ class ServerboundClickContainerPacket(
 
                     val shouldStack = !existingItem.isSameAs(empty) &&
                             existingItem.isSameAs(clickedSlotItem) &&
-                            (existingItem.amount + clickedSlotItem.amount) <= existingItem.maxStackSize.value
+                            (existingItem.amount + clickedSlotItem.amount) <= existingItem.maxStackSize
 
                     if (shouldStack) {
                         player.inventory[properSlot] = empty
@@ -204,12 +204,12 @@ class ServerboundClickContainerPacket(
                     } else {
 
                         val isSameItemButCantFullyStack =
-                            existingItem.isSameAs(clickedSlotItem) && (existingItem.amount + clickedSlotItem.amount) > existingItem.maxStackSize.value
+                            existingItem.isSameAs(clickedSlotItem) && (existingItem.amount + clickedSlotItem.amount) > existingItem.maxStackSize
                         if (isSameItemButCantFullyStack) {
                             //is the same item but cant stack everything so we only stack what we can and leave the rest
                             val totalAmount = existingItem.amount + clickedSlotItem.amount
-                            val newClicked = existingItem.maxStackSize.value
-                            val remainder = totalAmount - existingItem.maxStackSize.value
+                            val newClicked = existingItem.maxStackSize
+                            val remainder = totalAmount - existingItem.maxStackSize
 
                             player.inventory[properSlot] = clickedSlotItem.withAmount(remainder)
                             player.inventory[suitableSlotIndex] = existingItem.withAmount(newClicked)
@@ -339,8 +339,8 @@ class ServerboundClickContainerPacket(
                     if (offhandItem.isSameAs(cursor)) {
                         //same item
 
-                        val canStack = offhandItem.amount != offhandItem.maxStackSize.value &&
-                                offhandItem.amount + cursorAmount <= offhandItem.maxStackSize.value
+                        val canStack = offhandItem.amount != offhandItem.maxStackSize &&
+                                offhandItem.amount + cursorAmount <= offhandItem.maxStackSize
 
                         if (canStack) {
                             //can fully stack
@@ -355,11 +355,11 @@ class ServerboundClickContainerPacket(
                             }
                             return true
                         } else {
-                            if (offhandItem.amount != offhandItem.maxStackSize.value) {
+                            if (offhandItem.amount != offhandItem.maxStackSize) {
                                 // can partially stack
                                 val totalAmount = offhandItem.amount + cursorAmount
-                                val newClicked = offhandItem.maxStackSize.value
-                                val remainder = totalAmount - offhandItem.maxStackSize.value
+                                val newClicked = offhandItem.maxStackSize
+                                val remainder = totalAmount - offhandItem.maxStackSize
 
                                 player.equipment[EquipmentSlot.OFF_HAND] = offhandItem.withAmount(newClicked)
                                 player.inventory.cursorItem.value = cursor.withAmount(remainder)

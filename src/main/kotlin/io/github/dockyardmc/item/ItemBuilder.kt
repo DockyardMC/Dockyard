@@ -64,7 +64,7 @@ class ItemBuilder() {
      * @return ItemBuilder
      */
     fun withLore(lore: List<String>): ItemBuilder {
-        itemStack.lore.setValues(lore)
+        itemStack.lore = lore
         return this
     }
 
@@ -75,7 +75,9 @@ class ItemBuilder() {
      * @return ItemBuilder
      */
     fun addLore(lore: String): ItemBuilder {
-        itemStack.lore.add(lore)
+        val existing = itemStack.lore.toMutableList()
+        existing.add(lore)
+        itemStack.lore = existing
         return this
     }
 
@@ -86,7 +88,7 @@ class ItemBuilder() {
      * @return ItemBuilder
      */
     fun withCustomModelData(customModelData: Int): ItemBuilder {
-        itemStack.customModelData.value = customModelData
+        itemStack.customModelData = customModelData
         return this
     }
 
@@ -102,7 +104,7 @@ class ItemBuilder() {
         if (maxStackSize < 1) {
             throw IllegalArgumentException("Max stack size cannot be less than 1")
         }
-        itemStack.maxStackSize.value = maxStackSize
+        itemStack.maxStackSize = maxStackSize
         return this
     }
 
@@ -125,7 +127,7 @@ class ItemBuilder() {
         if (damage > maxDamage) {
             throw IllegalArgumentException("Damage cannot be greater than max damage")
         }
-        if (itemStack.maxStackSize.value > 1) {
+        if (itemStack.maxStackSize > 1) {
             throw IllegalArgumentException("Cannot set damage on stackable items")
         }
 
@@ -156,7 +158,7 @@ class ItemBuilder() {
      * @return ItemBuilder
      */
     fun withGlint(glint: Boolean): ItemBuilder {
-        itemStack.hasGlint.value = glint
+        itemStack.hasGlint = glint
         return this
     }
 
