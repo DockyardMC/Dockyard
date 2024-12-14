@@ -11,11 +11,11 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.netty.channel.ChannelHandlerContext
 import java.time.Instant
 
-class HandshakeHandler(val processor: PlayerNetworkManager): PacketHandler(processor) {
+class HandshakeHandler(val playerNetworkManager: PlayerNetworkManager): PacketHandler(playerNetworkManager) {
 
     fun handlePing(packet: ServerboundPingRequestPacket, connection: ChannelHandlerContext) {
         val out = ClientboundPingResponsePacket(Instant.now().toEpochMilli())
-        connection.sendPacket(out, processor)
+        connection.sendPacket(out, playerNetworkManager)
     }
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
@@ -23,11 +23,11 @@ class HandshakeHandler(val processor: PlayerNetworkManager): PacketHandler(proce
         val handshakeState = packet.nextState
 
         if(handshakeState == 2) {
-            processor.loginHandler.handleHandshake(packet, connection)
+            playerNetworkManager.loginHandler.handleHandshake(packet, connection)
             return
         }
 
-        processor.state = ProtocolState.STATUS
+        playerNetworkManager.state = ProtocolState.STATUS
     }
 
     fun handleStatusRequest(packet: ServerboundStatusRequestPacket, connection: ChannelHandlerContext) {
@@ -38,11 +38,11 @@ class HandshakeHandler(val processor: PlayerNetworkManager): PacketHandler(proce
         }
 
         val serverStatus = ServerStatusManager.getCache()
-        Events.dispatch(ServerListPingEvent(serverStatus))
+        Events.dispatch(ServerListPingEvent(playerNetworkManager, serverStatus))
 
         val json = serverStatus.toJson()
         val out = ClientboundStatusResponsePacket(json)
 
-        connection.sendPacket(out, processor)
+        connection.sendPacket(out, playerNetworkManager)
     }
 }

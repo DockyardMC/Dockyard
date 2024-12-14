@@ -12,7 +12,6 @@ import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityTeleportPacket
-import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.DimensionType
 import io.github.dockyardmc.registry.registries.RegistryBlock
@@ -124,14 +123,14 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
         val oldWorld = player.world
 
+        player.world.innerPlayers.removeIfPresent(player)
+        player.world = this
+
         oldWorld.entities.filter { it != player }.forEach { it.removeViewer(player) }
         oldWorld.players.filter { it != player }.forEach {
             it.removeViewer(player)
             player.removeViewer(it)
         }
-
-        player.world.innerPlayers.removeIfPresent(player)
-        player.world = this
 
         addEntity(player)
         addPlayer(player)
@@ -328,7 +327,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         // Special case for void world generator for fast void world loading. //TODO optimizations to rest of the world generators
         if (generator is VoidWorldGenerator) {
             chunk.sections.forEach { section ->
-                section.biomePalette.fill(Biomes.THE_VOID.getProtocolId())
+                section.biomePalette.fill((generator as VoidWorldGenerator).defaultBiome.getProtocolId())
                 section.blockPalette.fill(BlockRegistry.Air.defaultBlockStateId)
             }
         } else {

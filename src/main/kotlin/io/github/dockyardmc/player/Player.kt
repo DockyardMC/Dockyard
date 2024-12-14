@@ -335,8 +335,7 @@ class Player(
     }
 
     fun respawn(isBecauseDeath: Boolean = false) {
-        isOnFire.value = false
-        health.value = 20f
+
 
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
@@ -345,7 +344,12 @@ class Player(
 
         refreshClientStateAfterRespawn()
 
-        if(isBecauseDeath) Events.dispatch(PlayerRespawnEvent(this))
+        Events.dispatch(PlayerRespawnEvent(this, isBecauseDeath))
+        if(isBecauseDeath) {
+            isOnFire.value = false
+            health.value = 20f
+            food.value = 20.0
+        }
     }
 
     fun refreshClientStateAfterRespawn() {

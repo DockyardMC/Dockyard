@@ -1,6 +1,7 @@
 package io.github.dockyardmc.world
 
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.DimensionType
 import io.github.dockyardmc.registry.DimensionTypes
@@ -11,7 +12,7 @@ import java.lang.IllegalArgumentException
 object WorldManager {
 
     val worlds: MutableMap<String, World> = mutableMapOf()
-    val mainWorld: World = World("main", VoidWorldGenerator(), DimensionTypes.OVERWORLD)
+    val mainWorld: World = World("main", VoidWorldGenerator(Biomes.THE_VOID), DimensionTypes.OVERWORLD)
 
     fun loadDefaultWorld() {
         mainWorld.generate {
