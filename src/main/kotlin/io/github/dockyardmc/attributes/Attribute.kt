@@ -1,12 +1,23 @@
 package io.github.dockyardmc.attributes
 
 import io.github.dockyardmc.extentions.*
-import io.github.dockyardmc.item.AttributeModifiersItemComponent
 import io.netty.buffer.ByteBuf
 
 data class Attribute(
     val id: Int
-)
+) {
+    companion object {
+        val template = NetworkTemplate.of<Attribute> {
+            read { buffer ->
+                Attribute(buffer.readVarInt())
+            }
+
+            write { attribute, buffer ->
+                buffer.writeVarInt(attribute.id)
+            }
+        }
+    }
+}
 
 enum class AttributeOperation {
     ADD,
@@ -27,15 +38,55 @@ enum class AttributeSlot {
     BODY
 }
 
-fun ByteBuf.readModifierList(): AttributeModifiersItemComponent {
-    val size = this.readVarInt()
-    val list = mutableListOf<Modifier>()
-    for (i in 0 until size) {
-        val modifier = Modifier.read(this)
-        list.add(modifier)
+class NetworkTemplate<T>(private val read: (ByteBuf) -> T, private val write: (T, ByteBuf) -> Unit) {
+
+    companion object {
+        inline fun <reified T> of(builder: NetworkTemplateBuilder<T>.() -> Unit): NetworkTemplate<T> {
+            val networkTemplateBuilder = NetworkTemplateBuilder<T>()
+            builder.invoke(networkTemplateBuilder)
+            if(networkTemplateBuilder.codecReader == null) throw IllegalArgumentException("Reader is null for network template of class ${T::class.simpleName}")
+            if(networkTemplateBuilder.codecWriter == null) throw IllegalArgumentException("Writer is null for network template of class ${T::class.simpleName}")
+            return NetworkTemplate<T>(networkTemplateBuilder.codecReader!!, networkTemplateBuilder.codecWriter!!)
+        }
     }
-    val showInTooltip = this.readBoolean()
-    return AttributeModifiersItemComponent(list, showInTooltip)
+
+    fun read(buffer: ByteBuf): T {
+        return read.invoke(buffer)
+    }
+
+    fun write(buffer: ByteBuf, value: T) {
+        write.invoke(value, buffer)
+    }
+}
+
+class NetworkTemplateBuilder<T> {
+    var codecReader: ((ByteBuf) -> T)? = null
+    var codecWriter: ((T, ByteBuf) -> Unit)? = null
+
+    fun read(builder: (ByteBuf) -> T) {
+        codecReader = builder
+    }
+
+    fun write(builder: (T, ByteBuf) -> Unit) {
+        codecWriter = builder
+    }
+
+}
+
+fun <T> ByteBuf.writeList(list: Collection<T>, writer: (buffer: ByteBuf, value: T) -> Unit) {
+    this.writeVarInt(list.size)
+    list.forEach { item ->
+        writer.invoke(this, item)
+    }
+}
+
+fun <T> ByteBuf.readList(reader: (buffer: ByteBuf) -> T): List<T> {
+    val size = this.readVarInt()
+    val list = mutableListOf<T>()
+    for (i in 0 until size) {
+        list.add(reader.invoke(this))
+    }
+    return list
 }
 
 
@@ -44,19 +95,22 @@ data class Modifier(
     val attributeModifier: AttributeModifier,
     val equipmentSlot: EquipmentSlotGroup
 ) {
-    fun write(buffer: ByteBuf) {
-        buffer.writeVarInt(attribute.id)
-        attributeModifier.write(buffer)
-        buffer.writeVarIntEnum<EquipmentSlotGroup>(equipmentSlot)
-    }
 
     companion object {
-        fun read(buffer: ByteBuf): Modifier {
-            val attribute = Attribute(buffer.readVarInt())
-            val attributeModifier = AttributeModifier.read(buffer)
-            val slot = buffer.readVarIntEnum<EquipmentSlotGroup>()
+        val template = NetworkTemplate.of<Modifier> {
+            write { modifier, buffer ->
+                Attribute.template.write(buffer, modifier.attribute)
+                modifier.attributeModifier.write(buffer)
+                buffer.writeVarIntEnum<EquipmentSlotGroup>(modifier.equipmentSlot)
+            }
 
-            return Modifier(attribute, attributeModifier, slot)
+            read { buffer ->
+                val attribute = Attribute(buffer.readVarInt())
+                val attributeModifier = AttributeModifier.read(buffer)
+                val slot = buffer.readVarIntEnum<EquipmentSlotGroup>()
+
+                Modifier(attribute, attributeModifier, slot)
+            }
         }
     }
 }

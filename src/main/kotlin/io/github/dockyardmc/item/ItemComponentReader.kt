@@ -1,6 +1,5 @@
 package io.github.dockyardmc.item
 
-import io.github.dockyardmc.attributes.readModifierList
 import io.github.dockyardmc.blocks.BlockPredicate
 import io.github.dockyardmc.blocks.readBlockPredicate
 import io.github.dockyardmc.blocks.readBlockSet
@@ -76,7 +75,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             return CanBreakItemComponent(predicates, showInTooltip)
         }
 
-        AttributeModifiersItemComponent::class -> this.readModifierList()
+        AttributeModifiersItemComponent::class -> AttributeModifiersItemComponent.template.read(this)
         CustomModelDataItemComponent::class -> CustomModelDataItemComponent(this.readVarInt())
         HideAdditionalTooltipItemComponent::class -> HideAdditionalTooltipItemComponent()
         HideTooltipItemComponent::class -> HideTooltipItemComponent()
