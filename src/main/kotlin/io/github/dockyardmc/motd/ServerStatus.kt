@@ -25,7 +25,7 @@ object ServerStatusManager {
         else ""
     )
 
-    val description = Bindable<Component>("${Branding.logo} <gray>Custom Kotlin Server Implementation".toComponent())
+    val description = Bindable<String>("${Branding.logo} <gray>Custom Kotlin Server Implementation")
 
     init {
         description.valueChanged { updateCache() }
@@ -57,20 +57,13 @@ object ServerStatusManager {
     }
 
     /**
-     * Set the server description from a [Component]
-     *
-     * @param description The description
-     */
-    fun setDescription(description: Component) {
-        this.description.value = description
-    }
-
-    /**
      * Set the server description (MOTD string)
      *
      * @param description The description
      */
-    fun setDescription(description: String) = setDescription(description.toComponent())
+    fun setDescription(description: String) {
+        this.description.value = description
+    }
 
     fun getCache(): ServerStatus {
         if(!this::cache.isInitialized) updateCache()
@@ -93,7 +86,7 @@ object ServerStatusManager {
                 online = PlayerManager.players.size,
                 sample = playersOnline,
             ),
-            description = description.value,
+            description = description.value.toComponent(),
             enforceSecureChat = false,
             previewsChat = false,
             favicon = "data:image/png;base64,${base64EncodedIcon.value}"
