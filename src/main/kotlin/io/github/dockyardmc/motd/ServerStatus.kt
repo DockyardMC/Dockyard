@@ -1,5 +1,6 @@
 package io.github.dockyardmc.motd
 
+import cz.lukynka.Bindable
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.player.PlayerManager
@@ -10,6 +11,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.net.URL
 import java.util.*
 
 object ServerStatusManager {
@@ -17,7 +19,58 @@ object ServerStatusManager {
     private lateinit var cache: ServerStatus
 
     private val iconFile = File("./icon.png")
-    val base64EncodedIcon = if(iconFile.exists()) Base64.getEncoder().encode(iconFile.readBytes()).decodeToString() else ""
+
+    private val base64EncodedIcon = Bindable<String>(
+        if(iconFile.exists()) Base64.getEncoder().encode(iconFile.readBytes()).decodeToString()
+        else ""
+    )
+
+    val description = Bindable<Component>("${Branding.logo} <gray>Custom Kotlin Server Implementation".toComponent())
+
+    init {
+        description.valueChanged { updateCache() }
+        base64EncodedIcon.valueChanged { updateCache() }
+    }
+
+    /**
+     * Set the server icon from a file. If the file does not exist, the icon
+     * will be cleared.
+     *
+     * @param file The icon file
+     */
+    fun setIconFromFile(file: File) {
+        base64EncodedIcon.value =
+            if (file.exists()) Base64.getEncoder().encode(file.readBytes()).decodeToString()
+            else ""
+    }
+
+    /**
+     * Set the server icon from a classpath resource
+     *
+     * @param resource The resource URL
+     *
+     * @see Class.getResource
+     */
+    fun setIconFromResource(resource: URL) {
+        base64EncodedIcon.value =
+            Base64.getEncoder().encode(resource.readBytes()).decodeToString()
+    }
+
+    /**
+     * Set the server description from a [Component]
+     *
+     * @param description The description
+     */
+    fun setDescription(description: Component) {
+        this.description.value = description
+    }
+
+    /**
+     * Set the server description (MOTD string)
+     *
+     * @param description The description
+     */
+    fun setDescription(description: String) = setDescription(description.toComponent())
 
     fun getCache(): ServerStatus {
         if(!this::cache.isInitialized) updateCache()
@@ -40,10 +93,10 @@ object ServerStatusManager {
                 online = PlayerManager.players.size,
                 sample = playersOnline,
             ),
-            description = "${Branding.logo} <gray>Custom Kotlin Server Implementation".toComponent(),
+            description = description.value,
             enforceSecureChat = false,
             previewsChat = false,
-            favicon = "data:image/png;base64,$base64EncodedIcon"
+            favicon = "data:image/png;base64,${base64EncodedIcon.value}"
         )
     }
     private val json = getCache().toJson()
