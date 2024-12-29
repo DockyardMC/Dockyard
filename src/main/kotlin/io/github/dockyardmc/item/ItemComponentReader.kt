@@ -94,7 +94,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             this.readConsumeEffects()
         )
 
-        UseRemainderItemComponent::class -> UseRemainderItemComponent(this.readItemStack())
+        UseRemainderItemComponent::class -> UseRemainderItemComponent(ItemStack.read(this))
         UseCooldownItemComponent::class -> {
             val cooldown = this.readFloat()
             val group = this.readOptionalOrDefault("minecraft:all")
@@ -153,8 +153,8 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         MapIdItemComponent::class -> MapIdItemComponent(this.readVarInt())
         MapDecorationsItemComponent::class -> MapDecorationsItemComponent(this.readNBT() as NBTCompound)
         MapPostProcessingItemComponent::class -> MapPostProcessingItemComponent(this.readVarIntEnum<MapPostProcessing>())
-        ChargedProjectilesItemComponent::class -> ChargedProjectilesItemComponent(this.readItemStackList())
-        BundleContentsItemComponent::class -> BundleContentsItemComponent(this.readItemStackList())
+        ChargedProjectilesItemComponent::class -> ChargedProjectilesItemComponent(this.readList<ItemStack> { ItemStack.read(this) })
+        BundleContentsItemComponent::class -> BundleContentsItemComponent(this.readList<ItemStack> { ItemStack.read(this) })
         PotionContentsItemComponent::class -> {
             val potion = this.readOptionalOrNull<PotionEffect>()
             val color = this.readOptionalOrNull<CustomColor>()
@@ -231,7 +231,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         BannerPatternsItemComponent::class -> BannerPatternsItemComponent(this.readBannerPatternLayerList())
         BaseColorItemComponent::class -> BaseColorItemComponent(this.readVarIntEnum<DyeColor>())
         PotDecorationsItemComponent::class -> PotDecorationsItemComponent()
-        ContainerItemComponent::class -> ContainerItemComponent(this.readItemStackList())
+        ContainerItemComponent::class -> ContainerItemComponent(this.readList<ItemStack> { ItemStack.read(this) })
         BlockStateItemComponent::class -> {
             val map = mutableMapOf<String, String>()
             for (i in 0 until this.readVarInt()) {

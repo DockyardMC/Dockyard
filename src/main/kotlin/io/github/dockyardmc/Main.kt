@@ -9,15 +9,13 @@ import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.inventory.give
-import io.github.dockyardmc.item.ConsumableAnimation
-import io.github.dockyardmc.item.ConsumableItemComponent
+import io.github.dockyardmc.item.ItemRarity
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.itemStack
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.registry.Sounds
-import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.utils.DebugSidebar
 import io.github.dockyardmc.world.WorldManager
 
@@ -46,7 +44,6 @@ fun main(args: Array<String>) {
         }
     }
 
-
     Events.on<PlayerJoinEvent> {
         val player = it.player
 
@@ -58,18 +55,15 @@ fun main(args: Array<String>) {
 
         player.addPotionEffect(PotionEffects.NIGHT_VISION, -1, 0, false)
 
-        val item = ItemStack(Items.SWEET_BERRIES, 10)
-        item.components.add(
-            ConsumableItemComponent(
-                2f,
-                ConsumableAnimation.EAT,
-                Sound(Sounds.ENTITY_GENERIC_EAT),
-                true,
-                listOf()
-            )
-        )
+        val item = ItemStack(Items.SWEET_BERRIES, 10).withConsumable(0.1f).withFood(2, 0f, true).withRarity(ItemRarity.EPIC)
+        val head = itemStack {
+            withMaterial(Items.JUNGLE_BOAT)
+            withCustomModelData(1)
+            withGlider(true)
+            withDisplayName("<rainbow>AAAAAAAAAAAAAAAAAAAAAAAAA")
+        }
 
-        player.give(item)
+        player.give(item, head)
     }
 
     Events.on<PlayerLeaveEvent> {
@@ -95,6 +89,5 @@ fun main(args: Array<String>) {
             }
         }
     }
-
     server.start()
 }

@@ -43,3 +43,4 @@ map.schem
 test.schem
 changelog.md
 src/main/kotlin/io/github/dockyardmc/Main.kt
+.profileconfig.json

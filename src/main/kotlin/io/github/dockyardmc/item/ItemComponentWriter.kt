@@ -67,7 +67,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
             this.writeConsumeEffects(component.consumeEffects)
         }
 
-        is UseRemainderItemComponent -> this.writeItemStack(component.itemStack)
+        is UseRemainderItemComponent -> component.itemStack.write(this)
         is UseCooldownItemComponent -> {
             this.writeFloat(component.cooldownSeconds)
             this.writeOptional(component.cooldownGroup) { it.writeString(component.cooldownGroup!!) }

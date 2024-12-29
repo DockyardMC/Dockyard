@@ -3,7 +3,6 @@ package io.github.dockyardmc.entity
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.writeItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.player.Direction
@@ -45,7 +44,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.STRING -> this.writeString(v as String)
         EntityMetaValue.TEXT_COMPONENT -> this.writeNBT((metadata.value as Component).toNBT())
         EntityMetaValue.OPTIONAL_TEXT_COMPONENT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeNBT((metadata.value as Component).toNBT()) }
-        EntityMetaValue.ITEM_STACK -> this.writeItemStack(v as ItemStack)
+        EntityMetaValue.ITEM_STACK -> (v as ItemStack).write(this)
         EntityMetaValue.BOOLEAN -> this.writeBoolean(v as Boolean)
         EntityMetaValue.ROTATION -> this.writeVector3f(v as Vector3f)
         EntityMetaValue.POSITION -> this.writeLocation(v as Location)

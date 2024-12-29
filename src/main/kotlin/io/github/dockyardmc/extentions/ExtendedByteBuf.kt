@@ -1,6 +1,5 @@
 package io.github.dockyardmc.extentions
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.AppliedPotionEffectSettings
@@ -36,6 +35,15 @@ fun ByteBuf.writeOptional(item: Any?, unit: (ByteBuf) -> Unit) {
     }
 }
 
+fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
+    val list = mutableListOf<T>()
+    val size = this.readVarInt()
+    for (i in 0 until size) {
+        list.add(reader.invoke(this))
+    }
+    return list.toList()
+}
+
 fun ByteBuf.writeTextComponent(component: Component) {
     component.italic = false
     this.writeNBT(component.toNBT())
@@ -48,7 +56,7 @@ fun ByteBuf.writeTextComponent(text: String) {
 fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
     this.writeVarInt(list.size)
     list.forEach {
-        this.writeItemStack(it)
+        it.write(this)
     }
 }
 
@@ -311,7 +319,7 @@ inline fun <reified T : Any> ByteBuf.readOptionalOrNull(): T? {
         Double::class -> this.readDouble() as T
         Long::class -> this.readLong() as T
         UUID::class -> this.readUUID() as T
-        ItemStack::class -> this.readItemStack() as T
+        ItemStack::class -> ItemStack.read(this) as T
         Byte::class -> this.readByte() as T
         Vector3::class -> this.readVector3() as T
         Vector3d::class -> this.readVector3d() as T

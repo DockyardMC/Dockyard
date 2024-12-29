@@ -4,7 +4,6 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.writeItemStack
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 
 class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: Map<EquipmentSlot, ItemStack>): ClientboundPacket() {
@@ -27,7 +26,7 @@ class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: Map
             if (!last) slotEnum = (slotEnum.toInt() or 0x80).toByte()
 
             data.writeByte(slotEnum.toInt())
-            data.writeItemStack(it.value)
+            it.value.write(data)
         }
     }
 

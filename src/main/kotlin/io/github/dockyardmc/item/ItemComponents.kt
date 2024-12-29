@@ -1,6 +1,5 @@
 package io.github.dockyardmc.item
 
-import cz.lukynka.BindableList
 import io.github.dockyardmc.attributes.Modifier
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockPredicate
@@ -8,6 +7,7 @@ import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.registry.AppliedPotionEffect
+import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
@@ -96,6 +96,7 @@ object ItemComponents  {
 }
 
 interface ItemComponent {
+
 }
 
 data class CustomDataItemComponent(
@@ -179,14 +180,14 @@ class IntangibleProjectileItemComponent(): ItemComponent
 //TODO Potion effects
 data class FoodItemComponent(
     var nutrition: Int,
-    var saturation: Float,
+    var saturation: Float = 0f,
     var canAlwaysEat: Boolean = true,
 ): ItemComponent
 
 data class ConsumableItemComponent(
     val consumeSeconds: Float = 1.6f,
     val animation: ConsumableAnimation = ConsumableAnimation.EAT,
-    val sound: Sound,
+    val sound: Sound = Sound(Sounds.ENTITY_GENERIC_EAT),
     val hasConsumeParticles: Boolean,
     val consumeEffects: List<ConsumeEffect>
 ): ItemComponent {
@@ -354,7 +355,7 @@ data class ContainerItemStack(
 fun ByteBuf.readContainerItemStack(): ContainerItemStack {
     return ContainerItemStack(
         this.readVarInt(),
-        this.readItemStack()
+        ItemStack.read(this)
     )
 }
 
@@ -375,7 +376,7 @@ fun ByteBuf.writeContainerItemStackList(list: Collection<ContainerItemStack>) {
 
 fun ByteBuf.writeContainerItemStack(containerItemStack: ContainerItemStack) {
     this.writeVarInt(containerItemStack.slot)
-    this.writeItemStack(containerItemStack.itemStack)
+    containerItemStack.itemStack.write(this)
 }
 
 data class BlockStateItemComponent(val states: Map<String, String>): ItemComponent
@@ -460,32 +461,31 @@ fun ByteBuf.readBookPages(): List<BookPage> {
     return pages
 }
 
-fun BindableList<ItemComponent>.addOrUpdate(newComponent: ItemComponent) {
-    if(this.values.firstOrNull { it::class == newComponent::class } != null) {
-        val index = this.values.indexOfFirst { it::class == newComponent::class }
-        this.setIndex(index, newComponent)
+fun MutableList<ItemComponent>.addOrUpdate(newComponent: ItemComponent) {
+    if(this.firstOrNull { it::class == newComponent::class } != null) {
+        val index = this.indexOfFirst { it::class == newComponent::class }
+        this[index] = newComponent
     } else {
         this.add(newComponent)
     }
 }
 
-fun BindableList<ItemComponent>.removeByType(type: KClass<*>) {
-    this.values.forEach { if (it::class == type) this.remove(it) }
+fun MutableList<ItemComponent>.removeByType(type: KClass<*>) {
+    this.forEach { if (it::class == type) this.remove(it) }
 }
 
-fun BindableList<ItemComponent>.hasType(type: KClass<*>): Boolean =
-    this.values.firstOrNull { it::class == type } != null
+fun Collection<ItemComponent>.hasType(type: KClass<*>): Boolean =
+    this.firstOrNull { it::class == type } != null
 
 @Suppress("UNCHECKED_CAST")
-fun <T : ItemComponent> BindableList<ItemComponent>.getOrNull(type: KClass<T>): T? {
-    val component =  this.values.firstOrNull { it::class == type }
+fun <T : ItemComponent> Collection<ItemComponent>.getOrNull(type: KClass<T>): T? {
+    val component =  this.firstOrNull { it::class == type }
     return if(component == null) null else component as T
 }
 
-
 @Suppress("UNCHECKED_CAST")
-fun <T> BindableList<ItemComponent>.firstOrNullByType(type: KClass<*>): T? {
-    val value = this.values.firstOrNull { it::class == type } ?: return null
+fun <T> Collection<ItemComponent>.firstOrNullByType(type: KClass<*>): T? {
+    val value = this.firstOrNull { it::class == type } ?: return null
     return value as T
 }
 

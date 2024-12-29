@@ -129,6 +129,10 @@ fun Player.give(itemStack: ItemStack): Boolean {
     return this.inventory.give(itemStack)
 }
 
+fun Player.give(vararg itemStack: ItemStack) {
+    itemStack.forEach(::give)
+}
+
 fun Player.clearInventory() {
     this.inventory.clear()
 }

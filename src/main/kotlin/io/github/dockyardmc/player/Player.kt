@@ -417,8 +417,7 @@ class Player(
     fun playTotemAnimation(customModelData: Int? = null) {
         val held = getHeldItem(PlayerHand.MAIN_HAND)
         if(customModelData != null) {
-            val totem = ItemStack(Items.TOTEM_OF_UNDYING)
-            totem.customModelData = customModelData
+            val totem = ItemStack(Items.TOTEM_OF_UNDYING).withCustomModelData(customModelData)
             inventory[heldSlotIndex.value] = totem
         }
         val packet = ClientboundEntityEventPacket(this, EntityEvent.PLAYER_PLAY_TOTEM_ANIMATION)

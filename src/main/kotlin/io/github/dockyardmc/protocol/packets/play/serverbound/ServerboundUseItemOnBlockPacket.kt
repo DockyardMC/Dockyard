@@ -170,9 +170,11 @@ class ServerboundUseItemOnBlockPacket(
             }
 
             player.world.setBlock(blockPlaceEvent.location, blockPlaceEvent.block)
-            val heldItem = player.getHeldItem(PlayerHand.MAIN_HAND)
-            val newItem = if(heldItem.amount - 1 == 0) ItemStack.AIR else heldItem.withAmount(heldItem.amount - 1)
-            player.setHeldItem(PlayerHand.MAIN_HAND, newItem)
+            if(player.gameMode.value != GameMode.CREATIVE) {
+                val heldItem = player.getHeldItem(PlayerHand.MAIN_HAND)
+                val newItem = if(heldItem.amount - 1 == 0) ItemStack.AIR else heldItem.withAmount(heldItem.amount - 1)
+                player.setHeldItem(PlayerHand.MAIN_HAND, newItem)
+            }
         }
     }
 
