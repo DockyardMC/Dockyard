@@ -509,26 +509,26 @@ class ServerboundClickContainerPacket(
     }
 
     companion object {
-        fun read(buf: ByteBuf): ServerboundClickContainerPacket {
-            val windowsId = buf.readVarInt()
-            val stateId = buf.readVarInt()
-            val slot = buf.readShort().toInt()
-            val button = buf.readByte().toInt()
-            val mode = buf.readVarIntEnum<ContainerClickMode>()
+        fun read(buffer: ByteBuf): ServerboundClickContainerPacket {
+            val windowsId = buffer.readVarInt()
+            val stateId = buffer.readVarInt()
+            val slot = buffer.readShort().toInt()
+            val button = buffer.readByte().toInt()
+            val mode = buffer.readVarIntEnum<ContainerClickMode>()
             val changedSlots = mutableMapOf<Int, ItemStack>()
 
-            val arraySize = buf.readVarInt()
+            val arraySize = buffer.readVarInt()
             for (i in 0 until arraySize) {
-                val slotNumber = buf.readShort().toInt()
-                val slotData = buf.readItemStack()
+                val slotNumber = buffer.readShort().toInt()
+                val slotData = ItemStack.read(buffer)
                 changedSlots[slotNumber] = slotData
             }
 
-            val carriedItem = buf.readItemStack()
+            val carriedItem = ItemStack.read(buffer)
 
-            val rest = buf.readableBytes()
-            buf.readBytes(rest)
-            buf.clear()
+            val rest = buffer.readableBytes()
+            buffer.readBytes(rest)
+            buffer.clear()
 
             return ServerboundClickContainerPacket(
                 windowsId,

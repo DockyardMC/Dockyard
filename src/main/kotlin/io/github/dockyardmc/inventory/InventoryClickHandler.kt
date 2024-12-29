@@ -66,7 +66,7 @@ object InventoryClickHandler {
             } else {
                 if(clicked.isEmpty()) {
                     // put 1 to clicked
-                    result.cursor = cursor.withAmount { it - 1}
+                    result.cursor = cursor.withAmount(cursor.amount - 1)
                     result.clicked = cursor.withAmount(1)
                 } else {
                     // swap items

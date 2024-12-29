@@ -35,15 +35,18 @@ class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
             if ((world.worldAge % 5) == 0L) {
                 val viewers = world.players.toMutableList().filter { it != player }
                 viewers.playSound(item.material.consumeSound, location, 1f, randomFloat(0.9f, 1.3f))
-                viewers.spawnParticle(
-                    location.clone().apply { y += 1.5 },
-                    Particles.ITEM,
-                    Vector3f(0.2f),
-                    0.05f,
-                    6,
-                    false,
-                    ItemParticleData(item)
-                )
+                val particles = consumableItemComponent?.hasConsumeParticles ?: true
+                if(particles) {
+                    viewers.spawnParticle(
+                        location.clone().apply { y += 1.5 },
+                        Particles.ITEM,
+                        Vector3f(0.2f),
+                        0.05f,
+                        6,
+                        false,
+                        ItemParticleData(item)
+                    )
+                }
             }
 
             if (world.worldAge - player.itemInUse!!.startTime >= player.itemInUse!!.time && player.itemInUse!!.time > 0) {

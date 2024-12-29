@@ -19,17 +19,17 @@ class DrawableItemStack {
     }
 
     fun withName(name: String) {
-        itemStack.displayName.value = name
+        itemStack.withDisplayName(name)
     }
 
     fun addLoreLine(lore: String) {
-        val mut = itemStack.lore.toMutableList()
+        val mut = itemStack.existingMeta?.lore?.toMutableList() ?: mutableListOf()
         mut.add(lore)
-        itemStack.lore = mut
+        itemStack.withLore(mut)
     }
 
     fun withComponent(component: ItemComponent) {
-        itemStack.components.add(component)
+        itemStack.withComponent(component)
     }
 
     fun onClick(unit: (Player, DrawableClickType) -> Unit) {

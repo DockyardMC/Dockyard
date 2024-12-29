@@ -1,11 +1,12 @@
 package io.github.dockyardmc.item
 
-import cz.lukynka.Bindable
-import cz.lukynka.BindableList
+import io.github.dockyardmc.attributes.AttributeModifier
 import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.protocol.ProtocolWritable
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.scroll.Component
@@ -17,41 +18,136 @@ import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.*
 import java.io.UnsupportedEncodingException
 
-@Suppress("UNCHECKED_CAST")
-class ItemStack(var material: Item, var amount: Int = 1) {
+data class ItemStack(
+    var material: Item,
+    var amount: Int = 1,
+    val components: List<ItemComponent> = listOf(),
+    val existingMeta: ItemStackMeta? = null,
+    val attributes: Collection<AttributeModifier> = listOf()
+) : ProtocolWritable {
 
-    val components: BindableList<ItemComponent> = BindableList()
-    val displayName: Bindable<String> = Bindable(material.displayName)
+    constructor(material: Item, amount: Int = 1, vararg components: ItemComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toList(), attributes = attributes)
+    constructor(material: Item, vararg components: ItemComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toList(), attributes = attributes)
+    constructor(material: Item, components: List<ItemComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components, attributes = attributes)
 
-    var lore: List<String>
-        get() { return components.getOrNull(LoreItemComponent::class)?.lines?.map { it.toString() } ?: listOf() }
-        set(value) { components.addOrUpdate(LoreItemComponent(value.map { it.toComponent() })) }
+    companion object {
+        val AIR = ItemStack(Items.AIR, 1)
 
-    var customModelData: Int
-        get() { return components.getOrNull(CustomModelDataItemComponent::class)?.customModelData ?: 0 }
-        set(value) { components.addOrUpdate(CustomModelDataItemComponent(value)) }
+        fun read(buffer: ByteBuf): ItemStack {
+            val count = buffer.readVarInt()
+            if(count <= 0) return ItemStack.AIR
 
-    var maxStackSize: Int
-        get() { return components.getOrNull(MaxStackSizeItemComponent::class)?.maxStackSize ?: 64 }
-        set(value) { components.addOrUpdate(MaxStackSizeItemComponent(value)) }
+            val itemId = buffer.readVarInt()
+            val componentsToAdd = buffer.readVarInt()
+            val componentsToRemove = buffer.readVarInt()
 
-    var unbreakable: Boolean
-        get() { return components.getOrNull(UnbreakableItemComponent::class) != null }
-        set(value) {
-            if(value) {
-                components.removeByType(UnbreakableItemComponent::class)
-            } else {
-                components.addOrUpdate(UnbreakableItemComponent(false))
+            val components: MutableList<ItemComponent> = mutableListOf()
+            val removeComponents: MutableList<ItemComponent> = mutableListOf()
+
+            for (i in 0 until componentsToAdd) {
+                val type = buffer.readVarInt()
+                val component = buffer.readComponent(type)
+                components.add(component)
             }
+            for (i in 0 until componentsToRemove) {
+                val type = buffer.readVarInt()
+            }
+
+            var item = ItemStack(ItemRegistry.getByProtocolId(itemId), count)
+            components.forEach { item = item.withComponent(it) }
+
+            return item
+        }
+    }
+
+    override fun write(buffer: ByteBuf) {
+        if(this.material == Items.AIR) {
+            buffer.writeVarInt(0)
+            return
         }
 
-    var hasGlint: Boolean
+        buffer.writeVarInt(this.amount)
+        buffer.writeVarInt(this.material.getProtocolId())
+        buffer.writeVarInt(this.components.size)
+        buffer.writeVarInt(0)
+        this.components.forEach { buffer.writeItemComponent(it) }
+    }
+
+    fun withCustomModelData(customModelData: Int): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withCustomModelData(customModelData) }.toItemStack()
+    }
+
+    fun withDisplayName(displayName: String): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withDisplayName(displayName) }.toItemStack()
+    }
+
+    fun withFood(nutrition: Int, saturation: Float = 0f, canAlwaysEat: Boolean = true): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withFood(nutrition, saturation, canAlwaysEat) }.toItemStack()
+    }
+
+    fun withHideTooltip(hideTooltip: Boolean): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withHideTooltip(hideTooltip) }.toItemStack()
+    }
+
+    fun withComponent(vararg component: ItemComponent): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withComponent(component.toList()) }.toItemStack()
+    }
+
+    fun withConsumable(
+        consumeTimeSeconds: Float,
+        animation: ConsumableAnimation = ConsumableAnimation.EAT,
+        sound: String = Sounds.ENTITY_GENERIC_EAT,
+        hasParticles: Boolean = true,
+        consumeEffects: List<ConsumeEffect> = listOf()
+    ): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withConsumable(consumeTimeSeconds, animation, sound, hasParticles, consumeEffects) }.toItemStack()
+    }
+
+    fun withRarity(rarity: ItemRarity): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withRarity(rarity) }.toItemStack()
+    }
+
+    fun withUnbreakable(unbreakable: Boolean): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withUnbreakable(unbreakable) }.toItemStack()
+    }
+
+    fun withMaxStackSize(maxStackSize: Int): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withMaxStackSize(maxStackSize) }.toItemStack()
+    }
+
+    fun withAmount(amount: Int): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withAmount(amount) }.toItemStack()
+    }
+
+    fun withLore(vararg lore: String): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withLore(lore.toList()) }.toItemStack()
+    }
+
+    fun withLore(lore: List<String>): ItemStack {
+        return ItemStackMeta.fromItemStack(this).apply { withLore(lore) }.toItemStack()
+    }
+
+    fun editMeta(builder: ItemStackMeta.() -> Unit): ItemStack {
+        val meta = ItemStackMeta.fromItemStack(this)
+        meta.apply(builder)
+        return meta.toItemStack()
+    }
+
+    val customModelData: Int
+        get() { return components.getOrNull(CustomModelDataItemComponent::class)?.customModelData ?: 0 }
+
+    val maxStackSize: Int
+        get() { return components.getOrNull(MaxStackSizeItemComponent::class)?.maxStackSize ?: 64 }
+
+    val unbreakable: Boolean
+        get() { return components.getOrNull(UnbreakableItemComponent::class) != null }
+
+    val hasGlint: Boolean
         get() { return components.getOrNull(EnchantmentGlintOverrideItemComponent::class)?.hasGlint ?: false }
-        set(value) { components.addOrUpdate(EnchantmentGlintOverrideItemComponent(value)) }
 
 
     private val customDataHolder = CustomDataHolder()
-    var customData: Bindable<NBTCompound> = Bindable(NBT.Compound())
+    var customData: NBTCompound  = NBTCompound.EMPTY
 
     fun <T : Any> setCustomData(key: String, value: T) {
         customDataHolder[key] = value
@@ -87,7 +183,7 @@ class ItemStack(var material: Item, var amount: Int = 1) {
     }
 
     private fun rebuildCustomDataNbt() {
-        customData.value = NBT.Compound { nbt ->
+        customData = NBT.Compound { nbt ->
             customDataHolder.dataStore.forEach {
                 when(it.value) {
                     is String -> nbt.put(it.key, it.value as String)
@@ -106,33 +202,9 @@ class ItemStack(var material: Item, var amount: Int = 1) {
         return getCustomDataOrNull<T>(key) ?: throw IllegalArgumentException("Value for key $key not found in data holder")
     }
 
-    init {
-        displayName.valueChanged { components.addOrUpdate(CustomNameItemComponent(it.newValue.toComponent())) }
-        customData.valueChanged { components.addOrUpdate(CustomDataItemComponent(it.newValue)) }
-        if(amount <= 0) amount = 1
-    }
-
-    companion object {
-        val AIR = ItemStack(Items.AIR, 1)
-    }
-
     fun isEmpty(): Boolean = this.isSameAs(AIR)
 
-    fun withAmount(amount: Int): ItemStack {
-        val newItemStack = ItemStack(material, amount)
-        newItemStack.components.addAll(components.values, true)
-        return newItemStack
-    }
-
-    fun withAmount(amount: (Int) -> Int): ItemStack {
-        val newAmount = this.amount + 0
-        amount.invoke(newAmount)
-        val newItemStack = ItemStack(material, newAmount)
-        newItemStack.components.addAll(components.values, true)
-        return newItemStack
-    }
-
-    override fun toString(): String = "ItemStack(${material.identifier}, ${components.values}, $amount)".stripComponentTags()
+    override fun toString(): String = "ItemStack(${material.identifier}, ${components}, $amount)".stripComponentTags()
 
     override fun equals(other: Any?): Boolean {
         if(other == null || other !is ItemStack) return false
@@ -146,63 +218,11 @@ fun Collection<String>.toComponents(): Collection<Component> {
     return components
 }
 
-fun ByteBuf.readItemStackList(): List<ItemStack> {
-    val list = mutableListOf<ItemStack>()
-    for (i in 0 until this.readVarInt()) {
-        list.add(this.readItemStack())
-    }
-    return list
-}
-
-fun ByteBuf.readItemStack(): ItemStack {
-    val count = this.readVarInt()
-    if(count <= 0) return ItemStack.AIR
-
-    val itemId = this.readVarInt()
-    val componentsToAdd = this.readVarInt()
-    val componentsToRemove = this.readVarInt()
-
-    val components: MutableList<ItemComponent> = mutableListOf()
-    val removeComponents: MutableList<ItemComponent> = mutableListOf()
-
-    for (i in 0 until componentsToAdd) {
-        val type = this.readVarInt()
-        val component = this.readComponent(type)
-        components.add(component)
-    }
-    for (i in 0 until componentsToRemove) {
-        val type = this.readVarInt()
-//        removeComponents.add(ItemCom)
-    }
-
-    val item = ItemStack(ItemRegistry.getByProtocolId(itemId), count)
-    components.forEach { item.components.add(it) }
-
-    return item
-}
-
-
-fun ByteBuf.writeItemStack(itemStack: ItemStack) {
-    if(itemStack.material == Items.AIR) {
-        this.writeVarInt(0)
-        return
-    }
-
-    this.writeVarInt(itemStack.amount)
-    this.writeVarInt(itemStack.material.getProtocolId())
-    this.writeVarInt(itemStack.components.size)
-    this.writeVarInt(0)
-    itemStack.components.values.forEach { this.writeItemComponent(it) }
-}
-
 fun ItemStack.clone(): ItemStack {
-    val itemStack = ItemStack(this.material, this.amount)
-    itemStack.components.setValues(this.components.values.toMutableList())
-
-    return itemStack
+    return ItemStack(material, amount, components, existingMeta, attributes)
 }
 
-fun ItemStack.toComparisonString(): String = "ItemStack(${this.components.values};${this.material.identifier})".stripComponentTags()
+fun ItemStack.toComparisonString(): String = "ItemStack(${this.components};${this.material.identifier})".stripComponentTags()
 
 fun ItemStack.isSameAs(other: ItemStack): Boolean {
     return this.toComparisonString() == other.toComparisonString()

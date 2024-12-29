@@ -13,37 +13,39 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPickupI
 class EntityItemPickupHandler(override val entity: Entity) : TickableEntityHandler {
 
     override fun tick() {
-        val world = entity.world
-        val location = entity.location
+        synchronized(entity) {
+            val world = entity.world
+            val location = entity.location
 
-        if(!ConfigManager.config.implementationConfig.itemDroppingAndPickup) return
-        val drops = world.entities.filterIsInstance<ItemDropEntity>()
-        if (entity.inventorySize <= 0) return
-        drops.toList().forEach { drop ->
-            if (entity is Player && !drop.viewers.contains(entity)) return@forEach
-            if (!drop.canBePickedUp) return@forEach
-            if (drop.location.distance(location) > drop.pickupDistance) return@forEach
+            if(!ConfigManager.config.implementationConfig.itemDroppingAndPickup) return
+            val drops = world.entities.filterIsInstance<ItemDropEntity>()
+            if (entity.inventorySize <= 0) return
+            drops.toList().forEach { drop ->
+                if (entity is Player && !drop.viewers.contains(entity)) return@forEach
+                if (!drop.canBePickedUp) return@forEach
+                if (drop.location.distance(location) > drop.pickupDistance) return@forEach
 
-            val itemStack = drop.itemStack.value
+                val itemStack = drop.itemStack.value
 
-            val eventContext = Event.Context(
-                setOf(),
-                setOf(drop, entity),
-                setOf(entity.world),
-                setOf(entity.location, drop.location)
-            )
-            val event = EntityPickupItemEvent(entity, itemStack, eventContext)
-            if (event.cancelled) return@forEach
+                val eventContext = Event.Context(
+                    setOf(),
+                    setOf(drop, entity),
+                    setOf(entity.world),
+                    setOf(entity.location, drop.location)
+                )
+                val event = EntityPickupItemEvent(entity, itemStack, eventContext)
+                if (event.cancelled) return@forEach
 
-            if (entity.canPickupItem(drop, itemStack)) {
-                val mutualViewers = drop.viewers.filter { entity.viewers.contains(it) }
-                if (drop.pickupAnimation) {
-                    val packet = ClientboundPickupItemPacket(drop, entity, itemStack)
-                    mutualViewers.sendPacket(packet)
-                    if (entity is Player) entity.sendPacket(packet)
+                if (entity.canPickupItem(drop, itemStack)) {
+                    val mutualViewers = drop.viewers.filter { entity.viewers.contains(it) }
+                    if (drop.pickupAnimation) {
+                        val packet = ClientboundPickupItemPacket(drop, entity, itemStack)
+                        mutualViewers.sendPacket(packet)
+                        if (entity is Player) entity.sendPacket(packet)
+                    }
+                    drop.world.despawnEntity(drop)
+                    return@forEach
                 }
-                drop.world.despawnEntity(drop)
-                return@forEach
             }
         }
     }
