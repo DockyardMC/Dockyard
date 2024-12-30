@@ -1,5 +1,7 @@
 package io.github.dockyardmc.ui.examples
 
+import cz.lukynka.prettylog.log
+import io.github.dockyardmc.item.itemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
@@ -35,12 +37,14 @@ class ExampleMinesweeperScreen(player: Player, val bombs: Int) : DrawableContain
 
     private fun hiddenTile(index: Int): DrawableItemStack {
         return drawableItemStack {
-            withItem(Items.BLACK_STAINED_GLASS_PANE)
-            withName("<aqua>?????")
-            addLoreLine("")
-            addLoreLine("<gray>Left Click: <yellow>Reveal Tile")
-            addLoreLine("<gray>Right Click: <yellow>Flag a Mine")
-            addLoreLine("")
+            withItem {
+                withMaterial(Items.BLACK_STAINED_GLASS_PANE)
+                withDisplayName("<aqua>?????")
+                addLore("")
+                addLore("<gray>Left Click: <yellow>Reveal Tile")
+                addLore("<gray>Right Click: <yellow>Flag a Mine")
+                addLore("")
+            }
             onClick { player, drawableClickType ->
                 when (drawableClickType) {
                     DrawableClickType.LEFT_CLICK -> {
@@ -60,9 +64,14 @@ class ExampleMinesweeperScreen(player: Player, val bombs: Int) : DrawableContain
                             else -> Items.RED_STAINED_GLASS_PANE to "<red>"
                         }
 
+                        log("$item")
+
                         slots[vec2.x, vec2.y] = drawableItemStack {
-                            withItem(item.first, numMines)
-                            withName("${item.second}<u>$numMines of mines")
+                            withItem {
+                                withMaterial(item.first)
+                                withDisplayName("${item.second}<u>$numMines of mines")
+                                withAmount(numMines)
+                            }
                         }
                     }
 
@@ -86,8 +95,10 @@ class ExampleMinesweeperScreen(player: Player, val bombs: Int) : DrawableContain
             .map { getVector2FromSlotIndex(it) }
             .forEach {
                 slots[it.x, it.y] = drawableItemStack {
-                    withItem(Items.TNT_MINECART)
-                    withName("<red><bold>BOMB")
+                    withItem(itemStack {
+                        withMaterial(Items.TNT)
+                        withDisplayName("<red><bold>BOMB")
+                    })
                 }
             }
     }

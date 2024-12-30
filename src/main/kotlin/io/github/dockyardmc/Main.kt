@@ -1,6 +1,7 @@
 package io.github.dockyardmc
 
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
@@ -11,11 +12,12 @@ import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemRarity
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.itemStack
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
+import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
+import io.github.dockyardmc.ui.examples.ExampleMinesweeperScreen
 import io.github.dockyardmc.utils.DebugSidebar
 import io.github.dockyardmc.world.WorldManager
 
@@ -56,14 +58,22 @@ fun main(args: Array<String>) {
         player.addPotionEffect(PotionEffects.NIGHT_VISION, -1, 0, false)
 
         val item = ItemStack(Items.SWEET_BERRIES, 10).withConsumable(0.1f).withFood(2, 0f, true).withRarity(ItemRarity.EPIC)
-        val head = itemStack {
-            withMaterial(Items.JUNGLE_BOAT)
-            withCustomModelData(1)
-            withGlider(true)
-            withDisplayName("<rainbow>AAAAAAAAAAAAAAAAAAAAAAAAA")
-        }
+        player.give(item)
+    }
 
-        player.give(item, head)
+    Commands.add("/minesweeper") {
+        addArgument("mines", IntArgument())
+        execute {
+            val player = it.getPlayerOrThrow()
+            player.openInventory(ExampleMinesweeperScreen(player, getArgument("mines")))
+        }
+    }
+
+    Commands.add("/cookie") {
+        execute {
+            val player = it.getPlayerOrThrow()
+            player.openInventory(ExampleCookieClickerScreen(player))
+        }
     }
 
     Events.on<PlayerLeaveEvent> {

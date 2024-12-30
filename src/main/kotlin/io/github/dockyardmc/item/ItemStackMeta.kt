@@ -42,7 +42,7 @@ class ItemStackMeta {
     }
 
     fun withDisplayName(displayName: String) {
-        components.addOrUpdate(CustomNameItemComponent(displayName.toComponent()))
+        components.addOrUpdate(CustomNameItemComponent("<r></u>$displayName".toComponent()))
     }
 
     fun withDyedColor(color: CustomColor) {
@@ -95,6 +95,11 @@ class ItemStackMeta {
                 consumeEffects
             )
         )
+    }
+
+    fun buildLoreComponent() {
+        val component = LoreItemComponent(lore.map { "<r><gray>$it" }.toComponents())
+        components.addOrUpdate(component)
     }
 
     fun toItemStack(): ItemStack {
@@ -150,7 +155,7 @@ class ItemStackMeta {
     }
 
     fun withAmount(amount: Int) {
-        this.amount = amount
+        if(amount <= 0) this.amount = 1 else this.amount = amount
     }
 
     fun withLore(lore: List<String>) {
@@ -178,11 +183,13 @@ fun itemStack(builder: ItemStackMeta.() -> Unit): ItemStack {
     val meta: ItemStackMeta = ItemStackMeta()
     builder.invoke(meta)
 
+    meta.buildLoreComponent()
     val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes)
-    return itemStack
+    return itemStack.clone()
 }
 
 fun itemStack(meta: ItemStackMeta): ItemStack {
+    meta.buildLoreComponent()
     val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes)
-    return itemStack
+    return itemStack.clone()
 }

@@ -1,8 +1,7 @@
 package io.github.dockyardmc.ui.examples
 
 import cz.lukynka.Bindable
-import io.github.dockyardmc.item.EnchantmentGlintOverrideItemComponent
-import io.github.dockyardmc.item.MaxStackSizeItemComponent
+import io.github.dockyardmc.item.itemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
@@ -33,13 +32,15 @@ class ExampleCookieClickerScreen(player: Player): DrawableContainerScreen(player
 
         cookies.valueChanged {
             slots[4, 2] = drawableItemStack {
-                withItem(Items.COOKIE, it.newValue)
-                withName("<orange><b><u><i>Cookie<reset> <gray>(Click)")
-                addLoreLine("")
-                addLoreLine("<gray>You currently have <aqua>${it.newValue} cookies<gray>!")
-                addLoreLine("")
-                withComponent(MaxStackSizeItemComponent(255))
-                withComponent(EnchantmentGlintOverrideItemComponent(true))
+                withItem {
+                    withMaterial(Items.COOKIE)
+                    withDisplayName("<orange><b><u><i>Cookie<reset> <gray>(Click)")
+                    addLore(" ")
+                    addLore("<gray>You currently have <aqua>${it.newValue} cookies<gray>!")
+                    addLore(" ")
+                    withMaxStackSize(255)
+                    withEnchantmentGlint(true)
+                }
                 onClick { player, clickType ->
                     cookies.value++
                     player.playSound(Sounds.ENTITY_GENERIC_EAT, 1f, randomFloat(0.8f, 1.4f))

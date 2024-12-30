@@ -30,6 +30,10 @@ data class ItemStack(
     constructor(material: Item, vararg components: ItemComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toList(), attributes = attributes)
     constructor(material: Item, components: List<ItemComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components, attributes = attributes)
 
+    init {
+        if(amount <= 0) throw IllegalArgumentException("ItemStack amount cannot be less than 1")
+    }
+
     companion object {
         val AIR = ItemStack(Items.AIR, 1)
 
@@ -127,7 +131,7 @@ data class ItemStack(
         return ItemStackMeta.fromItemStack(this).apply { withLore(lore) }.toItemStack()
     }
 
-    fun editMeta(builder: ItemStackMeta.() -> Unit): ItemStack {
+    fun withMeta(builder: ItemStackMeta.() -> Unit): ItemStack {
         val meta = ItemStackMeta.fromItemStack(this)
         meta.apply(builder)
         return meta.toItemStack()

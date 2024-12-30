@@ -1,6 +1,8 @@
 package io.github.dockyardmc.ui
 
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.ItemStackMeta
+import io.github.dockyardmc.item.itemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.registries.Item
 
@@ -8,6 +10,10 @@ class DrawableItemStack {
 
     var itemStack: ItemStack = ItemStack.AIR
     var clickListener: ((Player, DrawableClickType) -> Unit)? = null
+
+    fun withItem(builder: ItemStackMeta.() -> Unit): ItemStack {
+        return itemStack(builder)
+    }
 
     fun withItem(itemStack: ItemStack) {
         this.itemStack = itemStack
