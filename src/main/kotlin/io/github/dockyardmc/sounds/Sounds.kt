@@ -19,6 +19,7 @@ class Sound(var identifier: String, var volume: Float = 0.5f, var pitch: Float =
     init {
         if(!identifier.contains(":")) identifier = "minecraft:$identifier"
     }
+
 }
 
 fun Player.playSound(sound: Sound, location: Location = this.location) {

@@ -20,6 +20,10 @@ object BannerPatternRegistry: DynamicRegistry {
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter =  AtomicInteger()
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     fun addEntry(entry: BannerPattern, updateCache: Boolean = true) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         bannerPatterns[entry.identifier] = entry

@@ -14,6 +14,8 @@ interface Registry {
     fun getByProtocolId(id: Int): RegistryEntry
 
     fun getMap(): Map<String, RegistryEntry>
+
+    fun getMaxProtocolId(): Int
 }
 
 interface DynamicRegistry: Registry {

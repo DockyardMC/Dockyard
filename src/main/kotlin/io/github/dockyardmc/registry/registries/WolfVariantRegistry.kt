@@ -16,6 +16,10 @@ object WolfVariantRegistry: DynamicRegistry {
 
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     val wolfVariants: MutableMap<String, WolfVariant> = mutableMapOf()
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter = AtomicInteger()

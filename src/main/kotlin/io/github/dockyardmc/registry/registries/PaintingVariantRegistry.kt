@@ -21,6 +21,10 @@ object PaintingVariantRegistry: DynamicRegistry {
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter = AtomicInteger()
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     fun addEntry(entry: PaintingVariant, updateCache: Boolean = true) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         paintingVariants[entry.identifier] = entry

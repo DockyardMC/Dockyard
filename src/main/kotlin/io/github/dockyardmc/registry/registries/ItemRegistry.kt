@@ -28,6 +28,10 @@ object ItemRegistry : DataDrivenRegistry {
     var items: MutableMap<String, Item> = mutableMapOf()
     var protocolIdToItem: MutableMap<Int, Item> = mutableMapOf()
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdToItem.keys.last()
+    }
+
     override fun initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<Item>>(stream)

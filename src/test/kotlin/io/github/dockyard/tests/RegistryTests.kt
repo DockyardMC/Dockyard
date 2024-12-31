@@ -1,5 +1,7 @@
 package io.github.dockyard.tests
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registry.BannerPatterns
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
@@ -14,7 +16,9 @@ import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.WolfVariants
+import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.ChatTypeRegistry
+import io.github.dockyardmc.utils.randomInt
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.Test
 
@@ -36,6 +40,8 @@ class RegistryTests {
             PotionEffects.OOZING
             Sounds.MUSIC_DISC_CREATOR_MUSIC_BOX
             WolfVariants.CHESTNUT
+            Blocks.HEAVY_CORE
+            Blocks.CREAKING_HEART
         }
     }
 
@@ -44,7 +50,13 @@ class RegistryTests {
         assertDoesNotThrow {
             RegistryManager.dynamicRegistries.forEach { registry ->
                 if(registry is ChatTypeRegistry) return@forEach // dockyard does not do chat type stuff
-                registry.getByProtocolId(0)
+                log("Testing registry ${registry.identifier}", LogType.DEBUG)
+                if(registry is BlockRegistry) {
+                    val random = registry.protocolIdToBlock.keys.random()
+                    registry.getByProtocolId(random)
+                } else {
+                    registry.getByProtocolId(randomInt(0, registry.getMaxProtocolId()))
+                }
             }
         }
     }

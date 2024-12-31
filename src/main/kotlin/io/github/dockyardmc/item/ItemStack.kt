@@ -1,5 +1,7 @@
 package io.github.dockyardmc.item
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.AttributeModifier
 import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.readVarInt
@@ -21,14 +23,14 @@ import java.io.UnsupportedEncodingException
 data class ItemStack(
     var material: Item,
     var amount: Int = 1,
-    val components: List<ItemComponent> = listOf(),
+    val components: Set<ItemComponent> = setOf(),
     val existingMeta: ItemStackMeta? = null,
     val attributes: Collection<AttributeModifier> = listOf()
 ) : ProtocolWritable {
 
-    constructor(material: Item, amount: Int = 1, vararg components: ItemComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toList(), attributes = attributes)
-    constructor(material: Item, vararg components: ItemComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toList(), attributes = attributes)
-    constructor(material: Item, components: List<ItemComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components, attributes = attributes)
+    constructor(material: Item, amount: Int = 1, vararg components: ItemComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toSet(), attributes = attributes)
+    constructor(material: Item, vararg components: ItemComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toSet(), attributes = attributes)
+    constructor(material: Item, components: Set<ItemComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components, attributes = attributes)
 
     init {
         if(amount <= 0) throw IllegalArgumentException("ItemStack amount cannot be less than 1")
@@ -70,11 +72,20 @@ data class ItemStack(
             return
         }
 
+        val itemComponents = mutableListOf<ItemComponent>()
+        itemComponents.addAll(this.components)
+        if(!customData.isEmpty()) {
+            itemComponents.add(CustomDataItemComponent(customData))
+        }
+
         buffer.writeVarInt(this.amount)
         buffer.writeVarInt(this.material.getProtocolId())
-        buffer.writeVarInt(this.components.size)
+        buffer.writeVarInt(itemComponents.size)
         buffer.writeVarInt(0)
-        this.components.forEach { buffer.writeItemComponent(it) }
+
+        itemComponents.forEach {
+            buffer.writeItemComponent(it)
+        }
     }
 
     fun withCustomModelData(customModelData: Int): ItemStack {
@@ -121,6 +132,10 @@ data class ItemStack(
 
     fun withAmount(amount: Int): ItemStack {
         return ItemStackMeta.fromItemStack(this).apply { withAmount(amount) }.toItemStack()
+    }
+
+    fun withAmount(amount: (Int) -> Int): ItemStack {
+        return withAmount(amount.invoke(this.amount))
     }
 
     fun withLore(vararg lore: String): ItemStack {
@@ -170,7 +185,11 @@ data class ItemStack(
     }
 
     private fun updateCustomDataHolderFromComponent() {
-        val component = components.getOrNull<CustomDataItemComponent>(CustomDataItemComponent::class) ?: return
+        val component = components.getOrNull<CustomDataItemComponent>(CustomDataItemComponent::class)
+        if(component == null) {
+            log("Custom Data Component Not Found: $components", LogType.CRITICAL)
+            return
+        }
         component.data.forEach {
             val value = when(it.value) {
                 is NBTString -> (it.value as NBTString).value
