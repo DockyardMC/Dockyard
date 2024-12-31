@@ -9,7 +9,7 @@ import io.github.dockyardmc.registry.Blocks
 
 object GeneralBlockPlacementRules {
 
-    fun canBePlaced(originalClickedBlock: Location, where: Location, newBlock: Block, placer: Player): Boolean {
+    fun canBePlaced(originalClickedBlock: Location, where: Location, newBlock: Block, placer: Player): CancelReason {
 
         var canBePlaced = CancelReason(true, "")
 
@@ -30,7 +30,7 @@ object GeneralBlockPlacementRules {
         if (BlockDataHelper.isClickable(clickedBlock) && !placer.isSneaking) canBePlaced =
             CancelReason(false, "Block is clickable and player is not sneaking")
 
-        return canBePlaced.canBePlaced
+        return canBePlaced
     }
 
     data class CancelReason(

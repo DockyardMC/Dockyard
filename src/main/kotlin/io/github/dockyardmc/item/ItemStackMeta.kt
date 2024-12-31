@@ -9,14 +9,12 @@ import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.Sound
-import io.github.dockyardmc.utils.CustomDataHolder
 import java.util.*
 
 class ItemStackMeta {
     var material: Item = Items.AIR
     var amount: Int = 1
     var lore: MutableList<String> = mutableListOf()
-    var customData: CustomDataHolder = CustomDataHolder()
     var attributes: MutableList<AttributeModifier> = mutableListOf()
     var components: MutableList<ItemComponent> = mutableListOf()
 
@@ -83,8 +81,8 @@ class ItemStackMeta {
         consumeTimeSeconds: Float,
         animation: ConsumableAnimation = ConsumableAnimation.EAT,
         sound: String = Sounds.ENTITY_GENERIC_EAT,
-        hasParticles: Boolean,
-        consumeEffects: List<ConsumeEffect>
+        hasParticles: Boolean = true,
+        consumeEffects: List<ConsumeEffect> = listOf()
     ) {
         components.addOrUpdate(
             ConsumableItemComponent(
@@ -122,10 +120,6 @@ class ItemStackMeta {
         components.addOrUpdate(RarityItemComponent(rarity))
     }
 
-    fun withCustomData(customDataHolder: CustomDataHolder) {
-        this.customData = customDataHolder
-    }
-
     fun withEnchantmentGlint(hasGlint: Boolean) {
         hasEnchantmentGlint(hasGlint)
     }
@@ -135,7 +129,7 @@ class ItemStackMeta {
     }
 
     fun isUnbreakable(unbreakable: Boolean) {
-        components.removeByType(UnbreakableItemComponent::class)
+        if(unbreakable) components.add(UnbreakableItemComponent()) else components.removeByType(UnbreakableItemComponent::class)
     }
 
     fun withUnbreakable(unbreakable: Boolean) {
@@ -184,12 +178,12 @@ fun itemStack(builder: ItemStackMeta.() -> Unit): ItemStack {
     builder.invoke(meta)
 
     meta.buildLoreComponent()
-    val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes)
+    val itemStack = ItemStack(meta.material, meta.amount, meta.components.toSet(), meta, meta.attributes)
     return itemStack.clone()
 }
 
 fun itemStack(meta: ItemStackMeta): ItemStack {
     meta.buildLoreComponent()
-    val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes)
+    val itemStack = ItemStack(meta.material, meta.amount, meta.components.toSet(), meta, meta.attributes)
     return itemStack.clone()
 }

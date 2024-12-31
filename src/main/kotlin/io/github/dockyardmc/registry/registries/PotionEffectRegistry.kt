@@ -15,6 +15,10 @@ object PotionEffectRegistry: Registry {
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter = AtomicInteger()
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     fun addEntry(entry: PotionEffect) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         potionEffects[entry.identifier] = entry

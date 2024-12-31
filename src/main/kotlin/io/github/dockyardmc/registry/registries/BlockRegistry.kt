@@ -1,6 +1,5 @@
 package io.github.dockyardmc.registry.registries
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
@@ -24,6 +23,10 @@ object BlockRegistry: DataDrivenRegistry {
 
     var blocks: Map<String, RegistryBlock> = mapOf()
     var protocolIdToBlock: Map<Int, RegistryBlock> = mapOf()
+
+    override fun getMaxProtocolId(): Int {
+        return protocolIdToBlock.keys.last()
+    }
 
     override fun initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)

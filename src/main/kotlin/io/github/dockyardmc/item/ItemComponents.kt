@@ -172,7 +172,7 @@ data class RepairCostItemComponent(var repairCost: Int): ItemComponent
 
 class CreativeSlotLockItemComponent(): ItemComponent
 
-class EnchantmentGlintOverrideItemComponent(var hasGlint: Boolean): ItemComponent
+data class EnchantmentGlintOverrideItemComponent(var hasGlint: Boolean): ItemComponent
 
 //note: write empty nbt compound as data
 class IntangibleProjectileItemComponent(): ItemComponent
@@ -202,7 +202,7 @@ data class UseRemainderItemComponent(
 
 data class UseCooldownItemComponent(
     val cooldownSeconds: Float,
-    val cooldownGroup: String? = null
+    val cooldownGroup: String = "minecraft:all"
 ): ItemComponent
 
 class DamageResistantItemComponent(

@@ -15,6 +15,10 @@ object ParticleRegistry : Registry {
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter = AtomicInteger()
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     fun addEntry(entry: Particle) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         particles[entry.identifier] = entry

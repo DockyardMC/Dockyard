@@ -8,6 +8,8 @@ import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.world.WorldManager
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.assertContains
@@ -66,7 +68,7 @@ class BlockTest {
     }
 
     @Test
-    fun testProperties() {
+    fun testCustomData() {
         val holder = CustomDataHolder()
         val block = Blocks.HAY_BLOCK.withCustomData(holder)
         holder["test"] = true
@@ -92,10 +94,16 @@ class BlockTest {
     }
 
     @Test
+    fun testInvalidBlockStates() {
+        assertDoesNotThrow { Block.getBlockFromStateString("minecraft:oak_slab[type=top,waterlogged=false]") }
+        assertThrows<IllegalArgumentException> { Block.getBlockFromStateString("minecraft:oak_slab[silly=true,gay=true]") }
+    }
+
+    @Test
     fun testBlockStateParsing() {
-        val parsed = Block.parseBlockStateString("minecraft:oak_slab[part=top,silly=true]")
+        val parsed = Block.parseBlockStateString("minecraft:oak_slab[type=top]")
 
         assertEquals("minecraft:oak_slab", parsed.first)
-        assertEquals(mapOf("part" to "top", "silly" to "true"), parsed.second)
+        assertEquals(mapOf("type" to "top"), parsed.second)
     }
 }

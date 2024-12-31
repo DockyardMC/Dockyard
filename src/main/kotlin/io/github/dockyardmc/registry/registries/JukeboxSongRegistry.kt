@@ -20,6 +20,10 @@ object JukeboxSongRegistry : DynamicRegistry {
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter = AtomicInteger()
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     fun addEntry(entry: JukeboxSong, updateCache: Boolean = true) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         jukeboxSongs[entry.identifier] = entry

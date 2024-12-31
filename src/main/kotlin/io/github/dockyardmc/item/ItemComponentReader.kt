@@ -1,5 +1,6 @@
 package io.github.dockyardmc.item
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.readModifierList
 import io.github.dockyardmc.blocks.BlockPredicate
 import io.github.dockyardmc.blocks.readBlockPredicate

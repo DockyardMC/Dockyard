@@ -6,7 +6,6 @@ import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import io.github.dockyardmc.registry.registries.ItemRegistry.items
 import io.github.dockyardmc.scroll.extensions.put
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -27,6 +26,10 @@ object BiomeRegistry : DataDrivenRegistry, DynamicRegistry {
     private val protocolIdCounter = AtomicInteger()
 
     lateinit var packet: ClientboundRegistryDataPacket
+
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
         if (!::packet.isInitialized) updateCache()
