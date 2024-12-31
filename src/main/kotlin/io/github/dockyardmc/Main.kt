@@ -43,6 +43,7 @@ fun main(args: Array<String>) {
             npcCommand = true
             itemDroppingAndPickup = true
             applyBlockPlacementRules = true
+            noxesium = true
         }
     }
 

@@ -7,9 +7,11 @@ import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.player.Player
 import io.netty.buffer.ByteBuf
 
-class BrandPluginMessage(val brand: String): PluginMessageHandler() {
+class BrandPluginMessage(val brand: String): PluginMessageHandler(CHANNEL) {
 
     companion object {
+        const val CHANNEL = "minecraft:brand"
+
         fun read(buf: ByteBuf): BrandPluginMessage {
             return BrandPluginMessage(buf.readString())
         }

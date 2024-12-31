@@ -6,18 +6,18 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayPlu
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 
-abstract class PluginMessageHandler {
+abstract class PluginMessageHandler(val channel: String) {
 
     abstract fun handle(player: Player)
     abstract fun write(buffer: ByteBuf)
 
-    fun asConfigPacket(channel: String): ClientboundConfigurationPluginMessagePacket {
+    fun asConfigPacket(): ClientboundConfigurationPluginMessagePacket {
         val data: ByteBuf = Unpooled.buffer()
         write(data)
         return ClientboundConfigurationPluginMessagePacket(channel, data)
     }
 
-    fun asPlayPacket(channel: String): ClientboundPlayPluginMessagePacket {
+    fun asPlayPacket(): ClientboundPlayPluginMessagePacket {
         val data: ByteBuf = Unpooled.buffer()
         write(data)
         return ClientboundPlayPluginMessagePacket(channel, data)

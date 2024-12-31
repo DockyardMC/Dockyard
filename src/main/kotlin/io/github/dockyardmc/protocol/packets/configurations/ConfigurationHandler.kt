@@ -33,7 +33,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         // Send server brand
         val serverBrandEvent = ServerBrandEvent("§bDockyardMC Server §7(https://github.com/DockyardMC/)§r")
         Events.dispatch(serverBrandEvent)
-        connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"), processor)
+        connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket(), processor)
 
         // Send feature flags
         val featureFlagsEvent = PlayerSendFeatureFlagsEvent(FeatureFlags.enabledFeatureFlags)

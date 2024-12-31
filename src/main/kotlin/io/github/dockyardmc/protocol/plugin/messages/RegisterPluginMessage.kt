@@ -7,8 +7,12 @@ import io.netty.buffer.ByteBuf
 import io.netty.util.AsciiString
 import java.nio.charset.StandardCharsets
 
-class RegisterPluginMessage(val channels: List<String>): PluginMessageHandler() {
+class RegisterPluginMessage(val channels: Collection<String>): PluginMessageHandler(CHANNEL) {
+
     companion object {
+
+        const val CHANNEL = "minecraft:register"
+
         fun read(buf: ByteBuf): RegisterPluginMessage {
             val list: MutableList<String> = mutableListOf()
             var current = StringBuilder()

@@ -8,6 +8,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.commands.DockyardCommands
+import io.github.dockyardmc.integrations.noxesium.NoxesiumIntegration
 import io.github.dockyardmc.npc.NpcCommand
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
 import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
@@ -55,6 +56,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
         if(ConfigManager.config.implementationConfig.dockyardCommands) DockyardCommands()
         if(ConfigManager.config.implementationConfig.npcCommand) NpcCommand()
+        if(ConfigManager.config.implementationConfig.noxesium) NoxesiumIntegration.register()
 
         WorldManager.loadDefaultWorld()
 
@@ -102,7 +104,9 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             "ClientboundSendParticlePacket",
             "ClientboundUpdateScorePacket",
             "ClientboundChunkDataPacket",
-            "ServerboundClientTickEndPacket"
+            "ServerboundClientTickEndPacket",
+            "ClientboundUnloadChunkPacket",
+            "ClientboundSetInventorySlotPacket"
         )
     }
 }
