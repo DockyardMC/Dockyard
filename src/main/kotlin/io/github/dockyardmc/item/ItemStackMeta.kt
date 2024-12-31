@@ -152,6 +152,10 @@ class ItemStackMeta {
         if(amount <= 0) this.amount = 1 else this.amount = amount
     }
 
+    fun clearLore() {
+        this.lore.clear()
+    }
+
     fun withLore(lore: List<String>) {
         this.lore = lore.toMutableList()
     }

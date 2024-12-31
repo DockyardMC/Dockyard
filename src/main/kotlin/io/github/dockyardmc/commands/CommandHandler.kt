@@ -8,7 +8,6 @@ import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.CommandExecuteEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.getLegacyTextColorNameFromVanilla
-import io.github.dockyardmc.extentions.identifier
 import io.github.dockyardmc.extentions.isUppercase
 import io.github.dockyardmc.extentions.isValidUUID
 import io.github.dockyardmc.player.Player
@@ -18,13 +17,14 @@ import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
+import java.lang.IllegalArgumentException
 import java.util.*
 
 object CommandHandler {
 
     val prefix get() = ConfigManager.config.implementationConfig.commandErrorPrefix
 
-    fun handleCommandInput(inputCommand: String, executor: CommandExecutor) {
+    fun handleCommandInput(inputCommand: String, executor: CommandExecutor, testEnv: Boolean = false) {
         val tokens = inputCommand.removePrefix("/").split(" ").toMutableList()
         val commandName = tokens[0].lowercase()
         try {
@@ -54,6 +54,7 @@ object CommandHandler {
             }
 
         } catch (ex: Exception) {
+            if(testEnv) throw IllegalArgumentException(ex)
             if (ex is CommandException) {
                 val message = "$prefix${ex.message}"
                 executor.sendMessage(message)
@@ -111,6 +112,7 @@ object CommandHandler {
                 }
             }
 
+
             argumentData.returnedValue = when (argumentData.expectedReturnValueType) {
                 Boolean::class -> value == "true"
                 String::class -> value
@@ -128,12 +130,12 @@ object CommandHandler {
                         //block state
                         val states = Block.parseBlockStateString(value)
                         val block =
-                            BlockRegistry.protocolIdToBlock.values.firstOrNull { it.identifier == states.first.identifier() }
+                            BlockRegistry.protocolIdToBlock.values.firstOrNull { it.identifier == states.first }
                                 ?: throw CommandException("\"${states.first}\" is not of type Block")
                         block.withBlockStates(states.second)
                     } else {
                         //not block state
-                        BlockRegistry.protocolIdToBlock.values.firstOrNull { it.identifier == value.identifier() }
+                        BlockRegistry.protocolIdToBlock.values.firstOrNull { it.identifier == value }
                             ?: throw CommandException("\"$value\" is not of type Block")
                     }
                 }
@@ -156,20 +158,21 @@ object CommandHandler {
                 }
 
                 LegacyTextColor::class -> {
-                    val name = getLegacyTextColorNameFromVanilla(value.lowercase().identifier())
+                    val name = getLegacyTextColorNameFromVanilla(value.lowercase())
                     if (!LegacyTextColor.entries.map { it.name.lowercase() }
                             .contains(name)) throw CommandException("$value is not valid LegacyTextColor!")
                     LegacyTextColor.valueOf(name.uppercase())
                 }
 
                 Particle::class -> {
-                    ParticleRegistry.getOrNull(value.identifier())
+                    ParticleRegistry.getOrNull(value)
                         ?: throw CommandException("$value is not valid Particle in the registry!")
                 }
 
                 else -> null
             }
         }
+
 
         val event = CommandExecuteEvent(inputCommand, command, executor)
         Events.dispatch(event)

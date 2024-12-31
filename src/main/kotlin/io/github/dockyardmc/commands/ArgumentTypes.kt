@@ -53,15 +53,6 @@ class SoundArgument(
     }
 }
 
-class RegistryResourceArgument(val registryResource: String): CommandArgument {
-    override var expectedType: KClass<*> = String::class
-    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.RESOURCE
-
-    override fun write(buffer: ByteBuf) {
-        buffer.writeString(registryResource)
-    }
-}
-
 class PlayerArgument(
     var onlySinglePlayer: Boolean = true,
 ): CommandArgument {
