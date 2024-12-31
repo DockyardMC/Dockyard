@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.commands.CommandExecutor
@@ -17,6 +18,7 @@ import io.netty.channel.ChannelHandlerContext
 class ServerboundChatCommandPacket(val command: String): ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
+        log("Received $command from ${processor.player}")
         CommandHandler.handleCommandInput(command, CommandExecutor(player = processor.player, console = Console))
     }
 
