@@ -5,13 +5,12 @@ import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemRarity
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
@@ -44,6 +43,10 @@ fun main(args: Array<String>) {
             itemDroppingAndPickup = true
             applyBlockPlacementRules = true
         }
+    }
+
+    Events.on<PlayerBlockRightClickEvent> {
+        it.player.playChestAnimation(it.location, Player.ChestAnimation.OPEN)
     }
 
     Events.on<PlayerJoinEvent> {

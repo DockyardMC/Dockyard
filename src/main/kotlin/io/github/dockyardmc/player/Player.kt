@@ -343,7 +343,6 @@ class Player(
 
     fun respawn(isBecauseDeath: Boolean = false) {
 
-
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
 
@@ -474,6 +473,15 @@ class Player(
             particleData = BlockParticleData(block)
         )
         this.isDigging = false
+    }
+
+    fun playChestAnimation(chestLocation: Location, animation: ChestAnimation) {
+        sendPacket(ClientboundBlockActionPacket(chestLocation, 1, animation.ordinal.toByte(), Blocks.CHEST))
+    }
+
+    enum class ChestAnimation {
+        CLOSE,
+        OPEN
     }
 
     override fun dispose() {

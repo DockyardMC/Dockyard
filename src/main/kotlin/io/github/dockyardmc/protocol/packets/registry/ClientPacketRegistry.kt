@@ -49,7 +49,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addPlay(ClientboundAcknowledgeBlockChangePacket::class)
         skipPlay("Block break animation")
         skipPlay("Block entity data")
-        skipPlay("Block action")
+        addPlay(ClientboundBlockActionPacket::class)
         skipPlay("Block change")
         addPlay(ClientboundBossbarPacket::class)
         addPlay(ClientboundChangeDifficultyPacket::class)

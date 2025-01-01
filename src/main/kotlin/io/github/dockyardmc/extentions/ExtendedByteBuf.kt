@@ -522,3 +522,7 @@ fun ByteBuf.readItemHolder(): Item {
         return ItemRegistry.getByProtocolId(type - 1)
     }
 }
+
+fun ByteBuf.writeByte(byte: Byte) {
+    this.writeByte(byte.toInt())
+}
