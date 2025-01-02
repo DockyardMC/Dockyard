@@ -16,7 +16,11 @@ class GameModeSystem(val player: Player): PlayerSystem {
         bindable.valueChanged {
             player.sendPacket(ClientboundGameEventPacket(GameEvent.CHANGE_GAME_MODE, it.newValue.ordinal.toFloat()))
             when (it.newValue) {
-                GameMode.SPECTATOR,
+                GameMode.SPECTATOR -> {
+                    player.canFly.value = true
+                    player.isFlying.value = true
+                    player.isInvulnerable = true
+                }
                 GameMode.CREATIVE -> {
                     player.canFly.value = true
                     player.isFlying.value = player.isFlying.value

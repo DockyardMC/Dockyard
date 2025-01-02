@@ -78,8 +78,14 @@ class Player(
 
     var inventory: PlayerInventory = PlayerInventory(this)
     var heldSlotIndex: Bindable<Int> = bindablePool.provideBindable(0)
-    val mainHandItem: Bindable<ItemStack> = bindablePool.provideBindable(ItemStack.AIR)
-    val offHandItem: Bindable<ItemStack> = bindablePool.provideBindable(ItemStack.AIR)
+
+    var mainHandItem: ItemStack
+        get() = getHeldItem(PlayerHand.MAIN_HAND)
+        set(value) = setHeldItem(PlayerHand.MAIN_HAND, value)
+
+    var offHandItem: ItemStack
+        get() = getHeldItem(PlayerHand.OFF_HAND)
+        set(value) = setHeldItem(PlayerHand.OFF_HAND, value)
 
     var displayedSkinParts: BindableList<DisplayedSkinPart> = bindablePool.provideBindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     val isListed: Bindable<Boolean> = bindablePool.provideBindable(true)
@@ -113,16 +119,12 @@ class Player(
 
     lateinit var lastSentPacket: ClientboundPacket
 
-
     override fun toString(): String = username
 
     init {
 
         gameModeSystem.handle(gameMode)
         playerInfoSystem.handle(displayName, isListed)
-
-        mainHandItem.valueChanged { setHeldItem(PlayerHand.MAIN_HAND, it.newValue) }
-        offHandItem.valueChanged { setHeldItem(PlayerHand.OFF_HAND, it.newValue) }
 
         heldSlotIndex.valueChanged {
             this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))

@@ -101,6 +101,10 @@ class ServerboundPlayerActionPacket(
             }
             player.setHeldItem(PlayerHand.MAIN_HAND, ItemStack.AIR)
         }
+
+        if(action == PlayerAction.SWAP_ITEM) {
+            player.inventory.swapOffhand()
+        }
     }
 }
 

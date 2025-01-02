@@ -38,7 +38,7 @@ class PlayerBlockActionsTests {
     fun cleanup() {
         WorldManager.generateDefaultStonePlatform(WorldManager.mainWorld, 30)
         WorldManager.mainWorld.setBlock(0, 1, 0, Block.AIR)
-        PlayerTestUtil.getOrCreateFakePlayer().mainHandItem.value = ItemStack.AIR
+        PlayerTestUtil.getOrCreateFakePlayer().mainHandItem = ItemStack.AIR
         PlayerTestUtil.getOrCreateFakePlayer().gameMode.value = GameMode.SURVIVAL
         pool.dispose()
     }
