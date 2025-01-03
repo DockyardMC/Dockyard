@@ -8,6 +8,7 @@ import java.io.File
 import java.security.MessageDigest
 import java.util.Random
 import kotlin.math.*
+import kotlin.time.times
 
 fun multiplyQuaternions(q1: Quaternion, q2: Quaternion): Quaternion {
     val x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y
@@ -59,7 +60,10 @@ fun getRelativeLocation(current: Location, previous: Location): Location {
     return Location(x, y, z, current.world)
 }
 
-fun percent(max: Double, part: Double): Double = (part / max) * 100
+fun percent(max: Double, part: Double): Double = (part / max) * 100.0
+fun percent(max: Int, part: Int): Float = (part.toFloat() / max.toFloat()) * 100
+fun percent(max: Float, part: Float): Float = (part / max) * 100f
+fun percent(max: Long, part: Long): Float = (part.toFloat() / max.toFloat()) * 100L
 
 // percent is float 0f - 1f.
 fun percentOf(percent: Float, max: Double): Double = percent * max
