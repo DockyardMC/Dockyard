@@ -159,7 +159,7 @@ class Player(
         }
 
         displayedSkinParts.listUpdated {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
         }
 
         experienceBar.valueChanged { sendUpdateExperiencePacket() }

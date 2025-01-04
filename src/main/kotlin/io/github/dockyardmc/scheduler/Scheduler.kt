@@ -31,12 +31,12 @@ abstract class Scheduler : Disposable {
     }
 
     private fun handleTickTasks() {
+        handleRepeatingTasks(repeatingTasks)
+        handleRepeatingTasksAsync(repeatingTasksAsync)
+
         val tickStartTasks = scheduledTasks[ticks]
         if (tickStartTasks != null) handleTickQueue(scheduledTasks)
-
-        handleRepeatingTasks(repeatingTasks)
         handleTickQueueAsync(scheduledTasksAsync)
-        handleRepeatingTasksAsync(repeatingTasksAsync)
     }
 
     private fun handleRepeatingTasks(tasks: MutableMap<Long, MutableList<SchedulerTask>>) {
