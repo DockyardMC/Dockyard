@@ -6,4 +6,6 @@ object ChannelHandlers {
     const val PLAYER_NETWORK_MANAGER = "player-network-manager"
     const val PACKET_ENCRYPTOR = "packet-encryptor"
     const val PACKET_DECRYPTOR = "packet-decryptor"
+    const val COMPRESSION_ENCODER = "compression-encoder"
+    const val COMPRESSION_DECODER = "compression-decoder"
 }

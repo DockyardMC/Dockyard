@@ -50,7 +50,7 @@ class Player(
     override var location: Location = world.defaultSpawnLocation,
     val connection: ChannelHandlerContext,
     val address: String,
-    var crypto: PlayerCrypto,
+    var crypto: PlayerCrypto? = null,
     val networkManager: PlayerNetworkManager
 ): Entity(location) {
     override var velocity: Vector3 = Vector3(0, 0, 0)
@@ -276,8 +276,7 @@ class Player(
     }
 
 
-    fun kick(reason: String) { this.kick(reason.toComponent()) }
-    fun kick(reason: Component) { sendPacket(ClientboundDisconnectPacket(reason)) }
+    fun kick(reason: String) { this.networkManager.kick(reason, connection) }
 
     fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
     fun sendMessage(component: Component) { sendSystemMessage(component, false) }

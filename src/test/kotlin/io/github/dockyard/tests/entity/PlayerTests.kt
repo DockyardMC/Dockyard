@@ -34,7 +34,6 @@ class PlayerTests {
         assertAbilities(player, isInvulnerable = false, isFlying = false, canFly = false)
         player.gameMode.value = GameMode.SURVIVAL
         assertAbilities(player, isInvulnerable = false, isFlying = false, canFly = false)
-
     }
 
     private fun assertAbilities(player: Player, isInvulnerable: Boolean, isFlying: Boolean, canFly: Boolean) {

@@ -26,7 +26,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CommandCreationTests {
+class CommandTest {
 
     @BeforeTest
     fun prepare() {

@@ -355,7 +355,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         return null
     }
 
-
     fun getFacingDirectionVector(): Vector3f {
         val yawRadians = Math.toRadians(location.yaw.toDouble())
         val pitchRadians = Math.toRadians(location.pitch.toDouble())

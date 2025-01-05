@@ -249,6 +249,12 @@ fun ByteBuf.readStringList(): List<String> {
     return list
 }
 
+fun ByteBuf.readRemainingBytesAsByteArray(): ByteArray {
+    val bytes = ByteArray(this.readableBytes())
+    this.readBytes(bytes)
+    return bytes
+}
+
 fun ByteBuf.readUtfAndLength(i: Int): Pair<String, Int> {
     val maxSize = i * 3
     val size = this.readVarInt()

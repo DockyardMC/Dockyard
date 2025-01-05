@@ -8,16 +8,17 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.events.PlayerDisconnectEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.player.kick.KickReason
 import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
-import io.github.dockyardmc.protocol.packets.handshake.HandshakeHandler
+import io.github.dockyardmc.protocol.packets.login.ClientboundLoginDisconnectPacket
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.play.PlayHandler
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisconnectPacket
 import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.utils.debug
 import io.ktor.util.network.*
@@ -43,7 +44,6 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
             debug("Protocol state for $display changed to $value")
         }
 
-    var statusHandler = HandshakeHandler(this)
     var loginHandler = LoginHandler(this)
     var configurationHandler = ConfigurationHandler(this)
     var playHandler = PlayHandler(this)
@@ -87,6 +87,21 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
         }
     }
 
+    fun kick(message: String, connection: ChannelHandlerContext) {
+        val formattedMessage = getSystemKickMessage(message)
+        val packet = when(state) {
+            ProtocolState.HANDSHAKE,
+            ProtocolState.STATUS,
+            ProtocolState.LOGIN -> ClientboundLoginDisconnectPacket(formattedMessage)
+
+            ProtocolState.CONFIGURATION,
+            ProtocolState.PLAY -> ClientboundDisconnectPacket(formattedMessage)
+        }
+
+        connection.sendPacket(packet, this)
+        connection.close()
+    }
+
     override fun channelReadComplete(ctx: ChannelHandlerContext) {
         ctx.flush()
     }
@@ -103,12 +118,12 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
         return if (isPlayerInitialized()) player else throw UninitializedPropertyAccessException("Player has not been initialized yet")
     }
 
-    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+    override fun exceptionCaught(connection: ChannelHandlerContext, cause: Throwable) {
         log(cause as Exception)
         if(player.isFullyInitialized) {
-            player.kick(getSystemKickMessage("There was an error while writing packet: ${cause.message}", KickReason.ERROR_WHILE_WRITING_PACKET.name))
+            kick(getSystemKickMessage("There was an error while writing packet: ${cause.message}"), connection)
         }
-        ctx.flush()
-        ctx.close()
+        connection.flush()
+        connection.close()
     }
 }

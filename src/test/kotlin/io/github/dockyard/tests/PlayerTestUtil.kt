@@ -4,7 +4,6 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.PlayerCrypto
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.PlayerNetworkManager
@@ -27,7 +26,6 @@ object PlayerTestUtil {
                 world = WorldManager.mainWorld,
                 connection = Mockito.mock<ChannelHandlerContext>(),
                 address = "0.0.0.0",
-                crypto = PlayerCrypto(),
                 networkManager = PlayerNetworkManager(),
             )
         }

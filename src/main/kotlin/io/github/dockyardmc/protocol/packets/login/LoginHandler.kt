@@ -4,126 +4,109 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.player.kick.KickReason
-import io.github.dockyardmc.player.kick.getSystemKickMessage
 import io.github.dockyardmc.protocol.ChannelHandlers
 import io.github.dockyardmc.protocol.PlayerNetworkManager
+import io.github.dockyardmc.protocol.cryptography.EncryptionUtil
 import io.github.dockyardmc.protocol.cryptography.PacketDecryptionHandler
-import io.github.dockyardmc.protocol.cryptography.PacketEncryptionHandler
+import io.github.dockyardmc.protocol.encoders.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
 import io.github.dockyardmc.registry.registries.MinecraftVersionRegistry
-import io.github.dockyardmc.utils.MojangUtil
 import io.github.dockyardmc.utils.debug
-import io.github.dockyardmc.world.WorldManager
-import io.ktor.util.network.*
+import io.github.dockyardmc.utils.isValidMinecraftUsername
 import io.netty.channel.ChannelHandlerContext
-import java.security.KeyPairGenerator
-import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
-class LoginHandler(var processor: PlayerNetworkManager) : PacketHandler(processor) {
+class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(networkManager) {
+
+    private companion object {
+        const val ERROR_ALREADY_CONNECTED = "You are already connected to this server!"
+        const val ERROR_DURING_LOGIN = "An error occurred during the login phase!"
+        const val ERROR_INVALID_USERNAME = "You are connecting with an invalid username!"
+        const val ERROR_SESSION_SERVERS = "Failed to contact Mojang's Session Servers (Are they down?)"
+        const val ERROR_INVALID_PROXY_RESPONSE = "Invalid proxy response!"
+        const val ERROR_VERIFY_TOKEN_DOES_NOT_MATCH = "Your encryption verify token does not match!"
+    }
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
-        processor.playerProtocolVersion = packet.version
-        processor.state = ProtocolState.LOGIN
+
+        val playerVersion = MinecraftVersionRegistry.getOrNull(packet.version)?.versionName ?: "unknown"
+        val requiredVersion = DockyardServer.minecraftVersion.protocolId
+        if (packet.version != requiredVersion) {
+            networkManager.kick("You are using incompatible version <red>($playerVersion)<gray>. Please use version <yellow>${DockyardServer.minecraftVersion.versionName}<gray>", connection)
+            return
+        }
+
+        networkManager.playerProtocolVersion = packet.version
+        networkManager.state = ProtocolState.LOGIN
     }
 
     fun handleLoginStart(packet: ServerboundLoginStartPacket, connection: ChannelHandlerContext) {
-        val name = packet.name
+        val username = packet.name
         val uuid = packet.uuid
-        debug("Received login start packet with name $name and UUID $uuid", logType = LogType.DEBUG)
+        debug("Received login start packet with name $username and UUID $uuid", logType = LogType.DEBUG)
 
-        if (!DockyardServer.allowAnyVersion) {
-            val playerVersion = MinecraftVersionRegistry.getOrNull(processor.playerProtocolVersion) ?: "unknown"
-            val requiredVersion = DockyardServer.minecraftVersion.protocolId
-            if (processor.playerProtocolVersion != requiredVersion) {
-                connection.sendPacket(
-                    ClientboundLoginDisconnectPacket(
-                        getSystemKickMessage(
-                            "You are using incompatible version <red>($playerVersion)<gray>. Please use version <yellow>${DockyardServer.minecraftVersion.versionName}<gray>",
-                            KickReason.INCOMPATIBLE_VERSION.name
-                        )
-                    ), processor
-                )
-                return
-            }
+        if(PlayerManager.getPlayerByUsernameOrNull(username) != null) {
+            networkManager.kick(ERROR_ALREADY_CONNECTED, connection)
+            return
         }
 
-        val dummyCrypto = PlayerCrypto()
-        val player = Player(
-            username = name,
-            entityId = EntityManager.entityIdCounter.incrementAndGet(),
-            uuid = uuid,
-            world = WorldManager.mainWorld,
-            address = connection.channel().remoteAddress().address,
-            crypto = dummyCrypto,
-            connection = connection,
-            networkManager = processor
-        )
-
-        PlayerManager.add(player, processor)
+        if(!isValidMinecraftUsername(username)) {
+            networkManager.kick(ERROR_INVALID_USERNAME, connection)
+            return
+        }
 
         if (ConfigManager.config.useMojangAuth) {
-            val generator = KeyPairGenerator.getInstance("RSA")
-            generator.initialize(1024)
-            val keyPair = generator.generateKeyPair()
-            val privateKey = keyPair.private
-            val publicKey = keyPair.public
+            val crypto = EncryptionUtil.getNewPlayerCrypto()
+            val player = PlayerManager.createNewPlayer(username, uuid, connection, networkManager)
 
-            val secureRandom = SecureRandom()
-            val verificationToken = ByteArray(4)
-            secureRandom.nextBytes(verificationToken)
+            player.crypto = crypto
 
-            val playerCrypto = PlayerCrypto(publicKey, privateKey, verificationToken)
-            player.crypto = playerCrypto
-
-            // pre-cache the skin
-            DockyardServer.scheduler.runAsync {
-                MojangUtil.getSkinFromUUID(player.uuid)
-            }
-            val out = ClientboundEncryptionRequestPacket("", publicKey.encoded, verificationToken, true)
-            connection.sendPacket(out, processor)
+            val encryptionRequest = ClientboundEncryptionRequestPacket("", crypto.publicKey.encoded, crypto.verifyToken, true)
+            connection.sendPacket(encryptionRequest, networkManager)
         } else {
-            finishEncryption(player)
+            val player = PlayerManager.createNewPlayer(username, uuid, connection, networkManager)
+            startConfigurationPhase(player)
         }
     }
 
     fun handleEncryptionResponse(packet: ServerboundEncryptionResponsePacket, connection: ChannelHandlerContext) {
 
+        val crypto = networkManager.player.crypto!!
+
         val cipher = Cipher.getInstance("RSA")
-        cipher.init(Cipher.DECRYPT_MODE, processor.player.crypto.privateKey)
+        cipher.init(Cipher.DECRYPT_MODE, crypto.privateKey)
 
         val verifyToken = cipher.doFinal(packet.verifyToken)
         val sharedSecret = cipher.doFinal(packet.sharedSecret)
 
-        if (!verifyToken.contentEquals(processor.player.crypto.verifyToken)) log(
-            "Verify Token of player ${processor.player.username} does not match!",
-            LogType.ERROR
-        )
+        if (!verifyToken.contentEquals(crypto.verifyToken)) {
+            log("Verify Token of player ${networkManager.player.username} does not match!", LogType.ERROR)
+            networkManager.kick(ERROR_VERIFY_TOKEN_DOES_NOT_MATCH, connection)
+            return
+        }
 
-        processor.player.crypto.sharedSecret = SecretKeySpec(sharedSecret, "AES")
-        processor.player.crypto.isConnectionEncrypted = true
-        processor.encryptionEnabled = true
+        crypto.sharedSecret = SecretKeySpec(sharedSecret, "AES")
+        crypto.isConnectionEncrypted = true
+        networkManager.encryptionEnabled = true
 
         val pipeline = connection.channel().pipeline()
-        pipeline.addBefore(ChannelHandlers.FRAME_DECODER, ChannelHandlers.PACKET_DECRYPTOR, PacketDecryptionHandler(processor.player.crypto))
-        pipeline.addBefore(ChannelHandlers.PACKET_DECRYPTOR, ChannelHandlers.PACKET_ENCRYPTOR, PacketEncryptionHandler(processor.player.crypto))
+        pipeline.addBefore(ChannelHandlers.FRAME_DECODER, ChannelHandlers.PACKET_DECRYPTOR, PacketDecryptionHandler(crypto))
+        pipeline.addBefore(ChannelHandlers.PACKET_DECRYPTOR, ChannelHandlers.PACKET_ENCRYPTOR, PacketEncryptionHandler(crypto))
 
-        val player = processor.player
-        finishEncryption(player)
+        val player = networkManager.player
+        startConfigurationPhase(player)
     }
 
     fun handleLoginAcknowledge(packet: ServerboundLoginAcknowledgedPacket, connection: ChannelHandlerContext) {
-        processor.state = ProtocolState.CONFIGURATION
+        networkManager.state = ProtocolState.CONFIGURATION
     }
 
-    fun finishEncryption(player: Player) {
+    fun startConfigurationPhase(player: Player) {
         val list = mutableListOf<ProfilePropertyMap>()
 
         val texturesProperty = ProfileProperty("textures", "", true, "")

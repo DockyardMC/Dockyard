@@ -1,6 +1,8 @@
-package io.github.dockyardmc.protocol.cryptography
+package io.github.dockyardmc.protocol.encoders
 
 import io.github.dockyardmc.player.PlayerCrypto
+import io.github.dockyardmc.protocol.cryptography.EncryptionBase
+import io.github.dockyardmc.protocol.cryptography.EncryptionUtil
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.MessageToByteEncoder

@@ -1,24 +1,22 @@
 package io.github.dockyardmc.protocol.packets.handshake
 
-import io.github.dockyardmc.annotations.ServerboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.protocol.PlayerNetworkManager
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
+import java.time.Instant
 
-@WikiVGEntry("Ping Request (status)")
-@ServerboundPacketInfo(0x01, ProtocolState.STATUS)
-class ServerboundPingRequestPacket(val time: Long): ServerboundPacket {
+class ServerboundPingRequestPacket(val time: Long) : ServerboundPacket {
 
     companion object {
-        fun read(buf: ByteBuf): ServerboundPingRequestPacket {
-            return ServerboundPingRequestPacket(buf.readLong())
+        fun read(buffer: ByteBuf): ServerboundPingRequestPacket {
+            return ServerboundPingRequestPacket(buffer.readLong())
         }
     }
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        processor.statusHandler.handlePing(this, connection)
+        val out = ClientboundPingResponsePacket(Instant.now().toEpochMilli())
+        connection.sendPacket(out, processor)
     }
 }
