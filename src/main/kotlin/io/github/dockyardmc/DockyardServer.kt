@@ -9,6 +9,7 @@ import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.commands.DockyardCommands
 import io.github.dockyardmc.npc.NpcCommand
+import io.github.dockyardmc.protocol.NetworkCompression
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
 import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.github.dockyardmc.registry.MinecraftVersions
@@ -55,6 +56,8 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
         if(ConfigManager.config.implementationConfig.dockyardCommands) DockyardCommands()
         if(ConfigManager.config.implementationConfig.npcCommand) NpcCommand()
+
+        NetworkCompression.compressionThreshold = ConfigManager.config.networkCompressionThreshold
 
         WorldManager.loadDefaultWorld()
 

@@ -7,9 +7,12 @@ import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.ChannelHandlers
+import io.github.dockyardmc.protocol.NetworkCompression
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.cryptography.EncryptionUtil
-import io.github.dockyardmc.protocol.cryptography.PacketDecryptionHandler
+import io.github.dockyardmc.protocol.decoders.CompressionDecoder
+import io.github.dockyardmc.protocol.decoders.PacketDecryptionHandler
+import io.github.dockyardmc.protocol.encoders.CompressionEncoder
 import io.github.dockyardmc.protocol.encoders.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -70,7 +73,7 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
             connection.sendPacket(encryptionRequest, networkManager)
         } else {
             val player = PlayerManager.createNewPlayer(username, uuid, connection, networkManager)
-            startConfigurationPhase(player)
+            startConfigurationPhase(player, connection)
         }
     }
 
@@ -95,18 +98,18 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         networkManager.encryptionEnabled = true
 
         val pipeline = connection.channel().pipeline()
-        pipeline.addBefore(ChannelHandlers.FRAME_DECODER, ChannelHandlers.PACKET_DECRYPTOR, PacketDecryptionHandler(crypto))
-        pipeline.addBefore(ChannelHandlers.PACKET_DECRYPTOR, ChannelHandlers.PACKET_ENCRYPTOR, PacketEncryptionHandler(crypto))
+        pipeline.addBefore(ChannelHandlers.PACKET_LENGTH_DECODER, ChannelHandlers.PACKET_DECRYPTOR, PacketDecryptionHandler(crypto))
+        pipeline.addBefore(ChannelHandlers.PACKET_LENGTH_ENCODER, ChannelHandlers.PACKET_ENCRYPTOR, PacketEncryptionHandler(crypto))
 
         val player = networkManager.player
-        startConfigurationPhase(player)
+        startConfigurationPhase(player, connection)
     }
 
     fun handleLoginAcknowledge(packet: ServerboundLoginAcknowledgedPacket, connection: ChannelHandlerContext) {
         networkManager.state = ProtocolState.CONFIGURATION
     }
 
-    fun startConfigurationPhase(player: Player) {
+    fun startConfigurationPhase(player: Player, connection: ChannelHandlerContext) {
         val list = mutableListOf<ProfilePropertyMap>()
 
         val texturesProperty = ProfileProperty("textures", "", true, "")
@@ -114,7 +117,14 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         list.add(texturesPropertyMap)
         player.profile = texturesPropertyMap
 
-        player.sendPacket(ClientboundSetCompressionPacket(-1))
+        player.sendPacket(ClientboundSetCompressionPacket(NetworkCompression.compressionThreshold))
+
+        if(NetworkCompression.compressionThreshold > -1) {
+            val pipeline = connection.channel().pipeline()
+            pipeline.addBefore(ChannelHandlers.RAW_PACKET_DECODER, ChannelHandlers.PACKET_COMPRESSION_DECODER, CompressionDecoder(player.networkManager))
+            pipeline.addBefore(ChannelHandlers.RAW_PACKET_ENCODER, ChannelHandlers.PACKET_COMPRESSION_ENCODER, CompressionEncoder(player.networkManager))
+        }
+
         player.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, list))
     }
 }

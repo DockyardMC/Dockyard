@@ -2,7 +2,6 @@ package io.github.dockyardmc.protocol.encoders
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.extentions.readRemainingBytesAsByteArray
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkCompression
@@ -13,14 +12,10 @@ import io.netty.handler.codec.MessageToByteEncoder
 
 class CompressionEncoder(val processor: PlayerNetworkManager) : MessageToByteEncoder<ByteBuf>() {
 
-    companion object {
-        val compressionThreshold get() = DockyardServer.instance.config.networkCompressionThreshold
-    }
-
     override fun encode(connection: ChannelHandlerContext, buffer: ByteBuf, out: ByteBuf) {
         try {
             val dataLength = buffer.readableBytes()
-            if (compressionThreshold > dataLength) {
+            if (dataLength < NetworkCompression.compressionThreshold) {
                 out.writeVarInt(0)
                 out.writeBytes(buffer)
             } else {

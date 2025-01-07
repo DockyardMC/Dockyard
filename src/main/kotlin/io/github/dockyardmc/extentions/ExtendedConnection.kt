@@ -16,7 +16,7 @@ fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket, processor: Playe
     Events.dispatch(event)
     if(event.cancelled) return
 
-    this.writeAndFlush(packet.asByteBuf())
+    this.writeAndFlush(packet)
     ServerMetrics.packetsSent++
 
     val className = packet::class.simpleName

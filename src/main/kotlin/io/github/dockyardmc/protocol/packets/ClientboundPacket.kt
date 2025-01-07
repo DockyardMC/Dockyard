@@ -18,14 +18,13 @@ open class ClientboundPacket() {
 
     val data: ByteBuf = Unpooled.buffer()
 
-    fun asByteBuf(): ByteBuf {
-        if (id == null) throw IllegalStateException("tried to send packet without id")
-        if (state == null) throw IllegalStateException("tried to send packet without network state")
-
-        val packetWithHeader = Unpooled.buffer()
-        packetWithHeader.writeVarInt(data.copy().writerIndex() + 1)
-        packetWithHeader.writeVarInt(id!!)
-        packetWithHeader.writeBytes(data.copy())
-        return packetWithHeader
-    }
+//    fun asByteBuf(): ByteBuf {
+//        if (id == null) throw IllegalStateException("tried to send packet without id")
+//        if (state == null) throw IllegalStateException("tried to send packet without network state")
+//
+//        val packetWithHeader = Unpooled.buffer()
+//        packetWithHeader.writeVarInt(id!!)
+//        packetWithHeader.writeBytes(data.copy())
+//        return packetWithHeader
+//    }
 }

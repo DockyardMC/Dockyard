@@ -15,7 +15,7 @@ import io.netty.handler.codec.DecoderException
 import io.netty.handler.codec.MessageToMessageDecoder
 import java.lang.Exception
 
-class PacketDecoder(val processor: PlayerNetworkManager) : MessageToMessageDecoder<ByteBuf>() {
+class RawPacketDecoder(val processor: PlayerNetworkManager) : MessageToMessageDecoder<ByteBuf>() {
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun decode(connection: ChannelHandlerContext, buffer: ByteBuf, out: MutableList<Any>) {

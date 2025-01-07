@@ -36,6 +36,7 @@ fun main(args: Array<String>) {
         withPort(25565)
         useMojangAuth(true)
         useDebugMode(true)
+        withNetworkCompressionThreshold(256)
         withImplementations {
             dockyardCommands = true
             debug = true

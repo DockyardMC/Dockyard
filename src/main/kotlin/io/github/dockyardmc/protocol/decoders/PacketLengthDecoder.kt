@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageDecoder
 
-class FrameDecoder : ByteToMessageDecoder() {
+class PacketLengthDecoder : ByteToMessageDecoder() {
 
     override fun decode(connection: ChannelHandlerContext, buffer: ByteBuf, out: MutableList<Any>) {
         if (!connection.channel().isActive) return

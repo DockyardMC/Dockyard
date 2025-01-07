@@ -2,13 +2,14 @@ package io.github.dockyardmc.protocol
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.netty.buffer.ByteBuf
 import java.io.ByteArrayOutputStream
 import java.lang.Exception
 import java.util.zip.Deflater
 import java.util.zip.Inflater
 
 object NetworkCompression {
+
+    var compressionThreshold: Int = -1
 
     fun decompress(input: ByteArray): ByteArray {
         val inflater = Inflater()

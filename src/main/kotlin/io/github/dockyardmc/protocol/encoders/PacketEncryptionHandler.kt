@@ -10,6 +10,7 @@ import io.netty.handler.codec.MessageToByteEncoder
 class PacketEncryptionHandler(private val playerCrypto: PlayerCrypto) : MessageToByteEncoder<ByteBuf>() {
 
     private val encryptionBase = EncryptionBase(EncryptionUtil.getEncryptionCipherInstance(playerCrypto))
+
     override fun encode(ctx: ChannelHandlerContext, msg: ByteBuf, out: ByteBuf) {
 
         if(!playerCrypto.isConnectionEncrypted) {
