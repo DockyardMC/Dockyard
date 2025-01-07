@@ -72,7 +72,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val equipment: BindableMap<EquipmentSlot, ItemStack> = bindablePool.provideBindableMap()
     val equipmentLayers: BindableMap<PersistentPlayer, Map<EquipmentSlot, ItemStack>> = bindablePool.provideBindableMap()
 
-    var renderDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityRenderDistanceBlocks
+    var viewDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityViewDistanceBlocks
 
     var passengers: BindableList<Entity> = BindableList()
     var vehicle: Entity? = null

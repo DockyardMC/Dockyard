@@ -21,12 +21,15 @@ object SkinManager {
         }
     }
 
+    @Synchronized
     fun setSkinOf(player: Player, uuid: UUID) {
         val asyncRunnable = DockyardServer.scheduler.runAsync {
             val skin = MojangUtil.getSkinFromUUID(uuid)
             player.profile!!.properties[0] = skin
         }
         asyncRunnable.thenAccept {
+            val location = player.location
+
             player.respawn(false)
             player.sendPacket(ClientboundPlayerInfoRemovePacket(player))
             val addPlayerUpdate = PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!))
@@ -41,6 +44,7 @@ object SkinManager {
             player.sendToViewers(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(player.uuid, AddPlayerInfoUpdateAction(player.profile!!))))
             player.sendToViewers(ClientboundSpawnEntityPacket(player.entityId, player.uuid, player.type.getProtocolId(), player.location, player.location.yaw, 0, player.velocity))
             player.displayedSkinParts.triggerUpdate()
+            player.teleport(location)
         }
     }
 }

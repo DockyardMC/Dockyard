@@ -35,14 +35,7 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
     var playerProtocolVersion: Int = 0
     var respondedToLastKeepAlive = true
 
-    private var innerState = ProtocolState.HANDSHAKE
-    var state: ProtocolState
-        get() = innerState
-        set(value) {
-            innerState = value
-            val display = if (this::player.isInitialized) player.username else address
-            debug("Protocol state for $display changed to $value")
-        }
+    var state: ProtocolState = ProtocolState.HANDSHAKE
 
     var loginHandler = LoginHandler(this)
     var configurationHandler = ConfigurationHandler(this)

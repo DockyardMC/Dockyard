@@ -16,11 +16,14 @@ import io.github.dockyardmc.protocol.encoders.CompressionEncoder
 import io.github.dockyardmc.protocol.encoders.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
 import io.github.dockyardmc.registry.registries.MinecraftVersionRegistry
+import io.github.dockyardmc.utils.MojangUtil
 import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.isValidMinecraftUsername
 import io.netty.channel.ChannelHandlerContext
+import java.util.concurrent.CompletableFuture
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
@@ -68,6 +71,8 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
             val player = PlayerManager.createNewPlayer(username, uuid, connection, networkManager)
 
             player.crypto = crypto
+
+            CompletableFuture.runAsync { MojangUtil.getSkinFromUUID(uuid) }
 
             val encryptionRequest = ClientboundEncryptionRequestPacket("", crypto.publicKey.encoded, crypto.verifyToken, true)
             connection.sendPacket(encryptionRequest, networkManager)
@@ -126,5 +131,6 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         }
 
         player.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, list))
+        ConfigurationHandler.enterConfiguration(player, connection, true)
     }
 }

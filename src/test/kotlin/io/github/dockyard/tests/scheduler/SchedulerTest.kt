@@ -77,14 +77,14 @@ class SchedulerTest {
             log("Ticking: ${counter.incrementAndGet()}", LogType.DEBUG)
         }
 
-        scheduler.runLater(5.seconds) {
+        scheduler.runLater(1.seconds) {
             repeatingTask.cancel()
             countDownLatch.countDown()
         }
 
         countDownLatch.await()
         assertEquals(true, repeatingTask.cancelled)
-        assertEquals(100, counter.get())
-        assertEquals(100, scheduler.ticks)
+        assertEquals(20, counter.get())
+        assertEquals(20, scheduler.ticks)
     }
 }
