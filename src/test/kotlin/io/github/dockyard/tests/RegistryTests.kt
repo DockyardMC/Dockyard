@@ -20,9 +20,15 @@ import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.ChatTypeRegistry
 import io.github.dockyardmc.utils.randomInt
 import org.junit.jupiter.api.assertDoesNotThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class RegistryTests {
+
+    @BeforeTest
+    fun prepare() {
+        TestServer.getOrSetupServer()
+    }
 
     @Test
     fun testQuickRegistryLists() {
