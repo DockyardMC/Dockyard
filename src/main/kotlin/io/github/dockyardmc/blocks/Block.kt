@@ -58,7 +58,7 @@ data class Block(
 
     companion object {
 
-        val Air = Block(BlockRegistry.Air)
+        val AIR = Block(BlockRegistry.Air)
 
         fun parseBlockStateString(string: String): Pair<String, Map<String, String>> {
             val index = string.indexOf('[')
@@ -98,7 +98,7 @@ data class Block(
         fun getBlockFromStateString(identifier: String): Block {
             val blockIdentifier = identifier.split("[")[0]
             val block = BlockRegistry[blockIdentifier]
-            val id = block.possibleStates[identifier] ?: throw Exception("No matching state sequence found on ${block.identifier}")
+            val id = block.possibleStates[identifier] ?: throw IllegalArgumentException("No matching state sequence found on ${block.identifier}")
             return getBlockByStateId(id)
         }
     }

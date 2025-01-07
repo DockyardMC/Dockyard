@@ -1,52 +1,60 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.*
+import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import io.github.dockyardmc.registry.*
-import io.github.dockyardmc.team.TeamManager
-import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.protocol.plugin.PluginMessages
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
-import io.github.dockyardmc.world.chunk.ChunkPos
+import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.server.FeatureFlags
+import io.github.dockyardmc.serverlinks.ServerLinks
+import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
+import io.github.dockyardmc.world.chunk.ChunkPos
 import io.netty.channel.ChannelHandlerContext
 
-class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(processor) {
+class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(processor) {
 
     fun handlePluginMessage(packet: ServerboundConfigurationPluginMessagePacket, connection: ChannelHandlerContext) {
         val event = PluginMessageReceivedEvent(processor.player, packet.channel, packet.data)
         Events.dispatch(event)
+        if (!event.cancelled) PluginMessages.handle(event.channel, event.data, processor.player)
+    }
 
-        if(!event.cancelled) PluginMessages.handle(event.channel, event.data, processor.player)
+    companion object {
 
-        // Send server brand
-        val serverBrandEvent = ServerBrandEvent("§bDockyardMC Server §7(https://github.com/DockyardMC/)§r")
-        Events.dispatch(serverBrandEvent)
-        connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"), processor)
+        fun enterConfiguration(player: Player, connection: ChannelHandlerContext, isFirstConfiguration: Boolean) {
 
-        // Send feature flags
-        val featureFlagsEvent = PlayerSendFeatureFlagsEvent(FeatureFlags.enabledFeatureFlags)
-        Events.dispatch(featureFlagsEvent)
-        connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), processor)
+            val networkManager = player.networkManager
 
-        connection.sendPacket(ClientboundUpdateTagsPacket(), processor)
+            // Send server brand
+            val serverBrandEvent = ServerBrandEvent("§bDockyardMC Server§r")
+            Events.dispatch(serverBrandEvent)
+            connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"), networkManager)
 
-        RegistryManager.dynamicRegistries.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it), processor) }
-        connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), processor)
+            // Send feature flags
+            val featureFlagsEvent = PlayerSendFeatureFlagsEvent(FeatureFlags.enabledFeatureFlags)
+            Events.dispatch(featureFlagsEvent)
+            connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), networkManager)
 
-        val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
-        connection.sendPacket(finishConfigurationPacket, processor)
+            connection.sendPacket(ClientboundUpdateTagsPacket(), networkManager)
+
+            RegistryManager.dynamicRegistries.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it), networkManager) }
+            connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), networkManager)
+
+            val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
+            connection.sendPacket(finishConfigurationPacket, networkManager)
+        }
     }
 
     fun handleClientInformation(packet: ServerboundClientInformationPacket, connection: ChannelHandlerContext) {
@@ -78,16 +86,16 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
 
         processor.player.world = world
 
-        if(world.canBeJoined.value) {
-            acceptPlayer(player, world)
+        if (world.canBeJoined.value) {
+            enterPlay(player, world)
         } else {
             world.canBeJoined.valueChanged {
-                if(it.newValue) acceptPlayer(player, world)
+                if (it.newValue) enterPlay(player, world)
             }
         }
     }
 
-    private fun acceptPlayer(player: Player, world: World) {
+    private fun enterPlay(player: Player, world: World) {
 
         val playPacket = ClientboundLoginPacket(
             entityId = player.entityId,
@@ -118,7 +126,6 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         val gameEventPacket = ClientboundGameEventPacket(GameEvent.START_WAITING_FOR_CHUNKS, 0f)
         player.sendPacket(gameEventPacket)
 
-        world.join(player)
         ServerStatusManager.updateCache()
         Events.dispatch(PlayerJoinEvent(processor.player))
 
@@ -132,6 +139,10 @@ class ConfigurationHandler(val processor: PlayerNetworkManager): PacketHandler(p
         }
 
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(player.uuid, SetListedInfoUpdateAction(player.isListed.value))))
-        if(ConfigManager.config.useMojangAuth) player.setSkin(player.uuid)
+        player.refreshAbilities()
+
+        world.join(player)
+
+        if (ConfigManager.config.useMojangAuth) player.setSkin(player.uuid)
     }
 }

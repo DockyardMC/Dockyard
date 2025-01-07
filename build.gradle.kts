@@ -63,6 +63,14 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     api("it.unimi.dsi:fastutil:8.5.13")
     api("cz.lukynka:kotlin-bindables:1.2")
+
+    testImplementation(kotlin("test"))
+    testImplementation("org.mockito:mockito-core:5.4.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 fun String.runCommand(

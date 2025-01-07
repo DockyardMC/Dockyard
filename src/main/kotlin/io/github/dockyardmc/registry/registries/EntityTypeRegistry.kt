@@ -22,6 +22,10 @@ object EntityTypeRegistry: DataDrivenRegistry {
     var protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter = AtomicInteger()
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     private fun addEntry(entry: EntityType) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         entityTypes[entry.identifier] = entry

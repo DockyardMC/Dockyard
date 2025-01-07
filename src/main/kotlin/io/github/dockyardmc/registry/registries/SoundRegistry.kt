@@ -15,6 +15,10 @@ object SoundRegistry {
 
     private val protocolIdCounter = AtomicInteger()
 
+    fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     fun addEntry(entry: String) {
         val id = protocolIdCounter.getAndIncrement()
         map[id] = entry

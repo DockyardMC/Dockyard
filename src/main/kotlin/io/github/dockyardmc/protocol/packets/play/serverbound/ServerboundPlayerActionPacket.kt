@@ -28,24 +28,42 @@ class ServerboundPlayerActionPacket(
     var sequence: Int,
 ) : ServerboundPacket {
 
+    companion object {
+
+        private val cannotDig = mutableListOf(GameMode.ADVENTURE, GameMode.SPECTATOR)
+
+        fun read(buf: ByteBuf): ServerboundPlayerActionPacket =
+            ServerboundPlayerActionPacket(
+                buf.readVarIntEnum<PlayerAction>(),
+                buf.readBlockPosition(),
+                buf.readByteEnum<Direction>(),
+                buf.readVarInt()
+            )
+    }
+
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         val location = position.toLocation(player.world)
         val block = player.world.getBlock(location)
 
         if (action == PlayerAction.CANCELLED_DIGGING) {
+            if(cannotDig.contains(player.gameMode.value)) return
+
             Events.dispatch(PlayerCancelledDiggingEvent(player, location, block, getPlayerEventContext(player)))
             player.isDigging = false
         }
 
         if (action == PlayerAction.FINISHED_DIGGING) {
+            if(cannotDig.contains(player.gameMode.value)) return
+
             Events.dispatch(PlayerFinishedDiggingEvent(player, location, block, getPlayerEventContext(player)))
             player.breakBlock(location, block, face)
         }
 
         if (action == PlayerAction.START_DIGGING) {
-            Events.dispatch(PlayerStartDiggingBlockEvent(player, location, block, getPlayerEventContext(player)))
+            if(cannotDig.contains(player.gameMode.value)) return
 
+            Events.dispatch(PlayerStartDiggingBlockEvent(player, location, block, getPlayerEventContext(player)))
             player.isDigging = true
 
             if (player.gameMode.value != GameMode.CREATIVE) return
@@ -83,16 +101,10 @@ class ServerboundPlayerActionPacket(
             }
             player.setHeldItem(PlayerHand.MAIN_HAND, ItemStack.AIR)
         }
-    }
 
-    companion object {
-        fun read(buf: ByteBuf): ServerboundPlayerActionPacket =
-            ServerboundPlayerActionPacket(
-                buf.readVarIntEnum<PlayerAction>(),
-                buf.readBlockPosition(),
-                buf.readByteEnum<Direction>(),
-                buf.readVarInt()
-            )
+        if(action == PlayerAction.SWAP_ITEM) {
+            player.inventory.swapOffhand()
+        }
     }
 }
 

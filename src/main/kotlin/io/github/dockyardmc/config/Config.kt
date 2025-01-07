@@ -46,7 +46,7 @@ class ImplementationConfig {
     var commandErrorPrefix: String = "<dark_red>Error <dark_gray>| <red>"
     var commandNoPermissionsMessage: String = "You do not have permissions to execute this command!"
     var cacheSchematics: Boolean = true
-    var defaultEntityRenderDistanceBlocks: Int = 64
+    var defaultEntityViewDistanceBlocks: Int = 64
     var dockyardCommands: Boolean = false
     var npcCommand: Boolean = false
     var itemDroppingAndPickup: Boolean = false

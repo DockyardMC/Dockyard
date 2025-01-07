@@ -1,5 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.blocks.BarrelPlacementRules
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.ShulkerboxPlacementRules
@@ -147,13 +149,13 @@ class ServerboundUseItemOnBlockPacket(
                 }
             }
 
-            if (!GeneralBlockPlacementRules.canBePlaced(
-                    pos.toLocation(player.world),
-                    newPos.toLocation(player.world),
-                    block,
-                    player
-                )
-            ) {
+            val canBePlaced = GeneralBlockPlacementRules.canBePlaced(
+                pos.toLocation(player.world),
+                newPos.toLocation(player.world),
+                block,
+                player
+            )
+            if (!canBePlaced.canBePlaced) {
                 cancelled = true
             }
 

@@ -2,6 +2,7 @@ package io.github.dockyardmc.protocol.packets.registry
 
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import java.lang.IllegalArgumentException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
@@ -17,6 +18,18 @@ abstract class PacketRegistry {
             ProtocolState.CONFIGURATION -> getReversedConfiguration()[id]
             ProtocolState.PLAY -> getReversedPlay()[id]
         }
+    }
+
+    fun getAll(): MutableList<KClass<*>> {
+        val list = mutableListOf<KClass<*>>()
+
+        list.addAll(handshakePackets.keys)
+        list.addAll(statusPackets.keys)
+        list.addAll(loginPackets.keys)
+        list.addAll(configurationPackets.keys)
+        list.addAll(playPackets.keys)
+
+        return list
     }
 
     fun getFromId(id: Int, state: ProtocolState): KClass<*> {

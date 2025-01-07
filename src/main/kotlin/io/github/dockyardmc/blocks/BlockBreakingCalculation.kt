@@ -21,7 +21,7 @@ object BlockBreakingCalculation {
             return -1
         }
 
-        val item = player.mainHandItem.value
+        val item = player.mainHandItem
 
         val toolComponent: ToolItemComponent? = item.components.getOrNull(ToolItemComponent::class)
         val isBestTool = canBreakBlock(toolComponent, block)

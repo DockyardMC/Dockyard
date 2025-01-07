@@ -1,6 +1,8 @@
-package io.github.dockyardmc.protocol.cryptography
+package io.github.dockyardmc.protocol.encoders
 
 import io.github.dockyardmc.player.PlayerCrypto
+import io.github.dockyardmc.protocol.cryptography.EncryptionBase
+import io.github.dockyardmc.protocol.cryptography.EncryptionUtil
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.MessageToByteEncoder
@@ -8,6 +10,7 @@ import io.netty.handler.codec.MessageToByteEncoder
 class PacketEncryptionHandler(private val playerCrypto: PlayerCrypto) : MessageToByteEncoder<ByteBuf>() {
 
     private val encryptionBase = EncryptionBase(EncryptionUtil.getEncryptionCipherInstance(playerCrypto))
+
     override fun encode(ctx: ChannelHandlerContext, msg: ByteBuf, out: ByteBuf) {
 
         if(!playerCrypto.isConnectionEncrypted) {

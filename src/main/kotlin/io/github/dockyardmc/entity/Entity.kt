@@ -4,7 +4,6 @@ import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import cz.lukynka.BindableMap
 import cz.lukynka.BindablePool
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockIterator
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.handlers.*
@@ -73,7 +72,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val equipment: BindableMap<EquipmentSlot, ItemStack> = bindablePool.provideBindableMap()
     val equipmentLayers: BindableMap<PersistentPlayer, Map<EquipmentSlot, ItemStack>> = bindablePool.provideBindableMap()
 
-    var renderDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityRenderDistanceBlocks
+    var viewDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityViewDistanceBlocks
 
     var passengers: BindableList<Entity> = BindableList()
     var vehicle: Entity? = null
@@ -157,6 +156,10 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         player.sendPacket(entitySpawnPacket)
         sendMetadataPacket(player)
         sendMetadataPacketToViewers()
+    }
+
+    fun canSee(entity: Entity): Boolean {
+        return entity.viewers.contains(this)
     }
 
     override fun removeViewer(player: Player) {
@@ -351,7 +354,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         }
         return null
     }
-
 
     fun getFacingDirectionVector(): Vector3f {
         val yawRadians = Math.toRadians(location.yaw.toDouble())

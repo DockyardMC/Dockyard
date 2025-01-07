@@ -17,20 +17,19 @@ object WorldManager {
     fun loadDefaultWorld() {
         mainWorld.generate {
             worlds["main"] = mainWorld
-            generateStonePlatform(mainWorld)
+            generateDefaultStonePlatform(mainWorld)
         }
     }
 
-    private fun generateStonePlatform(world: World) {
+    fun generateDefaultStonePlatform(world: World, size: Int = 30) {
 
-        val platformSize = 30
-        val centerX = (platformSize - 1) / 2
-        val centerZ = (platformSize - 1) / 2
+        val centerX = (size - 1) / 2
+        val centerZ = (size - 1) / 2
 
         world.defaultSpawnLocation = Location(centerX + 0.5, 1.0, centerZ + 0.5, world)
 
-        for (x in 0 until platformSize) {
-            for (z in 0 until platformSize) {
+        for (x in 0 until size) {
+            for (z in 0 until size) {
                 world.setBlock(x, 0, z, Blocks.STONE)
             }
         }

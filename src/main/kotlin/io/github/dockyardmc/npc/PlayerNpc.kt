@@ -42,7 +42,7 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
 
         displayedSkinParts.listUpdated {
             metadata[EntityMetadataType.POSE] = EntityMetadata(
-                EntityMetadataType.DISPLAY_SKIN_PARTS,
+                EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS,
                 EntityMetaValue.BYTE,
                 displayedSkinParts.values.getBitMask()
             )

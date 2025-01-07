@@ -3,17 +3,51 @@ package io.github.dockyardmc.player
 import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerConnectEvent
+import io.github.dockyardmc.protocol.ChannelHandlers
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.world.World
+import io.github.dockyardmc.world.WorldManager
+import io.ktor.util.network.*
+import io.netty.channel.ChannelHandlerContext
+import java.lang.IllegalArgumentException
+import java.util.*
 
 object PlayerManager {
 
-    val innerPlayers: MutableList<Player> = mutableListOf()
-    val players get() = innerPlayers.toList()
-
+    private val innerPlayers: MutableList<Player> = mutableListOf()
+    private val innerUUIDToPlayerMap: MutableMap<UUID, Player> = mutableMapOf()
+    private val innerUsernameToPlayerMap: MutableMap<String, Player> = mutableMapOf()
     private val innerPlayerToEntityIdMap = mutableMapOf<Int, Player>()
+
+    val players get() = innerPlayers.toList()
+    val uuidToPlayerMap get() = innerUUIDToPlayerMap.toMap()
     val playerToEntityIdMap get() = innerPlayerToEntityIdMap.toMap()
+    val usernameToPlayerMap get() = innerUsernameToPlayerMap.toMap()
+
+    fun getPlayerByUsernameOrNull(username: String): Player? {
+        return usernameToPlayerMap[username]
+    }
+
+    fun getPlayerByUsername(username: String): Player {
+        return usernameToPlayerMap[username] ?: throw IllegalArgumentException("Player with username $username is not online on the server!")
+    }
+
+    fun getPlayerByUUIDOrNull(uuid: String): Player? {
+        return getPlayerByUUIDOrNull(UUID.fromString(uuid))
+    }
+
+    fun getPlayerByUUIDOrNull(uuid: UUID): Player? {
+        return uuidToPlayerMap[uuid]
+    }
+
+    fun getPlayerByUUID(uuid: String): Player {
+        return getPlayerByUUID(UUID.fromString(uuid))
+    }
+
+    fun getPlayerByUUID(uuid: UUID): Player {
+        return getPlayerByUUIDOrNull(uuid) ?: throw IllegalArgumentException("Player with uuid $uuid is not online on the server")
+    }
 
     fun add(player: Player, processor: PlayerNetworkManager) {
         synchronized(innerPlayers) {
@@ -50,5 +84,19 @@ object PlayerManager {
     fun sendToEveryoneInWorld(world: World, packet: ClientboundPacket) {
         val filtered = players.filter { it.world == world }
         filtered.forEach { it.sendPacket(packet) }
+    }
+
+    fun createNewPlayer(username: String, uuid: UUID, connection: ChannelHandlerContext, networkManager: PlayerNetworkManager): Player {
+        val player = Player(
+            username = username,
+            entityId = EntityManager.entityIdCounter.incrementAndGet(),
+            uuid = uuid,
+            world = WorldManager.mainWorld,
+            address = connection.channel().remoteAddress().address,
+            connection = connection,
+            networkManager = networkManager
+        )
+        this.add(player, networkManager)
+        return player
     }
 }

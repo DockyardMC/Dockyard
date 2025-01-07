@@ -24,6 +24,7 @@ import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getWorldEventContext
 import io.github.dockyardmc.utils.vectors.Vector2f
+import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
@@ -126,11 +127,12 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         player.world.innerPlayers.removeIfPresent(player)
         player.world = this
 
-        oldWorld.entities.filter { it != player }.forEach { it.removeViewer(player) }
-        oldWorld.players.filter { it != player }.forEach {
-            it.removeViewer(player)
-            player.removeViewer(it)
+        player.viewers.forEach { viewer ->
+            viewer.removeViewer(player)
+            player.removeViewer(viewer)
         }
+
+        player.entityViewSystem.clear()
 
         addEntity(player)
         addPlayer(player)
@@ -138,7 +140,9 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         Events.dispatch(PlayerChangeWorldEvent(player, oldWorld, this))
 
         joinQueue.removeIfPresent(player)
+
         player.respawn()
+        player.entityViewSystem.tick()
         player.sendPacketToViewers(ClientboundEntityTeleportPacket(player, player.location))
 
         player.isFullyInitialized = true
@@ -221,6 +225,9 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     fun getBlock(location: Location): Block =
         this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
+
+    fun getBlock(vector3: Vector3): Block =
+        this.getBlock(vector3.x, vector3.y, vector3.z)
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
         val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $z not generated!")

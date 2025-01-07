@@ -21,6 +21,10 @@ object DimensionTypeRegistry : DynamicRegistry {
     var protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter =  AtomicInteger()
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     fun addEntry(entry: DimensionType, updateCache: Boolean = true) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         dimensionTypes[entry.identifier] = entry

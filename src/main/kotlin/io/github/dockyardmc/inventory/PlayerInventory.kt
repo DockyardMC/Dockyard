@@ -1,12 +1,14 @@
 package io.github.dockyardmc.inventory
 
 import cz.lukynka.Bindable
+import cz.lukynka.main
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.ItemDropEntity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.events.PlayerEquipEvent
+import io.github.dockyardmc.events.PlayerSwapOffhandEvent
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
@@ -60,6 +62,17 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
     fun unsafeUpdateEquipmentSlot(slot: EquipmentSlot, heldSlot: Int, itemStack: ItemStack) {
         slots.setSilently(getSlotId(slot, heldSlot), itemStack)
+    }
+
+    fun swapOffhand() {
+        val offhandItem = player.offHandItem
+        val mainHandItem = player.mainHandItem
+
+        val event = PlayerSwapOffhandEvent(player, mainHandItem, offhandItem, getPlayerEventContext(player))
+        if(event.cancelled) return
+
+        player.mainHandItem = event.offHandItem
+        player.offHandItem = event.mainHandItem
     }
 
     override fun set(slot: Int, item: ItemStack) {

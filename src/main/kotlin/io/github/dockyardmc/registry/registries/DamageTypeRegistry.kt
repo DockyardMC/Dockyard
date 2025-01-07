@@ -20,6 +20,10 @@ object DamageTypeRegistry: DynamicRegistry {
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter =  AtomicInteger()
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     fun addEntry(entry: DamageType, updateCache: Boolean = true) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         damageTypes[entry.identifier] = entry

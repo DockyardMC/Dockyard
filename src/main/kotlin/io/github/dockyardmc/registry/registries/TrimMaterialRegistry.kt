@@ -16,6 +16,10 @@ object TrimMaterialRegistry: DynamicRegistry {
 
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
 
+    override fun getMaxProtocolId(): Int {
+        return protocolIdCounter.get()
+    }
+
     val trimMaterials: MutableMap<String, TrimMaterial> = mutableMapOf()
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter = AtomicInteger()
