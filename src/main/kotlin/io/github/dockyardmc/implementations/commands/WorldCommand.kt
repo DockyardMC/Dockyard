@@ -1,11 +1,13 @@
 package io.github.dockyardmc.implementations.commands
 
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.*
+import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.FlatWorldGenerator
-import kotlin.time.Duration.Companion.milliseconds
 
 class WorldCommand {
 
@@ -50,10 +52,13 @@ class WorldCommand {
 
             addSubcommand("create") {
                 addArgument("world", StringArgument(), simpleSuggestion("<name>"))
-                execute {
+                execute { ctx ->
                     val worldName = getArgument<String>("world")
-                    WorldManager.create(worldName, FlatWorldGenerator(), DimensionTypes.OVERWORLD)
-                    it.sendMessage("<lime>Created world <yellow>$worldName")
+                    WorldManager.createWithFuture(worldName, FlatWorldGenerator(), DimensionTypes.OVERWORLD).thenAccept { world ->
+                        ctx.sendMessage("<lime>Created world <yellow>${world.name}")
+                        world.defaultSpawnLocation = Location(0, 201, 0, world)
+                        DockyardServer.broadcastMessage("")
+                    }
                 }
             }
         }

@@ -31,6 +31,7 @@ import io.github.dockyardmc.world.chunk.ChunkPos
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType) : Disposable {
 
@@ -65,7 +66,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     val entities get() = innerEntities.toList()
 
     var canBeJoined: Bindable<Boolean> = Bindable(false)
-    val joinQueue: MutableList<Player> = mutableListOf()
+    val playerJoinQueue: MutableList<Player> = mutableListOf()
 
     var isHardcore: Boolean = false
     var freezeTime: Boolean = false
@@ -73,6 +74,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     var seaLevel = 0
 
     val customDataBlocks: MutableMap<Int, Block> = mutableMapOf()
+
 
     fun tick() {
         val event = WorldTickEvent(this, scheduler, getWorldEventContext(this))
@@ -116,8 +118,8 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     fun join(player: Player) {
         if (player.world == this && player.isFullyInitialized) return
-        if (!canBeJoined.value && !joinQueue.contains(player)) {
-            joinQueue.addIfNotPresent(player)
+        if (!canBeJoined.value && !playerJoinQueue.contains(player)) {
+            playerJoinQueue.addIfNotPresent(player)
             debug("$player joined before world $name is loaded, added to joinQueue", logType = LogType.DEBUG)
             return
         }
@@ -127,7 +129,9 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         player.world.innerPlayers.removeIfPresent(player)
         player.world = this
 
-        player.viewers.forEach { viewer ->
+        player.entityViewSystem.lock.lock()
+
+        player.viewers.toList().forEach { viewer ->
             viewer.removeViewer(player)
             player.removeViewer(viewer)
         }
@@ -139,7 +143,9 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
         Events.dispatch(PlayerChangeWorldEvent(player, oldWorld, this))
 
-        joinQueue.removeIfPresent(player)
+        playerJoinQueue.removeIfPresent(player)
+
+        player.entityViewSystem.lock.unlock()
 
         player.respawn()
         player.entityViewSystem.tick()
@@ -149,16 +155,15 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         player.updateWorldTime()
     }
 
-    fun generate(then: ((World) -> Unit)? = null) {
+    fun generate(): CompletableFuture<Unit> {
         val task = scheduler.runAsync {
             generateBaseChunks(6)
         }
         task.thenAccept {
             log("World $name has finished loading!", LogType.RUNTIME)
             canBeJoined.value = true
-            joinQueue.forEach(::join)
+            playerJoinQueue.forEach(::join)
             Events.dispatch(WorldFinishLoadingEvent(this))
-            then?.invoke(this)
         }
 
         time.valueChanged {
@@ -177,6 +182,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
                 time.setSilently(time.value + 1)
             }
         }
+        return task
     }
 
     fun sendMessage(message: String) {

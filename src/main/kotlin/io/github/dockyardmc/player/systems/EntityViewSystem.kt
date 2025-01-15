@@ -4,10 +4,12 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.addIfNotPresent
 import io.github.dockyardmc.extentions.removeIfPresent
 import io.github.dockyardmc.player.Player
+import java.util.concurrent.locks.ReentrantLock
 
 class EntityViewSystem(val player: Player): TickablePlayerSystem {
 
     var visibleEntities: MutableList<Entity> = mutableListOf()
+    val lock = ReentrantLock()
 
     fun clear() {
         synchronized(visibleEntities) {
@@ -19,6 +21,7 @@ class EntityViewSystem(val player: Player): TickablePlayerSystem {
     }
 
     override fun tick() {
+        if(lock.isLocked) return
         val entities = player.world.entities.toList().filter { it.autoViewable && it != player }
 
         val add = entities.filter { it.location.distance(player.location) <= it.viewDistanceBlocks && !visibleEntities.contains(it) }

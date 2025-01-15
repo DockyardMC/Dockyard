@@ -8,6 +8,7 @@ import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 import java.lang.IllegalArgumentException
+import java.util.concurrent.CompletableFuture
 
 object WorldManager {
 
@@ -15,7 +16,7 @@ object WorldManager {
     val mainWorld: World = World("main", VoidWorldGenerator(Biomes.THE_VOID), DimensionTypes.OVERWORLD)
 
     fun loadDefaultWorld() {
-        mainWorld.generate {
+        mainWorld.generate().thenAccept {
             worlds["main"] = mainWorld
             generateDefaultStonePlatform(mainWorld)
         }
@@ -42,6 +43,14 @@ object WorldManager {
         world.generate()
         worlds[name] = world
         return world
+    }
+
+    fun createWithFuture(name: String, generator: WorldGenerator, dimensionType: DimensionType): CompletableFuture<World> {
+        require(!worlds.keys.contains(name)) { "World with name $name already exists!" }
+
+        val world = World(name, generator, dimensionType)
+        worlds[name] = world
+        return world.generate().thenApply { world }
     }
 
     fun delete(name: String) {

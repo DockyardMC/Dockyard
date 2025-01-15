@@ -231,7 +231,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         )
     }
 
-
     open fun teleport(location: Location) {
         this.location = location
         viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
