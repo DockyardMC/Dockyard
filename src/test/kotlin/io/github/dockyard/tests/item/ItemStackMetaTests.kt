@@ -1,6 +1,5 @@
 package io.github.dockyard.tests.item
 
-import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.CustomColor

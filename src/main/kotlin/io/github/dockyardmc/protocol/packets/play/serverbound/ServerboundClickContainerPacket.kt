@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.inventory.InventoryClickHandler
@@ -453,15 +454,21 @@ class ServerboundClickContainerPacket(
         component: EquippableItemComponent?
     ) {
         player.equipment[equipmentSlot] = item
-        player.inventory[clickedSlot] = ItemStack.AIR
+        player.inventory[clickedSlot] = item
 
         val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
         player.playSound(sound, pitch = randomFloat(1.0f, 1.2f))
     }
 
     private fun unequip(player: Player, equipmentSlot: EquipmentSlot, component: EquippableItemComponent?) {
-        player.give(player.equipment[equipmentSlot]!!)
+
+        val currentItem = player.equipment[equipmentSlot] ?: ItemStack.AIR
+//        if(player.inventory.cursorItem.value != ItemStack.AIR) {
+//            equip(player, player.inventory.getSlotId(equipmentSlot, player.heldSlotIndex.value), equipmentSlot, currentItem, currentItem.components.getOrNull<EquippableItemComponent>(EquippableItemComponent::class))
+//        } else {
+//        }
         player.equipment[equipmentSlot] = ItemStack.AIR
+
         player.inventory.sendFullInventoryUpdate()
 
         val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
