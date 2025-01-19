@@ -14,6 +14,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventoryCursorPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.utils.getPlayerEventContext
 
 class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SIZE) {
@@ -140,6 +141,10 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
 fun Player.give(itemStack: ItemStack): Boolean {
     return this.inventory.give(itemStack)
+}
+
+fun Player.give(item: Item): Boolean {
+    return this.inventory.give(item.toItemStack())
 }
 
 fun Player.give(vararg itemStack: ItemStack) {

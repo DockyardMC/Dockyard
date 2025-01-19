@@ -1,4 +1,4 @@
-package io.github.dockyard.tests.entity
+package io.github.dockyard.tests.inventory
 
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
@@ -16,7 +16,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class PlayerHeldItemTest {
+class HeldItemTest {
 
     @BeforeTest
     fun prepare() {

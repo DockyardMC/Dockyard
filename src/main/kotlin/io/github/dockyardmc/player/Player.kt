@@ -4,6 +4,7 @@ import cz.lukynka.Bindable
 import cz.lukynka.BindableList
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.commands.buildCommandGraph
+import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
@@ -115,6 +116,7 @@ class Player(
 
     var lastInteractionTime: Long = -1L
     var currentOpenInventory: ContainerInventory? = null
+    val hasInventoryOpen: Boolean get() = currentOpenInventory != null
     var itemInUse: ItemInUse? = null
 
     lateinit var lastSentPacket: ClientboundPacket
@@ -326,7 +328,7 @@ class Player(
         sendMetadataPacket(this)
     }
 
-    fun clearTitle(reset: Boolean) {
+    fun clearTitle(reset: Boolean = false) {
         sendPacket(ClientboundClearTitlePacket(reset))
     }
 
@@ -385,6 +387,11 @@ class Player(
     fun closeInventory() {
         sendPacket(ClientboundCloseInventoryPacket(0))
         sendPacket(ClientboundCloseInventoryPacket(1))
+        if(inventory.cursorItem.value != ItemStack.AIR) {
+            val giveSuccess = give(inventory.cursorItem.value)
+            inventory.cursorItem.value = ItemStack.AIR
+            if(!giveSuccess && ConfigManager.config.implementationConfig.itemDroppingAndPickup) inventory.drop(inventory.cursorItem.value)
+        }
     }
 
     fun resetExperience() {
