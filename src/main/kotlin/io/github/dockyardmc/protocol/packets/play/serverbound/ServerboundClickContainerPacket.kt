@@ -1,11 +1,9 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.inventory.InventoryClickHandler
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
-import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.PlayerNetworkManager
@@ -146,8 +144,8 @@ class ServerboundClickContainerPacket(
                 if (action == NormalShiftButtonAction.SHIFT_LEFT_MOUSE_CLICK || action == NormalShiftButtonAction.SHIFT_RIGHT_MOUSE_CLICK) {
 
                     var equipmentSlot: EquipmentSlot? = null
-                    val equipmentComponent =
-                        clickedSlotItem.components.getOrNull<EquippableItemComponent>(EquippableItemComponent::class)
+                    val equipmentComponent = clickedSlotItem.components.getOrNull<EquippableItemComponent>(EquippableItemComponent::class)
+
                     if (equipmentComponent == null) {
                         val defaultEquipment = PlayerInventoryUtils.getDefaultEquipmentSlot(clickedSlotItem.material)
                         if (defaultEquipment != null) equipmentSlot = defaultEquipment
@@ -160,6 +158,7 @@ class ServerboundClickContainerPacket(
                         val current = player.equipment.values.getOrDefault(equipmentSlot, ItemStack.AIR)
                         if (current.isEmpty() && !clickedSlotItem.isEmpty()) {
                             equip(player, properSlot, equipmentSlot!!, clickedSlotItem, equipmentComponent)
+                            player.inventory[properSlot] = ItemStack.AIR
                             return
                         }
                     }
@@ -167,11 +166,13 @@ class ServerboundClickContainerPacket(
                     val clickedEquipmentSlot = player.inventory.getEquipmentSlot(properSlot, player.heldSlotIndex.value)
                     if ((clickedEquipmentSlot != null && clickedEquipmentSlot != EquipmentSlot.MAIN_HAND) && (player.equipment[clickedEquipmentSlot] != null && player.equipment[clickedEquipmentSlot] != empty) && !player.equipment[clickedEquipmentSlot]!!.isEmpty()) {
                         unequip(player, clickedEquipmentSlot, equipmentComponent)
+                        val giveInventory = player.inventory.give(clickedSlotItem, 9 to 35)
+                        if(!giveInventory) player.inventory.give(clickedSlotItem, 0 to 8)
                         return
                     }
 
                     val range = if (properSlot <= 8) 9 to 35 else 0 to 8
-                    val suitableSlotIndex: Int = InventoryClickHandler.findSuitableSlotInRange(player, range.first, range.second, item) ?: return
+                    val suitableSlotIndex: Int = InventoryClickHandler.findSuitableSlotInRange(player.inventory, range.first, range.second, item) ?: return
 
                     val existingItem = player.inventory[suitableSlotIndex].clone()
 
@@ -417,33 +418,23 @@ class ServerboundClickContainerPacket(
     }
 
     fun handleClickEquipAndUnequip(player: Player, properSlot: Int, clickedSlotItem: ItemStack): Boolean {
-        val equipmentSlot = player.inventory.getEquipmentSlot(properSlot, player.heldSlotIndex.value)
-        if (EquipmentSlot.isBody(equipmentSlot)) {
-            if (!player.inventory.cursorItem.value.isEmpty() && clickedSlotItem.isEmpty()) {
-                //clicking into armor slot, players cursor item is not empty
-                val cursorEquipmentSlot = getEquipmentSlot(player.inventory.cursorItem.value)
-                if (cursorEquipmentSlot.first == equipmentSlot!!) {
-                    equip(
-                        player,
-                        properSlot,
-                        equipmentSlot,
-                        player.inventory.cursorItem.value,
-                        cursorEquipmentSlot.second
-                    )
-                    player.inventory.cursorItem.value = ItemStack.AIR
-                    return true
-                } else {
-                    player.inventory.sendFullInventoryUpdate()
-                    return true
-                }
-            }
-            if (player.inventory.cursorItem.value.isEmpty() && player.equipment.values.getOrDefault(equipmentSlot!!, ItemStack.AIR) != ItemStack.AIR) {
-                player.inventory.cursorItem.value = player.equipment[equipmentSlot]!!
-                unequip(player, equipmentSlot, null)
-                return true
-            }
+        val equipmentSlot = player.inventory.getEquipmentSlot(properSlot, player.heldSlotIndex.value) ?: return false
+        if (!EquipmentSlot.isBody(equipmentSlot)) return false
+
+        val cursorItem = player.inventory.cursorItem.value
+        val cursorItemEquipmentSlot = getEquipmentSlot(cursorItem)
+
+        if(!cursorItem.isEmpty() && cursorItemEquipmentSlot.first == null) return false
+
+        if(!cursorItem.isEmpty() && cursorItemEquipmentSlot.first != equipmentSlot) {
+            player.inventory.sendFullInventoryUpdate()
+            return true
         }
-        return false
+
+        player.equipment[equipmentSlot] = cursorItem
+        player.inventory.cursorItem.value = clickedSlotItem
+
+        return true
     }
 
     private fun equip(
@@ -461,15 +452,8 @@ class ServerboundClickContainerPacket(
     }
 
     private fun unequip(player: Player, equipmentSlot: EquipmentSlot, component: EquippableItemComponent?) {
-
-        val currentItem = player.equipment[equipmentSlot] ?: ItemStack.AIR
-//        if(player.inventory.cursorItem.value != ItemStack.AIR) {
-//            equip(player, player.inventory.getSlotId(equipmentSlot, player.heldSlotIndex.value), equipmentSlot, currentItem, currentItem.components.getOrNull<EquippableItemComponent>(EquippableItemComponent::class))
-//        } else {
-//        }
         player.equipment[equipmentSlot] = ItemStack.AIR
-
-        player.inventory.sendFullInventoryUpdate()
+        player.inventory[player.inventory.getSlotId(equipmentSlot, player.heldSlotIndex.value)] = ItemStack.AIR
 
         val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
         player.playSound(sound, pitch = randomFloat(0.6f, 0.8f))

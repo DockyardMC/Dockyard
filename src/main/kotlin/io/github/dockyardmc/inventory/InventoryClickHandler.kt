@@ -1,7 +1,5 @@
 package io.github.dockyardmc.inventory
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.utils.isBetween
@@ -81,11 +79,12 @@ object InventoryClickHandler {
         return result
     }
 
-    fun findSuitableSlotInRange(player: Player, min: Int, max: Int, item: ItemStack): Int? {
+
+    fun findSuitableSlotInRange(inventory: EntityInventory, min: Int, max: Int, item: ItemStack): Int? {
         val suitableSlots = mutableListOf<Int>()
 
         for (i in min until max) {
-            val slot = player.inventory[i]
+            val slot = inventory[i]
             if (slot.isEmpty()) {
                 suitableSlots.add(i)
             } else {
@@ -103,8 +102,8 @@ object InventoryClickHandler {
             }
         }
 
-        val nonEmpty = suitableSlots.filter { !player.inventory[it].isEmpty() }
-        val empty = suitableSlots.filter { player.inventory[it].isEmpty() }
+        val nonEmpty = suitableSlots.filter { !inventory[it].isEmpty() }
+        val empty = suitableSlots.filter { inventory[it].isEmpty() }
 
         // non-empty first so items can stack
         nonEmpty.forEach { index ->

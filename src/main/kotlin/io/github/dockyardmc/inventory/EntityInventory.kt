@@ -34,53 +34,57 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
         }
     }
 
-    open fun give(item: ItemStack): Boolean {
-        val suitableSlots = mutableListOf<Int>()
-        for (i in 0 until size) {
-            val slot = get(i)
-            if (slot.isEmpty()) {
-                suitableSlots.add(i)
-            } else {
-                val canStack = slot.isSameAs(item) &&
-                        slot.amount != slot.maxStackSize &&
-                        slot.amount + item.amount <= slot.maxStackSize
+    open fun give(item: ItemStack, range: Pair<Int, Int> = 0 to 36): Boolean {
+        val suitableSlot = InventoryClickHandler.findSuitableSlotInRange(this, range.first, range.second, item) ?: return false
+        slots[suitableSlot] = item
+        return true
 
-                if (canStack) {
-                    suitableSlots.add(i)
-                } else {
-                    if (slot.isSameAs(item) && slot.amount != slot.maxStackSize) {
-                        suitableSlots.add(i)
-                    }
-                }
-            }
-        }
-
-        // non-empty first so items can stack
-        suitableSlots.filter { !get(it).isEmpty() }.forEach { index ->
-            val slot = get(index)
-            val canStack = slot.isSameAs(item) &&
-                    slot.amount != slot.maxStackSize &&
-                    slot.amount + item.amount <= slot.maxStackSize
-            if (canStack) {
-                slots[index] = slot.withAmount(slot.amount + item.amount)
-                return true
-            } else {
-                val totalAmount = item.amount + slot.amount
-                val newClicked = slot.maxStackSize
-                slots[index] = slot.withAmount(newClicked)
-                val remainder = totalAmount - slot.maxStackSize
-                give(item.withAmount(remainder))
-                return true
-            }
-        }
-
-        // empty slots last
-        suitableSlots.filter { get(it).isEmpty() }.forEach { index ->
-            slots[index] = item
-            return true
-        }
-
-        return false
+//        val suitableSlots = mutableListOf<Int>()
+//        for (i in 0 until size) {
+//            val slot = get(i)
+//            if (slot.isEmpty()) {
+//                suitableSlots.add(i)
+//            } else {
+//                val canStack = slot.isSameAs(item) &&
+//                        slot.amount != slot.maxStackSize &&
+//                        slot.amount + item.amount <= slot.maxStackSize
+//
+//                if (canStack) {
+//                    suitableSlots.add(i)
+//                } else {
+//                    if (slot.isSameAs(item) && slot.amount != slot.maxStackSize) {
+//                        suitableSlots.add(i)
+//                    }
+//                }
+//            }
+//        }
+//
+//        // non-empty first so items can stack
+//        suitableSlots.filter { !get(it).isEmpty() }.forEach { index ->
+//            val slot = get(index)
+//            val canStack = slot.isSameAs(item) &&
+//                    slot.amount != slot.maxStackSize &&
+//                    slot.amount + item.amount <= slot.maxStackSize
+//            if (canStack) {
+//                slots[index] = slot.withAmount(slot.amount + item.amount)
+//                return true
+//            } else {
+//                val totalAmount = item.amount + slot.amount
+//                val newClicked = slot.maxStackSize
+//                slots[index] = slot.withAmount(newClicked)
+//                val remainder = totalAmount - slot.maxStackSize
+//                give(item.withAmount(remainder))
+//                return true
+//            }
+//        }
+//
+//        // empty slots last
+//        suitableSlots.filter { get(it).isEmpty() }.forEach { index ->
+//            slots[index] = item
+//            return true
+//        }
+//
+//        return false
     }
 
     fun getAmountOf(itemStack: ItemStack): Int {
