@@ -8,7 +8,6 @@ import java.util.UUID
 data class PersistentPlayer(
     val uuid: UUID
 ) {
-    //TODO micro-optimization: make uuid to player map
     fun toPlayer(): Player? = PlayerManager.players.firstOrNull { it.uuid == uuid }
 }
 

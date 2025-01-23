@@ -24,7 +24,7 @@ class Profiler {
         startTime = Instant.now()
     }
 
-    fun end() {
+    fun end(): Long {
         endTime = Instant.now()
         val overall = endTime.toEpochMilli() - startTime.toEpochMilli()
         if(onlyLogAbove != null) {
@@ -34,5 +34,6 @@ class Profiler {
         } else {
             debug("Profiler \"$name\" ended. Took ${overall}ms", logType = TimeLog)
         }
+        return overall
     }
 }

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.utils.Console
 
@@ -74,7 +75,7 @@ class Command: Cloneable {
     }
 
     fun execute(function: (ctx: CommandExecutor) -> Unit) {
-        if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have executor and subcommands at the same time!")
+//        if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have executor and subcommands at the same time!")
         internalExecutorDoNotUse = function
     }
 
@@ -116,6 +117,10 @@ data class CommandExecutor(
 
     fun sendMessage(message: String) {
         if(this.isPlayer) this.player!!.sendMessage(message) else this.console.sendMessage(message)
+    }
+
+    fun sendMessage(component: Component) {
+        if(this.isPlayer) this.player!!.sendMessage(component) else this.console.sendMessage(component.toString())
     }
 
     fun hasPermission(permission: String): Boolean =

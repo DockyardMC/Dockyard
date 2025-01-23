@@ -19,6 +19,7 @@ import io.github.dockyardmc.scheduler.GlobalScheduler
 import io.github.dockyardmc.server.PlayerKeepAliveTimer
 import io.github.dockyardmc.server.NettyServer
 import io.github.dockyardmc.server.ServerTickManager
+import io.github.dockyardmc.spark.SparkDockyardIntegration
 import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.world.WorldManager
 
@@ -56,6 +57,8 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
         if(ConfigManager.config.implementationConfig.dockyardCommands) DockyardCommands()
         if(ConfigManager.config.implementationConfig.npcCommand) NpcCommand()
+
+        SparkDockyardIntegration().initialize()
 
         NetworkCompression.compressionThreshold = ConfigManager.config.networkCompressionThreshold
 

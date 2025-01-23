@@ -67,39 +67,6 @@ fun main(args: Array<String>) {
         player.give(item)
     }
 
-    var laser: GuardianBeam? = null
-    Commands.add("/laser") {
-        execute {
-            val player = it.getPlayerOrThrow()
-            laser = GuardianBeam(Location(0, 10, 0, player.world), player.location)
-        }
-    }
-
-    Commands.add("/move") {
-        execute {
-            val player = it.getPlayerOrThrow()
-            laser?.moveEnd(player.location, 1.seconds)
-        }
-    }
-
-    Events.on<WorldTickEvent> { event ->
-        val player = event.world.players.firstOrNull() ?: return@on
-        if (laser?.end?.value == player.location) return@on
-        laser?.moveEnd(player.location, 2.ticks)
-    }
-
-    Commands.add("/cleartarget") {
-        execute {
-            val player = it.getPlayerOrThrow()
-            player.world.entities.forEach { entity ->
-                if (entity is Guardian) {
-                    entity.target.value = null
-                    entity.isRetractingSpikes.value = true
-                }
-            }
-        }
-    }
-
     Events.on<PlayerLeaveEvent> {
         DockyardServer.broadcastMessage("<yellow>${it.player} left the game.")
     }

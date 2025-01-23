@@ -1,14 +1,17 @@
 package io.github.dockyardmc.scheduler
 
+import io.github.dockyardmc.extentions.round
 import io.github.dockyardmc.utils.Disposable
+import java.time.Instant
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import kotlin.time.Duration
 
-abstract class Scheduler : Disposable {
+abstract class Scheduler() : Disposable {
 
     var ticks: Long = 0
+    var mspt: Double = 0.0
 
     val executorService: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor {
         val thread = Thread(it)
@@ -25,9 +28,22 @@ abstract class Scheduler : Disposable {
     private val repeatingTasksAsync: MutableMap<Long, MutableList<AsyncSchedulerTask<*>>> =
         mutableMapOf() // scheduler tick % interval to task
 
+    protected val averages = mutableListOf<Long>(50)
+    protected var timeSinceLastTick = Instant.now()
+
+    protected open fun updateMSPT() {
+        val diff = Instant.now().toEpochMilli() - timeSinceLastTick.toEpochMilli()
+        averages.add(diff)
+        timeSinceLastTick = Instant.now()
+        mspt = averages.average().round(1)
+        if (mspt < 50) mspt = 50.0
+        if(ticks % 20 == 0L) averages.clear()
+    }
+
     open fun tick() {
         ticks++
         handleTickTasks()
+        updateMSPT()
     }
 
     private fun handleTickTasks() {

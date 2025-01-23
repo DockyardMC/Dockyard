@@ -41,15 +41,6 @@ object CommandHandler {
                 tokens.removeFirst()
                 handleCommand(current, executor, tokens, inputCommand, commandName)
             } else {
-                if (command.subcommands.isNotEmpty()) {
-                    var fullCommandString = "/${command.name.replace("/", "")} ("
-                    command.subcommands.forEach {
-                        fullCommandString += (it.key)
-                        if (command.subcommands.size == 1 || command.subcommands.keys.last() == it.key) return@forEach else fullCommandString += ", "
-                    }
-                    fullCommandString += ")"
-                    throw CommandException("Missing subcommand: <orange>$fullCommandString")
-                }
                 handleCommand(command, executor, tokens, inputCommand, commandName)
             }
 
