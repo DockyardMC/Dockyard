@@ -1,16 +1,15 @@
 package io.github.dockyardmc.spark
 
-import cz.lukynka.prettylog.AnsiColor
 import cz.lukynka.prettylog.AnsiPair
 import cz.lukynka.prettylog.CustomLogType
 import cz.lukynka.prettylog.LogType
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.commands.BrigadierStringType
 import io.github.dockyardmc.commands.CommandExecutor
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.extentions.sendMessage
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.scroll.LegacyTextColor
+import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Console
 import io.github.dockyardmc.utils.Disposable
 import me.lucko.spark.common.SparkPlatform
@@ -20,16 +19,13 @@ import me.lucko.spark.common.monitor.ping.PlayerPingProvider
 import me.lucko.spark.common.platform.PlatformInfo
 import me.lucko.spark.common.tick.TickHook
 import me.lucko.spark.common.tick.TickReporter
-import me.lucko.spark.common.util.SparkThreadFactory
 import java.nio.file.Path
-import java.util.concurrent.Executors
 import java.util.logging.Level
 import java.util.stream.Stream
 
 class SparkDockyardIntegration : SparkPlugin, Disposable {
 
     lateinit var platform: SparkPlatform
-    val sparkThreadPool = Executors.newScheduledThreadPool(4, SparkThreadFactory())
 
     companion object {
         val LOG_TYPE = CustomLogType("⚡ Spark", AnsiPair.PURPLE_ISH_BLUE)
@@ -41,7 +37,6 @@ class SparkDockyardIntegration : SparkPlugin, Disposable {
 
         registerCommand()
 
-        cz.lukynka.prettylog.log("Initialized spark!", LOG_TYPE)
         return platform
     }
 
@@ -74,7 +69,7 @@ class SparkDockyardIntegration : SparkPlugin, Disposable {
     }
 
     override fun executeAsync(runnable: Runnable) {
-        sparkThreadPool.execute(runnable)
+        DockyardServer.scheduler.runAsync { runnable.run() }
     }
 
     override fun getPlatformInfo(): PlatformInfo {
@@ -95,7 +90,6 @@ class SparkDockyardIntegration : SparkPlugin, Disposable {
 
     override fun dispose() {
         platform.disable()
-        sparkThreadPool.shutdown()
     }
 
     fun registerCommand() {
@@ -110,5 +104,10 @@ class SparkDockyardIntegration : SparkPlugin, Disposable {
 
     fun broadcastPrefixed(message: String) {
         PlayerManager.players.filter { player -> player.hasPermission("spark.use") }.sendMessage("$prefix $message")
+    }
+
+    fun broadcastPrefixed(component: Component) {
+        if (component.color == null) component.apply { color = LegacyTextColor.GRAY.hex }
+        PlayerManager.players.filter { player -> player.hasPermission("spark.use") }.sendMessage(Component.compound(mutableListOf("$prefix <gray>".toComponent(), component)))
     }
 }

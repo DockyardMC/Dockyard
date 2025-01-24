@@ -11,13 +11,11 @@ class DockyardCommands {
         SoundCommand()
         GiveCommand()
         TeleportCommand()
-        SchematicCommand()
         TimeCommand()
         TickRateCommand()
         ClearCommand()
         if(ConfigManager.config.debug) {
-            ViewerCommand()
-            DebugCommands()
+            DebugCommand()
         }
     }
 }

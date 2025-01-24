@@ -36,7 +36,7 @@ import java.util.concurrent.CompletableFuture
 class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType) : Disposable {
 
     var eventPool = EventPool()
-    val scheduler = CustomRateScheduler()
+    val scheduler = CustomRateScheduler("${name}_world_scheduler")
 
     init {
         if (name.hasUpperCase()) throw IllegalArgumentException("World name cannot contain uppercase characters")
@@ -160,7 +160,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             generateBaseChunks(6)
         }
         task.thenAccept {
-            log("World $name has finished loading!", LogType.RUNTIME)
+            log("World $name has finished loading!", WorldManager.LOG_TYPE)
             canBeJoined.value = true
             playerJoinQueue.forEach(::join)
             Events.dispatch(WorldFinishLoadingEvent(this))

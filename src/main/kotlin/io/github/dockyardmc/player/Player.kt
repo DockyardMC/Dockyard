@@ -2,6 +2,7 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.Bindable
 import cz.lukynka.BindableList
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
@@ -20,6 +21,7 @@ import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundChatCommandPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items
@@ -29,7 +31,6 @@ import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.resourcepack.Resourcepack
 import io.github.dockyardmc.runnables.ticks
-import io.github.dockyardmc.scheduler.GlobalScheduler
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.DrawableContainerScreen
@@ -41,6 +42,8 @@ import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicInteger
 
 class Player(
     val username: String,
@@ -110,7 +113,9 @@ class Player(
     val playerInfoSystem = PlayerInfoSystem(this)
     val entityViewSystem = EntityViewSystem(this)
 
-    val decoupledViewSystemScheduler = GlobalScheduler("${username}-view-engine-scheduler")
+    val decoupledEntityViewSystemTicking = DockyardServer.scheduler.runRepeating(1.ticks) {
+        entityViewSystem.tick()
+    }
 
     val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
 
@@ -118,6 +123,11 @@ class Player(
     var currentOpenInventory: ContainerInventory? = null
     val hasInventoryOpen: Boolean get() = currentOpenInventory != null
     var itemInUse: ItemInUse? = null
+
+    private val pingRequestCounter = AtomicInteger(0)
+    var ping = 0L
+    var lastPingRequest: Long? = null
+    var lastPingRequestFuture: CompletableFuture<Long>? = null
 
     lateinit var lastSentPacket: ClientboundPacket
 
@@ -169,12 +179,6 @@ class Player(
         time.valueChanged { updateWorldTime() }
 
         hasNoGravity.value = false
-
-        // Keep this decoupled from world scheduler so when world ticking is paused or slowed down
-        // it doesn't make entity and chunk loading slow/impossible
-        decoupledViewSystemScheduler.runRepeating(1.ticks) {
-            entityViewSystem.tick()
-        }
     }
 
     override fun canPickupItem(dropEntity: ItemDropEntity, item: ItemStack): Boolean {
@@ -277,6 +281,17 @@ class Player(
         queuedMessages.clear()
     }
 
+    fun runCommand(command: String) {
+        val packet = ServerboundChatCommandPacket(command)
+        packet.handle(networkManager, connection, 0, 0)
+    }
+
+    fun sendPingRequest(): CompletableFuture<Long> {
+        lastPingRequestFuture = CompletableFuture<Long>()
+        lastPingRequest = now()
+        sendPacket(ClientboundPlayPingPacket(pingRequestCounter.getAndIncrement()))
+        return lastPingRequestFuture!!
+    }
 
     fun kick(reason: String) { this.networkManager.kick(reason, connection) }
 
@@ -493,7 +508,7 @@ class Player(
     }
 
     override fun dispose() {
-        decoupledViewSystemScheduler.dispose()
+        decoupledEntityViewSystemTicking.cancel()
         super.dispose()
     }
 }

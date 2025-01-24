@@ -28,7 +28,7 @@ class SchedulerTest {
 
     @Test
     fun testScheduler() {
-        val scheduler = CustomRateScheduler()
+        val scheduler = CustomRateScheduler("test-scheduler")
         val completed = AtomicBoolean(false)
 
         assertEquals(false, completed.get())
@@ -47,7 +47,7 @@ class SchedulerTest {
 
     @Test
     fun testSchedulerAsync() {
-        val scheduler = CustomRateScheduler()
+        val scheduler = CustomRateScheduler("test-scheduler")
         val completed = AtomicBoolean(false)
         val countDownLatch = CountDownLatch(1)
 
@@ -69,7 +69,7 @@ class SchedulerTest {
 
     @Test
     fun testRepeatingScheduler() {
-        val scheduler = CustomRateScheduler()
+        val scheduler = CustomRateScheduler("test-scheduler")
         val counter = AtomicInteger(0)
         val countDownLatch = CountDownLatch(1)
 

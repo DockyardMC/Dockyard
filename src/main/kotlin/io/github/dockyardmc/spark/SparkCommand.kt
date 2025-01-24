@@ -2,7 +2,7 @@ package io.github.dockyardmc.spark
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.spark.command.ProfilerSubCommand
+import io.github.dockyardmc.spark.command.*
 
 class SparkCommand(val spark: SparkDockyardIntegration) {
 
@@ -15,11 +15,8 @@ class SparkCommand(val spark: SparkDockyardIntegration) {
         SparkCommandHelp("profiler stop"),
         SparkCommandHelp("profiler cancel"),
         SparkCommandHelp("tps"),
-        SparkCommandHelp("ping", listOf("--player <dark_gray><username>")),
-        SparkCommandHelp("healthreport"),
-        SparkCommandHelp("tickmonitor", listOf("--without-gc")),
-        SparkCommandHelp("gc"),
-        SparkCommandHelp("gcmonitor"),
+        SparkCommandHelp("ping", listOf("<dark_gray><username>")),
+        SparkCommandHelp("tickmonitor", listOf("<dark_gray><type>", "<dark_gray>[<world>]")),
         SparkCommandHelp("heapsummary", listOf("--save-to-file")),
         SparkCommandHelp("heapdump", listOf("--compress <dark_gray><type>")),
     )
@@ -37,10 +34,20 @@ class SparkCommand(val spark: SparkDockyardIntegration) {
 
     fun register() {
         Commands.add("/spark") {
+
+            withPermission("spark.command")
+            withDescription("Command for using the performance monitor library Spark")
+
             ProfilerSubCommand(spark).register(this)
+            TpsSubCommand(spark).register(this)
+            PingSubCommand(spark).register(this)
+            TickMonitorSubCommand(spark).register(this)
+            HeapSummarySubCommand(spark).register(this)
+            HeapDumpSubCommand(spark).register(this)
 
             addSubcommand("help") {
                 execute { ctx ->
+                    ctx.sendMessage(" ")
                     helpMessage.split("\n").forEach { line ->
                         ctx.sendMessage(line)
                     }

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.commands
 
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.Entity
@@ -17,7 +18,6 @@ import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
-import java.lang.IllegalArgumentException
 import java.util.*
 
 object CommandHandler {
@@ -25,38 +25,41 @@ object CommandHandler {
     val prefix get() = ConfigManager.config.implementationConfig.commandErrorPrefix
 
     fun handleCommandInput(inputCommand: String, executor: CommandExecutor, testEnv: Boolean = false) {
-        val tokens = inputCommand.removePrefix("/").split(" ").toMutableList()
-        val commandName = tokens[0].lowercase()
-        try {
-            if (Commands.commands[commandName] == null) {
-                var message = "Command with that name does not exist!"
-                if (Commands.warnAboutCaseSensitivity && commandName.isUppercase()) message += " <gray>(check case sensitivity)"
-                throw CommandException(message)
-            }
-            val command = Commands.commands[commandName]!!
-            executor.command = command.name
+        DockyardServer.scheduler.run {
+            val tokens = inputCommand.removePrefix("/").split(" ").toMutableList()
+            val commandName = tokens[0].lowercase()
+            try {
+                if (Commands.commands[commandName] == null) {
+                    var message = "Command with that name does not exist!"
+                    if (Commands.warnAboutCaseSensitivity && commandName.isUppercase()) message += " <gray>(check case sensitivity)"
+                    throw CommandException(message)
+                }
+                val command = Commands.commands[commandName]!!
+                executor.command = command.name
 
-            if (tokens.size >= 2 && command.subcommands[tokens[1]] != null) {
-                val current = command.subcommands[tokens[1]]!!
-                tokens.removeFirst()
-                handleCommand(current, executor, tokens, inputCommand, commandName)
-            } else {
-                handleCommand(command, executor, tokens, inputCommand, commandName)
-            }
+                if (tokens.size >= 2 && command.subcommands[tokens[1]] != null) {
+                    val current = command.subcommands[tokens[1]]!!
+                    tokens.removeFirst()
+                    handleCommand(current, executor, tokens, inputCommand, commandName)
+                } else {
+                    handleCommand(command, executor, tokens, inputCommand, commandName)
+                }
 
-        } catch (ex: Exception) {
-            if(testEnv) throw IllegalArgumentException(ex)
-            if (ex is CommandException) {
-                val message = "$prefix${ex.message}"
-                executor.sendMessage(message)
-            } else {
-                log(ex)
-                if (ConfigManager.config.implementationConfig.notifyUserOfExceptionDuringCommand) {
-                    executor.sendMessage("${prefix}A <orange>${ex::class.qualifiedName} <red>was thrown during execution of this command!")
+            } catch (ex: Exception) {
+                if (testEnv) throw IllegalArgumentException(ex)
+                if (ex is CommandException) {
+                    val message = "$prefix${ex.message}"
+                    executor.sendMessage(message)
+                } else {
+                    log(ex)
+                    if (ConfigManager.config.implementationConfig.notifyUserOfExceptionDuringCommand) {
+                        executor.sendMessage("${prefix}A <orange>${ex::class.qualifiedName} <red>was thrown during execution of this command!")
+                    }
                 }
             }
         }
     }
+
 
     fun handleCommand(
         command: Command,
@@ -89,13 +92,13 @@ object CommandHandler {
         tokens.forEachIndexed { index, value ->
             if (index == 0) return@forEachIndexed
             if (index > command.arguments.size) return@forEachIndexed
-            if(foundGreedyString) return@forEachIndexed
+            if (foundGreedyString) return@forEachIndexed
 
             val argumentData = command.arguments.values.toList()[index - 1]
 
-            if(argumentData.argument is StringArgument) {
+            if (argumentData.argument is StringArgument) {
                 val argument = argumentData.argument as StringArgument
-                if(argument.type == BrigadierStringType.GREEDY_PHRASE) {
+                if (argument.type == BrigadierStringType.GREEDY_PHRASE) {
                     foundGreedyString = true
                     val string = tokens.subList(index, tokens.size).joinToString(" ")
                     argumentData.returnedValue = string

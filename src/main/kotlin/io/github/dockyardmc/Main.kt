@@ -1,26 +1,24 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.apis.GuardianBeam
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.commands.simpleSuggestion
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
-import io.github.dockyardmc.entity.Guardian
-import io.github.dockyardmc.events.*
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerBlockRightClickEvent
+import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemRarity
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.runnables.ticks
 import io.github.dockyardmc.utils.DebugSidebar
 import io.github.dockyardmc.world.WorldManager
-import kotlin.time.Duration.Companion.seconds
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -39,13 +37,6 @@ fun main(args: Array<String>) {
         useMojangAuth(true)
         useDebugMode(true)
         withNetworkCompressionThreshold(256)
-        withImplementations {
-            dockyardCommands = true
-            debug = true
-            npcCommand = true
-            itemDroppingAndPickup = true
-            applyBlockPlacementRules = true
-        }
     }
 
     Events.on<PlayerBlockRightClickEvent> {

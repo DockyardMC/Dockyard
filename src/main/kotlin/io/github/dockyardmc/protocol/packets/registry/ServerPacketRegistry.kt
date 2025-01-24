@@ -76,7 +76,7 @@ object ServerPacketRegistry : PacketRegistry() {
         addPlay(ServerboundPlayerActionPacket::class)
         addPlay(ServerboundPlayerCommandPacket::class)
         addPlay(ServerboundClientInputPacket::class)
-        skipPlay("client pong")
+        addPlay(ServerboundPongPacket::class)
         skipPlay("set recipe book state")
         skipPlay("set recipe book seen")
         skipPlay("name item")

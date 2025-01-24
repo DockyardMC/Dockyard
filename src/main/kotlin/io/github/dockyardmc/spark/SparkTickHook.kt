@@ -1,19 +1,22 @@
 package io.github.dockyardmc.spark
 
-import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.runnables.ticks
-import io.github.dockyardmc.scheduler.SchedulerTask
+import io.github.dockyardmc.events.Event
+import io.github.dockyardmc.events.EventListener
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.ServerTickEvent
 import me.lucko.spark.common.tick.AbstractTickHook
 
-class SparkTickHook: AbstractTickHook() {
-    lateinit var task: SchedulerTask
+class SparkTickHook : AbstractTickHook() {
+    lateinit var listener: EventListener<Event>
 
     override fun start() {
-        task = DockyardServer.scheduler.runRepeating(1.ticks) {}
+        listener = Events.on<ServerTickEvent> {
+            onTick()
+        }
     }
 
     override fun close() {
-        if(::task.isInitialized) task.cancel()
+        if (::listener.isInitialized) Events.unregister(listener)
     }
 
 }

@@ -10,6 +10,11 @@ class Config {
     var debug: Boolean = false
     var maxPlayers: Int = 50
     var implementationConfig: ImplementationConfig = ImplementationConfig()
+    var updateChecker: Boolean = true
+
+    fun withUpdateChecker(updateChecker: Boolean) {
+        this.updateChecker = updateChecker
+    }
 
     fun withIp(ip: String) {
         this.ip = ip
@@ -45,10 +50,10 @@ class ImplementationConfig {
     var notifyUserOfExceptionDuringCommand: Boolean = true
     var commandErrorPrefix: String = "<dark_red>Error <dark_gray>| <red>"
     var commandNoPermissionsMessage: String = "You do not have permissions to execute this command!"
-    var cacheSchematics: Boolean = true
     var defaultEntityViewDistanceBlocks: Int = 64
-    var dockyardCommands: Boolean = false
+    var defaultCommands: Boolean = true
     var npcCommand: Boolean = false
+    var spark: Boolean = true
     var itemDroppingAndPickup: Boolean = true
 }
 

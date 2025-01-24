@@ -166,7 +166,7 @@ abstract class EventSystem : Disposable {
             children.forEach {
                 appendLine()
                 append(" ".repeat(indent))
-                append("⇒ ")
+                append("<gray>⇒ <aqua>")
                 append(it.debugTree(indent + 1))
             }
         }

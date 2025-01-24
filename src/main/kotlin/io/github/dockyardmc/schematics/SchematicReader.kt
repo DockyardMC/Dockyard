@@ -1,8 +1,6 @@
 package io.github.dockyardmc.schematics
 
 import io.github.dockyardmc.blocks.Block
-import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.utils.getFileHash
 import io.github.dockyardmc.utils.vectors.Vector3
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray
 import org.jglrxavpok.hephaistos.nbt.*
@@ -10,20 +8,12 @@ import java.io.File
 
 object SchematicReader {
 
-    val cache: MutableMap<String, Schematic> = mutableMapOf()
-
     fun read(file: File): Schematic {
         if(!file.exists()) throw Exception("File $file does not exist!")
-        if(ConfigManager.config.implementationConfig.cacheSchematics) {
-            val hash = getFileHash(file, "SHA-256")
-            val cachedSchematic = cache[hash]
-            if(cachedSchematic != null) return cachedSchematic
-        }
         return read(file.readBytes())
     }
 
     fun read(byteArray: ByteArray): Schematic {
-
 
         val nbt = NBTReader(byteArray, CompressedProcesser.GZIP).readNamed().second as NBTCompound
 

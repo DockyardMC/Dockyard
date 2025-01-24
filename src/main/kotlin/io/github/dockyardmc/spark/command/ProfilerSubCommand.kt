@@ -8,7 +8,7 @@ import io.github.dockyardmc.spark.SparkDockyardIntegration
 import me.lucko.bytesocks.client.BytesocksClient
 import me.lucko.spark.common.activitylog.Activity
 import me.lucko.spark.common.command.sender.CommandSender
-import me.lucko.spark.common.sampler.Sampler
+import me.lucko.spark.common.sampler.*
 import me.lucko.spark.common.sampler.Sampler.ExportProps
 import me.lucko.spark.common.sampler.java.MergeStrategy
 import me.lucko.spark.common.sampler.source.ClassSourceLookup
@@ -38,6 +38,7 @@ class ProfilerSubCommand(val spark: SparkDockyardIntegration) : SparkSubCommand 
                     "open" -> profilerOpen(ctx)
                     "cancel" -> profilerCancel(ctx)
                     "stop" -> profilerStop(ctx, arguments)
+                    "start" -> profilerStart(ctx)
                     else -> throw CommandException("$argument not implemented yet")
                 }
             }
@@ -75,8 +76,8 @@ class ProfilerSubCommand(val spark: SparkDockyardIntegration) : SparkSubCommand 
 
     private fun profilerStart(ctx: CommandExecutor) {
         val previousSampler = platform.samplerContainer.activeSampler
-        if(previousSampler != null) {
-            if(previousSampler.isRunningInBackground) {
+        if (previousSampler != null) {
+            if (previousSampler.isRunningInBackground) {
                 // there is bg profiler running - stop that first
                 ctx.sendMessage(spark.prefixed("Stopping the background profiler before starting... please wait"))
                 previousSampler.stop(true)
@@ -87,7 +88,49 @@ class ProfilerSubCommand(val spark: SparkDockyardIntegration) : SparkSubCommand 
             }
         }
 
-        //TODO you left off here yesterday maya, please continue here :3
+        val mode = SamplerMode.EXECUTION
+        val threadDumper = ThreadDumper.ALL
+        val threadGrouper = ThreadGrouper.BY_POOL
+        val interval = SamplerMode.EXECUTION.defaultInterval().toDouble()
+        val ignoreSleeping = false
+        val forceJavaSampler = false
+        val allocLiveOnly = false
+
+        spark.broadcastPrefixed("Starting a new profiler, please wait...")
+
+        val samplerBuilder = SamplerBuilder()
+        samplerBuilder.mode(mode)
+        samplerBuilder.threadDumper(threadDumper)
+        samplerBuilder.threadGrouper(threadGrouper)
+        samplerBuilder.samplingInterval(interval)
+        samplerBuilder.ignoreSleeping(ignoreSleeping)
+        samplerBuilder.forceJavaSampler(forceJavaSampler)
+        samplerBuilder.allocLiveOnly(allocLiveOnly)
+
+        var sampler: Sampler? = null
+        try {
+            sampler = samplerBuilder.start(platform)
+        } catch (exception: Exception) {
+            ctx.sendMessage(spark.prefixed("<red>${exception.message}"))
+            return
+        }
+
+        platform.samplerContainer.activeSampler = sampler
+        spark.broadcastPrefixed("<lime>Profiler is now running!")
+        spark.broadcastPrefixed("It will run in the background until it is stopped by an admin.")
+
+        val future = sampler.future
+
+        future.whenCompleteAsync { s, throwable ->
+            if(throwable != null) {
+                spark.broadcastPrefixed("<red>Profiler operation failed unexpectedly. Error: $throwable")
+                log(throwable as Exception)
+            }
+        }
+
+        sampler.future.whenCompleteAsync { s, throwable ->
+            platform.samplerContainer.unsetActiveSampler(s)
+        }
     }
 
     private fun profilerCancel(ctx: CommandExecutor) {

@@ -20,7 +20,6 @@ import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
 import io.github.dockyardmc.registry.registries.MinecraftVersionRegistry
 import io.github.dockyardmc.utils.MojangUtil
-import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.isValidMinecraftUsername
 import io.netty.channel.ChannelHandlerContext
 import java.util.concurrent.CompletableFuture
@@ -54,7 +53,6 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
     fun handleLoginStart(packet: ServerboundLoginStartPacket, connection: ChannelHandlerContext) {
         val username = packet.name
         val uuid = packet.uuid
-        debug("Received login start packet with name $username and UUID $uuid", logType = LogType.DEBUG)
 
         if(PlayerManager.getPlayerByUsernameOrNull(username) != null) {
             networkManager.kick(ERROR_ALREADY_CONNECTED, connection)

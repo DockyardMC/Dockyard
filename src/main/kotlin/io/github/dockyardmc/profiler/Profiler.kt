@@ -7,6 +7,7 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.utils.debug
 import java.time.Instant
 
+@Deprecated("Use spark tick monitor instead")
 class Profiler {
 
     companion object {
@@ -29,7 +30,7 @@ class Profiler {
         val overall = endTime.toEpochMilli() - startTime.toEpochMilli()
         if(onlyLogAbove != null) {
             if(overall > onlyLogAbove!!) {
-                log("Profiler \"$name\" ended. Took ${overall}ms, ${overall - onlyLogAbove!!}ms more than expected", LogType.WARNING)
+                log("Profiler \"$name\" ended. Took ${overall}ms, ${overall - onlyLogAbove!!}ms more than expected", LogType.DEBUG)
             }
         } else {
             debug("Profiler \"$name\" ended. Took ${overall}ms", logType = TimeLog)

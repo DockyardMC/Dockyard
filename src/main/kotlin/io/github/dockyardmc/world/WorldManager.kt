@@ -1,5 +1,7 @@
 package io.github.dockyardmc.world
 
+import cz.lukynka.prettylog.AnsiPair
+import cz.lukynka.prettylog.CustomLogType
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
@@ -14,6 +16,8 @@ object WorldManager {
 
     val worlds: MutableMap<String, World> = mutableMapOf()
     val mainWorld: World = World("main", VoidWorldGenerator(Biomes.THE_VOID), DimensionTypes.OVERWORLD)
+
+    val LOG_TYPE = CustomLogType("\uD83C\uDF0E World Manager", AnsiPair.PURPLE)
 
     fun loadDefaultWorld() {
         mainWorld.generate().thenAccept {
