@@ -34,6 +34,8 @@ object TestServer {
             withPort(25565)
             withNetworkCompressionThreshold(-1)
             useMojangAuth(false)
+            withUpdateChecker(false)
+            withImplementations { spark = false }
         }
         server!!.start()
 
