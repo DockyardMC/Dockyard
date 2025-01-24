@@ -44,14 +44,15 @@ dependencies {
     implementation("com.akuleshov7:ktoml-core:0.5.1")
     implementation("com.akuleshov7:ktoml-file:0.5.1")
     implementation("me.lucko:bytesocks-java-client:1.0-20230828.145440-5") {
-        exclude("slf4j-api")
+        exclude(module = "slf4j-api")
     }
+    implementation("net.kyori:adventure-text-serializer-json:")
     implementation("com.google.protobuf:protobuf-javalite:4.28.2")
 
     // Minecraft
     api("io.github.jglrxavpok.hephaistos:common:2.2.0")
     api("io.github.jglrxavpok.hephaistos:gson:2.2.0")
-    api("io.github.dockyardmc:scroll:2.2")
+    api("io.github.dockyardmc:scroll:2.4")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
 
     // Networking
