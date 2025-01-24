@@ -132,6 +132,10 @@ tasks {
     }
 }
 
+tasks.withType<PublishToMavenRepository> {
+    dependsOn("test")
+}
+
 java {
     withSourcesJar()
     withJavadocJar()
