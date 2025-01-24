@@ -12,7 +12,7 @@ plugins {
     application
 }
 
-val minecraftVersion = "1.21"
+val minecraftVersion = "1.21.3"
 val dockyardVersion = properties["dockyard.version"]!!
 val gitBranch = "git rev-parse --abbrev-ref HEAD".runCommand()
 val gitCommit = "git rev-parse --short=8 HEAD".runCommand()
