@@ -3,7 +3,12 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Dockyard.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Dockyard.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Dockyard.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Dockyard.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Dockyard/DockyardMC.Dockyard.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Dockyard/DockyardMC.Dockyard.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Dockyard/DockyardMC.Dockyard.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Dockyard/DockyardMC.Dockyard.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Scroll/DockyardMC.Scroll.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Scroll/DockyardMC.Scroll.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Scroll/DockyardMC.Scroll.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Scroll/DockyardMC.Scroll.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/DockyardMC.main.iml" filepath="$PROJECT_DIR$/.idea/modules/DockyardMC.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/DockyardMC.test.iml" filepath="$PROJECT_DIR$/.idea/modules/DockyardMC.test.iml" />
     </modules>
   </component>
 </project>

@@ -1,0 +1,23 @@
+[versions]
+kotlinx-serialization = "1.3.0"
+hephaistos = "2.2.0"
+netty = "2.3.12"
+pretty-log = "1.5"
+bindables = "1.2"
+spark = "1.10.119-SNAPSHOT"
+
+[libraries]
+kotlinx-core = {group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinx-serialization"}
+kotlinx-json = {group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization"}
+prettylog = {group = "cz.lukynka", name = "pretty-log", version.ref = "pretty-log"}
+bindables = {group = "cz.lukynka", name = "kotlin-bindables", version.ref = "bindables"}
+ktor-server-netty = {group = "io.ktor", name = "ktor-server-netty", version.ref = "netty"}
+ktor-network = {group = "io.ktor", name = "ktor-network", version.ref = "netty"}
+spark = {group = "me.lucko", name = "spark-common", version.ref = "spark"}
+hephaistos-common = {group = "io.github.jglrxavpok.hephaistos", name = "common", version.ref = "hephaistos"}
+hephaistos-gson = {group = "io.github.jglrxavpok.hephaistos", name = "gson", version.ref = "hephaistos"}
+
+[bundles]
+kotlinx = ["kotlinx-core", "kotlinx-json"]
+netty = ["ktor-server-netty", "ktor-network"]
+hephaistos = ["hephaistos-common", "hephaistos-gson"]

@@ -9,6 +9,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Dockyard" />
+            <option value="$PROJECT_DIR$/Protocol" />
+            <option value="$PROJECT_DIR$/Sailboat" />
+            <option value="$PROJECT_DIR$/Scroll" />
+            <option value="$PROJECT_DIR$/Socket" />
+            <option value="$PROJECT_DIR$/common" />
           </set>
         </option>
       </GradleProjectSettings>
