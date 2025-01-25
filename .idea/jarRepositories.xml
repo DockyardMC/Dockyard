@@ -31,5 +31,10 @@
       <option name="name" value="maven3" />
       <option name="url" value="https://repo.spongepowered.org/repository/maven-public/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven4" />
+      <option name="name" value="maven4" />
+      <option name="url" value="https://repo.lucko.me/" />
+    </remote-repository>
   </component>
 </project>

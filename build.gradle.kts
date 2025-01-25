@@ -33,6 +33,7 @@ repositories {
     maven("https://mvn.devos.one/releases")
     maven("https://jitpack.io")
     maven("https://repo.spongepowered.org/repository/maven-public/")
+    maven("https://repo.lucko.me/")
 }
 
 dependencies {
@@ -42,11 +43,16 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.akuleshov7:ktoml-core:0.5.1")
     implementation("com.akuleshov7:ktoml-file:0.5.1")
+    implementation("me.lucko:bytesocks-java-client:1.0-20230828.145440-5") {
+        exclude(module = "slf4j-api")
+    }
+    implementation("net.kyori:adventure-text-serializer-json:")
+    implementation("com.google.protobuf:protobuf-javalite:4.28.2")
 
     // Minecraft
     api("io.github.jglrxavpok.hephaistos:common:2.2.0")
     api("io.github.jglrxavpok.hephaistos:gson:2.2.0")
-    api("io.github.dockyardmc:scroll:2.1")
+    api("io.github.dockyardmc:scroll:2.4")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
 
     // Networking
@@ -55,14 +61,16 @@ dependencies {
 
     // Logging
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
-    api("cz.lukynka:pretty-log:1.4")
+    api("cz.lukynka:pretty-log:1.5")
 
     // Other
     api("org.reflections:reflections:0.9.12")
-    implementation("com.google.guava:guava:33.2.0-jre")
+    implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.google.code.gson:gson:2.10.1")
     api("it.unimi.dsi:fastutil:8.5.13")
     api("cz.lukynka:kotlin-bindables:1.2")
+
+    api("me.lucko:spark-common:1.10.119-SNAPSHOT")
 
     testImplementation(kotlin("test"))
     testImplementation("org.mockito:mockito-core:5.4.0")
@@ -122,6 +130,10 @@ tasks {
     artifacts {
         add("archives", sourcesJar)
     }
+}
+
+tasks.withType<PublishToMavenRepository> {
+    dependsOn("test")
 }
 
 java {

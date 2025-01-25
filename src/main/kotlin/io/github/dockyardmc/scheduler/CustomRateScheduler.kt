@@ -2,13 +2,17 @@ package io.github.dockyardmc.scheduler
 
 import cz.lukynka.Bindable
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.extentions.round
 import io.github.dockyardmc.runnables.RepeatingTimer
 import io.github.dockyardmc.runnables.ticks
+import java.time.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 
-class CustomRateScheduler(initialTickRate: Duration = 50.milliseconds) : Scheduler() {
+class CustomRateScheduler(initialTickRate: Duration = 50.milliseconds, name: String) : Scheduler(name) {
+
+    constructor(name: String): this(50.milliseconds, name)
 
     var tickRate = Bindable<Duration>(initialTickRate)
     var paused = Bindable<Boolean>(false)
@@ -21,6 +25,14 @@ class CustomRateScheduler(initialTickRate: Duration = 50.milliseconds) : Schedul
                 is CustomRateScheduler -> tickRate.value = scheduler.tickRate.value
             }
         }
+    }
+
+    override fun updateMSPT() {
+        val diff = Instant.now().toEpochMilli() - timeSinceLastTick.toEpochMilli()
+        averages.add(diff)
+        timeSinceLastTick = Instant.now()
+        mspt = averages.average().round(1)
+        if (mspt < tickRateMs) mspt = tickRateMs.toDouble()
     }
 
     fun syncWithGlobalScheduler() {
@@ -56,6 +68,7 @@ class CustomRateScheduler(initialTickRate: Duration = 50.milliseconds) : Schedul
                 }
             }
             tickRateTimer.start()
+            averages.clear()
         }
         tickRate.triggerUpdate()
 

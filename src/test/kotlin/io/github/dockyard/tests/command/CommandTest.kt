@@ -49,17 +49,21 @@ class CommandTest {
     @Test
     fun testCommandExists() {
         var testValue = "null" to "null"
+        val countDownLatch = CountDownLatch(1)
 
         Commands.add("/ban") {
             addArgument("player", PlayerArgument())
             addArgument("reason", StringArgument(BrigadierStringType.GREEDY_PHRASE))
             execute {
                 testValue = getArgument<Player>("player").username to getArgument<String>("reason")
+                countDownLatch.countDown()
             }
         }
 
         val player = PlayerTestUtil.getOrCreateFakePlayer()
         PlayerTestUtil.sendPacket(player, ServerboundChatCommandPacket("/ban LukynkaCZE way too gay"))
+
+        countDownLatch.await()
         assertEquals("LukynkaCZE", testValue.first)
         assertEquals("way too gay", testValue.second)
     }
@@ -67,18 +71,21 @@ class CommandTest {
     @Test
     fun testOptionalArguments() {
         var testValue: Pair<String, String?> = "null" to null
+        val countDownLatch = CountDownLatch(1)
 
         Commands.add("/kick") {
             addArgument("player", PlayerArgument())
             addOptionalArgument("reason", StringArgument(BrigadierStringType.GREEDY_PHRASE))
             execute {
                 testValue = getArgument<Player>("player").username to getArgumentOrNull<String>("reason")
+                countDownLatch.countDown()
             }
         }
 
         val player = PlayerTestUtil.getOrCreateFakePlayer()
         PlayerTestUtil.sendPacket(player, ServerboundChatCommandPacket("/kick LukynkaCZE"))
 
+        countDownLatch.await()
         assertEquals("LukynkaCZE", testValue.first)
         assertEquals(null, testValue.second)
     }

@@ -8,7 +8,6 @@ import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.sidebar.Sidebar
 import java.lang.management.GarbageCollectorMXBean
 import java.lang.management.ManagementFactory
-import kotlin.time.Duration.Companion.milliseconds
 
 object DebugSidebar {
 
@@ -21,27 +20,21 @@ object DebugSidebar {
         var tickCounter = 0
         Events.on<ServerTickEvent> {
             val runtime = Runtime.getRuntime()
-            val mspt = ServerMetrics.millisecondsPerTick
-            val memoryUsage = runtime.totalMemory() - runtime.freeMemory()
-            val memUsagePercent = percent(runtime.totalMemory().toDouble(), memoryUsage.toDouble())
-
-            val fMem = (memoryUsage.toDouble() / 1000000).truncate(1)
-            val fRented = (runtime.totalMemory().toDouble() / 1000000).truncate(1)
-            val fMax = (runtime.maxMemory().toDouble() / 1000000).truncate(1)
+            val globalMspt = DockyardServer.scheduler.mspt
 
             val msptColor = when {
-                mspt >= 60.0 -> "<red>"
-                mspt >= 58.0 -> "<orange>"
-                mspt > 50.0 -> "<yellow>"
-                mspt == 50.0 -> "<lime>"
+                globalMspt >= 60.0 -> "<red>"
+                globalMspt >= 58.0 -> "<orange>"
+                globalMspt > 50.0 -> "<yellow>"
+                globalMspt == 50.0 -> "<lime>"
                 else -> "<dark_red>"
             }
 
             val memoryPercentColor = when {
-                memUsagePercent <= 50.0 -> "<lime>"
-                memUsagePercent <= 70.0 -> "<yellow>"
-                memUsagePercent <= 80.0 -> "<orange>"
-                memUsagePercent <= 90.0 -> "<red>"
+                ServerMetrics.memoryUsagePercent <= 50.0 -> "<lime>"
+                ServerMetrics.memoryUsagePercent <= 70.0 -> "<yellow>"
+                ServerMetrics.memoryUsagePercent <= 80.0 -> "<orange>"
+                ServerMetrics.memoryUsagePercent <= 90.0 -> "<red>"
                 else -> "<dark_red>"
             }
 
@@ -65,26 +58,25 @@ object DebugSidebar {
                 totalEvents += it.list.size
             }
 
-
-
-            sidebar.setGlobalLine(14, " Global: ${msptColor}${mspt}ms")
-            sidebar.setPlayerLine(13) {
-                var worldSchedulerColor = if(it.world.scheduler.tickRate.value == 50.milliseconds) "<lime>" else "<orange>"
+            sidebar.setGlobalLine(14, " MSPT:")
+            sidebar.setGlobalLine(13, " ◾ Global: $msptColor${globalMspt}ms")
+            sidebar.setPlayerLine(12) {
+                var worldSchedulerColor = if(it.world.scheduler.mspt == it.world.scheduler.tickRate.value.inWholeMilliseconds.toDouble()) "<lime>" else "<orange>"
                 if(it.world.scheduler.paused.value) worldSchedulerColor = "<red>"
 
-                " Rate: <gray>(<lime>50ms<gray> global, ${worldSchedulerColor}${it.world.scheduler.tickRate.value} <gray>local)"
+                " ◾ World: ${worldSchedulerColor}${it.world.scheduler.mspt}ms"
             }
-            sidebar.setGlobalLine(12, " Memory: $memoryPercentColor${memUsagePercent.truncate(1)}%")
-            sidebar.setGlobalLine(11, " ◾ Using $memoryPercentColor${fMem}mb")
-            sidebar.setGlobalLine(10, " ◾ Rented <aqua>${fRented}mb")
-            sidebar.setGlobalLine(9, " ◾ Allocated <aqua>${fMax}mb")
-            sidebar.setGlobalLine(8, " ")
-            sidebar.setGlobalLine(7, " AsyncQueueProcessor: <#cba3ff>${ServerMetrics.asyncQueueProcessorTasks}")
-            sidebar.setGlobalLine(6, " Packets: <#cba3ff>↑${ServerMetrics.packetsSentAverage} ↓${ServerMetrics.packetsReceivedAverage}")
-            sidebar.setGlobalLine(5, " ")
+            sidebar.setGlobalLine(11, " ")
+            sidebar.setGlobalLine(10, " Memory: $memoryPercentColor${ServerMetrics.memoryUsagePercent.truncate(1)}%")
+            sidebar.setGlobalLine(9, " ◾ Using $memoryPercentColor${ServerMetrics.memoryUsageTruncated}mb")
+            sidebar.setGlobalLine(8, " ◾ Rented <aqua>${ServerMetrics.memoryRentedTruncated}mb")
+            sidebar.setGlobalLine(7, " ◾ Allocated <aqua>${ServerMetrics.memoryAllocatedTruncated}mb")
+            sidebar.setGlobalLine(6, " ")
+            sidebar.setGlobalLine(5, " Packets: <#cba3ff>↑${ServerMetrics.packetsSentAverage} ↓${ServerMetrics.packetsReceivedAverage}")
+            sidebar.setGlobalLine(4, " ")
             sidebar.setGlobalLine(4, " Event Listeners: <lime>$totalEvents")
-            sidebar.setGlobalLine(3, " gc collections: <orange>${totalCollections}")
-            sidebar.setGlobalLine(2, " gc time: <orange>${totalCollectionTime}ms")
+            sidebar.setGlobalLine(2, " gc collections: <orange>${totalCollections}")
+            sidebar.setGlobalLine(1, " gc time: <orange>${totalCollectionTime}ms")
         }
     }
 }

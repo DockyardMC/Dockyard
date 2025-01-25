@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration
 
 
-class GlobalScheduler(val name: String) : Scheduler() {
+class GlobalScheduler(name: String) : Scheduler(name) {
 
     init {
         SchedulerManager.registerGlobal(this)
@@ -22,6 +22,12 @@ class GlobalScheduler(val name: String) : Scheduler() {
 fun <T> runLaterAsync(duration: Duration, unit: () -> T): CompletableFuture<T> {
     return DockyardServer.scheduler.runLaterAsync(duration, unit)
 }
+
+@JvmName("runAsync")
+fun <T> runAsync(unit: () -> T): CompletableFuture<T> {
+    return DockyardServer.scheduler.runAsync(unit)
+}
+
 
 @JvmName("runLaterAsyncTypedTicks")
 fun <T> runLaterAsync(ticks: Int, unit: () -> T): CompletableFuture<T> {

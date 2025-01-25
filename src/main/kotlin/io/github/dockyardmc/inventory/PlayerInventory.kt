@@ -2,6 +2,8 @@ package io.github.dockyardmc.inventory
 
 import cz.lukynka.Bindable
 import cz.lukynka.main
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.ItemDropEntity
@@ -14,6 +16,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventoryCursorPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.utils.getPlayerEventContext
 
 class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SIZE) {
@@ -62,6 +65,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
     fun unsafeUpdateEquipmentSlot(slot: EquipmentSlot, heldSlot: Int, itemStack: ItemStack) {
         slots.setSilently(getSlotId(slot, heldSlot), itemStack)
+        player.equipment.setSilently(slot, itemStack)
     }
 
     fun swapOffhand() {
@@ -140,6 +144,10 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
 fun Player.give(itemStack: ItemStack): Boolean {
     return this.inventory.give(itemStack)
+}
+
+fun Player.give(item: Item): Boolean {
+    return this.inventory.give(item.toItemStack())
 }
 
 fun Player.give(vararg itemStack: ItemStack) {

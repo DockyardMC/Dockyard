@@ -24,6 +24,5 @@ fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket, processor: Playe
     var message = "<- Sent ${packet::class.simpleName}"
     if(processor.getPlayerOrNull() != null) message += " to ${processor.player} [${processor.state}]"
 
-    message += " (id: ${packet.id})"
     debug(message, logType = LogType.NETWORK)
 }

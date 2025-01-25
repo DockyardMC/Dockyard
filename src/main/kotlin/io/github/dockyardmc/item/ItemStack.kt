@@ -156,7 +156,7 @@ data class ItemStack(
         get() { return components.getOrNull(CustomModelDataItemComponent::class)?.customModelData ?: 0 }
 
     val maxStackSize: Int
-        get() { return components.getOrNull(MaxStackSizeItemComponent::class)?.maxStackSize ?: 64 }
+        get() { return components.getOrNull(MaxStackSizeItemComponent::class)?.maxStackSize ?: material.maxStack }
 
     val unbreakable: Boolean
         get() { return components.getOrNull(UnbreakableItemComponent::class) != null }

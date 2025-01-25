@@ -12,6 +12,7 @@ class TickRateCommand {
     init {
         Commands.add("/tickrate") {
             withPermission("dockyard.commands.tickrate")
+            withDescription("Lets you change tickrate/pause/resume scheduler of a world")
 
             addSubcommand("set") {
                 addArgument("world", WorldArgument())

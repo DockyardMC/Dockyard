@@ -19,7 +19,9 @@ import io.github.dockyardmc.scheduler.GlobalScheduler
 import io.github.dockyardmc.server.PlayerKeepAliveTimer
 import io.github.dockyardmc.server.NettyServer
 import io.github.dockyardmc.server.ServerTickManager
+import io.github.dockyardmc.spark.SparkDockyardIntegration
 import io.github.dockyardmc.utils.Resources
+import io.github.dockyardmc.utils.UpdateChecker
 import io.github.dockyardmc.world.WorldManager
 
 class DockyardServer(configBuilder: Config.() -> Unit) {
@@ -54,15 +56,16 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         RegistryManager.register(BiomeRegistry)
         RegistryManager.register(ItemRegistry)
 
-        if(ConfigManager.config.implementationConfig.dockyardCommands) DockyardCommands()
+        if(ConfigManager.config.implementationConfig.defaultCommands) DockyardCommands()
         if(ConfigManager.config.implementationConfig.npcCommand) NpcCommand()
+        if(ConfigManager.config.implementationConfig.spark) SparkDockyardIntegration().initialize()
 
         NetworkCompression.compressionThreshold = ConfigManager.config.networkCompressionThreshold
 
         WorldManager.loadDefaultWorld()
 
-        log("DockyardMC finished loading", LogType.SUCCESS)
         Events.dispatch(ServerFinishLoadEvent(this))
+        if(ConfigManager.config.updateChecker) UpdateChecker()
     }
 
     val ip get() = config.ip
@@ -104,7 +107,9 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             "ClientboundSendParticlePacket",
             "ClientboundUpdateScorePacket",
             "ClientboundChunkDataPacket",
-            "ServerboundClientTickEndPacket"
+            "ServerboundClientTickEndPacket",
+            "ClientboundEntityTeleportPacket",
+            "ClientboundUnloadChunkPacket"
         )
     }
 }
