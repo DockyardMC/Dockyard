@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.encoders
+package io.github.dockyardmc.socket.encoders
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
@@ -15,10 +15,12 @@ class RawPacketEncoder(val networkManager: NetworkManager): MessageToByteEncoder
 
     override fun encode(connection: ChannelHandlerContext, packet: Packet, out: ByteBuf) {
         try {
+            println("encoding ${packet::class}")
             val outBuffer = Unpooled.buffer()
             packet.write(outBuffer)
             out.writeVarInt(networkManager.clientPacketRegistry.getIdAndState(packet::class).first)
-            out.writeBytes(out.copy())
+            out.writeBytes(outBuffer)
+            println("sent ${packet::class} (${out.writableBytes()})")
         } catch (exception: Exception) {
             log("There was an error while encoding packet", LogType.ERROR)
             log(exception)

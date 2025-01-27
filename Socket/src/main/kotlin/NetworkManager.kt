@@ -1,5 +1,6 @@
 package io.github.dockyardmc.socket
 
+import io.github.dockyardmc.protocol.Packet
 import io.github.dockyardmc.protocol.ProtocolState
 import io.github.dockyardmc.protocol.WrappedPacket
 import io.github.dockyardmc.scroll.Component
@@ -22,6 +23,7 @@ abstract class NetworkManager(val serverPacketRegistry: PacketRegistry, val clie
 
     override fun channelRead(connection: ChannelHandlerContext, msg: Any) {
         if (!this::address.isInitialized) address = connection.channel().remoteAddress().address
+        if (!this::connection.isInitialized) this.connection = connection
 
         val packet = msg as WrappedPacket
         handlePacket(connection, packet)
@@ -33,6 +35,10 @@ abstract class NetworkManager(val serverPacketRegistry: PacketRegistry, val clie
 
     override fun channelReadComplete(ctx: ChannelHandlerContext) {
         ctx.flush()
+    }
+
+    fun sendPacket(packet: Packet, connection: ChannelHandlerContext) {
+        connection.writeAndFlush(packet)
     }
 
     fun isPlayerInitialized(): Boolean {

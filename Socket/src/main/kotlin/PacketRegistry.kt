@@ -3,12 +3,10 @@ package io.github.dockyardmc.socket
 import io.github.dockyardmc.common.reversed
 import io.github.dockyardmc.protocol.Packet
 import io.github.dockyardmc.protocol.ProtocolState
-import io.github.dockyardmc.protocol.packets.handshake.serverbound.ServerboundHandshakePacket
 import io.netty.channel.ChannelHandlerContext
 import java.lang.IllegalArgumentException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
-import kotlin.reflect.KFunction3
 
 abstract class PacketRegistry {
 
@@ -89,7 +87,7 @@ abstract class PacketRegistry {
     internal val skippedConfigurationPackets: MutableMap<Int, String> = mutableMapOf()
     internal val skippedPlayPackets: MutableMap<Int, String> = mutableMapOf()
 
-    internal val handlers: MutableMap<KClass<*>, KFunction3<*, NetworkManager, ChannelHandlerContext, Unit>> = mutableMapOf()
+    private val handlers: MutableMap<KClass<*>, (Any, NetworkManager, ChannelHandlerContext) -> Unit> = mutableMapOf()
 
     fun getReversedHandshake(): Map<Int, KClass<*>> {
         if(reversedHandshakePackets.isEmpty()) reversedHandshakePackets = handshakePackets.reversed()
@@ -116,11 +114,11 @@ abstract class PacketRegistry {
         return reversedPlayPackets
     }
 
-    fun getHandlerOrNull(packet: KClass<*>): Function3<*, NetworkManager, ChannelHandlerContext, Unit>? {
+    fun <T: Packet> getHandlerOrNull(packet: KClass<*>): Function3<T, NetworkManager, ChannelHandlerContext, Unit>? {
         return handlers[packet]
     }
 
-    fun getHandler(packet: KClass<*>): Function3<*, NetworkManager, ChannelHandlerContext, Unit> {
+    fun <T: Packet> getHandler(packet: KClass<*>): Function3<T, NetworkManager, ChannelHandlerContext, Unit> {
         return getHandlerOrNull(packet) ?: throw IllegalArgumentException("Packet class ${packet.simpleName} does not have any handler!")
     }
 
@@ -136,28 +134,28 @@ abstract class PacketRegistry {
     fun skipConfiguration(string: String) { skippedConfigurationPackets[configurationCounter.getAndIncrement()] = string }
     fun skipPlay(string: String) { skippedPlayPackets[playCounter.getAndIncrement()] = string }
 
-    fun <T: Packet> addHandshake(packet: KClass<T>, handler: KFunction3<T, NetworkManager, ChannelHandlerContext, Unit>) {
+    fun <T: Packet> addHandshake(packet: KClass<T>, handler: ((T, NetworkManager, ChannelHandlerContext) -> Unit)?) {
         handshakePackets[packet] = handshakeCounter.getAndIncrement()
-        handlers[packet] = handler
+        if(handler != null) handlers[packet] = handler as (Any, NetworkManager, ChannelHandlerContext) -> Unit
     }
 
-    fun <T: Packet> addStatus(packet: KClass<*>, handler: KFunction3<T, NetworkManager, ChannelHandlerContext, Unit>) {
+    fun <T: Packet> addStatus(packet: KClass<T>, handler: ((T, NetworkManager, ChannelHandlerContext) -> Unit)?) {
         statusPackets[packet] = statusCounter.getAndIncrement()
-        handlers[packet] = handler
+        if(handler != null) handlers[packet] = handler as (Any, NetworkManager, ChannelHandlerContext) -> Unit
     }
 
-    fun <T: Packet> addLogin(packet: KClass<*>, handler: KFunction3<T, NetworkManager, ChannelHandlerContext, Unit>) {
+    fun <T: Packet> addLogin(packet: KClass<T>, handler: ((T, NetworkManager, ChannelHandlerContext) -> Unit)?) {
         loginPackets[packet] = loginCounter.getAndIncrement()
-        handlers[packet] = handler
+        if(handler != null) handlers[packet] = handler as (Any, NetworkManager, ChannelHandlerContext) -> Unit
     }
 
-    fun <T: Packet> addConfiguration(packet: KClass<*>, handler: KFunction3<T, NetworkManager, ChannelHandlerContext, Unit>) {
+    fun <T: Packet> addConfiguration(packet: KClass<T>, handler: ((T, NetworkManager, ChannelHandlerContext) -> Unit)?) {
         configurationPackets[packet] = configurationCounter.getAndIncrement()
-        handlers[packet] = handler
+        if(handler != null) handlers[packet] = handler as (Any, NetworkManager, ChannelHandlerContext) -> Unit
     }
 
-    fun <T: Packet> addPlay(packet: KClass<*>, handler: KFunction3<T, NetworkManager, ChannelHandlerContext, Unit>) {
+    fun <T: Packet> addPlay(packet: KClass<T>, handler: ((T, NetworkManager, ChannelHandlerContext) -> Unit)?) {
         playPackets[packet] = playCounter.getAndIncrement()
-        handlers[packet] = handler
+        if(handler != null) handlers[packet] = handler as (Any, NetworkManager, ChannelHandlerContext) -> Unit
     }
 }
