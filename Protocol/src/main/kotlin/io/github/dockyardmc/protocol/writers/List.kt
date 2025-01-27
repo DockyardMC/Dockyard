@@ -12,6 +12,7 @@ fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
     return list.toList()
 }
 
+@JvmName("writeList1")
 fun <T> ByteBuf.writeList(list: Collection<T>, unit: KFunction2<ByteBuf, T, Unit>) {
     this.writeVarInt(list.size)
     list.forEach { value ->
@@ -19,6 +20,7 @@ fun <T> ByteBuf.writeList(list: Collection<T>, unit: KFunction2<ByteBuf, T, Unit
     }
 }
 
+@JvmName("writeList2")
 fun <T> ByteBuf.writeList(list: Collection<T>, unit: KFunction2<T, ByteBuf, Unit>) {
     this.writeVarInt(list.size)
     list.forEach { value ->

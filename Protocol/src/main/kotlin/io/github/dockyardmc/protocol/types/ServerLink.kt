@@ -1,12 +1,12 @@
 package io.github.dockyardmc.protocol.types
 
-import io.github.dockyardmc.protocol.ProtocolWritable
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.writers.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.netty.buffer.ByteBuf
 
-sealed interface ServerLink: ProtocolWritable {
+sealed interface ServerLink: NetworkWritable {
     val url: String
 
     companion object {

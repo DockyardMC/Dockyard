@@ -1,6 +1,6 @@
 package io.github.dockyardmc.protocol.types
 
-import io.github.dockyardmc.protocol.ProtocolWritable
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.writers.*
 import io.netty.buffer.ByteBuf
 import java.lang.IllegalArgumentException
@@ -10,7 +10,7 @@ data class GameProfile(
     val uuid: UUID,
     val name: String,
     val properties: List<Property>
-): ProtocolWritable {
+): NetworkWritable {
 
     companion object {
         const val MAX_PROPERTIES = 1024
@@ -37,7 +37,7 @@ data class GameProfile(
     }
 
 
-    data class Property(var name: String, var value: String, var signature: String?): ProtocolWritable {
+    data class Property(var name: String, var value: String, var signature: String?): NetworkWritable {
 
         override fun write(buffer: ByteBuf) {
             buffer.writeString(name)

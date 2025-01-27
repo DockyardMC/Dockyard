@@ -1,6 +1,6 @@
 package io.github.dockyardmc.protocol.types
 
-import io.github.dockyardmc.protocol.ProtocolWritable
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.writers.*
 import io.netty.buffer.ByteBuf
 
@@ -14,7 +14,7 @@ data class ClientInformation(
     var enableTextFiltering: Boolean,
     var allowServerListing: Boolean,
     var particleSettings: ParticleSettings
-): ProtocolWritable {
+): NetworkWritable {
 
     override fun write(buffer: ByteBuf) {
         buffer.writeString(locale)
