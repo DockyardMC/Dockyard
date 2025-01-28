@@ -307,7 +307,6 @@ fun ByteBuf.readAppliedPotionEffectsList(): List<AppliedPotionEffect> {
 }
 
 
-fun ByteArray.toByteBuf(): ByteBuf = Unpooled.copiedBuffer(this)
 
 inline fun <reified T : Any> ByteBuf.readOptionalOrDefault(default: T): T {
     val optional = this.readOptionalOrNull<T>() ?: return default

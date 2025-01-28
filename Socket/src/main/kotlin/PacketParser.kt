@@ -12,7 +12,6 @@ object PacketParser {
 
     fun parse(id: Int, buffer: ByteBuf, networkManager: NetworkManager): Packet? {
         try {
-            log("packets: ${networkManager.serverPacketRegistry.handshakePackets}")
             val packetClass = networkManager.serverPacketRegistry.getFromIdOrNull(id, networkManager.protocolState) ?: return null
             val companionObject = packetClass.companionObject ?: return null
             val readFunction = companionObject.declaredMemberFunctions.find { it.name == "read" } ?: return null

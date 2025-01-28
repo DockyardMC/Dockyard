@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.writers
 
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
 
 
 fun ByteBuf.writeByteArray(bs: ByteArray) {
@@ -27,3 +28,5 @@ fun ByteBuf.readRemainingBytesAsByteArray(): ByteArray {
     this.readBytes(bytes)
     return bytes
 }
+
+fun ByteArray.toByteBuf(): ByteBuf = Unpooled.copiedBuffer(this)

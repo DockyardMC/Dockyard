@@ -38,23 +38,9 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         ServerPacketRegistry.load()
         ClientPacketRegistry.load()
 
-        SoundRegistry.initialize(RegistryManager.getStreamFromPath("registry/sound_registry.json.gz"))
 
-        RegistryManager.register(BlockRegistry)
-        RegistryManager.register(EntityTypeRegistry)
-        RegistryManager.register(DimensionTypeRegistry)
-        RegistryManager.register(WolfVariantRegistry)
-        RegistryManager.register(BannerPatternRegistry)
-        RegistryManager.register(DamageTypeRegistry)
-        RegistryManager.register(JukeboxSongRegistry)
-        RegistryManager.register(TrimMaterialRegistry)
-        RegistryManager.register(TrimPatternRegistry)
-        RegistryManager.register(ChatTypeRegistry)
-        RegistryManager.register(ParticleRegistry)
-        RegistryManager.register(PaintingVariantRegistry)
-        RegistryManager.register(PotionEffectRegistry)
-        RegistryManager.register(BiomeRegistry)
-        RegistryManager.register(ItemRegistry)
+
+
 
         if(ConfigManager.config.implementationConfig.defaultCommands) DockyardCommands()
         if(ConfigManager.config.implementationConfig.npcCommand) NpcCommand()

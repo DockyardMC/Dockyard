@@ -1,11 +1,12 @@
-package io.github.dockyardmc.registry
+package io.github.dockyardmc.protocol.registry
 
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.registry.registries.*
+import io.github.dockyardmc.protocol.registry.registries.*
 import java.io.InputStream
 import kotlin.reflect.KClass
 
 object RegistryManager {
+
+    val dynamicRegistries: MutableMap<String, DynamicRegistry> = mutableMapOf()
 
     val dataDrivenRegisterSources: Map<KClass<*>, String> = mapOf(
         EntityTypeRegistry::class to "registry/entity_type_registry.json.gz",
@@ -15,7 +16,25 @@ object RegistryManager {
         SoundRegistry::class to "registry/sound_registry.json.gz"
     )
 
-    val dynamicRegistries: MutableList<Registry> = mutableListOf()
+    fun registerAll() {
+        register(BlockRegistry)
+        register(EntityTypeRegistry)
+        register(DimensionTypeRegistry)
+        register(WolfVariantRegistry)
+        register(BannerPatternRegistry)
+        register(DamageTypeRegistry)
+        register(JukeboxSongRegistry)
+        register(TrimMaterialRegistry)
+        register(TrimPatternRegistry)
+        register(ChatTypeRegistry)
+        register(ParticleRegistry)
+        register(PaintingVariantRegistry)
+        register(PotionEffectRegistry)
+        register(BiomeRegistry)
+        register(ItemRegistry)
+
+        SoundRegistry.initialize(getStreamFromPath("registry/sound_registry.json.gz"))
+    }
 
     fun register(registry: Registry) {
         if(registry is DataDrivenRegistry) {
@@ -24,13 +43,13 @@ object RegistryManager {
         if (registry is DynamicRegistry) {
             registry.register()
             registry.updateCache()
-        }
 
-        dynamicRegistries.add(registry)
+            dynamicRegistries[registry.identifier] = registry
+
+        }
     }
 
     fun getStreamForClass(registry: KClass<*>): InputStream {
-        log(dataDrivenRegisterSources.toString())
         return ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]!!).openStream()
     }
 
