@@ -34,6 +34,7 @@ repositories {
     maven("https://jitpack.io")
     maven("https://repo.spongepowered.org/repository/maven-public/")
     maven("https://repo.lucko.me/")
+    maven("https://repo.viaversion.com")
 }
 
 dependencies {
@@ -68,7 +69,7 @@ dependencies {
     implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.google.code.gson:gson:2.10.1")
     api("it.unimi.dsi:fastutil:8.5.13")
-    api("cz.lukynka:kotlin-bindables:1.2")
+    api("cz.lukynka:kotlin-bindables:1.3")
 
     api("me.lucko:spark-common:1.10.119-SNAPSHOT")
 

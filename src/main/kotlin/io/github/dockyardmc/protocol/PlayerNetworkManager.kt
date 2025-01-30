@@ -37,6 +37,8 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
 
     var state: ProtocolState = ProtocolState.HANDSHAKE
 
+    var joinedThroughIp: String = "0.0.0.0"
+
     var loginHandler = LoginHandler(this)
     var configurationHandler = ConfigurationHandler(this)
     var playHandler = PlayHandler(this)

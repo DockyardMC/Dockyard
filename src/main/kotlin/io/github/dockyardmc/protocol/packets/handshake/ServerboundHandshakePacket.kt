@@ -25,6 +25,8 @@ class ServerboundHandshakePacket(
         Events.dispatch(event)
         if(event.cancelled) return
 
+        processor.joinedThroughIp = serverAddress
+
         if(nextState == ProtocolState.LOGIN) {
             processor.loginHandler.handleHandshake(this, connection)
             return

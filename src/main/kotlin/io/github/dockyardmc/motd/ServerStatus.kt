@@ -1,6 +1,7 @@
 package io.github.dockyardmc.motd
 
 import cz.lukynka.Bindable
+import cz.lukynka.BindableMap
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.player.PlayerManager
@@ -16,58 +17,30 @@ import java.util.*
 
 object ServerStatusManager {
 
-    private lateinit var cache: ServerStatus
+    private lateinit var defaultCache: ServerStatus
+    private val endpointCache: MutableMap<String, ServerStatus> = mutableMapOf()
+    val endpointDescriptions: BindableMap<String, String> = BindableMap()
+    val endpointIcons: BindableMap<String, ServerIcon> = BindableMap()
 
-    private val iconFile = File("./icon.png")
+    val defaultIcon: Bindable<ServerIcon> = Bindable(ServerIcon.fromFile(File("./icon.png")))
 
-    private val base64EncodedIcon = Bindable<String>(
-        if(iconFile.exists()) Base64.getEncoder().encode(iconFile.readBytes()).decodeToString()
-        else ""
-    )
-
-    val description = Bindable<String>("${Branding.logo} <gray>Custom Kotlin Server Implementation")
+    val defaultDescription = Bindable<String>("${Branding.logo} <gray>Custom Kotlin Server Implementation")
 
     init {
-        description.valueChanged { updateCache() }
-        base64EncodedIcon.valueChanged { updateCache() }
+        defaultDescription.valueChanged { updateCache() }
+        defaultIcon.valueChanged { updateCache() }
+        endpointDescriptions.mapUpdated { updateCache() }
+        endpointIcons.mapUpdated { updateCache() }
     }
 
-    /**
-     * Set the server icon from a file. If the file does not exist, the icon
-     * will be cleared.
-     *
-     * @param file The icon file
-     */
-    fun setIconFromFile(file: File) {
-        base64EncodedIcon.value =
-            if (file.exists()) Base64.getEncoder().encode(file.readBytes()).decodeToString()
-            else ""
-    }
+    fun getCache(ip: String?): ServerStatus {
+        val endpoint = endpointCache[ip]
+        if(ip == null || endpoint == null) {
+            if(!::defaultCache.isInitialized) updateCache()
+            return defaultCache
+        }
 
-    /**
-     * Set the server icon from a classpath resource
-     *
-     * @param resource The resource URL
-     *
-     * @see Class.getResource
-     */
-    fun setIconFromResource(resource: URL) {
-        base64EncodedIcon.value =
-            Base64.getEncoder().encode(resource.readBytes()).decodeToString()
-    }
-
-    /**
-     * Set the server description (MOTD string)
-     *
-     * @param description The description
-     */
-    fun setDescription(description: String) {
-        this.description.value = description
-    }
-
-    fun getCache(): ServerStatus {
-        if(!this::cache.isInitialized) updateCache()
-        return cache
+        return endpoint
     }
 
     fun updateCache() {
@@ -76,23 +49,44 @@ object ServerStatusManager {
             playersOnline.add(ServerListPlayer(it.username, it.uuid.toString()))
         }
 
-        cache = ServerStatus(
-            version = Version(
-                name = DockyardServer.minecraftVersion.versionName,
-                protocol = DockyardServer.minecraftVersion.protocolId,
-            ),
-            players = Players(
-                max = ConfigManager.config.maxPlayers,
-                online = PlayerManager.players.size,
-                sample = playersOnline,
-            ),
-            description = description.value.toComponent(),
+        val version = Version(
+            name = DockyardServer.minecraftVersion.versionName,
+            protocol = DockyardServer.minecraftVersion.protocolId,
+        )
+
+        val players = Players(
+            max = ConfigManager.config.maxPlayers,
+            online = PlayerManager.players.size,
+            sample = playersOnline,
+        )
+
+        val favicon = "data:image/png;base64,${defaultIcon.value.base64Encoded}"
+
+        endpointDescriptions.values.forEach { (ip, description) ->
+            val icon = endpointIcons[ip]?.base64Encoded ?: defaultIcon.value.base64Encoded
+            val status = ServerStatus(
+                version = version,
+                players = players,
+                description = description.toComponent(),
+                enforceSecureChat = false,
+                previewsChat = false,
+                favicon = "data:image/png;base64,${icon}"
+            )
+
+            endpointCache[ip] = status
+        }
+
+        defaultCache = ServerStatus(
+            version = version,
+            players = players,
+            description = defaultDescription.value.toComponent(),
             enforceSecureChat = false,
             previewsChat = false,
-            favicon = "data:image/png;base64,${base64EncodedIcon.value}"
+            favicon = favicon
         )
     }
-    private val json = getCache().toJson()
+
+    private val json = getCache(null).toJson()
 }
 
 fun ServerStatus.toJson(): String = Json.encodeToString<ServerStatus>(this)
@@ -125,3 +119,18 @@ data class ServerListPlayer(
     var name: String,
     var uuid: String
 )
+
+data class ServerIcon(
+    val base64Encoded: String
+) {
+    companion object {
+
+        fun fromFile(file: File): ServerIcon {
+            return ServerIcon(if (file.exists()) Base64.getEncoder().encode(file.readBytes()).decodeToString() else "")
+        }
+
+        fun fromURL(url: URL): ServerIcon {
+            return ServerIcon(Base64.getEncoder().encode(url.readBytes()).decodeToString())
+        }
+    }
+}

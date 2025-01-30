@@ -20,7 +20,7 @@ class ServerboundStatusRequestPacket: ServerboundPacket {
             players.add(ServerListPlayer(it.username, it.uuid.toString()))
         }
 
-        val serverStatus = ServerStatusManager.getCache()
+        val serverStatus = ServerStatusManager.getCache(processor.joinedThroughIp)
         Events.dispatch(ServerListPingEvent(processor, serverStatus))
 
         val json = serverStatus.toJson()

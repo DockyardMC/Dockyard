@@ -61,7 +61,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         if(ConfigManager.config.implementationConfig.spark) SparkDockyardIntegration().initialize()
 
         NetworkCompression.compressionThreshold = ConfigManager.config.networkCompressionThreshold
-
         WorldManager.loadDefaultWorld()
 
         Events.dispatch(ServerFinishLoadEvent(this))
