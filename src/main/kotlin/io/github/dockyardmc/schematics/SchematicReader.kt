@@ -15,7 +15,8 @@ object SchematicReader {
 
     fun read(byteArray: ByteArray): Schematic {
 
-        val nbt = NBTReader(byteArray, CompressedProcesser.GZIP).readNamed().second as NBTCompound
+        var nbt = NBTReader(byteArray, CompressedProcesser.GZIP).readNamed().second as NBTCompound
+        nbt = nbt.getCompound("Schematic")!!
 
         val width: Int = (nbt.getShort("Width") ?: throw Exception("Field Width was not found in the schematic file!")).toInt()
         val height: Int = (nbt.getShort("Height") ?: throw Exception("Field Height was not found in the schematic file!")).toInt()

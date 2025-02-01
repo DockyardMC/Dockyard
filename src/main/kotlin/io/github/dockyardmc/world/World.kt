@@ -37,6 +37,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     var eventPool = EventPool()
     val scheduler = CustomRateScheduler("${name}_world_scheduler")
+    val uuid = UUID.randomUUID()
 
     init {
         if (name.hasUpperCase()) throw IllegalArgumentException("World name cannot contain uppercase characters")
