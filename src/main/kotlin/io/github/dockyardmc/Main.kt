@@ -1,7 +1,7 @@
 package io.github.dockyardmc
 
-import de.metaphoriker.pathetic.api.pathing.filter.filters.PassablePathFilter
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.TestZombie
@@ -11,22 +11,16 @@ import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemRarity
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.pathfinding.Navigator
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard
-import io.github.dockyardmc.pathfinding.RequiredHeightPathfindingFilter
-import io.github.dockyardmc.pathfinding.Pathfinder
-import io.github.dockyardmc.pathfinding.PathfindingHelper
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.runnables.ticks
-import io.github.dockyardmc.schematics.SchematicReader
-import io.github.dockyardmc.schematics.placeSchematicAsync
 import io.github.dockyardmc.utils.DebugSidebar
 import io.github.dockyardmc.world.WorldManager
-import java.io.File
 
 // This is just testing/development environment.
 // To properly use dockyard, visit https://dockyardmc.github.io/Wiki/wiki/quick-start.html
@@ -87,19 +81,40 @@ fun main(args: Array<String>) {
         event.cancelled = true
     }
 
-    var schemPlaced: Boolean = false
+    var navigator: Navigator? = null
+    var player: Player? = null
+    var lastPlayerPos: Location? = null
 
-    Commands.add("/testPathfinding") {
+    Commands.add("/startNavigating") {
+        addArgument("speed", IntArgument())
         execute { ctx ->
-            val player = ctx.getPlayerOrThrow()
+            val cmdPlayer = ctx.getPlayerOrThrow()
 
-            val middle = Location(0, 0, 0, player.world)
-            val schematic = SchematicReader.read(File("./test.schem"))
+            start = Location(1, 1, 29, cmdPlayer.world)
+            end = Location(18, 0, 16, cmdPlayer.world)
 
-            if (!schemPlaced) player.world.placeSchematicAsync(schematic, middle).thenAccept { schemPlaced = true; runPathfinding(player) } else runPathfinding(player)
+            val startPathPos = PatheticPlatformDockyard.toPathPosition(start!!)
+            val endPathPos = PatheticPlatformDockyard.toPathPosition(end!!)
+
+            val entity = cmdPlayer.world.spawnEntity(TestZombie(start!!)) as TestZombie
+            navigator = Navigator(entity, getArgument("speed"))
+            navigator!!.updatePathfindingPath(cmdPlayer.location.getBlockLocation().subtract(0, 1, 0))
+            player = cmdPlayer
+            lastPlayerPos = player!!.location
         }
     }
 
+    var i = 0
+    Events.on<WorldTickEvent> { event ->
+        i++
+        if(i % 1 != 0) return@on
+        if(player == null || navigator == null) return@on
+        if(event.world == player!!.world) {
+            if(lastPlayerPos != null && lastPlayerPos!!.distance(player!!.location) < 1.5) return@on
+            lastPlayerPos = player!!.location
+            navigator!!.updatePathfindingPath(player!!.location.getBlockLocation().subtract(0, 1, 0))
+        }
+    }
 
     Commands.add("/reset") {
         execute {
@@ -120,40 +135,4 @@ fun main(args: Array<String>) {
         }
     }
     server.start()
-}
-
-fun runPathfinding(player: Player) {
-    start = Location(1, 1, 29, player.world)
-    end = Location(18, 0, 16, player.world)
-
-    val startPathPos = PatheticPlatformDockyard.toPathPosition(start!!)
-    val endPathPos = PatheticPlatformDockyard.toPathPosition(end!!)
-
-    player.sendMessage("<gray>Starting pathfind... [Distance: ${start!!.distance(end!!)}]")
-    val pathfindingResult = Pathfinder.defaultPathfinder.findPath(startPathPos, endPathPos, listOf(PassablePathFilter(), RequiredHeightPathfindingFilter()))
-    pathfindingResult.thenAccept { result ->
-        player.sendMessage("State: ${result.pathState.name}")
-        player.sendMessage("Path length: ${result.path.length()}")
-
-        if (result.successful() || result.hasFallenBack()) {
-//            result.path.forEach { position ->
-//                val location = PatheticPlatformDockyard.toLocation(position)
-//                location.world.setBlock(location, Blocks.YELLOW_CONCRETE_POWDER)
-//            }
-
-            val zombie = player.world.spawnEntity(TestZombie(start!!.add(0, 1, 0))) as TestZombie
-
-            val path = result.path
-            path.forEachIndexed { index, position ->
-                player.world.scheduler.runLater((index * 3).ticks) {
-                    val next = path.toList().getOrNull(index + 1)
-                    val nextLocation = if(next == null)  zombie.location else PatheticPlatformDockyard.toLocation(next).add(0.5, 1.0, 0.5)
-                    zombie.teleport(PatheticPlatformDockyard.toLocation(position).add(0.5, 1.0, 0.5).setDirection(nextLocation.toVector3d() - (zombie.location).toVector3d()))
-                }
-            }
-
-        } else {
-            player.sendMessage("<red>Path not found!")
-        }
-    }
 }

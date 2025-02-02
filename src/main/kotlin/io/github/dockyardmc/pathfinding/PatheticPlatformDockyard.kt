@@ -14,6 +14,16 @@ object PatheticPlatformDockyard {
         return Location(pathPosition.x, pathPosition.y, pathPosition.z, toWorld(pathPosition.pathEnvironment))
     }
 
+    @JvmName("ExtensionToLocation")
+    fun PathPosition.toLocation(): Location {
+        return toLocation(this)
+    }
+
+    @JvmName("ExtensionToPathPosition")
+    fun Location.toPathPosition(): PathPosition {
+        return toPathPosition(this)
+    }
+
     fun toPathPosition(location: Location): PathPosition {
         return PathPosition(toPathWorld(location.world), location.x, location.y, location.z)
     }
