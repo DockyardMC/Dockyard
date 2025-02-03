@@ -4,6 +4,7 @@ import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.datagen.EventsDocumentationGenerator
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.Ravager
 import io.github.dockyardmc.entity.TestZombie
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.broadcastMessage
@@ -96,7 +97,7 @@ fun main(args: Array<String>) {
             val startPathPos = PatheticPlatformDockyard.toPathPosition(start!!)
             val endPathPos = PatheticPlatformDockyard.toPathPosition(end!!)
 
-            val entity = cmdPlayer.world.spawnEntity(TestZombie(start!!)) as TestZombie
+            val entity = cmdPlayer.world.spawnEntity(Ravager(start!!)) as Ravager
             navigator = Navigator(entity, getArgument("speed"))
             navigator!!.updatePathfindingPath(cmdPlayer.location.getBlockLocation().subtract(0, 1, 0))
             player = cmdPlayer

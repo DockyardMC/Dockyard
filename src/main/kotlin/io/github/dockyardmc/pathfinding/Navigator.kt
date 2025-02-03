@@ -1,6 +1,5 @@
 package io.github.dockyardmc.pathfinding
 
-import cz.lukynka.prettylog.log
 import de.metaphoriker.pathetic.api.pathing.filter.filters.PassablePathFilter
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.location.Location
@@ -35,16 +34,14 @@ class Navigator(val entity: Entity, val ticksPerBlock: Int) {
         val start = entity.location.getBlockLocation().subtract(0, 1, 0).toPathPosition()
         val end = target.toPathPosition()
 
-        pathfinder.findPath(start, end, listOf(PassablePathFilter(), RequiredHeightPathfindingFilter())).thenAccept { result ->
+        pathfinder.findPath(start, end, listOf(PassablePathFilter(), RequiredHeightPathfindingFilter(), RequiredSizePathfindingFilter(2, 2))).thenAccept { result ->
             if (result.hasFailed()) {
                 path.clear()
                 debug("<red>Pathfinding failed", true)
                 return@thenAccept
             }
 
-            if (result.hasFallenBack()) debug("<yellow>pathfinding has fallen back")
-
-            debug("<lime>Path found: ${result.path.length()} blocks", true)
+            if (result.hasFallenBack()) debug("<yellow>pathfinding has fallen back", true)
 
             val newPath = result.path.map { it.toLocation() }.toMutableList()
             newPathQueue = newPath
@@ -58,7 +55,6 @@ class Navigator(val entity: Entity, val ticksPerBlock: Int) {
             path.addAll(newPathQueue)
             newPathQueue.clear()
             currentNavigationNodeIndex = if(path.size >= 5) 2 else 1
-            debug("<aqua>Updated navigation path", true)
         }
     }
 
@@ -67,7 +63,6 @@ class Navigator(val entity: Entity, val ticksPerBlock: Int) {
         cancelNavigating()
         updatePathWhileNavigating()
 
-        debug("<gray>Repeating ${path.size} over ${ticksPerBlock} ticks", true)
         currentTask = entity.world.scheduler.runRepeating(ticksPerBlock.ticks) { task ->
 
             if (state == State.IDLE) {
@@ -83,7 +78,6 @@ class Navigator(val entity: Entity, val ticksPerBlock: Int) {
             val nextStepPosition = path.getOrNull(currentNavigationNodeIndex)
 
             if (nextStepPosition == null) {
-                debug("<red>no more nodes to walk (navigationIndex: $currentNavigationNodeIndex, pathSize: ${path.size})", true)
                 state = State.IDLE
                 return@runRepeating
             }

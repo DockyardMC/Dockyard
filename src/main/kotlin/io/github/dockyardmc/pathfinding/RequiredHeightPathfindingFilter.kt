@@ -14,7 +14,6 @@ class RequiredHeightPathfindingFilter(val height: Int = 2) : PathFilter {
             if (block.registryBlock.tags.contains("minecraft:fences")) return false
             val blockAbove = location.add(0, i, 0).block
             val traversable = !isTraversable(blockAbove, location)
-//            DockyardServer.broadcastMessage("Height: $i, block above: ${blockAbove.identifier}, canTraverse: $traversable")
             if (!traversable) return false
         }
 
