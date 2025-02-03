@@ -18,6 +18,8 @@ class ClientboundEntityEventPacket(entity: Entity, event: EntityEvent): Clientbo
 enum class EntityEvent(val id: Int) {
     ENTITY_DIE(3),
     WARDEN_ATTACK(4),
+    RAVAGER_ATTACK_ANIMATION(4),
+    RAVAGER_STUNNED(39),
     PLAYER_ITEM_USE_FINISHED(9),
     PLAYER_ENABLE_DEBUG_SCREEN(23),
     PLAYER_DISABLE_DEBUG_SCREEN(22),

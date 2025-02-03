@@ -88,3 +88,13 @@ fun <E> MutableCollection<E>.addIfNotPresent(target: E) {
 fun <E> MutableCollection<E>.removeIfPresent(target: E) {
     if(this.contains(target)) this.remove(target)
 }
+
+fun <E> MutableList<E>.consumeFirstOrNull(): E? {
+    val first = this.firstOrNull()
+    if(first != null) this.remove(first)
+    return first
+}
+
+fun <E> MutableList<E>.consumeFirst(): E {
+    return this.consumeFirstOrNull() ?: throw NoSuchElementException("mutable list is empty for consuming first element!")
+}

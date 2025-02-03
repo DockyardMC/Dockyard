@@ -56,6 +56,11 @@ dependencies {
     api("io.github.dockyardmc:scroll:2.4")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
 
+    // Pathfinding
+    implementation("com.github.Metaphoriker.pathetic:pathetic-engine:4.0")
+    implementation("com.github.Metaphoriker.pathetic:pathetic-api:4.0")
+    implementation("com.github.Metaphoriker.pathetic:pathetic-provider:4.0")
+
     // Networking
     api("io.ktor:ktor-server-netty:2.3.12")
     api("io.ktor:ktor-network:2.3.12")

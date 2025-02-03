@@ -143,7 +143,7 @@ abstract class Scheduler(val name: String) : Disposable {
         }
     }
 
-    open fun runLater(duration: Duration, unit: () -> Unit): SchedulerTask {
+    open fun runLater(duration: Duration, unit: (SchedulerTask) -> Unit): SchedulerTask {
         val task = SchedulerTask(unit, SchedulerTask.Type.TICK)
         addTask(task, duration)
 
@@ -185,7 +185,7 @@ abstract class Scheduler(val name: String) : Disposable {
         return task
     }
 
-    open fun runRepeating(interval: Duration, unit: () -> Unit): SchedulerTask {
+    open fun runRepeating(interval: Duration, unit: (SchedulerTask) -> Unit): SchedulerTask {
         val task = SchedulerTask(unit, SchedulerTask.Type.REPEATING)
         addTask(task, interval)
         return task
@@ -219,4 +219,16 @@ abstract class Scheduler(val name: String) : Disposable {
         repeatingTasks.clear()
     }
 
+    fun repeat(times: Int, delay: Duration, func: (SchedulerTask) -> Unit): SchedulerTask {
+        val task = SchedulerTask(func, SchedulerTask.Type.REPEATING, "repeat")
+
+        var i = 0
+        val repeatingScheduler = runRepeating(delay) { localTask ->
+            if(task.cancelled) localTask.cancel()
+            i++
+            func.invoke(task)
+            if(i == times) localTask.cancel()
+        }
+        return task
+    }
 }

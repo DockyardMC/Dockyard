@@ -3,7 +3,7 @@ package io.github.dockyardmc.scheduler
 import cz.lukynka.prettylog.log
 import java.lang.Exception
 
-class SchedulerTask(val task: (() -> Unit), val type: Type, val name: String? = null) {
+class SchedulerTask(val task: ((SchedulerTask) -> Unit), val type: Type, val name: String? = null) {
 
     private var innerStatus = Status.WAITING
     val status get() = innerStatus
@@ -12,7 +12,7 @@ class SchedulerTask(val task: (() -> Unit), val type: Type, val name: String? = 
     fun run(tick: Long) {
         innerStatus = Status.RUNNING
         try {
-            task.invoke()
+            task.invoke(this)
             innerStatus = Status.FINISHED
         } catch (ex: Exception) {
             innerStatus = Status.THROW
