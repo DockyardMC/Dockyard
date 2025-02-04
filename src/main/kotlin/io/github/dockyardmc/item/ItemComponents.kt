@@ -444,7 +444,7 @@ fun ByteBuf.writeBookPages(pages: Collection<BookPage>) {
     this.writeVarInt(pages.size)
     pages.forEach {
         this.writeString(it.rawContent)
-        this.writeOptional(it.filteredContent) { op ->
+        this.writeOptionalOLD(it.filteredContent) { op ->
             op.writeString(it.filteredContent!!)
         }
     }

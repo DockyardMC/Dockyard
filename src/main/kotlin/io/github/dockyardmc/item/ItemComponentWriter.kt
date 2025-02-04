@@ -70,7 +70,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         is UseRemainderItemComponent -> component.itemStack.write(this)
         is UseCooldownItemComponent -> {
             this.writeFloat(component.cooldownSeconds)
-            this.writeOptional(component.cooldownGroup) { it.writeString(component.cooldownGroup!!) }
+            this.writeOptionalOLD(component.cooldownGroup) { it.writeString(component.cooldownGroup!!) }
         }
 
         is DamageResistantItemComponent -> this.writeString(component.type.identifier)
@@ -95,8 +95,8 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         is EquippableItemComponent -> {
             this.writeVarIntEnum<EquipmentSlot>(component.slot)
             this.writeSoundEvent(component.equipSound.identifier)
-            this.writeOptional(component.model) { it.writeString(component.model!!) }
-            this.writeOptional(component.cameraOverlay) { it.writeString(component.cameraOverlay!!) }
+            this.writeOptionalOLD(component.model) { it.writeString(component.model!!) }
+            this.writeOptionalOLD(component.cameraOverlay) { it.writeString(component.cameraOverlay!!) }
 
             this.writeVarInt(component.allowedEntities.size)
             component.allowedEntities.forEach { this.writeString(it.identifier) }
@@ -135,17 +135,17 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         is ChargedProjectilesItemComponent -> this.writeItemStackList(component.projectiles)
         is BundleContentsItemComponent -> this.writeItemStackList(component.items)
         is PotionContentsItemComponent -> {
-            this.writeOptional(component.potion) { this.writeVarInt(component.potion!!.getProtocolId()) }
-            this.writeOptional(component.customColor) { this.writeVarInt(component.customColor!!.toRgbInt()) }
+            this.writeOptionalOLD(component.potion) { this.writeVarInt(component.potion!!.getProtocolId()) }
+            this.writeOptionalOLD(component.customColor) { this.writeVarInt(component.customColor!!.toRgbInt()) }
             this.writeAppliedPotionEffectsList(component.potionEffects)
-            this.writeOptional(component.customName) { this.writeString(component.customName!!) }
+            this.writeOptionalOLD(component.customName) { this.writeString(component.customName!!) }
         }
 
         is SuspiciousStewEffectsItemComponent -> this.writeAppliedPotionEffectsList(component.potionEffects)
         is WritableBookContentItemComponent -> this.writeBookPages(component.pages)
         is WrittenBookContentItemComponent -> {
             this.writeString(component.title)
-            this.writeOptional(component.filteredTitle) { this.writeString(component.filteredTitle!!) }
+            this.writeOptionalOLD(component.filteredTitle) { this.writeString(component.filteredTitle!!) }
             this.writeString(component.author)
             this.writeVarInt(component.generation)
             this.writeBookPages(component.pages)
@@ -186,8 +186,8 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         }
 
         is PlayerHeadProfileItemComponent -> {
-            this.writeOptional(component.name) { this.writeString(component.name!!) }
-            this.writeOptional(component.uuid) { this.writeUUID(component.uuid!!) }
+            this.writeOptionalOLD(component.name) { this.writeString(component.name!!) }
+            this.writeOptionalOLD(component.uuid) { this.writeUUID(component.uuid!!) }
             this.writeProfileProperties(component.propertyMap)
         }
 

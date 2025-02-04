@@ -83,6 +83,11 @@ data class RegistryBlock(
     val sounds: RegistryBlockSounds,
     val tags: List<String>,
     val possibleStates: Map<String, Int>,
+    val shape: Map<Int, String>,
+    val collisionShape: Map<Int, String>,
+    val interactionShape: Map<Int, String>,
+    val occlusionShape: Map<Int, String>,
+    val visualShape: Map<Int, String>,
 ): RegistryEntry {
     override fun getProtocolId(): Int {
         return defaultBlockStateId
