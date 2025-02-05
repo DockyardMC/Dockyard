@@ -13,7 +13,7 @@ class ClientboundEntityTeleportPacket(entity: Entity, location: Location): Clien
     constructor(entity: Entity) : this(entity, entity.location)
 
     init {
-        data.writeVarInt(entity.entityId)
+        data.writeVarInt(entity.id)
         data.writeVector3d(location.toVector3d())
         data.writeVector3d(Vector3d())
         data.writeRotation(location, false)

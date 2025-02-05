@@ -7,7 +7,6 @@ import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -98,7 +97,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
     private fun enterPlay(player: Player, world: World) {
 
         val playPacket = ClientboundLoginPacket(
-            entityId = player.entityId,
+            entityId = player.id,
             isHardcore = world.isHardcore,
             dimensionNames = WorldManager.worlds.keys,
             maxPlayers = ConfigManager.config.maxPlayers,

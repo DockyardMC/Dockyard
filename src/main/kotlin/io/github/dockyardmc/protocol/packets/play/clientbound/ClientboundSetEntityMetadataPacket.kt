@@ -14,7 +14,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 class ClientboundSetEntityMetadataPacket(entity: Entity, metadata: Collection<EntityMetadata>): ClientboundPacket() {
 
     init {
-        data.writeVarInt(entity.entityId)
+        data.writeVarInt(entity.id)
         metadata.forEach {
             data.writeMetadata(it)
         }

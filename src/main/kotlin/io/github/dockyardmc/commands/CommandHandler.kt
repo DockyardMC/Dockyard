@@ -146,7 +146,7 @@ object CommandHandler {
                             ?: throw CommandException("Entity with that UUID does not exist!")
                     } else {
                         val id = value.toIntOrNull() ?: throw CommandException("Provided entity id is not of type Int")
-                        EntityManager.entities.firstOrNull { it.entityId == id }
+                        EntityManager.entities.firstOrNull { entity -> entity.id == id }
                             ?: throw CommandException("Entity with that entity id does not exist!")
                     }
                 }

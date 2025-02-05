@@ -10,7 +10,7 @@ import io.github.dockyardmc.utils.minMax
 class ClientboundBlockDestroyStagePacket(val breaker: Entity, val location: Location, val destroyStage: Int): ClientboundPacket() {
 
     init {
-        data.writeVarInt(breaker.entityId)
+        data.writeVarInt(breaker.id)
         data.writeLocation(location)
         data.writeByte(minMax(destroyStage, 0, 9))
     }

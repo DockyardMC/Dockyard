@@ -78,7 +78,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         }
 
         AttributeModifiersItemComponent::class -> this.readModifierList()
-        CustomModelDataItemComponent::class -> CustomModelDataItemComponent(this.readVarInt())
+        CustomModelDataItemComponent::class -> CustomModelDataItemComponent.read(this)
         HideAdditionalTooltipItemComponent::class -> HideAdditionalTooltipItemComponent()
         HideTooltipItemComponent::class -> HideTooltipItemComponent()
         RepairCostItemComponent::class -> RepairCostItemComponent(this.readVarInt())

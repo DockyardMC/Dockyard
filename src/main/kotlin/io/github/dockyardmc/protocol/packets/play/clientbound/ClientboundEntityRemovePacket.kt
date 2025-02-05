@@ -13,6 +13,6 @@ class ClientboundEntityRemovePacket(entities: MutableList<Entity>): ClientboundP
     constructor(entity: Entity) : this(mutableListOf(entity))
 
     init {
-        data.writeVarIntArray(entities.map { it.entityId })
+        data.writeVarIntArray(entities.map { it.id })
     }
 }

@@ -6,12 +6,13 @@ import io.github.dockyardmc.attributes.AttributeModifier
 import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
-import io.github.dockyardmc.protocol.ProtocolWritable
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -26,7 +27,7 @@ data class ItemStack(
     val components: Set<ItemComponent> = setOf(),
     val existingMeta: ItemStackMeta? = null,
     val attributes: Collection<AttributeModifier> = listOf()
-) : ProtocolWritable {
+) : NetworkWritable {
 
     constructor(material: Item, amount: Int = 1, vararg components: ItemComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toSet(), attributes = attributes)
     constructor(material: Item, vararg components: ItemComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toSet(), attributes = attributes)
@@ -88,9 +89,6 @@ data class ItemStack(
         }
     }
 
-    fun withCustomModelData(customModelData: Int): ItemStack {
-        return ItemStackMeta.fromItemStack(this).apply { withCustomModelData(customModelData) }.toItemStack()
-    }
 
     fun withDisplayName(displayName: String): ItemStack {
         return ItemStackMeta.fromItemStack(this).apply { withDisplayName(displayName) }.toItemStack()
@@ -152,8 +150,63 @@ data class ItemStack(
         return meta.toItemStack()
     }
 
-    val customModelData: Int
-        get() { return components.getOrNull(CustomModelDataItemComponent::class)?.customModelData ?: 0 }
+    @JvmName("withCustomModelDatafloatListFloat")
+    fun withCustomModelData(floats: List<Float>): ItemStack {
+        return withMeta { withCustomModelData(floats) }
+    }
+
+    @JvmName("withCustomModelDatafloatFloat")
+    fun withCustomModelData(vararg float: Float): ItemStack {
+        return withMeta { withCustomModelData(*float) }
+    }
+
+    @JvmName("withCustomModelDataflagsListBoolean")
+    fun withCustomModelData(flags: List<Boolean>): ItemStack {
+        return withMeta { withCustomModelData(flags) }
+    }
+
+    @JvmName("withCustomModelDataflagsBoolean")
+    fun withCustomModelData(vararg flags: Boolean): ItemStack {
+        return withMeta { withCustomModelData(*flags) }
+    }
+
+    @JvmName("withCustomModelDatastringsListString")
+    fun withCustomModelData(strings: List<String>): ItemStack {
+        return withMeta { withCustomModelData(strings) }
+    }
+
+    @JvmName("withCustomModelDatastringsString")
+    fun withCustomModelData(vararg string: String): ItemStack {
+        return withMeta { withCustomModelData(*string) }
+    }
+
+    @JvmName("withCustomModelDatacolorsListInt")
+    fun withCustomModelData(colors: List<Int>): ItemStack {
+        return withMeta { withCustomModelData(colors) }
+    }
+
+    @JvmName("withCustomModelDatacolorInt")
+    fun withCustomModelData(vararg color: Int): ItemStack {
+        return withMeta { withCustomModelData(*color) }
+    }
+
+    @JvmName("withCustomModelDatacolorListCustomColor")
+    fun withCustomModelData(colors: List<CustomColor>): ItemStack {
+        return withMeta { withCustomModelData(colors) }
+    }
+
+    @JvmName("withCustomModelDatacolorListCustomColor")
+    fun withCustomModelData(vararg color: CustomColor): ItemStack {
+        return withMeta { withCustomModelData(*color) }
+    }
+
+    @JvmName("withCustomModelDatawhatthefuckaaaaaaa")
+    fun withCustomModelData(floats: List<Float> = listOf(), flags: List<Boolean> = listOf(), strings: List<String> = listOf(), colors: List<Int> = listOf()): ItemStack {
+        return withMeta { withCustomModelData(floats, flags, strings, colors) }
+    }
+
+    val customModelData: CustomModelDataItemComponent
+        get() { return components.getOrNull(CustomModelDataItemComponent::class) ?: CustomModelDataItemComponent() }
 
     val maxStackSize: Int
         get() { return components.getOrNull(MaxStackSizeItemComponent::class)?.maxStackSize ?: material.maxStack }

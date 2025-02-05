@@ -14,7 +14,7 @@ import io.github.dockyardmc.utils.vectors.writeShortVector3
 class ClientboundSetEntityVelocityPacket(entity: Entity, velocity: Vector3): ClientboundPacket() {
 
     init {
-        data.writeVarInt(entity.entityId)
+        data.writeVarInt(entity.id)
         data.writeShortVector3(velocity)
     }
 

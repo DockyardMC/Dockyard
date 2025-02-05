@@ -19,7 +19,7 @@ interface Event {
     ) {
         // what the fuck
         val players = players + entities.filterIsInstance<Player>()
-        val entities = entities + players
+        var entities = entities + players
         val locations = locations + this.entities.map { it.location }
         val worlds = worlds + this.locations.map { it.world }
 

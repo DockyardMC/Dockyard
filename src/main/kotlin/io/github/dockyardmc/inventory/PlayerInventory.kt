@@ -13,6 +13,7 @@ import io.github.dockyardmc.events.PlayerEquipEvent
 import io.github.dockyardmc.events.PlayerSwapOffhandEvent
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventoryCursorPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
@@ -77,6 +78,23 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
         player.mainHandItem = event.offHandItem
         player.offHandItem = event.mainHandItem
+    }
+
+    fun getSlotByItemStack(itemStack: ItemStack): Int? {
+        slots.values.forEach { (index, item) ->
+            if(item.isSameAs(itemStack)) return index
+        }
+        return null
+    }
+
+    fun getSlotByItem(item: Item): Int? {
+        slots.values.forEach { (index, itemStack) ->
+            if(itemStack.material == item) {
+                return index
+            }
+        }
+
+        return null
     }
 
     override fun set(slot: Int, item: ItemStack) {

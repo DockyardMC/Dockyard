@@ -1,12 +1,14 @@
 package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.extentions.getOrThrow
+import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.scroll.extensions.put
+import io.github.dockyardmc.sounds.CustomSoundEvent
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -45,7 +47,7 @@ object BiomeRegistry : DataDrivenRegistry, DynamicRegistry {
     fun addEntry(entry: Biome, updateCache: Boolean = true) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         biomes[entry.identifier] = entry
-        if(updateCache) updateCache()
+        if (updateCache) updateCache()
     }
 
     fun addEntries(vararg entries: Biome) {
@@ -107,10 +109,10 @@ data class BackgroundMusic(
 ) {
     fun toNBT(): NBTCompound {
         return NBT.Compound {
+            it.put("sound", CustomSoundEvent(sound, null).getNbt())
             it.put("max_delay", maxDelay)
             it.put("min_delay", minDelay)
             it.put("replace_current_music", replaceCurrentMusic)
-            it.put("sound", sound)
         }
     }
 }
@@ -155,7 +157,8 @@ data class Effects(
     val grassColor: Int? = null,
     val grassColorModifier: String? = null,
     val moodSound: MoodSound? = null,
-    val music: BackgroundMusic? = null,
+    val music: List<Biome.WeightedBackgroundMusic>? = null,
+    val musicVolume: Float? = null,
     val ambientAdditions: AmbientAdditions? = null,
     val ambientLoop: String? = null,
     val particle: BiomeParticles? = null,
@@ -170,7 +173,8 @@ data class Effects(
             if (grassColor != null) it.put("grass_color", grassColor)
             if (grassColorModifier != null) it.put("grass_color_modifier", grassColorModifier)
             if (moodSound != null) it.put("mood_sound", moodSound.toNBT())
-            if (music != null) it.put("music", music.toNBT())
+            if (music != null) it.put("music", music.map { music -> music.getNbt() })
+            if (musicVolume != null) it.put("music_volume", musicVolume)
             if (ambientAdditions != null) it.put("additions_sound", ambientAdditions.toNBT())
             if (particle != null) it.put("particle", particle.toNBT())
             if (ambientLoop != null) it.put("ambient_sound", ambientLoop)
@@ -204,4 +208,18 @@ data class Biome(
             if (temperatureModifier != null) it.put("temperature_modifier", temperatureModifier)
         }
     }
+
+    @Serializable
+    data class WeightedBackgroundMusic(val music: BackgroundMusic, val weight: Int) : NbtWritable {
+
+        override fun getNbt(): NBTCompound {
+            return NBT.Compound { builder ->
+                builder.put("data", music.toNBT())
+                builder.put("weight", weight)
+            }
+        }
+
+    }
 }
+
+

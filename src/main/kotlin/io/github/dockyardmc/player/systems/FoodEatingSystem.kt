@@ -38,13 +38,14 @@ class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
                 val particles = consumableItemComponent?.hasConsumeParticles ?: true
                 if(particles) {
                     viewers.spawnParticle(
-                        location.clone().apply { y += 1.5 },
-                        Particles.ITEM,
-                        Vector3f(0.2f),
-                        0.05f,
-                        6,
-                        false,
-                        ItemParticleData(item)
+                        location = location.clone().apply { y += 1.5 },
+                        particle = Particles.ITEM,
+                        offset = Vector3f(0.2f),
+                        speed = 0.05f,
+                        amount = 6,
+                        longDistance = false,
+                        overrideLimiter = false,
+                        particleData = ItemParticleData(item)
                     )
                 }
             }

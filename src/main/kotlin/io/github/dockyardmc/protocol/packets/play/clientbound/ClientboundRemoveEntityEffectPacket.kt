@@ -16,7 +16,7 @@ class ClientboundRemoveEntityEffectPacket(entity: Entity, effect: PotionEffect):
     constructor(entity: Entity, effect: AppliedPotionEffect): this(entity, effect.effect)
 
     init {
-        data.writeVarInt(entity.entityId)
+        data.writeVarInt(entity.id)
         data.writeVarInt(effect.getProtocolId())
     }
 

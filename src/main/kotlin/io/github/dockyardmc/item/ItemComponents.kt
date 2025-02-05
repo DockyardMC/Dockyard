@@ -6,6 +6,8 @@ import io.github.dockyardmc.blocks.BlockPredicate
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
+import io.github.dockyardmc.protocol.NetworkWritable
+import io.github.dockyardmc.protocol.writeList
 import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.*
@@ -90,9 +92,6 @@ object ItemComponents  {
         ContainerLootItemComponent::class
     )
 
-    fun register() {
-    }
-
 }
 
 interface ItemComponent {
@@ -159,8 +158,30 @@ data class AttributeModifiersItemComponent(
 ): ItemComponent
 
 data class CustomModelDataItemComponent(
-    var customModelData: Int,
-): ItemComponent
+    val floats: List<Float> = listOf(),
+    val flags: List<Boolean> = listOf(),
+    val strings: List<String> = listOf(),
+    val colors: List<Int> = listOf(),
+): ItemComponent, NetworkWritable {
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeList<Float>(floats, ByteBuf::writeFloat)
+        buffer.writeList<Boolean>(flags, ByteBuf::writeBoolean)
+        buffer.writeList<String>(strings, ByteBuf::writeString)
+        buffer.writeList<Int>(colors, ByteBuf::writeInt)
+    }
+
+    companion object {
+        fun read(buffer: ByteBuf): CustomModelDataItemComponent {
+            return CustomModelDataItemComponent(
+                buffer.readList(ByteBuf::readFloat),
+                buffer.readList(ByteBuf::readBoolean),
+                buffer.readList(ByteBuf::readString),
+                buffer.readList(ByteBuf::readInt),
+            )
+        }
+    }
+}
 
 
 //what is this? even wiki.vg doesnt know
@@ -221,7 +242,7 @@ data class EnchantableItemComponent(var value: Int): ItemComponent
 data class EquippableItemComponent(
     val slot: EquipmentSlot,
     val equipSound: Sound,
-    val model: String?,
+    val assetId: String?,
     val cameraOverlay: String?,
     val allowedEntities: List<EntityType>,
     val dispensable: Boolean,
@@ -444,7 +465,7 @@ fun ByteBuf.writeBookPages(pages: Collection<BookPage>) {
     this.writeVarInt(pages.size)
     pages.forEach {
         this.writeString(it.rawContent)
-        this.writeOptional(it.filteredContent) { op ->
+        this.writeOptionalOLD(it.filteredContent) { op ->
             op.writeString(it.filteredContent!!)
         }
     }

@@ -37,6 +37,7 @@ object Particles {
     val FLAME = ParticleRegistry["minecraft:flame"]
     val INFESTED = ParticleRegistry["minecraft:infested"]
     val CHERRY_LEAVES = ParticleRegistry["minecraft:cherry_leaves"]
+    val PALE_OAK_LEAVES = ParticleRegistry["minecraft:pale_oak_leaves"]
     val SCULK_SOUL = ParticleRegistry["minecraft:sculk_soul"]
     val SCULK_CHARGE = ParticleRegistry["minecraft:sculk_charge"]
     val SCULK_CHARGE_POP = ParticleRegistry["minecraft:sculk_charge_pop"]

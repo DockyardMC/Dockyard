@@ -25,7 +25,7 @@ class BiomeBuilder(val identifier: String) {
     var grassColor: CustomColor? = CustomColor.fromRGBIntOrNull(defaultBiome.effects.grassColor)
     var grassColorModifier: BiomeGrassColorModifier = BiomeGrassColorModifier.NONE
     var moodSound: MoodSound? = defaultBiome.effects.moodSound
-    var music: BackgroundMusic? = defaultBiome.effects.music
+    var music: List<Biome.WeightedBackgroundMusic>? = defaultBiome.effects.music
     var ambientAdditions: AmbientAdditions? = defaultBiome.effects.ambientAdditions
     var ambientLoop: String? = defaultBiome.effects.ambientLoop
     var particles: BiomeParticles? = defaultBiome.effects.particle
@@ -100,11 +100,7 @@ class BiomeBuilder(val identifier: String) {
         this.ambientAdditions = ambientAdditions
     }
 
-    fun withMusic(sound: String, replaceCurrentMusic: Boolean, minDelay: Int, maxDelay: Int) {
-        withMusic(BackgroundMusic(maxDelay, minDelay, replaceCurrentMusic, sound))
-    }
-
-    fun withMusic(music: BackgroundMusic) {
+    fun withMusic(music: List<Biome.WeightedBackgroundMusic>) {
         this.music = music
     }
 

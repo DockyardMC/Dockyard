@@ -14,13 +14,13 @@ import io.github.dockyardmc.registry.registries.DamageType
 class ClientboundDamageEventPacket(entity: Entity, type: DamageType, attacker: Entity?, projectile: Entity?, location: Location? = null): ClientboundPacket() {
 
     init {
-        data.writeVarInt(entity.entityId)
+        data.writeVarInt(entity.id)
         data.writeVarInt(type.getProtocolId())
-        data.writeVarInt(if(attacker != null) attacker.entityId +1 else 0)
+        data.writeVarInt(if(attacker != null) attacker.id +1 else 0)
         var sourceDirectId = 0
-        if(projectile != null) sourceDirectId = projectile.entityId
+        if(projectile != null) sourceDirectId = projectile.id
         if(projectile != null && attacker != null) {
-            sourceDirectId = attacker.entityId
+            sourceDirectId = attacker.id
         }
         data.writeVarInt(sourceDirectId)
         data.writeBoolean(location != null)

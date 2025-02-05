@@ -31,16 +31,16 @@ object TrimMaterialRegistry: DynamicRegistry {
     }
 
     override fun register() {
-        addEntry(TrimMaterial("minecraft:amethyst", "amethyst", "#9A5CC6", "trim_material.minecraft.amethyst", "minecraft:amethyst_shard", 1.0f))
-        addEntry(TrimMaterial("minecraft:copper", "copper", "#B4684D", "trim_material.minecraft.copper", "minecraft:copper_ingot", 0.5f))
-        addEntry(TrimMaterial("minecraft:diamond", "diamond", "#6EECD2", "trim_material.minecraft.diamond", "minecraft:diamond", 0.8f, mapOf("minecraft:diamond" to "diamond_darker")))
-        addEntry(TrimMaterial("minecraft:emerald", "emerald", "#11A036", "trim_material.minecraft.emerald", "minecraft:emerald", 0.7f))
-        addEntry(TrimMaterial("minecraft:gold", "gold", "#DEB12D", "trim_material.minecraft.gold", "minecraft:gold_ingot", 0.6f, mapOf("minecraft:gold" to "gold_darker")))
-        addEntry(TrimMaterial("minecraft:iron", "iron", "#ECECEC", "trim_material.minecraft.iron", "minecraft:iron_ingot", 0.2f, mapOf("minecraft:iron" to "iron_darker")))
-        addEntry(TrimMaterial("minecraft:lapis", "lapis", "#416E97", "trim_material.minecraft.lapis", "minecraft:lapis_lazuli", 0.9f))
-        addEntry(TrimMaterial("minecraft:netherite", "netherite", "#625859", "trim_material.minecraft.netherite", "minecraft:netherite_ingot", 0.3f,mapOf("minecraft:netherite" to "netherite_darker")))
-        addEntry(TrimMaterial("minecraft:quartz", "quartz", "#E3D4C4", "trim_material.minecraft.quartz", "minecraft:quartz", 0.1f))
-        addEntry(TrimMaterial("minecraft:redstone", "redstone", "#971607", "trim_material.minecraft.redstone", "minecraft:redstone", 0.4f))
+        addEntry(TrimMaterial("minecraft:amethyst", "amethyst", "#9A5CC6", "trim_material.minecraft.amethyst", "minecraft:amethyst_shard"))
+        addEntry(TrimMaterial("minecraft:copper", "copper", "#B4684D", "trim_material.minecraft.copper", "minecraft:copper_ingot"))
+        addEntry(TrimMaterial("minecraft:diamond", "diamond", "#6EECD2", "trim_material.minecraft.diamond", "minecraft:diamond", mapOf("minecraft:diamond" to "diamond_darker")))
+        addEntry(TrimMaterial("minecraft:emerald", "emerald", "#11A036", "trim_material.minecraft.emerald", "minecraft:emerald"))
+        addEntry(TrimMaterial("minecraft:gold", "gold", "#DEB12D", "trim_material.minecraft.gold", "minecraft:gold_ingot", mapOf("minecraft:gold" to "gold_darker")))
+        addEntry(TrimMaterial("minecraft:iron", "iron", "#ECECEC", "trim_material.minecraft.iron", "minecraft:iron_ingot",  mapOf("minecraft:iron" to "iron_darker")))
+        addEntry(TrimMaterial("minecraft:lapis", "lapis", "#416E97", "trim_material.minecraft.lapis", "minecraft:lapis_lazuli", ))
+        addEntry(TrimMaterial("minecraft:netherite", "netherite", "#625859", "trim_material.minecraft.netherite", "minecraft:netherite_ingot", mapOf("minecraft:netherite" to "netherite_darker")))
+        addEntry(TrimMaterial("minecraft:quartz", "quartz", "#E3D4C4", "trim_material.minecraft.quartz", "minecraft:quartz"))
+        addEntry(TrimMaterial("minecraft:redstone", "redstone", "#971607", "trim_material.minecraft.redstone", "minecraft:redstone"))
         updateCache()
     }
 
@@ -76,7 +76,6 @@ data class TrimMaterial(
     val color: String,
     val translate: String,
     val ingredient: String,
-    val itemModelIndex: Float,
     val overrideArmorMaterials: Map<String, String>? = null,
 ): RegistryEntry {
 
@@ -92,7 +91,6 @@ data class TrimMaterial(
                 desc.put("translate", translate)
             })
             it.put("ingredient", ingredient)
-            it.put("item_model_index", itemModelIndex)
         }
     }
 }

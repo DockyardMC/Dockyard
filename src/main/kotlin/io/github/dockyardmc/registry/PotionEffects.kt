@@ -1,7 +1,7 @@
 package io.github.dockyardmc.registry
 
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.writeOptional
+import io.github.dockyardmc.extentions.writeOptionalOLD
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.registry.registries.PotionEffectRegistry
@@ -85,7 +85,7 @@ data class AppliedPotionEffectSettings(
         buffer.writeBoolean(isAmbient)
         buffer.writeBoolean(showIcon)
         buffer.writeBoolean(showIcon)
-        buffer.writeOptional(hiddenEffect) {
+        buffer.writeOptionalOLD(hiddenEffect) {
             write(it)
         }
     }

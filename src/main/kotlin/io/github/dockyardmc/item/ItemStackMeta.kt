@@ -1,6 +1,7 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.attributes.AttributeModifier
+import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.player.ProfileProperty
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.registry.Items
@@ -140,8 +141,59 @@ class ItemStackMeta {
         components.addOrUpdate(MaxStackSizeItemComponent(maxStackSize))
     }
 
-    fun withCustomModelData(customModelData: Int) {
-        components.addOrUpdate(CustomModelDataItemComponent(customModelData))
+    @JvmName("withCustomModelDatafloatListFloat")
+    fun withCustomModelData(floats: List<Float>) {
+        components.addOrUpdate(CustomModelDataItemComponent(floats))
+    }
+
+    @JvmName("withCustomModelDatafloatFloat")
+    fun withCustomModelData(vararg float: Float) {
+        withCustomModelData(float.toList())
+    }
+
+    @JvmName("withCustomModelDataflagsListBoolean")
+    fun withCustomModelData(flags: List<Boolean>) {
+        components.addOrUpdate(CustomModelDataItemComponent(listOf(), flags))
+    }
+
+    @JvmName("withCustomModelDataflagsBoolean")
+    fun withCustomModelData(vararg flags: Boolean) {
+        withCustomModelData(flags.toList())
+    }
+
+    @JvmName("withCustomModelDatastringsListString")
+    fun withCustomModelData(strings: List<String>) {
+        components.addOrUpdate(CustomModelDataItemComponent(listOf(), listOf(), strings))
+    }
+
+    @JvmName("withCustomModelDatastringsString")
+    fun withCustomModelData(vararg string: String) {
+        withCustomModelData(string.toList())
+    }
+
+    @JvmName("withCustomModelDatacolorsListInt")
+    fun withCustomModelData(colors: List<Int>) {
+        components.addOrUpdate(CustomModelDataItemComponent(listOf(), listOf(), listOf(), colors))
+    }
+
+    @JvmName("withCustomModelDatacolorInt")
+    fun withCustomModelData(vararg color: Int) {
+        withCustomModelData(color.toList())
+    }
+
+    @JvmName("withCustomModelDatacolorListCustomColor")
+    fun withCustomModelData(colors: List<CustomColor>) {
+        components.addOrUpdate(CustomModelDataItemComponent(listOf(), listOf(), listOf(), colors.map { color -> color.toRgbInt() }))
+    }
+
+    @JvmName("withCustomModelDatacolorListCustomColor")
+    fun withCustomModelData(vararg color: CustomColor) {
+        withCustomModelData(color.toList())
+    }
+
+    @JvmName("withCustomModelDatawhatthefuckaaaaaaa")
+    fun withCustomModelData(floats: List<Float> = listOf(), flags: List<Boolean> = listOf(), strings: List<String> = listOf(), colors: List<Int> = listOf()) {
+        components.addOrUpdate(CustomModelDataItemComponent(floats, flags, strings, colors))
     }
 
     fun withMaterial(item: Item) {

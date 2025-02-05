@@ -47,7 +47,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     abstract var health: Bindable<Float>
     abstract var inventorySize: Int
 
-    open var entityId: Int = EntityManager.entityIdCounter.incrementAndGet()
+    open var id: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
     open var velocity: Vector3 = Vector3()
     open var isInvulnerable: Boolean = false
@@ -142,7 +142,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         if (event.cancelled) return
 
         sendMetadataPacket(player)
-        val entitySpawnPacket = ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
+        val entitySpawnPacket = ClientboundSpawnEntityPacket(id, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
         isOnGround = true
 
         synchronized(player.entityViewSystem.visibleEntities) {

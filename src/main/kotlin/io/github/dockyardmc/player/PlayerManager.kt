@@ -3,7 +3,6 @@ package io.github.dockyardmc.player
 import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerConnectEvent
-import io.github.dockyardmc.protocol.ChannelHandlers
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.world.World
@@ -54,7 +53,7 @@ object PlayerManager {
             innerPlayers.add(player)
         }
         synchronized(innerPlayerToEntityIdMap) {
-            innerPlayerToEntityIdMap[player.entityId] = player
+            innerPlayerToEntityIdMap[player.id] = player
         }
 
         processor.player = player
@@ -74,7 +73,7 @@ object PlayerManager {
             innerPlayers.remove(player)
         }
         synchronized(playerToEntityIdMap) {
-            innerPlayerToEntityIdMap.remove(player.entityId)
+            innerPlayerToEntityIdMap.remove(player.id)
         }
         player.world.removePlayer(player)
         player.world.removeEntity(player)
@@ -89,7 +88,7 @@ object PlayerManager {
     fun createNewPlayer(username: String, uuid: UUID, connection: ChannelHandlerContext, networkManager: PlayerNetworkManager): Player {
         val player = Player(
             username = username,
-            entityId = EntityManager.entityIdCounter.incrementAndGet(),
+            id = EntityManager.entityIdCounter.incrementAndGet(),
             uuid = uuid,
             world = WorldManager.mainWorld,
             address = connection.channel().remoteAddress().address,

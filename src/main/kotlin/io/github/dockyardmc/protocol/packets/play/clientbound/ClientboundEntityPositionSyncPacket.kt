@@ -9,7 +9,7 @@ import io.github.dockyardmc.utils.vectors.writeVector3d
 
 class ClientboundEntityPositionSyncPacket(val entity: Entity, val location: Location, val delta: Vector3d, val isOnGround: Boolean): ClientboundPacket() {
     init {
-        data.writeVarInt(entity.entityId)
+        data.writeVarInt(entity.id)
         data.writeVector3d(location.toVector3d())
         data.writeVector3d(delta)
         data.writeFloat(location.yaw)

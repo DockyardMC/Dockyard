@@ -2,6 +2,7 @@ package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.registry.DataDrivenRegistry
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.utils.CustomDataHolder
@@ -83,9 +84,18 @@ data class RegistryBlock(
     val sounds: RegistryBlockSounds,
     val tags: List<String>,
     val possibleStates: Map<String, Int>,
+    val shape: Map<Int, String>,
+    val collisionShape: Map<Int, String>,
+    val interactionShape: Map<Int, String>,
+    val occlusionShape: Map<Int, String>,
+    val visualShape: Map<Int, String>,
 ): RegistryEntry {
     override fun getProtocolId(): Int {
         return defaultBlockStateId
+    }
+
+    fun toItem(): Item {
+        return ItemRegistry[identifier]
     }
 
     fun toBlock(): Block {

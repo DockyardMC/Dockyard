@@ -68,7 +68,7 @@ class ServerboundEntityInteractPacket(
         fun read(buf: ByteBuf): ServerboundEntityInteractPacket {
 
             val entityId = buf.readVarInt()
-            val entity = EntityManager.entities.firstOrNull { it.entityId == entityId }
+            val entity = EntityManager.entities.firstOrNull { entity -> entity.id == entityId }
             if(entity == null) throw IllegalStateException("Entity with id $entityId was not found")
             val type = buf.readVarIntEnum<EntityInteractionType>()
             var targetX: Float? = null

@@ -10,10 +10,10 @@ class ClientboundSetPassengersPacket(val vehicle: Entity, val passengers: Collec
     constructor(vehicle: Entity, passenger: Entity): this(vehicle, listOf(passenger))
 
     init {
-        data.writeVarInt(vehicle.entityId)
+        data.writeVarInt(vehicle.id)
         data.writeVarInt(passengers.size)
         passengers.forEach {
-            data.writeVarInt(it.entityId)
+            data.writeVarInt(it.id)
         }
     }
 }

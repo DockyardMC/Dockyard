@@ -27,7 +27,7 @@ import kotlin.experimental.inv
 private const val SEGMENT_BITS: Byte = 0x7F
 private const val CONTINUE_BIT = 0x80
 
-fun ByteBuf.writeOptional(item: Any?, unit: (ByteBuf) -> Unit) {
+fun ByteBuf.writeOptionalOLD(item: Any?, unit: (ByteBuf) -> Unit) {
     val isPresent = item != null
     this.writeBoolean(isPresent)
     if (isPresent) {

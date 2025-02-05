@@ -10,19 +10,27 @@ import java.util.concurrent.atomic.AtomicInteger
 object EntityManager {
 
     var entityIdCounter = AtomicInteger()
-    private val innerEntities: MutableList<Entity> = mutableListOf()
+    private val innerEntities: MutableMap<Int, Entity> = mutableMapOf()
 
-    val entities get() = innerEntities.toList()
+    val entities get() = innerEntities.values
 
     fun addPlayer(player: Player) {
         synchronized(entities) {
-            innerEntities.add(player)
+            innerEntities[player.id] = player
         }
+    }
+
+    fun getByIdOrNull(id: Int): Entity? {
+        return innerEntities[id]
+    }
+
+    fun getById(id: Int): Entity {
+        return innerEntities[id] ?: throw NoSuchElementException("No entity with id $id exists!")
     }
 
     fun spawnEntity(entity: Entity): Entity {
         synchronized(entities) {
-            innerEntities.add(entity)
+            innerEntities[entity.id] = entity
             entity.world.addEntity(entity)
         }
 
@@ -38,7 +46,7 @@ object EntityManager {
 
     fun despawnEntity(entity: Entity) {
         synchronized(entities) {
-            innerEntities.remove(entity)
+            innerEntities.remove(entity.id)
             entity.world.removeEntity(entity)
         }
     }

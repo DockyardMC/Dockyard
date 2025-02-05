@@ -9,8 +9,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundPickupItemPacket(val collected: ItemDropEntity, val collector: Entity, val item: ItemStack): ClientboundPacket() {
 
     init {
-        data.writeVarInt(collected.entityId)
-        data.writeVarInt(collector.entityId)
+        data.writeVarInt(collected.id)
+        data.writeVarInt(collector.id)
         data.writeVarInt(item.amount)
     }
 

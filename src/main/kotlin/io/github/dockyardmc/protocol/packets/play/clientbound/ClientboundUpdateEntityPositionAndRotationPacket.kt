@@ -14,7 +14,7 @@ class ClientboundUpdateEntityPositionAndRotationPacket(
     init {
         val current = entity.location
 
-        data.writeVarInt(entity.entityId)
+        data.writeVarInt(entity.id)
         data.writeShort(getRelativeCoords(current.x, previousLocation.x))
         data.writeShort(getRelativeCoords(current.y, previousLocation.y))
         data.writeShort(getRelativeCoords(current.z, previousLocation.z))

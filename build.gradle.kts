@@ -53,7 +53,7 @@ dependencies {
     // Minecraft
     api("io.github.jglrxavpok.hephaistos:common:2.2.0")
     api("io.github.jglrxavpok.hephaistos:gson:2.2.0")
-    api("io.github.dockyardmc:scroll:2.4")
+    api("io.github.dockyardmc:scroll:2.7")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
 
     // Pathfinding
@@ -202,8 +202,6 @@ fun sendWebhookToDiscord(webhookUrl: String) {
             null
         }
 }
-
-
 
 
 fun embed(): String {

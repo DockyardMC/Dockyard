@@ -33,7 +33,6 @@ object EntityTypes {
     val COMMAND_BLOCK_MINECART = EntityTypeRegistry["minecraft:command_block_minecart"]
     val COW = EntityTypeRegistry["minecraft:cow"]
     val CREAKING = EntityTypeRegistry["minecraft:creaking"]
-    val CREAKING_TRANSIENT = EntityTypeRegistry["minecraft:creaking_transient"]
     val CREEPER = EntityTypeRegistry["minecraft:creeper"]
     val DARK_OAK_BOAT = EntityTypeRegistry["minecraft:dark_oak_boat"]
     val DARK_OAK_CHEST_BOAT = EntityTypeRegistry["minecraft:dark_oak_chest_boat"]
