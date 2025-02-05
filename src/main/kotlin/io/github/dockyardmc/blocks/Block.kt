@@ -3,6 +3,8 @@ package io.github.dockyardmc.blocks
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.BlockRegistry
+import io.github.dockyardmc.registry.registries.Item
+import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.CustomDataHolder
 import java.lang.IllegalArgumentException
@@ -13,6 +15,10 @@ data class Block(
     val customData: CustomDataHolder? = null,
 ) {
     val identifier = registryBlock.identifier
+
+    fun toItem(): Item {
+        return ItemRegistry[identifier]
+    }
 
     fun getProtocolId(): Int {
         if (blockStates.isEmpty()) return registryBlock.defaultBlockStateId

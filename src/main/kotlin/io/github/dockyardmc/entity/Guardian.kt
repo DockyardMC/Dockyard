@@ -25,7 +25,7 @@ open class Guardian(location: Location): Entity(location) {
         }
 
         target.valueChanged { change ->
-            metadata[TARGET_ENTITY_ID] = EntityMetadata(TARGET_ENTITY_ID, EntityMetaValue.VAR_INT, change.newValue?.entityId ?: 0)
+            metadata[TARGET_ENTITY_ID] = EntityMetadata(TARGET_ENTITY_ID, EntityMetaValue.VAR_INT, change.newValue?.id ?: 0)
         }
     }
 }

@@ -5,6 +5,7 @@ import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.Parrot
+import io.github.dockyardmc.world.WorldManager
 import kotlin.test.*
 
 class EntityViewSystemTest {
@@ -128,5 +129,6 @@ class EntityViewSystemTest {
 
         player.world.despawnEntity(world1Parrot)
         player.world.despawnEntity(world2Parrot)
+        player.teleport(WorldManager.mainWorld.defaultSpawnLocation)
     }
 }

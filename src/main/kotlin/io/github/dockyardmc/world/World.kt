@@ -268,8 +268,16 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         this.setBlock(location.x.toInt(), location.y.toInt(), location.z.toInt(), block)
     }
 
-    fun setBlock(location: Location, registrBlock: RegistryBlock) {
-        this.setBlock(location, registrBlock.toBlock())
+    fun setBlock(location: Location, registryBlock: RegistryBlock) {
+        this.setBlock(location, registryBlock.toBlock())
+    }
+
+    fun setBlock(vector: Vector3, registryBlock: RegistryBlock) {
+        this.setBlock(vector, registryBlock.toBlock())
+    }
+
+    fun setBlock(vector: Vector3, block: Block) {
+        this.setBlock(vector.toLocation(this), block)
     }
 
     fun setBlockRaw(location: Location, blockStateId: Int, updateChunk: Boolean = true) {

@@ -27,7 +27,7 @@ object PlayerTestUtil {
         if (player == null) {
             player = Player(
                 "LukynkaCZE",
-                entityId = EntityManager.entityIdCounter.incrementAndGet(),
+                id = EntityManager.entityIdCounter.incrementAndGet(),
                 uuid = UUID.fromString("0c9151e4-7083-418d-a29c-bbc58f7c741b"),
                 world = WorldManager.mainWorld,
                 connection = Mockito.mock<ChannelHandlerContext>(),

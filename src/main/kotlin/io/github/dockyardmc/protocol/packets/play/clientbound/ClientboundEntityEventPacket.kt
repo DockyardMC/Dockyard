@@ -9,7 +9,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 class ClientboundEntityEventPacket(entity: Entity, event: EntityEvent): ClientboundPacket() {
 
     init {
-        data.writeInt(entity.entityId)
+        data.writeInt(entity.id)
         data.writeByte(event.id)
     }
 

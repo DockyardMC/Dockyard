@@ -59,7 +59,7 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
             if (addPlayerUpdate != null) viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
 
             viewers.sendPacket(
-                ClientboundSpawnEntityPacket(entityId, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
+                ClientboundSpawnEntityPacket(id, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
             )
             viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
 

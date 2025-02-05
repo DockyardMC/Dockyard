@@ -12,7 +12,8 @@ object RegistryManager {
         BlockRegistry::class to "registry/block_registry.json.gz",
         BiomeRegistry::class to "registry/biome_registry.json.gz",
         ItemRegistry::class to "registry/item_registry.json.gz",
-        SoundRegistry::class to "registry/sound_registry.json.gz"
+        SoundRegistry::class to "registry/sound_registry.json.gz",
+        ParticleRegistry::class to "registry/particle_registry.json.gz"
     )
 
     val dynamicRegistries: MutableList<Registry> = mutableListOf()

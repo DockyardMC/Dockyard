@@ -14,7 +14,7 @@ class ClientboundEntityPlaySoundPacket(sound: Sound, source: Entity): Clientboun
         data.writeString(sound.identifier)
         data.writeBoolean(false)
         data.writeVarIntEnum<SoundCategory>(sound.category)
-        data.writeVarInt(source.entityId)
+        data.writeVarInt(source.id)
         data.writeFloat(sound.volume)
         data.writeFloat(sound.pitch)
         data.writeLong(sound.seed)

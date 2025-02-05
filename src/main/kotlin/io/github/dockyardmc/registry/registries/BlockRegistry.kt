@@ -2,6 +2,7 @@ package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.registry.DataDrivenRegistry
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.utils.CustomDataHolder
@@ -91,6 +92,10 @@ data class RegistryBlock(
 ): RegistryEntry {
     override fun getProtocolId(): Int {
         return defaultBlockStateId
+    }
+
+    fun toItem(): Item {
+        return ItemRegistry[identifier]
     }
 
     fun toBlock(): Block {

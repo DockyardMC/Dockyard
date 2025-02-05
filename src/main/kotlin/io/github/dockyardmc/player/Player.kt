@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class Player(
     val username: String,
-    override var entityId: Int,
+    override var id: Int,
     override var uuid: UUID,
     override var type: EntityType = EntityTypes.PLAYER,
     override var world: World,

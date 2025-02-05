@@ -13,7 +13,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 class ClientboundPlayerAnimationPacket(entity: Entity, animation: EntityAnimation): ClientboundPacket() {
 
     init {
-        data.writeVarInt(entity.entityId)
+        data.writeVarInt(entity.id)
         data.writeByte(animation.ordinal)
     }
 
