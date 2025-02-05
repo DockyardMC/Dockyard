@@ -1,5 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.InventoryClickEvent
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.inventory.InventoryClickHandler
@@ -12,6 +14,7 @@ import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableClickType
 import io.github.dockyardmc.ui.DrawableContainerScreen
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.randomFloat
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -37,11 +40,13 @@ class ServerboundClickContainerPacket(
 
         val drawableClickType = getDrawableClick(mode)
 
+
         if (currentInventory != null && currentInventory is DrawableContainerScreen && properSlot >= 0) currentInventory.click(
             slot,
             player,
             drawableClickType
         )
+        Events.dispatch(InventoryClickEvent(player, getPlayerEventContext(player)))
 
         if (windowId == 0) {
             if (mode == ContainerClickMode.NORMAL) {

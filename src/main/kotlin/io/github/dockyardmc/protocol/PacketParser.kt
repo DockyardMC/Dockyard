@@ -20,7 +20,7 @@ object PacketParser {
 
             return readFunction.call(companionObject.objectInstance, buffer) as ServerboundPacket
         } catch (ex: Exception) {
-            log("Failed to read packet: $ex", LogType.ERROR)
+            log("Failed to read packet. Packet id: $id, protocol state: $protocolState", LogType.ERROR)
             log(ex)
             if(ex.cause != null) log(ex.cause!! as Exception)
             return null

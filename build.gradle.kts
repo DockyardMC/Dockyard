@@ -85,6 +85,7 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    forkEvery = 1
 }
 
 fun String.runCommand(

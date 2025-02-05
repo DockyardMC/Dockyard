@@ -1,16 +1,26 @@
 package io.github.dockyard.tests.item
 
+import io.github.dockyard.tests.PlayerTestUtil
+import io.github.dockyard.tests.TestServer
+import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.CustomColor
 import org.junit.jupiter.api.Test
-import kotlin.test.assertContains
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
+import kotlin.test.*
 
 class ItemStackMetaTests {
 
     val color = CustomColor.fromHex("#fca3ff")
+
+    @BeforeTest
+    fun prepare() {
+        TestServer.getOrSetupServer()
+    }
+
+    @AfterTest
+    fun cleanup() {
+    }
 
     @Test
     fun testItemStackMeta() {

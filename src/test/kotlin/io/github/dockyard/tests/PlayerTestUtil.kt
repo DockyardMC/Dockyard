@@ -3,6 +3,8 @@ package io.github.dockyard.tests
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.EntityManager
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.InventoryClickEvent
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
@@ -17,6 +19,7 @@ import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 import org.mockito.Mockito
 import java.util.UUID
+import java.util.concurrent.CountDownLatch
 import kotlin.test.assertEquals
 
 object PlayerTestUtil {

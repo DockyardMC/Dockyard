@@ -11,7 +11,7 @@ import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-class ServerboundMoveVehiclePacket(var point: Point): ServerboundPacket {
+class ServerboundMoveVehiclePacket(var point: Point, var onGround: Boolean): ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
@@ -32,7 +32,7 @@ class ServerboundMoveVehiclePacket(var point: Point): ServerboundPacket {
 
     companion object {
         fun read(buffer: ByteBuf): ServerboundMoveVehiclePacket {
-            return ServerboundMoveVehiclePacket(buffer.readPoint())
+            return ServerboundMoveVehiclePacket(buffer.readPoint(), buffer.readBoolean())
         }
     }
 

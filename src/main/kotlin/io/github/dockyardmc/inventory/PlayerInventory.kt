@@ -102,8 +102,8 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
         val equipmentSlot = getEquipmentSlot(slot, player.heldSlotIndex.value)
         if (equipmentSlot != null) {
             val event = PlayerEquipEvent(player, item, equipmentSlot, getPlayerEventContext(player))
-            Events.dispatch(event)
             newItem = event.item
+            Events.dispatch(event)
         }
 
         super.set(slot, newItem)

@@ -1,5 +1,6 @@
 package io.github.dockyard.tests.item
 
+import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.registry.Items
 import org.junit.jupiter.api.Test
@@ -9,6 +10,15 @@ import java.lang.IllegalArgumentException
 import kotlin.test.*
 
 class ItemStackTests {
+
+    @BeforeTest
+    fun prepare() {
+        TestServer.getOrSetupServer()
+    }
+
+    @AfterTest
+    fun cleanup() {
+    }
 
     @Test
     fun cloneTest() {
