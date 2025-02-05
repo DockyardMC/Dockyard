@@ -47,7 +47,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
             this.writeBoolean(component.showInTooltip)
         }
 
-        is CustomModelDataItemComponent -> this.writeVarInt(component.customModelData)
+        is CustomModelDataItemComponent -> component.write(this)
         is HideAdditionalTooltipItemComponent -> {}
         is RepairCostItemComponent -> this.writeVarInt(component.repairCost)
         is CreativeSlotLockItemComponent -> {}
@@ -95,7 +95,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         is EquippableItemComponent -> {
             this.writeVarIntEnum<EquipmentSlot>(component.slot)
             this.writeSoundEvent(component.equipSound.identifier)
-            this.writeOptionalOLD(component.model) { it.writeString(component.model!!) }
+            this.writeOptionalOLD(component.assetId) { it.writeString(component.assetId!!) }
             this.writeOptionalOLD(component.cameraOverlay) { it.writeString(component.cameraOverlay!!) }
 
             this.writeVarInt(component.allowedEntities.size)
