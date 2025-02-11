@@ -9,8 +9,8 @@ import io.netty.buffer.ByteBuf
 class ChunkSection(
     var blockPalette: Palette,
     var biomePalette: Palette,
-
 ) {
+
     companion object {
         fun empty(): ChunkSection {
             val defaultBlocks = Palette.blocks()

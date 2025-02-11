@@ -32,6 +32,7 @@ import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import kotlin.math.min
 
 class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType) : Disposable {
 
@@ -76,6 +77,14 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     val customDataBlocks: MutableMap<Int, Block> = mutableMapOf()
 
+    val minSection = dimensionType.minY / 16
+    val maxSection = dimensionType.height / 16
+
+    val totalSections: Int
+        get() = (maxSection - 1) - minSection + 1
+
+    val totalLightSections: Int
+        get() = maxSection - (minSection - 1) + 1
 
     fun tick() {
         val event = WorldTickEvent(this, scheduler, getWorldEventContext(this))

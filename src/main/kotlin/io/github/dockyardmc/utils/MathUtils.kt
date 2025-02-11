@@ -6,9 +6,8 @@ import io.github.dockyardmc.utils.ChunkUtils.floor
 import io.github.dockyardmc.utils.vectors.Vector3f
 import java.io.File
 import java.security.MessageDigest
-import java.util.Random
+import java.util.*
 import kotlin.math.*
-import kotlin.time.times
 
 fun multiplyQuaternions(q1: Quaternion, q2: Quaternion): Quaternion {
     val x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y
@@ -141,4 +140,18 @@ fun chunkInSpiral(id: Int, xOffset: Int = 0, zOffset: Int = 0): Pair<Int, Int> {
         3 -> -radius + xOffset to radius - a % en + zOffset
         else -> 0 to 0
     }
+}
+
+fun getTrailingBit(n: Int): Int {
+    return -n and n
+}
+
+fun trailingZeros(n: Int): Int {
+    return Integer.numberOfTrailingZeros(n)
+}
+
+fun branchlessAbs(value: Int): Int {
+    // -n = -1 ^ n + 1
+    val mask = value shr (Integer.SIZE - 1) // -1 if < 0, 0 if >= 0
+    return (mask xor value) - mask // if val < 0, then (0 ^ val) - 0 else (-1 ^ val) + 1
 }

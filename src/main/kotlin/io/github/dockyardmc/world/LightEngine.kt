@@ -118,3 +118,9 @@ class LightEngine {
         return false
     }
 }
+
+enum class LightLayer(val surrounding: Int) {
+
+    SKY(15),
+    BLOCK(0)
+}

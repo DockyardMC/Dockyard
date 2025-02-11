@@ -17,6 +17,12 @@ data class Vector3(
     constructor() : this(0, 0, 0)
     constructor(single: Int) : this(single, single, single)
 
+    fun mutate(x: Int, y: Int, z: Int) {
+        this.x = x
+        this.y = x
+        this.z = x
+    }
+
     operator fun minus(vector: Vector3): Vector3 {
         val subVector = this.copy()
         subVector.x -= vector.x
