@@ -97,6 +97,7 @@ class ItemStackMeta {
     }
 
     fun buildLoreComponent() {
+        if(lore.isEmpty()) return
         val component = LoreItemComponent(lore.map { "<r><gray>$it" }.toComponents())
         components.addOrUpdate(component)
     }

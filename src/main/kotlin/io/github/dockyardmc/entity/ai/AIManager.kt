@@ -3,12 +3,12 @@ package io.github.dockyardmc.entity.ai
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.events.WorldTickEvent
 import io.github.dockyardmc.extentions.broadcastActionBar
 import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.utils.randomInt
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.utils.vectors.Vector3d
 import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
@@ -54,7 +54,8 @@ class AIManager(val entity: Entity) {
     }
 
     fun tick() {
-//        DockyardServer.broadcastActionBar("<yellow>$currentGoal <dark_gray>| <gray>${currentGoal?.cooldown}")
+        val message = if(currentGoal != null) "<yellow>${currentGoal!!::class.simpleName} <dark_gray>| <gray>${currentGoal?.cooldown}" else "<red>No current AI goal"
+        DockyardServer.broadcastActionBar(message)
         if(forcedNextGoal != null && !forcedNextGoalWaitForFinish) {
             if(currentGoal != null) {
                 currentGoal!!.end()
@@ -126,38 +127,57 @@ class RandomLookAroundAIGoal(override var entity: Entity, override var priority:
 
     val chancePerTick = 50
     var lookTime = 0
-    var lookingDirection: Vector3f = Vector3f(0f)
+    var lookingDirection: Vector3d = Vector3d(0.0)
 
     override fun startCondition(): Boolean {
-        if(randomInt(chancePerTick, 100) != chancePerTick) {
-            return false
-        }
-        return entity.health.value > 10
+        return randomInt(chancePerTick, 100) == chancePerTick
     }
 
     override fun start() {
         lookTime = randomInt(20, 40)
         lookingDirection = getRandomDirection()
-        DockyardServer.broadcastMessage("<lime>started ai")
     }
 
     override fun tick() {
         lookTime--
-        entity.location = entity.location.add(lookingDirection)
+        entity.teleport(entity.location.setDirection(lookingDirection))
     }
 
     override fun end() {
-        DockyardServer.broadcastMessage("<red>ended ai")
     }
 
     override fun endCondition(): Boolean = this.lookTime <= 0
 
-    private fun getRandomDirection(): Vector3f {
+    private fun getRandomDirection(): Vector3d {
         val n: Double = Math.PI * 2 * Random().nextDouble()
-        return Vector3f(
-            cos(n).toFloat(),
-            0f,
-            sin(n).toFloat()
+        return Vector3d(
+            cos(n),
+            0.0,
+            sin(n)
         )
     }
+}
+
+class PlayAmbientNoiseAIGoal(override var entity: Entity, override var priority: Int, val sound: String): AIGoal() {
+
+    val chancePerTick = 40
+    var soundTime = 0
+
+    override fun startCondition(): Boolean {
+        return randomInt(chancePerTick, 100) == chancePerTick
+    }
+
+    override fun start() {
+        soundTime = randomInt(20, 40)
+        entity.playSoundToViewers(Sound(sound), entity.location)
+    }
+
+    override fun tick() {
+        soundTime--
+    }
+
+    override fun end() {
+    }
+
+    override fun endCondition(): Boolean = this.soundTime <= 0
 }

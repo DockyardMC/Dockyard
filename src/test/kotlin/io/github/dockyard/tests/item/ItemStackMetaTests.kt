@@ -1,8 +1,6 @@
 package io.github.dockyard.tests.item
 
-import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
-import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.item.*
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.CustomColor
@@ -40,7 +38,7 @@ class ItemStackMetaTests {
             withDyedColor(color)
         }
 
-        assertEquals(11, item.components.size)
+        assertEquals(10, item.components.size)
         assertContains(item.components.map { it::class }, CustomNameItemComponent::class)
         assertContains(item.components.map { it::class }, ConsumableItemComponent::class)
         assertContains(item.components.map { it::class }, FoodItemComponent::class)
