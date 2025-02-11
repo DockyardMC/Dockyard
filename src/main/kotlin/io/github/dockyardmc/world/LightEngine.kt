@@ -1,5 +1,6 @@
 package io.github.dockyardmc.world
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkSection
 
@@ -9,6 +10,10 @@ class LightEngine {
 
     companion object {
         const val ARRAY_SIZE = 16 * 16 * 16 / (8 / 4) // blocks / bytes per block
+        const val LIGHT_LENGTH: Int = 16 * 16 * 16 / 2
+
+        val EMPTY_CONTENT: ByteArray = ByteArray(LIGHT_LENGTH)
+        val CONTENT_FULLY_LIT: ByteArray = ByteArray(LIGHT_LENGTH)
     }
 
     private val fullbright: Byte = 15 // 14
@@ -16,9 +21,9 @@ class LightEngine {
     private val dark: Byte = 2 // 7
     lateinit var recalcArray: ByteArray
 
-    fun recalculateChunk(chunk: Chunk, chunkLight: ChunkLight) {
+    fun recalculateChunk(chunk: Chunk, chunkLight: ChunkLight, bx: Int, bz: Int) {
         chunk.sections.reversed().forEachIndexed { i, section ->
-            recalculateSection(section, i, chunkLight, chunk)
+            recalculateSection(section, i, chunkLight, chunk, bx, bz)
 
             if (hasNonZeroData(chunk.chunkLight.skyLight[i])) {
                 chunkLight.skyMask.set(i)
@@ -34,33 +39,42 @@ class LightEngine {
         }
     }
 
-    fun recalculateSection(section: ChunkSection, sectionIndex: Int, chunkLight: ChunkLight, chunk: Chunk) {
+    fun recalculateSection(section: ChunkSection, sectionIndex: Int, chunkLight: ChunkLight, chunk: Chunk, bx: Int, bz: Int) {
         recalcArray = ByteArray(ARRAY_SIZE)
 
         for (x in 0..15) {
             for (z in 0..15) {
                 var foundSolid = false
                 for (y in 15 downTo 0) {
+
+                    var light = 0
+
                     val isSolid = section.blockPalette[x, y, z] != 0
-                    var light = 15
 
                     if (isSolid) {
                         foundSolid = true
                     }
 
                     if (foundSolid) {
-                        light = 0
+                        light = 15
                     }
 
-                    if(x == 1 && z == 1) light = 0
+//                    if (x == 0 && z == 0) {
+//                        val isSolidNew = section.blockPalette[x, 3, z] != 0
+//                        if (isSolidNew) light = 0
+//                        log("$isSolidNew, ${section.blockPalette[x, y, z]} ($x, $y, $z)", LogType.FATAL)
+//                    }
 
                     set(getCoordIndex(x, y, z), light)
+                    if(light == 0) {
+                        log("Writing light 0 for $x, $y, $z (section index $sectionIndex)")
+                        log("${recalcArray[getCoordIndex(x, y, z)  ushr 1]}")
+                    }
                 }
             }
         }
 
-//        chunkLight.skyLight[sectionIndex] = recalcArray
-        chunkLight.blockLight[sectionIndex] = recalcArray
+        chunkLight.skyLight[sectionIndex] = recalcArray
     }
 
     // operation type: updating
@@ -112,10 +126,7 @@ class LightEngine {
 
     private fun hasNonZeroData(array: ByteArray?): Boolean {
         if (array == null) return false
-        for (i in array.indices) {
-            if (array[i] != 0.toByte()) return true
-        }
-        return false
+        return array.isNotEmpty() && !array.contentEquals(EMPTY_CONTENT)
     }
 }
 
