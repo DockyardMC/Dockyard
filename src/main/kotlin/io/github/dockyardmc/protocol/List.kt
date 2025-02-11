@@ -23,8 +23,25 @@ fun <T> ByteBuf.writeList(list: List<T>, kFunction2: (ByteBuf, T) -> ByteBuf) {
     }
 }
 
-@JvmName("writeList1")
+@JvmName("writeList2")
 fun <T> ByteBuf.writeList(list: List<T>, kFunction2: KFunction2<ByteBuf, T, Unit>) {
+    this.writeVarInt(list.size)
+    list.forEach { value ->
+        kFunction2.invoke(this, value)
+    }
+}
+
+
+@JvmName("writeArray1")
+fun <T> ByteBuf.writeArray(list: Array<T>, kFunction2: (ByteBuf, T) -> ByteBuf) {
+    this.writeVarInt(list.size)
+    list.forEach { value ->
+        kFunction2.invoke(this, value)
+    }
+}
+
+@JvmName("writeArray1")
+fun <T> ByteBuf.writeArray(list: Array<T>, kFunction2: KFunction2<ByteBuf, T, Unit>) {
     this.writeVarInt(list.size)
     list.forEach { value ->
         kFunction2.invoke(this, value)

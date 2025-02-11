@@ -366,6 +366,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             }
         }
         chunk.updateCache()
+//        chunk.updateLight()
         if (getChunk(x, z) == null) {
             synchronized(chunks) {
                 chunks[ChunkUtils.getChunkIndex(x, z)] = (chunk)

@@ -2,10 +2,10 @@ package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.registry.DataDrivenRegistry
-import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.utils.CustomDataHolder
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -23,7 +23,7 @@ object BlockRegistry: DataDrivenRegistry {
     override val identifier: String = "minecraft:block"
 
     var blocks: Map<String, RegistryBlock> = mapOf()
-    var protocolIdToBlock: Map<Int, RegistryBlock> = mapOf()
+    var protocolIdToBlock: Int2ObjectOpenHashMap<RegistryBlock> = Int2ObjectOpenHashMap()
 
     override fun getMaxProtocolId(): Int {
         return protocolIdToBlock.keys.last()
@@ -33,7 +33,9 @@ object BlockRegistry: DataDrivenRegistry {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<RegistryBlock>>(stream)
         blocks += list.associateBy { it.identifier }
-        protocolIdToBlock = list.associateBy { it.defaultBlockStateId }
+        list.forEach { block ->
+            protocolIdToBlock.put(block.defaultBlockStateId, block)
+        }
     }
 
     override fun get(identifier: String): RegistryBlock {

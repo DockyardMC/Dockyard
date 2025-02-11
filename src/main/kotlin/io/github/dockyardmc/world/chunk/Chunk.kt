@@ -2,11 +2,14 @@ package io.github.dockyardmc.world.chunk
 
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockEntity
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateLightPacket
 import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.ChunkUtils
-import io.github.dockyardmc.world.Light
+import io.github.dockyardmc.world.ChunkLight
+import io.github.dockyardmc.world.LightEngine
 import io.github.dockyardmc.world.World
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
@@ -26,10 +29,19 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
     val sections: MutableList<ChunkSection> = mutableListOf()
     val blockEntities: Int2ObjectOpenHashMap<BlockEntity> = Int2ObjectOpenHashMap(0)
 
-    val light: Light = Light(
-        skyLight = ByteArray(0),
-        blockLight = ByteArray(0),
+    val chunkLight: ChunkLight = ChunkLight(
+        skyLight = Array(maxSection - minSection) { ByteArray(0) },
+        blockLight = Array(maxSection - minSection) { ByteArray(0) },
     )
+
+    val lightEngine = LightEngine()
+
+    fun updateLight() {
+        lightEngine.recalculateChunk(this, chunkLight)
+        updateCache()
+        val packet = ClientboundUpdateLightPacket(chunkX, chunkZ, chunkLight)
+        world.players.sendPacket(packet)
+    }
 
     val packet: ClientboundChunkDataPacket
         get() {
@@ -42,7 +54,8 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
             it.put("MOTION_BLOCKING", NBT.LongArray(motionBlocking))
             it.put("WORLD_SURFACE", NBT.LongArray(worldSurface))
         }
-        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightMap, sections, blockEntities.values, light)
+
+        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightMap, sections, blockEntities.values, chunkLight)
     }
 
     init {
@@ -50,6 +63,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         repeat(sectionsAmount) {
             sections.add(ChunkSection.empty())
         }
+
         updateCache()
     }
 
@@ -132,4 +146,8 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
     fun getIndex(): Long = ChunkUtils.getChunkIndex(this)
 
     val chunkPos get() = ChunkPos(chunkX, chunkZ)
+
+    override fun toString(): String {
+        return "Chunk(x=$chunkX, z=$chunkZ)"
+    }
 }
