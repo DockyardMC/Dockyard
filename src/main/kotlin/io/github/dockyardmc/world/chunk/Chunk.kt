@@ -1,5 +1,6 @@
 package io.github.dockyardmc.world.chunk
 
+import ca.spottedleaf.starlight.StarLightEngine
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.BlockEntity
 import io.github.dockyardmc.extentions.sendPacket
@@ -8,6 +9,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDa
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateLightPacket
 import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.ChunkUtils
+import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.world.ChunkLight
 import io.github.dockyardmc.world.LightEngine
 import io.github.dockyardmc.world.World
@@ -28,6 +30,11 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
 
     val sections: MutableList<ChunkSection> = mutableListOf()
     val blockEntities: Int2ObjectOpenHashMap<BlockEntity> = Int2ObjectOpenHashMap(0)
+
+    @Volatile var blockNibbles = StarLightEngine.getFilledEmptyLight(world)
+    @Volatile var skyNibbles = StarLightEngine.getFilledEmptyLight(world)
+    @Volatile var skyEmptinessMap: BooleanArray? = null
+    @Volatile var blockEmptinessMap: BooleanArray? = null
 
     val chunkLight: ChunkLight = ChunkLight(
         skyLight = Array(maxSection - minSection) { ByteArray(0) },
@@ -150,4 +157,13 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
     override fun toString(): String {
         return "Chunk(x=$chunkX, z=$chunkZ)"
     }
+}
+
+fun indexOf(x: Int, y: Int, z: Int) = y shl 8 or (z shl 4) or x
+
+fun reverseIndexOf(encoded: Int): Vector3 {
+    val x = encoded and 0xF // Extract the lower 4 bits (x)
+    val z = (encoded shr 4) and 0xF // Extract the next 4 bits (z)
+    val y = (encoded shr 8) and 0xFF // Extract the next 8 bits (y)
+    return Vector3(x, y, z)
 }

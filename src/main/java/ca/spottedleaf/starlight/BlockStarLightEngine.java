@@ -1,43 +1,43 @@
 package ca.spottedleaf.starlight;
 
-import org.kryptonmc.api.block.Block;
-import org.kryptonmc.krypton.space.MutableVector3i;
-import org.kryptonmc.krypton.world.KryptonWorld;
-import org.kryptonmc.krypton.world.block.palette.PaletteHolder;
-import org.kryptonmc.krypton.world.chunk.ChunkManager;
-import org.kryptonmc.krypton.world.chunk.ChunkSection;
-import org.kryptonmc.krypton.world.chunk.KryptonChunk;
-import org.spongepowered.math.vector.Vector3i;
+import io.github.dockyardmc.blocks.Block;
+import io.github.dockyardmc.utils.vectors.Vector3;
+import io.github.dockyardmc.world.World;
+import io.github.dockyardmc.world.chunk.Chunk;
+import io.github.dockyardmc.world.chunk.ChunkSection;
+import io.github.dockyardmc.world.palette.Palette;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static io.github.dockyardmc.world.chunk.ChunkKt.reverseIndexOf;
+
 public final class BlockStarLightEngine extends StarLightEngine {
 
-    public BlockStarLightEngine(final KryptonWorld world) {
+    public BlockStarLightEngine(final World world) {
         super(false, world);
     }
 
     @Override
-    protected boolean[] getEmptinessMap(KryptonChunk chunk) {
+    protected boolean[] getEmptinessMap(Chunk chunk) {
         return chunk.getBlockEmptinessMap();
     }
 
 
     @Override
-    protected void setEmptinessMap(KryptonChunk chunk, boolean[] to) {
+    protected void setEmptinessMap(Chunk chunk, boolean[] to) {
         chunk.setBlockEmptinessMap(to);
     }
 
     @Override
-    protected SWMRNibbleArray[] getNibblesOnChunk(KryptonChunk chunk) {
+    protected SWMRNibbleArray[] getNibblesOnChunk(Chunk chunk) {
         return chunk.getBlockNibbles();
     }
 
     @Override
-    protected void setNibbles(KryptonChunk chunk, SWMRNibbleArray[] to) {
+    protected void setNibbles(Chunk chunk, SWMRNibbleArray[] to) {
         chunk.setBlockNibbles(to);
     }
 
@@ -72,7 +72,7 @@ public final class BlockStarLightEngine extends StarLightEngine {
     }
 
     @Override
-    protected void checkBlock(ChunkManager lightAccess, int worldX, int worldY, int worldZ) {
+    protected void checkBlock(World lightAccess, int worldX, int worldY, int worldZ) {
         // blocks can change opacity
         // blocks can change emitted light
         // blocks can change direction of propagation
@@ -82,7 +82,7 @@ public final class BlockStarLightEngine extends StarLightEngine {
 
         final int currentLevel = this.getLightLevel(worldX, worldY, worldZ);
         final Block blockState = this.getBlockState(worldX, worldY, worldZ);
-        final int emittedLevel = blockState.getLightEmission() & emittedMask;
+        final int emittedLevel = blockState.getRegistryBlock().getLightEmission() & emittedMask;
 
         this.setLightLevel(worldX, worldY, worldZ, emittedLevel);
         // this accounts for change in emitted light that would cause an increase
@@ -91,7 +91,8 @@ public final class BlockStarLightEngine extends StarLightEngine {
                     ((worldX + (worldZ << 6) + (worldY << (6 + 6)) + encodeOffset) & ((1L << (6 + 6 + 16)) - 1))
                             | (emittedLevel & 0xFL) << (6 + 6 + 16)
                             | (((long)ALL_DIRECTIONS_BITSET) << (6 + 6 + 16 + 4))
-                            | (blockState.isConditionallyFullyOpaque() ? FLAG_HAS_SIDED_TRANSPARENT_BLOCKS : 0)
+//                            | (blockState.isConditionallyFullyOpaque() ? FLAG_HAS_SIDED_TRANSPARENT_BLOCKS : 0) //TODO
+                            | (false ? FLAG_HAS_SIDED_TRANSPARENT_BLOCKS : 0)
             );
         }
         // this also accounts for a change in emitted light that would cause a decrease
@@ -109,13 +110,13 @@ public final class BlockStarLightEngine extends StarLightEngine {
         // re-propagating neighbours (done by the decrease queue) will also account for opacity changes in this block
     }
 
-    protected final MutableVector3i recalcCenterPos = new MutableVector3i();
-    protected final MutableVector3i recalcNeighbourPos = new MutableVector3i();
+    protected final Vector3 recalcCenterPos = new Vector3();
+    protected final Vector3 recalcNeighbourPos = new Vector3();
 
     @Override
-    protected int calculateLightValue(ChunkManager lightAccess, int worldX, int worldY, int worldZ, int expect) {
+    protected int calculateLightValue(World lightAccess, int worldX, int worldY, int worldZ, int expect) {
         final Block centerState = this.getBlockState(worldX, worldY, worldZ);
-        int level = centerState.getLightEmission() & 0xF;
+        int level = centerState.getRegistryBlock().getLightEmission() & 0xF;
 
         if (level >= (15 - 1) || level > expect) {
             return level;
@@ -123,12 +124,14 @@ public final class BlockStarLightEngine extends StarLightEngine {
 
         final int sectionOffset = this.chunkSectionIndexOffset;
         final Block conditionallyOpaqueState;
-        int opacity = centerState.getOpacity();
+//        int opacity = centerState.getOpacity(); //TODO
+        int opacity = 1;
 
         if (opacity == -1) {
-            this.recalcCenterPos.set(worldX, worldY, worldZ);
-            opacity = centerState.getLightBlock();
-            if (centerState.isConditionallyFullyOpaque()) {
+            this.recalcCenterPos.mutate(worldX, worldY, worldZ);
+            opacity = centerState.getRegistryBlock().getLightFilter();
+//            if (centerState.isConditionallyFullyOpaque()) { //TODO
+            if (false) {
                 conditionallyOpaqueState = centerState;
             } else {
                 conditionallyOpaqueState = null;
@@ -155,11 +158,12 @@ public final class BlockStarLightEngine extends StarLightEngine {
             }
 
             final Block neighbourState = this.getBlockState(offX, offY, offZ);
-            if (neighbourState.isConditionallyFullyOpaque()) {
+//            if (neighbourState.isConditionallyFullyOpaque()) { //TODO
+            if (false) {
                 // here the block can be conditionally opaque (i.e light cannot propagate from it), so we need to test that
                 // we don't read the blockstate because most of the time this is false, so using the faster
                 // known transparency lookup results in a net win
-                this.recalcNeighbourPos.set(offX, offY, offZ);
+                this.recalcNeighbourPos.mutate(offX, offY, offZ);
 //                final VoxelShape neighbourFace = neighbourState.getFaceOcclusionShape(lightAccess.getLevel(), this.recalcNeighbourPos, direction.opposite.nms);
 //                final VoxelShape thisFace = conditionallyOpaqueState == null ? Shapes.empty() : conditionallyOpaqueState.getFaceOcclusionShape(lightAccess.getLevel(), this.recalcCenterPos, direction.nms);
 //                if (Shapes.faceShapeOccludes(thisFace, neighbourFace)) {
@@ -181,39 +185,42 @@ public final class BlockStarLightEngine extends StarLightEngine {
     }
 
     @Override
-    protected void propagateBlockChanges(ChunkManager lightAccess, KryptonChunk atChunk, Set<Vector3i> positions) {
-        for (final Vector3i pos : positions) {
-            checkBlock(lightAccess, pos.x(), pos.y(), pos.z());
+    protected void propagateBlockChanges(World lightAccess, Chunk atChunk, Set<Vector3> positions) {
+        for (final Vector3 pos : positions) {
+            checkBlock(lightAccess, pos.getX(), pos.getY(), pos.getZ());
         }
         performLightDecrease(lightAccess);
     }
 
-    protected Iterator<Vector3i> getSources(final ChunkManager lightAccess, final KryptonChunk chunk) {
+    protected Iterator<Vector3> getSources(final World lightAccess, final Chunk chunk) {
         // implementation on Chunk is pretty awful, so write our own here. The big optimisation is
         // skipping empty sections, and the far more optimised reading of types.
-        List<Vector3i> sources = new ArrayList<>();
+        List<Vector3> sources = new ArrayList<>();
 
-        int offX = chunk.getPosition().getX() << 4;
-        int offZ = chunk.getPosition().getZ() << 4;
+        int offX = chunk.getChunkPos().getX() << 4;
+        int offZ = chunk.getChunkPos().getZ() << 4;
 
-        final ChunkSection[] sections = chunk.getSections();
+        final ChunkSection[] sections = chunk.getSections().toArray(ChunkSection[]::new);
         for (int sectionY = this.minSection; sectionY <= this.maxSection; ++sectionY) {
             final ChunkSection section = sections[sectionY - this.minSection];
-            if (section == null || section.isEmpty()) {
+//            if (section == null || section.isEmpty()) { //TODO
+            if (section == null || false) { //TODO
                 // no sources in empty sections
                 continue;
             }
-            final PaletteHolder palette = section.getPalette();
+            final Palette palette = section.getBlockPalette();
             final int offY = sectionY << 4;
 
             for (int index = 0; index < (16 * 16 * 16); ++index) {
-                final Block state = palette.get(index);
-                if (state.getLightEmission() <= 0) {
+
+                final Vector3 vector = reverseIndexOf(index);
+                final Block state = Block.Companion.getBlockByStateId(palette.get(vector.getX(), vector.getY(), vector.getZ()));
+                if (state.getRegistryBlock().getLightEmission() <= 0) {
                     continue;
                 }
 
                 // index = x | (z << 4) | (y << 8)
-                sources.add(new Vector3i(offX | (index & 15), offY | (index >>> 8), offZ | ((index >>> 4) & 15)));
+                sources.add(new Vector3(offX | (index & 15), offY | (index >>> 8), offZ | ((index >>> 4) & 15)));
             }
         }
 
@@ -221,29 +228,30 @@ public final class BlockStarLightEngine extends StarLightEngine {
     }
 
     @Override
-    protected void lightChunk(ChunkManager lightAccess, KryptonChunk chunk, boolean needsEdgeChecks) {
+    protected void lightChunk(World lightAccess, Chunk chunk, boolean needsEdgeChecks) {
         // setup sources
         final int emittedMask = this.emittedLightMask;
-        for (final Iterator<Vector3i> positions = this.getSources(lightAccess, chunk); positions.hasNext();) {
-            final Vector3i pos = positions.next();
-            final Block blockState = this.getBlockState(pos.x(), pos.y(), pos.z());
-            final int emittedLight = blockState.getLightEmission() & emittedMask;
+        for (final Iterator<Vector3> positions = this.getSources(lightAccess, chunk); positions.hasNext();) {
+            final Vector3 pos = positions.next();
+            final Block blockState = this.getBlockState(pos.getX(), pos.getY(), pos.getZ());
+            final int emittedLight = blockState.getRegistryBlock().getLightEmission() & emittedMask;
 
-            if (emittedLight <= this.getLightLevel(pos.x(), pos.y(), pos.z())) {
+            if (emittedLight <= this.getLightLevel(pos.getX(), pos.getY(), pos.getZ())) {
                 // some other source is brighter
                 continue;
             }
 
             this.appendToIncreaseQueue(
-                    ((pos.x() + (pos.z() << 6) + (pos.y() << (6 + 6)) + this.coordinateOffset) & ((1L << (6 + 6 + 16)) - 1))
+                    ((pos.getX() + (pos.getZ() << 6) + (pos.getY() << (6 + 6)) + this.coordinateOffset) & ((1L << (6 + 6 + 16)) - 1))
                             | (emittedLight & 0xFL) << (6 + 6 + 16)
                             | (((long)ALL_DIRECTIONS_BITSET) << (6 + 6 + 16 + 4))
-                            | (blockState.isConditionallyFullyOpaque() ? FLAG_HAS_SIDED_TRANSPARENT_BLOCKS : 0)
+//                            | (blockState.isConditionallyFullyOpaque() ? FLAG_HAS_SIDED_TRANSPARENT_BLOCKS : 0) //TODO
+                            | (false ? FLAG_HAS_SIDED_TRANSPARENT_BLOCKS : 0)
             );
 
 
             // propagation wont set this for us
-            this.setLightLevel(pos.x(), pos.y(), pos.z(), emittedLight);
+            this.setLightLevel(pos.getX(), pos.getY(), pos.getZ(), emittedLight);
         }
 
         if (needsEdgeChecks) {
