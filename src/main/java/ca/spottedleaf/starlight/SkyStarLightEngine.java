@@ -1,16 +1,13 @@
 package ca.spottedleaf.starlight;
 
+import io.github.dockyardmc.blocks.Block;
+import io.github.dockyardmc.utils.vectors.Vector3;
+import io.github.dockyardmc.world.World;
+import io.github.dockyardmc.world.chunk.Chunk;
+import io.github.dockyardmc.world.chunk.ChunkPos;
+import io.github.dockyardmc.world.chunk.ChunkSection;
 import it.unimi.dsi.fastutil.shorts.ShortCollection;
 import it.unimi.dsi.fastutil.shorts.ShortIterator;
-import org.kryptonmc.api.block.Block;
-import org.kryptonmc.krypton.space.MutableVector3i;
-import org.kryptonmc.krypton.world.BlockAccessor;
-import org.kryptonmc.krypton.world.KryptonWorld;
-import org.kryptonmc.krypton.world.chunk.ChunkManager;
-import org.kryptonmc.krypton.world.chunk.ChunkPosition;
-import org.kryptonmc.krypton.world.chunk.ChunkSection;
-import org.kryptonmc.krypton.world.chunk.KryptonChunk;
-import org.spongepowered.math.vector.Vector3i;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -48,7 +45,7 @@ public final class SkyStarLightEngine extends StarLightEngine {
 
     private final boolean[] nullPropagationCheckCache;
 
-    public SkyStarLightEngine(final KryptonWorld world) {
+    public SkyStarLightEngine(final World world) {
         super(true, world);
         this.nullPropagationCheckCache = new boolean[world.getTotalLightSections()];
     }
@@ -129,7 +126,7 @@ public final class SkyStarLightEngine extends StarLightEngine {
         }
     }
 
-    private void rewriteNibbleCacheForSkylight(final KryptonChunk chunk) {
+    private void rewriteNibbleCacheForSkylight(final Chunk chunk) {
         for (int index = 0, max = this.nibbleCache.length; index < max; ++index) {
             final SWMRNibbleArray nibble = this.nibbleCache[index];
             if (nibble != null && nibble.isNullNibbleUpdating()) {
@@ -203,32 +200,32 @@ public final class SkyStarLightEngine extends StarLightEngine {
     }
 
     @Override
-    protected boolean[] getEmptinessMap(final KryptonChunk chunk) {
+    protected boolean[] getEmptinessMap(final Chunk chunk) {
         return chunk.getSkyEmptinessMap();
     }
 
     @Override
-    protected void setEmptinessMap(final KryptonChunk chunk, final boolean[] to) {
+    protected void setEmptinessMap(final Chunk chunk, final boolean[] to) {
         chunk.setSkyEmptinessMap(to);
     }
 
     @Override
-    protected SWMRNibbleArray[] getNibblesOnChunk(final KryptonChunk chunk) {
+    protected SWMRNibbleArray[] getNibblesOnChunk(final Chunk chunk) {
         return chunk.getSkyNibbles();
     }
 
     @Override
-    protected void setNibbles(final KryptonChunk chunk, final SWMRNibbleArray[] to) {
+    protected void setNibbles(final Chunk chunk, final SWMRNibbleArray[] to) {
         chunk.setSkyNibbles(to);
     }
 
     @Override
-    protected void checkChunkEdges(final ChunkManager lightAccess, final KryptonChunk chunk, final int fromSection,
+    protected void checkChunkEdges(final World lightAccess, final Chunk chunk, final int fromSection,
                                    final int toSection) {
         Arrays.fill(this.nullPropagationCheckCache, false);
         this.rewriteNibbleCacheForSkylight(chunk);
-        final int chunkX = chunk.getPosition().getX();
-        final int chunkZ = chunk.getPosition().getZ();
+        final int chunkX = chunk.getChunkPos().getX();
+        final int chunkZ = chunk.getChunkPos().getZ();
         for (int y = toSection; y >= fromSection; --y) {
             this.checkNullSection(chunkX, y, chunkZ, true);
         }
@@ -237,11 +234,11 @@ public final class SkyStarLightEngine extends StarLightEngine {
     }
 
     @Override
-    protected void checkChunkEdges(final ChunkManager lightAccess, final KryptonChunk chunk, final ShortCollection sections) {
+    protected void checkChunkEdges(final World lightAccess, final Chunk chunk, final ShortCollection sections) {
         Arrays.fill(this.nullPropagationCheckCache, false);
         this.rewriteNibbleCacheForSkylight(chunk);
-        final int chunkX = chunk.getPosition().getX();
-        final int chunkZ = chunk.getPosition().getZ();
+        final int chunkX = chunk.getChunkPos().getX();
+        final int chunkZ = chunk.getChunkPos().getZ();
         for (final ShortIterator iterator = sections.iterator(); iterator.hasNext();) {
             final int y = (int)iterator.nextShort();
             this.checkNullSection(chunkX, y, chunkZ, true);
@@ -251,7 +248,7 @@ public final class SkyStarLightEngine extends StarLightEngine {
     }
 
     @Override
-    protected void checkBlock(final ChunkManager lightAccess, final int worldX, final int worldY, final int worldZ) {
+    protected void checkBlock(final World lightAccess, final int worldX, final int worldY, final int worldZ) {
         // blocks can change opacity
         // blocks can change direction of propagation
 
@@ -280,11 +277,11 @@ public final class SkyStarLightEngine extends StarLightEngine {
         );
     }
 
-    private final MutableVector3i recalcCenterPos = new MutableVector3i();
-    private final MutableVector3i recalcNeighbourPos = new MutableVector3i();
+    private final Vector3 recalcCenterPos = new Vector3();
+    private final Vector3 recalcNeighbourPos = new Vector3();
 
     @Override
-    protected int calculateLightValue(final ChunkManager lightAccess, final int worldX, final int worldY, final int worldZ,
+    protected int calculateLightValue(final World lightAccess, final int worldX, final int worldY, final int worldZ,
                                       final int expect) {
         if (expect == 15) {
             return expect;
@@ -292,13 +289,15 @@ public final class SkyStarLightEngine extends StarLightEngine {
 
         final int sectionOffset = this.chunkSectionIndexOffset;
         final Block centerState = this.getBlockState(worldX, worldY, worldZ);
-        int opacity = centerState.getOpacity();
+//        int opacity = centerState.getOpacity(); //TODO
+        int opacity = 1;
 
         Block conditionallyOpaqueState;
         if (opacity < 0) {
-            this.recalcCenterPos.set(worldX, worldY, worldZ);
-            opacity = Math.max(1, centerState.getLightBlock());
-            if (centerState.isConditionallyFullyOpaque()) {
+            this.recalcCenterPos.mutate(worldX, worldY, worldZ);
+            opacity = Math.max(1, centerState.getRegistryBlock().getLightFilter());
+//            if (centerState.isConditionallyFullyOpaque()) { //TODO
+            if (false) { //TODO
                 conditionallyOpaqueState = centerState;
             } else {
                 conditionallyOpaqueState = null;
@@ -326,11 +325,12 @@ public final class SkyStarLightEngine extends StarLightEngine {
 
             final Block neighbourState = this.getBlockState(offX, offY, offZ);
 
-            if (neighbourState.isConditionallyFullyOpaque()) {
+            //if (neighbourState.isConditionallyFullyOpaque()) { //TODO
+            if (false) { //TODO
                 // here the block can be conditionally opaque (i.e light cannot propagate from it), so we need to test that
                 // we don't read the blockstate because most of the time this is false, so using the faster
                 // known transparency lookup results in a net win
-                this.recalcNeighbourPos.set(offX, offY, offZ);
+                this.recalcNeighbourPos.mutate(offX, offY, offZ);
 //                final VoxelShape neighbourFace = neighbourState.getFaceOcclusionShape(lightAccess.getLevel(), this.recalcNeighbourPos, direction.opposite.nms);
 //                final VoxelShape thisFace = conditionallyOpaqueState == null ? Shapes.empty() : conditionallyOpaqueState.getFaceOcclusionShape(lightAccess.getLevel(), this.recalcCenterPos, direction.nms);
 //                if (Shapes.faceShapeOccludes(thisFace, neighbourFace)) {
@@ -350,21 +350,20 @@ public final class SkyStarLightEngine extends StarLightEngine {
     }
 
     @Override
-    protected void propagateBlockChanges(final ChunkManager lightAccess, final KryptonChunk atChunk, final Set<Vector3i> positions) {
+    protected void propagateBlockChanges(final World lightAccess, final Chunk atChunk, final Set<Vector3> positions) {
         this.rewriteNibbleCacheForSkylight(atChunk);
         Arrays.fill(this.nullPropagationCheckCache, false);
 
-        final BlockAccessor world = lightAccess.getWorld();
-        final int chunkX = atChunk.getPosition().getX();
-        final int chunkZ = atChunk.getPosition().getZ();
+        final int chunkX = atChunk.getChunkPos().getX();
+        final int chunkZ = atChunk.getChunkPos().getZ();
         final int heightMapOffset = chunkX * -16 + (chunkZ * (-16 * 16));
 
         // setup heightmap for changes
-        for (final Vector3i pos : positions) {
-            final int index = pos.x() + (pos.z() << 4) + heightMapOffset;
+        for (final Vector3 pos : positions) {
+            final int index = pos.getX() + (pos.getZ() << 4) + heightMapOffset;
             final int curr = this.heightMapBlockChange[index];
-            if (pos.y() > curr) {
-                this.heightMapBlockChange[index] = pos.y();
+            if (pos.getY() > curr) {
+                this.heightMapBlockChange[index] = pos.getY();
             }
         }
 
@@ -386,7 +385,7 @@ public final class SkyStarLightEngine extends StarLightEngine {
 
             // try and propagate from the above y
             // delay light set until after processing all sources to setup
-            final int maxPropagationY = this.tryPropagateSkylight(world, columnX, maxY, columnZ, true, true);
+            final int maxPropagationY = this.tryPropagateSkylight(lightAccess, columnX, maxY, columnZ, true, true);
 
             // maxPropagationY is now the highest block that could not be propagated to
 
@@ -434,8 +433,8 @@ public final class SkyStarLightEngine extends StarLightEngine {
         this.processDelayedIncreases();
         this.processDelayedDecreases();
 
-        for (final Vector3i pos : positions) {
-            this.checkBlock(lightAccess, pos.x(), pos.y(), pos.z());
+        for (final Vector3 pos : positions) {
+            this.checkBlock(lightAccess, pos.getX(), pos.getY(), pos.getZ());
         }
 
         this.performLightDecrease(lightAccess);
@@ -444,20 +443,20 @@ public final class SkyStarLightEngine extends StarLightEngine {
     private final int[] heightMapGen = new int[32 * 32];
 
     @Override
-    protected void lightChunk(final ChunkManager lightAccess, final KryptonChunk chunk, final boolean needsEdgeChecks) {
+    protected void lightChunk(final World lightAccess, final Chunk chunk, final boolean needsEdgeChecks) {
         this.rewriteNibbleCacheForSkylight(chunk);
         Arrays.fill(this.nullPropagationCheckCache, false);
 
-        final BlockAccessor world = lightAccess.getWorld();
-        final ChunkPosition chunkPos = chunk.getPosition();
+        final ChunkPos chunkPos = chunk.getChunkPos();
         final int chunkX = chunkPos.getX();
         final int chunkZ = chunkPos.getZ();
 
-        final ChunkSection[] sections = chunk.getSections();
+        final ChunkSection[] sections = chunk.getSections().toArray(ChunkSection[]::new);
 
         int highestNonEmptySection = this.maxSection;
         while (highestNonEmptySection == (this.minSection - 1) ||
-                sections[highestNonEmptySection - this.minSection] == null || sections[highestNonEmptySection - this.minSection].isEmpty()) {
+//                sections[highestNonEmptySection - this.minSection] == null || sections[highestNonEmptySection - this.minSection].isEmpty()) { //TODO
+                false) { //TODO
             this.checkNullSection(chunkX, highestNonEmptySection, chunkZ, false);
             // try propagate FULL to neighbours
 
@@ -534,7 +533,7 @@ public final class SkyStarLightEngine extends StarLightEngine {
             final int startY = highestNonEmptySection << 4 | 15;
             for (int currZ = minZ; currZ <= maxZ; ++currZ) {
                 for (int currX = minX; currX <= maxX; ++currX) {
-                    this.tryPropagateSkylight(world, currX, startY + 1, currZ, false, false);
+                    this.tryPropagateSkylight(lightAccess, currX, startY + 1, currZ, false, false);
                 }
             }
         } // else: apparently the chunk is empty
@@ -598,9 +597,9 @@ public final class SkyStarLightEngine extends StarLightEngine {
     // delaying the light set is useful for block changes since they need to worry about initialising nibblearrays
     // while also queueing light at the same time (initialising nibblearrays might depend on nibbles above, so
     // clobbering the light values will result in broken propagation)
-    private int tryPropagateSkylight(final BlockAccessor world, final int worldX, int startY, final int worldZ,
+    private int tryPropagateSkylight(final World world, final int worldX, int startY, final int worldZ,
                                              final boolean extrudeInitialised, final boolean delayLightSet) {
-        final MutableVector3i mutablePos = this.mutablePos3;
+        final Vector3 mutablePos = this.mutablePos3;
         final int encodeOffset = this.coordinateOffset;
         final long propagateDirection = AxisDirection.POSITIVE_Y.everythingButThisDirection; // just don't check upwards.
 
@@ -638,7 +637,8 @@ public final class SkyStarLightEngine extends StarLightEngine {
 //                fromShape = Shapes.empty();
 //            }
 
-            final int opacityIfCached = current.getOpacity();
+//            final int opacityIfCached = current.getOpacity(); //TODO
+            final int opacityIfCached = 1; //TODO
             // does light propagate from the top down?
             if (opacityIfCached != -1) {
                 if (opacityIfCached != 0) {
@@ -654,7 +654,7 @@ public final class SkyStarLightEngine extends StarLightEngine {
                                 | (propagateDirection << (6 + 6 + 16 + 4))
                 );
             } else {
-                mutablePos.set(worldX, startY, worldZ);
+                mutablePos.mutate(worldX, startY, worldZ);
                 long flags = 0L;
 //                if (current.isConditionallyFullyOpaque()) {
 //                    final VoxelShape cullingFace = current.getFaceOcclusionShape(world, mutablePos, AxisDirection.POSITIVE_Y.nms);
@@ -666,7 +666,7 @@ public final class SkyStarLightEngine extends StarLightEngine {
 //                    flags |= FLAG_HAS_SIDED_TRANSPARENT_BLOCKS;
 //                }
 
-                final int opacity = current.getLightBlock();
+                final int opacity = current.getRegistryBlock().getLightFilter();
                 if (opacity > 0) {
                     // let the queued value (if any) handle it from here.
                     break;

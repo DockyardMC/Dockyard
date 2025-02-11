@@ -1,15 +1,14 @@
 package ca.spottedleaf.starlight;
 
+import io.github.dockyardmc.utils.ChunkUtils;
+import io.github.dockyardmc.utils.vectors.Vector3;
+import io.github.dockyardmc.world.World;
+import io.github.dockyardmc.world.chunk.Chunk;
+import io.github.dockyardmc.world.chunk.ChunkPos;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.kryptonmc.krypton.util.CoordinateUtils;
-import org.kryptonmc.krypton.world.KryptonWorld;
-import org.kryptonmc.krypton.world.chunk.ChunkManager;
-import org.kryptonmc.krypton.world.chunk.ChunkPosition;
-import org.kryptonmc.krypton.world.chunk.KryptonChunk;
-import org.spongepowered.math.vector.Vector3i;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -21,8 +20,7 @@ public final class StarLightManager {
 
     private static final int MAXIMUM_LIGHT_LEVEL = 15;
 
-    private final KryptonWorld world;
-    private final ChunkManager chunkManager;
+    private final World world;
 
     private final ArrayDeque<SkyStarLightEngine> cachedSkyPropagators;
     private final ArrayDeque<BlockStarLightEngine> cachedBlockPropagators;
@@ -35,15 +33,14 @@ public final class StarLightManager {
     private final int minLightSection;
     private final int maxLightSection;
 
-    public StarLightManager(final @NotNull ChunkManager chunkManager, final boolean hasSkyLight) {
-        this.chunkManager = chunkManager;
-        this.world = chunkManager.getWorld();
+    public StarLightManager(final @NotNull World world, final boolean hasSkyLight) {
+        this.world = world;
         this.cachedSkyPropagators = hasSkyLight ? new ArrayDeque<>() : null;
         this.cachedBlockPropagators = new ArrayDeque<>();
-        this.minSection = world.getMinimumSection();
-        this.maxSection = world.getMaximumSection() - 1;
-        this.minLightSection = world.getMinimumSection() - 1;
-        this.maxLightSection = world.getMaximumSection();
+        this.minSection = this.world.getMinSection();
+        this.maxSection = this.world.getMaxSection() - 1;
+        this.minLightSection = this.world.getMinSection() - 1;
+        this.maxLightSection = this.world.getMaxSection();
     }
 
     public int getMinLightSection() {
@@ -55,23 +52,24 @@ public final class StarLightManager {
     }
 
     public int getLightSectionCount() {
-        return world.getSectionCount() + 2;
+//        return world.getSectionCount() + 2;
+        return 2;
     }
 
     public @Nullable SWMRNibbleArray getSkyData(final int x, final int y, final int z) {
-        final KryptonChunk chunk = chunkManager.get(x, z);
-        if (chunk == null || !chunk.isLightOn()) return null;
+        final Chunk chunk = world.getChunk(x, z);
+        if (chunk == null) return null;
         if (y > maxLightSection || y < minLightSection) return null;
         if (chunk.getSkyEmptinessMap() == null) return null;
         return chunk.getSkyNibbles()[y - minLightSection];
     }
 
-    public int getSkyLightValue(final @NotNull Vector3i position) {
-        final int x = position.x();
-        int y = position.y();
-        final int z = position.z();
+    public int getSkyLightValue(final @NotNull Vector3 position) {
+        final int x = position.getX();
+        int y = position.getY();
+        final int z = position.getZ();
 
-        final KryptonChunk chunk = chunkManager.get(x >> 4, z >> 4);
+        final Chunk chunk = world.getChunk(x >> 4, z >> 4);
         if (chunk == null) return MAXIMUM_LIGHT_LEVEL;
 
         int sectionY = y >> 4;
@@ -109,22 +107,22 @@ public final class StarLightManager {
     }
 
     public @Nullable SWMRNibbleArray getBlockData(final int x, final int y, final int z) {
-        final KryptonChunk chunk = chunkManager.get(x, z);
+        final Chunk chunk = world.getChunk(x, z);
         if (chunk == null || y < minLightSection || y > maxLightSection) return null;
         return chunk.getBlockNibbles()[y - minLightSection];
     }
 
-    public int getBlockLightValue(final @NotNull Vector3i position) {
-        final int cx = position.x() >> 4;
-        final int cy = position.y() >> 4;
-        final int cz = position.z() >> 4;
+    public int getBlockLightValue(final @NotNull Vector3 position) {
+        final int cx = position.getX() >> 4;
+        final int cy = position.getY() >> 4;
+        final int cz = position.getZ() >> 4;
         if (cy < minLightSection || cy > maxLightSection) return 0;
 
-        final KryptonChunk chunk = chunkManager.get(cx, cz);
+        final Chunk chunk = world.getChunk(cx, cz);
         if (chunk == null) return 0;
 
         final SWMRNibbleArray nibble = chunk.getBlockNibbles()[cy - minLightSection];
-        return nibble.getVisible(position.x(), position.y(), position.z());
+        return nibble.getVisible(position.getX(), position.getY(), position.getZ());
     }
 
     public boolean hasUpdates() {
@@ -163,8 +161,8 @@ public final class StarLightManager {
         }
     }
 
-    public @Nullable CompletableFuture<@NotNull Void> blockChange(final @NotNull Vector3i position) {
-        if (position.y() < world.getMinimumBlockY() || position.y() > world.getMaximumBlockY()) return null;
+    public @Nullable CompletableFuture<@NotNull Void> blockChange(final @NotNull Vector3 position) {
+        if (position.getY() < world.getDimensionType().getMinY() || position.getY() > world.getDimensionType().getHeight()) return null;
         return lightQueue.queueBlockChange(position);
     }
 
@@ -172,27 +170,27 @@ public final class StarLightManager {
         return lightQueue.queueSectionChange(x, y, z, newEmptyValue);
     }
 
-    public void forceLoadInChunk(final KryptonChunk chunk, final Boolean[] emptySections) {
+    public void forceLoadInChunk(final Chunk chunk, final Boolean[] emptySections) {
         final SkyStarLightEngine skyEngine = getSkyEngine();
         final BlockStarLightEngine blockEngine = getBlockEngine();
 
         try {
-            if (skyEngine != null) skyEngine.forceHandleEmptySectionChanges(chunkManager, chunk, emptySections);
-            blockEngine.forceHandleEmptySectionChanges(chunkManager, chunk, emptySections);
+            if (skyEngine != null) skyEngine.forceHandleEmptySectionChanges(world, chunk, emptySections);
+            blockEngine.forceHandleEmptySectionChanges(world, chunk, emptySections);
         } finally {
             if (skyEngine != null) releaseSkyEngine(skyEngine);
             releaseBlockEngine(blockEngine);
         }
     }
 
-    public void lightChunk(final KryptonChunk chunk, final boolean isLit) {
-        final ChunkPosition position = chunk.getPosition();
+    public void lightChunk(final Chunk chunk, final boolean isLit) {
+        final ChunkPos position = chunk.getChunkPos();
         final Runnable task = () -> {
             final Boolean[] emptySections = StarLightEngine.getEmptySectionsForChunk(chunk);
             if (!isLit) {
-                chunk.setLightOn(false);
+//                chunk.setLightOn(false);
                 lightChunk(chunk, emptySections);
-                chunk.setLightOn(true);
+//                chunk.setLightOn(true);
             } else {
                 forceLoadInChunk(chunk, emptySections);
                 checkChunkEdges(position.getX(), position.getZ());
@@ -202,13 +200,13 @@ public final class StarLightManager {
         scheduleUpdates();
     }
 
-    public void lightChunk(final KryptonChunk chunk, final Boolean[] emptySections) {
+    public void lightChunk(final Chunk chunk, final Boolean[] emptySections) {
         final SkyStarLightEngine skyEngine = this.getSkyEngine();
         final BlockStarLightEngine blockEngine = this.getBlockEngine();
 
         try {
-            if (skyEngine != null) skyEngine.light(this.chunkManager, chunk, emptySections);
-            blockEngine.light(this.chunkManager, chunk, emptySections);
+            if (skyEngine != null) skyEngine.light(this.world, chunk, emptySections);
+            blockEngine.light(this.world, chunk, emptySections);
         } finally {
             if (skyEngine != null) releaseSkyEngine(skyEngine);
             this.releaseBlockEngine(blockEngine);
@@ -224,7 +222,7 @@ public final class StarLightManager {
         final SkyStarLightEngine skyEngine = getSkyEngine();
         if (skyEngine == null) return;
         try {
-            skyEngine.checkChunkEdges(chunkManager, chunkX, chunkZ);
+            skyEngine.checkChunkEdges(world, chunkX, chunkZ);
         } finally {
             releaseSkyEngine(skyEngine);
         }
@@ -233,13 +231,13 @@ public final class StarLightManager {
     public void checkBlockEdges(final int chunkX, final int chunkZ) {
         final BlockStarLightEngine blockEngine = getBlockEngine();
         try {
-            blockEngine.checkChunkEdges(chunkManager, chunkX, chunkZ);
+            blockEngine.checkChunkEdges(world, chunkX, chunkZ);
         } finally {
             releaseBlockEngine(blockEngine);
         }
     }
 
-    public void scheduleChunkLight(final ChunkPosition position, final Runnable task) {
+    public void scheduleChunkLight(final ChunkPos position, final Runnable task) {
         lightQueue.queueChunkLighting(position, task);
     }
 
@@ -268,24 +266,25 @@ public final class StarLightManager {
                 }
 
                 final long coordinate = task.chunkCoordinate;
-                final int chunkX = CoordinateUtils.getChunkX(coordinate);
-                final int chunkZ = CoordinateUtils.getChunkZ(coordinate);
+                final ChunkPos chunkPos = ChunkPos.Companion.fromIndex(coordinate);
+                final int chunkX = chunkPos.getX();
+                final int chunkZ = chunkPos.getZ();
 
-                final Set<Vector3i> positions = task.changedPositions;
+                final Set<Vector3> positions = task.changedPositions;
                 final Boolean[] sectionChanges = task.changedSectionSet;
 
                 if (skyEngine != null && (!positions.isEmpty() || sectionChanges != null)) {
-                    skyEngine.blocksChangedInChunk(this.chunkManager, chunkX, chunkZ, positions, sectionChanges);
+                    skyEngine.blocksChangedInChunk(this.world, chunkX, chunkZ, positions, sectionChanges);
                 }
                 if (!positions.isEmpty() || sectionChanges != null) {
-                    blockEngine.blocksChangedInChunk(this.chunkManager, chunkX, chunkZ, positions, sectionChanges);
+                    blockEngine.blocksChangedInChunk(this.world, chunkX, chunkZ, positions, sectionChanges);
                 }
 
                 if (skyEngine != null && task.queuedEdgeChecksSky != null) {
-                    skyEngine.checkChunkEdges(this.chunkManager, chunkX, chunkZ, task.queuedEdgeChecksSky);
+                    skyEngine.checkChunkEdges(this.world, chunkX, chunkZ, task.queuedEdgeChecksSky);
                 }
                 if (task.queuedEdgeChecksBlock != null) {
-                    blockEngine.checkChunkEdges(this.chunkManager, chunkX, chunkZ, task.queuedEdgeChecksBlock);
+                    blockEngine.checkChunkEdges(this.world, chunkX, chunkZ, task.queuedEdgeChecksBlock);
                 }
 
                 task.onComplete.complete(null);
@@ -296,13 +295,13 @@ public final class StarLightManager {
         }
     }
 
-    public int relight(final Set<ChunkPosition> positions, final Consumer<ChunkPosition> callback, final IntConsumer onComplete) {
-        final Set<ChunkPosition> chunks = new LinkedHashSet<>(positions);
+    public int relight(final Set<ChunkPos> positions, final Consumer<ChunkPos> callback, final IntConsumer onComplete) {
+        final Set<ChunkPos> chunks = new LinkedHashSet<>(positions);
         int totalChunks = 0;
-        for (final Iterator<ChunkPosition> iterator = chunks.iterator(); iterator.hasNext();) {
-            final ChunkPosition position = iterator.next();
-            final KryptonChunk chunk = world.getChunkManager().get(position.getX(), position.getZ());
-            if (chunk == null || !chunk.isLightOn()) {
+        for (final Iterator<ChunkPos> iterator = chunks.iterator(); iterator.hasNext();) {
+            final ChunkPos position = iterator.next();
+            final Chunk chunk = world.getChunk(position.getX(), position.getZ());
+            if (chunk == null) {
                 iterator.remove();
                 continue;
             }
@@ -313,12 +312,12 @@ public final class StarLightManager {
         return totalChunks;
     }
 
-    public void relightChunks(final Set<ChunkPosition> positions, final Consumer<ChunkPosition> callback, final IntConsumer onComplete) {
+    public void relightChunks(final Set<ChunkPos> positions, final Consumer<ChunkPos> callback, final IntConsumer onComplete) {
         final SkyStarLightEngine skyEngine = getSkyEngine();
         final BlockStarLightEngine blockEngine = getBlockEngine();
         try {
-            if (skyEngine != null) skyEngine.relightChunks(chunkManager, positions, callback, onComplete);
-            blockEngine.relightChunks(chunkManager, positions, callback, onComplete);
+            if (skyEngine != null) skyEngine.relightChunks(world, positions, callback, onComplete);
+            blockEngine.relightChunks(world, positions, callback, onComplete);
         } finally {
             releaseSkyEngine(skyEngine);
             releaseBlockEngine(blockEngine);
@@ -338,14 +337,14 @@ public final class StarLightManager {
             return this.chunkTasks.isEmpty();
         }
 
-        public synchronized CompletableFuture<Void> queueBlockChange(final Vector3i pos) {
-            final ChunkTasks tasks = this.chunkTasks.computeIfAbsent(CoordinateUtils.getChunkKey(pos), ChunkTasks::new);
+        public synchronized CompletableFuture<Void> queueBlockChange(final Vector3 pos) {
+            final ChunkTasks tasks = this.chunkTasks.computeIfAbsent(ChunkUtils.INSTANCE.chunkBlockIndex(pos.getX(), pos.getY(), pos.getZ()), ChunkTasks::new);
             tasks.changedPositions.add(pos);
             return tasks.onComplete;
         }
 
         public synchronized @NotNull CompletableFuture<@NotNull Void> queueSectionChange(final int x, final int y, final int z, final boolean newEmptyValue) {
-            final ChunkTasks tasks = this.chunkTasks.computeIfAbsent(CoordinateUtils.getChunkKey(x, z), ChunkTasks::new);
+            final ChunkTasks tasks = this.chunkTasks.computeIfAbsent(ChunkUtils.INSTANCE.getChunkIndex(x, z), ChunkTasks::new);
 
             if (tasks.changedSectionSet == null) {
                 tasks.changedSectionSet = new Boolean[this.manager.maxSection - this.manager.minSection + 1];
@@ -355,17 +354,17 @@ public final class StarLightManager {
             return tasks.onComplete;
         }
 
-        public synchronized @NotNull CompletableFuture<@NotNull Void> queueChunkLighting(final ChunkPosition position, final Runnable task) {
-            final ChunkTasks tasks = chunkTasks.computeIfAbsent(CoordinateUtils.getChunkKey(position), ChunkTasks::new);
+        public synchronized @NotNull CompletableFuture<@NotNull Void> queueChunkLighting(final ChunkPos position, final Runnable task) {
+            final ChunkTasks tasks = chunkTasks.computeIfAbsent(position.pack(), ChunkTasks::new);
             if (tasks.lightTasks == null) tasks.lightTasks = new ArrayList<>();
             tasks.lightTasks.add(task);
             return tasks.onComplete;
         }
 
-        public void removeChunk(final @NotNull ChunkPosition pos) {
+        public void removeChunk(final @NotNull ChunkPos pos) {
             final ChunkTasks tasks;
             synchronized (this) {
-                tasks = this.chunkTasks.remove(CoordinateUtils.getChunkKey(pos));
+                tasks = this.chunkTasks.remove(pos.pack());
             }
             if (tasks != null) {
                 tasks.onComplete.complete(null);
@@ -381,7 +380,7 @@ public final class StarLightManager {
 
         protected static final class ChunkTasks {
 
-            public final Set<Vector3i> changedPositions = new HashSet<>();
+            public final Set<Vector3> changedPositions = new HashSet<>();
             public Boolean[] changedSectionSet;
             public ShortOpenHashSet queuedEdgeChecksSky;
             public ShortOpenHashSet queuedEdgeChecksBlock;
