@@ -91,7 +91,7 @@ data class Block(
             }
 
             for (block in BlockRegistry.protocolIdToBlock) {
-                val cachedState = block.value.possibleStates.reversed()
+                val cachedState = block.value.possibleStatesReversed
                 if (cachedState.isEmpty()) continue
                 if (!cachedState.containsKey(stateId)) continue
 
