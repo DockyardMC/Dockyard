@@ -25,6 +25,8 @@ import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getWorldEventContext
 import io.github.dockyardmc.utils.vectors.Vector2f
 import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3d
+import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
@@ -381,6 +383,22 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
                 generateChunk(chunkX, chunkZ)
             }
         }
+    }
+
+    fun locationAt(x: Int, y: Int, z: Int): Location {
+        return Location(x, y, z, this)
+    }
+
+    fun locationAt(vector: Vector3): Location {
+        return Location(vector.x, vector.y, vector.z, this)
+    }
+
+    fun locationAt(vector: Vector3d): Location {
+        return Location(vector.x, vector.y, vector.z, this)
+    }
+
+    fun locationAt(vector: Vector3f): Location {
+        return Location(vector.x, vector.y, vector.z, this)
     }
 
     fun getRandom(): Random = Random(seed)
