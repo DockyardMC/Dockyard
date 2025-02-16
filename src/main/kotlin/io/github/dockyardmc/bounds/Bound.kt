@@ -136,6 +136,14 @@ class Bound(
                 }
             }
         }
+
+        getEntities().filterIsInstance<Player>().forEach { player ->
+            val event = PlayerEnterBoundEvent(player, this)
+            Events.dispatch(event)
+
+            members.add(player)
+            onEnter?.invoke(player)
+        }
     }
 
     override fun dispose() {
