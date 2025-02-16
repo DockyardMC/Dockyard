@@ -1,7 +1,5 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.blocks.BarrelPlacementRules
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.blocks.ShulkerboxPlacementRules
@@ -109,7 +107,7 @@ class ServerboundUseItemOnBlockPacket(
         Events.dispatch(event)
         if (event.cancelled) cancelled = true
 
-        if(!event.cancelled) startConsumingIfApplicable(item, player)
+        if (!event.cancelled) startConsumingIfApplicable(item, player)
 
         //TODO make block handlers or something so its not all here
         if (originalBlock.identifier.contains("trapdoor")) {
@@ -159,11 +157,15 @@ class ServerboundUseItemOnBlockPacket(
                 cancelled = true
             }
 
+
             val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation(player.world))
 
             Events.dispatch(blockPlaceEvent)
 
             if (blockPlaceEvent.cancelled) cancelled = true
+
+            if (blockPlaceEvent.location.y <= -64.0) cancelled = true
+            if (blockPlaceEvent.location.y >= 320.0) cancelled = true
 
             if (cancelled) {
                 player.world.getChunkAt(newPos.x, newPos.z)?.let { player.sendPacket(it.packet) }
@@ -172,9 +174,9 @@ class ServerboundUseItemOnBlockPacket(
             }
 
             player.world.setBlock(blockPlaceEvent.location, blockPlaceEvent.block)
-            if(player.gameMode.value != GameMode.CREATIVE) {
+            if (player.gameMode.value != GameMode.CREATIVE) {
                 val heldItem = player.getHeldItem(PlayerHand.MAIN_HAND)
-                val newItem = if(heldItem.amount - 1 == 0) ItemStack.AIR else heldItem.withAmount(heldItem.amount - 1)
+                val newItem = if (heldItem.amount - 1 == 0) ItemStack.AIR else heldItem.withAmount(heldItem.amount - 1)
                 player.setHeldItem(PlayerHand.MAIN_HAND, newItem)
             }
         }
