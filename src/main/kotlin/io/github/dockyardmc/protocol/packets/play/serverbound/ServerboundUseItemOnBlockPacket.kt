@@ -157,7 +157,6 @@ class ServerboundUseItemOnBlockPacket(
                 cancelled = true
             }
 
-
             val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation(player.world))
 
             Events.dispatch(blockPlaceEvent)
