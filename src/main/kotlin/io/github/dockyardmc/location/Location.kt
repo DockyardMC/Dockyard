@@ -187,6 +187,22 @@ class Location(
                 y >= minY && y <= maxY &&
                 z >= minZ && z <= maxZ
     }
+
+    fun getBlocksInRadius(radius: Int): List<Location> {
+
+        val locations = mutableListOf<Location>()
+
+        for (dx in -radius..radius) {
+            for (dy in -radius..radius) {
+                for (dz in -radius..radius) {
+                    val blockLocation = Location(x + dx, y + dy, z + dz, this.world)
+                    locations.add(blockLocation)
+                }
+            }
+        }
+
+        return locations.toList()
+    }
 }
 
 fun ByteBuf.writeRotation(location: Location, delta: Boolean) {

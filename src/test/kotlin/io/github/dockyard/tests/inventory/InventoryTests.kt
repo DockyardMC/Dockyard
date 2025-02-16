@@ -1,8 +1,11 @@
 package io.github.dockyard.tests.inventory
 
+import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
 import io.github.dockyard.tests.assertSlot
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.InventoryGiveItemEvent
 import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
@@ -10,6 +13,7 @@ import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundCloseCo
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
+import java.util.concurrent.CountDownLatch
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -80,12 +84,11 @@ class InventoryTests {
         assertSlot(player, 4, itemStack.withAmount(4))
 
         player.clearInventory()
-
         player.inventory[3] = itemStack
 
         player.give(itemStack)
+
         assertSlot(player, 0, ItemStack.AIR)
         assertSlot(player, 3, itemStack.withAmount(4))
     }
-
 }

@@ -12,7 +12,7 @@ plugins {
     application
 }
 
-val minecraftVersion = "1.21.3"
+val minecraftVersion = "1.21.4"
 val dockyardVersion = properties["dockyard.version"]!!
 val gitBranch = "git rev-parse --abbrev-ref HEAD".runCommand()
 val gitCommit = "git rev-parse --short=8 HEAD".runCommand()
@@ -33,7 +33,6 @@ repositories {
     maven("https://mvn.devos.one/releases")
     maven("https://jitpack.io")
     maven("https://repo.spongepowered.org/repository/maven-public/")
-    maven("https://repo.lucko.me/")
     maven("https://repo.viaversion.com")
 }
 
@@ -44,11 +43,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("com.akuleshov7:ktoml-core:0.5.1")
     implementation("com.akuleshov7:ktoml-file:0.5.1")
-    implementation("me.lucko:bytesocks-java-client:1.0-20230828.145440-5") {
+
+    api("io.github.dockyardmc:bytesocks-client-java:1.0-SNAPSHOT") {
         exclude(module = "slf4j-api")
     }
-    implementation("net.kyori:adventure-text-serializer-json:")
-    implementation("com.google.protobuf:protobuf-javalite:4.28.2")
+    api("com.google.protobuf:protobuf-javalite:4.28.2")
 
     // Minecraft
     api("io.github.jglrxavpok.hephaistos:common:2.2.0")
@@ -57,9 +56,9 @@ dependencies {
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
 
     // Pathfinding
-    implementation("com.github.Metaphoriker.pathetic:pathetic-engine:4.0")
-    implementation("com.github.Metaphoriker.pathetic:pathetic-api:4.0")
-    implementation("com.github.Metaphoriker.pathetic:pathetic-provider:4.0")
+    api("com.github.Metaphoriker.pathetic:pathetic-engine:4.0")
+    api("com.github.Metaphoriker.pathetic:pathetic-api:4.0")
+    api("com.github.Metaphoriker.pathetic:pathetic-provider:4.0")
 
     // Networking
     api("io.ktor:ktor-server-netty:2.3.12")
@@ -76,7 +75,8 @@ dependencies {
     api("it.unimi.dsi:fastutil:8.5.13")
     api("cz.lukynka:kotlin-bindables:1.3")
 
-    api("me.lucko:spark-common:1.10.119-SNAPSHOT")
+    api("io.github.dockyardmc:spark-api:1.12-SNAPSHOT")
+    api("io.github.dockyardmc:spark-common:1.12-SNAPSHOT")
 
     testImplementation(kotlin("test"))
     testImplementation("org.mockito:mockito-core:5.4.0")
@@ -140,7 +140,9 @@ tasks {
 }
 
 tasks.withType<PublishToMavenRepository> {
-    dependsOn("test")
+    if(!version.toString().endsWith("-SNAPSHOT")) {
+        dependsOn("test")
+    }
 }
 
 java {
@@ -168,6 +170,7 @@ publishing {
             artifactId = "dockyard"
             version = dockyardVersion.toString()
             from(components["java"])
+
         }
     }
 }
