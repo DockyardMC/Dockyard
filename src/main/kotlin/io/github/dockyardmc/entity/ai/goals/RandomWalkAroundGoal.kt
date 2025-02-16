@@ -1,4 +1,4 @@
-package io.github.dockyardmc.test
+package io.github.dockyardmc.entity.ai.goals
 
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.ai.AIGoal
@@ -64,21 +64,3 @@ class RandomWalkAroundGoal(override var entity: Entity, override var priority: I
 
 }
 
-fun Location.getBlocksInRadius(radius: Int): List<Location> {
-    val x = this.x
-    val y = this.y
-    val z = this.z
-
-    val locations = mutableListOf<Location>()
-
-    for (dx in -radius..radius) {
-        for (dy in -radius..radius) {
-            for (dz in -radius..radius) {
-                val blockLocation = Location(x + dx, y + dy, z + dz, this.world)
-                locations.add(blockLocation)
-            }
-        }
-    }
-
-    return locations.toList()
-}
