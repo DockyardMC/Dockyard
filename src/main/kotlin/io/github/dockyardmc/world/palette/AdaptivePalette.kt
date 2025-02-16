@@ -109,7 +109,11 @@ internal class AdaptivePalette(var dimension: Byte, var maxBitsPerEntry: Byte, b
             currentPalette.fill(filledPalette.value)
             palette = currentPalette
         }
+
+
+
         return currentPalette
+
     }
 
     companion object {

@@ -23,7 +23,7 @@ class LightEngine {
 
     fun recalculateChunk(chunk: Chunk, chunkLight: ChunkLight, bx: Int, bz: Int) {
         chunk.sections.reversed().forEachIndexed { i, section ->
-            recalculateSection(section, i, chunkLight, chunk, bx, bz)
+            recalculateSection(section, i, chunkLight)
 
             if (hasNonZeroData(chunk.chunkLight.skyLight[i])) {
                 chunkLight.skyMask.set(i)
@@ -39,7 +39,7 @@ class LightEngine {
         }
     }
 
-    fun recalculateSection(section: ChunkSection, sectionIndex: Int, chunkLight: ChunkLight, chunk: Chunk, bx: Int, bz: Int) {
+    fun recalculateSection(section: ChunkSection, sectionIndex: Int, chunkLight: ChunkLight) {
         recalcArray = ByteArray(ARRAY_SIZE)
 
         for (x in 0..15) {
@@ -58,12 +58,6 @@ class LightEngine {
                     if (foundSolid) {
                         light = 15
                     }
-
-//                    if (x == 0 && z == 0) {
-//                        val isSolidNew = section.blockPalette[x, 3, z] != 0
-//                        if (isSolidNew) light = 0
-//                        log("$isSolidNew, ${section.blockPalette[x, y, z]} ($x, $y, $z)", LogType.FATAL)
-//                    }
 
                     set(getCoordIndex(x, y, z), light)
                     if(light == 0) {
