@@ -11,14 +11,15 @@ import io.github.dockyardmc.protocol.decoders.PacketLengthDecoder
 import io.github.dockyardmc.protocol.decoders.RawPacketDecoder
 import io.github.dockyardmc.protocol.encoders.PacketLengthEncoder
 import io.github.dockyardmc.protocol.encoders.RawPacketEncoder
+import io.github.dockyardmc.utils.isAddressInUse
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import java.lang.Void
 import java.net.InetSocketAddress
 import java.util.concurrent.CompletableFuture
+import kotlin.system.exitProcess
 
 class NettyServer(val instance: DockyardServer) {
 
@@ -45,10 +46,17 @@ class NettyServer(val instance: DockyardServer) {
                     }
                 })
 
+
+            if (isAddressInUse(instance.ip, instance.port)) {
+                log("Address ${instance.ip}:${instance.port} is already in use!", LogType.ERROR)
+                exitProcess(0)
+            }
+
+            bootstrap.bind(InetSocketAddress(instance.ip, instance.port)).await()
+
             log("DockyardMC server running on ${instance.ip}:${instance.port}", LogType.SUCCESS)
             Events.dispatch(ServerStartEvent())
 
-            bootstrap.bind(InetSocketAddress(instance.ip, instance.port)).await()
             null
         }
     }

@@ -17,6 +17,7 @@ import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.team.TeamManager
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.chunk.ChunkPos
@@ -42,7 +43,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
             connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"), networkManager)
 
             // Send feature flags
-            val featureFlagsEvent = PlayerSendFeatureFlagsEvent(FeatureFlags.enabledFeatureFlags)
+            val featureFlagsEvent = PlayerSendFeatureFlagsEvent(FeatureFlags.enabledFlags, getPlayerEventContext(player))
             Events.dispatch(featureFlagsEvent)
             connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), networkManager)
 

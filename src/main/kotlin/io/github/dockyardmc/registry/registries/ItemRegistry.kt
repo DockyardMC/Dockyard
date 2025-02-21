@@ -63,10 +63,12 @@ object ItemRegistry : DataDrivenRegistry {
                 val component = buffer.readBytes(length)
                 val readComponent = component.readComponent(componentId)
                 defaultComponents.add(readComponent)
+                component.release()
             }
 
             ItemRegistry[itemIdentifier].defaultComponents = defaultComponents
         }
+        buffer.release()
     }
 
     override fun get(identifier: String): Item {
