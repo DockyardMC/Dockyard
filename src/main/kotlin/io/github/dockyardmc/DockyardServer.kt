@@ -15,6 +15,7 @@ import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.github.dockyardmc.registry.MinecraftVersions
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.*
+import io.github.dockyardmc.registry.registries.tags.*
 import io.github.dockyardmc.scheduler.GlobalScheduler
 import io.github.dockyardmc.server.PlayerKeepAliveTimer
 import io.github.dockyardmc.server.NettyServer
@@ -55,6 +56,14 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         RegistryManager.register(PotionEffectRegistry)
         RegistryManager.register(BiomeRegistry)
         RegistryManager.register(ItemRegistry)
+        RegistryManager.register(FluidRegistry)
+
+        RegistryManager.register(ItemTagRegistry)
+        RegistryManager.register(BlockTagRegistry)
+        RegistryManager.register(EntityTypeTagRegistry)
+        RegistryManager.register(FluidTagRegistry)
+        RegistryManager.register(ItemTagRegistry)
+        RegistryManager.register(BiomeTagRegistry)
 
         if(ConfigManager.config.implementationConfig.defaultCommands) DockyardCommands()
         if(ConfigManager.config.implementationConfig.npcCommand) NpcCommand()

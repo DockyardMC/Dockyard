@@ -2,41 +2,56 @@ package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.writeList
+import io.github.dockyardmc.registry.Registry
+import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryManager
+import io.github.dockyardmc.registry.registries.BlockRegistry
+import io.github.dockyardmc.registry.registries.RegistryBlock
+import io.github.dockyardmc.registry.registries.tags.TagRegistry
 import io.netty.buffer.ByteBuf
+import kotlinx.serialization.Serializable
+import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
-class ClientboundUpdateTagsPacket: ClientboundPacket() {
-
-    val tags = mapOf<String, List<Tag>>(
-        "minecraft:worldgen/biome" to listOf(
-            Tag("minecraft:is_badlands", listOf()),
-            Tag("minecraft:is_jungle", listOf()),
-            Tag("minecraft:is_savanna", listOf())
-        )
-    )
+class ClientboundUpdateTagsPacket(val registries: List<TagRegistry>) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(tags.size)
-        tags.forEach { tagArray ->
-            data.writeString(tagArray.key)
-            data.writeTagArray(tagArray.value)
+        data.writeVarInt(registries.size)
+        registries.forEach { registry ->
+            data.writeString(registry.identifier)
+            data.writeList<Tag>(registry.tags.values.toList()) { buffer, tag -> tag.write(buffer) }
         }
-
     }
 }
 
-data class Tag(
-    val tagName: String,
-    val tags: List<Int>
-)
 
-fun ByteBuf.writeTagArray(tagArray: List<Tag>) {
-    this.writeVarInt(tagArray.size)
-    tagArray.forEach { array ->
-        this.writeString(array.tagName)
-        this.writeVarInt(array.tags.size)
-        array.tags.forEach { tag ->
-            this.writeVarInt(tag)
+@Serializable
+data class Tag(
+    val identifier: String,
+    val tags: Set<String>,
+    val registryIdentifier: String,
+) : NetworkWritable, RegistryEntry {
+
+    override fun getNbt(): NBTCompound? = null
+    override fun getProtocolId(): Int = -1
+
+    operator fun contains(identifier: String): Boolean {
+        return tags.contains(identifier)
+    }
+
+    override fun toString(): String {
+        return "#$identifier"
+    }
+
+    override fun write(buffer: ByteBuf) {
+        val registry = RegistryManager.getFromIdentifier<Registry>(registryIdentifier)
+        buffer.writeString(identifier)
+        val intTags = tags.map { tag ->
+            val entry = registry[tag]
+            if(registry is BlockRegistry) (entry as RegistryBlock).getLegacyProtocolId() else entry.getProtocolId()
         }
+        buffer.writeList(intTags, ByteBuf::writeVarInt)
     }
 }
