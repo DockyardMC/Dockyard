@@ -133,14 +133,6 @@ class Location(
         return this.yaw.compareTo(yaw) == 0 && this.pitch.compareTo(pitch) == 0
     }
 
-    fun setBlock(block: Block) {
-        this.world.setBlock(this, block)
-    }
-
-    fun setBlock(block: RegistryBlock) {
-        this.world.setBlock(this, block)
-    }
-
 
     fun setDirection(vector: Vector3d): Location {
         val loc = this.clone()
