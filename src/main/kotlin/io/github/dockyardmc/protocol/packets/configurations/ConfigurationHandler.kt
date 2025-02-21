@@ -34,7 +34,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
 
     companion object {
 
-//        val cachedTagPacket = ClientboundUpdateTagsPacket(listOf(BiomeTagRegistry, ItemTagRegistry, BlockTagRegistry, FluidTagRegistry, EntityTypeTagRegistry))
+        val cachedTagPacket = ClientboundUpdateTagsPacket(listOf(BiomeTagRegistry, ItemTagRegistry, BlockTagRegistry, FluidTagRegistry, EntityTypeTagRegistry))
 
         fun enterConfiguration(player: Player, connection: ChannelHandlerContext, isFirstConfiguration: Boolean) {
 
@@ -50,7 +50,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
             Events.dispatch(featureFlagsEvent)
             connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), networkManager)
 
-            connection.sendPacket(ClientboundUpdateTagsPacket(listOf(BiomeTagRegistry, ItemTagRegistry, BlockTagRegistry, FluidTagRegistry, EntityTypeTagRegistry)), networkManager)
+            connection.sendPacket(cachedTagPacket, networkManager)
 
             RegistryManager.dynamicRegistries.values.forEach { registry -> connection.sendPacket(ClientboundRegistryDataPacket(registry), networkManager) }
             connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), networkManager)

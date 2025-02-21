@@ -18,8 +18,8 @@ object GeneralBlockPlacementRules {
         val clickedBlock = world.getBlock(originalClickedBlock)
         val placementLocation = world.getBlock(where)
 
-        if (!placementLocation.isAir() && placementLocation.registryBlock != Blocks.LIGHT) canBePlaced =
-            CancelReason(false, "Block at new location is not air (${placementLocation.identifier})")
+        if (!placementLocation.isAir() && placementLocation.registryBlock != Blocks.LIGHT && !placementLocation.registryBlock.isLiquid) canBePlaced = CancelReason(false, "Block at new location is not air (${placementLocation.identifier})")
+
         if (isLocationInsideBoundingBox(
                 where,
                 placer.world.entities

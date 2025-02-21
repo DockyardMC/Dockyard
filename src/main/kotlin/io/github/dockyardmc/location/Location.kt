@@ -3,6 +3,7 @@ package io.github.dockyardmc.location
 import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.bounds.Bound
 import io.github.dockyardmc.extentions.truncate
+import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.vectors.Vector2f
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3d
@@ -173,6 +174,14 @@ class Location(
 
     fun sameBlock(blockX: Int, blockY: Int, blockZ: Int): Boolean {
         return this.blockX == blockX && this.blockY == blockY && this.blockZ == blockZ
+    }
+
+    fun setBlock(block: Block) {
+        world.setBlock(this, block)
+    }
+
+    fun setBlock(block: RegistryBlock) {
+        world.setBlock(this, block)
     }
 
     fun isWithinBound(region: Bound): Boolean {

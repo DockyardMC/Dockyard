@@ -20,7 +20,7 @@ object FluidRegistry: DataDrivenRegistry, DynamicRegistry {
     val fluids: MutableMap<String, Fluid> = mutableMapOf()
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
     val protocolIdsReversed: MutableMap<Int, Fluid> = mutableMapOf()
-    val protocolIdCounter = AtomicInteger()
+    val protocolIdCounter = AtomicInteger(0)
 
     override val identifier: String = "minecraft:fluid"
 
@@ -36,7 +36,7 @@ object FluidRegistry: DataDrivenRegistry, DynamicRegistry {
 
     fun addEntry(entry: Fluid, updateCache: Boolean = true) {
         val protocolId = protocolIdCounter.getAndIncrement()
-        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
+        protocolIds[entry.identifier] = protocolId
         protocolIdsReversed[protocolId] = entry
         fluids[entry.identifier] = entry
         if(updateCache) updateCache()

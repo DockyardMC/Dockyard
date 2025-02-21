@@ -41,7 +41,7 @@ object BlockRegistry: DataDrivenRegistry {
         val list = Json.decodeFromStream<List<RegistryBlock>>(stream)
         list.forEach { block ->
             val id = protocolIdCounter.getAndIncrement()
-            protocolIdToBlock.put(id, block)
+            protocolIdToBlock.put(block.defaultBlockStateId, block)
             blockToProtocolId[block] = id
             blocks[block.identifier] = block
         }
