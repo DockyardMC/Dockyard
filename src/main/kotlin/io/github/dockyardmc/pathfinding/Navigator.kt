@@ -9,10 +9,9 @@ import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toLocation
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toPathPosition
 import io.github.dockyardmc.runnables.ticks
 import io.github.dockyardmc.scheduler.SchedulerTask
-import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.locationLerp
 
-class Navigator(val entity: Entity, val speedTicksPerBlock: Int, val pathfinder: Pathfinder, val filters: List<PathFilter>) {
+class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder: Pathfinder, val filters: List<PathFilter>) {
 
     var state = State.IDLE
         private set
