@@ -6,6 +6,7 @@ object FeatureFlags {
 
 enum class FeatureFlag(var identifier: String) {
     VANILLA("minecraft:vanilla"),
-    BUNDLE("minecraft:bundle"),
     TRADE_REBALANCE("minecraft:trade_rebalance"),
+    REDSTONE_EXPERIMENTS("minecraft:redstone_experiments"),
+    MINECART_IMPROVEMENTS("minecraft:minecart_improvements"),
 }

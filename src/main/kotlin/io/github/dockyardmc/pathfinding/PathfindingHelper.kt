@@ -6,7 +6,7 @@ import io.github.dockyardmc.location.Location
 object PathfindingHelper {
 
     val nonSolidBlocksThatShouldBeCountedAsSolid: List<String> = mutableListOf("minecraft:fences")
-    val solidBlocksThatShouldBeCountedAsNonSolid: List<String> = mutableListOf("minecraft:snow")
+    val solidBlocksThatShouldBeCountedAsNonSolid: List<String> = mutableListOf()
 
     fun isTraversable(block: Block, location: Location): Boolean {
         val registryBlock = block.registryBlock
@@ -33,6 +33,13 @@ object PathfindingHelper {
         }
 
         if(registryBlock.identifier == "minecraft:sculk_vein") isSolid = false
+
+        if(registryBlock.identifier == "minecraft:snow") {
+            val layers = block.blockStates["layers"]?.toInt()
+            if(layers != null) {
+                isSolid = layers >= 4
+            }
+        }
 
         nonSolidBlocksThatShouldBeCountedAsSolid.forEach { tag ->
             if (registryBlock.tags.contains(tag)) {
