@@ -6,6 +6,9 @@ import io.github.dockyardmc.entity.EntityMetadataType
 import io.github.dockyardmc.entity.getEntityMetadataState
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
+import java.net.InetSocketAddress
+import java.net.ServerSocket
+import java.net.SocketException
 import java.security.MessageDigest
 import kotlin.experimental.and
 import kotlin.reflect.KClass
@@ -92,4 +95,19 @@ fun generateSHA1(input: String): String {
 
     return hexString.toString()
 
+}
+
+fun isAddressInUse(host: String, port: Int): Boolean {
+    try {
+        val socket = ServerSocket()
+        socket.bind(InetSocketAddress(host, port))
+        socket.close()
+    } catch (exception: SocketException) {
+        val message = exception.message ?: ""
+        if (message.contains("Address already in use")) {
+            return true;
+        }
+    }
+
+    return false
 }
