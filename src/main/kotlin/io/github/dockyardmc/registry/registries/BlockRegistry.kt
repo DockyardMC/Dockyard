@@ -7,6 +7,7 @@ import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.utils.CustomDataHolder
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -15,6 +16,7 @@ import kotlinx.serialization.json.decodeFromStream
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.io.InputStream
 import java.lang.IllegalStateException
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -26,6 +28,9 @@ object BlockRegistry: DataDrivenRegistry {
 
     var blocks: Object2ObjectOpenHashMap<String, RegistryBlock> = Object2ObjectOpenHashMap()
     var protocolIdToBlock: Int2ObjectOpenHashMap<RegistryBlock> = Int2ObjectOpenHashMap()
+    var blockToProtocolId: Object2IntOpenHashMap<RegistryBlock> = Object2IntOpenHashMap()
+
+    val protocolIdCounter = AtomicInteger()
 
     override fun getMaxProtocolId(): Int {
         return protocolIdToBlock.keys.last()
@@ -35,7 +40,9 @@ object BlockRegistry: DataDrivenRegistry {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<RegistryBlock>>(stream)
         list.forEach { block ->
+            val id = protocolIdCounter.getAndIncrement()
             protocolIdToBlock.put(block.defaultBlockStateId, block)
+            blockToProtocolId[block] = id
             blocks[block.identifier] = block
         }
     }
@@ -99,6 +106,10 @@ data class RegistryBlock(
 
     override fun getProtocolId(): Int {
         return defaultBlockStateId
+    }
+
+    fun getLegacyProtocolId(): Int {
+        return BlockRegistry.blockToProtocolId[this] ?: throw RegistryException(identifier, BlockRegistry.blockToProtocolId.size)
     }
 
     fun toItem(): Item {

@@ -14,6 +14,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.plugin.PluginMessages
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.tags.*
 import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.serverlinks.ServerLinks
 import io.github.dockyardmc.team.TeamManager
@@ -33,6 +34,8 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
 
     companion object {
 
+        val cachedTagPacket = ClientboundUpdateTagsPacket(listOf(BiomeTagRegistry, ItemTagRegistry, BlockTagRegistry, FluidTagRegistry, EntityTypeTagRegistry))
+
         fun enterConfiguration(player: Player, connection: ChannelHandlerContext, isFirstConfiguration: Boolean) {
 
             val networkManager = player.networkManager
@@ -47,9 +50,9 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
             Events.dispatch(featureFlagsEvent)
             connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), networkManager)
 
-            connection.sendPacket(ClientboundUpdateTagsPacket(), networkManager)
+            connection.sendPacket(cachedTagPacket, networkManager)
 
-            RegistryManager.dynamicRegistries.forEach { connection.sendPacket(ClientboundRegistryDataPacket(it), networkManager) }
+            RegistryManager.dynamicRegistries.values.forEach { registry -> connection.sendPacket(ClientboundRegistryDataPacket(registry), networkManager) }
             connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), networkManager)
 
             val finishConfigurationPacket = ClientboundFinishConfigurationPacket()

@@ -120,6 +120,8 @@ fun Direction.toVector3f(): Vector3f {
         Direction.SOUTH -> Vector3f(0f, 0f, 1f)
         Direction.EAST -> Vector3f(1f, 0f, 0f)
         Direction.WEST -> Vector3f(-1f, 0f, 0f)
+        Direction.UP -> Vector3f(0f, 1f, 0f)
+        Direction.DOWN -> Vector3f(0f, -1f, 0f)
         else -> Vector3f(0f, 0f, 0f)
     }
 }

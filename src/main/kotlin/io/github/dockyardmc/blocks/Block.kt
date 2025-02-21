@@ -15,6 +15,8 @@ data class Block(
 ) {
     val identifier = registryBlock.identifier
 
+    val tags = registryBlock.tags
+
     fun toItem(): Item {
         return ItemRegistry[identifier]
     }

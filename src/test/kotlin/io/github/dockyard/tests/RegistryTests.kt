@@ -2,20 +2,7 @@ package io.github.dockyard.tests
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.registry.BannerPatterns
-import io.github.dockyardmc.registry.Biomes
-import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.DamageTypes
-import io.github.dockyardmc.registry.DimensionTypes
-import io.github.dockyardmc.registry.EntityTypes
-import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.registry.JukeboxSongs
-import io.github.dockyardmc.registry.PaintingVariants
-import io.github.dockyardmc.registry.Particles
-import io.github.dockyardmc.registry.PotionEffects
-import io.github.dockyardmc.registry.RegistryManager
-import io.github.dockyardmc.registry.Sounds
-import io.github.dockyardmc.registry.WolfVariants
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.ChatTypeRegistry
 import io.github.dockyardmc.utils.randomInt
@@ -48,13 +35,15 @@ class RegistryTests {
             WolfVariants.CHESTNUT
             Blocks.HEAVY_CORE
             Blocks.CREAKING_HEART
+            Tags.BIOME_ALLOWS_TROPICAL_FISH_SPAWNS_AT_ANY_HEIGHT
+            Tags.ITEM_STONE_BRICKS
         }
     }
 
     @Test
     fun testRegistries() {
         assertDoesNotThrow {
-            RegistryManager.dynamicRegistries.forEach { registry ->
+            RegistryManager.dynamicRegistries.values.forEach { registry ->
                 if(registry is ChatTypeRegistry) return@forEach // dockyard does not do chat type stuff
                 log("Testing registry ${registry.identifier}", LogType.DEBUG)
                 if(registry is BlockRegistry) {
