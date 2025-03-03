@@ -1,10 +1,8 @@
 package io.github.dockyardmc.world
 
-import cz.lukynka.Bindable
+import cz.lukynka.bindables.Bindable
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.blocks.BatchBlockUpdate
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.events.*
@@ -28,6 +26,8 @@ import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3d
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.WorldManager.mainWorld
+import io.github.dockyardmc.world.block.BatchBlockUpdate
+import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
@@ -83,7 +83,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         val event = WorldTickEvent(this, scheduler, getWorldEventContext(this))
         Events.dispatch(event)
 
-        if(event.cancelled) return
+        if (event.cancelled) return
 
         // tick entities
         synchronized(entities) {
@@ -232,11 +232,9 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         players.forEach { it.sendPacket(chunk.packet) }
     }
 
-    fun getBlock(location: Location): Block =
-        this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
+    fun getBlock(location: Location): Block = this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
 
-    fun getBlock(vector3: Vector3): Block =
-        this.getBlock(vector3.x, vector3.y, vector3.z)
+    fun getBlock(vector3: Vector3): Block = this.getBlock(vector3.x, vector3.y, vector3.z)
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
         val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $z not generated!")
@@ -300,8 +298,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             val chunks: MutableList<Chunk> = mutableListOf()
             update.updates.forEach { (location, block) ->
                 val chunk = getOrGenerateChunk(
-                    ChunkUtils.getChunkCoordinate(location.x),
-                    ChunkUtils.getChunkCoordinate(location.z)
+                    ChunkUtils.getChunkCoordinate(location.x), ChunkUtils.getChunkCoordinate(location.z)
                 )
                 if (!chunks.contains(chunk)) chunks.add(chunk)
 

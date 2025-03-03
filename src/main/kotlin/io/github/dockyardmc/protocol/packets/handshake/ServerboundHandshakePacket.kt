@@ -3,14 +3,14 @@ package io.github.dockyardmc.protocol.packets.handshake
 import io.github.dockyardmc.events.Event
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerHandshakeEvent
-import io.netty.buffer.ByteBuf
-import io.netty.channel.ChannelHandlerContext
 import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.netty.buffer.ByteBuf
+import io.netty.channel.ChannelHandlerContext
 
 class ServerboundHandshakePacket(
     val version: Int,

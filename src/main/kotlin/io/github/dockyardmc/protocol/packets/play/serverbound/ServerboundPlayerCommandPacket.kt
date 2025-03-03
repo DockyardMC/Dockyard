@@ -1,8 +1,8 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PlayerAction
 import io.github.dockyardmc.player.PlayerManager

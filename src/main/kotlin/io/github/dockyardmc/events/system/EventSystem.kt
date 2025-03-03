@@ -1,10 +1,9 @@
 package io.github.dockyardmc.events.system
 
 import io.github.dockyardmc.events.*
+import io.github.dockyardmc.events.EventListener
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.debug
-import java.lang.IllegalStateException
-import java.util.UUID
+import java.util.*
 import kotlin.reflect.KClass
 
 abstract class EventSystem : Disposable {

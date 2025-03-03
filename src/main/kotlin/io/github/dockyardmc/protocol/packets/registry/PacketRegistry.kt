@@ -2,8 +2,6 @@ package io.github.dockyardmc.protocol.packets.registry
 
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.protocol.packets.ServerboundPacket
-import java.lang.IllegalArgumentException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 

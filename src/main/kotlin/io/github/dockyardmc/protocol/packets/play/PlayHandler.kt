@@ -5,7 +5,9 @@ import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
-import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityTeleportPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetHeadYawPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateEntityRotationPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
 import io.github.dockyardmc.utils.vectors.Vector2f
 import io.netty.channel.ChannelHandlerContext

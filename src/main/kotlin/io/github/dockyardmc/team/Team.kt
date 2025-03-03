@@ -1,9 +1,12 @@
 package io.github.dockyardmc.team
 
-import cz.lukynka.Bindable
-import cz.lukynka.BindableList
+import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.extentions.sendPacket
+import io.github.dockyardmc.extentions.writeString
+import io.github.dockyardmc.extentions.writeTextComponent
+import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.npc.PlayerNpc
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
@@ -12,7 +15,6 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundTeamsPa
 import io.github.dockyardmc.protocol.packets.play.clientbound.UpdateTeamPacketAction
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.netty.buffer.ByteBuf
-import java.lang.IllegalArgumentException
 import kotlin.experimental.or
 
 enum class TeamNameTagVisibility(val vanilla: String) {

@@ -4,7 +4,7 @@ package io.github.dockyardmc.schematics
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.extentions.toByteBuf
@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture
 data class Schematic(
     var size: Vector3,
     var offset: Vector3,
-    var pallete: MutableMap<Block, Int>,
+    var pallete: MutableMap<io.github.dockyardmc.world.block.Block, Int>,
     var blocks: ByteArray,
 ) {
 

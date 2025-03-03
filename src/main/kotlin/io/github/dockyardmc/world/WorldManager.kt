@@ -5,11 +5,10 @@ import cz.lukynka.prettylog.CustomLogType
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.registry.registries.DimensionType
 import io.github.dockyardmc.registry.DimensionTypes
+import io.github.dockyardmc.registry.registries.DimensionType
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
-import java.lang.IllegalArgumentException
 import java.util.concurrent.CompletableFuture
 
 object WorldManager {

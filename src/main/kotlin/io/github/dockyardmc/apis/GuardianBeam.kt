@@ -1,7 +1,7 @@
 package io.github.dockyardmc.apis
 
-import cz.lukynka.Bindable
-import cz.lukynka.BindablePool
+import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.Guardian
@@ -17,7 +17,7 @@ import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.utils.locationLerp
 import io.github.dockyardmc.utils.percent
-import java.util.UUID
+import java.util.*
 import kotlin.math.round
 import kotlin.time.Duration
 

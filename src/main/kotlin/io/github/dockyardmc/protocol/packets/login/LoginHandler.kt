@@ -5,7 +5,10 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.player.*
+import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.player.ProfileProperty
+import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.protocol.ChannelHandlers
 import io.github.dockyardmc.protocol.NetworkCompression
 import io.github.dockyardmc.protocol.PlayerNetworkManager

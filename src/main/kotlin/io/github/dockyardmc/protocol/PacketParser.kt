@@ -6,7 +6,6 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.netty.buffer.ByteBuf
-import java.lang.Exception
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.declaredMemberFunctions
 

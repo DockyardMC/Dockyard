@@ -1,4 +1,4 @@
-package io.github.dockyardmc.blocks
+package io.github.dockyardmc.world.block
 
 import io.github.dockyardmc.extentions.*
 import io.netty.buffer.ByteBuf

@@ -1,6 +1,5 @@
 package io.github.dockyardmc.location
 
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.bounds.Bound
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.registry.registries.RegistryBlock
@@ -8,8 +7,8 @@ import io.github.dockyardmc.utils.vectors.Vector2f
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3d
 import io.github.dockyardmc.utils.vectors.Vector3f
-import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.World
+import io.github.dockyardmc.world.chunk.Chunk
 import io.netty.buffer.ByteBuf
 import kotlin.math.*
 
@@ -160,7 +159,7 @@ class Location(
     fun withNoRotation(): Location = this.clone().apply { yaw = 0f; pitch = 0f }
 
     val length: Double get() = sqrt(x * x + y * y + z * z)
-    val block: Block get() = world.getBlock(this)
+    val block: io.github.dockyardmc.world.block.Block get() = world.getBlock(this)
 
     fun toVector3(): Vector3 = Vector3(x.toInt(), y.toInt(), z.toInt())
     fun toVector3f(): Vector3f = Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
@@ -177,7 +176,7 @@ class Location(
         return this.blockX == blockX && this.blockY == blockY && this.blockZ == blockZ
     }
 
-    fun setBlock(block: Block) {
+    fun setBlock(block: io.github.dockyardmc.world.block.Block) {
         world.setBlock(this, block)
     }
 

@@ -6,7 +6,7 @@ import io.github.dockyardmc.extentions.writeOptionalOLD
 import io.github.dockyardmc.extentions.writeUUID
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import java.util.UUID
+import java.util.*
 
 @WikiVGEntry("Remove Resource Pack (play)")
 @ClientboundPacketInfo(0x45, ProtocolState.PLAY)

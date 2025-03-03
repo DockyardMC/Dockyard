@@ -1,8 +1,7 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.attributes.Modifier
-import io.github.dockyardmc.blocks.Block
-import io.github.dockyardmc.blocks.BlockPredicate
+import io.github.dockyardmc.world.block.BlockPredicate
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
@@ -512,7 +511,7 @@ fun <T> Collection<ItemComponent>.firstOrNullByType(type: KClass<*>): T? {
 
 
 data class ToolRule(
-    val blocks: Collection<Block>,
+    val blocks: Collection<io.github.dockyardmc.world.block.Block>,
     val speed: Float?,
     val correctDropForBlocks: Boolean
 )

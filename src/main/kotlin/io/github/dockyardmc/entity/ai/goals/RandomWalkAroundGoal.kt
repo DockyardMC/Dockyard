@@ -41,10 +41,10 @@ class RandomWalkAroundGoal(override var entity: Entity, override var priority: I
         }
 
         navigator.updatePathfindingPath(locationToPathfindTo!!)
-        navigator.onNavigationNodeStep {
+        navigator.navigationNodeStepDispatcher.register {
             entity.playSoundToViewers(Sound(Sounds.ENTITY_RAVAGER_STEP, volume = 0.1f, pitch = randomFloat(1f, 1.3f)), entity.location)
         }
-        navigator.onNavigationComplete {
+        navigator.navigationCompleteDispatcher.register {
             hasFinishedWalking = true
         }
     }

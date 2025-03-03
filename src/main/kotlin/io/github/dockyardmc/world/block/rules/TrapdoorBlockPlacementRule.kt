@@ -1,6 +1,5 @@
-package io.github.dockyardmc.blocks.rules
+package io.github.dockyardmc.world.block.rules
 
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
@@ -8,24 +7,24 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.getDirection
 import io.github.dockyardmc.player.getOpposite
 
-class ButtonBlockPlacementRule: BlockPlacementRule {
-    override val matchesIdentifier = "button"
+class TrapdoorBlockPlacementRule: BlockPlacementRule {
+    override val matchesIdentifier = "trapdoor"
 
     override fun getPlacement(
         player: Player,
         heldItem: ItemStack,
-        block: Block,
+        block: io.github.dockyardmc.world.block.Block,
         face: Direction,
         location: Location,
         clickedBlock: Location,
         cursorX: Float,
         cursorY: Float,
         cursorZ: Float,
-    ): Block {
+    ): io.github.dockyardmc.world.block.Block {
         val states = mutableMapOf<String, String>()
 
-        if(face == Direction.UP) states["face"] = "floor"
-        if(face == Direction.DOWN) states["face"] = "ceiling"
+        states["half"] = if(cursorY >= 0.5f && face != Direction.UP) "top" else "bottom"
+        if(face == Direction.DOWN) states["half"] = "top"
 
         var dir = face
         if(face == Direction.UP || face == Direction.DOWN) dir = player.getDirection(true).getOpposite()

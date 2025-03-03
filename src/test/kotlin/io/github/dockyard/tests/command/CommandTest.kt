@@ -2,7 +2,7 @@ package io.github.dockyard.tests.command
 
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
-import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.systems.GameMode
@@ -98,7 +98,7 @@ class CommandTest {
         val expectedString: String = "hi"
         val expectedSound: Sound = Sound(Sounds.ENTITY_GENERIC_EAT)
         val expectedBlock: RegistryBlock = Blocks.AMETHYST_BLOCK
-        val expectedBlockState: Block = Blocks.BARRIER.withBlockStates("waterlogged" to "true")
+        val expectedBlockState: io.github.dockyardmc.world.block.Block = Blocks.BARRIER.withBlockStates("waterlogged" to "true")
         val expectedItem: Item = Items.DIAMOND_SWORD
         val expectedLegacyTextColor: LegacyTextColor = LegacyTextColor.PINK
         val expectedParticle: Particle = Particles.ELECTRIC_SPARK
@@ -116,7 +116,7 @@ class CommandTest {
         var actualString: String? = null
         var actualSound: Sound? = null
         var actualBlock: RegistryBlock? = null
-        var actualBlockState: Block? = null
+        var actualBlockState: io.github.dockyardmc.world.block.Block? = null
         var actualItem: Item? = null
         var actualLegacyTextColor: LegacyTextColor? = null
         var actualParticle: Particle? = null

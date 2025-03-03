@@ -1,11 +1,11 @@
-package io.github.dockyardmc.blocks
+package io.github.dockyardmc.world.block
 
 import io.github.dockyardmc.registry.Blocks
 
 //TODO Make this better this is pretty ugly, but idk where this info is actually stored in minecraft to make it data-driven
 object BlockDataHelper {
 
-    fun isClickable(block: Block): Boolean {
+    fun isClickable(block: io.github.dockyardmc.world.block.Block): Boolean {
         if(block.registryBlock.identifier.contains("shulker_box")) return true
         if(block.registryBlock.identifier.contains("door")) return true
         return when(block.registryBlock) {

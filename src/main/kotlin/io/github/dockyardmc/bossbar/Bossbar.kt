@@ -1,9 +1,9 @@
 package io.github.dockyardmc.bossbar
 
-import cz.lukynka.Bindable
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.player.*
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.BossbarPacketAction
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundBossbarPacket
 import io.github.dockyardmc.utils.Disposable

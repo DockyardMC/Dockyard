@@ -1,7 +1,7 @@
 package io.github.dockyardmc.npc
 
-import cz.lukynka.Bindable
-import cz.lukynka.BindableList
+import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.entity.EntityMetaValue
 import io.github.dockyardmc.entity.EntityMetadata
 import io.github.dockyardmc.entity.EntityMetadataType
@@ -12,7 +12,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.utils.MojangUtil
-import java.util.UUID
+import java.util.*
 
 class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     override var type: EntityType = EntityTypes.PLAYER

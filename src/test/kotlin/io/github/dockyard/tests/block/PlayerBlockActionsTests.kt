@@ -4,7 +4,7 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
-import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
@@ -37,7 +37,7 @@ class PlayerBlockActionsTests {
     @AfterTest
     fun cleanup() {
         WorldManager.generateDefaultStonePlatform(WorldManager.mainWorld, 30)
-        WorldManager.mainWorld.setBlock(0, 1, 0, Block.AIR)
+        WorldManager.mainWorld.setBlock(0, 1, 0, io.github.dockyardmc.world.block.Block.AIR)
         PlayerTestUtil.getOrCreateFakePlayer().mainHandItem = ItemStack.AIR
         PlayerTestUtil.getOrCreateFakePlayer().gameMode.value = GameMode.SURVIVAL
         pool.dispose()

@@ -1,6 +1,9 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.extentions.writeString
+import io.github.dockyardmc.extentions.writeTextComponent
+import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 
 class ClientboundScoreboardObjectivePacket(name: String, mode: ScoreboardMode, value: String?, type: ScoreboardType?): ClientboundPacket() {

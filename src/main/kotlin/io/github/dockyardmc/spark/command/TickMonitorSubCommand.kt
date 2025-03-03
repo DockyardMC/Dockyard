@@ -1,6 +1,9 @@
 package io.github.dockyardmc.spark.command
 
-import io.github.dockyardmc.commands.*
+import io.github.dockyardmc.commands.Command
+import io.github.dockyardmc.commands.CommandException
+import io.github.dockyardmc.commands.EnumArgument
+import io.github.dockyardmc.commands.WorldArgument
 import io.github.dockyardmc.scroll.serializers.KyoriToScrollSerializer.toScroll
 import io.github.dockyardmc.spark.SparkDockyardIntegration
 import io.github.dockyardmc.spark.SparkWorldSpecificTickHook

@@ -1,11 +1,11 @@
 package io.github.dockyardmc.sidebar
 
-import cz.lukynka.Bindable
-import cz.lukynka.BindableList
+import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import java.util.UUID
+import java.util.*
 
 class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
 

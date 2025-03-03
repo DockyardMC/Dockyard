@@ -1,25 +1,24 @@
-package io.github.dockyardmc.blocks.rules
+package io.github.dockyardmc.world.block.rules
 
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 
-class GlassPanePlacementRules: BlockPlacementRule {
-    override val matchesIdentifier = "glass_pane"
+class WallPlacementRules: BlockPlacementRule {
+    override val matchesIdentifier = "wall"
 
     override fun getPlacement(
         player: Player,
         heldItem: ItemStack,
-        block: Block,
+        block: io.github.dockyardmc.world.block.Block,
         face: Direction,
         location: Location,
         clickedBlock: Location,
         cursorX: Float,
         cursorY: Float,
         cursorZ: Float,
-    ): Block {
+    ): io.github.dockyardmc.world.block.Block {
 
         val states = mutableMapOf<String, String>()
 
@@ -36,20 +35,20 @@ class GlassPanePlacementRules: BlockPlacementRule {
         val west = world.getBlock(westLoc)
 
         if(north.identifier.contains(matchesIdentifier)) {
-            states["north"] = "true"
-            world.setBlockState(northLoc, "south" to "true")
+            states["north"] = "low"
+            world.setBlockState(northLoc, "south" to "low")
         }
         if(south.identifier.contains(matchesIdentifier)) {
-            states["south"] = "true"
-            world.setBlockState(southLoc, "north" to "true")
+            states["south"] = "low"
+            world.setBlockState(southLoc, "north" to "low")
         }
         if(east.identifier.contains(matchesIdentifier)) {
-            states["east"] = "true"
-            world.setBlockState(eastLoc, "west" to "true")
+            states["east"] = "low"
+            world.setBlockState(eastLoc, "west" to "low")
         }
         if(west.identifier.contains(matchesIdentifier)) {
-            states["west"] = "true"
-            world.setBlockState(westLoc, "east" to "true")
+            states["west"] = "low"
+            world.setBlockState(westLoc, "east" to "low")
         }
 
         return block.withBlockStates(states)

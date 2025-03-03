@@ -1,6 +1,6 @@
 package io.github.dockyardmc.schematics
 
-import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.utils.vectors.Vector3
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray
 import org.jglrxavpok.hephaistos.nbt.*
@@ -46,10 +46,10 @@ object SchematicReader {
             blockArray = nbt.getByteArray("BlockData") ?: throw Exception("No Data field in schematic file!")
         }
 
-        val blocks = mutableMapOf<Block, Int>()
+        val blocks = mutableMapOf<io.github.dockyardmc.world.block.Block, Int>()
         pallet.forEach { entry ->
             val id = (entry.value as NBTInt).getValue()
-            val block = Block.getBlockFromStateString(entry.key) ?: return@forEach
+            val block = io.github.dockyardmc.world.block.Block.getBlockFromStateString(entry.key) ?: return@forEach
             blocks[block] = id
         }
 

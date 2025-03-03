@@ -1,6 +1,6 @@
 package io.github.dockyardmc.entity
 
-import cz.lukynka.Bindable
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityTypes
@@ -12,7 +12,7 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-open class DisplayEntityBase(location: Location) : Entity(location) {
+open class DisplayEntity(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.TEXT_DISPLAY
     override var health: Bindable<Float> = Bindable(0f)
     override var inventorySize: Int = 0

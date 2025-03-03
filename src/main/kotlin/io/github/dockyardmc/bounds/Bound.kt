@@ -1,6 +1,5 @@
 package io.github.dockyardmc.bounds
 
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.*
@@ -60,15 +59,15 @@ class Bound(
         fill(block.toBlock(), thenRun)
     }
 
-    fun fill(block: Block, thenRun: (() -> Unit)? = null) {
+    fun fill(block: io.github.dockyardmc.world.block.Block, thenRun: (() -> Unit)? = null) {
         world.batchBlockUpdate {
             fill(highestPoint, lowestPoint, block)
             then = thenRun
         }
     }
 
-    fun getBlocks(): Map<Location, Block> {
-        val allBlocks = mutableMapOf<Location, Block>()
+    fun getBlocks(): Map<Location, io.github.dockyardmc.world.block.Block> {
+        val allBlocks = mutableMapOf<Location, io.github.dockyardmc.world.block.Block>()
         val first = firstLocation
         val second = secondLocation
 

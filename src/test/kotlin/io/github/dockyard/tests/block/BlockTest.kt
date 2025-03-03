@@ -1,7 +1,7 @@
 package io.github.dockyard.tests.block
 
 import io.github.dockyard.tests.TestServer
-import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.utils.ChunkUtils
@@ -27,7 +27,7 @@ class BlockTest {
 
     @AfterTest
     fun cleanup() {
-        WorldManager.mainWorld.setBlock(0, 0, 0, Block.AIR)
+        WorldManager.mainWorld.setBlock(0, 0, 0, io.github.dockyardmc.world.block.Block.AIR)
     }
 
     @Test
@@ -95,13 +95,13 @@ class BlockTest {
 
     @Test
     fun testInvalidBlockStates() {
-        assertDoesNotThrow { Block.getBlockFromStateString("minecraft:oak_slab[type=top,waterlogged=false]") }
-        assertThrows<IllegalArgumentException> { Block.getBlockFromStateString("minecraft:oak_slab[silly=true,gay=true]") }
+        assertDoesNotThrow { io.github.dockyardmc.world.block.Block.getBlockFromStateString("minecraft:oak_slab[type=top,waterlogged=false]") }
+        assertThrows<IllegalArgumentException> { io.github.dockyardmc.world.block.Block.getBlockFromStateString("minecraft:oak_slab[silly=true,gay=true]") }
     }
 
     @Test
     fun testBlockStateParsing() {
-        val parsed = Block.parseBlockStateString("minecraft:oak_slab[type=top]")
+        val parsed = io.github.dockyardmc.world.block.Block.parseBlockStateString("minecraft:oak_slab[type=top]")
 
         assertEquals("minecraft:oak_slab", parsed.first)
         assertEquals(mapOf("type" to "top"), parsed.second)

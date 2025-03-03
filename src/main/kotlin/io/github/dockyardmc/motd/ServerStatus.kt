@@ -1,7 +1,7 @@
 package io.github.dockyardmc.motd
 
-import cz.lukynka.Bindable
-import cz.lukynka.BindableMap
+import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindableMap
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.player.PlayerManager

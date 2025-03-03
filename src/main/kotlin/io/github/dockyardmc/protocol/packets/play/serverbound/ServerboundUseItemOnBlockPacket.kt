@@ -1,9 +1,5 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.blocks.BarrelPlacementRules
-import io.github.dockyardmc.blocks.Block
-import io.github.dockyardmc.blocks.ShulkerboxPlacementRules
-import io.github.dockyardmc.blocks.rules.*
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
@@ -23,10 +19,11 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.utils.isDoubleInteract
 import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.world.block.handlers.BlockHandlerManager
+import io.github.dockyardmc.world.block.rules.GeneralBlockPlacementRules
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-
-val placementRules = mutableListOf<BlockPlacementRule>()
 
 class ServerboundUseItemOnBlockPacket(
     var hand: PlayerHand,
@@ -57,22 +54,22 @@ class ServerboundUseItemOnBlockPacket(
                 "bookshelf",
             )
 
-            placementRules.add(LogBlockPlacementRules())
-            placementRules.add(SlabBlockPlacementRule())
-            placementRules.add(StairBlockPlacementRules())
-            placementRules.add(WoodBlockPlacementRules())
-            placementRules.add(GlassPanePlacementRules())
-            placementRules.add(FencePlacementRules())
-            placementRules.add(WallPlacementRules())
-            placementRules.add(StemBlockPlacementRules())
-            placementRules.add(HyphaeBlockPlacementRules())
-            placementRules.add(TrapdoorBlockPlacementRule())
-            placementRules.add(ButtonBlockPlacementRule())
-            placementRules.add(LanternPlacementRules())
-            placementRules.add(TorchBlockPlacementRules())
-            placementRules.add(BarrelPlacementRules())
-            placementRules.add(ShulkerboxPlacementRules())
-            placementRules.add(RotationPlacementRules(rotational))
+//            placementRules.add(LogBlockPlacementRules())
+//            placementRules.add(SlabBlockPlacementRule())
+//            placementRules.add(StairBlockPlacementRules())
+//            placementRules.add(WoodBlockPlacementRules())
+//            placementRules.add(GlassPanePlacementRules())
+//            placementRules.add(FencePlacementRules())
+//            placementRules.add(WallPlacementRules())
+//            placementRules.add(StemBlockPlacementRules())
+//            placementRules.add(HyphaeBlockPlacementRules())
+//            placementRules.add(TrapdoorBlockPlacementRule())
+//            placementRules.add(ButtonBlockPlacementRule())
+//            placementRules.add(LanternPlacementRules())
+//            placementRules.add(TorchBlockPlacementRules())
+//            placementRules.add(BarrelPlacementRules())
+//            placementRules.add(ShulkerboxPlacementRules())
+//            placementRules.add(RotationPlacementRules(rotational))
         }
     }
 
@@ -124,27 +121,16 @@ class ServerboundUseItemOnBlockPacket(
         }
 
         if ((item.material.isBlock) && (item.material != Items.AIR) && (player.gameMode.value != GameMode.ADVENTURE && player.gameMode.value != GameMode.SPECTATOR)) {
-            var block: Block = (BlockRegistry.getOrNull(item.material.identifier) ?: Blocks.AIR).toBlock()
+            var block: io.github.dockyardmc.world.block.Block = (BlockRegistry.getOrNull(item.material.identifier) ?: Blocks.AIR).toBlock()
 
-            placementRules.forEach {
-                if (block.identifier.contains(it.matchesIdentifier)) {
-                    val res = it.getPlacement(
-                        player,
-                        item,
-                        block,
-                        face,
-                        newPos.toLocation(player.world),
-                        pos.toLocation(player.world),
-                        cursorX,
-                        cursorY,
-                        cursorZ
-                    )
-                    if (res == null) {
-                        player.world.getChunkAt(newPos.x, newPos.z)?.let { chunk -> player.sendPacket(chunk.packet) }
-                        return
-                    }
-                    block = res
+            BlockHandlerManager.getAllFromRegistryBlock(block.registryBlock).forEach { handler ->
+                val result = handler.onPlace(player, item, block, face, newPos.toLocation(player.world), pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ))
+                if(result == null) {
+                    cancelled = true
+                    return
                 }
+
+                block = result
             }
 
             val canBePlaced = GeneralBlockPlacementRules.canBePlaced(

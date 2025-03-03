@@ -1,13 +1,6 @@
 package io.github.dockyardmc.npc
 
-import io.github.dockyardmc.commands.BooleanArgument
-import io.github.dockyardmc.commands.CommandException
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.commands.EnumArgument
-import io.github.dockyardmc.commands.LegacyTextColorArgument
-import io.github.dockyardmc.commands.PlayerArgument
-import io.github.dockyardmc.commands.StringArgument
-import io.github.dockyardmc.commands.simpleSuggestion
+import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.extentions.toScrollText

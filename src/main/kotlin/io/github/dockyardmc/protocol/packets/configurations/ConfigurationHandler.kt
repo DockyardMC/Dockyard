@@ -13,7 +13,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.plugin.PluginMessages
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
-import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.tags.*
 import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.serverlinks.ServerLinks

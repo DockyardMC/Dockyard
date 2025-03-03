@@ -1,15 +1,15 @@
 package io.github.dockyardmc.entity
 
-import cz.lukynka.Bindable
-import io.github.dockyardmc.blocks.Block
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 
-class BlockDisplay(location: Location): DisplayEntityBase(location) {
+class BlockDisplay(location: Location): DisplayEntity(location) {
 
     override var type: EntityType = EntityTypes.BLOCK_DISPLAY
-    val block: Bindable<Block> = Bindable(Blocks.STONE.toBlock())
+    val block: Bindable<io.github.dockyardmc.world.block.Block> = Bindable(Blocks.STONE.toBlock())
 
     init {
         block.valueChanged {

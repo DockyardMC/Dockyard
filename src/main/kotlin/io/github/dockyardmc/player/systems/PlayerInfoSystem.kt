@@ -1,6 +1,6 @@
 package io.github.dockyardmc.player.systems
 
-import cz.lukynka.Bindable
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerInfoUpdate

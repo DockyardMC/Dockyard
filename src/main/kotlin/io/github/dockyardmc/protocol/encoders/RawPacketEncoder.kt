@@ -7,7 +7,6 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.MessageToByteEncoder
-import java.lang.Exception
 
 class RawPacketEncoder: MessageToByteEncoder<ClientboundPacket>() {
 

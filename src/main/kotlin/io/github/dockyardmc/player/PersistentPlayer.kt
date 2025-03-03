@@ -1,8 +1,8 @@
 package io.github.dockyardmc.player
 
-import cz.lukynka.BindableList
+import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import java.util.UUID
+import java.util.*
 
 //TODO Document this
 data class PersistentPlayer(

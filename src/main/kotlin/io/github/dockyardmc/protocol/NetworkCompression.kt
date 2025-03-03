@@ -3,7 +3,6 @@ package io.github.dockyardmc.protocol
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import java.io.ByteArrayOutputStream
-import java.lang.Exception
 import java.util.zip.Deflater
 import java.util.zip.Inflater
 

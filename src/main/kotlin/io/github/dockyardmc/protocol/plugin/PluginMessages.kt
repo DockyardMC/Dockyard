@@ -8,8 +8,6 @@ import io.github.dockyardmc.protocol.plugin.messages.PluginMessageHandler
 import io.github.dockyardmc.protocol.plugin.messages.RegisterPluginMessage
 import io.github.dockyardmc.protocol.plugin.messages.UnregisterPluginMessage
 import io.netty.buffer.ByteBuf
-import java.lang.Exception
-import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.declaredMemberFunctions

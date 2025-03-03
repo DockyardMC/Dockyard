@@ -1,9 +1,8 @@
 package io.github.dockyardmc.player
 
-import cz.lukynka.Bindable
-import cz.lukynka.BindableList
+import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.*
@@ -12,7 +11,8 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.inventory.PlayerInventory
 import io.github.dockyardmc.inventory.give
-import io.github.dockyardmc.item.*
+import io.github.dockyardmc.item.EquipmentSlot
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.particles.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
@@ -34,7 +34,9 @@ import io.github.dockyardmc.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.DrawableContainerScreen
-import io.github.dockyardmc.utils.*
+import io.github.dockyardmc.utils.getPlayerEventContext
+import io.github.dockyardmc.utils.now
+import io.github.dockyardmc.utils.percentOf
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.PlayerChunkEngine
@@ -472,7 +474,7 @@ class Player(
         return isOnCooldown(item.identifier)
     }
 
-    fun breakBlock(location: Location, block: Block, face: Direction) {
+    fun breakBlock(location: Location, block: io.github.dockyardmc.world.block.Block, face: Direction) {
 
         val event = PlayerBlockBreakEvent(this, block, location)
         val item = this.getHeldItem(PlayerHand.MAIN_HAND)

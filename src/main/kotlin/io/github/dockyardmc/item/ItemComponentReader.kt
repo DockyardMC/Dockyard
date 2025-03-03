@@ -1,10 +1,9 @@
 package io.github.dockyardmc.item
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.readModifierList
-import io.github.dockyardmc.blocks.BlockPredicate
-import io.github.dockyardmc.blocks.readBlockPredicate
-import io.github.dockyardmc.blocks.readBlockSet
+import io.github.dockyardmc.world.block.BlockPredicate
+import io.github.dockyardmc.world.block.readBlockPredicate
+import io.github.dockyardmc.world.block.readBlockSet
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.player.readProfilePropertyMap

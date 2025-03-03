@@ -4,7 +4,6 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.registry.registries.tags.*
 import java.io.InputStream
-import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
 object RegistryManager {

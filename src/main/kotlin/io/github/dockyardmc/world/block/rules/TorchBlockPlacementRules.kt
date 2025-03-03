@@ -1,6 +1,5 @@
-package io.github.dockyardmc.blocks.rules
+package io.github.dockyardmc.world.block.rules
 
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
@@ -15,14 +14,14 @@ class TorchBlockPlacementRules: BlockPlacementRule {
     override fun getPlacement(
         player: Player,
         heldItem: ItemStack,
-        block: Block,
+        block: io.github.dockyardmc.world.block.Block,
         face: Direction,
         location: Location,
         clickedBlock: Location,
         cursorX: Float,
         cursorY: Float,
         cursorZ: Float,
-    ): Block? {
+    ): io.github.dockyardmc.world.block.Block? {
 
         if(face == Direction.DOWN) return null
         if(face == Direction.UP) return block

@@ -1,7 +1,6 @@
 package io.github.dockyardmc.world.chunk
 
-import io.github.dockyardmc.blocks.Block
-import io.github.dockyardmc.blocks.BlockEntity
+import io.github.dockyardmc.world.block.BlockEntity
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.registry.registries.Biome
@@ -76,7 +75,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         if (shouldCache) updateCache()
     }
 
-    fun setBlock(x: Int, y: Int, z: Int, block: Block, shouldCache: Boolean = true) {
+    fun setBlock(x: Int, y: Int, z: Int, block: io.github.dockyardmc.world.block.Block, shouldCache: Boolean = true) {
         val section = getSectionAt(y)
 
         val relativeX = ChunkUtils.sectionRelative(x)
@@ -99,7 +98,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         if (shouldCache) updateCache()
     }
 
-    fun getBlock(x: Int, y: Int, z: Int): Block {
+    fun getBlock(x: Int, y: Int, z: Int): io.github.dockyardmc.world.block.Block {
         val customDataBlock = world.customDataBlocks[Location(x, y, z, world).blockHash]
         if (customDataBlock != null) return customDataBlock
 
@@ -110,7 +109,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeY = ChunkUtils.sectionRelative(y)
 
         val id = section.blockPalette[relativeX, relativeY, relativeZ]
-        return Block.getBlockByStateId(id) ?: throw IllegalStateException("Block state with id $id not found")
+        return io.github.dockyardmc.world.block.Block.getBlockByStateId(id) ?: throw IllegalStateException("Block state with id $id not found")
     }
 
     fun fillBiome(biome: Biome) {
@@ -119,7 +118,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         }
     }
 
-    fun fillBlocks(block: Block) {
+    fun fillBlocks(block: io.github.dockyardmc.world.block.Block) {
         sections.forEach {
             it.biomePalette.fill(block.getProtocolId())
         }
