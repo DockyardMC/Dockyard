@@ -32,6 +32,7 @@ class TestZombie(location: Location) : Entity(location) {
         maxIterations(256)
         heuristicWeights(HeuristicWeights.DIRECT_PATH_WEIGHTS)
     }
+
     val navigator = Navigator(this, 5, pathfinder, listOf(RequiredHeightPathfindingFilter(2), PassablePathFilter()))
 
     init {
