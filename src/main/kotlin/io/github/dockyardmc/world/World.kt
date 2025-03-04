@@ -37,6 +37,7 @@ import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -64,7 +65,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     var time: Bindable<Long> = Bindable(1000L)
     var worldAge: Long = 0
 
-    var chunks: MutableMap<Long, Chunk> = mutableMapOf()
+    var chunks: Long2ObjectOpenHashMap<Chunk> = Long2ObjectOpenHashMap()
     var defaultSpawnLocation = Location(0, 0, 0, this)
 
     private val innerPlayers: MutableList<Player> = mutableListOf()
@@ -222,9 +223,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun getChunk(x: Int, z: Int): Chunk? {
-        synchronized(chunks) {
-            return chunks[ChunkUtils.getChunkIndex(x, z)]
-        }
+        return chunks[ChunkUtils.getChunkIndex(x, z)]
     }
 
     fun destroyNaturally(vector: Vector3) {
@@ -237,7 +236,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     fun destroyNaturally(location: Location) {
         val block = location.block
-        if(block.isAir()) return
+        if (block.isAir()) return
         setBlock(location, Blocks.AIR)
         players.playSound(block.registryBlock.sounds.breakSound, location)
         players.spawnParticle(

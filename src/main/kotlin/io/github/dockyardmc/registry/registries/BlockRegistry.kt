@@ -5,9 +5,11 @@ import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.utils.CustomDataHolder
+import io.github.dockyardmc.world.block.Block
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -27,6 +29,7 @@ object BlockRegistry: DataDrivenRegistry {
     var blocks: Object2ObjectOpenHashMap<String, RegistryBlock> = Object2ObjectOpenHashMap()
     var protocolIdToBlock: Int2ObjectOpenHashMap<RegistryBlock> = Int2ObjectOpenHashMap()
     var blockToProtocolId: Object2IntOpenHashMap<RegistryBlock> = Object2IntOpenHashMap()
+    var protocolIdToBlockStates: Int2ObjectOpenHashMap<Block> = Int2ObjectOpenHashMap()
 
     val protocolIdCounter = AtomicInteger()
 
@@ -42,6 +45,15 @@ object BlockRegistry: DataDrivenRegistry {
             protocolIdToBlock.put(block.defaultBlockStateId, block)
             blockToProtocolId[block] = id
             blocks[block.identifier] = block
+        }
+
+        blockToProtocolId.forEach { (block, _) ->
+            if(block.states.isNotEmpty()) {
+                block.possibleStates.forEach { (state, id) ->
+                    val completeBlock = Block.getBlockFromStateString(state)
+                    protocolIdToBlockStates[id] = completeBlock
+                }
+            }
         }
     }
 
@@ -100,7 +112,8 @@ data class RegistryBlock(
     val visualShape: Map<Int, String>,
 ): RegistryEntry {
 
-    val possibleStatesReversed: Map<Int, String> = possibleStates.reversed()
+    @Contextual
+    val possibleStatesReversed = Int2ObjectOpenHashMap(possibleStates.reversed())
 
     override fun getProtocolId(): Int {
         return defaultBlockStateId

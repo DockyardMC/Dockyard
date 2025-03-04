@@ -1,12 +1,13 @@
 package io.github.dockyardmc.world.chunk
 
-import io.github.dockyardmc.world.block.BlockEntity
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.World
+import io.github.dockyardmc.world.block.Block
+import io.github.dockyardmc.world.block.BlockEntity
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
 import org.jglrxavpok.hephaistos.nbt.NBT
@@ -75,7 +76,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         if (shouldCache) updateCache()
     }
 
-    fun setBlock(x: Int, y: Int, z: Int, block: io.github.dockyardmc.world.block.Block, shouldCache: Boolean = true) {
+    fun setBlock(x: Int, y: Int, z: Int, block: Block, shouldCache: Boolean = true) {
         val section = getSectionAt(y)
 
         val relativeX = ChunkUtils.sectionRelative(x)
@@ -98,8 +99,8 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         if (shouldCache) updateCache()
     }
 
-    fun getBlock(x: Int, y: Int, z: Int): io.github.dockyardmc.world.block.Block {
-        val customDataBlock = world.customDataBlocks[Location(x, y, z, world).blockHash]
+    fun getBlock(x: Int, y: Int, z: Int): Block {
+        val customDataBlock = world.customDataBlocks[(x.hashCode() + y.hashCode() + z.hashCode() + world.name.hashCode())]
         if (customDataBlock != null) return customDataBlock
 
         val section = getSectionAt(y)
@@ -109,7 +110,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         val relativeY = ChunkUtils.sectionRelative(y)
 
         val id = section.blockPalette[relativeX, relativeY, relativeZ]
-        return io.github.dockyardmc.world.block.Block.getBlockByStateId(id) ?: throw IllegalStateException("Block state with id $id not found")
+        return Block.getBlockByStateId(id) ?: throw IllegalStateException("Block state with id $id not found")
     }
 
     fun fillBiome(biome: Biome) {
@@ -118,7 +119,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
         }
     }
 
-    fun fillBlocks(block: io.github.dockyardmc.world.block.Block) {
+    fun fillBlocks(block: Block) {
         sections.forEach {
             it.biomePalette.fill(block.getProtocolId())
         }
