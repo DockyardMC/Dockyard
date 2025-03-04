@@ -9,9 +9,9 @@ object PathfindingHelper {
     val solidBlocksThatShouldBeCountedAsNonSolid: List<String> = mutableListOf()
 
     fun isTraversable(block: Block, location: Location): Boolean {
-        val registryBlock = block.registryBlock
+        if(block.isAir()) return false
 
-        if(registryBlock.isAir) return false
+        val registryBlock = block.registryBlock
 
         if (registryBlock.tags.contains("minecraft:fence_gates")) {
             return block.blockStates["open"] != "true"

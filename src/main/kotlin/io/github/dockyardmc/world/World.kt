@@ -223,9 +223,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun getChunk(x: Int, z: Int): Chunk? {
-        synchronized(chunks) {
-            return chunks[ChunkUtils.getChunkIndex(x, z)]
-        }
+        return chunks[ChunkUtils.getChunkIndex(x, z)]
     }
 
     fun destroyNaturally(vector: Vector3) {
@@ -238,7 +236,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     fun destroyNaturally(location: Location) {
         val block = location.block
-        if(block.isAir()) return
+        if (block.isAir()) return
         setBlock(location, Blocks.AIR)
         players.playSound(block.registryBlock.sounds.breakSound, location)
         players.spawnParticle(

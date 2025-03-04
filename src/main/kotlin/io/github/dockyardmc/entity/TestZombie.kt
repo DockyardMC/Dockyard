@@ -1,16 +1,21 @@
 package io.github.dockyardmc.entity
 
 import cz.lukynka.bindables.Bindable
+import de.metaphoriker.pathetic.api.pathing.configuration.HeuristicWeights
+import de.metaphoriker.pathetic.api.pathing.filter.filters.PassablePathFilter
 import io.github.dockyardmc.entity.ai.AIGoal
 import io.github.dockyardmc.entity.ai.AIManager
+import io.github.dockyardmc.entity.ai.goals.RandomWalkAroundGoal
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
-import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
+import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.pathfinding.Navigator
+import io.github.dockyardmc.pathfinding.Pathfinder
+import io.github.dockyardmc.pathfinding.RequiredHeightPathfindingFilter
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.sounds.Sound
-import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.randomFloat
 import io.github.dockyardmc.utils.randomInt
 
@@ -21,11 +26,19 @@ class TestZombie(location: Location) : Entity(location) {
 
     val eventPool = EventPool()
     val brain = AIManager(this)
+    val pathfinder = Pathfinder.createPathfinder {
+        async(true)
+        maxLength(25)
+        maxIterations(256)
+        heuristicWeights(HeuristicWeights.DIRECT_PATH_WEIGHTS)
+    }
+    val navigator = Navigator(this, 5, pathfinder, listOf(RequiredHeightPathfindingFilter(2), PassablePathFilter()))
 
     init {
 
         brain.addGoal(ZombieLookAroundAIGoal(this, 1))
         brain.addGoal(ZombieGroanAiGoal(this, 1))
+        brain.addGoal(RandomWalkAroundGoal(this, 1, navigator))
 
         eventPool.on<PlayerDamageEntityEvent> {
             val entity = it.entity
@@ -34,21 +47,22 @@ class TestZombie(location: Location) : Entity(location) {
             entity.playSoundToViewers(Sound("minecraft:entity.zombie.damage", pitch = randomFloat(0.7f, 1.2f)))
         }
 
-//        eventPool.on<PlayerMoveEvent> {
-//            val dist = it.player.location.distance(this.location)
-//            if (dist > 10) return@on
-//
-//            this.lookAt(it.player)
-//        }
+        eventPool.on<PlayerMoveEvent> {
+            val dist = it.player.location.distance(this.location)
+            if(it.player.isFlying.value) return@on
+            if (dist > 7) return@on
 
-        eventPool.on<PlayerInteractWithEntityEvent> {
-            val entity = it.entity
-            val player = it.player
-            if (entity != this) return@on
-
-            player.sendMessage("<red>[NPC] Zombie: <white>grrrrr")
-            player.playSound(Sound("minecraft:entity.zombie.ambient", pitch = randomFloat(0.7f, 1.2f)))
+            navigator.updatePathfindingPath(it.player.location.subtract(0, 1, 0))
         }
+
+//        eventPool.on<PlayerInteractWithEntityEvent> {
+//            val entity = it.entity
+//            val player = it.player
+//            if (entity != this) return@on
+//
+//            player.sendMessage("<red>[NPC] Zombie: <white>grrrrr")
+//            player.playSound(Sound("minecraft:entity.zombie.ambient", pitch = randomFloat(0.7f, 1.2f)))
+//        }
     }
 
     // when entity is despawned
@@ -59,7 +73,7 @@ class TestZombie(location: Location) : Entity(location) {
 }
 
 
-class ZombieLookAroundAIGoal(override var entity: Entity, override var priority: Int): AIGoal() {
+class ZombieLookAroundAIGoal(override var entity: Entity, override var priority: Int) : AIGoal() {
 
     val zombie = entity as TestZombie
     val chancePerTick = 50
@@ -87,7 +101,7 @@ class ZombieLookAroundAIGoal(override var entity: Entity, override var priority:
     }
 }
 
-class ZombieGroanAiGoal(override var entity: Entity, override var priority: Int): AIGoal() {
+class ZombieGroanAiGoal(override var entity: Entity, override var priority: Int) : AIGoal() {
 
     val zombie = entity as TestZombie
     val chancePerTick = 50
