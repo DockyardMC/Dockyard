@@ -37,7 +37,7 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
 
     fun updatePathfindingPath(target: Location) {
         if(state == State.DISPOSED) throw UsedAfterDisposedException(this)
-        if(!isCurrentlyPathfinding) return
+        if(isCurrentlyPathfinding) return
         val start = entity.location.getBlockLocation().subtract(0, 1, 0).toPathPosition()
         val end = target.toPathPosition()
 
@@ -55,7 +55,6 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
             val newPath = result.path.map { it.toLocation() }.toMutableList()
             newPathQueue = newPath
             if (currentTask == null) startNavigating()
-
         }
     }
 
