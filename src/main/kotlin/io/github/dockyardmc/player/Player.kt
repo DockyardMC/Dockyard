@@ -42,6 +42,7 @@ import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.PlayerChunkEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
+import io.github.dockyardmc.world.block.handlers.BlockHandlerManager
 import io.netty.channel.ChannelHandlerContext
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -487,6 +488,10 @@ class Player(
         if(cancelled) {
             this.world.getChunkAt(location)?.let { this.sendPacket(it.packet) }
             return
+        }
+
+        BlockHandlerManager.getAllFromRegistryBlock(block.registryBlock).forEach { handler ->
+            handler.onDestroy(block, world, location)
         }
 
         this.world.setBlock(event.location, Blocks.AIR)

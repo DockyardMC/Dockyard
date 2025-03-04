@@ -1,5 +1,6 @@
 package io.github.dockyard.tests.block
 
+import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.registry.Blocks
@@ -33,9 +34,9 @@ class BlockTest {
     @Test
     fun testEquality() {
 
-        val block = Blocks.AMETHYST_BLOCK.toBlock()
-        val block2 = Blocks.AMETHYST_BLOCK.toBlock()
-        val block3 = Blocks.AMETHYST_BLOCK.toBlock().withBlockStates("test" to "false")
+        val block = Blocks.BIRCH_SLAB.toBlock()
+        val block2 = Blocks.BIRCH_SLAB.toBlock()
+        val block3 = Blocks.BIRCH_SLAB.toBlock().withBlockStates("state" to "top")
         val block4 = Blocks.REDSTONE_BLOCK.toBlock()
 
         val registryBlock = Blocks.GRASS_BLOCK
@@ -43,9 +44,10 @@ class BlockTest {
         val registryBlock3 = Blocks.DIRT
 
         assertEquals(block, block2)
+        log("${block.asString()}, ${block3.asString()}")
         assertNotEquals(block, block3)
         assertNotEquals(block, block4)
-        assertEquals(block.withBlockStates("test" to "false"), block3)
+        assertEquals(block.withBlockStates("state" to "top"), block3)
 
         assertEquals(registryBlock, registryBlock2)
         assertNotEquals(registryBlock, registryBlock3)

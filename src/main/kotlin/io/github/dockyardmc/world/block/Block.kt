@@ -33,11 +33,11 @@ data class Block(
         return id ?: registryBlock.defaultBlockStateId
     }
 
-    override fun toString(): String {
+    fun asString(): String {
         if (registryBlock.states.isEmpty()) return identifier
 
         val baseBlockStatesString = registryBlock.possibleStatesReversed[registryBlock.defaultBlockStateId]!!
-        val (_, baseStates) = io.github.dockyardmc.world.block.Block.Companion.parseBlockStateString(baseBlockStatesString)
+        val (_, baseStates) = parseBlockStateString(baseBlockStatesString)
 
         val states = mutableMapOf<String, String>()
         baseStates.forEach { states[it.key] = it.value }
@@ -49,18 +49,22 @@ data class Block(
         return stringBuilder.append("]").toString()
     }
 
-    fun withBlockStates(vararg states: Pair<String, String>): io.github.dockyardmc.world.block.Block {
+    override fun toString(): String {
+        return asString()
+    }
+
+    fun withBlockStates(vararg states: Pair<String, String>): Block {
         return withBlockStates(states.toMap())
     }
 
-    fun withBlockStates(states: Map<String, String>): io.github.dockyardmc.world.block.Block {
+    fun withBlockStates(states: Map<String, String>): Block {
         val newStates = blockStates.toMutableMap()
         newStates.putAll(states)
-        return io.github.dockyardmc.world.block.Block(registryBlock, newStates, customData)
+        return Block(registryBlock, newStates, customData)
     }
 
-    fun withCustomData(customDataHolder: CustomDataHolder): io.github.dockyardmc.world.block.Block {
-        return io.github.dockyardmc.world.block.Block(registryBlock, blockStates, customDataHolder)
+    fun withCustomData(customDataHolder: CustomDataHolder): Block {
+        return Block(registryBlock, blockStates, customDataHolder)
     }
 
     fun isAir(): Boolean {
@@ -69,7 +73,7 @@ data class Block(
 
     companion object {
 
-        val AIR = io.github.dockyardmc.world.block.Block(BlockRegistry.Air)
+        val AIR = Block(BlockRegistry.Air)
 
         fun parseBlockStateString(string: String): Pair<String, Map<String, String>> {
             val index = string.indexOf('[')
@@ -86,13 +90,13 @@ data class Block(
             return block to states
         }
 
-        fun getBlockByStateId(stateId: Int): io.github.dockyardmc.world.block.Block {
+        fun getBlockByStateId(stateId: Int): Block {
             val registryBlock = BlockRegistry.getByProtocolIdOrNull(stateId)
 
             if (registryBlock != null) {
                 val states = registryBlock.possibleStatesReversed[registryBlock.defaultBlockStateId]!!
-                val parsed = io.github.dockyardmc.world.block.Block.Companion.parseBlockStateString(states).second.toMutableMap()
-                return io.github.dockyardmc.world.block.Block(registryBlock, parsed)
+                val parsed = Block.Companion.parseBlockStateString(states).second.toMutableMap()
+                return Block(registryBlock, parsed)
             }
 
             for (block in BlockRegistry.protocolIdToBlock) {
@@ -100,17 +104,17 @@ data class Block(
                 if (cachedState.isEmpty()) continue
                 if (!cachedState.containsKey(stateId)) continue
 
-                val states = io.github.dockyardmc.world.block.Block.Companion.parseBlockStateString(cachedState[stateId]!!).second.toMutableMap()
-                return io.github.dockyardmc.world.block.Block(block.value, states)
+                val states = Block.Companion.parseBlockStateString(cachedState[stateId]!!).second.toMutableMap()
+                return Block(block.value, states)
             }
             throw IllegalArgumentException("No block state found with $stateId")
         }
 
-        fun getBlockFromStateString(identifier: String): io.github.dockyardmc.world.block.Block {
+        fun getBlockFromStateString(identifier: String): Block {
             val blockIdentifier = identifier.split("[")[0]
             val block = BlockRegistry[blockIdentifier]
             val id = block.possibleStates[identifier] ?: throw IllegalArgumentException("No matching state sequence found on ${block.identifier}")
-            return io.github.dockyardmc.world.block.Block.Companion.getBlockByStateId(id)
+            return Block.Companion.getBlockByStateId(id)
         }
     }
 }

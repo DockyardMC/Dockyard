@@ -40,8 +40,9 @@ interface BlockHandler {
         location: Location,
         clickedBlock: Location,
         cursor: Vector3f
-    ) {
+    ): Boolean {
         // Nothing by default
+        return true
     }
 
     fun onAttack(
@@ -57,7 +58,7 @@ interface BlockHandler {
         // Nothing by default
     }
 
-    fun onWeatherChange(block: Block, world: World, location: Location, change: Bindable.ValueChangedEvent<Weather>) {
+    fun onWeatherChange(block: Block, world: World, location: Location, change: Bindable.ValueChangedEvent<Weather>, isOccluded: Boolean) {
         // Nothing by default
     }
 

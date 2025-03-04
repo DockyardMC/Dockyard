@@ -1,4 +1,4 @@
-package io.github.dockyardmc.world.block.rules
+package io.github.dockyardmc.world.block.handlers
 
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
@@ -6,21 +6,12 @@ import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.getDirection
 import io.github.dockyardmc.player.getOpposite
+import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.world.block.Block
 
-class ButtonBlockPlacementRule: BlockPlacementRule {
-    override val matchesIdentifier = "button"
+class ButtonBlockHandler: BlockHandler {
 
-    override fun getPlacement(
-        player: Player,
-        heldItem: ItemStack,
-        block: io.github.dockyardmc.world.block.Block,
-        face: Direction,
-        location: Location,
-        clickedBlock: Location,
-        cursorX: Float,
-        cursorY: Float,
-        cursorZ: Float,
-    ): io.github.dockyardmc.world.block.Block {
+    override fun onPlace(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Block? {
         val states = mutableMapOf<String, String>()
 
         if(face == Direction.UP) states["face"] = "floor"
@@ -32,4 +23,5 @@ class ButtonBlockPlacementRule: BlockPlacementRule {
 
         return block.withBlockStates(states)
     }
+
 }

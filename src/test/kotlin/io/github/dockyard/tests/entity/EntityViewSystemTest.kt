@@ -86,6 +86,7 @@ class EntityViewSystemTest {
     @Test
     fun testAutoViewable() {
         val player = PlayerTestUtil.getOrCreateFakePlayer()
+        player.teleport(WorldManager.mainWorld.defaultSpawnLocation)
         val entity = player.world.spawnEntity(Parrot(player.location.add(64, 0, 0))) as Parrot
         entity.autoViewable = false
 

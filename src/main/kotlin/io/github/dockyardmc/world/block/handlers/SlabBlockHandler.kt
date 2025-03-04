@@ -8,7 +8,7 @@ import io.github.dockyardmc.player.toVector3f
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.github.dockyardmc.world.block.Block
 
-class SlabHandler : BlockHandler {
+class SlabBlockHandler : BlockHandler {
 
     override fun onPlace(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Block? {
         var existingBlockLocation = clickedBlock.add(face.toVector3f())
@@ -32,12 +32,12 @@ class SlabHandler : BlockHandler {
             }
         }
 
-        if (existingBlock.blockStates["type"] == "bottom") {
+        if (existingBlock.blockStates["type"] == "bottom" && existingBlock.identifier == block.identifier) {
             clickedBlock.world.setBlockState(existingBlockLocation, "type" to "double")
             return null
         }
 
-        if (existingBlock.blockStates["type"] == "top") {
+        if (existingBlock.blockStates["type"] == "top" && existingBlock.identifier == block.identifier) {
             clickedBlock.world.setBlockState(existingBlockLocation, "type" to "double")
             return null
         }

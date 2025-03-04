@@ -83,6 +83,10 @@ class Location(
     fun add(vector: Vector3d): Location = Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch, this.world)
     fun add(location: Location): Location = Location(this.x + location.x, this.y + location.y, this.z + location.z, this.yaw, this.pitch, this.world)
 
+    fun withYawAndPitch(yaw: Float, pitch: Float): Location {
+        return Location(x, y, z, yaw, pitch, world)
+    }
+
     fun clone(): Location = Location(this.x, this.y, this.z, this.yaw, this.pitch, this.world)
 
     fun distance(other: Location): Double = sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0))

@@ -2,8 +2,12 @@ package io.github.dockyardmc.player
 
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.utils.vectors.Vector3d
 import io.github.dockyardmc.utils.vectors.Vector3f
 import kotlin.experimental.or
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 enum class PlayerHand {
     MAIN_HAND,
@@ -104,6 +108,17 @@ fun getDirection(yaw: Float, pitch: Float, noPitch: Boolean = false): Direction 
     }
 }
 
+fun Direction.getYawAndPitch(): Pair<Float, Float> {
+    return when (this) {
+        Direction.NORTH -> 180f to 0f
+        Direction.SOUTH -> 0f to 0f
+        Direction.EAST -> 270f to 0f
+        Direction.WEST -> 90f to 0f
+        Direction.UP -> 0f to -90f
+        Direction.DOWN -> 0f to 90f
+    }
+}
+
 fun Direction.getOpposite(): Direction {
     return when (this) {
         Direction.DOWN -> Direction.UP
@@ -124,4 +139,16 @@ fun Direction.toVector3f(): Vector3f {
         Direction.DOWN -> Vector3f(0f, -1f, 0f)
         else -> Vector3f(0f, 0f, 0f)
     }
+}
+
+
+fun yawPitchToVector(yaw: Float, pitch: Float): Vector3d {
+    val yawRad = yaw * PI / 180.0
+    val pitchRad = pitch * PI / 180.0
+
+    val x = cos(yawRad) * cos(pitchRad)
+    val y = -sin(pitchRad) // Negative because in Minecraft, up is negative y
+    val z = sin(yawRad) * cos(pitchRad)
+
+    return Vector3d(x, y, z)
 }
