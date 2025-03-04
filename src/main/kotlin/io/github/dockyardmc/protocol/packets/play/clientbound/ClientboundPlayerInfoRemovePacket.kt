@@ -6,7 +6,7 @@ import io.github.dockyardmc.extentions.writeUUIDArray
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import java.util.UUID
+import java.util.*
 
 @WikiVGEntry ("Player Info Remove")
 @ClientboundPacketInfo(0x3D, ProtocolState.PLAY)

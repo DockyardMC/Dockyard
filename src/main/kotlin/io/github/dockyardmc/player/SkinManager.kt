@@ -1,7 +1,10 @@
 package io.github.dockyardmc.player
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityRemovePacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoRemovePacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoUpdatePacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSpawnEntityPacket
 import io.github.dockyardmc.utils.MojangUtil
 import java.util.*
 

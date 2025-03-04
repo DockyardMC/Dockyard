@@ -1,6 +1,6 @@
 package io.github.dockyardmc.entity.handlers
 
-import cz.lukynka.BindableMap
+import cz.lukynka.bindables.BindableMap
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack

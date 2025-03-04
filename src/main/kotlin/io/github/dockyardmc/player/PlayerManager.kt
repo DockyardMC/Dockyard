@@ -9,7 +9,6 @@ import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
-import java.lang.IllegalArgumentException
 import java.util.*
 
 object PlayerManager {

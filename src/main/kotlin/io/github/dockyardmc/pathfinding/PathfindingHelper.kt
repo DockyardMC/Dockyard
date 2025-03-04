@@ -1,6 +1,6 @@
 package io.github.dockyardmc.pathfinding
 
-import io.github.dockyardmc.blocks.Block
+import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.location.Location
 
 object PathfindingHelper {
@@ -8,7 +8,7 @@ object PathfindingHelper {
     val nonSolidBlocksThatShouldBeCountedAsSolid: List<String> = mutableListOf("minecraft:fences")
     val solidBlocksThatShouldBeCountedAsNonSolid: List<String> = mutableListOf()
 
-    fun isTraversable(block: Block, location: Location): Boolean {
+    fun isTraversable(block: io.github.dockyardmc.world.block.Block, location: Location): Boolean {
         val registryBlock = block.registryBlock
 
         if(registryBlock.isAir) return false

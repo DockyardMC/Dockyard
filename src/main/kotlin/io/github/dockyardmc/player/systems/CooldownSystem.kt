@@ -1,6 +1,6 @@
 package io.github.dockyardmc.player.systems
 
-import cz.lukynka.BindableMap
+import cz.lukynka.bindables.BindableMap
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ItemGroupCooldownEndEvent
 import io.github.dockyardmc.player.Player

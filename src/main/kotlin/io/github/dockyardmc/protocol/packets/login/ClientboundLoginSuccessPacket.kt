@@ -2,11 +2,13 @@ package io.github.dockyardmc.protocol.packets.login
 
 import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.extentions.writeString
+import io.github.dockyardmc.extentions.writeUUID
+import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import java.util.UUID
+import java.util.*
 
 @WikiVGEntry("Login Success")
 @ClientboundPacketInfo(0x02, ProtocolState.LOGIN)

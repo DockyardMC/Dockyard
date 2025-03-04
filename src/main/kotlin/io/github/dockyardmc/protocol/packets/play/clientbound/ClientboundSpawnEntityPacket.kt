@@ -11,7 +11,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.writeVelocity
-import java.util.UUID
+import java.util.*
 
 @WikiVGEntry("Spawn Entity")
 @ClientboundPacketInfo(0x01, ProtocolState.PLAY)

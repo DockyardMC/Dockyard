@@ -1,10 +1,9 @@
 package io.github.dockyardmc.entity
 
-import cz.lukynka.Bindable
-import cz.lukynka.BindableList
-import cz.lukynka.BindableMap
-import cz.lukynka.BindablePool
-import io.github.dockyardmc.blocks.BlockIterator
+import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindableList
+import cz.lukynka.bindables.BindableMap
+import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.handlers.*
 import io.github.dockyardmc.events.*
@@ -32,9 +31,9 @@ import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.utils.mergeEntityMetadata
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
-import io.github.dockyardmc.world.World
 import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
@@ -342,16 +341,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             )
             player.sendPacket(packet)
         }
-    }
-
-
-    fun getTargetBlock(maxDistance: Int): Location? {
-        val it: Iterator<Vector3> = BlockIterator(this, maxDistance)
-        while (it.hasNext()) {
-            val position: Location = it.next().toLocation(world)
-            if (world.getBlock(position).isAir()) return position
-        }
-        return null
     }
 
     fun getFacingDirectionVector(): Vector3f {

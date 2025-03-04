@@ -45,6 +45,7 @@ object PlayerTestUtil {
     }
 
     fun sendPacket(player: Player, packet: ServerboundPacket) {
+        player.lastInteractionTime = 0L
         log("Sent ${packet::class.simpleName} to fake test player", LogType.DEBUG)
         packet.handle(player.networkManager, player.connection, 0, 0)
     }

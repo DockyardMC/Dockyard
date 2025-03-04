@@ -1,7 +1,6 @@
 package io.github.dockyardmc.ui.examples
 
-import cz.lukynka.Bindable
-import io.github.dockyardmc.item.itemStack
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds

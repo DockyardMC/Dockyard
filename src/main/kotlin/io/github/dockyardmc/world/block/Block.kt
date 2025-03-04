@@ -1,4 +1,4 @@
-package io.github.dockyardmc.blocks
+package io.github.dockyardmc.world.block
 
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.BlockRegistry
@@ -6,7 +6,6 @@ import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.CustomDataHolder
-import java.lang.IllegalArgumentException
 
 data class Block(
     val registryBlock: RegistryBlock,
@@ -16,6 +15,11 @@ data class Block(
     val identifier = registryBlock.identifier
 
     val tags = registryBlock.tags
+
+    override fun equals(other: Any?): Boolean {
+        if(other !is Block) return false
+        return other.toString() == this.toString()
+    }
 
     fun toItem(): Item {
         return ItemRegistry[identifier]
@@ -29,7 +33,7 @@ data class Block(
         return id ?: registryBlock.defaultBlockStateId
     }
 
-    override fun toString(): String {
+    fun asString(): String {
         if (registryBlock.states.isEmpty()) return identifier
 
         val baseBlockStatesString = registryBlock.possibleStatesReversed[registryBlock.defaultBlockStateId]!!
@@ -43,6 +47,10 @@ data class Block(
         states.entries.joinToString(separator = ",") { "${it.key}=${it.value}" }.also { stringBuilder.append(it) }
 
         return stringBuilder.append("]").toString()
+    }
+
+    override fun toString(): String {
+        return asString()
     }
 
     fun withBlockStates(vararg states: Pair<String, String>): Block {
@@ -87,7 +95,7 @@ data class Block(
 
             if (registryBlock != null) {
                 val states = registryBlock.possibleStatesReversed[registryBlock.defaultBlockStateId]!!
-                val parsed = parseBlockStateString(states).second.toMutableMap()
+                val parsed = Block.Companion.parseBlockStateString(states).second.toMutableMap()
                 return Block(registryBlock, parsed)
             }
 
@@ -96,7 +104,7 @@ data class Block(
                 if (cachedState.isEmpty()) continue
                 if (!cachedState.containsKey(stateId)) continue
 
-                val states = parseBlockStateString(cachedState[stateId]!!).second.toMutableMap()
+                val states = Block.Companion.parseBlockStateString(cachedState[stateId]!!).second.toMutableMap()
                 return Block(block.value, states)
             }
             throw IllegalArgumentException("No block state found with $stateId")
@@ -106,7 +114,7 @@ data class Block(
             val blockIdentifier = identifier.split("[")[0]
             val block = BlockRegistry[blockIdentifier]
             val id = block.possibleStates[identifier] ?: throw IllegalArgumentException("No matching state sequence found on ${block.identifier}")
-            return getBlockByStateId(id)
+            return Block.Companion.getBlockByStateId(id)
         }
     }
 }

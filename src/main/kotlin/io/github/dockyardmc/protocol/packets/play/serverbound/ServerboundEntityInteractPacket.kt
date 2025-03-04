@@ -18,7 +18,6 @@ import io.github.dockyardmc.utils.isDoubleInteract
 import io.github.dockyardmc.utils.vectors.Vector3f
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import java.lang.IllegalStateException
 
 @WikiVGEntry("Interact")
 @ServerboundPacketInfo(22, ProtocolState.PLAY)

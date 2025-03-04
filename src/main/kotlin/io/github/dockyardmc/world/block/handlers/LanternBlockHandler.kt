@@ -1,26 +1,15 @@
-package io.github.dockyardmc.blocks.rules
+package io.github.dockyardmc.world.block.handlers
 
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.world.block.Block
 
-class LanternPlacementRules : BlockPlacementRule {
-    override val matchesIdentifier = "lantern"
+class LanternBlockHandler: BlockHandler {
 
-    override fun getPlacement(
-        player: Player,
-        heldItem: ItemStack,
-        block: Block,
-        face: Direction,
-        location: Location,
-        clickedBlock: Location,
-        cursorX: Float,
-        cursorY: Float,
-        cursorZ: Float,
-    ): Block? {
-
+    override fun onPlace(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Block? {
         val hanging = if (face == Direction.DOWN) "true" else "false"
         val final = block.withBlockStates("hanging" to hanging)
         if (face != Direction.DOWN && face != Direction.UP) {

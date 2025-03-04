@@ -1,6 +1,6 @@
 package io.github.dockyardmc.item
 
-import io.github.dockyardmc.blocks.writeBlockPredicate
+import io.github.dockyardmc.world.block.writeBlockPredicate
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.writeBlockPosition
 import io.github.dockyardmc.player.writeProfileProperties

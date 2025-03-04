@@ -1,6 +1,6 @@
 package io.github.dockyardmc.extentions
 
-import cz.lukynka.BindableList
+import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.player.PersistentPlayer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ClientboundPacket

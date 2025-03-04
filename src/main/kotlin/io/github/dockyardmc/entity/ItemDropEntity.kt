@@ -1,6 +1,6 @@
 package io.github.dockyardmc.entity
 
-import cz.lukynka.Bindable
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityTypes

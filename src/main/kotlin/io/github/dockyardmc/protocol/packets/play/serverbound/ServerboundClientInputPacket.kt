@@ -1,7 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.events.PlayerIputEvent
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerIputEvent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.bitMask

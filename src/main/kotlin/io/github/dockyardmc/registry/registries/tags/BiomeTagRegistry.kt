@@ -1,6 +1,5 @@
 package io.github.dockyardmc.registry.registries.tags
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.protocol.packets.configurations.Tag
 import kotlinx.serialization.ExperimentalSerializationApi

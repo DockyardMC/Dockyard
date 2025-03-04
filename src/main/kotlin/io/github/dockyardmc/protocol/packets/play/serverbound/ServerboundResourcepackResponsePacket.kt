@@ -11,7 +11,7 @@ import io.github.dockyardmc.resourcepack.ResourcepackResponseEvent
 import io.github.dockyardmc.resourcepack.ResourcepackStatus
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
-import java.util.UUID
+import java.util.*
 
 @ServerboundPacketInfo(0x2B, ProtocolState.PLAY)
 class ServerboundResourcepackResponsePacket(var uuid: UUID, var response: ResourcepackStatus): ServerboundPacket {

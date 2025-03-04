@@ -13,7 +13,6 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.DecoderException
 import io.netty.handler.codec.MessageToMessageDecoder
-import java.lang.Exception
 
 class RawPacketDecoder(val processor: PlayerNetworkManager) : MessageToMessageDecoder<ByteBuf>() {
 

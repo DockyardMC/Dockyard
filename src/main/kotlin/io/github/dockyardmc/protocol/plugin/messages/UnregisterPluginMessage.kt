@@ -1,7 +1,6 @@
 package io.github.dockyardmc.protocol.plugin.messages
 
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.RegisterPluginChannelsEvent
 import io.github.dockyardmc.events.UnregisterPluginChannelsEvent
 import io.github.dockyardmc.player.Player
 import io.netty.buffer.ByteBuf

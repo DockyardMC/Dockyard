@@ -1,6 +1,5 @@
 package io.github.dockyardmc.registry.registries
 
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
@@ -15,7 +14,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.io.InputStream
-import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
 
@@ -116,20 +114,20 @@ data class RegistryBlock(
         return ItemRegistry[identifier]
     }
 
-    fun toBlock(): Block {
-        return Block(this)
+    fun toBlock(): io.github.dockyardmc.world.block.Block {
+        return io.github.dockyardmc.world.block.Block(this)
     }
 
-    fun withBlockStates(vararg states: Pair<String, String>): Block {
-        return Block(this, states.toMap())
+    fun withBlockStates(vararg states: Pair<String, String>): io.github.dockyardmc.world.block.Block {
+        return io.github.dockyardmc.world.block.Block(this, states.toMap())
     }
 
-    fun withBlockStates(states: Map<String, String>): Block {
-        return Block(this, states.toMap())
+    fun withBlockStates(states: Map<String, String>): io.github.dockyardmc.world.block.Block {
+        return io.github.dockyardmc.world.block.Block(this, states.toMap())
     }
 
-    fun withCustomData(customDataHolder: CustomDataHolder): Block {
-        return Block(this, mutableMapOf(), customDataHolder)
+    fun withCustomData(customDataHolder: CustomDataHolder): io.github.dockyardmc.world.block.Block {
+        return io.github.dockyardmc.world.block.Block(this, mutableMapOf(), customDataHolder)
     }
 
     override fun getNbt(): NBTCompound? = null

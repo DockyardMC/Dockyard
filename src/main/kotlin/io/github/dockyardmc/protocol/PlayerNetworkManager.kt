@@ -3,7 +3,6 @@ package io.github.dockyardmc.protocol
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.server.ServerMetrics
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketReceivedEvent
 import io.github.dockyardmc.events.PlayerDisconnectEvent
@@ -20,6 +19,7 @@ import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.play.PlayHandler
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisconnectPacket
 import io.github.dockyardmc.resourcepack.ResourcepackManager
+import io.github.dockyardmc.server.ServerMetrics
 import io.github.dockyardmc.utils.debug
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext

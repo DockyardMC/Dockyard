@@ -1,7 +1,7 @@
 package io.github.dockyardmc.entity.handlers
 
-import cz.lukynka.Bindable
-import cz.lukynka.BindableMap
+import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindableMap
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PersistentPlayer

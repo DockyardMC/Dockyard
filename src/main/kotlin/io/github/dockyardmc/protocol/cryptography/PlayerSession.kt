@@ -1,7 +1,7 @@
 package io.github.dockyardmc.protocol.cryptography
 
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 class PlayerSession(
     val sessionId: UUID,

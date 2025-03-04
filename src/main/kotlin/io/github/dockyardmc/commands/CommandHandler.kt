@@ -2,7 +2,6 @@ package io.github.dockyardmc.commands
 
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.blocks.Block
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager
@@ -122,7 +121,7 @@ object CommandHandler {
                 RegistryBlock::class -> {
                     if (value.contains("[")) {
                         //block state
-                        val states = Block.parseBlockStateString(value)
+                        val states = io.github.dockyardmc.world.block.Block.parseBlockStateString(value)
                         val block =
                             BlockRegistry.protocolIdToBlock.values.firstOrNull { it.identifier == states.first }
                                 ?: throw CommandException("\"${states.first}\" is not of type Block")

@@ -1,9 +1,6 @@
 package io.github.dockyardmc.inventory
 
-import cz.lukynka.Bindable
-import cz.lukynka.main
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.ItemDropEntity

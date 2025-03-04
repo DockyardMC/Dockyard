@@ -1,6 +1,6 @@
 package io.github.dockyardmc.entity.handlers
 
-import cz.lukynka.BindableList
+import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.events.EntityDismountVehicleEvent
 import io.github.dockyardmc.events.EntityRideVehicleEvent

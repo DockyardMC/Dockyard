@@ -1,13 +1,12 @@
 package io.github.dockyardmc.npc
 
-import cz.lukynka.Bindable
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
 import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.team.TeamCollisionRule
 import io.github.dockyardmc.team.TeamManager

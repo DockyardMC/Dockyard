@@ -1,6 +1,5 @@
 package io.github.dockyardmc.protocol.packets
 
-import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled

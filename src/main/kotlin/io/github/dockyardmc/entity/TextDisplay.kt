@@ -1,6 +1,6 @@
 package io.github.dockyardmc.entity
 
-import cz.lukynka.Bindable
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityTypes
@@ -8,7 +8,7 @@ import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
 
-class TextDisplay(location: Location): DisplayEntityBase(location) {
+class TextDisplay(location: Location): DisplayEntity(location) {
 
     override var type: EntityType = EntityTypes.TEXT_DISPLAY
     val text: Bindable<String> = Bindable("")

@@ -1,6 +1,6 @@
 package io.github.dockyardmc.inventory
 
-import cz.lukynka.BindableMap
+import cz.lukynka.bindables.BindableMap
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.InventoryGiveItemEvent

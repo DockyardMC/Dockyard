@@ -1,6 +1,6 @@
 package io.github.dockyardmc.scheduler
 
-import cz.lukynka.Bindable
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.extentions.round
 import io.github.dockyardmc.runnables.RepeatingTimer

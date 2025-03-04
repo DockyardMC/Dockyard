@@ -1,6 +1,6 @@
 package io.github.dockyardmc.entity.handlers
 
-import cz.lukynka.BindableMap
+import cz.lukynka.bindables.BindableMap
 import io.github.dockyardmc.effects.PotionEffectImpl
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket

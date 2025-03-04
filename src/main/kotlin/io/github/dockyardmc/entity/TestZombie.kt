@@ -1,6 +1,6 @@
 package io.github.dockyardmc.entity
 
-import cz.lukynka.Bindable
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.entity.ai.AIGoal
 import io.github.dockyardmc.entity.ai.AIManager
 import io.github.dockyardmc.events.EventPool

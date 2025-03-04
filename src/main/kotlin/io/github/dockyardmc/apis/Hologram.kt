@@ -1,6 +1,6 @@
 package io.github.dockyardmc.apis
 
-import cz.lukynka.Bindable
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
