@@ -202,19 +202,27 @@ class Location(
     }
 
     fun getBlocksInRadius(radius: Int): List<Location> {
+        val diameter = 2 * radius + 1
+        val volume = diameter * diameter * diameter
+        val locations = ArrayList<Location>(volume)
 
-        val locations = mutableListOf<Location>()
+        val world = this.world
+        val baseX = x
+        val baseY = y
+        val baseZ = z
 
         for (dx in -radius..radius) {
+            val xCoord = baseX + dx
             for (dy in -radius..radius) {
+                val yCoord = baseY + dy
                 for (dz in -radius..radius) {
-                    val blockLocation = Location(x + dx, y + dy, z + dz, this.world)
-                    locations.add(blockLocation)
+                    val zCoord = baseZ + dz
+                    locations.add(Location(xCoord, yCoord, zCoord, world))
                 }
             }
         }
 
-        return locations.toList()
+        return locations
     }
 }
 

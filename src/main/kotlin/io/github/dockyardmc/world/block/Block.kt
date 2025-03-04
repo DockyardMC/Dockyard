@@ -17,7 +17,7 @@ data class Block(
     val tags = registryBlock.tags
 
     override fun equals(other: Any?): Boolean {
-        if(other !is Block) return false
+        if (other !is Block) return false
         return other.toString() == this.toString()
     }
 
@@ -74,6 +74,7 @@ data class Block(
     companion object {
 
         val AIR = Block(BlockRegistry.Air)
+        val STONE = Block(Blocks.STONE)
 
         fun parseBlockStateString(string: String): Pair<String, Map<String, String>> {
             val index = string.indexOf('[')
@@ -91,11 +92,18 @@ data class Block(
         }
 
         fun getBlockByStateId(stateId: Int): Block {
-            val registryBlock = BlockRegistry.getByProtocolIdOrNull(stateId)
+            if (stateId == 0) return AIR
+            if (stateId == 1) return STONE
 
+            val blockState = BlockRegistry.protocolIdToBlockStates.getOrDefault(stateId, null)
+            if (blockState != null) {
+                return blockState
+            }
+
+            val registryBlock = BlockRegistry.getByProtocolIdOrNull(stateId)
             if (registryBlock != null) {
                 val states = registryBlock.possibleStatesReversed[registryBlock.defaultBlockStateId]!!
-                val parsed = Block.Companion.parseBlockStateString(states).second.toMutableMap()
+                val parsed = parseBlockStateString(states).second.toMutableMap()
                 return Block(registryBlock, parsed)
             }
 
@@ -104,7 +112,7 @@ data class Block(
                 if (cachedState.isEmpty()) continue
                 if (!cachedState.containsKey(stateId)) continue
 
-                val states = Block.Companion.parseBlockStateString(cachedState[stateId]!!).second.toMutableMap()
+                val states = parseBlockStateString(cachedState[stateId]!!).second.toMutableMap()
                 return Block(block.value, states)
             }
             throw IllegalArgumentException("No block state found with $stateId")
