@@ -147,7 +147,16 @@ class Player(
             equipment[EquipmentSlot.MAIN_HAND] = item
         }
 
-        isFlying.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value)) }
+        isFlying.valueChanged { 
+            if(it.newValue) {
+                // force standing pose if player is flying
+                this.pose.value = EntityPose.STANDING
+            } else if(this.isSneaking) {
+                this.pose.value = EntityPose.SNEAKING
+            }
+
+            this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value))
+        }
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
 
         fovModifier.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, it.newValue)) }
