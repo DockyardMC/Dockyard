@@ -5,6 +5,7 @@ import cz.lukynka.bindables.BindableList
 import cz.lukynka.bindables.BindableMap
 import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.config.ConfigManager
+import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.handlers.*
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
@@ -19,9 +20,11 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.AppliedPotionEffectSettings
+import io.github.dockyardmc.registry.DamageTypes
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.PotionEffect
+import io.github.dockyardmc.runnables.ticks
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
@@ -53,14 +56,17 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     open var isOnGround: Boolean = true
     open var tickable: Boolean = true
 
-    val displayName: Bindable<String?> = bindablePool.provideBindable(null)
+    val customName: Bindable<String?> = bindablePool.provideBindable(null)
+    val customNameVisible: Bindable<Boolean> = bindablePool.provideBindable(false)
     val metadata: BindableMap<EntityMetadataType, EntityMetadata> = bindablePool.provideBindableMap()
     val pose: Bindable<EntityPose> = bindablePool.provideBindable(EntityPose.STANDING)
-    val walkSpeed: Bindable<Float> = Bindable(0.15f)
+    val walkSpeed: Bindable<Float> = bindablePool.provideBindable(0.15f)
     val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = bindablePool.provideBindableMap()
     val isOnFire: Bindable<Boolean> = bindablePool.provideBindable(false)
     val freezeTicks: Bindable<Int> = bindablePool.provideBindable(0)
-    var hasNoGravity: Bindable<Boolean> = Bindable(true)
+    var hasNoGravity: Bindable<Boolean> = bindablePool.provideBindable(true)
+    val isSilent: Bindable<Boolean> = bindablePool.provideBindable(false)
+    val stuckArrows: Bindable<Int> = bindablePool.provideBindable(0)
 
     val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = bindablePool.provideBindableMap()
     val isInvisible: Bindable<Boolean> = bindablePool.provideBindable(false)
@@ -82,12 +88,13 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val potionEffectsHandler = EntityPotionEffectsHandler(this)
     val itemPickupHandler = EntityItemPickupHandler(this)
 
+    var isDead: Boolean = false
+
     override var autoViewable: Boolean = true
 
     constructor(location: Location) : this(location, location.world)
 
     init {
-
         equipmentHandler.handle(equipment, equipmentLayers)
         vehicleHandler.handle(passengers)
         potionEffectsHandler.handle(potionEffects)
@@ -99,7 +106,11 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             metadataLayers = metadataLayers,
             isGlowing = isGlowing,
             isInvisible = isInvisible,
-            pose = pose
+            pose = pose,
+            isSilent = isSilent,
+            customName = customName,
+            customNameVisible = customNameVisible,
+            stuckArrows = stuckArrows,
         )
 
         //TODO add attribute modifiers
@@ -253,18 +264,29 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         val event = EntityDamageEvent(this, damage, damageType, attacker, projectile)
         Events.dispatch(event)
         if (event.cancelled) return
+        if(isDead) return
 
         var location: Location? = null
         if (attacker != null) location = attacker.location
         if (projectile != null) location = projectile.location
 
         if (event.damage > 0) {
+            playDamageAnimation(damageType)
             if (!isInvulnerable) {
                 if (health.value - event.damage <= 0) kill() else health.value -= event.damage
             }
         }
+    }
 
-        val packet = ClientboundDamageEventPacket(this, event.damageType, event.attacker, event.projectile, location)
+    fun playDeathAnimation() {
+        val packet = ClientboundEntityEventPacket(this, EntityEvent.ENTITY_DIE)
+        pose.value = EntityPose.DYING
+        viewers.sendPacket(packet)
+        passengers.clear(false)
+    }
+
+    fun playDamageAnimation(damageType: DamageType = DamageTypes.GENERIC) {
+        val packet = ClientboundDamageEventPacket(this, damageType, null, null, null)
         viewers.sendPacket(packet)
     }
 
@@ -273,13 +295,19 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun kill() {
+        if(isDead) return
         val event = EntityDeathEvent(this)
         Events.dispatch(event)
         if (event.cancelled) {
             health.value = 0.1f
             return
         }
+        isDead = true
         health.value = 0f;
+        playDeathAnimation()
+        world.scheduler.runLater(20.ticks) {
+            world.despawnEntity(this)
+        }
     }
 
     data class BoundingBox(

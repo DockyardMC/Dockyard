@@ -71,6 +71,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
         val mainHandItem = player.mainHandItem
 
         val event = PlayerSwapOffhandEvent(player, mainHandItem, offhandItem, getPlayerEventContext(player))
+        Events.dispatch(event)
         if(event.cancelled) return
 
         player.mainHandItem = event.offHandItem

@@ -269,11 +269,12 @@ fun ByteBuf.readUtfAndLength(i: Int): Pair<String, Int> {
     return string to size
 }
 
-fun ByteBuf.writeString(text: String) {
+fun ByteBuf.writeString(text: String): ByteBuf {
     val utf8Bytes = text.toByteArray(StandardCharsets.UTF_8)
     val length = utf8Bytes.size
     this.writeVarInt(length)
     this.writeBytes(utf8Bytes)
+    return this
 }
 
 fun ByteBuf.toByteArraySafe(): ByteArray {

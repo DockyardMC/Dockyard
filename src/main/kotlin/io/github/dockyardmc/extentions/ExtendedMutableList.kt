@@ -12,6 +12,7 @@ import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.registry.registries.Item
+import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import java.util.UUID
@@ -50,6 +51,13 @@ fun Collection<Player>.setCooldown(group: String, cooldownTicks: Int) {
 
 fun Collection<Player>.playChestAnimation(chestLocation: Location, animation: ChestAnimation) {
     this.forEach { player -> player.playChestAnimation(chestLocation, animation) }
+
+    fun Collection<Player>.stopSound(sound: String? = null, category: SoundCategory? = null) {
+    this.forEach { player -> player.stopSound(sound, category) }
+}
+
+fun Collection<Player>.stopSound(category: SoundCategory = SoundCategory.MASTER) {
+    this.forEach { player -> player.stopSound(null, category) }
 }
 
 fun Collection<Player>.sendMessage(message: String) {
