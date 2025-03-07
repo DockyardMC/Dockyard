@@ -38,8 +38,6 @@ class ServerboundEntityInteractPacket(
             val event = PlayerDamageEntityEvent(player, entity)
             Events.dispatch(event)
             if(event.cancelled) return
-
-            //TODO handle damagé stuff
         }
 
         if(interactionType == EntityInteractionType.INTERACT) {
@@ -49,8 +47,6 @@ class ServerboundEntityInteractPacket(
             val event = PlayerInteractWithEntityEvent(player, entity, hand!!)
             Events.dispatch(event)
             if(event.cancelled) return
-
-            //TODO handle stuff I guess
         }
 
         if(interactionType == EntityInteractionType.INTERACT_AT) {
@@ -58,8 +54,6 @@ class ServerboundEntityInteractPacket(
             val event = PlayerInteractAtEntityEvent(player, entity, Vector3f(targetX!!, targetY!!, targetZ!!), hand!!)
             Events.dispatch(event)
             if(event.cancelled) return
-
-            //TODO what does this even do in vanilla actually
         }
     }
 

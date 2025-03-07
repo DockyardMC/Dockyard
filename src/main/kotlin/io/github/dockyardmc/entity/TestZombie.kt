@@ -13,9 +13,13 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.pathfinding.Navigator
 import io.github.dockyardmc.pathfinding.Pathfinder
 import io.github.dockyardmc.pathfinding.RequiredHeightPathfindingFilter
+import io.github.dockyardmc.registry.DamageTypes
 import io.github.dockyardmc.registry.EntityTypes
+import io.github.dockyardmc.registry.Sounds
+import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.sounds.Sound
+import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.randomFloat
 import io.github.dockyardmc.utils.randomInt
 
@@ -38,22 +42,16 @@ class TestZombie(location: Location) : Entity(location) {
     init {
 
         brain.addGoal(ZombieLookAroundAIGoal(this, 1))
-        brain.addGoal(ZombieGroanAiGoal(this, 1))
-        brain.addGoal(RandomWalkAroundGoal(this, 1, navigator))
+//        brain.addGoal(ZombieGroanAiGoal(this, 1))
+//        brain.addGoal(RandomWalkAroundGoal(this, 1, navigator))
 
-        eventPool.on<PlayerDamageEntityEvent> {
-            val entity = it.entity
+        eventPool.on<PlayerDamageEntityEvent> { event ->
+            val entity = event.entity
             if (entity != this) return@on
 
-            entity.playSoundToViewers(Sound("minecraft:entity.zombie.damage", pitch = randomFloat(0.7f, 1.2f)))
-        }
-
-        eventPool.on<PlayerMoveEvent> {
-            val dist = it.player.location.distance(this.location)
-            if(it.player.isFlying.value) return@on
-            if (dist > 7) return@on
-
-            navigator.updatePathfindingPath(it.player.location.subtract(0, 1, 0))
+            entity.world.playSound(Sounds.ENTITY_ZOMBIE_HURT, pitch = randomFloat(0.7f, 1.2f))
+            entity.damage(1f, DamageTypes.GENERIC, event.player, event.entity)
+            event.player.sendMessage("<red>${health.value}")
         }
 
 //        eventPool.on<PlayerInteractWithEntityEvent> {

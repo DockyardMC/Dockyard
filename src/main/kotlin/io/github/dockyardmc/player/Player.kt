@@ -139,7 +139,7 @@ class Player(
     init {
 
         gameModeSystem.handle(gameMode)
-        playerInfoSystem.handle(displayName, isListed)
+        playerInfoSystem.handle(customName, isListed)
 
         heldSlotIndex.valueChanged {
             this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
@@ -237,7 +237,7 @@ class Player(
         if(player == this) return
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
-        val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(displayName.value)))
+        val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(customName.value)))
         player.sendPacket(namePacket)
 
         super.addViewer(player)
@@ -507,6 +507,18 @@ class Player(
 
     fun playChestAnimation(chestLocation: Location, animation: ChestAnimation) {
         sendPacket(ClientboundBlockActionPacket(chestLocation, 1, animation.ordinal.toByte(), Blocks.CHEST))
+    }
+
+    fun stopSound(sound: String? = null, category: SoundCategory? = null) {
+        var flags = 0x0
+        if(category != null) flags = flags or 0x1
+        if(sound != null) flags = flags or 0x2
+
+        sendPacket(ClientboundStopSoundPacket(flags.toByte(), category, sound))
+    }
+
+    fun stopSound(category: SoundCategory = SoundCategory.MASTER) {
+        stopSound(null, category)
     }
 
     enum class ChestAnimation {

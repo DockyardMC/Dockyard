@@ -5,6 +5,7 @@ import cz.lukynka.bindables.BindableMap
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PersistentPlayer
+import io.github.dockyardmc.scroll.extensions.toComponent
 
 class EntityMetadataHandler(override val entity: Entity) : EntityHandler {
 
@@ -17,6 +18,10 @@ class EntityMetadataHandler(override val entity: Entity) : EntityHandler {
         isGlowing: Bindable<Boolean>,
         isInvisible: Bindable<Boolean>,
         pose: Bindable<EntityPose>,
+        isSilent: Bindable<Boolean>,
+        customName: Bindable<String?>,
+        customNameVisible: Bindable<Boolean>,
+        stuckArrows: Bindable<Int>,
     ) {
         hasNoGravity.valueChanged {
             val noGravityType = EntityMetadataType.HAS_NO_GRAVITY
@@ -33,6 +38,22 @@ class EntityMetadataHandler(override val entity: Entity) : EntityHandler {
         freezeTicks.valueChanged {
             val meta = EntityMetadata(EntityMetadataType.FROZEN_TICKS, EntityMetaValue.VAR_INT, it.newValue)
             entity.metadata[EntityMetadataType.FROZEN_TICKS] = meta
+        }
+
+        isSilent.valueChanged {
+            val meta = EntityMetadata(EntityMetadataType.SILENT, EntityMetaValue.BOOLEAN, it.newValue)
+            entity.metadata[EntityMetadataType.SILENT] = meta
+        }
+
+        customName.valueChanged {
+            val textComponent = if(it.newValue != null) it.newValue!!.toComponent() else null
+            val meta = EntityMetadata(EntityMetadataType.CUSTOM_NAME, EntityMetaValue.OPTIONAL_TEXT_COMPONENT, textComponent)
+            entity.metadata[EntityMetadataType.CUSTOM_NAME] = meta
+        }
+
+        customNameVisible.valueChanged {
+            val meta = EntityMetadata(EntityMetadataType.IS_CUSTOM_NAME_VISIBLE, EntityMetaValue.BOOLEAN, it.newValue)
+            entity.metadata[EntityMetadataType.IS_CUSTOM_NAME_VISIBLE] = meta
         }
 
         metadata.mapUpdated {
