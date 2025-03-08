@@ -1,4 +1,4 @@
-name: Build
+name: Test
 
 permissions:
   actions: write
