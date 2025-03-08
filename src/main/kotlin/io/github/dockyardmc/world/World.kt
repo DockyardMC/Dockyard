@@ -1,6 +1,7 @@
 package io.github.dockyardmc.world
 
 import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindablePool
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.Entity
@@ -22,10 +23,7 @@ import io.github.dockyardmc.scheduler.CustomRateScheduler
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.utils.ChunkUtils
-import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.debug
-import io.github.dockyardmc.utils.getWorldEventContext
+import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.utils.vectors.Vector2f
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3d
@@ -43,7 +41,8 @@ import java.util.concurrent.CompletableFuture
 
 class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType) : Disposable {
 
-    var eventPool = EventPool()
+    val eventPool = EventPool()
+    private val bindablePool = BindablePool()
     val scheduler = CustomRateScheduler("${name}_world_scheduler")
     val uuid = UUID.randomUUID()
 
@@ -59,13 +58,13 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     val worldSeed = UUID.randomUUID().leastSignificantBits.toString()
     var seed: Long = worldSeed.SHA256Long()
 
-    val difficulty: Bindable<Difficulty> = Bindable(Difficulty.NORMAL)
-    var worldBorder = WorldBorder(this)
+    val difficulty: Bindable<Difficulty> = bindablePool.provideBindable(Difficulty.NORMAL)
+    val worldBorder = WorldBorder(this)
 
-    var time: Bindable<Long> = Bindable(1000L)
+    val time: Bindable<Long> = bindablePool.provideBindable(1000L)
     var worldAge: Long = 0
 
-    var chunks: Long2ObjectOpenHashMap<Chunk> = Long2ObjectOpenHashMap()
+    val chunks: Long2ObjectOpenHashMap<Chunk> = Long2ObjectOpenHashMap()
     var defaultSpawnLocation = Location(0, 0, 0, this)
 
     private val innerPlayers: MutableList<Player> = mutableListOf()
@@ -74,7 +73,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     val players get() = innerPlayers.toList()
     val entities get() = innerEntities.toList()
 
-    var canBeJoined: Bindable<Boolean> = Bindable(false)
+    val isLoaded: Bindable<Boolean> = bindablePool.provideBindable(false)
     val playerJoinQueue: MutableList<Player> = mutableListOf()
 
     var isHardcore: Boolean = false
@@ -84,8 +83,18 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     val customDataBlocks: MutableMap<Int, Block> = mutableMapOf()
 
+    fun schedule(unit: (World) -> Unit) {
+        if(isLoaded.value) {
+            unit.invoke(this)
+        } else {
+            isLoaded.valueChangedThenSelfDispose { event ->
+                if(event.newValue) unit.invoke(this) else throw UsedAfterDisposedException(this)
+            }
+        }
+    }
 
     fun tick() {
+        if(!isLoaded.value) return
         val event = WorldTickEvent(this, scheduler, getWorldEventContext(this))
         Events.dispatch(event)
 
@@ -127,7 +136,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     fun join(player: Player) {
         if (player.world == this && player.isFullyInitialized) return
-        if (!canBeJoined.value && !playerJoinQueue.contains(player)) {
+        if (!isLoaded.value && !playerJoinQueue.contains(player)) {
             playerJoinQueue.addIfNotPresent(player)
             debug("$player joined before world $name is loaded, added to joinQueue", logType = LogType.DEBUG)
             return
@@ -164,13 +173,14 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         player.updateWorldTime()
     }
 
-    fun generate(): CompletableFuture<Unit> {
+    fun load(): CompletableFuture<Unit> {
         val task = scheduler.runAsync {
             generateBaseChunks(6)
         }
+
         task.thenAccept {
             log("World $name has finished loading!", WorldManager.LOG_TYPE)
-            canBeJoined.value = true
+            isLoaded.value = true
             playerJoinQueue.forEach(::join)
             Events.dispatch(WorldFinishLoadingEvent(this))
         }
@@ -192,22 +202,6 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             }
         }
         return task
-    }
-
-    fun sendMessage(message: String) {
-        this.sendMessage(message.toComponent())
-    }
-
-    fun sendMessage(component: Component) {
-        players.sendMessage(component)
-    }
-
-    fun sendActionBar(message: String) {
-        this.sendActionBar(message.toComponent())
-    }
-
-    fun sendActionBar(component: Component) {
-        players.sendActionBar(component)
     }
 
     fun getChunkAt(x: Int, z: Int): Chunk? {
@@ -253,9 +247,9 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun setBlock(x: Int, y: Int, z: Int, block: Block) {
-        val chunk = getChunkAt(x, z) ?: return
+        val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $y is does not exist!")
         chunk.setBlock(x, y, z, block, true)
-        players.forEach { it.sendPacket(chunk.packet) }
+        chunk.sendUpdateToViewers()
     }
 
     fun getBlock(location: Location): Block = this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
@@ -263,7 +257,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     fun getBlock(vector3: Vector3): Block = this.getBlock(vector3.x, vector3.y, vector3.z)
 
     fun getBlock(x: Int, y: Int, z: Int): Block {
-        val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $z not generated!")
+        val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $z does not exist!")
         return chunk.getBlock(x, y, z)
     }
 
@@ -313,12 +307,14 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int, updateChunk: Boolean = true) {
         val chunk = getChunkAt(x, z) ?: return
         chunk.setBlockRaw(x, y, z, blockStateId, updateChunk)
-        if (updateChunk) players.forEach { it.sendPacket(chunk.packet) }
+        if (updateChunk) chunk.sendUpdateToViewers()
     }
 
-    fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit) {
+    fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit): CompletableFuture<World> {
+        if(!isLoaded.value) throw IllegalStateException("World has not been fully loaded yet! Please use World#schedule or wait until world is fully loaded")
         val update = BatchBlockUpdate(this)
         builder.invoke(update)
+        val future = CompletableFuture<World>()
 
         val runnable = scheduler.runAsync {
             val chunks: MutableList<Chunk> = mutableListOf()
@@ -332,22 +328,23 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             }
             chunks.forEach { chunk ->
                 chunk.updateCache()
-                this@World.players.sendPacket(chunk.packet)
+                chunk.sendUpdateToViewers()
             }
         }
         runnable.thenAccept {
-            update.then?.invoke()
+            future.complete(this)
         }
+
+        return future
     }
 
-    fun fill(from: Location, to: Location, block: RegistryBlock, thenRun: (() -> Unit)? = null) {
-        fill(from, to, block, thenRun)
+    fun fill(from: Location, to: Location, block: RegistryBlock): CompletableFuture<World> {
+        return fill(from, to, block)
     }
 
-    fun fill(from: Location, to: Location, block: Block, thenRun: (() -> Unit)? = null) {
-        batchBlockUpdate {
+    fun fill(from: Location, to: Location, block: Block): CompletableFuture<World> {
+        return batchBlockUpdate {
             fill(from, to, block)
-            then = thenRun
         }
     }
 
@@ -427,16 +424,16 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     fun getRandom(): Random = Random(seed)
 
     override fun dispose() {
-        players.forEach {
-            it.teleport(mainWorld.defaultSpawnLocation)
-            innerPlayers.remove(it)
+        players.forEach { player ->
+            player.teleport(mainWorld.defaultSpawnLocation)
+            innerPlayers.remove(player)
         }
-        entities.forEach {
-            if (it is Player) return@forEach
-            despawnEntity(it)
+        entities.forEach { entity ->
+            if (entity is Player) return@forEach
+            despawnEntity(entity)
         }
         customDataBlocks.clear()
-        canBeJoined.value = false
+        isLoaded.value = false
         chunks.clear()
 
         WorldManager.worlds.remove(this.name)

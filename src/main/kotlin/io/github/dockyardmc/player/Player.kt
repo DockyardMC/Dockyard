@@ -39,7 +39,7 @@ import io.github.dockyardmc.utils.now
 import io.github.dockyardmc.utils.percentOf
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
-import io.github.dockyardmc.world.PlayerChunkEngine
+import io.github.dockyardmc.world.PlayerChunkViewSystem
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.block.handlers.BlockHandlerManager
@@ -111,7 +111,7 @@ class Player(
 
     val cooldownSystem = CooldownSystem(this)
     val foodEatingSystem = FoodEatingSystem(this)
-    val chunkEngine = PlayerChunkEngine(this)
+    val chunkViewSystem = PlayerChunkViewSystem(this)
     val gameModeSystem = GameModeSystem(this)
     val playerInfoSystem = PlayerInfoSystem(this)
     val entityViewSystem = EntityViewSystem(this)
@@ -342,7 +342,7 @@ class Player(
         val teleportPacket = ClientboundPlayerSynchronizePositionPacket(location)
         this.sendPacket(teleportPacket)
         super.teleport(location)
-        chunkEngine.update()
+        chunkViewSystem.update()
     }
 
     fun hasPermission(permission: String): Boolean {
@@ -376,7 +376,7 @@ class Player(
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
 
-        chunkEngine.resendChunks()
+        chunkViewSystem.resendChunks()
 
         refreshClientStateAfterRespawn()
 

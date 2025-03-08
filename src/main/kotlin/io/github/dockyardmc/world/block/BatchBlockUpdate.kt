@@ -6,10 +6,9 @@ import io.github.dockyardmc.world.World
 
 @Suppress("LoopToCallChain")
 class BatchBlockUpdate(val world: World) {
-    var updates: MutableMap<Location, io.github.dockyardmc.world.block.Block> = mutableMapOf()
-    var then: (() -> Unit)? = null
+    var updates: MutableMap<Location, Block> = mutableMapOf()
 
-    fun setBlock(location: Location, block: io.github.dockyardmc.world.block.Block) {
+    fun setBlock(location: Location, block: Block) {
         updates[location] = block
     }
 
@@ -17,7 +16,7 @@ class BatchBlockUpdate(val world: World) {
         setBlock(location, block.toBlock())
     }
 
-    fun setBlock(x: Double, y: Double, z: Double, block: io.github.dockyardmc.world.block.Block) {
+    fun setBlock(x: Double, y: Double, z: Double, block: Block) {
         updates[Location(x, y, z, world)] = block
     }
 
@@ -25,7 +24,7 @@ class BatchBlockUpdate(val world: World) {
         setBlock(x, y, z, block.toBlock())
     }
 
-    fun setBlock(x: Int, y: Int, z: Int, block: io.github.dockyardmc.world.block.Block) {
+    fun setBlock(x: Int, y: Int, z: Int, block: Block) {
         updates[Location(x, y, z, world)] = block
     }
 
@@ -33,11 +32,7 @@ class BatchBlockUpdate(val world: World) {
         setBlock(x, y, z, block.toBlock())
     }
 
-    fun then(then: () -> Unit) {
-        this.then = then
-    }
-
-    fun fill(fromX: Double, fromY: Double, fromZ: Double, toX: Double, toY: Double, toZ: Double, block: io.github.dockyardmc.world.block.Block) {
+    fun fill(fromX: Double, fromY: Double, fromZ: Double, toX: Double, toY: Double, toZ: Double, block: Block) {
         fill(Location(fromX, fromY, fromZ, world), Location(toX, toY, toZ, world), block)
     }
 
@@ -49,7 +44,7 @@ class BatchBlockUpdate(val world: World) {
         fill(from, to, block.toBlock())
     }
 
-    fun fill(from: Location, to: Location, block: io.github.dockyardmc.world.block.Block) {
+    fun fill(from: Location, to: Location, block: Block) {
         val minX = minOf(from.x, to.x)
         val minY = minOf(from.y, to.y)
         val minZ = minOf(from.z, to.z)
