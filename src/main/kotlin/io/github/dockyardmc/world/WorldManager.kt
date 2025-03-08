@@ -19,7 +19,7 @@ object WorldManager {
     val LOG_TYPE = CustomLogType("\uD83C\uDF0E World Manager", AnsiPair.PURPLE)
 
     fun loadDefaultWorld() {
-        mainWorld.generate().thenAccept {
+        mainWorld.load().thenAccept {
             worlds["main"] = mainWorld
             generateDefaultStonePlatform(mainWorld)
         }
@@ -43,7 +43,7 @@ object WorldManager {
         require(!worlds.keys.contains(name)) { "World with name $name already exists!" }
 
         val world = World(name, generator, dimensionType)
-        world.generate()
+        world.load()
         worlds[name] = world
         return world
     }
@@ -53,7 +53,7 @@ object WorldManager {
 
         val world = World(name, generator, dimensionType)
         worlds[name] = world
-        return world.generate().thenApply { world }
+        return world.load().thenApply { world }
     }
 
     fun delete(name: String) {

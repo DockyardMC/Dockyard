@@ -10,6 +10,9 @@ import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.world.World
+import io.github.dockyardmc.world.block.Block
+import java.util.concurrent.CompletableFuture
 
 class Bound(
     var firstLocation: Location,
@@ -55,19 +58,18 @@ class Bound(
             return Location(minX, minY, minZ, world)
         }
 
-    fun fill(block: RegistryBlock, thenRun: (() -> Unit)? = null) {
-        fill(block.toBlock(), thenRun)
+    fun fill(block: RegistryBlock): CompletableFuture<World> {
+        return fill(block.toBlock())
     }
 
-    fun fill(block: io.github.dockyardmc.world.block.Block, thenRun: (() -> Unit)? = null) {
-        world.batchBlockUpdate {
+    fun fill(block: Block): CompletableFuture<World> {
+        return world.batchBlockUpdate {
             fill(highestPoint, lowestPoint, block)
-            then = thenRun
         }
     }
 
-    fun getBlocks(): Map<Location, io.github.dockyardmc.world.block.Block> {
-        val allBlocks = mutableMapOf<Location, io.github.dockyardmc.world.block.Block>()
+    fun getBlocks(): Map<Location, Block> {
+        val allBlocks = mutableMapOf<Location, Block>()
         val first = firstLocation
         val second = secondLocation
 

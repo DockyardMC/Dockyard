@@ -161,12 +161,14 @@ fun Player.give(itemStack: ItemStack): Boolean {
     return this.inventory.give(itemStack)
 }
 
-fun Player.give(item: Item): Boolean {
-    return this.inventory.give(item.toItemStack())
-}
-
 fun Player.give(vararg itemStack: ItemStack) {
     itemStack.forEach(::give)
+}
+
+fun Player.give(vararg items: Item) {
+    items.forEach { item ->
+        give(item.toItemStack())
+    }
 }
 
 fun Player.clearInventory() {

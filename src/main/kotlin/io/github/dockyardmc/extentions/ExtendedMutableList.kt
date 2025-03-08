@@ -1,13 +1,56 @@
 package io.github.dockyardmc.extentions
 
 import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.inventory.ContainerInventory
+import io.github.dockyardmc.inventory.clearInventory
+import io.github.dockyardmc.inventory.give
+import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.Player.ChestAnimation
 import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import java.util.UUID
+
+fun Collection<Player>.teleport(location: Location) {
+    this.forEach { player -> player.teleport(location) }
+}
+
+fun Collection<Player>.clearInventory() {
+    this.forEach { player -> player.clearInventory() }
+}
+
+fun Collection<Player>.giveItem(vararg itemStack: ItemStack) {
+    this.forEach { player -> player.give(*itemStack) }
+}
+
+fun Collection<Player>.giveItem(vararg item: Item) {
+    this.forEach { player -> player.give(*item) }
+}
+
+fun Collection<Player>.openInventory(inventory: ContainerInventory) {
+    this.forEach { player -> player.openInventory(inventory) }
+}
+
+fun Collection<Player>.playTotemAnimation(customModelData: Int? = null) {
+    this.forEach { player -> player.playTotemAnimation(customModelData) }
+}
+
+fun Collection<Player>.setCooldown(item: Item, cooldownTicks: Int) {
+    this.forEach { player -> player.setCooldown(item, cooldownTicks) }
+}
+
+fun Collection<Player>.setCooldown(group: String, cooldownTicks: Int) {
+    this.forEach { player -> player.setCooldown(group, cooldownTicks) }
+}
+
+fun Collection<Player>.playChestAnimation(chestLocation: Location, animation: ChestAnimation) {
+    this.forEach { player -> player.playChestAnimation(chestLocation, animation) }
+}
 
 fun Collection<Player>.sendMessage(message: String) {
     this.forEach { it.sendMessage(message) }
@@ -72,14 +115,6 @@ fun Collection<Player>.setSkin(username: String) {
 fun Collection<Player>.setIsFlying(isFlying: Boolean) {
     this.toList().forEach { it.isFlying.value = isFlying }
 }
-
-//fun Collection<Player>.give(itemStack: ItemStack) {
-//    this.forEach { it.give(itemStack) }
-//}
-//
-//fun Collection<Player>.clearInventory() {
-//    this.forEach { it.clearInventory() }
-//}
 
 fun <E> MutableCollection<E>.addIfNotPresent(target: E) {
     if(!this.contains(target)) this.add(target)

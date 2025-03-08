@@ -1,9 +1,13 @@
 package io.github.dockyardmc.world.chunk
 
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
 import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.utils.ChunkUtils
+import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
@@ -13,12 +17,13 @@ import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
 import org.jglrxavpok.hephaistos.nbt.NBT
 import java.util.*
 
-class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
+class Chunk(val chunkX: Int, val chunkZ: Int, val world: World): Viewable() {
 
     val id: UUID = UUID.randomUUID()
     val minSection = world.dimensionType.minY / 16
     val maxSection = world.dimensionType.height / 16
     private lateinit var cachedPacket: ClientboundChunkDataPacket
+    override var autoViewable: Boolean = true
 
     val motionBlocking: ImmutableLongArray = ImmutableLongArray(37) { 0 }
     val worldSurface: ImmutableLongArray = ImmutableLongArray(37) { 0 }
@@ -132,4 +137,18 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) {
     fun getIndex(): Long = ChunkUtils.getChunkIndex(this)
 
     val chunkPos get() = ChunkPos(chunkX, chunkZ)
+
+    fun sendUpdateToViewers() {
+        viewers.sendPacket(cachedPacket)
+    }
+
+    override fun addViewer(player: Player) {
+        viewers.add(player)
+        player.sendPacket(cachedPacket)
+    }
+
+    override fun removeViewer(player: Player) {
+        viewers.remove(player)
+        player.sendPacket(ClientboundUnloadChunkPacket(this.chunkPos))
+    }
 }

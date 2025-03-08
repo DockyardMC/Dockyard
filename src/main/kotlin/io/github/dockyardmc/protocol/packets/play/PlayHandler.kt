@@ -58,7 +58,7 @@ class PlayHandler(var processor: PlayerNetworkManager): PacketHandler(processor)
         val headRotPacket = ClientboundSetHeadYawPacket(player)
         player.sendPacketToViewers(headRotPacket)
 
-        player.chunkEngine.update()
+        player.chunkViewSystem.update()
     }
 
     fun handleKeepAlive(packet: ServerboundKeepAlivePacket, connection: ChannelHandlerContext) {

@@ -79,6 +79,6 @@ fun World.placeSchematic(
 
     updateChunks.forEach { chunk ->
         chunk.updateCache()
-        location.world.players.sendPacket(chunk.packet)
+        chunk.sendUpdateToViewers()
     }
 }

@@ -11,7 +11,7 @@ import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
 
-class PlayerChunkEngine(val player: Player) {
+class PlayerChunkViewSystem(val player: Player) {
 
     companion object {
         const val DEFAULT_RENDER_DISTANCE = 10
@@ -68,15 +68,20 @@ class PlayerChunkEngine(val player: Player) {
 
         var chunk: Chunk? = world.getChunk(pos.x, pos.z)
         if (chunk != null) {
-            player.sendPacket(chunk.packet)
+            chunk.addViewer(player)
         } else {
             chunk = world.generateChunk(pos.x, pos.z)
-            player.sendPacket(chunk.packet)
+            chunk.addViewer(player)
         }
     }
 
     fun unloadChunk(pos: ChunkPos) {
-        player.sendPacket(ClientboundUnloadChunkPacket(pos))
+        val chunk = player.world.getChunk(pos)
+        if(chunk == null) {
+            player.sendPacket(ClientboundUnloadChunkPacket(pos))
+        } else {
+            chunk.removeViewer(player)
+        }
     }
 
     fun getChunksInRange(pos: ChunkPos): MutableList<Long> {

@@ -89,10 +89,10 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
 
         processor.player.world = world
 
-        if (world.canBeJoined.value) {
+        if (world.isLoaded.value) {
             enterPlay(player, world)
         } else {
-            world.canBeJoined.valueChanged {
+            world.isLoaded.valueChanged {
                 if (it.newValue) enterPlay(player, world)
             }
         }
