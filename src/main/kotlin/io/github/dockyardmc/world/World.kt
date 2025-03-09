@@ -46,15 +46,6 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     val scheduler = CustomRateScheduler("${name}_world_scheduler")
     val uuid = UUID.randomUUID()
 
-    init {
-        if (name.hasUpperCase()) throw IllegalArgumentException("World name cannot contain uppercase characters")
-
-        scheduler.syncWithGlobalScheduler()
-        scheduler.runRepeating(1.ticks) {
-            tick()
-        }
-    }
-
     val worldSeed = UUID.randomUUID().leastSignificantBits.toString()
     var seed: Long = worldSeed.SHA256Long()
 
@@ -82,6 +73,15 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     var seaLevel = 0
 
     val customDataBlocks: MutableMap<Int, Block> = mutableMapOf()
+
+    init {
+        if (name.hasUpperCase()) throw IllegalArgumentException("World name cannot contain uppercase characters")
+
+        scheduler.syncWithGlobalScheduler()
+        scheduler.runRepeating(1.ticks) {
+            tick()
+        }
+    }
 
     fun schedule(unit: (World) -> Unit) {
         if(isLoaded.value) {
