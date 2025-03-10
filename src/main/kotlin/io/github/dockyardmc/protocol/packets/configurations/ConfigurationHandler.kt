@@ -29,7 +29,11 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
     fun handlePluginMessage(packet: ServerboundConfigurationPluginMessagePacket, connection: ChannelHandlerContext) {
         val event = PluginMessageReceivedEvent(processor.player, packet.channel, packet.data)
         Events.dispatch(event)
-        if (!event.cancelled) PluginMessages.handle(event.channel, event.data, processor.player)
+        if (event.cancelled) {
+            packet.data.release()
+            return
+        }
+        PluginMessages.handle(event.channel, event.data, processor.player)
     }
 
     companion object {
