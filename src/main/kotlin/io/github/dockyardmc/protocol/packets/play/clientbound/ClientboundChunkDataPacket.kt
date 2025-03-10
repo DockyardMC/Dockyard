@@ -1,23 +1,18 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.annotations.ClientboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
-import io.github.dockyardmc.world.block.BlockEntity
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.writeMSNBT
 import io.github.dockyardmc.world.Light
+import io.github.dockyardmc.world.block.BlockEntity
 import io.github.dockyardmc.world.chunk.ChunkSection
 import io.github.dockyardmc.world.chunk.writeChunkSection
 import io.netty.buffer.Unpooled
 import it.unimi.dsi.fastutil.objects.ObjectCollection
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
-@WikiVGEntry("Chunk Data and Update Light")
-@ClientboundPacketInfo(0x27, ProtocolState.PLAY)
-class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, sections: MutableList<ChunkSection>, blockEntities: ObjectCollection<BlockEntity>, light: Light): ClientboundPacket() {
+class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, sections: MutableList<ChunkSection>, blockEntities: ObjectCollection<BlockEntity>, light: Light) : ClientboundPacket() {
 
     init {
         //X Z

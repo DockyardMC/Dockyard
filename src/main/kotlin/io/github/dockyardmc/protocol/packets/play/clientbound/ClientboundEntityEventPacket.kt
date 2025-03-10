@@ -1,12 +1,9 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.packets.ProtocolState
 
-@ClientboundPacketInfo(0x1F, ProtocolState.PLAY)
-class ClientboundEntityEventPacket(entity: Entity, event: EntityEvent): ClientboundPacket() {
+class ClientboundEntityEventPacket(entity: Entity, event: EntityEvent) : ClientboundPacket() {
 
     init {
         data.writeInt(entity.id)

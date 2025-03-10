@@ -24,6 +24,7 @@ object PluginMessages {
         val pluginMessage = channels[channel]
         if(pluginMessage == null) {
             log("Received plugin message with no handler: $channel", LogType.ERROR)
+            payload.release()
             return
         }
         val companionObject = pluginMessage.companionObject ?: throw IllegalStateException("${pluginMessage.simpleName} doesn't have a companion object")
@@ -33,8 +34,11 @@ object PluginMessages {
             val read = readFunction.call(companionObject.objectInstance, payload) as PluginMessageHandler
             read.handle(player)
         } catch (ex: Exception) {
-            log("Failed to read plugin message ${pluginMessage.simpleName}: $ex", LogType.ERROR)
+            log("Failed to read plugin message ${pluginMessage.simpleName}:", LogType.ERROR)
             log(ex)
+        }
+        finally {
+            payload.release()
         }
     }
 }

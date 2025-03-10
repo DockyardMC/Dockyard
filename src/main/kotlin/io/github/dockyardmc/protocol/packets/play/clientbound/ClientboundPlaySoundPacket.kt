@@ -1,18 +1,13 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.annotations.ClientboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.sounds.Sound
 
-@WikiVGEntry("Sound Effect")
-@ClientboundPacketInfo(0x68, ProtocolState.PLAY)
-class ClientboundPlaySoundPacket(sound: Sound, location: Location): ClientboundPacket() {
+class ClientboundPlaySoundPacket(sound: Sound, location: Location) : ClientboundPacket() {
 
     init {
         data.writeVarInt(0)

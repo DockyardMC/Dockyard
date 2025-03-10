@@ -1,15 +1,10 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.annotations.ServerboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.protocol.PlayerNetworkManager
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-@WikiVGEntry("Set Player Position and Rotation")
-@ServerboundPacketInfo(27, ProtocolState.PLAY)
 class ServerboundSetPlayerPositionAndRotationPacket(
     val x: Double,
     val y: Double,
@@ -17,7 +12,7 @@ class ServerboundSetPlayerPositionAndRotationPacket(
     val yaw: Float,
     val pitch: Float,
     val isOnGround: Boolean
-): ServerboundPacket {
+) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.playHandler.handlePlayerPositionAndRotationUpdates(this, connection)

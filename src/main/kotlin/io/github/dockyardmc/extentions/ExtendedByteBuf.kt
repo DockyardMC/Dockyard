@@ -97,7 +97,10 @@ fun ByteBuf.writeLongArray(array: List<Long>) {
 
 fun ByteBuf.readByteArray(): ByteArray {
     val len = this.readVarInt()
-    return readBytes(len).toByteArraySafe()
+    val buffer = readBytes(len)
+    val byteArray = buffer.toByteArraySafe()
+    buffer.release()
+    return byteArray
 }
 
 fun ByteBuf.readNBT(): NBT {

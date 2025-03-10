@@ -1,24 +1,19 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.annotations.ServerboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerFlightToggleEvent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-@WikiVGEntry("Player Abilities (serverbound)")
-@ServerboundPacketInfo(35, ProtocolState.PLAY)
-class ServerboundPlayerAbilitiesPacket(val flying: Boolean): ServerboundPacket {
+class ServerboundPlayerAbilitiesPacket(val flying: Boolean) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         processor.player.isFlying.setSilently(flying)
         val event = PlayerFlightToggleEvent(processor.player, flying)
         Events.dispatch(event)
-        if(event.cancelled) {
+        if (event.cancelled) {
             processor.player.isFlying.value = false
         }
     }
