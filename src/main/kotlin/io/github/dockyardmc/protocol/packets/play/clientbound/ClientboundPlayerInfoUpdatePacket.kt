@@ -1,19 +1,14 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.annotations.ClientboundPacketInfo
-import io.github.dockyardmc.annotations.WikiVGEntry
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.extentions.writeOptionalOLD
 import io.github.dockyardmc.extentions.writeUUID
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.scroll.extensions.toComponent
 import kotlin.experimental.or
 
-@WikiVGEntry("Player Info Update")
-@ClientboundPacketInfo(0x3E, ProtocolState.PLAY)
 class ClientboundPlayerInfoUpdatePacket(vararg updates: PlayerInfoUpdate) : ClientboundPacket() {
 
     init {

@@ -1,18 +1,15 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.annotations.ServerboundPacketInfo
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.protocol.PlayerNetworkManager
-import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-@ServerboundPacketInfo(0x09, ProtocolState.PLAY)
-class ServerboundClientStatusPacket(val action: ClientStatusAction): ServerboundPacket {
+class ServerboundClientStatusPacket(val action: ClientStatusAction) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        if(action == ClientStatusAction.RESPAWN) {
+        if (action == ClientStatusAction.RESPAWN) {
             processor.player.respawn(true)
         }
     }

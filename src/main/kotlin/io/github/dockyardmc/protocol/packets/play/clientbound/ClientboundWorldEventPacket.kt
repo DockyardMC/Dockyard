@@ -1,13 +1,10 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.annotations.ClientboundPacketInfo
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.packets.ProtocolState
 
 
-@ClientboundPacketInfo(0x28, ProtocolState.PLAY)
-class ClientboundWorldEventPacket(event: WorldEvent, location: Location, extraData: Int, disableRelativeVolume: Boolean): ClientboundPacket() {
+class ClientboundWorldEventPacket(event: WorldEvent, location: Location, extraData: Int, disableRelativeVolume: Boolean) : ClientboundPacket() {
 
     init {
         data.writeInt(event.id)
