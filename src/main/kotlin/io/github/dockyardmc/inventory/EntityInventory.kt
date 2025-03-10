@@ -25,6 +25,8 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
         val oldItem = slots[slot] ?: ItemStack.AIR
 
         val event = InventoryItemChangeEvent(entity, this, slot, newItem, oldItem, getEntityEventContext(entity))
+        Events.dispatch(event)
+
         slots[event.slot] = event.newItem
     }
 
