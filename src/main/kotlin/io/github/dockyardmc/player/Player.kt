@@ -59,7 +59,7 @@ class Player(
     val address: String,
     var crypto: PlayerCrypto? = null,
     val networkManager: PlayerNetworkManager
-): Entity(location) {
+) : Entity(location) {
     override var velocity: Vector3 = Vector3(0, 0, 0)
     override var isInvulnerable: Boolean = true
     override var isOnGround: Boolean = true
@@ -147,11 +147,11 @@ class Player(
             equipment[EquipmentSlot.MAIN_HAND] = item
         }
 
-        isFlying.valueChanged { 
-            if(it.newValue) {
+        isFlying.valueChanged {
+            if (it.newValue) {
                 // force standing pose if player is flying
                 this.pose.value = EntityPose.STANDING
-            } else if(this.isSneaking) {
+            } else if (this.isSneaking) {
                 this.pose.value = EntityPose.SNEAKING
             }
 
@@ -217,15 +217,15 @@ class Player(
 
         val event = PlayerDamageEvent(this, damage, damageType, attacker, projectile)
         Events.dispatch(event)
-        if(event.cancelled) return
+        if (event.cancelled) return
 
         var location: Location? = null
-        if(event.attacker != null) location = event.attacker!!.location
-        if(event.projectile != null) location = event.projectile!!.location
+        if (event.attacker != null) location = event.attacker!!.location
+        if (event.projectile != null) location = event.projectile!!.location
 
-        if(event.damage > 0) {
-            if(!isInvulnerable) {
-                if(health.value - event.damage <= 0) kill() else health.value -= event.damage
+        if (event.damage > 0) {
+            if (!isInvulnerable) {
+                if (health.value - event.damage <= 0) kill() else health.value -= event.damage
             }
         }
         val packet = ClientboundDamageEventPacket(this, event.damageType, event.attacker, event.projectile, location)
@@ -235,7 +235,7 @@ class Player(
     override fun kill() {
         val event = PlayerDeathEvent(this)
         Events.dispatch(event)
-        if(event.cancelled) {
+        if (event.cancelled) {
             health.value = 0.1f
             return
         }
@@ -243,7 +243,7 @@ class Player(
     }
 
     override fun addViewer(player: Player) {
-        if(player == this) return
+        if (player == this) return
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
         val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(displayName.value)))
@@ -276,7 +276,7 @@ class Player(
     }
 
     override fun removeViewer(player: Player) {
-        if(player == this) return
+        if (player == this) return
 //        //
 //        if(isDisconnect) {
 //            val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this)
@@ -305,16 +305,29 @@ class Player(
         return lastPingRequestFuture!!
     }
 
-    fun kick(reason: String) { this.networkManager.kick(reason, connection) }
+    fun kick(reason: String) {
+        this.networkManager.kick(reason, connection)
+    }
 
-    fun sendMessage(message: String) { this.sendMessage(message.toComponent()) }
-    fun sendMessage(component: Component) { sendSystemMessage(component, false) }
-    fun sendActionBar(message: String) { this.sendActionBar(message.toComponent()) }
-    fun sendActionBar(component: Component) { sendSystemMessage(component, true) }
+    fun sendMessage(message: String) {
+        this.sendMessage(message.toComponent())
+    }
+
+    fun sendMessage(component: Component) {
+        sendSystemMessage(component, false)
+    }
+
+    fun sendActionBar(message: String) {
+        this.sendActionBar(message.toComponent())
+    }
+
+    fun sendActionBar(component: Component) {
+        sendSystemMessage(component, true)
+    }
 
     private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
-        if(!isConnected) return
-        if(networkManager.state != ProtocolState.PLAY) {
+        if (!isConnected) return
+        if (networkManager.state != ProtocolState.PLAY) {
             queuedMessages.add(component to isActionBar)
             return
         }
@@ -322,22 +335,22 @@ class Player(
     }
 
     fun sendPacket(packet: ClientboundPacket) {
-        if(!isConnected) return
-        if(packet.state != networkManager.state) return
+        if (!isConnected) return
+        if (packet.state != networkManager.state) return
         connection.sendPacket(packet, networkManager)
         lastSentPacket = packet
     }
 
     fun sendToViewers(packet: ClientboundPacket) {
         viewers.toList().forEach { viewer ->
-            if(networkManager.state != ProtocolState.PLAY) return@forEach
+            if (networkManager.state != ProtocolState.PLAY) return@forEach
             viewer.sendPacket(packet)
         }
     }
 
     override fun teleport(location: Location) {
-        if(!WorldManager.worlds.containsValue(location.world)) throw Exception("That world does not exist!")
-        if(location.world != world) location.world.join(this)
+        if (!WorldManager.worlds.containsValue(location.world)) throw Exception("That world does not exist!")
+        if (location.world != world) location.world.join(this)
 
         val teleportPacket = ClientboundPlayerSynchronizePositionPacket(location)
         this.sendPacket(teleportPacket)
@@ -346,8 +359,8 @@ class Player(
     }
 
     fun hasPermission(permission: String): Boolean {
-        if(permission.isEmpty()) return true
-        if(permissions.values.contains("dockyard.all") || permissions.values.contains("dockyard.*")) return true
+        if (permission.isEmpty()) return true
+        if (permissions.values.contains("dockyard.all") || permissions.values.contains("dockyard.*")) return true
         return permissions.values.contains(permission)
     }
 
@@ -381,7 +394,7 @@ class Player(
         refreshClientStateAfterRespawn()
 
         Events.dispatch(PlayerRespawnEvent(this, isBecauseDeath))
-        if(isBecauseDeath) {
+        if (isBecauseDeath) {
             isOnFire.value = false
             health.value = 20f
             food.value = 20.0
@@ -414,10 +427,10 @@ class Player(
     fun closeInventory() {
         sendPacket(ClientboundCloseInventoryPacket(0))
         sendPacket(ClientboundCloseInventoryPacket(1))
-        if(inventory.cursorItem.value != ItemStack.AIR) {
+        if (inventory.cursorItem.value != ItemStack.AIR) {
             val giveSuccess = give(inventory.cursorItem.value)
             inventory.cursorItem.value = ItemStack.AIR
-            if(!giveSuccess && ConfigManager.config.implementationConfig.itemDroppingAndPickup) inventory.drop(inventory.cursorItem.value)
+            if (!giveSuccess && ConfigManager.config.implementationConfig.itemDroppingAndPickup) inventory.drop(inventory.cursorItem.value)
         }
     }
 
@@ -431,7 +444,7 @@ class Player(
     }
 
     fun updateWorldTime() {
-        val time = if(time.value == -1L) world.time.value else time.value
+        val time = if (time.value == -1L) world.time.value else time.value
         val packet = ClientboundUpdateTimePacket(world.worldAge, time, world.freezeTime)
         sendPacket(packet)
     }
@@ -442,7 +455,7 @@ class Player(
         inventory.contents.forEach {
             sendPacket(ClientboundSetContainerSlotPacket(it.key, it.value))
         }
-        if(inventory is DrawableContainerScreen) {
+        if (inventory is DrawableContainerScreen) {
             inventory.slots.triggerUpdate()
             inventory.onOpen(this)
         }
@@ -450,14 +463,14 @@ class Player(
 
     fun playTotemAnimation(customModelData: Int? = null) {
         val held = getHeldItem(PlayerHand.MAIN_HAND)
-        if(customModelData != null) {
+        if (customModelData != null) {
             val totem = ItemStack(Items.TOTEM_OF_UNDYING).withCustomModelData(customModelData)
             inventory[heldSlotIndex.value] = totem
         }
         val packet = ClientboundEntityEventPacket(this, EntityEvent.PLAYER_PLAY_TOTEM_ANIMATION)
         sendPacket(packet)
 
-        if(customModelData != null) {
+        if (customModelData != null) {
             inventory[heldSlotIndex.value] = held
         }
     }
@@ -470,7 +483,7 @@ class Player(
         val cooldown = ItemGroupCooldown(group, System.currentTimeMillis(), cooldownTicks)
         val event = ItemGroupCooldownStartEvent(this, cooldown, getPlayerEventContext(this))
         Events.dispatch(event)
-        if(event.cancelled) return
+        if (event.cancelled) return
 
         cooldownSystem.cooldowns[group] = event.cooldown
         sendPacket(SetItemCooldownPacket(event.cooldown.group, event.cooldown.durationTicks))
@@ -494,7 +507,7 @@ class Player(
         if (event.cancelled) cancelled = true
         if (item.material == Items.DEBUG_STICK) cancelled = true
 
-        if(cancelled) {
+        if (cancelled) {
             this.world.getChunkAt(location)?.let { this.sendPacket(it.packet) }
             return
         }
