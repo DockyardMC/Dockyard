@@ -32,5 +32,6 @@ class InventoryItemChangeEventTest {
         player.inventory[0] = ItemStack.AIR
 
         assertTrue(count.await(5L, TimeUnit.SECONDS))
+        pool.dispose()
     }
 }
