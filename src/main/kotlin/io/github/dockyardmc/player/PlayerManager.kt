@@ -50,6 +50,7 @@ object PlayerManager {
     fun add(player: Player, processor: PlayerNetworkManager) {
         synchronized(innerPlayers) {
             innerPlayers.add(player)
+            innerUsernameToPlayerMap[player.username] = player
         }
         synchronized(innerPlayerToEntityIdMap) {
             innerPlayerToEntityIdMap[player.id] = player
@@ -70,6 +71,7 @@ object PlayerManager {
 
         synchronized(innerPlayers) {
             innerPlayers.remove(player)
+            innerUsernameToPlayerMap.remove(player.username)
         }
         synchronized(playerToEntityIdMap) {
             innerPlayerToEntityIdMap.remove(player.id)

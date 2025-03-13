@@ -62,6 +62,11 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
             return
         }
 
+        if(PlayerManager.getPlayerByUUIDOrNull(uuid) != null) {
+            networkManager.kick(ERROR_ALREADY_CONNECTED, connection)
+            return
+        }
+
         if(!isValidMinecraftUsername(username)) {
             networkManager.kick(ERROR_INVALID_USERNAME, connection)
             return
