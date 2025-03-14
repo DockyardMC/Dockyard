@@ -1,10 +1,10 @@
 package io.github.dockyardmc.item
 
-import io.github.dockyardmc.world.block.writeBlockPredicate
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.writeBlockPosition
 import io.github.dockyardmc.player.writeProfileProperties
-import io.github.dockyardmc.sounds.writeSoundEvent
+import io.github.dockyardmc.sounds.CustomSoundEvent
+import io.github.dockyardmc.world.block.writeBlockPredicate
 import io.netty.buffer.ByteBuf
 
 fun ByteBuf.writeItemComponent(component: ItemComponent) {
@@ -62,7 +62,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         is ConsumableItemComponent -> {
             this.writeFloat(component.consumeSeconds)
             this.writeVarIntEnum(component.animation)
-            this.writeSoundEvent(component.sound.identifier)
+            CustomSoundEvent(component.sound.identifier).write(this)
             this.writeBoolean(component.hasConsumeParticles)
             this.writeConsumeEffects(component.consumeEffects)
         }
@@ -94,7 +94,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         is EnchantableItemComponent -> this.writeVarInt(component.value)
         is EquippableItemComponent -> {
             this.writeVarIntEnum<EquipmentSlot>(component.slot)
-            this.writeSoundEvent(component.equipSound.identifier)
+            CustomSoundEvent(component.equipSound.identifier).write(this)
             this.writeOptionalOLD(component.assetId) { it.writeString(component.assetId!!) }
             this.writeOptionalOLD(component.cameraOverlay) { it.writeString(component.cameraOverlay!!) }
 
