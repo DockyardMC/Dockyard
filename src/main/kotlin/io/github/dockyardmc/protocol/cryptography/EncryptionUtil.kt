@@ -8,14 +8,16 @@ import javax.crypto.spec.IvParameterSpec
 
 object EncryptionUtil {
 
+    const val TRANSFORMATION = "AES/CFB8/NoPadding"
+
     fun getDecryptionCipherInstance(playerCrypto: PlayerCrypto): Cipher {
-        val cipher = Cipher.getInstance("AES/CFB8/NoPadding")
+        val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.DECRYPT_MODE, playerCrypto.sharedSecret, IvParameterSpec(playerCrypto.sharedSecret!!.encoded))
         return cipher
     }
 
     fun getEncryptionCipherInstance(playerCrypto: PlayerCrypto): Cipher {
-        val cipher = Cipher.getInstance("AES/CFB8/NoPadding")
+        val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, playerCrypto.sharedSecret, IvParameterSpec(playerCrypto.sharedSecret!!.encoded))
         return cipher
     }

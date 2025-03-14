@@ -9,7 +9,6 @@ class EncryptionBase(private val cipher: Cipher) {
     private var inputBuffer = ByteArray(0)
     private var outputBuffer = ByteArray(0)
 
-
     fun ByteBuf.toByteArray(): ByteArray {
         val readableBytes = this.readableBytes()
         if (inputBuffer.size < readableBytes) {

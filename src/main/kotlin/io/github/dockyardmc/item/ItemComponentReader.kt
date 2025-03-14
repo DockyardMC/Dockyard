@@ -1,9 +1,6 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.attributes.readModifierList
-import io.github.dockyardmc.world.block.BlockPredicate
-import io.github.dockyardmc.world.block.readBlockPredicate
-import io.github.dockyardmc.world.block.readBlockSet
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.player.readProfilePropertyMap
@@ -15,8 +12,11 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.Sound
-import io.github.dockyardmc.sounds.readSoundEvent
+import io.github.dockyardmc.sounds.SoundEvent
 import io.github.dockyardmc.world.WorldManager
+import io.github.dockyardmc.world.block.BlockPredicate
+import io.github.dockyardmc.world.block.readBlockPredicate
+import io.github.dockyardmc.world.block.readBlockSet
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTString
@@ -88,8 +88,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         ConsumableItemComponent::class -> ConsumableItemComponent(
             this.readFloat(),
             this.readVarIntEnum<ConsumableAnimation>(),
-//            this.readOptionalOrDefault<Sound>(Sound(Sounds.ENTITY_GENERIC_EAT)),
-            Sound(this.readSoundEvent()),
+            Sound(SoundEvent.read(this).identifier),
             this.readBoolean(),
             this.readConsumeEffects()
         )
@@ -119,7 +118,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         EnchantableItemComponent::class -> EnchantableItemComponent(this.readVarInt())
         EquippableItemComponent::class -> {
             val slot = this.readVarIntEnum<EquipmentSlot>()
-            val sound = Sound(this.readSoundEvent())
+            val sound = Sound(SoundEvent.read(this).identifier)
             val model = this.readOptionalOrDefault<String>("minecraft:item")
             val cameraOverlay = this.readOptionalOrDefault<String>("minecraft:pumpkin_blur")
             val entityType = this.readEntityTypes()
@@ -190,7 +189,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             val directMode = this.readBoolean()
             val identifier = if (directMode) this.readString() else null
             val type = if (directMode) this.readVarInt() else null
-            val sound = if (directMode) this.readSoundEvent() else null
+            val sound = if (directMode) SoundEvent.read(this).identifier else null
             val description = if (directMode) (this.readNBT() as NBTCompound).toComponent() else null
             val duration = if (directMode) this.readFloat() else null
             val output = if (directMode) this.readVarInt() else null
