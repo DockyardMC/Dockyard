@@ -10,16 +10,16 @@ import io.github.dockyardmc.sounds.Sound
 class ClientboundPlaySoundPacket(sound: Sound, location: Location) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(0)
-        data.writeString(sound.identifier)
-        data.writeBoolean(false)
-        data.writeVarIntEnum<SoundCategory>(sound.category)
-        data.writeInt((location.x * 8.0).toInt())
-        data.writeInt((location.y * 8.0).toInt())
-        data.writeInt((location.z * 8.0).toInt())
-        data.writeFloat(sound.volume)
-        data.writeFloat(sound.pitch)
-        data.writeLong(sound.seed)
+        buffer.writeVarInt(0)
+        buffer.writeString(sound.identifier)
+        buffer.writeBoolean(false)
+        buffer.writeVarIntEnum<SoundCategory>(sound.category)
+        buffer.writeInt((location.x * 8.0).toInt())
+        buffer.writeInt((location.y * 8.0).toInt())
+        buffer.writeInt((location.z * 8.0).toInt())
+        buffer.writeFloat(sound.volume)
+        buffer.writeFloat(sound.pitch)
+        buffer.writeLong(sound.seed)
     }
 }
 

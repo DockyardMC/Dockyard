@@ -1,11 +1,9 @@
 package io.github.dockyardmc.extentions
 
 import com.google.common.hash.Hashing
-import io.ktor.util.*
 import io.netty.util.CharsetUtil
 import java.util.*
 import kotlin.text.isLowerCase
-
 
 fun String.isUppercase(): Boolean = this.uppercase() == this
 

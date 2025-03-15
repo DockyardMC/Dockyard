@@ -8,8 +8,8 @@ class ClientboundGameEventPacket(
 ) : ClientboundPacket() {
 
     init {
-        data.writeByte(event.ordinal)
-        data.writeFloat(value)
+        buffer.writeByte(event.ordinal)
+        buffer.writeFloat(value)
     }
 }
 

@@ -10,11 +10,11 @@ import io.github.dockyardmc.resourcepack.Resourcepack
 class ClientboundAddResourcepackPacket(resourcepack: Resourcepack) : ClientboundPacket() {
 
     init {
-        data.writeUUID(resourcepack.uuid)
-        data.writeString(resourcepack.url)
-        data.writeString("what")
-        data.writeBoolean(resourcepack.required)
-        data.writeOptionalOLD(resourcepack.promptMessage) {
+        buffer.writeUUID(resourcepack.uuid)
+        buffer.writeString(resourcepack.url)
+        buffer.writeString("what")
+        buffer.writeBoolean(resourcepack.required)
+        buffer.writeOptionalOLD(resourcepack.promptMessage) {
             it.writeTextComponent(resourcepack.promptMessage!!)
         }
     }

@@ -7,9 +7,9 @@ import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.Sound
-import io.github.dockyardmc.sounds.readSoundEvent
-import io.github.dockyardmc.sounds.writeSoundEvent
+import io.github.dockyardmc.sounds.SoundEvent
 import io.github.dockyardmc.utils.positiveCeilDiv
 import io.github.dockyardmc.utils.vectors.*
 import io.netty.buffer.ByteBuf
@@ -330,12 +330,12 @@ inline fun <reified T : Any> ByteBuf.readOptionalOrNull(): T? {
         UUID::class -> this.readUUID() as T
         ItemStack::class -> ItemStack.read(this) as T
         Byte::class -> this.readByte() as T
-        Vector3::class -> this.readVector3() as T
-        Vector3d::class -> this.readVector3d() as T
-        Vector3f::class -> this.readVector3f() as T
+        Vector3::class -> Vector3.read(this) as T
+        Vector3d::class -> Vector3d.read(this) as T
+        Vector3f::class -> Vector3f.read(this) as T
         NBT::class -> (this.readNBT() as NBTCompound) as T
         NBTCompound::class -> this.readNBT() as T
-        Sound::class -> Sound(this.readSoundEvent()) as T
+        Sound::class -> Sound(SoundEvent.read(this).identifier) as T
         EntityType::class -> EntityTypeRegistry[this.readString()] as T
         PotionEffect::class -> PotionEffectRegistry.getByProtocolId(this.readVarInt()) as T
         CustomColor::class -> CustomColor.fromRGBInt(this.readInt()) as T
@@ -357,13 +357,12 @@ fun ByteBuf.readConsumeEffects(): List<ConsumeEffect> {
     val size = this.readVarInt()
     val effects = mutableListOf<ConsumeEffect>()
     for (i in 0 until size) {
-        val type = this.readVarInt()
-        val effect = when (type) {
+        val effect = when (val type = this.readVarInt()) {
             0 -> ApplyEffectsConsumeEffect(this.readAppliedPotionEffectsList(), this.readFloat())
             1 -> readRemoveEffectsConsumeEffect()
             2 -> ClearAllEffectsConsumeEffect()
             3 -> TeleportRandomlyConsumeEffect(this.readFloat())
-            4 -> PlaySoundConsumeEffect(Sound(this.readSoundEvent()))
+            4 -> PlaySoundConsumeEffect(Sound(SoundEvent.read(this).identifier))
             else -> throw IllegalStateException("Invalid consume effect $type")
         }
     }
@@ -375,13 +374,12 @@ fun ByteBuf.readRemoveEffectsConsumeEffect(): RemoveEffectsConsumeEffect {
     if (type == -1) {
         val identifier = this.readString()
         return RemoveEffectsConsumeEffect(listOf())
-    } else {
-        val list = mutableListOf<PotionEffect>()
-        for (i in 0 until type) {
-            list.add(this.readPotionEffectHolder())
-        }
-        return RemoveEffectsConsumeEffect(list)
     }
+    val list = mutableListOf<PotionEffect>()
+    for (i in 0 until type) {
+        list.add(this.readPotionEffectHolder())
+    }
+    return RemoveEffectsConsumeEffect(list)
 }
 
 fun ByteBuf.readPotionEffectHolder(): PotionEffect {
@@ -389,9 +387,8 @@ fun ByteBuf.readPotionEffectHolder(): PotionEffect {
     if (type == 0) {
         val identifier = this.readString()
         return PotionEffectRegistry[identifier]
-    } else {
-        return PotionEffectRegistry.getByProtocolId(type - 1)
     }
+    return PotionEffectRegistry.getByProtocolId(type - 1)
 }
 
 fun ByteBuf.writeAppliedPotionEffectsList(list: Collection<AppliedPotionEffect>) {
@@ -426,7 +423,7 @@ fun ByteBuf.writeConsumeEffects(effects: List<ConsumeEffect>) {
 
             is PlaySoundConsumeEffect -> {
                 this.writeVarInt(4)
-                this.writeSoundEvent(effect.sound.identifier)
+                CustomSoundEvent(effect.sound.identifier).write(this)
             }
 
             else -> throw IllegalStateException("Invalid consume effect")
@@ -488,13 +485,12 @@ fun ByteBuf.readEntityTypes(): List<EntityType> {
     if (type == -1) {
         val identifier = this.readString()
         return listOf(EntityTypeRegistry[identifier])
-    } else {
-        val list = mutableListOf<EntityType>()
-        for (i in 0 until type) {
-            list.add(readEntityTypeHolder())
-        }
-        return list
     }
+    val list = mutableListOf<EntityType>()
+    for (i in 0 until type) {
+        list.add(readEntityTypeHolder())
+    }
+    return list
 }
 
 fun ByteBuf.readEntityTypeHolder(): EntityType {
@@ -502,9 +498,8 @@ fun ByteBuf.readEntityTypeHolder(): EntityType {
     if (type == 0) {
         val identifier = this.readString()
         return EntityTypeRegistry[identifier]
-    } else {
-        return EntityTypeRegistry.getByProtocolId(type - 1)
     }
+    return EntityTypeRegistry.getByProtocolId(type - 1)
 }
 
 fun ByteBuf.readRepairable(): List<Item> {
@@ -512,13 +507,12 @@ fun ByteBuf.readRepairable(): List<Item> {
     if (type == -1) {
         val identifier = this.readString()
         return listOf() //TODO tag registry
-    } else {
-        val list = mutableListOf<Item>()
-        for (i in 0 until type) {
-            list.add(readItemHolder())
-        }
-        return list
     }
+    val list = mutableListOf<Item>()
+    for (i in 0 until type) {
+        list.add(readItemHolder())
+    }
+    return list
 }
 
 
@@ -527,9 +521,8 @@ fun ByteBuf.readItemHolder(): Item {
     if (type == 0) {
         val identifier = this.readString()
         return ItemRegistry[identifier]
-    } else {
-        return ItemRegistry.getByProtocolId(type - 1)
     }
+    return ItemRegistry.getByProtocolId(type - 1)
 }
 
 fun ByteBuf.writeByte(byte: Byte) {

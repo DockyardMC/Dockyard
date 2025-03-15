@@ -6,6 +6,6 @@ import io.github.dockyardmc.scroll.Component
 
 class ClientboundSetSubtitlePacket(component: Component) : ClientboundPacket() {
     init {
-        data.writeNBT(component.toNBT())
+        buffer.writeNBT(component.toNBT())
     }
 }

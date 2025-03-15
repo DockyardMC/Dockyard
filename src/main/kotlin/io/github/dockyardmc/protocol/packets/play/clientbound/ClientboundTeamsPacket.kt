@@ -10,9 +10,9 @@ import io.netty.buffer.ByteBuf
 
 class ClientboundTeamsPacket(teamPacketAction: TeamPacketAction) : ClientboundPacket() {
     init {
-        data.writeString(teamPacketAction.team.name)
-        data.writeByte(teamPacketAction.id.toInt())
-        teamPacketAction.write(data)
+        buffer.writeString(teamPacketAction.team.name)
+        buffer.writeByte(teamPacketAction.id.toInt())
+        teamPacketAction.write(buffer)
     }
 }
 

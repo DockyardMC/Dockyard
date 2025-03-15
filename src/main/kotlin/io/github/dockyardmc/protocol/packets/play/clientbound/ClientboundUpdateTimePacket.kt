@@ -9,8 +9,8 @@ class ClientboundUpdateTimePacket(
 ) : ClientboundPacket() {
 
     init {
-        data.writeLong(worldAge)
-        data.writeLong(time)
-        data.writeBoolean(isFrozen)
+        buffer.writeLong(worldAge)
+        buffer.writeLong(time)
+        buffer.writeBoolean(isFrozen)
     }
 }

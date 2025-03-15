@@ -6,8 +6,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetHealthPacket(var health: Float, var food: Int, var saturation: Float) : ClientboundPacket() {
 
     init {
-        data.writeFloat(health)
-        data.writeVarInt(food)
-        data.writeFloat(saturation)
+        buffer.writeFloat(health)
+        buffer.writeVarInt(food)
+        buffer.writeFloat(saturation)
     }
 }

@@ -11,8 +11,6 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.utils.Quaternion
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
-import io.github.dockyardmc.utils.vectors.writeVector3
-import io.github.dockyardmc.utils.vectors.writeVector3f
 import io.github.dockyardmc.utils.writeQuaternion
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
@@ -47,7 +45,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.OPTIONAL_TEXT_COMPONENT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeNBT((metadata.value as Component).toNBT()) }
         EntityMetaValue.ITEM_STACK -> (v as ItemStack).write(this)
         EntityMetaValue.BOOLEAN -> this.writeBoolean(v as Boolean)
-        EntityMetaValue.ROTATION -> this.writeVector3f(v as Vector3f)
+        EntityMetaValue.ROTATION -> (v as Vector3f).write(this)
         EntityMetaValue.POSITION -> this.writeLocation(v as Location)
         EntityMetaValue.OPTIONAL_POSITION -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeLocation(v as Location)}
         EntityMetaValue.DIRECTION -> this.writeVarInt((v as Direction).ordinal)
@@ -56,7 +54,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.OPTIONAL_BLOCK_STATE -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
         EntityMetaValue.NBT -> this.writeNBT(v as NBTCompound)
         EntityMetaValue.PARTICLE -> TODO()
-        EntityMetaValue.VILLAGER_DATA -> this.writeVector3(v as Vector3)
+        EntityMetaValue.VILLAGER_DATA -> (v as Vector3).write(this)
         EntityMetaValue.OPTIONAL_VAR_INT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
         EntityMetaValue.POSE -> this.writeVarInt((v as EntityPose).ordinal)
         EntityMetaValue.CAT_VARIANT -> this.writeVarInt(v as Int)
@@ -64,7 +62,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.OPTIONAL_GLOBAL_POSITION -> TODO()
         EntityMetaValue.PAINTING_VARIANT -> this.writeVarInt(v as Int)
         EntityMetaValue.SNIFFER_STATE -> this.writeVarInt(v as Int)
-        EntityMetaValue.VECTOR3 -> this.writeVector3f(v as Vector3f)
+        EntityMetaValue.VECTOR3 -> (v as Vector3f).write(this)
         EntityMetaValue.QUATERNION -> this.writeQuaternion(v as Quaternion)
         else -> throw Exception("noop in entity meta")
     }

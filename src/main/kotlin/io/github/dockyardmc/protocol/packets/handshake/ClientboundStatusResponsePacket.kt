@@ -6,6 +6,6 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundStatusResponsePacket(statusJson: String): ClientboundPacket() {
 
     init {
-        data.writeString(statusJson)
+        buffer.writeString(statusJson)
     }
 }

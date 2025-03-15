@@ -6,8 +6,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundEntityEventPacket(entity: Entity, event: EntityEvent) : ClientboundPacket() {
 
     init {
-        data.writeInt(entity.id)
-        data.writeByte(event.id)
+        buffer.writeInt(entity.id)
+        buffer.writeByte(event.id)
     }
 
 }

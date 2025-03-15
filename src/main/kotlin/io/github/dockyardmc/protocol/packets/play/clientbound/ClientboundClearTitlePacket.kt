@@ -4,6 +4,6 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 
 class ClientboundClearTitlePacket(val reset: Boolean) : ClientboundPacket() {
     init {
-        data.writeBoolean(reset)
+        buffer.writeBoolean(reset)
     }
 }

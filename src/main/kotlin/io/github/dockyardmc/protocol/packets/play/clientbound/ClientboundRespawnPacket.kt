@@ -8,17 +8,17 @@ import io.github.dockyardmc.world.generators.FlatWorldGenerator
 
 class ClientboundRespawnPacket(player: Player, dataKept: RespawnDataKept = RespawnDataKept.NO_DATA_KEPT) : ClientboundPacket() { //nice
     init {
-        data.writeVarInt(player.world.dimensionType.getProtocolId())
-        data.writeString(player.world.name)
-        data.writeLong(0)
-        data.writeByte(player.gameMode.value.ordinal)
-        data.writeByte(-1)
-        data.writeBoolean(false)
-        data.writeBoolean(player.world.generator::class == FlatWorldGenerator::class)
-        data.writeBoolean(false)
-        data.writeVarInt(0)
-        data.writeByte(dataKept.bitMask.toInt())
-        data.writeVarInt(player.world.seaLevel)
+        buffer.writeVarInt(player.world.dimensionType.getProtocolId())
+        buffer.writeString(player.world.name)
+        buffer.writeLong(0)
+        buffer.writeByte(player.gameMode.value.ordinal)
+        buffer.writeByte(-1)
+        buffer.writeBoolean(false)
+        buffer.writeBoolean(player.world.generator::class == FlatWorldGenerator::class)
+        buffer.writeBoolean(false)
+        buffer.writeVarInt(0)
+        buffer.writeByte(dataKept.bitMask.toInt())
+        buffer.writeVarInt(player.world.seaLevel)
     }
 
     enum class RespawnDataKept(val bitMask: Byte) {

@@ -9,9 +9,9 @@ import java.util.*
 
 class ClientboundLoginSuccessPacket(uuid: UUID, username: String, properties: MutableList<ProfilePropertyMap>): ClientboundPacket() {
     init {
-        data.writeUUID(uuid)
-        data.writeString(username)
-        data.writeVarInt(0)
+        buffer.writeUUID(uuid)
+        buffer.writeString(username)
+        buffer.writeVarInt(0)
 //        properties.forEach(data::writeProfileProperties)
     }
 }

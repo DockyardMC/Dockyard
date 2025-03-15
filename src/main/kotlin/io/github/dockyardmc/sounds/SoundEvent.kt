@@ -27,9 +27,11 @@ interface SoundEvent : NetworkWritable, NbtWritable {
             return CustomSoundEvent(identifier, range)
         }
     }
+
+    val identifier: String
 }
 
-data class BuiltinSoundEvent(val identifier: String, val id: Int) : SoundEvent {
+data class BuiltinSoundEvent(override val identifier: String, val id: Int) : SoundEvent {
 
     override fun write(buffer: ByteBuf) {
         buffer.writeVarInt(id + 1)
@@ -40,7 +42,7 @@ data class BuiltinSoundEvent(val identifier: String, val id: Int) : SoundEvent {
     }
 }
 
-data class CustomSoundEvent(val identifier: String, val range: Float?) : SoundEvent {
+data class CustomSoundEvent(override val identifier: String, val range: Float? = null) : SoundEvent {
 
     override fun write(buffer: ByteBuf) {
         buffer.writeVarInt(0)

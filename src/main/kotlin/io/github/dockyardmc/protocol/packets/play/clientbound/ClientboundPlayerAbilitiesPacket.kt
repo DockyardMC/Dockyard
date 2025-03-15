@@ -19,8 +19,8 @@ class ClientboundPlayerAbilitiesPacket(
         if(allowFlying) mask += 4
         if(gamemode == GameMode.CREATIVE) mask += 8
 
-        data.writeByte(mask)
-        data.writeFloat(flyingSpeed)
-        data.writeFloat(fovModifier)
+        buffer.writeByte(mask)
+        buffer.writeFloat(flyingSpeed)
+        buffer.writeFloat(fovModifier)
     }
 }

@@ -16,7 +16,7 @@ fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
 }
 
 @JvmName("writeList1")
-fun <T> ByteBuf.writeList(list: List<T>, kFunction2: (ByteBuf, T) -> Any) {
+fun <T> ByteBuf.writeList(list: Collection<T>, kFunction2: (ByteBuf, T) -> Any) {
     this.writeVarInt(list.size)
     list.forEach { value ->
         kFunction2.invoke(this, value)
@@ -24,7 +24,7 @@ fun <T> ByteBuf.writeList(list: List<T>, kFunction2: (ByteBuf, T) -> Any) {
 }
 
 @JvmName("writeList2")
-fun <T> ByteBuf.writeList(list: List<T>, kFunction2: KFunction2<ByteBuf, T, Unit>) {
+fun <T> ByteBuf.writeList(list: Collection<T>, kFunction2: KFunction2<ByteBuf, T, Unit>) {
     this.writeVarInt(list.size)
     list.forEach { value ->
         kFunction2.invoke(this, value)
@@ -32,7 +32,7 @@ fun <T> ByteBuf.writeList(list: List<T>, kFunction2: KFunction2<ByteBuf, T, Unit
 }
 
 @JvmName("writeList3")
-fun <T> ByteBuf.writeList(list: List<T>, kFunction2: KFunction2<T, ByteBuf, Unit>) {
+fun <T> ByteBuf.writeList(list: Collection<T>, kFunction2: KFunction2<T, ByteBuf, Unit>) {
     this.writeVarInt(list.size)
     list.forEach { value ->
         kFunction2.invoke(value, this)

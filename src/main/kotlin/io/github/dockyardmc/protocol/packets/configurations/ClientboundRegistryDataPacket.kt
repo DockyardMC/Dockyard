@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf
 class ClientboundRegistryDataPacket(val registry: Registry): ClientboundPacket() {
 
     init {
-        data.writeRegistry(registry)
+        buffer.writeRegistry(registry)
     }
 }
 

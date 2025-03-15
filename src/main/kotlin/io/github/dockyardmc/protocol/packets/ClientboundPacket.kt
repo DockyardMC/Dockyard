@@ -15,7 +15,7 @@ open class ClientboundPacket() {
         state = packet.second
     }
 
-    val data: ByteBuf = Unpooled.buffer()
+    val buffer: ByteBuf = Unpooled.buffer()
 
 //    fun asByteBuf(): ByteBuf {
 //        if (id == null) throw IllegalStateException("tried to send packet without id")

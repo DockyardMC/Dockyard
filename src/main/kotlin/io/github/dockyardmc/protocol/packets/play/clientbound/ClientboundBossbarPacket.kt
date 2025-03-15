@@ -12,30 +12,30 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 class ClientboundBossbarPacket(action: BossbarPacketAction, bossbar: Bossbar) : ClientboundPacket() {
 
     init {
-        data.writeUUID(bossbar.uuid)
-        data.writeVarIntEnum<BossbarPacketAction>(action)
+        buffer.writeUUID(bossbar.uuid)
+        buffer.writeVarIntEnum<BossbarPacketAction>(action)
 
         when (action) {
             BossbarPacketAction.ADD -> {
-                data.writeNBT(bossbar.title.value.toComponent().toNBT())
-                data.writeFloat(bossbar.progress.value)
-                data.writeVarIntEnum<BossbarColor>(bossbar.color.value)
-                data.writeVarIntEnum<BossbarNotches>(bossbar.notches.value)
-                data.writeByte(0x00)
+                buffer.writeNBT(bossbar.title.value.toComponent().toNBT())
+                buffer.writeFloat(bossbar.progress.value)
+                buffer.writeVarIntEnum<BossbarColor>(bossbar.color.value)
+                buffer.writeVarIntEnum<BossbarNotches>(bossbar.notches.value)
+                buffer.writeByte(0x00)
                 // flags or something idk who even uses it
             }
 
             BossbarPacketAction.UPDATE_HEALTH -> {
-                data.writeFloat(bossbar.progress.value)
+                buffer.writeFloat(bossbar.progress.value)
             }
 
             BossbarPacketAction.UPDATE_TITLE -> {
-                data.writeNBT(bossbar.title.value.toComponent().toNBT())
+                buffer.writeNBT(bossbar.title.value.toComponent().toNBT())
             }
 
             BossbarPacketAction.UPDATE_STYLE -> {
-                data.writeVarIntEnum<BossbarColor>(bossbar.color.value)
-                data.writeVarIntEnum<BossbarNotches>(bossbar.notches.value)
+                buffer.writeVarIntEnum<BossbarColor>(bossbar.color.value)
+                buffer.writeVarIntEnum<BossbarNotches>(bossbar.notches.value)
             }
 
             else -> {}

@@ -4,6 +4,6 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 
 class ClientboundCloseInventoryPacket(id: Int) : ClientboundPacket() {
     init {
-        data.writeByte(id)
+        buffer.writeByte(id)
     }
 }

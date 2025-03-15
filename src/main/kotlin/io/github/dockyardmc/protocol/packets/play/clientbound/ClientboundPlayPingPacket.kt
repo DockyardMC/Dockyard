@@ -5,6 +5,6 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundPlayPingPacket(time: Int): ClientboundPacket() {
 
     init {
-        data.writeInt(time)
+        buffer.writeInt(time)
     }
 }

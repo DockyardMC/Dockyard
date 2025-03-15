@@ -2,25 +2,19 @@ package io.github.dockyardmc.sounds
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.writeString
-import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityPlaySoundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlaySoundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
-import io.github.dockyardmc.registry.registries.SoundRegistry
 import io.github.dockyardmc.world.World
-import io.netty.buffer.ByteBuf
 import kotlin.random.Random
 
 class Sound(var identifier: String, var volume: Float = 0.5f, var pitch: Float = 1.0f, var category: SoundCategory = SoundCategory.MASTER, var seed: Long = Random.nextLong()) {
 
     init {
-        if(!identifier.contains(":")) identifier = "minecraft:$identifier"
+        if (!identifier.contains(":")) identifier = "minecraft:$identifier"
     }
 
 }
@@ -93,24 +87,4 @@ fun World.playSound(sound: Sound, source: Entity) {
 fun World.playSound(identifier: String, source: Entity, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
     val sound = Sound(identifier, volume, pitch, category)
     this.playSound(sound, source)
-}
-
-fun ByteBuf.writeSoundEvent(sound: String) {
-    this.writeVarInt(0)
-    this.writeString(sound)
-    this.writeBoolean(false)
-}
-
-fun ByteBuf.readSoundEvent(): String {
-    val type = this.readVarInt()
-    if(type == 0) {
-        val identifier = this.readString()
-        val hasFixedRange = this.readBoolean()
-        if(hasFixedRange) {
-            val fixedRange = this.readFloat()
-        }
-        return identifier
-    } else {
-        return SoundRegistry.getByProtocolId(type - 1)
-    }
 }

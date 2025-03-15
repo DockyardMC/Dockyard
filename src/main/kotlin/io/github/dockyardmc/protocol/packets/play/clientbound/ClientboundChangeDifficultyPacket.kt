@@ -6,7 +6,7 @@ import io.github.dockyardmc.world.Difficulty
 class ClientboundChangeDifficultyPacket(difficulty: Difficulty, locked: Boolean = false) : ClientboundPacket() {
 
     init {
-        data.writeByte(difficulty.ordinal)
-        data.writeBoolean(locked)
+        buffer.writeByte(difficulty.ordinal)
+        buffer.writeBoolean(locked)
     }
 }

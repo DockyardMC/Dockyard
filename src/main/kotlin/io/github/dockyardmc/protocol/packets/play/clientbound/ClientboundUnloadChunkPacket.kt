@@ -6,8 +6,8 @@ import io.github.dockyardmc.world.chunk.ChunkPos
 class ClientboundUnloadChunkPacket(chunkPos: ChunkPos): ClientboundPacket() {
 
     init {
-        data.writeInt(chunkPos.z)
-        data.writeInt(chunkPos.x)
+        buffer.writeInt(chunkPos.z)
+        buffer.writeInt(chunkPos.x)
     }
 
 }

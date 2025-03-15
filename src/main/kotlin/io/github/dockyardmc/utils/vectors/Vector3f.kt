@@ -1,6 +1,8 @@
 package io.github.dockyardmc.utils.vectors
 
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.protocol.NetworkReadable
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import kotlin.math.pow
@@ -10,7 +12,7 @@ data class Vector3f(
     var x: Float,
     var y: Float,
     var z: Float,
-) {
+): NetworkWritable {
     constructor() : this(0f, 0f, 0f)
     constructor(single: Float) : this(single, single, single)
 
@@ -98,18 +100,21 @@ data class Vector3f(
     fun toLocation(world: World): Location = Location(this.x, this.y, this.z, world)
     fun toVector3d() = Vector3d(x.toDouble(), y.toDouble(), z.toDouble())
     fun toVector3() = Vector3(x.toInt(), y.toInt(), z.toInt())
-}
 
-fun ByteBuf.writeVector3f(vector3: Vector3f) {
-    this.writeFloat(vector3.x)
-    this.writeFloat(vector3.y)
-    this.writeFloat(vector3.z)
-}
+    override fun write(buffer: ByteBuf) {
+        buffer.writeFloat(this.x)
+        buffer.writeFloat(this.y)
+        buffer.writeFloat(this.z)
+    }
 
-fun ByteBuf.readVector3f(): Vector3f {
-    return Vector3f(
-        this.readFloat(),
-        this.readFloat(),
-        this.readFloat()
-    )
+    companion object: NetworkReadable<Vector3f> {
+
+        override fun read(buffer: ByteBuf): Vector3f {
+            return Vector3f(
+                buffer.readFloat(),
+                buffer.readFloat(),
+                buffer.readFloat()
+            )
+        }
+    }
 }

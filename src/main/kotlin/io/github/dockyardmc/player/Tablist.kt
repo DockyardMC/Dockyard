@@ -70,7 +70,7 @@ class Tablist: Disposable, Viewable() {
 
     private fun update(player: Player) {
         val headerComponent = buildString {
-            headerLines.toList().sortedByDescending { it.first }.reversed().forEach { (index, line) ->
+            headerLines.toList().sortedByDescending { line -> line.first }.reversed().forEach { (_, line) ->
                 when(line) {
                     is GlobalTablistLine -> append("${line.value}<r>\n")
                     is PlayerTablistLine -> {
@@ -82,7 +82,7 @@ class Tablist: Disposable, Viewable() {
         }
 
         val footerComponent = buildString {
-            footerLines.toList().sortedByDescending { it.first }.reversed().forEach { (index, line) ->
+            footerLines.toList().sortedByDescending { it.first }.reversed().forEach { (_, line) ->
                 when(line) {
                     is GlobalTablistLine -> append("${line.value}\n")
                     is PlayerTablistLine -> {
@@ -141,7 +141,7 @@ fun tablist(builder: TablistBuilder.() -> Unit): Tablist {
     return tablist
 }
 
-interface TablistLine {}
+interface TablistLine
 
 data class GlobalTablistLine(val value: String): TablistLine
 

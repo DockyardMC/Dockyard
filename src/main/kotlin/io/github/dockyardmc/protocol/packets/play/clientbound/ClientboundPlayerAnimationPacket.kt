@@ -8,8 +8,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundPlayerAnimationPacket(entity: Entity, animation: EntityAnimation) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(entity.id)
-        data.writeByte(animation.ordinal)
+        buffer.writeVarInt(entity.id)
+        buffer.writeByte(animation.ordinal)
     }
 
 }

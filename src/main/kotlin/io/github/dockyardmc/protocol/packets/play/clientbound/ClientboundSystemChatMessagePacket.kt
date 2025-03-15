@@ -10,7 +10,7 @@ class ClientboundSystemChatMessagePacket(
 ) : ClientboundPacket() {
 
     init {
-        data.writeNBT(component.toNBT())
-        data.writeBoolean(isActionBar)
+        buffer.writeNBT(component.toNBT())
+        buffer.writeBoolean(isActionBar)
     }
 }

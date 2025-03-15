@@ -2,8 +2,7 @@ package io.github.dockyardmc.sidebar
 
 import io.github.dockyardmc.player.Player
 
-interface SidebarLine {
-}
+interface SidebarLine
 
 class GlobalSidebarLine(var value: String): SidebarLine
 

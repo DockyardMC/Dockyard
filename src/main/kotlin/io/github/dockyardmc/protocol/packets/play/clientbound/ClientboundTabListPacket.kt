@@ -9,7 +9,7 @@ class ClientboundTabListPacket(
     footer: Component
 ) : ClientboundPacket() {
     init {
-        data.writeNBT(header.toNBT())
-        data.writeNBT(footer.toNBT())
+        buffer.writeNBT(header.toNBT())
+        buffer.writeNBT(footer.toNBT())
     }
 }
