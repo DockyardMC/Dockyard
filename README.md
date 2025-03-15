@@ -11,13 +11,9 @@ DockyardMC is an open-source, fast and lightweight Minecraft server protocol imp
 
 **This project currently under development, missing parts some users might rely on**
 
----
-
 ## Quick Start
 
 You can read how to setup and use dockyard [here](https://dockyard.lukynka.cloud/wiki/quick-start)
-
----
 
 ## Features
 
@@ -25,8 +21,6 @@ You can read how to setup and use dockyard [here](https://dockyard.lukynka.cloud
 - Lightweight and without all the overhead the vanilla server has
 - Ability to take full control over every aspect of the server
 - Fully multithreaded worlds
-
----
 
 ## API Examples
 
@@ -107,7 +101,6 @@ Events.on<PlayerJoinEvent> { event ->
 ```
 Again, changing any properties of the bossbar will automatically send updates to the viewers 
 
----
 ### Entity Metadata Layers
 
 Layering entity metadata per player allows for client-side changes to entities for purposes like client-side glowing and client-side invisibility. 
@@ -135,21 +128,15 @@ warden.metadataLayers[player] = playerMetadataLayer
 // specified player will now see the warden roaring
 ```
 
----
-
 ## Running
 
 Dockyard is mainly designed as library that can be imported via maven. If you want to run dockyard you will need to embed it into your own kotlin app.
-
----
 
 ## Contributing
 
 Contributions are always welcome! Please always check branches to see if the feature you are contributing is not already existing feature that someone else is working on
 
 (plus you get cool fancy orange contributor role on the discord!!!)
-
----
 
 ## Related Libraries / Projects
 
@@ -160,14 +147,10 @@ Contributions are always welcome! Please always check branches to see if the fea
 - **[Spark](https://github.com/lucko/spark)** - A performance profiler for Minecraft clients, servers, and proxies
 - **[PrettyLog](https://github.com/LukynkaCZE/PrettyLog/)** - Fancy logging library
 
----
-
 ## Authors
 
 - [LukynkaCZE](https://www.github.com/LukynkaCZE)
 - [AsoDesu](https://www.github.com/AsoDesu)
-
----
 
 ## Additional thanks to
 
