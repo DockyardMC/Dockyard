@@ -12,9 +12,9 @@ class ClientboundEncryptionRequestPacket(
 ): ClientboundPacket() {
 
     init {
-        data.writeString(serverID)
-        data.writeByteArray(pubKey)
-        data.writeByteArray(verToken)
-        data.writeBoolean(shouldAuthenticate)
+        buffer.writeString(serverID)
+        buffer.writeByteArray(pubKey)
+        buffer.writeByteArray(verToken)
+        buffer.writeBoolean(shouldAuthenticate)
     }
 }

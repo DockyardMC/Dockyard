@@ -8,8 +8,8 @@ class ClientboundSetTickingStatePacket(
 ) : ClientboundPacket() {
 
     init {
-        data.writeFloat(tickRate.toFloat())
-        data.writeBoolean(isFrozen)
+        buffer.writeFloat(tickRate.toFloat())
+        buffer.writeBoolean(isFrozen)
     }
 
 }

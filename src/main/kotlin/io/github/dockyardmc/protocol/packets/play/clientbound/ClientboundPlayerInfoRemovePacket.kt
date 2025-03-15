@@ -12,7 +12,7 @@ class ClientboundPlayerInfoRemovePacket(uuidss: List<UUID>) : ClientboundPacket(
     constructor(uuid: UUID) : this(mutableListOf(uuid))
 
     init {
-        data.writeList(uuidss, ByteBuf::writeUUID)
+        buffer.writeList(uuidss, ByteBuf::writeUUID)
     }
 
 }

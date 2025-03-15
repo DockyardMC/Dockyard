@@ -330,7 +330,7 @@ inline fun <reified T : Any> ByteBuf.readOptionalOrNull(): T? {
         UUID::class -> this.readUUID() as T
         ItemStack::class -> ItemStack.read(this) as T
         Byte::class -> this.readByte() as T
-        Vector3::class -> this.readVector3() as T
+        Vector3::class -> Vector3.read(this) as T
         Vector3d::class -> this.readVector3d() as T
         Vector3f::class -> this.readVector3f() as T
         NBT::class -> (this.readNBT() as NBTCompound) as T

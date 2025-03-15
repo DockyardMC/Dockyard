@@ -25,10 +25,10 @@ class ClientboundEntityEffectPacket(
         amplifier -= 1
         if (amplifier <= -1) amplifier = 0
 
-        data.writeVarInt(entity.id)
-        data.writeVarInt(effect.getProtocolId())
-        data.writeVarInt(amplifier)
-        data.writeVarInt(duration)
-        data.writeByte(flags.toInt())
+        buffer.writeVarInt(entity.id)
+        buffer.writeVarInt(effect.getProtocolId())
+        buffer.writeVarInt(amplifier)
+        buffer.writeVarInt(duration)
+        buffer.writeByte(flags.toInt())
     }
 }

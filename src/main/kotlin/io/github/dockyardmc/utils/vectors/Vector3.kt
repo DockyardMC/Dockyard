@@ -3,6 +3,8 @@ package io.github.dockyardmc.utils.vectors
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.protocol.NetworkReadable
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import kotlin.math.abs
@@ -13,7 +15,7 @@ data class Vector3(
     var x: Int,
     var y: Int,
     var z: Int,
-) {
+): NetworkWritable {
     constructor() : this(0, 0, 0)
     constructor(single: Int) : this(single, single, single)
 
@@ -111,20 +113,27 @@ data class Vector3(
                 end.z.toInt() == z
                 )
     }
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeVarInt(this.x)
+        buffer.writeVarInt(this.y)
+        buffer.writeVarInt(this.z)
+    }
+
+    fun writeAsShorts(buffer: ByteBuf) {
+        buffer.writeShort(this.x)
+        buffer.writeShort(this.y)
+        buffer.writeShort(this.z)
+    }
+
+    companion object: NetworkReadable<Vector3> {
+
+        override fun read(buffer: ByteBuf): Vector3 {
+            return Vector3(
+                buffer.readVarInt(),
+                buffer.readVarInt(),
+                buffer.readVarInt()
+            )
+        }
+    }
 }
-
-fun ByteBuf.writeShortVector3(vector3: Vector3) {
-    this.writeShort(vector3.x)
-    this.writeShort(vector3.y)
-    this.writeShort(vector3.z)
-}
-
-fun ByteBuf.writeVector3(vector3: Vector3) {
-    this.writeVarInt(vector3.x)
-    this.writeVarInt(vector3.y)
-    this.writeVarInt(vector3.z)
-}
-
-
-
-fun ByteBuf.readVector3(): Vector3 = Vector3(this.readVarInt(), this.readVarInt(), this.readVarInt())

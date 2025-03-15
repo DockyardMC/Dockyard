@@ -9,15 +9,15 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundScoreboardObjectivePacket(name: String, mode: ScoreboardMode, value: String?, type: ScoreboardType?): ClientboundPacket() {
 
     init {
-        data.writeString(name)
-        data.writeByte(mode.ordinal)
+        buffer.writeString(name)
+        buffer.writeByte(mode.ordinal)
         if(mode == ScoreboardMode.CREATE || mode == ScoreboardMode.EDIT_TEXT) {
             if(value == null) throw Exception("value needs to be not null when using CREATE or EDIT_TEXT mode!")
             if(type == null) throw Exception("type needs to be not null when using CREATE or EDIT_TEXT mode!")
-            data.writeTextComponent(value)
-            data.writeVarIntEnum<ScoreboardType>(type)
-            data.writeBoolean(true)
-            data.writeVarInt(0)
+            buffer.writeTextComponent(value)
+            buffer.writeVarIntEnum<ScoreboardType>(type)
+            buffer.writeBoolean(true)
+            buffer.writeVarInt(0)
         }
     }
 }

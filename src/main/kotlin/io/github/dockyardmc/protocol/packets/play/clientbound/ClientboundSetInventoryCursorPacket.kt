@@ -6,7 +6,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetInventoryCursorPacket(item: ItemStack): ClientboundPacket() {
 
     init {
-        item.write(data)
+        item.write(buffer)
     }
 
 }

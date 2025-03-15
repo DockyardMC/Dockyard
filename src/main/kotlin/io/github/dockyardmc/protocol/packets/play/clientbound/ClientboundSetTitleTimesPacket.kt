@@ -8,8 +8,8 @@ class ClientboundSetTitleTimesPacket(
     val fadeOut: Int
 ) : ClientboundPacket() {
     init {
-        data.writeInt(fadeIn)
-        data.writeInt(stay)
-        data.writeInt(fadeOut)
+        buffer.writeInt(fadeIn)
+        buffer.writeInt(stay)
+        buffer.writeInt(fadeOut)
     }
 }

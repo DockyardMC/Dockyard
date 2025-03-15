@@ -9,9 +9,9 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetContainerContentPacket(player: Player, items: List<ItemStack>) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(if(player.currentOpenInventory != null) 1 else 0)
-        data.writeVarInt(0)
-        data.writeItemStackList(items)
-        player.inventory.cursorItem.value.write(data)
+        buffer.writeVarInt(if(player.currentOpenInventory != null) 1 else 0)
+        buffer.writeVarInt(0)
+        buffer.writeItemStackList(items)
+        player.inventory.cursorItem.value.write(buffer)
     }
 }

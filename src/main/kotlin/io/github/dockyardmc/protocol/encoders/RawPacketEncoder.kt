@@ -13,7 +13,7 @@ class RawPacketEncoder: MessageToByteEncoder<ClientboundPacket>() {
     override fun encode(connection: ChannelHandlerContext, packet: ClientboundPacket, out: ByteBuf) {
         try {
             out.writeVarInt(packet.id!!)
-            out.writeBytes(packet.data.copy())
+            out.writeBytes(packet.buffer.copy())
         } catch (exception: Exception) {
             log("There was an error while encoding packet", LogType.ERROR)
             log(exception)

@@ -6,7 +6,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetCompressionPacket(compression: Int) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(compression)
+        buffer.writeVarInt(compression)
     }
 
 }

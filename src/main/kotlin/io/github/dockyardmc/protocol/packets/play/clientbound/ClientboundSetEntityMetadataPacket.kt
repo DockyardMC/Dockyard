@@ -9,11 +9,11 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetEntityMetadataPacket(entity: Entity, metadata: Collection<EntityMetadata>) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(entity.id)
+        buffer.writeVarInt(entity.id)
         metadata.forEach {
-            data.writeMetadata(it)
+            buffer.writeMetadata(it)
         }
         // array end byte
-        data.writeByte(0xFF)
+        buffer.writeByte(0xFF)
     }
 }

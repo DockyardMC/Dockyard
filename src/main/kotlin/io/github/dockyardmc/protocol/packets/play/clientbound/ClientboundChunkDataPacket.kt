@@ -16,37 +16,37 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, section
 
     init {
         //X Z
-        data.writeInt(x)
-        data.writeInt(z)
+        buffer.writeInt(x)
+        buffer.writeInt(z)
 
         //Heightmaps
-        data.writeMSNBT(heightMap)
+        buffer.writeMSNBT(heightMap)
 
         //Chunk Sections
         val chunkSectionData = Unpooled.buffer()
         sections.forEach(chunkSectionData::writeChunkSection)
-        data.writeByteArray(chunkSectionData.toByteArraySafe())
+        buffer.writeByteArray(chunkSectionData.toByteArraySafe())
 
         //Block Entities
-        data.writeVarInt(blockEntities.size)
+        buffer.writeVarInt(blockEntities.size)
         blockEntities.forEach { blockEntity ->
             val id = blockEntity.blockEntityTypeId
             val point = ChunkUtils.chunkBlockIndexGetGlobal(blockEntity.positionIndex, 0, 0)
 
-            data.writeByte(((point.x and 15) shl 4 or (point.z and 15)))
-            data.writeShort(point.y)
-            data.writeVarInt(id)
-            data.writeNBT(blockEntity.data)
+            buffer.writeByte(((point.x and 15) shl 4 or (point.z and 15)))
+            buffer.writeShort(point.y)
+            buffer.writeVarInt(id)
+            buffer.writeNBT(blockEntity.data)
         }
 
         // Light stuff
-        data.writeLongArray(light.skyMask.toLongArray())
-        data.writeLongArray(light.blockMask.toLongArray())
+        buffer.writeLongArray(light.skyMask.toLongArray())
+        buffer.writeLongArray(light.blockMask.toLongArray())
 
-        data.writeLongArray(light.emptySkyMask.toLongArray())
-        data.writeLongArray(light.emptyBlockMask.toLongArray())
+        buffer.writeLongArray(light.emptySkyMask.toLongArray())
+        buffer.writeLongArray(light.emptyBlockMask.toLongArray())
 
-        data.writeByteArray(light.skyLight)
-        data.writeByteArray(light.blockLight)
+        buffer.writeByteArray(light.skyLight)
+        buffer.writeByteArray(light.blockLight)
     }
 }

@@ -7,6 +7,6 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 class ClientboundLoginDisconnectPacket(reason: String): ClientboundPacket() {
 
     init {
-        data.writeString(reason.toComponent().toJson())
+        buffer.writeString(reason.toComponent().toJson())
     }
 }

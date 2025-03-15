@@ -21,13 +21,13 @@ class ClientboundSpawnEntityPacket(
 ) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(entityId)
-        data.writeUUID(entityUUID)
-        data.writeVarInt(entityType)
-        data.writeLocation(location)
-        data.writeRotation(location, true)
-        data.writeByte((headYaw * 256 / 360).toInt())
-        data.writeVarInt(entityData)
-        data.writeVelocity(velocity)
+        buffer.writeVarInt(entityId)
+        buffer.writeUUID(entityUUID)
+        buffer.writeVarInt(entityType)
+        buffer.writeLocation(location)
+        buffer.writeRotation(location, true)
+        buffer.writeByte((headYaw * 256 / 360).toInt())
+        buffer.writeVarInt(entityData)
+        buffer.writeVelocity(velocity)
     }
 }

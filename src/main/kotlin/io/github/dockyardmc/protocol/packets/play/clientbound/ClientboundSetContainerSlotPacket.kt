@@ -7,9 +7,9 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetContainerSlotPacket(slot: Int, itemStack: ItemStack): ClientboundPacket() {
 
     init {
-        data.writeVarInt(1)
-        data.writeVarInt(0)
-        data.writeShort(slot)
-        itemStack.write(data)
+        buffer.writeVarInt(1)
+        buffer.writeVarInt(0)
+        buffer.writeShort(slot)
+        itemStack.write(buffer)
     }
 }

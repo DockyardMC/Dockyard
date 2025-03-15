@@ -24,13 +24,13 @@ class ClientboundSendParticlePacket(
         if(particleData != null && particleData.id != particle.getProtocolId()) throw Exception("Particle data ${particleData::class.simpleName} is not valid for particle ${particle.identifier}")
         if(particleData == null && ParticleData.requiresData(particle.getProtocolId())) throw Exception("Particle ${particle.identifier} requires particle data")
 
-        data.writeBoolean(overrideLimiter)
-        data.writeBoolean(longDistance)
-        data.writeLocation(location)
-        data.writeVector3f(offset)
-        data.writeFloat(speed)
-        data.writeInt(count)
-        data.writeVarInt(particle.getProtocolId())
-        particleData?.write(data)
+        buffer.writeBoolean(overrideLimiter)
+        buffer.writeBoolean(longDistance)
+        buffer.writeLocation(location)
+        buffer.writeVector3f(offset)
+        buffer.writeFloat(speed)
+        buffer.writeInt(count)
+        buffer.writeVarInt(particle.getProtocolId())
+        particleData?.write(buffer)
     }
 }

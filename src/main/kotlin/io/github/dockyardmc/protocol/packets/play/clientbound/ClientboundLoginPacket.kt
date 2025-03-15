@@ -29,29 +29,29 @@ class ClientboundLoginPacket(
 ): ClientboundPacket() {
 
     init {
-        data.writeInt(entityId)
-        data.writeBoolean(isHardcore)
-        data.writeStringArray(dimensionNames)
-        data.writeVarInt(maxPlayers)
-        data.writeVarInt(viewDistance)
-        data.writeVarInt(simulationDistance)
-        data.writeBoolean(reducedDebugInfo)
-        data.writeBoolean(enableRespawnScreen)
-        data.writeBoolean(doLimitedCrafting)
-        data.writeVarInt(dimensionType)
-        data.writeString(dimensionName)
-        data.writeLong(hashedSeed)
-        data.writeByte(gameMode.ordinal)
-        data.writeByte(previousGameMode.ordinal)
-        data.writeBoolean(isDebug)
-        data.writeBoolean(isFlat)
+        buffer.writeInt(entityId)
+        buffer.writeBoolean(isHardcore)
+        buffer.writeStringArray(dimensionNames)
+        buffer.writeVarInt(maxPlayers)
+        buffer.writeVarInt(viewDistance)
+        buffer.writeVarInt(simulationDistance)
+        buffer.writeBoolean(reducedDebugInfo)
+        buffer.writeBoolean(enableRespawnScreen)
+        buffer.writeBoolean(doLimitedCrafting)
+        buffer.writeVarInt(dimensionType)
+        buffer.writeString(dimensionName)
+        buffer.writeLong(hashedSeed)
+        buffer.writeByte(gameMode.ordinal)
+        buffer.writeByte(previousGameMode.ordinal)
+        buffer.writeBoolean(isDebug)
+        buffer.writeBoolean(isFlat)
 
-        data.writeBoolean(false) // has death location
+        buffer.writeBoolean(false) // has death location
 //        data.writeUtf("minecraft:world") // death dimension
 //        data.writePosition(Location(0, 0, 0)) // death location
 
-        data.writeVarInt(portalCooldown)
-        data.writeVarInt(seaLevel)
-        data.writeBoolean(enforcesSecureChat)
+        buffer.writeVarInt(portalCooldown)
+        buffer.writeVarInt(seaLevel)
+        buffer.writeBoolean(enforcesSecureChat)
     }
 }

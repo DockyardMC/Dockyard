@@ -7,7 +7,7 @@ import io.github.dockyardmc.serverlinks.ServerLink
 class ClientboundServerLinksPacket(serverLinks: Collection<ServerLink>) : ClientboundPacket() {
 
     init {
-        data.writeList(serverLinks, ServerLink::write)
+        buffer.writeList(serverLinks, ServerLink::write)
     }
 }
 

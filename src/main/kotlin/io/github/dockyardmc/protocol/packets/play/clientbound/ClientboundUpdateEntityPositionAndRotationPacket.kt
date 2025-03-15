@@ -14,12 +14,12 @@ class ClientboundUpdateEntityPositionAndRotationPacket(
     init {
         val current = entity.location
 
-        data.writeVarInt(entity.id)
-        data.writeShort(getRelativeCoords(current.x, previousLocation.x))
-        data.writeShort(getRelativeCoords(current.y, previousLocation.y))
-        data.writeShort(getRelativeCoords(current.z, previousLocation.z))
-        data.writeByte((entity.location.yaw * 256 / 360).toInt())
-        data.writeByte((entity.location.pitch * 256 / 360).toInt())
-        data.writeBoolean(entity.isOnGround)
+        buffer.writeVarInt(entity.id)
+        buffer.writeShort(getRelativeCoords(current.x, previousLocation.x))
+        buffer.writeShort(getRelativeCoords(current.y, previousLocation.y))
+        buffer.writeShort(getRelativeCoords(current.z, previousLocation.z))
+        buffer.writeByte((entity.location.yaw * 256 / 360).toInt())
+        buffer.writeByte((entity.location.pitch * 256 / 360).toInt())
+        buffer.writeBoolean(entity.isOnGround)
     }
 }

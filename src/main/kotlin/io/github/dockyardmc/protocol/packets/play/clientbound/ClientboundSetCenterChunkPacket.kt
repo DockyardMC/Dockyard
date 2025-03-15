@@ -7,8 +7,8 @@ import io.github.dockyardmc.world.chunk.ChunkPos
 class ClientboundSetCenterChunkPacket(chunkPos: ChunkPos): ClientboundPacket() {
 
     init {
-        data.writeVarInt(chunkPos.x)
-        data.writeVarInt(chunkPos.z)
+        buffer.writeVarInt(chunkPos.x)
+        buffer.writeVarInt(chunkPos.z)
     }
 
 }

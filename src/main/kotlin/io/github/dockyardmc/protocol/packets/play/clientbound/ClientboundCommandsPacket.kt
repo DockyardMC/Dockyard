@@ -7,7 +7,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundCommandsPacket(val commands: MutableMap<Int, CommandNode>) : ClientboundPacket() {
 
     init {
-        data.writeCommands(commands)
+        buffer.writeCommands(commands)
     }
 
     fun clone(): ClientboundCommandsPacket = ClientboundCommandsPacket(commands.toMutableMap())
