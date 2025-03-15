@@ -4,7 +4,6 @@ import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.bitMask
 import io.github.dockyardmc.utils.vectors.Vector3d
-import io.github.dockyardmc.utils.vectors.readVector3d
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -19,9 +18,9 @@ class ServerboundSetPlayerPositionPacket(
     }
 
     companion object {
-        fun read(buf: ByteBuf): ServerboundSetPlayerPositionPacket {
-            val vector3d = buf.readVector3d()
-            val mask = buf.readByte()
+        fun read(buffer: ByteBuf): ServerboundSetPlayerPositionPacket {
+            val vector3d = Vector3d.read(buffer)
+            val mask = buffer.readByte()
 
             val isOnGround = bitMask(mask, 1)
             val isHorizontalCollision = bitMask(mask, 2)

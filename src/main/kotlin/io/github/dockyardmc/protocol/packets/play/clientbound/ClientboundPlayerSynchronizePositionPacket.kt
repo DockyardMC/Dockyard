@@ -4,7 +4,6 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.utils.vectors.Vector3d
-import io.github.dockyardmc.utils.vectors.writeVector3d
 import java.util.concurrent.atomic.AtomicInteger
 
 class ClientboundPlayerSynchronizePositionPacket(location: Location) : ClientboundPacket() {
@@ -15,8 +14,8 @@ class ClientboundPlayerSynchronizePositionPacket(location: Location) : Clientbou
 
     init {
         buffer.writeVarInt(teleportId.incrementAndGet())
-        buffer.writeVector3d(location.toVector3d())
-        buffer.writeVector3d(Vector3d())
+        location.toVector3d().write(buffer)
+        Vector3d().write(buffer)
         buffer.writeFloat(location.yaw)
         buffer.writeFloat(location.pitch)
         buffer.writeInt(0)

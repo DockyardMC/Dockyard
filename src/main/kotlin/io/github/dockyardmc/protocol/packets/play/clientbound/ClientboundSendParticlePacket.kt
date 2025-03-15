@@ -7,7 +7,6 @@ import io.github.dockyardmc.particles.ParticleData
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.registry.registries.Particle
 import io.github.dockyardmc.utils.vectors.Vector3f
-import io.github.dockyardmc.utils.vectors.writeVector3f
 
 class ClientboundSendParticlePacket(
     location: Location,
@@ -27,7 +26,7 @@ class ClientboundSendParticlePacket(
         buffer.writeBoolean(overrideLimiter)
         buffer.writeBoolean(longDistance)
         buffer.writeLocation(location)
-        buffer.writeVector3f(offset)
+        offset.write(buffer)
         buffer.writeFloat(speed)
         buffer.writeInt(count)
         buffer.writeVarInt(particle.getProtocolId())
