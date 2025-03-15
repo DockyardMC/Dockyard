@@ -11,6 +11,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scheduler.SchedulerTask
 import io.github.dockyardmc.scroll.LegacyTextColor
+import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamCollisionRule
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
@@ -35,6 +36,8 @@ class GuardianBeam(start: Location, end: Location): Viewable(), Disposable {
 
     val start: Bindable<Location> = bindablePool.provideBindable(start)
     val end: Bindable<Location> = bindablePool.provideBindable(end)
+    val team: Bindable<Team> = bindablePool.provideBindable(NO_COLLISION_TEAM)
+    val isGlowing: Bindable<Boolean> = bindablePool.provideBindable(false)
 
     private val guardianEntity: Guardian = start.world.spawnEntity(Guardian(start)) as Guardian
     private val targetEntity: Squid = start.world.spawnEntity(Squid(end)) as Squid
@@ -48,9 +51,6 @@ class GuardianBeam(start: Location, end: Location): Viewable(), Disposable {
         targetEntity.isInvisible.value = true
         guardianEntity.isInvisible.value = true
 
-        targetEntity.team.value = NO_COLLISION_TEAM
-        guardianEntity.team.value = NO_COLLISION_TEAM
-
         guardianEntity.target.value = targetEntity
 
         this.start.valueChanged { change ->
@@ -60,6 +60,17 @@ class GuardianBeam(start: Location, end: Location): Viewable(), Disposable {
         this.end.valueChanged { change ->
             targetEntity.teleport(change.newValue)
         }
+
+        team.valueChanged { event ->
+            targetEntity.team.value = event.newValue
+            guardianEntity.team.value = event.newValue
+        }
+
+        isGlowing.valueChanged { event ->
+            guardianEntity.isGlowing.value = event.newValue
+        }
+
+        team.triggerUpdate()
     }
 
     override fun addViewer(player: Player) {
@@ -79,6 +90,11 @@ class GuardianBeam(start: Location, end: Location): Viewable(), Disposable {
     }
 
     fun moveEnd(newLocation: Location, interpolation: Duration = 0.ticks) {
+        if(interpolation == 0.ticks) {
+            end.value = newLocation
+            return
+        }
+
         val scheduler = start.value.world.scheduler
         val totalTicks = round(interpolation.inWholeMilliseconds / 50f).toInt()
 
@@ -96,6 +112,10 @@ class GuardianBeam(start: Location, end: Location): Viewable(), Disposable {
     }
 
     fun moveStart(newLocation: Location, interpolation: Duration = 0.ticks) {
+        if(interpolation == 0.ticks) {
+            start.value = newLocation
+            return
+        }
         val scheduler = start.value.world.scheduler
         val totalTicks = round(interpolation.inWholeMilliseconds / 50f).toInt()
 
