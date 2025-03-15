@@ -7,9 +7,9 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import java.util.*
 
-class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
+class Sidebar(builder: Sidebar.() -> Unit) {
 
-    val title: Bindable<String> = Bindable(initialTitle)
+    val title: Bindable<String> = Bindable("")
     val viewers: BindableList<Player> = BindableList()
     private val innerLines: MutableMap<Int, SidebarLine> = mutableMapOf()
     val lines get() = innerLines.toList()
@@ -19,6 +19,10 @@ class Sidebar(initialTitle: String, builder: Sidebar.() -> Unit) {
     private val createPacket get() = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.CREATE, title.value, ScoreboardType.INTEGER)
     private val removePacket get() = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.REMOVE, null, null)
     private val displayPacket get() = ClientboundDisplayObjectivePacket(ObjectivePosition.SIDEBAR, objective)
+
+    fun setTitle(title: String) {
+        this.title.value = title
+    }
 
     fun setGlobalLine(value: String) {
         setGlobalLine(16 - innerLines.size, value)
