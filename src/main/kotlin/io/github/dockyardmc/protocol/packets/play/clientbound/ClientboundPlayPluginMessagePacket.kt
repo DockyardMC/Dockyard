@@ -10,7 +10,7 @@ class ClientboundPlayPluginMessagePacket(
 ) : ClientboundPacket() {
 
     init {
-        data.writeString(channel)
-        data.writeBytes(payload)
+        buffer.writeString(channel)
+        buffer.writeBytes(payload)
     }
 }

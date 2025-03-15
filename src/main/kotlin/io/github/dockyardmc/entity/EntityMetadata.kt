@@ -11,7 +11,6 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.utils.Quaternion
 import io.github.dockyardmc.utils.vectors.Vector3
 import io.github.dockyardmc.utils.vectors.Vector3f
-import io.github.dockyardmc.utils.vectors.writeVector3
 import io.github.dockyardmc.utils.vectors.writeVector3f
 import io.github.dockyardmc.utils.writeQuaternion
 import io.netty.buffer.ByteBuf
@@ -56,7 +55,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.OPTIONAL_BLOCK_STATE -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
         EntityMetaValue.NBT -> this.writeNBT(v as NBTCompound)
         EntityMetaValue.PARTICLE -> TODO()
-        EntityMetaValue.VILLAGER_DATA -> this.writeVector3(v as Vector3)
+        EntityMetaValue.VILLAGER_DATA -> (v as Vector3).write(this)
         EntityMetaValue.OPTIONAL_VAR_INT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
         EntityMetaValue.POSE -> this.writeVarInt((v as EntityPose).ordinal)
         EntityMetaValue.CAT_VARIANT -> this.writeVarInt(v as Int)

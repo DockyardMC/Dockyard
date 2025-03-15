@@ -8,7 +8,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetHeadYawPacket(entity: Entity, location: Location = entity.location) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(entity.id)
-        data.writeByte(((location.yaw % 360) * 256 / 360).toInt())
+        buffer.writeVarInt(entity.id)
+        buffer.writeByte(((location.yaw % 360) * 256 / 360).toInt())
     }
 }

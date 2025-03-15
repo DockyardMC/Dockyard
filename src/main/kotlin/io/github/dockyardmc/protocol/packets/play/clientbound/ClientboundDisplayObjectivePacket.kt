@@ -7,8 +7,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundDisplayObjectivePacket(position: ObjectivePosition, text: String) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(position.ordinal)
-        data.writeString(text)
+        buffer.writeVarInt(position.ordinal)
+        buffer.writeString(text)
     }
 
 }

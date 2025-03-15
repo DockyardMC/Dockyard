@@ -10,13 +10,13 @@ import io.github.dockyardmc.sounds.Sound
 class ClientboundEntityPlaySoundPacket(sound: Sound, source: Entity): ClientboundPacket() {
 
     init {
-        data.writeVarInt(0)
-        data.writeString(sound.identifier)
-        data.writeBoolean(false)
-        data.writeVarIntEnum<SoundCategory>(sound.category)
-        data.writeVarInt(source.id)
-        data.writeFloat(sound.volume)
-        data.writeFloat(sound.pitch)
-        data.writeLong(sound.seed)
+        buffer.writeVarInt(0)
+        buffer.writeString(sound.identifier)
+        buffer.writeBoolean(false)
+        buffer.writeVarIntEnum<SoundCategory>(sound.category)
+        buffer.writeVarInt(source.id)
+        buffer.writeFloat(sound.volume)
+        buffer.writeFloat(sound.pitch)
+        buffer.writeLong(sound.seed)
     }
 }

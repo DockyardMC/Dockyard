@@ -6,6 +6,6 @@ import io.github.dockyardmc.scroll.Component
 
 class ClientboundSetTitlePacket(val component: Component) : ClientboundPacket() {
     init {
-        data.writeNBT(component.toNBT())
+        buffer.writeNBT(component.toNBT())
     }
 }

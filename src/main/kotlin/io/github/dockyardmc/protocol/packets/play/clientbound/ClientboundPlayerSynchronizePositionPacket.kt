@@ -14,11 +14,11 @@ class ClientboundPlayerSynchronizePositionPacket(location: Location) : Clientbou
     }
 
     init {
-        data.writeVarInt(teleportId.incrementAndGet())
-        data.writeVector3d(location.toVector3d())
-        data.writeVector3d(Vector3d())
-        data.writeFloat(location.yaw)
-        data.writeFloat(location.pitch)
-        data.writeInt(0)
+        buffer.writeVarInt(teleportId.incrementAndGet())
+        buffer.writeVector3d(location.toVector3d())
+        buffer.writeVector3d(Vector3d())
+        buffer.writeFloat(location.yaw)
+        buffer.writeFloat(location.pitch)
+        buffer.writeInt(0)
     }
 }

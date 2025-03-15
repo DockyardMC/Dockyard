@@ -6,7 +6,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundDisconnectPacket(reason: String) : ClientboundPacket() {
 
     init {
-        data.writeTextComponent(reason)
+        buffer.writeTextComponent(reason)
     }
 
 }

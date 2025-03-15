@@ -4,7 +4,6 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.writeVector3
 import io.netty.buffer.ByteBuf
 
 class VibrationParticleData(val vibrationSource: VibrationSource, val pos: Vector3, val entityId: Int, val entityEyeHeight: Float, val ticks: Int): ParticleData {
@@ -14,7 +13,7 @@ class VibrationParticleData(val vibrationSource: VibrationSource, val pos: Vecto
     override fun write(byteBuf: ByteBuf) {
         byteBuf.writeVarIntEnum<VibrationSource>(vibrationSource)
         if(vibrationSource == VibrationSource.BLOCK) {
-            byteBuf.writeVector3(pos)
+            pos.write(byteBuf)
             byteBuf.writeVarInt(ticks)
         } else {
             byteBuf.writeVarInt(entityId)

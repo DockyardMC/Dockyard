@@ -7,12 +7,12 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 
 class ClientboundUpdateScorePacket(objective: String, line: Int, text: String) : ClientboundPacket() {
     init {
-        data.writeString("line-$line")
-        data.writeString(objective)
-        data.writeVarInt(line)
-        data.writeBoolean(true)
-        data.writeTextComponent(text)
-        data.writeBoolean(true)
-        data.writeVarInt(0)
+        buffer.writeString("line-$line")
+        buffer.writeString(objective)
+        buffer.writeVarInt(line)
+        buffer.writeBoolean(true)
+        buffer.writeTextComponent(text)
+        buffer.writeBoolean(true)
+        buffer.writeVarInt(0)
     }
 }

@@ -18,10 +18,10 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound
 class ClientboundUpdateTagsPacket(val registries: List<TagRegistry>) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(registries.size)
+        buffer.writeVarInt(registries.size)
         registries.forEach { registry ->
-            data.writeString(registry.identifier)
-            data.writeList<Tag>(registry.tags.values.toList()) { buffer, tag -> tag.write(buffer) }
+            buffer.writeString(registry.identifier)
+            buffer.writeList<Tag>(registry.tags.values.toList()) { buffer, tag -> tag.write(buffer) }
         }
     }
 }

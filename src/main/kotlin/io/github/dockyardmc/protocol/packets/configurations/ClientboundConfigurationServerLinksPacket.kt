@@ -9,6 +9,6 @@ class ClientboundConfigurationServerLinksPacket(
 ) : ClientboundPacket() {
 
     init {
-        data.writeList(serverLinks, ServerLink::write)
+        buffer.writeList(serverLinks, ServerLink::write)
     }
 }

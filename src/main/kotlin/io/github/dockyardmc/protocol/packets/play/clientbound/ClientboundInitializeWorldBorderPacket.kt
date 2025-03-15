@@ -13,15 +13,15 @@ class ClientboundInitializeWorldBorderPacket(
 ) : ClientboundPacket() {
 
     init {
-        data.writeDouble(10.0)
-        data.writeDouble(10.0)
-        data.writeDouble(oldDiameter)
-        data.writeDouble(newDiameter)
+        buffer.writeDouble(10.0)
+        buffer.writeDouble(10.0)
+        buffer.writeDouble(oldDiameter)
+        buffer.writeDouble(newDiameter)
 
-        data.writeVarLong(speed)
+        buffer.writeVarLong(speed)
 
-        data.writeVarInt(10)
-        data.writeVarInt(warningBlocks)
-        data.writeVarInt(warningTime)
+        buffer.writeVarInt(10)
+        buffer.writeVarInt(warningBlocks)
+        buffer.writeVarInt(warningTime)
     }
 }

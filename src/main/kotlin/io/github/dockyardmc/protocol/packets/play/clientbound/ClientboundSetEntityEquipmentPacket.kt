@@ -9,7 +9,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: Map<EquipmentSlot, ItemStack>): ClientboundPacket() {
 
     init {
-        data.writeVarInt(entity.id)
+        buffer.writeVarInt(entity.id)
         val equipmentList = mutableMapOf<Int, ItemStack>()
         equipmentList[0] = equipment.getOrDefault(EquipmentSlot.MAIN_HAND, ItemStack.AIR)
         equipmentList[1] = equipment.getOrDefault(EquipmentSlot.OFF_HAND, ItemStack.AIR)
@@ -25,8 +25,8 @@ class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: Map
             var slotEnum = it.key.toByte()
             if (!last) slotEnum = (slotEnum.toInt() or 0x80).toByte()
 
-            data.writeByte(slotEnum.toInt())
-            it.value.write(data)
+            buffer.writeByte(slotEnum.toInt())
+            it.value.write(buffer)
         }
     }
 

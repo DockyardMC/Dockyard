@@ -7,11 +7,11 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundKnownPacksPackets(knowPackets: MutableList<KnownPack>): ClientboundPacket() {
 
     init {
-        data.writeVarInt(knowPackets.size)
+        buffer.writeVarInt(knowPackets.size)
         knowPackets.forEach {
-            data.writeString(it.namespace)
-            data.writeString(it.id)
-            data.writeString(it.version)
+            buffer.writeString(it.namespace)
+            buffer.writeString(it.id)
+            buffer.writeString(it.version)
         }
     }
 }

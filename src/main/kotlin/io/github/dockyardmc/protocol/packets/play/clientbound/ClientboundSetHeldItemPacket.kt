@@ -5,7 +5,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetHeldItemPacket(slot: Int) : ClientboundPacket() {
 
     init {
-        data.writeByte(slot)
+        buffer.writeByte(slot)
     }
 
 }

@@ -8,8 +8,8 @@ import java.util.*
 class ClientboundRemoveResourcepackPacket(uuid: UUID?) : ClientboundPacket() {
 
     init {
-        data.writeOptionalOLD(uuid) {
-            data.writeUUID(uuid!!)
+        buffer.writeOptionalOLD(uuid) {
+            buffer.writeUUID(uuid!!)
         }
     }
 }

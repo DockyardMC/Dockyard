@@ -8,9 +8,9 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundOpenContainerPacket(type: InventoryType, name: String) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(1)
-        data.writeVarInt(type.ordinal)
-        data.writeTextComponent(name)
+        buffer.writeVarInt(1)
+        buffer.writeVarInt(type.ordinal)
+        buffer.writeTextComponent(name)
     }
 }
 

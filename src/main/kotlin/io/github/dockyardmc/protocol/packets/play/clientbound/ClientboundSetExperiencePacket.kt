@@ -6,9 +6,9 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetExperiencePacket(bar: Float, level: Int) : ClientboundPacket() {
 
     init {
-        data.writeFloat(bar)
-        data.writeVarInt(level)
-        data.writeVarInt(0)
+        buffer.writeFloat(bar)
+        buffer.writeVarInt(level)
+        buffer.writeVarInt(0)
     }
 
 }

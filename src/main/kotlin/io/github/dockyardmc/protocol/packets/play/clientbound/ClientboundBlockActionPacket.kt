@@ -10,9 +10,9 @@ import io.github.dockyardmc.registry.registries.RegistryBlock
 class ClientboundBlockActionPacket(val location: Location, val blockAction: Byte, val actionParameter: Byte, val blockType: RegistryBlock): ClientboundPacket() {
 
     init {
-        data.writeBlockPosition(location)
-        data.writeByte(blockAction)
-        data.writeByte(actionParameter)
-        data.writeVarInt(blockType.getProtocolId())
+        buffer.writeBlockPosition(location)
+        buffer.writeByte(blockAction)
+        buffer.writeByte(actionParameter)
+        buffer.writeVarInt(blockType.getProtocolId())
     }
 }

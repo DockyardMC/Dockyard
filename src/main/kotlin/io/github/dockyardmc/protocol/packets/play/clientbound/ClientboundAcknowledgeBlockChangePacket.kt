@@ -6,7 +6,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundAcknowledgeBlockChangePacket(val sequenceId: Int) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(sequenceId)
+        buffer.writeVarInt(sequenceId)
     }
 
 }

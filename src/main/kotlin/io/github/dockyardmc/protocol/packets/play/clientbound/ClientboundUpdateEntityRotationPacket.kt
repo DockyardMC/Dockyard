@@ -11,9 +11,9 @@ class ClientboundUpdateEntityRotationPacket(
 ) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(entity.id)
-        data.writeByte((entity.location.yaw * 256 / 360).toInt())
-        data.writeByte((entity.location.pitch * 256 / 360).toInt())
-        data.writeBoolean(entity.isOnGround)
+        buffer.writeVarInt(entity.id)
+        buffer.writeByte((entity.location.yaw * 256 / 360).toInt())
+        buffer.writeByte((entity.location.pitch * 256 / 360).toInt())
+        buffer.writeBoolean(entity.isOnGround)
     }
 }

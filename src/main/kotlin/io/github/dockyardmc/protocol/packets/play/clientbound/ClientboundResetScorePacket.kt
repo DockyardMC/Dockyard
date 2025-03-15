@@ -6,9 +6,9 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundResetScorePacket(name: String, objective: String) : ClientboundPacket() {
 
     init {
-        data.writeString(name)
-        data.writeBoolean(true)
-        data.writeString(objective)
+        buffer.writeString(name)
+        buffer.writeBoolean(true)
+        buffer.writeString(objective)
     }
 
 }

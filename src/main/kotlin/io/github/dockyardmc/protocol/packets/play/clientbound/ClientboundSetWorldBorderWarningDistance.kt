@@ -6,7 +6,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetWorldBorderWarningDistance(distance: Int) : ClientboundPacket() {
 
     init {
-        data.writeVarInt(distance)
+        buffer.writeVarInt(distance)
     }
 
 }

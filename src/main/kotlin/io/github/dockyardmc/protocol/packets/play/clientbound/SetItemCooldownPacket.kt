@@ -7,8 +7,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class SetItemCooldownPacket(var group: String, var cooldownTicks: Int): ClientboundPacket() {
 
     init {
-        data.writeString(group)
-        data.writeVarInt(cooldownTicks)
+        buffer.writeString(group)
+        buffer.writeVarInt(cooldownTicks)
     }
 
 }

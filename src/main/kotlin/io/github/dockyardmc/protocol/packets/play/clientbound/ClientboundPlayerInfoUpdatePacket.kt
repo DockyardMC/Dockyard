@@ -16,17 +16,17 @@ class ClientboundPlayerInfoUpdatePacket(vararg updates: PlayerInfoUpdate) : Clie
         var bitMask: Byte = 0
         updates.forEach { bitMask = bitMask or it.action.bitMask }
 
-        data.writeByte(bitMask.toInt())
-        data.writeVarInt(1)
-        data.writeUUID(updates[0].uuid)
+        buffer.writeByte(bitMask.toInt())
+        buffer.writeVarInt(1)
+        buffer.writeUUID(updates[0].uuid)
         updates.forEach {
             when (val updateAction = it.action) {
-                is AddPlayerInfoUpdateAction -> data.writeProfileProperties(updateAction.profileProperty)
-                is UpdateGamemodeInfoUpdateAction -> data.writeVarInt(updateAction.gameMode.ordinal)
-                is SetListedInfoUpdateAction -> data.writeBoolean(updateAction.listed)
-                is UpdateLatencyInfoUpdateAction -> data.writeVarInt(updateAction.ping)
+                is AddPlayerInfoUpdateAction -> buffer.writeProfileProperties(updateAction.profileProperty)
+                is UpdateGamemodeInfoUpdateAction -> buffer.writeVarInt(updateAction.gameMode.ordinal)
+                is SetListedInfoUpdateAction -> buffer.writeBoolean(updateAction.listed)
+                is UpdateLatencyInfoUpdateAction -> buffer.writeVarInt(updateAction.ping)
                 is SetDisplayNameInfoUpdateAction -> {
-                    data.writeOptionalOLD(updateAction.displayName) { optional ->
+                    buffer.writeOptionalOLD(updateAction.displayName) { optional ->
                         optional.writeNBT(updateAction.displayName!!.toComponent().toNBT())
                     }
                 }

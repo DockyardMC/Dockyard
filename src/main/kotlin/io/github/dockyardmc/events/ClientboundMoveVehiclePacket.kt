@@ -8,8 +8,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundMoveVehiclePacket(var vehicle: Entity): ClientboundPacket() {
 
     init {
-        data.writeLocation(vehicle.location)
-        data.writeRotation(vehicle.location, false)
+        buffer.writeLocation(vehicle.location)
+        buffer.writeRotation(vehicle.location, false)
     }
 
 }

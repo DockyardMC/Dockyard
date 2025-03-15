@@ -8,7 +8,7 @@ class ClientboundSetInventorySlotPacket(slot: Int, itemStack: ItemStack) : Clien
 
     init {
         if (slot < 0) throw IllegalArgumentException("Slot cannot be negative")
-        data.writeVarInt(slot)
-        itemStack.write(data)
+        buffer.writeVarInt(slot)
+        itemStack.write(buffer)
     }
 }
