@@ -11,7 +11,8 @@ import java.lang.management.ManagementFactory
 
 object DebugSidebar {
 
-    val sidebar = Sidebar("<#fc4903><bold>Debug Sidebar") {
+    val sidebar = Sidebar {
+        setTitle("<#fc4903><bold>Debug Sidebar")
         setGlobalLine(15, "                                      ")
         setGlobalLine(0, " ")
     }
