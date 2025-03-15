@@ -331,8 +331,8 @@ inline fun <reified T : Any> ByteBuf.readOptionalOrNull(): T? {
         ItemStack::class -> ItemStack.read(this) as T
         Byte::class -> this.readByte() as T
         Vector3::class -> Vector3.read(this) as T
-        Vector3d::class -> this.readVector3d() as T
-        Vector3f::class -> this.readVector3f() as T
+        Vector3d::class -> Vector3d.read(this) as T
+        Vector3f::class -> Vector3f.read(this) as T
         NBT::class -> (this.readNBT() as NBTCompound) as T
         NBTCompound::class -> this.readNBT() as T
         Sound::class -> Sound(SoundEvent.read(this).identifier) as T
