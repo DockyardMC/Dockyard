@@ -50,11 +50,13 @@ class Bossbar(
     override fun addViewer(player: Player) {
         val createPacket = ClientboundBossbarPacket(BossbarPacketAction.ADD, this)
         player.sendPacket(createPacket)
+        viewers.add(player)
     }
 
     override fun removeViewer(player: Player) {
         val removePacket = ClientboundBossbarPacket(BossbarPacketAction.REMOVE, this)
         player.sendPacket(removePacket)
+        viewers.remove(player)
     }
 }
 
