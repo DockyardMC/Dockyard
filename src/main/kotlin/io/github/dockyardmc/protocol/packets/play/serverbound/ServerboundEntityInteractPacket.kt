@@ -32,7 +32,6 @@ class ServerboundEntityInteractPacket(
         if (interactionType == EntityInteractionType.ATTACK) {
             val event = PlayerDamageEntityEvent(player, entity)
             Events.dispatch(event)
-            if (event.cancelled) return
         }
 
         if (interactionType == EntityInteractionType.INTERACT) {
@@ -41,14 +40,12 @@ class ServerboundEntityInteractPacket(
 
             val event = PlayerInteractWithEntityEvent(player, entity, hand!!)
             Events.dispatch(event)
-            if (event.cancelled) return
         }
 
         if (interactionType == EntityInteractionType.INTERACT_AT) {
 
             val event = PlayerInteractAtEntityEvent(player, entity, Vector3f(targetX!!, targetY!!, targetZ!!), hand!!)
             Events.dispatch(event)
-            if (event.cancelled) return
         }
     }
 

@@ -52,7 +52,7 @@ fun Collection<Player>.setCooldown(group: String, cooldownTicks: Int) {
 fun Collection<Player>.playChestAnimation(chestLocation: Location, animation: ChestAnimation) {
     this.forEach { player -> player.playChestAnimation(chestLocation, animation) }
 
-    fun Collection<Player>.stopSound(sound: String? = null, category: SoundCategory? = null) {
+fun Collection<Player>.stopSound(sound: String? = null, category: SoundCategory? = null) {
     this.forEach { player -> player.stopSound(sound, category) }
 }
 
