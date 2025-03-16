@@ -154,7 +154,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addPlay(ClientboundEntityPlaySoundPacket::class)
         addPlay(ClientboundPlaySoundPacket::class)
         skipPlay("start configuration")
-        skipPlay("stop sound")
+        addPlay(ClientboundStopSoundPacket::class)
         skipPlay("cookie store")
         addPlay(ClientboundSystemChatMessagePacket::class)
         addPlay(ClientboundTabListPacket::class)
