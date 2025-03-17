@@ -7,11 +7,11 @@ import io.github.dockyardmc.extentions.toScrollText
 import io.github.dockyardmc.world.World
 import kotlin.time.Duration.Companion.milliseconds
 
-class TickRateCommand {
+class SchedulerCommand {
 
     init {
-        Commands.add("/tickrate") {
-            withPermission("dockyard.commands.tickrate")
+        Commands.add("/scheduler") {
+            withPermission("dockyard.commands.scheduler")
             withDescription("Lets you change tickrate/pause/resume scheduler of a world")
 
             addSubcommand("set") {

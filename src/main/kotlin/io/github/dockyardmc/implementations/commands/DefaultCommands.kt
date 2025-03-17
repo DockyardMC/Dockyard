@@ -1,10 +1,11 @@
 package io.github.dockyardmc.implementations.commands
 
 import io.github.dockyardmc.config.ConfigManager
+import io.github.dockyardmc.implementations.DefaultImplementationModule
 
-class DockyardCommands {
+class DefaultCommands: DefaultImplementationModule {
 
-    init {
+    override fun register() {
         GamemodeCommand()
         VersionAndHelpCommand()
         WorldCommand()
@@ -12,8 +13,9 @@ class DockyardCommands {
         GiveCommand()
         TeleportCommand()
         TimeCommand()
-        TickRateCommand()
+        SchedulerCommand()
         ClearCommand()
+        ListCommand()
         if(ConfigManager.config.debug) {
             DebugCommand()
         }

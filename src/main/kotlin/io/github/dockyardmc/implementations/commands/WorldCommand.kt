@@ -1,19 +1,19 @@
 package io.github.dockyardmc.implementations.commands
 
-import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.commands.*
-import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.commands.CommandException
+import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.PlayerArgument
+import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.WorldManager
-import io.github.dockyardmc.world.generators.FlatWorldGenerator
 
 class WorldCommand {
 
-    init {
-
+    companion object {
         fun suggestWorlds(player: Player): Collection<String> = WorldManager.worlds.keys.toList()
+    }
+
+    init {
 
         Commands.add("/world") {
             withPermission("dockyard.commands.world")
@@ -47,18 +47,6 @@ class WorldCommand {
                     val world = WorldManager.worlds[getArgument<String>("world")] ?: throw CommandException("World with that name not found")
                     WorldManager.delete(world)
                     it.sendMessage("<red>Deleted world <yellow>${world.name}")
-                }
-            }
-
-            addSubcommand("create") {
-                addArgument("world", StringArgument(), simpleSuggestion("<name>"))
-                execute { ctx ->
-                    val worldName = getArgument<String>("world")
-                    WorldManager.createWithFuture(worldName, FlatWorldGenerator(), DimensionTypes.OVERWORLD).thenAccept { world ->
-                        ctx.sendMessage("<lime>Created world <yellow>${world.name}")
-                        world.defaultSpawnLocation = Location(0, 201, 0, world)
-                        DockyardServer.broadcastMessage("")
-                    }
                 }
             }
         }

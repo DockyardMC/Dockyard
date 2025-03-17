@@ -1,8 +1,9 @@
 package io.github.dockyardmc.implementations.block
 
+import io.github.dockyardmc.implementations.DefaultImplementationModule
 import io.github.dockyardmc.world.block.handlers.*
 
-class DefaultBlockHandlers {
+class DefaultBlockHandlers: DefaultImplementationModule {
 
     private val facingBlocks: List<String> = listOf(
         "minecraft:furnace",
@@ -19,7 +20,7 @@ class DefaultBlockHandlers {
         "minecraft:bookshelf",
     )
 
-    fun register() {
+    override fun register() {
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:slabs", SlabBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:barrel", BarrelBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:buttons", ButtonBlockHandler())

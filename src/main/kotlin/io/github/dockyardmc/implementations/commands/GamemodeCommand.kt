@@ -38,7 +38,7 @@ class GamemodeCommand {
 
             addOptionalArgument("player", PlayerArgument())
 
-            execute {
+            execute { ctx ->
                 val map = mapOf(
                     "gmc" to GameMode.CREATIVE,
                     "gms" to GameMode.SURVIVAL,
@@ -46,16 +46,16 @@ class GamemodeCommand {
                     "gma" to GameMode.ADVENTURE
                 )
 
-                val command = it.command.removePrefix("/")
+                val command = ctx.command.removePrefix("/")
                 val gamemode: GameMode = map[command]!!
-                val player: Player = getArgumentOrNull<Player>("player") ?: it.getPlayerOrThrow()
+                val player: Player = getArgumentOrNull<Player>("player") ?: ctx.getPlayerOrThrow()
 
                 val name = gamemode.name.properStrictCase()
 
-                if(player == it.player) {
+                if(player == ctx.player) {
                     player.sendMessage("<gray>Set your own gamemode to <white>$name")
                 } else {
-                    it.sendMessage("<gray>Set gamemode of <white>$player <gray>to <white>$name")
+                    ctx.sendMessage("<gray>Set gamemode of <white>$player <gray>to <white>$name")
                     player.sendMessage("<gray>Your gamemode has been updated to <white>$name")
                 }
 

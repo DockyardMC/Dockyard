@@ -8,7 +8,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.block.DefaultBlockHandlers
-import io.github.dockyardmc.implementations.commands.DockyardCommands
+import io.github.dockyardmc.implementations.commands.DefaultCommands
 import io.github.dockyardmc.npc.NpcCommand
 import io.github.dockyardmc.protocol.NetworkCompression
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
@@ -66,7 +66,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         RegistryManager.register(ItemTagRegistry)
         RegistryManager.register(BiomeTagRegistry)
 
-        if(ConfigManager.config.implementationConfig.defaultCommands) DockyardCommands()
+        if(ConfigManager.config.implementationConfig.defaultCommands) DefaultCommands().register()
         if(ConfigManager.config.implementationConfig.npcCommand) NpcCommand()
         if(ConfigManager.config.implementationConfig.spark) SparkDockyardIntegration().initialize()
         if(ConfigManager.config.implementationConfig.applyBlockPlacementRules) DefaultBlockHandlers().register()

@@ -2,7 +2,7 @@ package io.github.dockyardmc.implementations.commands
 
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.utils.Branding
+import io.github.dockyardmc.utils.DockyardBranding
 
 class VersionAndHelpCommand {
 
@@ -12,7 +12,7 @@ class VersionAndHelpCommand {
             withAliases("ver", "info", "server", "dockyard")
             execute {
                 it.sendMessage("")
-                it.sendMessage("<gray>This server is running <${Branding.COLOR}>DockyardMC ${DockyardServer.versionInfo.dockyardVersion}<gray>. A custom Minecraft server implementation in Kotlin. <yellow><hover:show_text:'<yellow>https://github.com/DockyardMC/Dockyard'><click:open_url:https://github.com/DockyardMC/Dockyard>[Github]<reset>")
+                it.sendMessage("<gray>This server is running <${DockyardBranding.COLOR}>DockyardMC ${DockyardServer.versionInfo.dockyardVersion}<gray>. A custom Minecraft server implementation in Kotlin. <yellow><hover:show_text:'<yellow>https://github.com/DockyardMC/Dockyard'><click:open_url:https://github.com/DockyardMC/Dockyard>[Github]<reset>")
                 it.sendMessage("")
             }
         }
@@ -20,8 +20,8 @@ class VersionAndHelpCommand {
         Commands.add("/help") {
             withDescription("Shows list of commands")
             withAliases("commands")
-            execute {
-                val accessibleCommands = Commands.commands.filter { command -> !command.value.isAlias && it.hasPermission(command.value.permission) }
+            execute { ctx ->
+                val accessibleCommands = Commands.commands.filter { command -> !command.value.isAlias && ctx.hasPermission(command.value.permission) }
 
                 val message = buildString {
                     val commandSize = when (accessibleCommands.size) {
@@ -38,7 +38,7 @@ class VersionAndHelpCommand {
                         appendLine("<gray>  - <yellow>/${command.key} <gray> - <gray>$description")
                     }
                 }
-                it.sendMessage(message)
+                ctx.sendMessage(message)
             }
         }
     }

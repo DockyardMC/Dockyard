@@ -47,8 +47,6 @@ class Config {
 
 class ImplementationConfig {
     var applyBlockPlacementRules: Boolean = true
-    var notifyUserOfExceptionDuringCommand: Boolean = true
-    var commandErrorPrefix: String = "<dark_red>Error <dark_gray>| <red>"
     var commandNoPermissionsMessage: String = "You do not have permissions to execute this command!"
     var defaultEntityViewDistanceBlocks: Int = 64
     var defaultCommands: Boolean = true
