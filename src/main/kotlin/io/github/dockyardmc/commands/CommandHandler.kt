@@ -21,8 +21,6 @@ import java.util.*
 
 object CommandHandler {
 
-    val prefix get() = ConfigManager.config.implementationConfig.commandErrorPrefix
-
     fun handleCommandInput(inputCommand: String, executor: CommandExecutor, testEnv: Boolean = false) {
         DockyardServer.scheduler.run {
             val tokens = inputCommand.removePrefix("/").split(" ").toMutableList()
@@ -47,18 +45,15 @@ object CommandHandler {
             } catch (ex: Exception) {
                 if (testEnv) throw IllegalArgumentException(ex)
                 if (ex is CommandException) {
-                    val message = "$prefix${ex.message}"
+                    val message = "<red>${ex.message}"
                     executor.sendMessage(message)
                 } else {
                     log(ex)
-                    if (ConfigManager.config.implementationConfig.notifyUserOfExceptionDuringCommand) {
-                        executor.sendMessage("${prefix}A <orange>${ex::class.qualifiedName} <red>was thrown during execution of this command!")
-                    }
+                    executor.sendMessage("<dark_red>Error <dark_gray>| <red>A <orange><hover:show_text:'<dark_red>${ex.message}'>${ex::class.qualifiedName}</hover> <red>was thrown during execution of this command!")
                 }
             }
         }
     }
-
 
     fun handleCommand(
         command: Command,
@@ -117,7 +112,7 @@ object CommandHandler {
                 Float::class -> value.toFloatOrNull() ?: throw CommandException("\"$value\" is not of type Float")
                 Long::class -> value.toLongOrNull() ?: throw CommandException("\"$value\" is not of type Long")
                 UUID::class -> UUID.fromString(value)
-                Item::class -> ItemRegistry.get(value) ?: throw CommandException("\"$value\" is not of type Item")
+                Item::class -> ItemRegistry.getOrNull(value) ?: ItemRegistry.getOrNull("minecraft:$value") ?: throw CommandException("\"$value\" is not of type Item")
                 RegistryBlock::class -> {
                     if (value.contains("[")) {
                         //block state

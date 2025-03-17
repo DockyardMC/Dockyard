@@ -7,7 +7,7 @@ import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.utils.Branding
+import io.github.dockyardmc.utils.DockyardBranding
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -24,7 +24,7 @@ object ServerStatusManager {
 
     val defaultIcon: Bindable<ServerIcon> = Bindable(ServerIcon.fromFile(File("./icon.png")))
 
-    val defaultDescription = Bindable<String>("${Branding.logo} <gray>Custom Kotlin Server Implementation")
+    val defaultDescription = Bindable<String>("${DockyardBranding.logo} <gray>Custom Kotlin Server Implementation")
 
     init {
         defaultDescription.valueChanged { updateCache() }

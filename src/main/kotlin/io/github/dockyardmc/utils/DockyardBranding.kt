@@ -1,6 +1,6 @@
 package io.github.dockyardmc.utils
 
-object Branding {
+object DockyardBranding {
 
     const val COLOR = "#05bcff"
     const val NAME = "DockyardMC"

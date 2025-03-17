@@ -14,7 +14,7 @@ class DebugCommand {
 
             addSubcommand("world") {
                 addArgument("world", WorldArgument())
-                execute {
+                execute { ctx ->
                     val world = getArgument<World>("world")
                     val message = buildString {
                         append("\n")
@@ -25,12 +25,12 @@ class DebugCommand {
                         appendLine(" <gray>Scheduler running: ${(!world.scheduler.paused.value).toScrollText()}")
                         appendLine(" <gray>Scheduler tick rate: <lime>${world.scheduler.tickRate.value.inWholeMilliseconds}ms")
                     }
-                    it.sendMessage(message)
+                    ctx.sendMessage(message)
                 }
             }
             addSubcommand("events") {
-                execute {
-                    it.sendMessage(Events.debugTree())
+                execute { ctx ->
+                    ctx.sendMessage(Events.debugTree())
                 }
             }
         }

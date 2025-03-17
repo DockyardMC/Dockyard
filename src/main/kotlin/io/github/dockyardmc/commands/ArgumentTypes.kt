@@ -217,10 +217,6 @@ class EnumArgument(
     }
 }
 
-class ListArgument() {
-
-}
-
 
 class CommandArgumentData(
     val argument: CommandArgument,
