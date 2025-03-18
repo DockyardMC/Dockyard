@@ -17,7 +17,7 @@ import io.netty.channel.ChannelHandlerContext
 class ServerboundPlayerCommandPacket(val entityId: Int, val action: PlayerAction): ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        val player = PlayerManager.playerToEntityIdMap[entityId] ?: return
+        val player = processor.player
 
             val event = when(action) {
                 PlayerAction.SNEAKING_START -> {
