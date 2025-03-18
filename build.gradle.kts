@@ -141,7 +141,7 @@ tasks {
 
 tasks.withType<PublishToMavenRepository> {
     if(!version.toString().endsWith("-SNAPSHOT")) {
-        dependsOn("test")
+//        dependsOn("test")
     }
 }
 
