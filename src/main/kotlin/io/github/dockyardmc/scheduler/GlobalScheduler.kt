@@ -28,7 +28,6 @@ fun <T> runAsync(unit: () -> T): CompletableFuture<T> {
     return DockyardServer.scheduler.runAsync(unit)
 }
 
-
 @JvmName("runLaterAsyncTypedTicks")
 fun <T> runLaterAsync(ticks: Int, unit: () -> T): CompletableFuture<T> {
     return DockyardServer.scheduler.runLaterAsync(ticks.ticks, unit)

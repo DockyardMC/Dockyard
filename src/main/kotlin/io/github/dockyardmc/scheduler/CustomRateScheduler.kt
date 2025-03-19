@@ -77,6 +77,32 @@ class CustomRateScheduler(initialTickRate: Duration = 50.milliseconds, name: Str
         tickRate.triggerUpdate()
     }
 
+    override fun addTask(task: SchedulerTask, time: Duration) {
+        val timeInTicks = (time.inWholeMilliseconds / tickRate.value.inWholeMilliseconds)
+        val ticks = if (task.type == SchedulerTask.Type.TICK) timeInTicks + ticks else timeInTicks
+        when (task.type) {
+            SchedulerTask.Type.IMMEDIATE -> handleTask(task)
+            SchedulerTask.Type.TICK -> {
+                var list = scheduledTasks[ticks]
+                if (list == null) {
+                    scheduledTasks[ticks] = mutableListOf()
+                    list = scheduledTasks[ticks]!!
+                }
+
+                list.add(task)
+            }
+
+            SchedulerTask.Type.REPEATING -> {
+                var list = repeatingTasks[ticks]
+                if (list == null) {
+                    repeatingTasks[ticks] = mutableListOf()
+                    list = repeatingTasks[ticks]!!
+                }
+                list.add(task)
+            }
+        }
+    }
+
     override fun dispose() {
         tickRate.dispose()
         tickRateTimer.dispose()

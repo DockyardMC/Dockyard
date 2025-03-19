@@ -1,5 +1,6 @@
 package io.github.dockyardmc.scheduler
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.round
 import io.github.dockyardmc.utils.Disposable
 import java.time.Instant
@@ -19,11 +20,11 @@ abstract class Scheduler(val name: String) : Disposable {
         thread
     }
 
-    private val scheduledTasks: MutableMap<Long, MutableList<SchedulerTask>> =
+    internal val scheduledTasks: MutableMap<Long, MutableList<SchedulerTask>> =
         mutableMapOf() // scheduler tick time to task
     private val scheduledTasksAsync: MutableMap<Long, MutableList<AsyncSchedulerTask<*>>> =
         mutableMapOf() // scheduler tick time to task
-    private val repeatingTasks: MutableMap<Long, MutableList<SchedulerTask>> =
+    internal val repeatingTasks: MutableMap<Long, MutableList<SchedulerTask>> =
         mutableMapOf() // scheduler tick % interval to task
     private val repeatingTasksAsync: MutableMap<Long, MutableList<AsyncSchedulerTask<*>>> =
         mutableMapOf() // scheduler tick % interval to task
@@ -58,13 +59,13 @@ abstract class Scheduler(val name: String) : Disposable {
     private fun handleRepeatingTasks(tasks: MutableMap<Long, MutableList<SchedulerTask>>) {
         tasks.forEach intervalLoop@{ (interval, tasks) ->
             if (ticks % interval == 0L) {
-                tasks.toList().forEach taskLoop@{
-                    if (it.cancelled) {
-                        tasks.remove(it)
+                tasks.toList().forEach taskLoop@{ task ->
+                    if (task.cancelled) {
+                        tasks.remove(task)
                         return@taskLoop
                     }
                     executorService.submit {
-                        it.run(ticks)
+                        task.run(ticks)
                     }
                 }
             }
@@ -107,7 +108,7 @@ abstract class Scheduler(val name: String) : Disposable {
         }
     }
 
-    private fun handleTask(task: SchedulerTask) {
+    internal fun handleTask(task: SchedulerTask) {
         if (!task.cancelled) task.run(ticks)
         scheduledTasks[ticks]?.remove(task)
     }
