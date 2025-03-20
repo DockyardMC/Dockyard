@@ -3,6 +3,7 @@ package io.github.dockyardmc.player
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.attributes.PlayerAttributes
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.*
@@ -115,6 +116,7 @@ class Player(
     val gameModeSystem = GameModeSystem(this)
     val playerInfoSystem = PlayerInfoSystem(this)
     val entityViewSystem = EntityViewSystem(this)
+    val attributes = PlayerAttributes(this)
 
     val decoupledEntityViewSystemTicking = DockyardServer.scheduler.runRepeating(1.ticks) {
         entityViewSystem.tick()
@@ -550,6 +552,7 @@ class Player(
 
     override fun dispose() {
         decoupledEntityViewSystemTicking.cancel()
+        attributes.dispose()
         super.dispose()
     }
 }
