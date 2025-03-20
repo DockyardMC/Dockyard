@@ -2,11 +2,9 @@ package io.github.dockyardmc.attributes
 
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.item.AttributeModifiersItemComponent
+import io.github.dockyardmc.registry.registries.Attribute
+import io.github.dockyardmc.registry.registries.AttributeRegistry
 import io.netty.buffer.ByteBuf
-
-data class Attribute(
-    val id: Int
-)
 
 enum class AttributeOperation {
     ADD,
@@ -45,14 +43,14 @@ data class Modifier(
     val equipmentSlot: EquipmentSlotGroup
 ) {
     fun write(buffer: ByteBuf) {
-        buffer.writeVarInt(attribute.id)
+        buffer.writeVarInt(attribute.getProtocolId())
         attributeModifier.write(buffer)
         buffer.writeVarIntEnum<EquipmentSlotGroup>(equipmentSlot)
     }
 
     companion object {
         fun read(buffer: ByteBuf): Modifier {
-            val attribute = Attribute(buffer.readVarInt())
+            val attribute = AttributeRegistry.getByProtocolId(buffer.readVarInt())
             val attributeModifier = AttributeModifier.read(buffer)
             val slot = buffer.readVarIntEnum<EquipmentSlotGroup>()
 
