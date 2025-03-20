@@ -393,6 +393,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         equipmentLayers.clear()
         viewers.toList().forEach { removeViewer(it) }
         metadataLayers.clear()
+        passengers.values.forEach(passengers::removeIfPresent)
         bindablePool.dispose()
         EntityManager.despawnEntity(this)
     }
