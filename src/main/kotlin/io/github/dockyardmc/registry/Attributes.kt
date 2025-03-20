@@ -1,0 +1,38 @@
+package io.github.dockyardmc.registry
+
+import io.github.dockyardmc.registry.registries.AttributeRegistry
+
+object Attributes {
+    val ARMOR = AttributeRegistry["minecraft:armor"]
+    val ARMOR_TOUGHNESS = AttributeRegistry["minecraft:armor_toughness"]
+    val ATTACK_DAMAGE = AttributeRegistry["minecraft:attack_damage"]
+    val ATTACK_KNOCKBACK = AttributeRegistry["minecraft:attack_knockback"]
+    val ATTACK_SPEED = AttributeRegistry["minecraft:attack_speed"]
+    val BLOCK_BREAK_SPEED = AttributeRegistry["minecraft:block_break_speed"]
+    val BLOCK_INTERACTION_RANGE = AttributeRegistry["minecraft:block_interaction_range"]
+    val BURNING_TIME = AttributeRegistry["minecraft:burning_time"]
+    val EXPLOSION_KNOCKBACK_RESISTANCE = AttributeRegistry["minecraft:explosion_knockback_resistance"]
+    val ENTITY_INTERACTION_RANGE = AttributeRegistry["minecraft:entity_interaction_range"]
+    val FALL_DAMAGE_MULTIPLIER = AttributeRegistry["minecraft:fall_damage_multiplier"]
+    val FLYING_SPEED = AttributeRegistry["minecraft:flying_speed"]
+    val FOLLOW_RANGE = AttributeRegistry["minecraft:follow_range"]
+    val GRAVITY = AttributeRegistry["minecraft:gravity"]
+    val JUMP_STRENGTH = AttributeRegistry["minecraft:jump_strength"]
+    val KNOCKBACK_RESISTANCE = AttributeRegistry["minecraft:knockback_resistance"]
+    val LUCK = AttributeRegistry["minecraft:luck"]
+    val MAX_ABSORPTION = AttributeRegistry["minecraft:max_absorption"]
+    val MAX_HEALTH = AttributeRegistry["minecraft:max_health"]
+    val MINING_EFFICIENCY = AttributeRegistry["minecraft:mining_efficiency"]
+    val MOVEMENT_EFFICIENCY = AttributeRegistry["minecraft:movement_efficiency"]
+    val MOVEMENT_SPEED = AttributeRegistry["minecraft:movement_speed"]
+    val OXYGEN_BONUS = AttributeRegistry["minecraft:oxygen_bonus"]
+    val SAFE_FALL_DISTANCE = AttributeRegistry["minecraft:safe_fall_distance"]
+    val SCALE = AttributeRegistry["minecraft:scale"]
+    val SNEAKING_SPEED = AttributeRegistry["minecraft:sneaking_speed"]
+    val SPAWN_REINFORCEMENTS = AttributeRegistry["minecraft:spawn_reinforcements"]
+    val STEP_HEIGHT = AttributeRegistry["minecraft:step_height"]
+    val SUBMERGED_MINING_SPEED = AttributeRegistry["minecraft:submerged_mining_speed"]
+    val SWEEPING_DAMAGE_RATIO = AttributeRegistry["minecraft:sweeping_damage_ratio"]
+    val TEMPT_RANGE = AttributeRegistry["minecraft:tempt_range"]
+    val WATER_MOVEMENT_EFFICIENCY = AttributeRegistry["minecraft:water_movement_efficiency"]
+}
