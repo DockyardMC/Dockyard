@@ -21,6 +21,7 @@ object RegistryManager {
         EntityTypeTagRegistry::class to "registry/entity_type_tags.json.gz",
         FluidTagRegistry::class to "registry/fluid_tags.json.gz",
         ItemTagRegistry::class to "registry/item_tags.json.gz",
+        AttributeRegistry::class to "registry/attribute_registry.json.gz",
     )
 
     val dynamicRegistries: MutableMap<String, Registry> = mutableMapOf()

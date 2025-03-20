@@ -31,6 +31,7 @@ application {
 repositories {
     mavenCentral()
     maven("https://mvn.devos.one/releases")
+    maven("https://mvn.devos.one/snapshots")
     maven("https://jitpack.io")
     maven("https://repo.spongepowered.org/repository/maven-public/")
     maven("https://repo.viaversion.com")

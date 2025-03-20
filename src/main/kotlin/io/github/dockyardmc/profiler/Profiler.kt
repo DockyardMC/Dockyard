@@ -42,11 +42,6 @@ class Profiler {
 }
 
 inline fun profiler(name: String, block: () -> Unit) {
-    profiler(name, false, block)
-}
-
-inline fun profiler(name: String, toChat: Boolean = false, block: () -> Unit) {
     val ms = measureTimeMillis(block)
-    log("$name => ${ms}ms", Profiler.TimeLog)
-    if(toChat) broadcastMessage("<pink>[PROFILER] $name => ${ms}ms")
+    debug("\"$name\" took ${ms}ms", false)
 }
