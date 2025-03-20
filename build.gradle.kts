@@ -63,7 +63,6 @@ dependencies {
 
     // Networking
     api("io.ktor:ktor-server-netty:2.3.12")
-    api("io.ktor:ktor-network:2.3.12")
 
     // Logging
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
@@ -74,7 +73,7 @@ dependencies {
     implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.google.code.gson:gson:2.10.1")
     api("it.unimi.dsi:fastutil:8.5.13")
-    api("cz.lukynka:kotlin-bindables:1.5")
+    api("cz.lukynka:kotlin-bindables:1.6")
 
     api("io.github.dockyardmc:spark-api:1.12-SNAPSHOT")
     api("io.github.dockyardmc:spark-common:1.12-SNAPSHOT")

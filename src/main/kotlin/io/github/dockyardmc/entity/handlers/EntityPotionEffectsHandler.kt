@@ -1,7 +1,7 @@
 package io.github.dockyardmc.entity.handlers
 
 import cz.lukynka.bindables.BindableMap
-import io.github.dockyardmc.effects.PotionEffectImpl
+import io.github.dockyardmc.effects.PotionEffectAttributes
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRemoveEntityEffectPacket
@@ -26,13 +26,13 @@ class EntityPotionEffectsHandler(override val entity: Entity) : TickableEntityHa
 
             entity.sendPacketToViewers(packet)
             entity.sendSelfPacketIfPlayer(packet)
-            PotionEffectImpl.onEffectApply(entity, it.value.effect)
+            PotionEffectAttributes.onEffectApply(entity, it.value)
         }
 
         potionEffects.itemRemoved {
             val packet = ClientboundRemoveEntityEffectPacket(entity, it.value)
             entity.sendPacketToViewers(packet)
-            PotionEffectImpl.onEffectRemoved(entity, it.value.effect)
+            PotionEffectAttributes.onEffectRemoved(entity, it.value.effect)
             entity.sendSelfPacketIfPlayer(packet)
         }
     }
