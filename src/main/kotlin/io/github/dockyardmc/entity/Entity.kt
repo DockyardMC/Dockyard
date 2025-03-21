@@ -147,6 +147,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     override fun addViewer(player: Player) {
+        if(this.isDead) return
         val event = EntityViewerAddEvent(this, player)
         Events.dispatch(event)
         if (event.cancelled) return
@@ -242,6 +243,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun teleport(location: Location) {
+        if(this.isDead) return
         this.location = location
         viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
         viewers.sendPacket(ClientboundSetHeadYawPacket(this))
@@ -252,6 +254,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun teleportClientside(location: Location, player: Player) {
+        if(this.isDead) return
         teleportClientside(location, listOf(player))
     }
 

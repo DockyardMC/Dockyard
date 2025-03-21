@@ -5,6 +5,8 @@ import de.metaphoriker.pathetic.api.pathing.Pathfinder
 import de.metaphoriker.pathetic.api.pathing.filter.PathFilter
 import de.metaphoriker.pathetic.api.pathing.result.PathfinderResult
 import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.events.EntityNavigatorPickOffsetEvent
+import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toLocation
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toPathPosition
@@ -12,9 +14,10 @@ import io.github.dockyardmc.runnables.ticks
 import io.github.dockyardmc.scheduler.SchedulerTask
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.UsedAfterDisposedException
+import io.github.dockyardmc.utils.getEntityEventContext
 import io.github.dockyardmc.utils.locationLerp
 
-class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder: Pathfinder, val filters: List<PathFilter>): Disposable {
+class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder: Pathfinder, val filters: List<PathFilter>) : Disposable {
 
     var state = State.IDLE
         private set
@@ -29,6 +32,7 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
     private var newPathQueue = mutableListOf<Location>()
 
     private var currentTask: SchedulerTask? = null
+    private var currentInterpolationTask: SchedulerTask? = null
     val navigationSchedulerTask get() = currentTask
 
     private var currentNavigationNodeIndex = 0
@@ -36,8 +40,8 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
     val currentPath get() = path.toList()
 
     fun updatePathfindingPath(target: Location) {
-        if(state == State.DISPOSED) throw UsedAfterDisposedException(this)
-        if(isCurrentlyPathfinding) return
+        if (state == State.DISPOSED) throw UsedAfterDisposedException(this)
+        if (isCurrentlyPathfinding) return
         val start = entity.location.getBlockLocation().subtract(0, 1, 0).toPathPosition()
         val end = target.toPathPosition()
 
@@ -52,7 +56,13 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
                 return@thenAccept
             }
 
-            val newPath = result.path.map { it.toLocation() }.toMutableList()
+            val newPath = result.path.map { pathPosition ->
+                 val event = EntityNavigatorPickOffsetEvent(entity, this, pathPosition.toLocation(), getEntityEventContext(entity))
+                Events.dispatch(event)
+
+                event.location
+            }.toMutableList()
+
             newPathQueue = newPath
             if (currentTask == null) startNavigating()
         }
@@ -63,12 +73,12 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
             path.clear()
             path.addAll(newPathQueue)
             newPathQueue.clear()
-            currentNavigationNodeIndex = if(path.size >= 5) 2 else 1
+            currentNavigationNodeIndex = if (path.size >= 5) 2 else 1
         }
     }
 
     private fun startNavigating() {
-        if(state == State.DISPOSED) throw UsedAfterDisposedException(this)
+        if (state == State.DISPOSED) throw UsedAfterDisposedException(this)
         state = State.NAVIGATING
         cancelNavigating()
         updatePathWhileNavigating()
@@ -91,12 +101,14 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
             }
 
             var j = 0
-            entity.world.scheduler.repeat(speedTicksPerBlock, 1.ticks) { lerpLoop ->
+            currentInterpolationTask = entity.world.scheduler.repeat(speedTicksPerBlock, 1.ticks) { _ ->
+                if(entity.isDead) return@repeat
                 j++
                 val progress = j / speedTicksPerBlock.toDouble()
                 val interpolated = locationLerp(currentStepPosition, normalizePathLocation(nextStepPosition), progress.toFloat())
                 val direction = interpolated.toVector3d() - (entity.location).toVector3d()
-                entity.teleport(interpolated.setDirection(direction))
+                val location = interpolated.setDirection(direction)
+                entity.teleport(location)
 
                 if (j == speedTicksPerBlock) {
                     currentNavigationNodeIndex++
@@ -108,7 +120,9 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
 
     fun cancelNavigating() {
         currentTask?.cancel()
+        currentInterpolationTask?.cancel()
         currentTask = null
+        currentInterpolationTask = null
     }
 
     enum class State {
