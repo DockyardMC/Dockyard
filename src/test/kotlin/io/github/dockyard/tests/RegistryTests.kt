@@ -45,7 +45,7 @@ class RegistryTests {
     @Test
     fun testRegistries() {
         assertDoesNotThrow {
-            RegistryManager.registries.forEach { registry ->
+            RegistryManager.dynamicRegistries.values.forEach { registry ->
                 if(registry is ChatTypeRegistry) return@forEach // dockyard does not do chat type stuff
                 log("Testing registry ${registry.identifier}", LogType.DEBUG)
                 if(registry is BlockRegistry) {
