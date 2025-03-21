@@ -3,8 +3,6 @@ package io.github.dockyard.tests
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.EntityManager
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.InventoryClickEvent
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
@@ -18,8 +16,7 @@ import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
 import org.mockito.Mockito
-import java.util.UUID
-import java.util.concurrent.CountDownLatch
+import java.util.*
 import kotlin.test.assertEquals
 
 object PlayerTestUtil {
@@ -39,6 +36,7 @@ object PlayerTestUtil {
             )
             PlayerManager.add(player!!, player!!.networkManager)
             player!!.world.join(player!!)
+            player!!.teleport(WorldManager.mainWorld.defaultSpawnLocation)
         }
 
         player!!.gameMode.value = GameMode.SURVIVAL
@@ -52,7 +50,7 @@ object PlayerTestUtil {
     }
 }
 
-fun sendSlotClick(player: Player, slot: Int, button: Int, mode: ContainerClickMode, itemStack: ItemStack){
+fun sendSlotClick(player: Player, slot: Int, button: Int, mode: ContainerClickMode, itemStack: ItemStack) {
     PlayerTestUtil.sendPacket(player, ServerboundClickContainerPacket(0, 0, PlayerInventoryUtils.convertToPacketSlot(slot), button, mode, mutableMapOf(), itemStack))
 }
 

@@ -20,6 +20,12 @@ object EntityManager {
         }
     }
 
+    fun removePlayer(player: Player) {
+        synchronized(entities) {
+            innerEntities.remove(player.id)
+        }
+    }
+
     fun getByIdOrNull(id: Int): Entity? {
         return innerEntities[id]
     }
@@ -45,6 +51,7 @@ object EntityManager {
     }
 
     fun despawnEntity(entity: Entity) {
+        if(entity is Player) return
         synchronized(entities) {
             innerEntities.remove(entity.id)
             entity.world.removeEntity(entity)
@@ -56,6 +63,7 @@ object EntityManager {
     }
 
     fun World.despawnEntity(entity: Entity) {
+        if(entity is Player) return
         entity.dispose()
     }
 }

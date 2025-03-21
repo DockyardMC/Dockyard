@@ -28,7 +28,7 @@ class BlockTest {
 
     @AfterTest
     fun cleanup() {
-        WorldManager.mainWorld.setBlock(0, 0, 0, io.github.dockyardmc.world.block.Block.AIR)
+        WorldManager.mainWorld.setBlock(0, 0, 0, Block.AIR)
     }
 
     @Test
@@ -97,13 +97,13 @@ class BlockTest {
 
     @Test
     fun testInvalidBlockStates() {
-        assertDoesNotThrow { io.github.dockyardmc.world.block.Block.getBlockFromStateString("minecraft:oak_slab[type=top,waterlogged=false]") }
-        assertThrows<IllegalArgumentException> { io.github.dockyardmc.world.block.Block.getBlockFromStateString("minecraft:oak_slab[silly=true,gay=true]") }
+        assertDoesNotThrow { Block.getBlockFromStateString("minecraft:oak_slab[type=top,waterlogged=false]") }
+        assertThrows<IllegalArgumentException> { Block.getBlockFromStateString("minecraft:oak_slab[silly=true,gay=true]") }
     }
 
     @Test
     fun testBlockStateParsing() {
-        val parsed = io.github.dockyardmc.world.block.Block.parseBlockStateString("minecraft:oak_slab[type=top]")
+        val parsed = Block.parseBlockStateString("minecraft:oak_slab[type=top]")
 
         assertEquals("minecraft:oak_slab", parsed.first)
         assertEquals(mapOf("type" to "top"), parsed.second)

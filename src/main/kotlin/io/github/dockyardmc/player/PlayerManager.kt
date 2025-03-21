@@ -63,10 +63,11 @@ object PlayerManager {
 
     fun remove(player: Player) {
         player.isConnected = false
-        //TODO send remove player info packets
-        player.viewers.toList().forEach {
-            player.removeViewer(it);
-            it.removeViewer(player)
+        EntityManager.removePlayer(player)
+
+        player.viewers.toList().forEach { viewer ->
+            player.removeViewer(viewer);
+            viewer.removeViewer(player)
         }
 
         synchronized(innerPlayers) {
@@ -76,6 +77,7 @@ object PlayerManager {
         synchronized(playerToEntityIdMap) {
             innerPlayerToEntityIdMap.remove(player.id)
         }
+
         player.world.removePlayer(player)
         player.world.removeEntity(player)
         player.dispose()
