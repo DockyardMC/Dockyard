@@ -1,8 +1,9 @@
 package io.github.dockyardmc.entity.handlers
 
 import cz.lukynka.bindables.BindableMap
-import io.github.dockyardmc.effects.PotionEffectImpl
+import io.github.dockyardmc.effects.PotionEffectAttributes
 import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRemoveEntityEffectPacket
 import io.github.dockyardmc.registry.AppliedPotionEffect
@@ -26,22 +27,22 @@ class EntityPotionEffectsHandler(override val entity: Entity) : TickableEntityHa
 
             entity.sendPacketToViewers(packet)
             entity.sendSelfPacketIfPlayer(packet)
-            PotionEffectImpl.onEffectApply(entity, it.value.effect)
+            if(entity is Player) PotionEffectAttributes.onEffectApply(entity, it.value)
         }
 
         potionEffects.itemRemoved {
             val packet = ClientboundRemoveEntityEffectPacket(entity, it.value)
             entity.sendPacketToViewers(packet)
-            PotionEffectImpl.onEffectRemoved(entity, it.value.effect)
+            if(entity is Player) PotionEffectAttributes.onEffectRemoved(entity, it.value.effect)
             entity.sendSelfPacketIfPlayer(packet)
         }
     }
 
     override fun tick() {
-        entity.potionEffects.values.forEach {
-            if(it.value.settings.duration == -1) return@forEach
-            if (System.currentTimeMillis() >= it.value.startTime!! + ticksToMs(it.value.settings.duration)) {
-                entity.potionEffects.remove(it.key)
+        entity.potionEffects.values.forEach { effect ->
+            if(effect.value.settings.duration == -1) return@forEach
+            if (System.currentTimeMillis() >= effect.value.startTime!! + ticksToMs(effect.value.settings.duration)) {
+                entity.potionEffects.remove(effect.key)
             }
         }
     }

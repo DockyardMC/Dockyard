@@ -3,6 +3,7 @@ package io.github.dockyardmc.world
 import cz.lukynka.prettylog.AnsiPair
 import cz.lukynka.prettylog.CustomLogType
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.DimensionTypes
@@ -19,9 +20,11 @@ object WorldManager {
     val LOG_TYPE = CustomLogType("\uD83C\uDF0E World Manager", AnsiPair.PURPLE)
 
     fun loadDefaultWorld() {
-        mainWorld.load().thenAccept {
-            worlds["main"] = mainWorld
-            generateDefaultStonePlatform(mainWorld)
+        profiler("Load default world") {
+            mainWorld.load().thenAccept {
+                worlds["main"] = mainWorld
+                generateDefaultStonePlatform(mainWorld)
+            }
         }
     }
 

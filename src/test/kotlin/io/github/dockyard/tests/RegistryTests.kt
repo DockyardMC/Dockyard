@@ -3,6 +3,7 @@ package io.github.dockyard.tests
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.AttributeRegistry
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.ChatTypeRegistry
 import io.github.dockyardmc.utils.randomInt
@@ -37,6 +38,7 @@ class RegistryTests {
             Blocks.CREAKING_HEART
             Tags.BIOME_ALLOWS_TROPICAL_FISH_SPAWNS_AT_ANY_HEIGHT
             Tags.ITEM_STONE_BRICKS
+            Attributes.GRAVITY
         }
     }
 

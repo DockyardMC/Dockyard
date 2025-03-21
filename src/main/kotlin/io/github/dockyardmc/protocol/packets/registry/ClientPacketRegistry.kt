@@ -165,7 +165,7 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("tick step")
         skipPlay("transfer packet")
         skipPlay("advancements")
-        skipPlay("entity attribute")
+        addPlay(ClientboundUpdateAttributesPacket::class)
         addPlay(ClientboundEntityEffectPacket::class)
         skipPlay("declare recipes")
         skipPlay("tags")
