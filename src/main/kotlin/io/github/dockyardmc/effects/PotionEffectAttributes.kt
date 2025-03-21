@@ -12,28 +12,28 @@ object PotionEffectAttributes {
     fun onEffectApply(entity: Player, effect: AppliedPotionEffect) {
         when (effect.effect) {
             PotionEffects.SPEED -> {
-                entity.attributes[Attributes.MOVEMENT_SPEED].addModifier("minecraft:speed", effect.settings.amplifier * 0.20, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.MOVEMENT_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * 0.20, AttributeOperation.MULTIPLY_BASE)
             }
 
             PotionEffects.SLOWNESS -> {
-                entity.attributes[Attributes.MOVEMENT_SPEED].addModifier("minecraft:slowness", effect.settings.amplifier * -0.20, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.MOVEMENT_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * -0.20, AttributeOperation.MULTIPLY_BASE)
             }
 
             PotionEffects.HASTE -> {
-                entity.attributes[Attributes.ATTACK_SPEED].addModifier("minecraft:haste", effect.settings.amplifier * 10.0, AttributeOperation.MULTIPLY_BASE)
-                entity.attributes[Attributes.MINING_EFFICIENCY].addModifier("minecraft:haste", effect.settings.amplifier * 20.0, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.ATTACK_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * 0.10, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.MINING_EFFICIENCY].addModifier(effect.effect.identifier, effect.settings.amplifier * 20.0, AttributeOperation.MULTIPLY_BASE)
             }
 
             PotionEffects.MINING_FATIGUE -> {
-                entity.attributes[Attributes.ATTACK_SPEED].addModifier("minecraft:haste", effect.settings.amplifier * -10.0, AttributeOperation.MULTIPLY_BASE)
-                entity.attributes[Attributes.MINING_EFFICIENCY].addModifier("minecraft:haste", effect.settings.amplifier * -20.0, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.ATTACK_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * -0.10, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.MINING_EFFICIENCY].addModifier(effect.effect.identifier, effect.settings.amplifier * -20.0, AttributeOperation.MULTIPLY_BASE)
             }
 
             PotionEffects.STRENGTH -> {}
             PotionEffects.INSTANT_HEALTH -> {}
             PotionEffects.INSTANT_DAMAGE -> {}
             PotionEffects.JUMP_BOOST -> {
-                entity.attributes[Attributes.JUMP_STRENGTH].addModifier("minecraft:jump_boost", effect.settings.amplifier * 0.1, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.JUMP_STRENGTH].addModifier(effect.effect.identifier, effect.settings.amplifier * 0.1, AttributeOperation.MULTIPLY_BASE)
             }
 
             PotionEffects.REGENERATION -> {}
@@ -48,28 +48,28 @@ object PotionEffectAttributes {
     fun onEffectRemoved(player: Player, effect: PotionEffect) {
         when (effect) {
             PotionEffects.SPEED -> {
-                player.attributes[Attributes.MOVEMENT_SPEED].removeModifier("minecraft:speed")
+                player.attributes[Attributes.MOVEMENT_SPEED].removeModifier(effect.identifier)
             }
 
             PotionEffects.SLOWNESS -> {
-                player.attributes[Attributes.MOVEMENT_SPEED].removeModifier("minecraft:slowness")
+                player.attributes[Attributes.MOVEMENT_SPEED].removeModifier(effect.identifier)
             }
 
             PotionEffects.HASTE -> {
-                player.attributes[Attributes.MINING_EFFICIENCY].removeModifier("minecraft:haste")
-                player.attributes[Attributes.ATTACK_SPEED].removeModifier("minecraft:haste")
+                player.attributes[Attributes.MINING_EFFICIENCY].removeModifier(effect.identifier)
+                player.attributes[Attributes.ATTACK_SPEED].removeModifier(effect.identifier)
             }
 
             PotionEffects.MINING_FATIGUE -> {
-                player.attributes[Attributes.MINING_EFFICIENCY].removeModifier("minecraft:mining_fatigue")
-                player.attributes[Attributes.ATTACK_SPEED].removeModifier("minecraft:mining_fatigue")
+                player.attributes[Attributes.MINING_EFFICIENCY].removeModifier(effect.identifier)
+                player.attributes[Attributes.ATTACK_SPEED].removeModifier(effect.identifier)
             }
 
             PotionEffects.STRENGTH -> {}
             PotionEffects.INSTANT_HEALTH -> {}
             PotionEffects.INSTANT_DAMAGE -> {}
             PotionEffects.JUMP_BOOST -> {
-                player.attributes[Attributes.JUMP_STRENGTH].removeModifier("minecraft:jump_boost")
+                player.attributes[Attributes.JUMP_STRENGTH].removeModifier(effect.identifier)
             }
 
             PotionEffects.REGENERATION -> {}
