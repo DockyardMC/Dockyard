@@ -5,7 +5,7 @@ import de.metaphoriker.pathetic.api.pathing.Pathfinder
 import de.metaphoriker.pathetic.api.pathing.filter.PathFilter
 import de.metaphoriker.pathetic.api.pathing.result.PathfinderResult
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.events.EntityPathfindingTeleportEvent
+import io.github.dockyardmc.events.EntityNavigatorPickOffsetEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toLocation
@@ -57,7 +57,7 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
             }
 
             val newPath = result.path.map { pathPosition ->
-                val event = EntityPathfindingTeleportEvent(entity, this, pathPosition.toLocation(), getEntityEventContext(entity))
+                val event = EntityNavigatorPickOffsetEvent(entity, this, pathPosition.toLocation(), getEntityEventContext(entity))
                 Events.dispatch(event)
 
                 event.location
