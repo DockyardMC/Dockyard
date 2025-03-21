@@ -37,9 +37,10 @@ object PlayerTestUtil {
                 address = "0.0.0.0",
                 networkManager = PlayerNetworkManager(),
             )
+            PlayerManager.add(player!!, player!!.networkManager)
+            player!!.world.join(player!!)
         }
 
-        PlayerManager.add(player!!, player!!.networkManager)
         player!!.gameMode.value = GameMode.SURVIVAL
         return player!!
     }
