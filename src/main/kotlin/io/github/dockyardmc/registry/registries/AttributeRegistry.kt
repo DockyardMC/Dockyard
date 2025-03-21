@@ -21,14 +21,13 @@ object AttributeRegistry : DataDrivenRegistry {
     val attributes: MutableMap<String, Attribute> = mutableMapOf()
     val protocolIdMap: Int2ObjectOpenHashMap<Attribute> = Int2ObjectOpenHashMap()
     val protocolIdMapReversed: Object2IntOpenHashMap<Attribute> = Object2IntOpenHashMap()
-    val protocolIdCounter = AtomicInteger()
+    private val protocolIdCounter = AtomicInteger()
 
     override val identifier: String = "minecraft:attribute"
 
     override fun initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<Attribute>>(stream)
-        val protocolIdCounter = AtomicInteger()
 
         list.forEach { attribute ->
             val protocolId = protocolIdCounter.getAndIncrement()

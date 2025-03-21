@@ -25,8 +25,10 @@ object RegistryManager {
     )
 
     val dynamicRegistries: MutableMap<String, Registry> = mutableMapOf()
+    val registries = mutableListOf<Registry>()
 
     fun register(registry: Registry) {
+        registries.add(registry)
         if(registry is DataDrivenRegistry) {
             val resource = ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]) ?: throw IllegalStateException("No resource file path for registry ${registry.identifier}")
             registry.initialize(resource.openStream())
