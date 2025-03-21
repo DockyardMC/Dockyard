@@ -101,8 +101,8 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         if (event.cancelled) return
 
         // tick entities
-        synchronized(entities) {
-            scheduler.run {
+        scheduler.run {
+            synchronized(innerEntities) {
                 entities.forEach {
                     if (it.tickable) it.tick()
                 }

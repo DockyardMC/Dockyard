@@ -27,7 +27,7 @@ class EntityViewSystem(val player: Player): TickablePlayerSystem {
         val add = entities.filter { it.location.distance(player.location) <= it.viewDistanceBlocks && !visibleEntities.contains(it) }
         val remove = entities.filter { it.location.distance(player.location) > it.viewDistanceBlocks && visibleEntities.contains(it) }
 
-        add.forEach { entity -> entity.addViewer(player); visibleEntities.addIfNotPresent(entity) }
-        remove.forEach { entity -> entity.removeViewer(player); visibleEntities.removeIfPresent(entity) }
+        add.forEach { entity -> entity.addViewer(player) }
+        remove.forEach { entity -> entity.removeViewer(player) }
     }
 }
