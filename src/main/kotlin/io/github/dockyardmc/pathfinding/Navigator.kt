@@ -57,7 +57,7 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
             }
 
             val newPath = result.path.map { pathPosition ->
-                val event = EntityNavigatorPickOffsetEvent(entity, this, pathPosition.toLocation(), getEntityEventContext(entity))
+                 val event = EntityNavigatorPickOffsetEvent(entity, this, pathPosition.toLocation(), getEntityEventContext(entity))
                 Events.dispatch(event)
 
                 event.location
