@@ -33,7 +33,7 @@ class EntityItemPickupHandler(override val entity: Entity) : TickableEntityHandl
                     setOf(entity.world),
                     setOf(entity.location, drop.location)
                 )
-                val event = EntityPickupItemEvent(entity, itemStack, eventContext)
+                val event = EntityPickupItemEvent(entity, drop, eventContext)
                 if (event.cancelled) return@forEach
 
                 if (entity.canPickupItem(drop, itemStack)) {
