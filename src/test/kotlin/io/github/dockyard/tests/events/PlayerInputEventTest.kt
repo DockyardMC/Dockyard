@@ -1,8 +1,8 @@
 package io.github.dockyard.tests.events
 
 import io.github.dockyard.tests.PlayerTestUtil
+import io.github.dockyard.tests.TestFor
 import io.github.dockyard.tests.TestServer
-import io.github.dockyardmc.events.Event
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerIputEvent
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
@@ -12,6 +12,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
+@TestFor(PlayerIputEvent::class)
 class PlayerInputEventTest {
     @BeforeTest
     fun prepare() {

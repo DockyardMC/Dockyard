@@ -1,6 +1,7 @@
 package io.github.dockyard.tests.events
 
 import io.github.dockyard.tests.PlayerTestUtil
+import io.github.dockyard.tests.TestFor
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.ItemGroupCooldownEndEvent
@@ -12,6 +13,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
+@TestFor(ItemGroupCooldownStartEvent::class, ItemGroupCooldownEndEvent::class)
 class ItemGroupCooldownEventsTest {
     @BeforeTest
     fun prepare() {

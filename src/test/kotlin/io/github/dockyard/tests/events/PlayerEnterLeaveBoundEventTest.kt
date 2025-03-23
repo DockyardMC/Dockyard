@@ -1,6 +1,7 @@
 package io.github.dockyard.tests.events
 
 import io.github.dockyard.tests.PlayerTestUtil
+import io.github.dockyard.tests.TestFor
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.bounds.Bound
 import io.github.dockyardmc.events.EventPool
@@ -12,6 +13,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
+@TestFor(PlayerEnterBoundEvent::class, PlayerLeaveBoundEvent::class)
 class PlayerEnterLeaveBoundEventTest {
     @BeforeTest
     fun prepare() {

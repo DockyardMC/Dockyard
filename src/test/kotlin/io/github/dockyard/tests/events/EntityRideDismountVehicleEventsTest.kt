@@ -1,19 +1,19 @@
 package io.github.dockyard.tests.events
 
+import io.github.dockyard.tests.TestFor
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.entity.Parrot
 import io.github.dockyardmc.events.EntityDismountVehicleEvent
 import io.github.dockyardmc.events.EntityRideVehicleEvent
 import io.github.dockyardmc.events.EventPool
-import io.github.dockyardmc.registry.DamageTypes
-import io.github.dockyardmc.registry.registries.DamageType
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
+@TestFor(EntityRideVehicleEvent::class, EntityDismountVehicleEvent::class)
 class EntityRideDismountVehicleEventsTest {
     @BeforeTest
     fun prepare() {

@@ -1,6 +1,7 @@
 package io.github.dockyard.tests.events
 
 import io.github.dockyard.tests.PlayerTestUtil
+import io.github.dockyard.tests.TestFor
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.entity.Parrot
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
+@TestFor(EntityViewerAddEvent::class, EntityViewerRemoveEvent::class)
 class EntityViewerAddRemoveEventTest {
     @BeforeTest
     fun prepare() {
