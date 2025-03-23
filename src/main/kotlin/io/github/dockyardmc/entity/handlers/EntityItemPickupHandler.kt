@@ -6,6 +6,7 @@ import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.ItemDropEntity
 import io.github.dockyardmc.events.EntityPickupItemEvent
 import io.github.dockyardmc.events.Event
+import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPickupItemPacket
@@ -34,6 +35,7 @@ class EntityItemPickupHandler(override val entity: Entity) : TickableEntityHandl
                     setOf(entity.location, drop.location)
                 )
                 val event = EntityPickupItemEvent(entity, drop, eventContext)
+                Events.dispatch(event)
                 if (event.cancelled) return@forEach
 
                 if (entity.canPickupItem(drop, itemStack)) {
