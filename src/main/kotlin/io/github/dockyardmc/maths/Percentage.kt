@@ -22,19 +22,19 @@ class Percentage(initialPercentage: Double) {
     }
 
     fun getValueOf(value: Double): Double {
-        return (percentage / 100) * value
+        return percentage / 100 * value
     }
 
     fun getValueOf(value: Int): Int {
-        return (percentage.toInt() / 100) * value
+        return percentage.toInt() / 100 * value
     }
 
     fun getValueOf(value: Float): Float {
-        return (percentage.toFloat() / 100) * value
+        return percentage.toFloat() / 100 * value
     }
 
     fun getValueOf(value: Long): Long {
-        return (percentage.toLong() / 100) * value
+        return percentage.toLong() / 100 * value
     }
 
     fun setFromValue(value: Double, max: Double) {

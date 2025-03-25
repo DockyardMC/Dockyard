@@ -59,10 +59,10 @@ fun getRelativeLocation(current: Location, previous: Location): Location {
     return Location(x, y, z, current.world)
 }
 
-fun percent(max: Double, part: Double): Double = (part / max) * 100.0
-fun percent(max: Int, part: Int): Float = (part.toFloat() / max.toFloat()) * 100
-fun percent(max: Float, part: Float): Float = (part / max) * 100f
-fun percent(max: Long, part: Long): Float = (part.toFloat() / max.toFloat()) * 100L
+fun percent(max: Double, part: Double): Double = part / max * 100.0
+fun percent(max: Int, part: Int): Float = part.toFloat() / max.toFloat() * 100
+fun percent(max: Float, part: Float): Float = part / max * 100f
+fun percent(max: Long, part: Long): Float = part.toFloat() / max.toFloat() * 100L
 
 fun percentOf(percent: Float, max: Double): Double = percent * max
 
