@@ -29,6 +29,11 @@ abstract class EnforceTestsAbstract {
     abstract val prodPackage: String
 
     /**
+     * Classes ignored from checking
+     */
+    abstract val ignoredClasses: List<Class<*>>
+
+    /**
      * Only test classes that inherit this class
      *
      * Examples:
@@ -36,30 +41,31 @@ abstract class EnforceTestsAbstract {
      */
     open val superClass: Class<out Any> = Any::class.java
 
-    val refl = Reflections(
-        ConfigurationBuilder()
-            .setUrls(ClasspathHelper.forPackage(prodPackage))
-            .setScanners(SubTypesScanner(false))
-            .filterInputsBy { it.startsWith("$prodPackage.") }
-            .useParallelExecutor()
-    )
-
-    val testRefl = Reflections(
-        ConfigurationBuilder()
-            .setUrls(ClasspathHelper.forPackage(testsPackage))
-            .setScanners(SubTypesScanner(false))
-            .filterInputsBy { it.startsWith("$testsPackage.") }
-            .useParallelExecutor()
-    )
-
     open fun shouldTest(cls: Class<*>): Boolean {
         return !Modifier.isAbstract(cls.modifiers)
                 && !Modifier.isInterface(cls.modifiers)
                 && !cls.kotlin.isCompanion
+                && !ignoredClasses.contains(cls)
     }
 
     @Test
     fun check() {
+        val refl = Reflections(
+            ConfigurationBuilder()
+                .setUrls(ClasspathHelper.forPackage(prodPackage))
+                .setScanners(SubTypesScanner(false))
+                .filterInputsBy { it.startsWith("$prodPackage.") }
+                .useParallelExecutor()
+        )
+
+        val testRefl = Reflections(
+            ConfigurationBuilder()
+                .setUrls(ClasspathHelper.forPackage(testsPackage))
+                .setScanners(SubTypesScanner(false))
+                .filterInputsBy { it.startsWith("$testsPackage.") }
+                .useParallelExecutor()
+        )
+
         val classes = refl.getSubTypesOf(superClass)
         classes.removeAll { !shouldTest(it) }
 
@@ -68,13 +74,13 @@ abstract class EnforceTestsAbstract {
         assert(classes.isNotEmpty()) { "Couldn't load Event classes" }
         assert(testClasses.isNotEmpty()) { "Couldn't load test classes" }
 
-        testClasses.forEach {
-            val testFor = it.getAnnotation(TestFor::class.java)
+        testClasses.forEach { testClass ->
+            val testFor = testClass.getAnnotation(TestFor::class.java)
 
             if (testFor != null) {
-                classes.removeAll(testFor.value.map { it.java })
+                classes.removeAll(testFor.value.map { it.java }.toSet())
             } else {
-                val className = it.name
+                val className = testClass.name
                     .replace(testsPackage, prodPackage)
                     .removeSuffix("Test")
 

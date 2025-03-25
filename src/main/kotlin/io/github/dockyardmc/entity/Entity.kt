@@ -394,6 +394,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val eyeHeight get() = location.add(0.0, this.type.dimensions.eyeHeight.toDouble(), 0.0)
 
     override fun dispose() {
+        this.autoViewable = false
         team.value = null
         equipmentLayers.clear()
         viewers.toList().forEach { removeViewer(it) }

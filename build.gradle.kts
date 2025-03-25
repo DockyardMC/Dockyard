@@ -85,7 +85,7 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-    forkEvery = 1
+//    forkEvery = 1
 }
 
 fun String.runCommand(
@@ -141,7 +141,7 @@ tasks {
 
 tasks.withType<PublishToMavenRepository> {
     if(!version.toString().endsWith("-SNAPSHOT")) {
-//        dependsOn("test")
+        dependsOn("test")
     }
 }
 

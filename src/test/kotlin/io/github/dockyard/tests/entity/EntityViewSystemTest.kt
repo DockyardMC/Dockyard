@@ -1,12 +1,16 @@
 package io.github.dockyard.tests.entity
 
+import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.Parrot
 import io.github.dockyardmc.world.WorldManager
-import kotlin.test.*
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class EntityViewSystemTest {
 
@@ -118,6 +122,7 @@ class EntityViewSystemTest {
         assertEquals(true, world1Parrot.viewers.contains(player))
         assertEquals(false, player.entityViewSystem.visibleEntities.contains(world2Parrot))
         assertEquals(false, world2Parrot.viewers.contains(player))
+        log(player.entityViewSystem.visibleEntities.map { it::class.simpleName }.toString())
         assertEquals(1, player.entityViewSystem.visibleEntities.size)
 
         player.teleport(TestServer.testWorld.defaultSpawnLocation)

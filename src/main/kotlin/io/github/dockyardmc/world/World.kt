@@ -7,7 +7,10 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.extentions.SHA256Long
+import io.github.dockyardmc.extentions.addIfNotPresent
+import io.github.dockyardmc.extentions.hasUpperCase
+import io.github.dockyardmc.extentions.removeIfPresent
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.particles.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
@@ -20,8 +23,6 @@ import io.github.dockyardmc.registry.registries.DimensionType
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.runnables.ticks
 import io.github.dockyardmc.scheduler.CustomRateScheduler
-import io.github.dockyardmc.scroll.Component
-import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.utils.vectors.Vector2f
@@ -84,17 +85,17 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun schedule(unit: (World) -> Unit) {
-        if(isLoaded.value) {
+        if (isLoaded.value) {
             unit.invoke(this)
         } else {
             isLoaded.valueChangedThenSelfDispose { event ->
-                if(event.newValue) unit.invoke(this) else throw UsedAfterDisposedException(this)
+                if (event.newValue) unit.invoke(this) else throw UsedAfterDisposedException(this)
             }
         }
     }
 
     fun tick() {
-        if(!isLoaded.value) return
+        if (!isLoaded.value) return
         val event = WorldTickEvent(this, scheduler, getWorldEventContext(this))
         Events.dispatch(event)
 
@@ -111,15 +112,11 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun addEntity(entity: Entity) {
-        synchronized(innerEntities) {
-            innerEntities.add(entity)
-        }
+        innerEntities.add(entity)
     }
 
     fun removeEntity(entity: Entity) {
-        synchronized(innerEntities) {
-            innerEntities.remove(entity)
-        }
+        innerEntities.remove(entity)
     }
 
     fun removePlayer(entity: Entity) {
@@ -311,7 +308,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit): CompletableFuture<World> {
-        if(!isLoaded.value) throw IllegalStateException("World has not been fully loaded yet! Please use World#schedule or wait until world is fully loaded")
+        if (!isLoaded.value) throw IllegalStateException("World has not been fully loaded yet! Please use World#schedule or wait until world is fully loaded")
         val update = BatchBlockUpdate(this)
         builder.invoke(update)
         val future = CompletableFuture<World>()

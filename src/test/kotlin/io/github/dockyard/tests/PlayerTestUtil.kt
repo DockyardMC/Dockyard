@@ -7,6 +7,8 @@ import io.github.dockyardmc.inventory.PlayerInventoryUtils
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.player.ProfileProperty
+import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -34,6 +36,8 @@ object PlayerTestUtil {
                 address = "0.0.0.0",
                 networkManager = PlayerNetworkManager(),
             )
+
+            player!!.profile = ProfilePropertyMap("textures", mutableListOf(ProfileProperty("textures", ":3", false, null)))
             PlayerManager.add(player!!, player!!.networkManager)
             player!!.world.join(player!!)
             player!!.teleport(WorldManager.mainWorld.defaultSpawnLocation)

@@ -1,8 +1,7 @@
 package io.github.dockyardmc.player.systems
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.extentions.addIfNotPresent
-import io.github.dockyardmc.extentions.removeIfPresent
 import io.github.dockyardmc.player.Player
 import java.util.concurrent.locks.ReentrantLock
 
@@ -27,7 +26,13 @@ class EntityViewSystem(val player: Player): TickablePlayerSystem {
         val add = entities.filter { it.location.distance(player.location) <= it.viewDistanceBlocks && !visibleEntities.contains(it) }
         val remove = entities.filter { it.location.distance(player.location) > it.viewDistanceBlocks && visibleEntities.contains(it) }
 
-        add.forEach { entity -> entity.addViewer(player) }
-        remove.forEach { entity -> entity.removeViewer(player) }
+        add.forEach { entity ->
+            entity.addViewer(player)
+            log("Added $entity to viewers")
+        }
+        remove.forEach { entity ->
+            entity.removeViewer(player)
+            log("Removed $entity to viewers")
+        }
     }
 }

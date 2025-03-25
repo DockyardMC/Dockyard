@@ -1,5 +1,6 @@
 package io.github.dockyardmc.entity
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.EntitySpawnEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.player.Player
