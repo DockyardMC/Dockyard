@@ -1,4 +1,4 @@
-package io.github.dockyardmc.utils.vectors
+package io.github.dockyardmc.maths.vectors
 
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
@@ -108,10 +108,9 @@ data class Vector3(
     }
 
     fun equalsBlock(end: Location): Boolean {
-        return (end.x.toInt() == x &&
+        return end.x.toInt() == x &&
                 end.y.toInt() == y &&
                 end.z.toInt() == z
-                )
     }
 
     override fun write(buffer: ByteBuf) {

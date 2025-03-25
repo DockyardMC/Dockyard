@@ -3,10 +3,9 @@ package io.github.dockyard.tests
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registry.*
-import io.github.dockyardmc.registry.registries.AttributeRegistry
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.ChatTypeRegistry
-import io.github.dockyardmc.utils.randomInt
+import io.github.dockyardmc.maths.randomInt
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test

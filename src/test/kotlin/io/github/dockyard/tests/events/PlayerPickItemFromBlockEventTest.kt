@@ -5,7 +5,7 @@ import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerPickItemFromBlockEvent
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundPickItemFromBlockPacket
-import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest

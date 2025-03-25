@@ -8,10 +8,10 @@ import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.scroll.Component
-import io.github.dockyardmc.utils.Quaternion
-import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
-import io.github.dockyardmc.utils.writeQuaternion
+import io.github.dockyardmc.maths.Quaternion
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.maths.writeQuaternion
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.util.*

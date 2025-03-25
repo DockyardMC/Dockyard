@@ -1,4 +1,4 @@
-package io.github.dockyardmc.runnables
+package io.github.dockyardmc.scheduler.runnables
 
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.TickPeriod

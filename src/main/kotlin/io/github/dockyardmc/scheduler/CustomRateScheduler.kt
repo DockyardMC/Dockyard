@@ -3,8 +3,8 @@ package io.github.dockyardmc.scheduler
 import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.extentions.round
-import io.github.dockyardmc.runnables.RepeatingTimer
-import io.github.dockyardmc.runnables.ticks
+import io.github.dockyardmc.scheduler.runnables.RepeatingTimer
+import io.github.dockyardmc.scheduler.runnables.ticks
 import java.time.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds

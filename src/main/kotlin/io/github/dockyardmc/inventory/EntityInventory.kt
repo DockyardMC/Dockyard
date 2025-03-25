@@ -10,7 +10,7 @@ import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.utils.getEntityEventContext
-import io.github.dockyardmc.utils.isBetween
+import io.github.dockyardmc.maths.isBetween
 
 abstract class EntityInventory(val entity: Entity, val size: Int) {
     val slots: BindableMap<Int, ItemStack> = BindableMap()

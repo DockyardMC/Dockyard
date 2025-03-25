@@ -6,7 +6,7 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.location.writeRotation
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.utils.writeVelocity
 import java.util.*
 

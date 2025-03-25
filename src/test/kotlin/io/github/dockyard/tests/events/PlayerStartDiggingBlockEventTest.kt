@@ -7,7 +7,7 @@ import io.github.dockyardmc.events.PlayerStartDiggingBlockEvent
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.protocol.packets.play.serverbound.PlayerAction
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundPlayerActionPacket
-import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest

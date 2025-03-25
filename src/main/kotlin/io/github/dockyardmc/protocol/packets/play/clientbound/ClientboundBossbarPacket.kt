@@ -1,8 +1,8 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.bossbar.Bossbar
-import io.github.dockyardmc.bossbar.BossbarColor
-import io.github.dockyardmc.bossbar.BossbarNotches
+import io.github.dockyardmc.apis.bossbar.Bossbar
+import io.github.dockyardmc.apis.bossbar.BossbarColor
+import io.github.dockyardmc.apis.bossbar.BossbarNotches
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.extentions.writeUUID
 import io.github.dockyardmc.extentions.writeVarIntEnum

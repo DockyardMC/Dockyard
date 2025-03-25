@@ -11,7 +11,7 @@ import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.utils.ChunkUtils
-import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.World
 import java.util.concurrent.CompletableFuture

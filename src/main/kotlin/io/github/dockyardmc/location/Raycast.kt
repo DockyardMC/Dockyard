@@ -2,8 +2,8 @@ package io.github.dockyardmc.location
 
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.utils.vectors.Vector3d
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3f
 import kotlin.math.floor
 
 fun blockRaycast(origin: Location, direction: Vector3d, maxDistance: Double, stepSize: Double = 0.1): Pair<Location, io.github.dockyardmc.world.block.Block>? {

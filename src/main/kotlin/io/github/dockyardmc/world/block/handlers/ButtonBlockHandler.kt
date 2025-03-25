@@ -6,7 +6,7 @@ import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.getDirection
 import io.github.dockyardmc.player.getOpposite
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.block.Block
 
 class ButtonBlockHandler: BlockHandler {

@@ -9,7 +9,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.utils.randomFloat
+import io.github.dockyardmc.maths.randomFloat
 
 class GiveCommand {
     init {

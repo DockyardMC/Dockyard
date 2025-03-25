@@ -1,4 +1,4 @@
-package io.github.dockyardmc.serverlinks
+package io.github.dockyardmc.apis.serverlinks
 
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable

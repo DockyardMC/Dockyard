@@ -1,6 +1,6 @@
-package io.github.dockyardmc.utils
+package io.github.dockyardmc.maths
 
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.netty.buffer.ByteBuf
 import kotlin.math.PI
 import kotlin.math.cos

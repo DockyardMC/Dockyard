@@ -15,7 +15,7 @@ import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableClickType
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.getPlayerEventContext
-import io.github.dockyardmc.utils.randomFloat
+import io.github.dockyardmc.maths.randomFloat
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import kotlin.math.ceil

@@ -1,6 +1,6 @@
 package io.github.dockyardmc.spark
 
-import io.github.dockyardmc.runnables.ticks
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scheduler.SchedulerTask
 import io.github.dockyardmc.world.World
 import me.lucko.spark.common.tick.AbstractTickHook

@@ -9,7 +9,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetContainerSlotPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.vectors.Vector2
+import io.github.dockyardmc.maths.vectors.Vector2
 
 abstract class DrawableContainerScreen(val player: Player): ContainerInventory, Disposable {
     override var name: String = "Drawable Container"

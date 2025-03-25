@@ -3,7 +3,7 @@ package io.github.dockyard.tests.scheduler
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.TestServer
-import io.github.dockyardmc.runnables.ticks
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scheduler.CustomRateScheduler
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.concurrent.CountDownLatch

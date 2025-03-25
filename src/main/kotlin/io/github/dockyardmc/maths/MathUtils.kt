@@ -1,9 +1,9 @@
-package io.github.dockyardmc.utils
+package io.github.dockyardmc.maths
 
 import com.google.common.primitives.Ints.min
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.utils.ChunkUtils.floor
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3f
 import java.io.File
 import java.security.MessageDigest
 import java.util.*
@@ -59,12 +59,11 @@ fun getRelativeLocation(current: Location, previous: Location): Location {
     return Location(x, y, z, current.world)
 }
 
-fun percent(max: Double, part: Double): Double = (part / max) * 100.0
-fun percent(max: Int, part: Int): Float = (part.toFloat() / max.toFloat()) * 100
-fun percent(max: Float, part: Float): Float = (part / max) * 100f
-fun percent(max: Long, part: Long): Float = (part.toFloat() / max.toFloat()) * 100L
+fun percent(max: Double, part: Double): Double = part / max * 100.0
+fun percent(max: Int, part: Int): Float = part.toFloat() / max.toFloat() * 100
+fun percent(max: Float, part: Float): Float = part / max * 100f
+fun percent(max: Long, part: Long): Float = part.toFloat() / max.toFloat() * 100L
 
-// percent is float 0f - 1f.
 fun percentOf(percent: Float, max: Double): Double = percent * max
 
 fun positiveCeilDiv(i: Int, j: Int): Int = -Math.floorDiv(-i, j)
@@ -81,7 +80,7 @@ fun isBetween(number: Int, min: Int, max: Int): Boolean {
 fun randomInt(min: Int, max: Int): Int = Random().nextInt(min, max)
 
 fun randomFloat(min: Float, max: Float): Float {
-    val random = java.util.Random()
+    val random = Random()
     return min + random.nextFloat() * (max - min)
 }
 

@@ -6,7 +6,7 @@ import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.particles.ParticleData
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.registry.registries.Particle
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3f
 
 class ClientboundSendParticlePacket(
     location: Location,

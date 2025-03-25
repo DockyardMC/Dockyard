@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.bitMask
-import io.github.dockyardmc.utils.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3d
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 

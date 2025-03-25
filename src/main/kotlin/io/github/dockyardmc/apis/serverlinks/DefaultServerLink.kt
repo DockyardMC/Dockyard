@@ -1,4 +1,4 @@
-package io.github.dockyardmc.serverlinks
+package io.github.dockyardmc.apis.serverlinks
 
 import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarIntEnum

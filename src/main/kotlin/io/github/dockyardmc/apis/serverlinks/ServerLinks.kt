@@ -1,4 +1,4 @@
-package io.github.dockyardmc.serverlinks
+package io.github.dockyardmc.apis.serverlinks
 
 object ServerLinks {
     val links: MutableList<ServerLink> = mutableListOf()

@@ -1,7 +1,7 @@
 package io.github.dockyardmc.scheduler
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.runnables.ticks
+import io.github.dockyardmc.scheduler.runnables.ticks
 import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration
 

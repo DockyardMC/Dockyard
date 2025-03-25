@@ -5,7 +5,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.server.ServerMetrics
-import io.github.dockyardmc.sidebar.Sidebar
+import io.github.dockyardmc.apis.sidebar.Sidebar
 import java.lang.management.GarbageCollectorMXBean
 import java.lang.management.ManagementFactory
 

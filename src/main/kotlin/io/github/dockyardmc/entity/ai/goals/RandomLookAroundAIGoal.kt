@@ -2,8 +2,8 @@ package io.github.dockyardmc.entity.ai.goals
 
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.ai.AIGoal
-import io.github.dockyardmc.utils.randomInt
-import io.github.dockyardmc.utils.vectors.Vector3d
+import io.github.dockyardmc.maths.randomInt
+import io.github.dockyardmc.maths.vectors.Vector3d
 import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin

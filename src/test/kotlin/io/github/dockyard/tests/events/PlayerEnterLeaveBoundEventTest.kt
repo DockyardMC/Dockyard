@@ -3,7 +3,7 @@ package io.github.dockyard.tests.events
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestFor
 import io.github.dockyard.tests.TestServer
-import io.github.dockyardmc.bounds.Bound
+import io.github.dockyardmc.apis.bounds.Bound
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerEnterBoundEvent
 import io.github.dockyardmc.events.PlayerLeaveBoundEvent

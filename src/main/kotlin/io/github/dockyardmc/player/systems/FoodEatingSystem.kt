@@ -10,8 +10,8 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityE
 import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEvent
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.utils.randomFloat
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.randomFloat
+import io.github.dockyardmc.maths.vectors.Vector3f
 
 class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
 

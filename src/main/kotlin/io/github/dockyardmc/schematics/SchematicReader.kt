@@ -1,7 +1,7 @@
 package io.github.dockyardmc.schematics
 
 import io.github.dockyardmc.world.block.Block
-import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray
 import org.jglrxavpok.hephaistos.nbt.*
 import java.io.File

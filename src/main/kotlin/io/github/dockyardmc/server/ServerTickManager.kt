@@ -7,7 +7,7 @@ import io.github.dockyardmc.events.Event
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.events.ServerTickMonitorEvent
-import io.github.dockyardmc.runnables.RepeatingTimer
+import io.github.dockyardmc.scheduler.runnables.RepeatingTimer
 import io.github.dockyardmc.utils.now
 
 class ServerTickManager {
