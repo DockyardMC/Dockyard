@@ -48,6 +48,8 @@ object PlayerTestUtil {
         log("Sent ${packet::class.simpleName} to fake test player", LogType.DEBUG)
         packet.handle(player.networkManager, player.connection, 0, 0)
     }
+
+    fun sendPacket(packet: ServerboundPacket) = sendPacket(getOrCreateFakePlayer(), packet)
 }
 
 fun sendSlotClick(player: Player, slot: Int, button: Int, mode: ContainerClickMode, itemStack: ItemStack) {
