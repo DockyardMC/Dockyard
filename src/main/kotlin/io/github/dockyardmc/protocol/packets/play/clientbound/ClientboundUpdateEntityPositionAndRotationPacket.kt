@@ -4,7 +4,7 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.utils.getRelativeCoords
+import io.github.dockyardmc.maths.getRelativeCoords
 
 class ClientboundUpdateEntityPositionAndRotationPacket(
     val entity: Entity,

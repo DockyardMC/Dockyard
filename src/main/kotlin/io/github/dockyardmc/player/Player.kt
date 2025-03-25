@@ -2,8 +2,6 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.attributes.PlayerAttributes
 import io.github.dockyardmc.commands.buildCommandGraph
@@ -17,6 +15,7 @@ import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.maths.percentOf
 import io.github.dockyardmc.particles.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.systems.*
@@ -33,15 +32,14 @@ import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.resourcepack.Resourcepack
-import io.github.dockyardmc.runnables.ticks
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.now
-import io.github.dockyardmc.utils.percentOf
-import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.PlayerChunkViewSystem
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager

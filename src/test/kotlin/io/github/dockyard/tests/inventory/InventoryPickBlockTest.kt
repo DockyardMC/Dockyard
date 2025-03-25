@@ -13,7 +13,7 @@ import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundPickItemFromBlockPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.WorldManager
 import java.util.concurrent.CountDownLatch
 import kotlin.test.AfterTest

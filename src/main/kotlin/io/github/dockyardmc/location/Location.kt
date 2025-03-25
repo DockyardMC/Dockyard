@@ -1,12 +1,12 @@
 package io.github.dockyardmc.location
 
-import io.github.dockyardmc.bounds.Bound
+import io.github.dockyardmc.apis.bounds.Bound
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.registry.registries.RegistryBlock
-import io.github.dockyardmc.utils.vectors.Vector2f
-import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3d
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector2f
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.chunk.Chunk
 import io.netty.buffer.ByteBuf

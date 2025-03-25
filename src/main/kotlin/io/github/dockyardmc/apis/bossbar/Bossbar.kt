@@ -1,4 +1,4 @@
-package io.github.dockyardmc.bossbar
+package io.github.dockyardmc.apis.bossbar
 
 import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.events.EventPool

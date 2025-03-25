@@ -1,6 +1,6 @@
 package io.github.dockyardmc.utils
 
-import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
 import kotlin.math.abs

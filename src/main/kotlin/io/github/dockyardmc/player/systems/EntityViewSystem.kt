@@ -1,6 +1,5 @@
 package io.github.dockyardmc.player.systems
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.player.Player
 import java.util.concurrent.locks.ReentrantLock

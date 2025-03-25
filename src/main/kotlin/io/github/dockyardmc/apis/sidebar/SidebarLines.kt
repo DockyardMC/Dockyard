@@ -1,4 +1,4 @@
-package io.github.dockyardmc.sidebar
+package io.github.dockyardmc.apis.sidebar
 
 import io.github.dockyardmc.player.Player
 

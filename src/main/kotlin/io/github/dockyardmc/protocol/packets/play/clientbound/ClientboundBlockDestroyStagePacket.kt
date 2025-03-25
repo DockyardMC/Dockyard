@@ -5,7 +5,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.utils.minMax
+import io.github.dockyardmc.maths.minMax
 
 class ClientboundBlockDestroyStagePacket(val breaker: Entity, val location: Location, val destroyStage: Int): ClientboundPacket() {
 

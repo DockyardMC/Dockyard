@@ -10,12 +10,12 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toLocation
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toPathPosition
-import io.github.dockyardmc.runnables.ticks
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scheduler.SchedulerTask
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.UsedAfterDisposedException
 import io.github.dockyardmc.utils.getEntityEventContext
-import io.github.dockyardmc.utils.locationLerp
+import io.github.dockyardmc.maths.locationLerp
 
 class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder: Pathfinder, val filters: List<PathFilter>) : Disposable {
 

@@ -18,7 +18,7 @@ import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scheduler.runLaterAsync
-import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.WorldManager
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest

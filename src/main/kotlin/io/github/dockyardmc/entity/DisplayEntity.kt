@@ -6,8 +6,8 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.scroll.CustomColor
-import io.github.dockyardmc.utils.Quaternion
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.Quaternion
+import io.github.dockyardmc.maths.vectors.Vector3f
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin

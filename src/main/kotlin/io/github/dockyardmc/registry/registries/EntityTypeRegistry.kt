@@ -5,7 +5,7 @@ import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import io.github.dockyardmc.utils.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3d
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

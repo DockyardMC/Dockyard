@@ -1,6 +1,6 @@
 package io.github.dockyardmc.world.palette
 
-import io.github.dockyardmc.utils.bitsToRepresent
+import io.github.dockyardmc.maths.bitsToRepresent
 import io.github.dockyardmc.world.palette.Palette.EntryConsumer
 import io.github.dockyardmc.world.palette.Palette.EntrySupplier
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap

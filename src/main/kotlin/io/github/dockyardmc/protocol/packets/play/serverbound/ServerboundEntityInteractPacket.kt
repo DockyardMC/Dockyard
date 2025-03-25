@@ -12,7 +12,7 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.isDoubleInteract
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 

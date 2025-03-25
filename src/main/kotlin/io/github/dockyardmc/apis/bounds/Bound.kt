@@ -1,4 +1,4 @@
-package io.github.dockyardmc.bounds
+package io.github.dockyardmc.apis.bounds
 
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager
@@ -9,7 +9,7 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
 import java.util.concurrent.CompletableFuture

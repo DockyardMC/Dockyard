@@ -5,10 +5,8 @@ import de.metaphoriker.pathetic.api.pathing.configuration.HeuristicWeights
 import de.metaphoriker.pathetic.api.pathing.filter.filters.PassablePathFilter
 import io.github.dockyardmc.entity.ai.AIGoal
 import io.github.dockyardmc.entity.ai.AIManager
-import io.github.dockyardmc.entity.ai.goals.RandomWalkAroundGoal
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
-import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.pathfinding.Navigator
 import io.github.dockyardmc.pathfinding.Pathfinder
@@ -16,12 +14,11 @@ import io.github.dockyardmc.pathfinding.RequiredHeightPathfindingFilter
 import io.github.dockyardmc.registry.DamageTypes
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Sounds
-import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.utils.randomFloat
-import io.github.dockyardmc.utils.randomInt
+import io.github.dockyardmc.maths.randomFloat
+import io.github.dockyardmc.maths.randomInt
 
 class TestZombie(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.ZOMBIE

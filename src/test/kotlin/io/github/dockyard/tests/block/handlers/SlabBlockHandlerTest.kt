@@ -7,8 +7,8 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.WorldManager
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.BeforeTest

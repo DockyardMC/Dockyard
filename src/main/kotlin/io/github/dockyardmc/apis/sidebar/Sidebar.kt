@@ -1,4 +1,4 @@
-package io.github.dockyardmc.sidebar
+package io.github.dockyardmc.apis.sidebar
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList

@@ -1,4 +1,4 @@
-package io.github.dockyardmc.utils.vectors
+package io.github.dockyardmc.maths.vectors
 
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable

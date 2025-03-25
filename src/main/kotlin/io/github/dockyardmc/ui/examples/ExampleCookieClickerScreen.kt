@@ -8,7 +8,7 @@ import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.ui.drawableItemStack
 import io.github.dockyardmc.ui.toDrawable
-import io.github.dockyardmc.utils.randomFloat
+import io.github.dockyardmc.maths.randomFloat
 
 class ExampleCookieClickerScreen(player: Player): DrawableContainerScreen(player) {
 

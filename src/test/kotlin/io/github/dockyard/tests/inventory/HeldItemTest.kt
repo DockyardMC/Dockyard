@@ -10,7 +10,7 @@ import io.github.dockyardmc.protocol.packets.play.serverbound.PlayerAction
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundPlayerActionPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundSetPlayerHeldItemPacket
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.utils.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

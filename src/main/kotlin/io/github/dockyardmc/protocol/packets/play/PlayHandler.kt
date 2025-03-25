@@ -9,7 +9,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityT
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetHeadYawPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateEntityRotationPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
-import io.github.dockyardmc.utils.vectors.Vector2f
+import io.github.dockyardmc.maths.vectors.Vector2f
 import io.netty.channel.ChannelHandlerContext
 
 class PlayHandler(var processor: PlayerNetworkManager): PacketHandler(processor) {

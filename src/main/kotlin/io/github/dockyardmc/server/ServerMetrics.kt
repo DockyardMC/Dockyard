@@ -6,7 +6,7 @@ import io.github.dockyardmc.events.ServerTickEvent
 import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.SecondPeriod
-import io.github.dockyardmc.utils.percent
+import io.github.dockyardmc.maths.percent
 
 object ServerMetrics {
     var packetsSent: Int = 0

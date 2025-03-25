@@ -8,8 +8,8 @@ import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toPathPosition
 import io.github.dockyardmc.pathfinding.PathfindingHelper
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.Sound
-import io.github.dockyardmc.utils.randomFloat
-import io.github.dockyardmc.utils.randomInt
+import io.github.dockyardmc.maths.randomFloat
+import io.github.dockyardmc.maths.randomInt
 
 class RandomWalkAroundGoal(override var entity: Entity, override var priority: Int, val navigator: Navigator) : AIGoal() {
 

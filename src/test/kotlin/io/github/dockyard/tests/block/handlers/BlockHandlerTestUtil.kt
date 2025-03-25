@@ -10,8 +10,8 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundUseItemOnBlockPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.Item
-import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.block.Block

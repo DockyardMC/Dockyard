@@ -19,8 +19,8 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.isDoubleInteract
-import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.block.GeneralBlockPlacementRules
 import io.github.dockyardmc.world.block.handlers.BlockHandlerManager

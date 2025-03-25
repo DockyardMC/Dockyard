@@ -4,7 +4,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.clone
 import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.utils.isBetween
+import io.github.dockyardmc.maths.isBetween
 import kotlin.math.ceil
 
 object InventoryClickHandler {

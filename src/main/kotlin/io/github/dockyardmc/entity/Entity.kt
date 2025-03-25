@@ -24,7 +24,7 @@ import io.github.dockyardmc.registry.DamageTypes
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.PotionEffect
-import io.github.dockyardmc.runnables.ticks
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
@@ -32,8 +32,8 @@ import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.utils.mergeEntityMetadata
-import io.github.dockyardmc.utils.vectors.Vector3
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos

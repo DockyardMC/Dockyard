@@ -5,7 +5,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeRotation
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.utils.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3d
 
 class ClientboundEntityTeleportPacket(entity: Entity, location: Location): ClientboundPacket() {
 

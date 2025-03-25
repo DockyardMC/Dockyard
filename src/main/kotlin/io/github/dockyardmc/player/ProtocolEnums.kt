@@ -2,8 +2,8 @@ package io.github.dockyardmc.player
 
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.utils.vectors.Vector3d
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3f
 import kotlin.experimental.or
 import kotlin.math.PI
 import kotlin.math.cos
