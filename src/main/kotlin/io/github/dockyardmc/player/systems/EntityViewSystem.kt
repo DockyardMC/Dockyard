@@ -28,11 +28,9 @@ class EntityViewSystem(val player: Player): TickablePlayerSystem {
 
         add.forEach { entity ->
             entity.addViewer(player)
-            log("Added $entity to viewers")
         }
         remove.forEach { entity ->
             entity.removeViewer(player)
-            log("Removed $entity to viewers")
         }
     }
 }
