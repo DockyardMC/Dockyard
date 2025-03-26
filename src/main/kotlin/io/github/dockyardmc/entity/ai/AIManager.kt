@@ -1,21 +1,24 @@
 package io.github.dockyardmc.entity.ai
 
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.WorldTickEvent
+import io.github.dockyardmc.events.system.EventFilter
+import io.github.dockyardmc.utils.Disposable
 
-class AIManager(val entity: Entity) {
+class AIManager(val entity: Entity) : Disposable {
     val memory: MutableMap<String, AIMemory<*>> = mutableMapOf()
     private val innerGoals: MutableList<AIGoal> = mutableListOf()
     var currentGoal: AIGoal? = null
     var forcedNextGoal: AIGoal? = null
     var forcedNextGoalWaitForFinish: Boolean = false
 
+    private val eventPool: EventPool = EventPool().withFilter(EventFilter.containsWorld(entity.world))
+
     val goals: List<AIGoal> get() = innerGoals.toList()
 
     init {
-        Events.on<WorldTickEvent> {
-            if (it.world != entity.world) return@on
+        eventPool.on<WorldTickEvent> { event ->
             tick()
         }
     }
@@ -87,6 +90,14 @@ class AIManager(val entity: Entity) {
                 goal.tick()
             }
         }
+    }
+
+    override fun dispose() {
+        eventPool.dispose()
+        memory.clear()
+        innerGoals.clear()
+        currentGoal = null
+        forcedNextGoal = null
     }
 }
 
