@@ -164,7 +164,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addPlay(ClientboundSetTickingStatePacket::class)
         skipPlay("tick step")
         skipPlay("transfer packet")
-        skipPlay("advancements")
+        addPlay(ClientboundUpdateAdvancementsPacket::class)
         addPlay(ClientboundUpdateAttributesPacket::class)
         addPlay(ClientboundEntityEffectPacket::class)
         skipPlay("declare recipes")
