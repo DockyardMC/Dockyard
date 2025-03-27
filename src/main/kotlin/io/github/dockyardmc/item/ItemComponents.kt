@@ -6,7 +6,7 @@ import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.protocol.NetworkWritable
-import io.github.dockyardmc.protocol.writeList
+import io.github.dockyardmc.protocol.networktypes.writeList
 import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.*
@@ -93,9 +93,7 @@ object ItemComponents  {
 
 }
 
-interface ItemComponent {
-
-}
+interface ItemComponent
 
 data class CustomDataItemComponent(
     var data: NBTCompound,
