@@ -65,6 +65,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
                 RegistryManager.register(WolfVariantRegistry)
                 RegistryManager.register(WolfSoundVariantRegistry)
+                RegistryManager.register(CatVariantRegistry)
 
                 RegistryManager.register(ItemTagRegistry)
                 RegistryManager.register(BlockTagRegistry)
