@@ -21,13 +21,6 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightmaps: Map<Heightmap.Type,
         buffer.writeInt(z)
 
         //Heightmaps
-        //TODO make method to write maps
-//        buffer.writeVarInt(heightmaps.size)
-//        heightmaps.forEach { (key, value) ->
-//            buffer.writeVarIntEnum(key)
-//            buffer.writeLongArray(value)
-//        }
-
         buffer.writeMap<Int, List<Long>>(heightmaps.mapKeys { key -> key.key.ordinal }, ByteBuf::writeVarInt, ByteBuf::writeLongArray)
 
         //Chunk Sections
