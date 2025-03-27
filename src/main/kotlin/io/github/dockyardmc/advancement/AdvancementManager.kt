@@ -23,7 +23,17 @@ object AdvancementManager {
         return tracker
     }
 
-    fun addAdvancement(adv: Advancement) {
+    fun removeAdvancementTracker(tracker: PlayerAdvancementTracker) {
+        synchronized(innerTrackers) {
+            innerTrackers.remove(tracker)
+        }
+    }
+
+    /**
+     * @return same advancement that you passed as the argument,
+     * with no changes
+     */
+    fun addAdvancement(adv: Advancement): Advancement {
         synchronized(innerAdvancements) {
             innerAdvancements[adv.id] = adv
         }
@@ -32,6 +42,18 @@ object AdvancementManager {
             innerTrackers.forEach {
                 it.onAdvancementAdded(adv)
             }
+        }
+
+        return adv
+    }
+
+    fun removeAdvancement(adv: Advancement) {
+        synchronized(innerAdvancements) {
+            innerAdvancements.remove(adv.id)
+        }
+
+        synchronized(innerTrackers) {
+            innerTrackers.forEach { it.onAdvancementRemoved(adv) }
         }
     }
 }
