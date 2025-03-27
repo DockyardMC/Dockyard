@@ -66,6 +66,10 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 RegistryManager.register(WolfVariantRegistry)
                 RegistryManager.register(WolfSoundVariantRegistry)
                 RegistryManager.register(CatVariantRegistry)
+                RegistryManager.register(CowVariantRegistry)
+                RegistryManager.register(PigVariantRegistry)
+                RegistryManager.register(FrogVariantRegistry)
+                RegistryManager.register(ChickenVariantRegistry)
 
                 RegistryManager.register(ItemTagRegistry)
                 RegistryManager.register(BlockTagRegistry)
