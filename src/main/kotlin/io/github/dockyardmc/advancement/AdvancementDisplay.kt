@@ -5,11 +5,15 @@ import io.github.dockyardmc.extentions.writeTextComponent
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.protocol.NetworkWritable
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.Component
 import io.netty.buffer.ByteBuf
 
 /**
  * @param background can use [getTextureId] to get one
+ * @param icon icon of the advancement is an item, it could have enchantements, etc. IT CANNOT BE AIR OR ELSE CLIENT JUST CRASHES.
+ *
+ * @throws IllegalArgumentException if icon is air
  */
 data class AdvancementDisplay(
     val title: Component,
@@ -22,6 +26,10 @@ data class AdvancementDisplay(
     val x: Float,
     val y: Float,
 ) : NetworkWritable {
+    init {
+        if(icon.material == Items.AIR) throw IllegalArgumentException("advancement icon can't be air")
+    }
+
     override fun write(buffer: ByteBuf) {
         buffer.writeTextComponent(title)
         buffer.writeTextComponent(description)
