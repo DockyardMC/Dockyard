@@ -23,6 +23,7 @@ object RegistryManager {
         AttributeRegistry::class to "registry/attribute_registry.json.gz",
         WolfVariantRegistry::class to "registry/wolf_variant.json.gz",
         WolfSoundVariantRegistry::class to "registry/wolf_sound_variant.json.gz",
+        CatVariantRegistry::class to "registry/cat_variant.json.gz",
     )
 
     val dynamicRegistries: MutableMap<String, Registry> = mutableMapOf()
