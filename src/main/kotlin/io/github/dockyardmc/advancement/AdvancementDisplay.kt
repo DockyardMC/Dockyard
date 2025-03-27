@@ -15,7 +15,7 @@ data class AdvancementDisplay(
     val title: Component,
     val description: Component,
     val icon: ItemStack,
-    val frame: AdvancementFrame = AdvancementFrame.GOAL,
+    val frame: AdvancementFrame = AdvancementFrame.TASK,
     val showToast: Boolean = true,
     val isHidden: Boolean = false,
     val background: String? = null,
