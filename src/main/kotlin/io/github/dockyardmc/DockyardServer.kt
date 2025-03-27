@@ -50,7 +50,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 RegistryManager.register(BlockRegistry)
                 RegistryManager.register(EntityTypeRegistry)
                 RegistryManager.register(DimensionTypeRegistry)
-                RegistryManager.register(WolfVariantRegistry)
                 RegistryManager.register(BannerPatternRegistry)
                 RegistryManager.register(DamageTypeRegistry)
                 RegistryManager.register(JukeboxSongRegistry)
@@ -63,6 +62,9 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 RegistryManager.register(BiomeRegistry)
                 RegistryManager.register(ItemRegistry)
                 RegistryManager.register(FluidRegistry)
+
+                RegistryManager.register(WolfVariantRegistry)
+                RegistryManager.register(WolfSoundVariantRegistry)
 
                 RegistryManager.register(ItemTagRegistry)
                 RegistryManager.register(BlockTagRegistry)

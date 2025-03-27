@@ -44,31 +44,31 @@ object ItemRegistry : DataDrivenRegistry {
 
         //TODO Figure default components out for future release, keeping this not implement for the time being so this update can move on
 
-        val componentsBinary = ClassLoader.getSystemResource("registry/components.bin").openStream()
-        val byteArray = componentsBinary.readAllBytes()
-        componentsBinary.close()
-
-        val buffer = byteArray.toByteBuf()
-        val size = buffer.readVarInt()
-
-        for (i in 0 until size) {
-            val itemIdentifier = buffer.readString()
-            val mapSize = buffer.readVarInt()
-
-            val defaultComponents = mutableListOf<ItemComponent>()
-
-            for (i1 in 0 until mapSize) {
-                val componentId = buffer.readVarInt()
-                val length = buffer.readVarInt()
-                val component = buffer.readBytes(length)
-                val readComponent = component.readComponent(componentId)
-                defaultComponents.add(readComponent)
-                component.release()
-            }
-
-            ItemRegistry[itemIdentifier].defaultComponents = defaultComponents
-        }
-        buffer.release()
+//        val componentsBinary = ClassLoader.getSystemResource("registry/components.bin").openStream()
+//        val byteArray = componentsBinary.readAllBytes()
+//        componentsBinary.close()
+//
+//        val buffer = byteArray.toByteBuf()
+//        val size = buffer.readVarInt()
+//
+//        for (i in 0 until size) {
+//            val itemIdentifier = buffer.readString()
+//            val mapSize = buffer.readVarInt()
+//
+//            val defaultComponents = mutableListOf<ItemComponent>()
+//
+//            for (i1 in 0 until mapSize) {
+//                val componentId = buffer.readVarInt()
+//                val length = buffer.readVarInt()
+//                val component = buffer.readBytes(length)
+//                val readComponent = component.readComponent(componentId)
+//                defaultComponents.add(readComponent)
+//                component.release()
+//            }
+//
+//            ItemRegistry[itemIdentifier].defaultComponents = defaultComponents
+//        }
+//        buffer.release()
     }
 
     override fun get(identifier: String): Item {

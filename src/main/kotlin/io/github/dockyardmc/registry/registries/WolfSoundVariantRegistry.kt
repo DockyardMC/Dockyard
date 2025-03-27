@@ -18,12 +18,12 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
 
 @OptIn(ExperimentalSerializationApi::class)
-object WolfVariantRegistry : DataDrivenRegistry, DynamicRegistry {
+object WolfSoundVariantRegistry : DataDrivenRegistry, DynamicRegistry {
 
-    override val identifier: String = "minecraft:wolf_variant"
+    override val identifier: String = "minecraft:wolf_sound_variant"
 
     private lateinit var cachedPacket: ClientboundRegistryDataPacket
-    val wolfVariants: MutableMap<String, WolfVariant> = mutableMapOf()
+    val wolfSoundVariants: MutableMap<String, WolfSoundVariant> = mutableMapOf()
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter = AtomicInteger()
 
@@ -33,14 +33,14 @@ object WolfVariantRegistry : DataDrivenRegistry, DynamicRegistry {
 
     override fun initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
-        val list = Json.decodeFromStream<List<WolfVariant>>(stream)
+        val list = Json.decodeFromStream<List<WolfSoundVariant>>(stream)
         list.forEach { entry -> addEntry(entry, false) }
         updateCache()
     }
 
-    fun addEntry(entry: WolfVariant, updateCache: Boolean = true) {
+    fun addEntry(entry: WolfSoundVariant, updateCache: Boolean = true) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
-        wolfVariants[entry.identifier] = entry
+        wolfSoundVariants[entry.identifier] = entry
         if (updateCache) updateCache()
     }
 
@@ -48,7 +48,7 @@ object WolfVariantRegistry : DataDrivenRegistry, DynamicRegistry {
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
-        if (!WolfVariantRegistry::cachedPacket.isInitialized) updateCache()
+        if (!::cachedPacket.isInitialized) updateCache()
         return cachedPacket
     }
 
@@ -56,29 +56,32 @@ object WolfVariantRegistry : DataDrivenRegistry, DynamicRegistry {
         cachedPacket = ClientboundRegistryDataPacket(this)
     }
 
-    override fun get(identifier: String): WolfVariant {
-        return wolfVariants[identifier] ?: throw RegistryException(identifier, this.getMap().size)
+    override fun get(identifier: String): WolfSoundVariant {
+        return wolfSoundVariants[identifier] ?: throw RegistryException(identifier, this.getMap().size)
     }
 
-    override fun getOrNull(identifier: String): WolfVariant? {
-        return wolfVariants[identifier]
+    override fun getOrNull(identifier: String): WolfSoundVariant? {
+        return wolfSoundVariants[identifier]
     }
 
-    override fun getByProtocolId(id: Int): WolfVariant {
-        return wolfVariants.values.toList().getOrNull(id) ?: throw RegistryException(id, this.getMap().size)
+    override fun getByProtocolId(id: Int): WolfSoundVariant {
+        return wolfSoundVariants.values.toList().getOrNull(id) ?: throw RegistryException(id, this.getMap().size)
     }
 
-    override fun getMap(): Map<String, WolfVariant> {
-        return wolfVariants
+    override fun getMap(): Map<String, WolfSoundVariant> {
+        return wolfSoundVariants
     }
 }
 
 @Serializable
-data class WolfVariant(
+data class WolfSoundVariant(
     val identifier: String,
-    val angry: String,
-    val tame: String,
-    val wild: String,
+    val ambientSound: String,
+    val deathSound: String,
+    val growlSound: String,
+    val hurtSound: String,
+    val pantSound: String,
+    val whineSound: String,
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
@@ -87,11 +90,12 @@ data class WolfVariant(
 
     override fun getNbt(): NBTCompound {
         return NBT.Compound { builder ->
-            builder.put("assets") { inner ->
-                inner.put("angry", angry)
-                inner.put("tame", tame)
-                inner.put("wild", wild)
-            }
+            builder.put("ambient_sound", ambientSound)
+            builder.put("death_sound", deathSound)
+            builder.put("growl_sound", growlSound)
+            builder.put("hurt_sound", hurtSound)
+            builder.put("pant_sound", pantSound)
+            builder.put("whine_sound", whineSound)
         }
     }
 }
