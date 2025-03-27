@@ -9,6 +9,7 @@ import io.github.dockyardmc.protocol.writeOptional
 import io.netty.buffer.ByteBuf
 
 data class Advancement(
+    val id: String,
     val parentId: String?,
     val display: AdvancementDisplay?,
     val requirements: List<List<String>>,

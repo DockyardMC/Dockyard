@@ -120,7 +120,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addPlay(ClientboundRespawnPacket::class)
         addPlay(ClientboundSetHeadYawPacket::class)
         skipPlay("multi block change")
-        skipPlay("select advancements tab")
+        addPlay(ClientboundSelectAdvancementsTabPacket::class)
         skipPlay("server data")
         skipPlay("actionbar")
         skipPlay("world border center")

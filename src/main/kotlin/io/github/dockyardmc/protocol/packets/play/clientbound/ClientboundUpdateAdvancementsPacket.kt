@@ -10,6 +10,8 @@ import io.github.dockyardmc.protocol.writeOptional
 import io.netty.buffer.ByteBuf
 
 /**
+ * it seems like clients never show advancement toasts when you set [reset] to true
+ *
  * @param reset Whether to reset/clear the current advancements.
  * @param advancementsAdd map of identifiers to [Advancement] to be added
  * @param advancementsRemove array of identifiers to be removed
@@ -18,10 +20,9 @@ import io.netty.buffer.ByteBuf
 class ClientboundUpdateAdvancementsPacket(
     val reset: Boolean,
     val advancementsAdd: Map<String, Advancement>,
-    val advancementsRemove: List<String>,
+    val advancementsRemove: Collection<String>,
     val progress: Map<String, Map<String, Long?>>
 ) : ClientboundPacket() {
-
     init {
         buffer.writeBoolean(reset)
 
@@ -44,5 +45,4 @@ class ClientboundUpdateAdvancementsPacket(
             }
         }
     }
-
 }

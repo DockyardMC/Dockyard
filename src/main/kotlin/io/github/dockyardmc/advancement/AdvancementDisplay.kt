@@ -8,7 +8,10 @@ import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.scroll.Component
 import io.netty.buffer.ByteBuf
 
-class AdvancementDisplay(
+/**
+ * @param background can use [getTextureId] to get one
+ */
+data class AdvancementDisplay(
     val title: Component,
     val description: Component,
     val icon: ItemStack,
@@ -16,8 +19,8 @@ class AdvancementDisplay(
     val showToast: Boolean = true,
     val isHidden: Boolean = false,
     val background: String? = null,
-    val x: Float = 0f,
-    val y: Float = 0f
+    val x: Float,
+    val y: Float,
 ) : NetworkWritable {
     override fun write(buffer: ByteBuf) {
         buffer.writeTextComponent(title)
@@ -49,4 +52,20 @@ class AdvancementDisplay(
         const val SHOW_TOAST = 0x02
         const val HIDDEN = 0x04
     }
+}
+
+enum class AdvancementFrame {
+    TASK,
+    CHALLENGE,
+    GOAL;
+}
+
+/**
+ * @param blockId a block id without namespace, like `netherrack`
+ */
+fun getTextureId(blockId: String): String {
+    // TODO this is how it should be in 1.21.5
+    // return "block/$blockId"
+
+    return "minecraft:textures/block/$blockId.png"
 }
