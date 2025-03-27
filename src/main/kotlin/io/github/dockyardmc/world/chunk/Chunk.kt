@@ -24,8 +24,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World): Viewable() {
     private lateinit var cachedPacket: ClientboundChunkDataPacket
     override var autoViewable: Boolean = true
 
-    val motionBlocking: ImmutableLongArray = ImmutableLongArray(37) { 0 }
-    val worldSurface: ImmutableLongArray = ImmutableLongArray(37) { 0 }
+    val heightmapArray: ImmutableLongArray = ImmutableLongArray(37) { 0 }
 
     val sections: MutableList<ChunkSection> = mutableListOf()
     val blockEntities: Int2ObjectOpenHashMap<BlockEntity> = Int2ObjectOpenHashMap(0)
@@ -42,11 +41,12 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World): Viewable() {
         }
 
     fun updateCache() {
-        val heightMap = NBT.Compound {
-            it.put("MOTION_BLOCKING", NBT.LongArray(motionBlocking))
-            it.put("WORLD_SURFACE", NBT.LongArray(worldSurface))
+        val emptyHeightmaps = mutableMapOf<Heightmap.Type, List<Long>>()
+        Heightmap.Type.entries.forEach { entry ->
+            emptyHeightmaps[entry] = heightmapArray.toList()
         }
-        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightMap, sections, blockEntities.values, light)
+
+        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, mapOf(), sections, blockEntities.values, light)
     }
 
     init {

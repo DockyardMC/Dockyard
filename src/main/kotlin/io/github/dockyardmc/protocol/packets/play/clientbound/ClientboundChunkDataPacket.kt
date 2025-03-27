@@ -3,16 +3,15 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.world.chunk.ChunkUtils
-import io.github.dockyardmc.utils.writeMSNBT
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.block.BlockEntity
 import io.github.dockyardmc.world.chunk.ChunkSection
+import io.github.dockyardmc.world.chunk.Heightmap
 import io.github.dockyardmc.world.chunk.writeChunkSection
 import io.netty.buffer.Unpooled
 import it.unimi.dsi.fastutil.objects.ObjectCollection
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
-class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, sections: MutableList<ChunkSection>, blockEntities: ObjectCollection<BlockEntity>, light: Light) : ClientboundPacket() {
+class ClientboundChunkDataPacket(x: Int, z: Int, heightmaps: Map<Heightmap.Type, List<Long>>, sections: MutableList<ChunkSection>, blockEntities: ObjectCollection<BlockEntity>, light: Light) : ClientboundPacket() {
 
     init {
         //X Z
@@ -20,7 +19,12 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, section
         buffer.writeInt(z)
 
         //Heightmaps
-        buffer.writeMSNBT(heightMap)
+        //TODO make method to write maps
+        buffer.writeVarInt(heightmaps.size)
+        heightmaps.forEach { (key, value) ->
+            buffer.writeVarIntEnum(key)
+            buffer.writeLongArray(value)
+        }
 
         //Chunk Sections
         val chunkSectionData = Unpooled.buffer()

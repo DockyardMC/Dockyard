@@ -1,6 +1,5 @@
 package io.github.dockyardmc.world.palette
 
-import io.github.dockyardmc.extentions.writeLongArray
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.extentions.writeVarIntArray
 import io.netty.buffer.ByteBuf
@@ -15,7 +14,6 @@ fun ByteBuf.writePalette(palette: Palette) {
     if (palette is FilledPalette) {
         this.writeByte(0)
         this.writeVarInt(palette.value)
-        this.writeVarInt(0)
     }
 
     if (palette is FlexiblePalette) {
@@ -23,6 +21,9 @@ fun ByteBuf.writePalette(palette: Palette) {
         if (palette.bitsPerEntry() <= palette.maxBitsPerEntry()) {
             this.writeVarIntArray(palette.paletteToValueList.toList())
         }
-        this.writeLongArray(palette.values.toList())
+//        this.writeLongArray(palette.values.toList())
+        palette.values.forEach { value ->
+            this.writeLong(value)
+        }
     }
 }
