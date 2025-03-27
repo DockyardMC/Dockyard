@@ -88,10 +88,6 @@ fun ByteBuf.writeVarIntArray(array: List<Int>) {
     array.forEach { this.writeVarInt(it) }
 }
 
-fun ByteBuf.writeLongArray(array: LongArray) {
-    this.writeLongArray(array.toList())
-}
-
 fun ByteBuf.writeLongArray(array: List<Long>) {
     this.writeVarInt(array.size)
     array.forEach { this.writeLong(it) }
