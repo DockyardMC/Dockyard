@@ -27,6 +27,16 @@ object DataComponentRegistry {
     val LORE = register("minecraft:lore", LoreComponent::class)
     val RARITY = register("minecraft:rarity", RarityComponent::class)
     val ENCHANTMENTS = register("minecraft:enchantments", EnchantmentsComponent::class)
+    val CAN_PLACE_ON = register("minecraft:can_place_on", CanPlaceOnComponent::class)
+    val CAN_BREAK = register("minecraft:can_break", CanBreakComponent::class)
+    val ATTRIBUTE_MODIFIERS = register("minecraft:attribute_modifiers", AttributeModifiersComponent::class)
+    val CUSTOM_MODEL_DATA = register("minecraft:custom_model_data", CustomModelDataComponent::class)
+    val TOOLTIP_DISPLAY = register("minecraft:tooltip_display", TooltipDisplayComponent::class)
+    val REPAIR_COST = register("minecraft:repair_cost", RepairCostComponent::class)
+    val CREATIVE_SLOT_LOCK = register("minecraft:creative_slot_lock", CreativeSlotLockComponent::class)
+    val ENCHANTMENT_GLINT_OVERRIDE = register("minecraft:enchantment_glint_override", EnchantmentGlintOverrideComponent::class)
+    val FOOD = register("minecraft:food", FoodComponent::class)
+    val CONSUMABLE = register("minecraft:consumable", ConsumableComponent::class)
 
 
     fun register(identifier: String, kclass: KClass<out DataComponent>): KClass<out DataComponent> {
