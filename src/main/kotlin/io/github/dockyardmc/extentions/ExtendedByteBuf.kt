@@ -88,6 +88,13 @@ fun ByteBuf.writeVarIntArray(array: List<Int>) {
     array.forEach { this.writeVarInt(it) }
 }
 
+object Buffer {
+    fun makeArray(writer: (ByteBuf) -> Unit): ByteArray {
+        val tempBuffer = Unpooled.buffer()
+        writer.invoke(tempBuffer)
+        return tempBuffer.array()
+    }
+}
 fun ByteBuf.writeLongArray(array: List<Long>) {
     this.writeVarInt(array.size)
     array.forEach { this.writeLong(it) }

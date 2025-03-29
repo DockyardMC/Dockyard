@@ -11,12 +11,12 @@ import kotlin.reflect.KClass
 
 object DataComponentRegistry {
 
-    private val protocolIdCounter = AtomicInteger()
-    private val dataComponentsById = Int2ObjectOpenHashMap<KClass<out DataComponent>>()
-    private val dataComponentsByIdentifier = Object2ObjectOpenHashMap<String, KClass<out DataComponent>>()
+    val protocolIdCounter = AtomicInteger()
+    val dataComponentsById = Int2ObjectOpenHashMap<KClass<out DataComponent>>()
+    val dataComponentsByIdentifier = Object2ObjectOpenHashMap<String, KClass<out DataComponent>>()
 
-    private val dataComponentsByIdReversed = Object2IntOpenHashMap<KClass<out DataComponent>>()
-    private val dataComponentsByIdentifierReversed = Object2ObjectOpenHashMap<KClass<out DataComponent>, String>()
+    val dataComponentsByIdReversed = Object2IntOpenHashMap<KClass<out DataComponent>>()
+    val dataComponentsByIdentifierReversed = Object2ObjectOpenHashMap<KClass<out DataComponent>, String>()
 
     val CUSTOM_DATA = register("minecraft:custom_data", CustomDataComponent::class)
     val MAX_STACK_SIZE = register("minecraft:max_stack_size", MaxStackSizeComponent::class)
