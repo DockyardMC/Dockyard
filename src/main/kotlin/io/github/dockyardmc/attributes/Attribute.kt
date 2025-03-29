@@ -91,5 +91,6 @@ enum class EquipmentSlotGroup {
     CHEST,
     HEAD,
     ARMOR,
-    BODY
+    BODY,
+    SADDLE,
 }

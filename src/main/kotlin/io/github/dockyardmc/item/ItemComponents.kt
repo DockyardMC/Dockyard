@@ -568,7 +568,8 @@ enum class EquipmentSlot {
     BOOTS,
     BODY,
     MAIN_HAND,
-    OFF_HAND;
+    OFF_HAND,
+    SADDLE;
 
     companion object {
         fun isBody(equipmentSlot: EquipmentSlot?): Boolean {
