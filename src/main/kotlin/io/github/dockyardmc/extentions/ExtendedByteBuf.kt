@@ -14,6 +14,7 @@ import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.SoundEvent
 import io.github.dockyardmc.maths.positiveCeilDiv
+import io.github.dockyardmc.scroll.serializers.NbtToComponentSerializer
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
@@ -53,6 +54,10 @@ fun ByteBuf.writeTextComponent(component: Component) {
 
 fun ByteBuf.writeTextComponent(text: String) {
     this.writeTextComponent(text.toComponent())
+}
+
+fun ByteBuf.readTextComponent(): Component {
+    return NbtToComponentSerializer.serializeNbt((this.readNBT() as NBTCompound))
 }
 
 fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
