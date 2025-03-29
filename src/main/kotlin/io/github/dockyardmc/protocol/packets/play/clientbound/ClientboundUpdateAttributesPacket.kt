@@ -8,7 +8,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.networktypes.writeList
+import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.registry.registries.Attribute
 import io.github.dockyardmc.registry.registries.AttributeRegistry
 import io.netty.buffer.ByteBuf

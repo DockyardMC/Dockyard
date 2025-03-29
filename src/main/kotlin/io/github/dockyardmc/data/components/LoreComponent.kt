@@ -5,7 +5,7 @@ import io.github.dockyardmc.extentions.readList
 import io.github.dockyardmc.extentions.readTextComponent
 import io.github.dockyardmc.extentions.writeTextComponent
 import io.github.dockyardmc.protocol.NetworkReadable
-import io.github.dockyardmc.protocol.networktypes.writeList
+import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.scroll.Component
 import io.netty.buffer.ByteBuf
 

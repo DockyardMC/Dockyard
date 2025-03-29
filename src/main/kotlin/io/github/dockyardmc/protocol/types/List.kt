@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.networktypes
+package io.github.dockyardmc.protocol.types
 
 
 import io.github.dockyardmc.extentions.readVarInt
