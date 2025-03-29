@@ -1,7 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
 import io.github.dockyardmc.extentions.*
-import io.github.dockyardmc.protocol.networktypes.writeMap
+import io.github.dockyardmc.protocol.types.writeMap
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.world.Light
