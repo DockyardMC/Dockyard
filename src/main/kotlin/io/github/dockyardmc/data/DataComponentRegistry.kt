@@ -28,6 +28,7 @@ object DataComponentRegistry {
     val RARITY = register("minecraft:rarity", RarityComponent::class)
     val ENCHANTMENTS = register("minecraft:enchantments", EnchantmentsComponent::class)
 
+
     fun register(identifier: String, kclass: KClass<out DataComponent>): KClass<out DataComponent> {
         val protocolId = protocolIdCounter.getAndIncrement()
         dataComponentsById[protocolId] = kclass

@@ -131,6 +131,9 @@ fun ByteBuf.readNBT(): NBT {
     }
 }
 
+fun ByteBuf.readNBTCompound(): NBTCompound {
+    return this.readNBT() as NBTCompound
+}
 
 fun ByteBuf.writeNBT(nbt: NBT, truncateRootTag: Boolean = true) {
 
