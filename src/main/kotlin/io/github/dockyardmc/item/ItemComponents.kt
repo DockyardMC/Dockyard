@@ -536,7 +536,8 @@ enum class ConsumableAnimation {
     CROSSBOW,
     SPYGLASS,
     TOOT_HORN,
-    BRUSH
+    BRUSH,
+    BUNDLE,
 }
 
 interface ConsumeEffect
