@@ -54,7 +54,7 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
         }
     }
 
-    fun entrySet(): ObjectSet<Int2ObjectMap.Entry<DataComponent?>>? {
+    fun entrySet(): ObjectSet<Int2ObjectMap.Entry<DataComponent?>> {
         return components.int2ObjectEntrySet()
     }
 
