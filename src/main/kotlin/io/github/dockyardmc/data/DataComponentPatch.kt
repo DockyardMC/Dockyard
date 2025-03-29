@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet
 // Component list stored as a patch of added and removed components (even if none are removed)
 // The inner map contains value for added components, null for removed components and no entry for unmodified components
 
-// heavily inspired by minestom's implementation of data component patch
+// heavily inspired by minestom's implementation of the data component patch
 class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>, val isPatch: Boolean, val isTrusted: Boolean) : NetworkWritable {
 
     // Not NotworkReadable because need read requires isPatch and isTrusted
