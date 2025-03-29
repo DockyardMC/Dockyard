@@ -11,6 +11,7 @@ object MinecraftVersionRegistry {
     }
 
     init {
+        addEntry(MinecraftVersion(770, "1.21.5"))
         addEntry(MinecraftVersion(769, "1.21.4"))
         addEntry(MinecraftVersion(768, "1.21.3"))
         addEntry(MinecraftVersion(767, "1.21"))

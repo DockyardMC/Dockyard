@@ -4,21 +4,19 @@ import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.Interaction
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.systems.GameMode
-import io.github.dockyardmc.registry.registries.PotionEffectRegistry
 
-fun suggestPotionEffects(player: Player): List<String> {
-    return PotionEffectRegistry.potionEffects.keys.toList()
-}
 
 fun main() {
+
     val server = DockyardServer {
         withIp("0.0.0.0")
         withPort(25565)
         withUpdateChecker(false)
         useDebugMode(true)
+
     }
+
 
     Events.on<PlayerJoinEvent> { event ->
         val player = event.player

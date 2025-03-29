@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture
 data class Schematic(
     var size: Vector3,
     var offset: Vector3,
-    var pallete: MutableMap<io.github.dockyardmc.world.block.Block, Int>,
+    var pallete: MutableMap<Block, Int>,
     var blocks: ByteArray,
 ) {
 
