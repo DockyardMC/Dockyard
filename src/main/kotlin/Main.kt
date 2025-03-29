@@ -22,19 +22,19 @@ import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.PotionEffectRegistry
 import io.github.dockyardmc.sounds.playSound
+import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.utils.DebugSidebar
 import kotlin.time.Duration.Companion.seconds
 
-fun suggestPotionEffects(player: Player): List<String> {
-    return PotionEffectRegistry.potionEffects.keys.toList()
-}
-
 fun main() {
+
     val server = DockyardServer {
         withIp("0.0.0.0")
         withPort(25565)
         useDebugMode(true)
+
     }
+
 
     Events.on<PlayerJoinEvent> { event ->
         val player = event.player
