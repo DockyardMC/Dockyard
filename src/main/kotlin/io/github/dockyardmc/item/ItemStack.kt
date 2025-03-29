@@ -42,9 +42,11 @@ data class ItemStack(
 
         fun read(buffer: ByteBuf): ItemStack {
             val count = buffer.readVarInt()
-            if(count <= 0) return ItemStack.AIR
+            if(count <= 0) return AIR
 
             val itemId = buffer.readVarInt()
+
+            //TODO 1.21.5 COMPONENTS PATCH
             val componentsToAdd = buffer.readVarInt()
             val componentsToRemove = buffer.readVarInt()
 
