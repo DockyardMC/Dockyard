@@ -1,12 +1,8 @@
 package io.github.dockyardmc.registry.registries
 
-import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.reversed
-import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.item.ItemComponent
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.readComponent
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
