@@ -22,6 +22,14 @@ fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, Byt
     }
 }
 
+fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, ByteBuf>, writeValue: KFunction2<ByteBuf, V, ByteBuf>) {
+    this.writeVarInt(map.size)
+    map.forEach { (key, value) ->
+        writeKey.invoke(this, key)
+        writeValue.invoke(this, value)
+    }
+}
+
 fun <K, V> ByteBuf.readMap(readKey: KFunction1<ByteBuf, K>, readValue: KFunction1<ByteBuf, V>): Map<K, V> {
     val map = mutableMapOf<K, V>()
     val size = this.readVarInt()

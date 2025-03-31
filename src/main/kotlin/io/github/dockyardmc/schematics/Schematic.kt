@@ -6,7 +6,6 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Blocks
