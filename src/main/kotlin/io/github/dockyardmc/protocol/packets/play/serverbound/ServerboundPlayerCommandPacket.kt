@@ -5,7 +5,6 @@ import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PlayerAction
-import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.extentions
 
 import io.github.dockyardmc.scroll.CustomColor
+import io.netty.buffer.ByteBuf
 
 //TODO add to Scroll
 fun CustomColor.toRgbInt(): Int {
@@ -25,4 +26,12 @@ fun CustomColor.Companion.fromRGBInt(color: Int): CustomColor {
 fun CustomColor.Companion.fromRGBIntOrNull(color: Int?): CustomColor? {
     if(color == null) return null
     return fromRGBInt(color)
+}
+
+fun CustomColor.writePackedInt(buffer: ByteBuf) {
+    buffer.writeInt(this.toRgbInt())
+}
+
+fun CustomColor.readPackedInt(buffer: ByteBuf): CustomColor {
+    return CustomColor.fromRGBInt(buffer.readInt())
 }
