@@ -17,24 +17,24 @@ class UpdateChecker {
     companion object {
         val LOG_TYPE = CustomLogType("⚠\uFE0F Update Checker", AnsiPair.ORANGE)
     }
-
-    init {
-        val client = HttpClient.newHttpClient()
-        val request = HttpRequest.newBuilder().uri(URI("https://mvn.devos.one/api/maven/details/releases/io/github/dockyardmc/dockyard")).build()
-        client.sendAsync(request, BodyHandlers.ofString()).thenAccept { res ->
-            val response = Json.decodeFromString<ReposliteResponse>(res.body())
-            val latestVersion = response.files.last { file -> file.type == "DIRECTORY" }.name
-            val publishedVersionContainCurrentVersion = response.files.firstOrNull { file -> file.name == DockyardServer.versionInfo.dockyardVersion } != null
-
-            if(latestVersion != DockyardServer.versionInfo.dockyardVersion) {
-                if(!publishedVersionContainCurrentVersion) {
-                    log("You are currently running an outdated DockyardMC version. Consider updating to the latest ($latestVersion)", LOG_TYPE)
-                } else {
-                    log("You are currently running a developer version of DockyardMC. Things might be VERY broken", LOG_TYPE)
-                }
-            }
-        }
-    }
+//
+//    init {
+//        val client = HttpClient.newHttpClient()
+//        val request = HttpRequest.newBuilder().uri(URI("https://mvn.devos.one/api/maven/details/releases/io/github/dockyardmc/dockyard")).build()
+//        client.sendAsync(request, BodyHandlers.ofString()).thenAccept { res ->
+//            val response = Json.decodeFromString<ReposliteResponse>(res.body())
+//            val latestVersion = response.files.last { file -> file.type == "DIRECTORY" }.name
+//            val publishedVersionContainCurrentVersion = response.files.firstOrNull { file -> file.name == DockyardServer.versionInfo.dockyardVersion } != null
+//
+//            if(latestVersion != DockyardServer.versionInfo.dockyardVersion) {
+//                if(!publishedVersionContainCurrentVersion) {
+//                    log("You are currently running an outdated DockyardMC version. Consider updating to the latest ($latestVersion)", LOG_TYPE)
+//                } else {
+//                    log("You are currently running a developer version of DockyardMC. Things might be VERY broken", LOG_TYPE)
+//                }
+//            }
+//        }
+//    }
 
     @Serializable
     data class ReposliteResponse(
