@@ -17,12 +17,12 @@ class WritableBookContent(val pages: List<FilteredText>) : DataComponent() {
         buffer.writeList(pages, FilteredText::write)
     }
 
-    companion object : NetworkReadable<WrittenBookContentComponent> {
+    companion object : NetworkReadable<WritableBookContent> {
 
-        val EMPTY = WrittenBookContentComponent(listOf())
+        val EMPTY = WritableBookContent(listOf())
 
-        override fun read(buffer: ByteBuf): WrittenBookContentComponent {
-            return WrittenBookContentComponent(buffer.readList(FilteredText::read))
+        override fun read(buffer: ByteBuf): WritableBookContent {
+            return WritableBookContent(buffer.readList(FilteredText::read))
         }
     }
 

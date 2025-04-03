@@ -6,10 +6,10 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.netty.buffer.ByteBuf
 
-class MapIdComponent(val id: Int): DataComponent() {
+class MapIdComponent(val mapId: Int): DataComponent() {
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeVarInt(id)
+        buffer.writeVarInt(mapId)
     }
 
     companion object: NetworkReadable<MapIdComponent> {

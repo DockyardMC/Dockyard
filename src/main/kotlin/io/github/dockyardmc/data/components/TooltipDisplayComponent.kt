@@ -12,8 +12,6 @@ import kotlin.reflect.KClass
 
 class TooltipDisplayComponent(val hideTooltip: Boolean, val hiddenComponents: List<KClass<out DataComponent>>): DataComponent() {
 
-    constructor(hideTooltip: Boolean, hiddenComponents: List<DataComponent>): this(hideTooltip, hiddenComponents.map { component -> component::class })
-
     override fun write(buffer: ByteBuf) {
         buffer.writeBoolean(hideTooltip)
         buffer.writeList(hiddenComponents.map { component -> DataComponentRegistry.dataComponentsByIdReversed.getValue(component) }, ByteBuf::writeVarInt)
