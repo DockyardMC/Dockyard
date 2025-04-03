@@ -2,9 +2,9 @@ package io.github.dockyardmc.data.components
 
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.extentions.fromRGBInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.writePackedInt
-import io.github.dockyardmc.extentions.writeVarIntEnum
+import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
@@ -20,7 +20,7 @@ class FireworkExplosionComponent(
 ) : DataComponent() {
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeVarIntEnum(shape)
+        buffer.writeEnum(shape)
         buffer.writeList(colors, CustomColor::writePackedInt)
         buffer.writeList(fadeColors, CustomColor::writePackedInt)
         buffer.writeBoolean(hasTrail)
@@ -30,7 +30,7 @@ class FireworkExplosionComponent(
     companion object : NetworkReadable<FireworkExplosionComponent> {
         override fun read(buffer: ByteBuf): FireworkExplosionComponent {
             return FireworkExplosionComponent(
-                buffer.readVarIntEnum(),
+                buffer.readEnum(),
                 buffer.readList(ByteBuf::readInt).map { int -> CustomColor.fromRGBInt(int) },
                 buffer.readList(ByteBuf::readInt).map { int -> CustomColor.fromRGBInt(int) },
                 buffer.readBoolean(),

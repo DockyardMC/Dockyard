@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.player.ClientParticleSettings
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PlayerNetworkManager
@@ -33,10 +33,10 @@ class ServerboundClientInformationPacket(
                 buf.readVarInt(),
                 buf.readBoolean(),
                 buf.readByte(),
-                buf.readVarIntEnum<PlayerHand>(),
+                buf.readEnum<PlayerHand>(),
                 buf.readBoolean(),
                 buf.readBoolean(),
-                buf.readVarIntEnum<ClientParticleSettings>()
+                buf.readEnum<ClientParticleSettings>()
             )
         }
     }

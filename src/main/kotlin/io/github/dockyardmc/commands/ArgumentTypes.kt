@@ -2,7 +2,7 @@ package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.writeString
-import io.github.dockyardmc.extentions.writeVarIntEnum
+import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.Particle
@@ -30,7 +30,7 @@ class StringArgument(
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.STRING
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeVarIntEnum<BrigadierStringType>(type)
+        buffer.writeEnum<BrigadierStringType>(type)
     }
 }
 
@@ -40,7 +40,7 @@ class WorldArgument(
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.STRING
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeVarIntEnum<BrigadierStringType>(BrigadierStringType.SINGLE_WORD)
+        buffer.writeEnum<BrigadierStringType>(BrigadierStringType.SINGLE_WORD)
     }
 }
 
@@ -224,7 +224,7 @@ class EnumArgument(
     override var expectedType: KClass<*> = String::class
     override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.STRING
     override fun write(buffer: ByteBuf) {
-        buffer.writeVarIntEnum<BrigadierStringType>(BrigadierStringType.SINGLE_WORD)
+        buffer.writeEnum<BrigadierStringType>(BrigadierStringType.SINGLE_WORD)
     }
 }
 

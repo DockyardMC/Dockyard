@@ -45,14 +45,14 @@ data class Modifier(
     fun write(buffer: ByteBuf) {
         buffer.writeVarInt(attribute.getProtocolId())
         attributeModifier.write(buffer)
-        buffer.writeVarIntEnum<EquipmentSlotGroup>(equipmentSlot)
+        buffer.writeEnum<EquipmentSlotGroup>(equipmentSlot)
     }
 
     companion object {
         fun read(buffer: ByteBuf): Modifier {
             val attribute = AttributeRegistry.getByProtocolId(buffer.readVarInt())
             val attributeModifier = AttributeModifier.read(buffer)
-            val slot = buffer.readVarIntEnum<EquipmentSlotGroup>()
+            val slot = buffer.readEnum<EquipmentSlotGroup>()
 
             return Modifier(attribute, attributeModifier, slot)
         }
@@ -67,7 +67,7 @@ data class AttributeModifier(
     fun write(buffer: ByteBuf) {
         buffer.writeString(id)
         buffer.writeDouble(amount)
-        buffer.writeVarIntEnum<AttributeOperation>(operation)
+        buffer.writeEnum<AttributeOperation>(operation)
     }
 
     companion object {
@@ -75,7 +75,7 @@ data class AttributeModifier(
             return AttributeModifier(
                 buffer.readString(),
                 buffer.readDouble(),
-                buffer.readVarIntEnum<AttributeOperation>()
+                buffer.readEnum<AttributeOperation>()
             )
         }
     }

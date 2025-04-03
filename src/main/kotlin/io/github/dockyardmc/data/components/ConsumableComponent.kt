@@ -2,9 +2,9 @@ package io.github.dockyardmc.data.components
 
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.extentions.readConsumeEffects
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.writeConsumeEffects
-import io.github.dockyardmc.extentions.writeVarIntEnum
+import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.item.ConsumableAnimation
 import io.github.dockyardmc.item.ConsumeEffect
 import io.github.dockyardmc.protocol.NetworkReadable
@@ -22,7 +22,7 @@ class ConsumableComponent(
 
     override fun write(buffer: ByteBuf) {
         buffer.writeFloat(consumeSeconds)
-        buffer.writeVarIntEnum(animation)
+        buffer.writeEnum(animation)
         CustomSoundEvent(sound).write(buffer)
         buffer.writeBoolean(hasParticles)
         buffer.writeConsumeEffects(effects)
@@ -32,7 +32,7 @@ class ConsumableComponent(
         override fun read(buffer: ByteBuf): ConsumableComponent {
             return ConsumableComponent(
                 buffer.readFloat(),
-                buffer.readVarIntEnum(),
+                buffer.readEnum(),
                 SoundEvent.read(buffer).identifier,
                 buffer.readBoolean(),
                 buffer.readConsumeEffects()

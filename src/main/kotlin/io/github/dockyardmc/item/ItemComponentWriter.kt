@@ -26,7 +26,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
             }
         }
 
-        is RarityItemComponent -> this.writeVarIntEnum(component.rarity)
+        is RarityItemComponent -> this.writeEnum(component.rarity)
         is EnchantmentsItemComponent -> TODO()
         is CanBePlacedOnItemComponent -> {
             this.writeVarInt(component.blocks.size)
@@ -61,7 +61,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
 
         is ConsumableItemComponent -> {
             this.writeFloat(component.consumeSeconds)
-            this.writeVarIntEnum(component.animation)
+            this.writeEnum(component.animation)
             CustomSoundEvent(component.sound.identifier).write(this)
             this.writeBoolean(component.hasConsumeParticles)
             this.writeConsumeEffects(component.consumeEffects)
@@ -93,7 +93,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
 
         is EnchantableItemComponent -> this.writeVarInt(component.value)
         is EquippableItemComponent -> {
-            this.writeVarIntEnum<EquipmentSlot>(component.slot)
+            this.writeEnum<EquipmentSlot>(component.slot)
             CustomSoundEvent(component.equipSound.identifier).write(this)
             this.writeOptionalOLD(component.assetId) { it.writeString(component.assetId!!) }
             this.writeOptionalOLD(component.cameraOverlay) { it.writeString(component.cameraOverlay!!) }
@@ -131,7 +131,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
 
         is MapIdItemComponent -> this.writeVarInt(component.mapId)
         is MapDecorationsItemComponent -> this.writeNBT(component.nbt)
-        is MapPostProcessingItemComponent -> this.writeVarIntEnum<MapPostProcessing>(component.type)
+        is MapPostProcessingItemComponent -> this.writeEnum<MapPostProcessing>(component.type)
         is ChargedProjectilesItemComponent -> this.writeItemStackList(component.projectiles)
         is BundleContentsItemComponent -> this.writeItemStackList(component.items)
         is PotionContentsItemComponent -> {
@@ -193,7 +193,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
 
         is NoteBlockSoundItemComponent -> this.writeString(component.sound)
         is BannerPatternsItemComponent -> this.writeBannerPatternLayerList(component.layers)
-        is BaseColorItemComponent -> this.writeVarIntEnum(component.color)
+        is BaseColorItemComponent -> this.writeEnum(component.color)
         is PotDecorationsItemComponent -> {}
         is ContainerItemComponent -> this.writeItemStackList(component.items)
         is BlockStateItemComponent -> {

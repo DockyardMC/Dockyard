@@ -200,10 +200,10 @@ fun ByteBuf.readVarLong(): Long {
 
 fun hasContinuationBit(byte: Byte): Boolean = byte.toInt() and 0x80 == 128
 
-inline fun <reified T : Enum<T>> ByteBuf.readVarIntEnum(): T = T::class.java.enumConstants[readVarInt()]
+inline fun <reified T : Enum<T>> ByteBuf.readEnum(): T = T::class.java.enumConstants[readVarInt()]
 inline fun <reified T : Enum<T>> ByteBuf.readByteEnum(): T = T::class.java.enumConstants[readByte().toInt()]
 
-inline fun <reified T : Enum<T>> ByteBuf.writeVarIntEnum(value: T) {
+inline fun <reified T : Enum<T>> ByteBuf.writeEnum(value: T) {
     this.writeVarInt(value.ordinal)
 }
 
@@ -465,7 +465,7 @@ fun ByteBuf.writeCustomColorList(list: Collection<CustomColor>) {
 }
 
 fun ByteBuf.writeFireworkExplosion(component: FireworkExplosionItemComponent) {
-    this.writeVarIntEnum<FireworkShape>(component.shape)
+    this.writeEnum<FireworkShape>(component.shape)
     this.writeCustomColorList(component.colors)
     this.writeCustomColorList(component.fadeColors)
     this.writeBoolean(component.hasTrail)
@@ -483,7 +483,7 @@ fun ByteBuf.readFireworkExplosionList(): List<FireworkExplosionItemComponent> {
 
 fun ByteBuf.readFireworkExplosion(): FireworkExplosionItemComponent {
     return FireworkExplosionItemComponent(
-        this.readVarIntEnum<FireworkShape>(),
+        this.readEnum<FireworkShape>(),
         this.readCustomColorList(),
         this.readCustomColorList(),
         this.readBoolean(),

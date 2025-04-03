@@ -26,7 +26,7 @@ class EquippableComponent(
 ) : DataComponent() {
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeVarIntEnum(equipmentSlot)
+        buffer.writeEnum(equipmentSlot)
         CustomSoundEvent(equipSound).write(buffer)
         buffer.writeOptional(assetId, ByteBuf::writeString)
         buffer.writeOptional(cameraOverlay, ByteBuf::writeString)
@@ -40,7 +40,7 @@ class EquippableComponent(
     companion object : NetworkReadable<EquippableComponent> {
         override fun read(buffer: ByteBuf): EquippableComponent {
             return EquippableComponent(
-                buffer.readVarIntEnum(),
+                buffer.readEnum(),
                 SoundEvent.read(buffer).identifier,
                 buffer.readOptional(ByteBuf::readString),
                 buffer.readOptional(ByteBuf::readString),
