@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeTextComponent
 import io.github.dockyardmc.extentions.writeVarInt
-import io.github.dockyardmc.extentions.writeVarIntEnum
+import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 
 class ClientboundScoreboardObjectivePacket(name: String, mode: ScoreboardMode, value: String?, type: ScoreboardType?): ClientboundPacket() {
@@ -15,7 +15,7 @@ class ClientboundScoreboardObjectivePacket(name: String, mode: ScoreboardMode, v
             if(value == null) throw Exception("value needs to be not null when using CREATE or EDIT_TEXT mode!")
             if(type == null) throw Exception("type needs to be not null when using CREATE or EDIT_TEXT mode!")
             buffer.writeTextComponent(value)
-            buffer.writeVarIntEnum<ScoreboardType>(type)
+            buffer.writeEnum<ScoreboardType>(type)
             buffer.writeBoolean(true)
             buffer.writeVarInt(0)
         }

@@ -1,6 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
@@ -15,7 +15,7 @@ class ServerboundClientStatusPacket(val action: ClientStatusAction) : Serverboun
     }
 
     companion object {
-        fun read(buf: ByteBuf): ServerboundClientStatusPacket = ServerboundClientStatusPacket(buf.readVarIntEnum<ClientStatusAction>())
+        fun read(buf: ByteBuf): ServerboundClientStatusPacket = ServerboundClientStatusPacket(buf.readEnum<ClientStatusAction>())
     }
 }
 

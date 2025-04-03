@@ -5,7 +5,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerHandshakeEvent
 import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -41,7 +41,7 @@ class ServerboundHandshakePacket(
                 version = byteBuf.readVarInt(),
                 serverAddress = byteBuf.readString(),
                 port = byteBuf.readUnsignedShort().toShort(),
-                nextState = byteBuf.readVarIntEnum<ProtocolState>()
+                nextState = byteBuf.readEnum<ProtocolState>()
             )
         }
     }

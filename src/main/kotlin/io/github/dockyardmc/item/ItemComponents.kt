@@ -422,7 +422,7 @@ fun ByteBuf.readBannerPatternLayer(): BannerPatternLayer {
     val type = this.readVarInt() - 1
 
     bannerPattern = if(type != -1) BannerPatternRegistry.getByProtocolId(type + 1) else BannerPatternRegistry[this.readString()]
-    val dyeColor = this.readVarIntEnum<DyeColor>()
+    val dyeColor = this.readEnum<DyeColor>()
 
     return BannerPatternLayer(
         bannerPattern,
@@ -436,7 +436,7 @@ fun ByteBuf.writeBannerPatternLayer(bannerPattern: BannerPattern, dyeColor: DyeC
     } else {
         this.writeString(bannerPattern.identifier)
     }
-    this.writeVarIntEnum<DyeColor>(dyeColor)
+    this.writeEnum<DyeColor>(dyeColor)
 }
 
 fun ByteBuf.writeBannerPatternLayerList(list: Collection<BannerPatternLayer>) {
