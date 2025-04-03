@@ -5,7 +5,7 @@ import io.github.dockyardmc.events.PlayerBlockPlaceEvent
 import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerFinishPlacingBlockEvent
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.player.Direction
@@ -135,9 +135,9 @@ class ServerboundUseItemOnBlockPacket(
     companion object {
         fun read(buf: ByteBuf): ServerboundUseItemOnBlockPacket {
             return ServerboundUseItemOnBlockPacket(
-                buf.readVarIntEnum<PlayerHand>(),
+                buf.readEnum<PlayerHand>(),
                 buf.readBlockPosition(),
-                buf.readVarIntEnum<Direction>(),
+                buf.readEnum<Direction>(),
                 buf.readFloat(),
                 buf.readFloat(),
                 buf.readFloat(),

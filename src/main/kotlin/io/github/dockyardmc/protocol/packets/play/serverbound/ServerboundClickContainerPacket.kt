@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.InventoryClickEvent
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.inventory.InventoryClickHandler
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
 import io.github.dockyardmc.item.*
@@ -525,7 +525,7 @@ class ServerboundClickContainerPacket(
             val stateId = buffer.readVarInt()
             val slot = buffer.readShort().toInt()
             val button = buffer.readByte().toInt()
-            val mode = buffer.readVarIntEnum<ContainerClickMode>()
+            val mode = buffer.readEnum<ContainerClickMode>()
             val changedSlots = mutableMapOf<Int, ItemStack>()
 
             val arraySize = buffer.readVarInt()

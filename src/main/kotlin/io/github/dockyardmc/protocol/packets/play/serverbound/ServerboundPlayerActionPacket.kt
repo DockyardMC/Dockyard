@@ -6,7 +6,7 @@ import io.github.dockyardmc.events.PlayerFinishedDiggingEvent
 import io.github.dockyardmc.events.PlayerStartDiggingBlockEvent
 import io.github.dockyardmc.extentions.readByteEnum
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.item.ConsumableItemComponent
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.hasType
@@ -34,7 +34,7 @@ class ServerboundPlayerActionPacket(
 
         fun read(buf: ByteBuf): ServerboundPlayerActionPacket =
             ServerboundPlayerActionPacket(
-                buf.readVarIntEnum<PlayerAction>(),
+                buf.readEnum<PlayerAction>(),
                 buf.readBlockPosition(),
                 buf.readByteEnum<Direction>(),
                 buf.readVarInt()

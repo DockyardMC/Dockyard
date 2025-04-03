@@ -1,7 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.extentions.readUUID
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.resourcepack.ResourcepackManager
@@ -46,7 +46,7 @@ class ServerboundResourcepackResponsePacket(var uuid: UUID, var response: Resour
 
     companion object {
         fun read(buf: ByteBuf): ServerboundResourcepackResponsePacket {
-            return ServerboundResourcepackResponsePacket(buf.readUUID(), buf.readVarIntEnum<ResourcepackStatus>())
+            return ServerboundResourcepackResponsePacket(buf.readUUID(), buf.readEnum<ResourcepackStatus>())
         }
     }
 }

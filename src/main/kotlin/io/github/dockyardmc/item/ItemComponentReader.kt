@@ -43,7 +43,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
             return LoreItemComponent(lines)
         }
 
-        RarityItemComponent::class -> RarityItemComponent(this.readVarIntEnum<ItemRarity>())
+        RarityItemComponent::class -> RarityItemComponent(this.readEnum<ItemRarity>())
         EnchantmentsItemComponent::class -> {
             val size = this.readVarInt()
             for (i in 0 until size) {
@@ -87,7 +87,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         FoodItemComponent::class -> FoodItemComponent(this.readVarInt(), this.readFloat(), this.readBoolean())
         ConsumableItemComponent::class -> ConsumableItemComponent(
             this.readFloat(),
-            this.readVarIntEnum<ConsumableAnimation>(),
+            this.readEnum<ConsumableAnimation>(),
             Sound(SoundEvent.read(this).identifier),
             this.readBoolean(),
             this.readConsumeEffects()
@@ -117,7 +117,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
 
         EnchantableItemComponent::class -> EnchantableItemComponent(this.readVarInt())
         EquippableItemComponent::class -> {
-            val slot = this.readVarIntEnum<EquipmentSlot>()
+            val slot = this.readEnum<EquipmentSlot>()
             val sound = Sound(SoundEvent.read(this).identifier)
             val model = this.readOptionalOrDefault<String>("minecraft:item")
             val cameraOverlay = this.readOptionalOrDefault<String>("minecraft:pumpkin_blur")
@@ -151,7 +151,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         MapColorItemComponent::class -> MapColorItemComponent(CustomColor.fromRGBInt(this.readInt()))
         MapIdItemComponent::class -> MapIdItemComponent(this.readVarInt())
         MapDecorationsItemComponent::class -> MapDecorationsItemComponent(this.readNBT() as NBTCompound)
-        MapPostProcessingItemComponent::class -> MapPostProcessingItemComponent(this.readVarIntEnum<MapPostProcessing>())
+        MapPostProcessingItemComponent::class -> MapPostProcessingItemComponent(this.readEnum<MapPostProcessing>())
         ChargedProjectilesItemComponent::class -> ChargedProjectilesItemComponent(this.readList<ItemStack> { ItemStack.read(this) })
         BundleContentsItemComponent::class -> BundleContentsItemComponent(this.readList<ItemStack> { ItemStack.read(this) })
         PotionContentsItemComponent::class -> {
@@ -212,7 +212,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
         }
 
         FireworkExplosionItemComponent::class -> FireworkExplosionItemComponent(
-            this.readVarIntEnum<FireworkShape>(),
+            this.readEnum<FireworkShape>(),
             this.readCustomColorList(),
             this.readCustomColorList(),
             this.readBoolean(),
@@ -228,7 +228,7 @@ fun ByteBuf.readComponent(id: Int): ItemComponent {
 
         NoteBlockSoundItemComponent::class -> NoteBlockSoundItemComponent(this.readString())
         BannerPatternsItemComponent::class -> BannerPatternsItemComponent(this.readBannerPatternLayerList())
-        BaseColorItemComponent::class -> BaseColorItemComponent(this.readVarIntEnum<DyeColor>())
+        BaseColorItemComponent::class -> BaseColorItemComponent(this.readEnum<DyeColor>())
         PotDecorationsItemComponent::class -> PotDecorationsItemComponent()
         ContainerItemComponent::class -> ContainerItemComponent(this.readList<ItemStack> { ItemStack.read(this) })
         BlockStateItemComponent::class -> {
