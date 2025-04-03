@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction2
 
+@JvmName("writeMap1")
 fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, Unit>, writeValue: KFunction2<ByteBuf, V, Unit>) {
     this.writeVarInt(map.size)
     map.forEach { (key, value) ->
@@ -14,6 +15,7 @@ fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, Uni
     }
 }
 
+@JvmName("writeMap2")
 fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, ByteBuf>, writeValue: KFunction2<V, ByteBuf, Unit>) {
     this.writeVarInt(map.size)
     map.forEach { (key, value) ->
@@ -22,6 +24,7 @@ fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, Byt
     }
 }
 
+@JvmName("writeMap3")
 fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, ByteBuf>, writeValue: KFunction2<ByteBuf, V, ByteBuf>) {
     this.writeVarInt(map.size)
     map.forEach { (key, value) ->

@@ -47,6 +47,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
             EquipmentSlot.LEGGINGS -> PlayerInventoryUtils.LEGGINGS_SLOT
             EquipmentSlot.BOOTS -> PlayerInventoryUtils.BOOTS_SLOT
             EquipmentSlot.BODY -> PlayerInventoryUtils.CHESTPLATE_SLOT
+            else -> 0
         }
     }
 
