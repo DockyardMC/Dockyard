@@ -66,7 +66,15 @@ object DataComponentRegistry {
     val ENTITY_DATA = register("minecraft:entity_data", EntityDataComponent::class)
     val BUCKET_ENTITY_DATA = register("minecraft:bucket_entity_data", BucketEntityDataComponent::class)
     val BLOCK_ENTITY_DATA = register("minecraft:block_entity_data", BlockEntityDataComponent::class)
-
+    val INSTRUMENT = register("minecraft:instrument", InstrumentComponent::class)
+    val PROVIDES_TRIM_MATERIAL = register("minecraft:provides_trim_material", ProvidesTrimMaterialComponent::class)
+    val JUKEBOX_PLAYABLE = register("minecraft:jukebox_playable", JukeboxPlayableComponent::class)
+    val PROVIDES_BANNER_PATTERNS = register("minecraft:provides_banner_patterns", ProvidesBannerPatterns::class)
+    val RECIPES = register("minecraft:recipes", RecipesComponent::class)
+    val LODESTONE_TRACKER = register("minecraft:lodestone_tracker", LodestoneTrackerComponent::class)
+    val FIREWORK_EXPLOSION = register("minecraft:firework_explosion", FireworkExplosionComponent::class)
+    val FIREWORKS = register("minecraft:fireworks", FireworksComponent::class)
+//    val PROFILE =
 
     fun register(identifier: String, kclass: KClass<out DataComponent>): KClass<out DataComponent> {
         val protocolId = protocolIdCounter.getAndIncrement()

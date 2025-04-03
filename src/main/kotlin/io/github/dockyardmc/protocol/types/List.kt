@@ -3,8 +3,10 @@ package io.github.dockyardmc.protocol.types
 
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.scroll.CustomColor
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KFunction2
+
 
 fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
     val list = mutableListOf<T>()
