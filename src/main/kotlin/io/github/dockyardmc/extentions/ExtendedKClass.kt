@@ -13,7 +13,7 @@ fun <T> KClass<*>.asNetworkReadable(): NetworkReadable<T> {
     if (companion !is NetworkReadable<*>) throw IllegalStateException("Companion object of class $simpleName is not of type NetworkReadable")
 
     @Suppress("UNCHECKED_CAST")
-    return (companion as NetworkReadable<T>)
+    return companion as NetworkReadable<T>
 }
 
 fun <T> KClass<*>.read(buffer: ByteBuf): T {

@@ -334,10 +334,10 @@ fun ByteBuf.writeBlockPosition(location: Location) {
 }
 
 fun ByteBuf.writeBlockPosition(vector: Vector3) {
-    val blockX = vector.blockX.toLong()
-    val blockY = vector.blockY.toLong()
-    val blockZ = vector.blockZ.toLong()
-    val encoded = (((blockX and 0x3FFFFFF) shl 38) or ((blockZ and 0x3FFFFFF) shl 12) or (blockY and 0xFFF))
+    val blockX = vector.x.toLong()
+    val blockY = vector.y.toLong()
+    val blockZ = vector.z.toLong()
+    val encoded = ((blockX and 0x3FFFFFF shl 38) or ((blockZ and 0x3FFFFFF) shl 12) or (blockY and 0xFFF))
     this.writeLong(encoded)
 }
 
