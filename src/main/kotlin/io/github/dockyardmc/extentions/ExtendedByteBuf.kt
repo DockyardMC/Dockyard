@@ -57,7 +57,7 @@ fun ByteBuf.writeTextComponent(text: String) {
 }
 
 fun ByteBuf.readTextComponent(): Component {
-    return NbtToComponentSerializer.serializeNbt((this.readNBT() as NBTCompound))
+    return NbtToComponentSerializer.serializeNbt(this.readNBT() as NBTCompound)
 }
 
 fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
