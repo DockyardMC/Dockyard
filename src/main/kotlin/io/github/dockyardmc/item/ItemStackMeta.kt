@@ -1,6 +1,7 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.attributes.AttributeModifier
+import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.player.ProfileProperty
 import io.github.dockyardmc.player.ProfilePropertyMap
@@ -17,7 +18,7 @@ class ItemStackMeta {
     var amount: Int = 1
     var lore: MutableList<String> = mutableListOf()
     var attributes: MutableList<AttributeModifier> = mutableListOf()
-    var components: MutableList<ItemComponent> = mutableListOf()
+    var components: MutableList<DataComponent> = mutableListOf()
 
     companion object {
         fun fromItemStack(stack: ItemStack): ItemStackMeta {
@@ -25,7 +26,7 @@ class ItemStackMeta {
             meta.material = stack.material
             meta.amount = stack.amount
             meta.lore = stack.existingMeta?.lore ?: mutableListOf()
-            meta.components = stack.components.toMutableList()
+            meta.components = stack.components.components.values.filterNotNull().toMutableList()
             meta.attributes = stack.attributes.toMutableList()
 
             return meta
