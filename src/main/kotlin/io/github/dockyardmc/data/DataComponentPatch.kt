@@ -7,6 +7,7 @@ import io.netty.buffer.Unpooled
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.objects.ObjectSet
+import kotlin.reflect.KClass
 
 // Component list stored as a patch of added and removed components (even if none are removed)
 // The inner map contains value for added components, null for removed components and no entry for unmodified components
@@ -19,6 +20,14 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
         const val REMOVAL_PREFIX: Char = '!'
         val EMPTY = DataComponentPatch(Int2ObjectArrayMap<DataComponent?>(0), false, true)
 
+        fun fromList(components: List<DataComponent>): DataComponentPatch {
+            var patch = DataComponentPatch(Int2ObjectArrayMap(), true, true)
+            components.forEach { component ->
+                patch = patch.set(component)
+            }
+            return patch
+        }
+
         fun patchNetworkType(components: Int2ObjectMap<DataComponent?>): DataComponentPatch {
             return DataComponentPatch(components, true, true)
         }
@@ -29,15 +38,15 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
 
         fun read(buffer: ByteBuf, isPatch: Boolean, isTrusted: Boolean) {
             val added = buffer.readVarInt()
-            val removed = if(isPatch) buffer.readVarInt() else 0
+            val removed = if (isPatch) buffer.readVarInt() else 0
 
-            if(added + removed > 256) throw IllegalStateException("Data component map too large: ${added + removed} > 256")
+            if (added + removed > 256) throw IllegalStateException("Data component map too large: ${added + removed} > 256")
             val patch: Int2ObjectMap<DataComponent> = Int2ObjectArrayMap(added + removed)
 
             for (i in 0 until added) {
                 val id = buffer.readVarInt()
                 val componentClass = DataComponentRegistry.dataComponentsById[id] ?: throw IllegalStateException("Unknown component with id $id")
-                if(isTrusted) {
+                if (isTrusted) {
                     val component = componentClass.read<DataComponent>(buffer)
                     patch.put(id, component)
                 } else {
@@ -74,8 +83,12 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
         }
     }
 
+    operator fun get(component: KClass<out DataComponent>): DataComponent? {
+        return components.getValue(DataComponentRegistry.dataComponentsByIdReversed.getValue(component))
+    }
+
     operator fun get(component: DataComponent): DataComponent? {
-        return components.getValue(component.getId())
+        return get(component::class)
     }
 
     fun getOfPrototype(prototype: DataComponentPatch, component: DataComponent): DataComponent? {
