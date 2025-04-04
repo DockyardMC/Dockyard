@@ -6,6 +6,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scroll.Component
 import io.netty.buffer.ByteBuf
 
@@ -68,12 +69,3 @@ enum class AdvancementFrame {
     GOAL;
 }
 
-/**
- * @param blockId a block id without namespace, like `netherrack`
- */
-fun getTextureId(blockId: String): String {
-    // TODO this is how it should be in 1.21.5
-    // return "block/$blockId"
-
-    return "minecraft:textures/block/$blockId.png"
-}
