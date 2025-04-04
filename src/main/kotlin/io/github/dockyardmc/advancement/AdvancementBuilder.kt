@@ -4,6 +4,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.vectors.Vector2f
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
+import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.debug
 
@@ -61,6 +62,14 @@ class AdvancementBuilder(val id: String) {
         this.background = background
     }
 
+    fun withBackground(block: RegistryBlock) {
+        val blockId = block.identifier.removePrefix("minecraft:")
+
+        // TODO: this is how it should be in 1.21.5
+        // "block/$blockId"
+        this.background = "minecraft:textures/block/$blockId.png"
+    }
+
     fun withBackground(background: Item) {
         val id = background.identifier
         debug("id = $id // BACKGROUND")
@@ -71,6 +80,7 @@ class AdvancementBuilder(val id: String) {
         this.x = x
         this.y = y
     }
+
     fun withPosition(vec: Vector2f) {
         this.x = vec.x
         this.y = vec.y
