@@ -35,7 +35,6 @@ fun main() {
 
     }
 
-
     Events.on<PlayerJoinEvent> { event ->
         val player = event.player
         player.gameMode.value = GameMode.CREATIVE

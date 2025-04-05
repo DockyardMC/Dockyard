@@ -8,16 +8,16 @@ import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.writeOptional
 import io.netty.buffer.ByteBuf
 
-class CooldownItemComponent(val seconds: Float, val cooldownGroup: String? = null) : DataComponent() {
+class UseCooldownComponent(val seconds: Float, val cooldownGroup: String? = null) : DataComponent() {
 
     override fun write(buffer: ByteBuf) {
         buffer.writeFloat(seconds)
         buffer.writeOptional(cooldownGroup, ByteBuf::writeString)
     }
 
-    companion object : NetworkReadable<CooldownItemComponent> {
-        override fun read(buffer: ByteBuf): CooldownItemComponent {
-            return CooldownItemComponent(
+    companion object : NetworkReadable<UseCooldownComponent> {
+        override fun read(buffer: ByteBuf): UseCooldownComponent {
+            return UseCooldownComponent(
                 buffer.readFloat(),
                 buffer.readOptional(ByteBuf::readString)
             )

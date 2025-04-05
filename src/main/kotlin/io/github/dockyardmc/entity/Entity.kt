@@ -9,7 +9,6 @@ import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.handlers.*
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.vectors.Vector3d
@@ -35,6 +34,9 @@ import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.utils.mergeEntityMetadata
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos

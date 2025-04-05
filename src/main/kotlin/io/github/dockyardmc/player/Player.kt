@@ -13,11 +13,11 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.inventory.PlayerInventory
 import io.github.dockyardmc.inventory.give
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.percentOf
 import io.github.dockyardmc.maths.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.particles.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
@@ -29,6 +29,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundChatCommandPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items

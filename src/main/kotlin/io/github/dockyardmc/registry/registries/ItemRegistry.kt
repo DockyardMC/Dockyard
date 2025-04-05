@@ -1,7 +1,7 @@
 package io.github.dockyardmc.registry.registries
 
+import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.extentions.reversed
-import io.github.dockyardmc.item.ItemComponent
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
@@ -96,7 +96,7 @@ data class Item(
     val isDamageable: Boolean,
     val isBlock: Boolean,
     @Transient
-    var defaultComponents: List<ItemComponent>? = null
+    var defaultComponents: List<DataComponent>? = null
 ) : RegistryEntry {
 
     override fun getNbt(): NBTCompound? = null
