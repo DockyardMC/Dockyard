@@ -92,9 +92,11 @@ object ServerPacketRegistry : PacketRegistry() {
         addPlay(ServerboundSetCreativeModeSlotPacket::class)
         skipPlay("jigsaw update")
         skipPlay("structure update")
+        skipPlay("set test block packet")
         skipPlay("update sign")
         addPlay(ServerboundPlayerSwingHandPacket::class)
         skipPlay("client spectate")
+        skipPlay("test instance block action packet")
         addPlay(ServerboundUseItemOnBlockPacket::class)
         addPlay(ServerboundUseItemPacket::class)
     }

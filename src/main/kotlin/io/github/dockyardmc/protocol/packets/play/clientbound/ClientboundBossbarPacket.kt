@@ -5,7 +5,7 @@ import io.github.dockyardmc.apis.bossbar.BossbarColor
 import io.github.dockyardmc.apis.bossbar.BossbarNotches
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.extentions.writeUUID
-import io.github.dockyardmc.extentions.writeVarIntEnum
+import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.scroll.extensions.toComponent
 
@@ -13,14 +13,14 @@ class ClientboundBossbarPacket(action: BossbarPacketAction, bossbar: Bossbar) : 
 
     init {
         buffer.writeUUID(bossbar.uuid)
-        buffer.writeVarIntEnum<BossbarPacketAction>(action)
+        buffer.writeEnum<BossbarPacketAction>(action)
 
         when (action) {
             BossbarPacketAction.ADD -> {
                 buffer.writeNBT(bossbar.title.value.toComponent().toNBT())
                 buffer.writeFloat(bossbar.progress.value)
-                buffer.writeVarIntEnum<BossbarColor>(bossbar.color.value)
-                buffer.writeVarIntEnum<BossbarNotches>(bossbar.notches.value)
+                buffer.writeEnum<BossbarColor>(bossbar.color.value)
+                buffer.writeEnum<BossbarNotches>(bossbar.notches.value)
                 buffer.writeByte(0x00)
                 // flags or something idk who even uses it
             }
@@ -34,8 +34,8 @@ class ClientboundBossbarPacket(action: BossbarPacketAction, bossbar: Bossbar) : 
             }
 
             BossbarPacketAction.UPDATE_STYLE -> {
-                buffer.writeVarIntEnum<BossbarColor>(bossbar.color.value)
-                buffer.writeVarIntEnum<BossbarNotches>(bossbar.notches.value)
+                buffer.writeEnum<BossbarColor>(bossbar.color.value)
+                buffer.writeEnum<BossbarNotches>(bossbar.notches.value)
             }
 
             else -> {}
