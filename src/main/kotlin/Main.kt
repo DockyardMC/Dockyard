@@ -1,7 +1,5 @@
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.entity.EntityManager.spawnEntity
-import io.github.dockyardmc.entity.Interaction
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
