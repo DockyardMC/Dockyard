@@ -6,7 +6,6 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
 import io.github.dockyardmc.registry.registries.Biome
-import io.github.dockyardmc.utils.ChunkUtils
 import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.World

@@ -12,15 +12,14 @@ import java.lang.management.ManagementFactory
 object DebugSidebar {
 
     val sidebar = Sidebar {
-        setTitle("<#fc4903><bold>Debug Sidebar")
+        setTitle("<#ff641c>★ <bold>Debug Sidebar</bold> ★")
         setGlobalLine(15, "                                      ")
-        setGlobalLine(0, " ")
+        setGlobalLine(1, "    ")
     }
 
     init {
-        var tickCounter = 0
         Events.on<ServerTickEvent> {
-            val runtime = Runtime.getRuntime()
+            if(sidebar.viewers.size == 0) return@on // Do not update when noone is watching
             val globalMspt = DockyardServer.scheduler.mspt
 
             val msptColor = when {
@@ -70,14 +69,13 @@ object DebugSidebar {
             sidebar.setGlobalLine(11, " ")
             sidebar.setGlobalLine(10, " Memory: $memoryPercentColor${ServerMetrics.memoryUsagePercent.truncate(1)}%")
             sidebar.setGlobalLine(9, " ◾ Using $memoryPercentColor${ServerMetrics.memoryUsageTruncated}mb")
-            sidebar.setGlobalLine(8, " ◾ Rented <aqua>${ServerMetrics.memoryRentedTruncated}mb")
-            sidebar.setGlobalLine(7, " ◾ Allocated <aqua>${ServerMetrics.memoryAllocatedTruncated}mb")
+            sidebar.setGlobalLine(8, " ◾ Rented <#a3d7ff>${ServerMetrics.memoryRentedTruncated}mb")
+            sidebar.setGlobalLine(7, " ◾ Allocated <#a3d7ff>${ServerMetrics.memoryAllocatedTruncated}mb")
             sidebar.setGlobalLine(6, " ")
             sidebar.setGlobalLine(5, " Packets: <#cba3ff>↑${ServerMetrics.packetsSentAverage} ↓${ServerMetrics.packetsReceivedAverage}")
-            sidebar.setGlobalLine(4, " ")
-            sidebar.setGlobalLine(4, " Event Listeners: <lime>$totalEvents")
-            sidebar.setGlobalLine(2, " gc collections: <orange>${totalCollections}")
-            sidebar.setGlobalLine(1, " gc time: <orange>${totalCollectionTime}ms")
+            sidebar.setGlobalLine(4, " Bandwidth: <#d7ffa3>↑${ServerMetrics.outboundBandwidth.getSize(DataSizeCounter.Type.MEGABYTE)}mb ↓${ServerMetrics.inboundBandwidth.getSize(DataSizeCounter.Type.MEGABYTE)}mb")
+            sidebar.setGlobalLine(3, " ")
+            sidebar.setGlobalLine(2, " Event Listeners: <#fff9a3>$totalEvents")
         }
     }
 }

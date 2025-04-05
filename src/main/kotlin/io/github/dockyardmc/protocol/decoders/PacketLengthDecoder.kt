@@ -3,6 +3,8 @@ package io.github.dockyardmc.protocol.decoders
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.server.ServerMetrics
+import io.github.dockyardmc.utils.DataSizeCounter
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageDecoder
@@ -23,6 +25,8 @@ class PacketLengthDecoder : ByteToMessageDecoder() {
 
         out.add(buffer.retainedSlice(buffer.readerIndex(), length))
         buffer.skipBytes(length)
+        ServerMetrics.inboundBandwidth.add(length, DataSizeCounter.Type.BYTE)
+        ServerMetrics.totalBandwidth.add(length, DataSizeCounter.Type.BYTE)
     }
 
     override fun exceptionCaught(connection: ChannelHandlerContext, cause: Throwable) {

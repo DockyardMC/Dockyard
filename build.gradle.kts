@@ -73,7 +73,7 @@ dependencies {
     implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.google.code.gson:gson:2.10.1")
     api("it.unimi.dsi:fastutil:8.5.13")
-    api("cz.lukynka:kotlin-bindables:1.9")
+    api("cz.lukynka:kotlin-bindables:2.0")
 
     api("io.github.dockyardmc:spark-api:1.12-SNAPSHOT")
     api("io.github.dockyardmc:spark-common:1.12-SNAPSHOT")

@@ -7,6 +7,7 @@ import io.github.dockyardmc.extentions.truncate
 import io.github.dockyardmc.periodic.Period
 import io.github.dockyardmc.periodic.SecondPeriod
 import io.github.dockyardmc.maths.percent
+import io.github.dockyardmc.utils.DataSizeCounter
 
 object ServerMetrics {
     var packetsSent: Int = 0
@@ -30,6 +31,10 @@ object ServerMetrics {
     val memoryUsageTruncated get() = (memoryUsage.toDouble() / 1000000).truncate(1)
     val memoryRentedTruncated get() = (memoryRented.toDouble() / 1000000).truncate(1)
     val memoryAllocatedTruncated get() = (memoryAllocated.toDouble() / 1000000).truncate(1)
+
+    val outboundBandwidth: DataSizeCounter = DataSizeCounter()
+    val inboundBandwidth: DataSizeCounter = DataSizeCounter()
+    val totalBandwidth: DataSizeCounter = DataSizeCounter()
 
     init {
         var seconds = 0

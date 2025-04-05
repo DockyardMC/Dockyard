@@ -2,7 +2,7 @@ package io.github.dockyardmc.maths
 
 import com.google.common.primitives.Ints.min
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.utils.ChunkUtils.floor
+import io.github.dockyardmc.world.chunk.ChunkUtils.floor
 import io.github.dockyardmc.maths.vectors.Vector3f
 import java.io.File
 import java.security.MessageDigest

@@ -7,6 +7,7 @@ import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.registries.PotionEffectRegistry
+import io.github.dockyardmc.utils.DebugSidebar
 
 fun suggestPotionEffects(player: Player): List<String> {
     return PotionEffectRegistry.potionEffects.keys.toList()
@@ -25,6 +26,7 @@ fun main() {
         player.permissions.add("dockyard.admin")
         player.permissions.add("dockyard.*")
         player.gameMode.value = GameMode.CREATIVE
+        DebugSidebar.sidebar.viewers.add(player)
     }
 
     Commands.add("/interaction") {
@@ -34,15 +36,15 @@ fun main() {
             interaction.width.value = 3f
             interaction.height.value = 3f
 
-            interaction.rightClickDispatcher.register { p ->
+            interaction.rightClickDispatcher.subscribe { p ->
                 p.sendMessage("<yellow>Right Click")
             }
 
-            interaction.leftClickDispatcher.register { p ->
+            interaction.leftClickDispatcher.subscribe { p ->
                 p.sendMessage("<yellow>Left Click")
             }
 
-            interaction.middleClickDispatcher.register { p ->
+            interaction.middleClickDispatcher.subscribe { p ->
                 p.sendMessage("<yellow>Middle Click")
             }
         }

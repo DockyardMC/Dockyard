@@ -5,13 +5,14 @@ import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.*
 
 class Sidebar(builder: Sidebar.() -> Unit) {
 
     val title: Bindable<String> = Bindable("")
     val viewers: BindableList<Player> = BindableList()
-    private val innerLines: MutableMap<Int, SidebarLine> = mutableMapOf()
+    private val innerLines: Int2ObjectOpenHashMap<SidebarLine> = Int2ObjectOpenHashMap()
     val lines get() = innerLines.toList()
 
     private val objective = UUID.randomUUID().toString()
@@ -35,7 +36,7 @@ class Sidebar(builder: Sidebar.() -> Unit) {
     fun setGlobalLine(line: Int, value: String) {
         val before = innerLines[line] as GlobalSidebarLine?
         innerLines[line] = GlobalSidebarLine(value)
-        if(before?.value != value) viewers.values.forEach { sendLinePacket(it, line) }
+        if (before?.value != value) viewers.values.forEach { sendLinePacket(it, line) }
     }
 
     fun setPlayerLine(line: Int, value: (Player) -> String) {
@@ -59,7 +60,7 @@ class Sidebar(builder: Sidebar.() -> Unit) {
     }
 
     private fun getLine(line: Int, player: Player): String {
-        val value = when(val it = innerLines[line]) {
+        val value = when (val it = innerLines[line]) {
             is GlobalSidebarLine -> it.value
             is PersonalizedSidebarLine -> it.getValue(player)
             else -> ""
