@@ -24,7 +24,10 @@ import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.utils.DebugSidebar
 import kotlin.time.Duration.Companion.seconds
+import io.github.dockyardmc.inventory.give
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.systems.GameMode
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.DebugSidebar
 
 fun main() {
@@ -68,6 +71,14 @@ fun main() {
                 rollingCounter.rollingDuration = time.seconds
                 rollingCounter.value.value = number
             }
+    Commands.add("/test") {
+        execute { ctx ->
+            val player = ctx.getPlayerOrThrow()
+
+            val diamond = ItemStack(Items.DIAMOND).withConsumable(1f)
+            val coolSword = ItemStack(Items.NETHERITE_SWORD).withDisplayName("<red><bold><u>COOL ASS SWORD<r>").withLore("", "<gray>This is very special sword yep!", "").withMaxStackSize(256)
+            player.give(diamond)
+            player.give(coolSword)
         }
     }
 
