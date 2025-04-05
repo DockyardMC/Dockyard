@@ -2,9 +2,9 @@ package io.github.dockyardmc.data.components
 
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.extentions.*
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.readOptional
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.protocol.writeOptionalList
 import io.github.dockyardmc.registry.registries.EntityType

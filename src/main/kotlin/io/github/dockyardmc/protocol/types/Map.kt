@@ -7,7 +7,7 @@ import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction2
 
 @JvmName("writeMap1")
-fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, Unit>, writeValue: KFunction2<ByteBuf, V, Unit>) {
+fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, writeValue: (ByteBuf, V) -> Unit) {
     this.writeVarInt(map.size)
     map.forEach { (key, value) ->
         writeKey.invoke(this, key)
@@ -21,15 +21,6 @@ fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, Byt
     map.forEach { (key, value) ->
         writeKey.invoke(this, key)
         writeValue.invoke(value, this)
-    }
-}
-
-@JvmName("writeMap3")
-fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, ByteBuf>, writeValue: KFunction2<ByteBuf, V, ByteBuf>) {
-    this.writeVarInt(map.size)
-    map.forEach { (key, value) ->
-        writeKey.invoke(this, key)
-        writeValue.invoke(this, value)
     }
 }
 

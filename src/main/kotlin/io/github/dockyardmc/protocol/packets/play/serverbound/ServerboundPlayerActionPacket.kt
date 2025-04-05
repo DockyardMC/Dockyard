@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.data.components.ConsumableComponent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerCancelledDiggingEvent
 import io.github.dockyardmc.events.PlayerFinishedDiggingEvent
@@ -7,9 +8,7 @@ import io.github.dockyardmc.events.PlayerStartDiggingBlockEvent
 import io.github.dockyardmc.extentions.readByteEnum
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readEnum
-import io.github.dockyardmc.item.ConsumableItemComponent
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.hasType
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
@@ -73,7 +72,7 @@ class ServerboundPlayerActionPacket(
         if (action == PlayerAction.HELD_ITEM_UPDATE) {
 
             val item = player.getHeldItem(PlayerHand.MAIN_HAND)
-            val isConsumable = item.components.hasType(ConsumableItemComponent::class)
+            val isConsumable = item.components.has(ConsumableComponent::class)
             if (isConsumable) {
                 player.itemInUse = null
             }

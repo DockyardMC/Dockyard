@@ -32,7 +32,7 @@ class PotionContentsComponent(
                 buffer.readOptional(ByteBuf::readVarInt)?.let { PotionEffectRegistry.getByProtocolId(it) },
                 buffer.readOptional(ByteBuf::readInt)?.let { CustomColor.fromRGBInt(it) },
                 buffer.readAppliedPotionEffectsList(),
-                buffer.readString()
+                buffer.readOptional(ByteBuf::readString)
             )
         }
     }

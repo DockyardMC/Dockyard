@@ -8,12 +8,12 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.events.PlayerEquipEvent
 import io.github.dockyardmc.events.PlayerSwapOffhandEvent
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventoryCursorPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.utils.getPlayerEventContext
 

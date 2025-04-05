@@ -1,7 +1,6 @@
 package io.github.dockyardmc.attributes
 
 import io.github.dockyardmc.extentions.*
-import io.github.dockyardmc.item.AttributeModifiersItemComponent
 import io.github.dockyardmc.registry.registries.Attribute
 import io.github.dockyardmc.registry.registries.AttributeRegistry
 import io.netty.buffer.ByteBuf
@@ -23,17 +22,6 @@ enum class AttributeSlot {
     HEAD,
     ARMOR,
     BODY
-}
-
-fun ByteBuf.readModifierList(): AttributeModifiersItemComponent {
-    val size = this.readVarInt()
-    val list = mutableListOf<Modifier>()
-    for (i in 0 until size) {
-        val modifier = Modifier.read(this)
-        list.add(modifier)
-    }
-    val showInTooltip = this.readBoolean()
-    return AttributeModifiersItemComponent(list, showInTooltip)
 }
 
 

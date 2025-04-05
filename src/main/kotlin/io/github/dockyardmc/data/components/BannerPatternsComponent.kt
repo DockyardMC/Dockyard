@@ -5,9 +5,9 @@ import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.extentions.writeEnum
-import io.github.dockyardmc.item.DyeColor
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
+import io.github.dockyardmc.protocol.types.DyeColor
 import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.registry.registries.BannerPattern

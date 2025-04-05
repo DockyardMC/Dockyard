@@ -9,13 +9,13 @@ import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.scroll.Component
 import io.netty.buffer.ByteBuf
 
-class LoreComponent(val lore: List<Component>): DataComponent() {
+class LoreComponent(val lore: List<Component>) : DataComponent() {
 
     override fun write(buffer: ByteBuf) {
         buffer.writeList(lore, ByteBuf::writeTextComponent)
     }
 
-    companion object: NetworkReadable<LoreComponent> {
+    companion object : NetworkReadable<LoreComponent> {
         override fun read(buffer: ByteBuf): LoreComponent {
             return LoreComponent(buffer.readList(ByteBuf::readTextComponent))
         }

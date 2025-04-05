@@ -38,7 +38,7 @@ object DataComponentRegistry {
     val FOOD = register("minecraft:food", FoodComponent::class)
     val CONSUMABLE = register("minecraft:consumable", ConsumableComponent::class)
     val USE_REMAINDER = register("minecraft:use_remainder", UseRemainderComponent::class)
-    val USE_COOLDOWN = register("minecraft:use_cooldown", CooldownItemComponent::class)
+    val USE_COOLDOWN = register("minecraft:use_cooldown", UseCooldownComponent::class)
     val DAMAGE_RESISTANT = register("minecraft:damage_resistant", DamageResistantComponent::class)
     val TOOL = register("minecraft:tool", ToolComponent::class)
     val WEAPON = register("minecraft:weapon", WeaponComponent::class)

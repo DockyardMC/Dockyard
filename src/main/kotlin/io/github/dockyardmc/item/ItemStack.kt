@@ -3,14 +3,13 @@ package io.github.dockyardmc.item
 import io.github.dockyardmc.attributes.AttributeModifier
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.DataComponentPatch
-import io.github.dockyardmc.data.components.CustomDataComponent
-import io.github.dockyardmc.data.components.EnchantmentGlintOverrideComponent
-import io.github.dockyardmc.data.components.MaxStackSizeComponent
-import io.github.dockyardmc.data.components.UnbreakableComponent
+import io.github.dockyardmc.data.components.*
 import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkWritable
+import io.github.dockyardmc.protocol.types.ConsumeEffect
+import io.github.dockyardmc.protocol.types.ItemRarity
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.Item
@@ -34,7 +33,7 @@ data class ItemStack(
     val attributes: Collection<AttributeModifier> = listOf()
 ) : NetworkWritable {
 
-    constructor(material: Item, amount: Int = 1, vararg components: DataComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
+    constructor(material: Item, amount: Int, vararg components: DataComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
     constructor(material: Item, vararg components: DataComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
     constructor(material: Item, components: Set<DataComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
 
@@ -51,26 +50,8 @@ data class ItemStack(
 
             val itemId = buffer.readVarInt()
 
-            //TODO 1.21.5 COMPONENTS PATCH
-            val componentsToAdd = buffer.readVarInt()
-            val componentsToRemove = buffer.readVarInt()
-
-            val components: MutableList<ItemComponent> = mutableListOf()
-            val removeComponents: MutableList<ItemComponent> = mutableListOf()
-
-            for (i in 0 until componentsToAdd) {
-                val type = buffer.readVarInt()
-                val component = buffer.readComponent(type)
-                components.add(component)
-            }
-            for (i in 0 until componentsToRemove) {
-                val type = buffer.readVarInt()
-            }
-
-            var item = ItemStack(ItemRegistry.getByProtocolId(itemId), count)
-            components.forEach { item = item.withComponent(it) }
-
-            return item
+            val componentsPatch = DataComponentPatch.read(buffer, true, true)
+            return ItemStack(ItemRegistry.getByProtocolId(itemId), count, componentsPatch)
         }
     }
 
@@ -98,13 +79,13 @@ data class ItemStack(
         return ItemStackMeta.fromItemStack(this).apply { withHideTooltip(hideTooltip) }.toItemStack()
     }
 
-    fun withComponent(vararg component: ItemComponent): ItemStack {
+    fun withComponent(vararg component: DataComponent): ItemStack {
         return ItemStackMeta.fromItemStack(this).apply { withComponent(component.toList()) }.toItemStack()
     }
 
     fun withConsumable(
         consumeTimeSeconds: Float,
-        animation: ConsumableAnimation = ConsumableAnimation.EAT,
+        animation: ConsumableComponent.Animation = ConsumableComponent.Animation.EAT,
         sound: String = Sounds.ENTITY_GENERIC_EAT,
         hasParticles: Boolean = true,
         consumeEffects: List<ConsumeEffect> = listOf()

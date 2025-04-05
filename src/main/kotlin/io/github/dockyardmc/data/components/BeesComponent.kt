@@ -4,6 +4,7 @@ import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.extentions.readNBTCompound
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeNBT
+import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.types.readList
@@ -27,8 +28,8 @@ class BeesComponent(val bees: List<Bee>) : DataComponent() {
 
         override fun write(buffer: ByteBuf) {
             buffer.writeNBT(entityData)
-            buffer.writeInt(ticksInHive)
-            buffer.writeInt(minTicksInHive)
+            buffer.writeVarInt(ticksInHive)
+            buffer.writeVarInt(minTicksInHive)
         }
 
         companion object : NetworkReadable<Bee> {
