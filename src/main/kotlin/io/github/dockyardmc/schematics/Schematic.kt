@@ -12,6 +12,7 @@ import io.github.dockyardmc.world.chunk.ChunkUtils
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.World
+import io.github.dockyardmc.world.block.Block
 import java.util.concurrent.CompletableFuture
 
 data class Schematic(

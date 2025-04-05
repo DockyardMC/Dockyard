@@ -4,7 +4,10 @@ import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.Interaction
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.inventory.give
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.systems.GameMode
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.DebugSidebar
 
 
@@ -26,24 +29,14 @@ fun main() {
         DebugSidebar.sidebar.viewers.add(player)
     }
 
-    Commands.add("/interaction") {
+    Commands.add("/test") {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
-            val interaction = player.world.spawnEntity(Interaction(player.location)) as Interaction
-            interaction.width.value = 3f
-            interaction.height.value = 3f
 
-            interaction.rightClickDispatcher.subscribe { p ->
-                p.sendMessage("<yellow>Right Click")
-            }
-
-            interaction.leftClickDispatcher.subscribe { p ->
-                p.sendMessage("<yellow>Left Click")
-            }
-
-            interaction.middleClickDispatcher.subscribe { p ->
-                p.sendMessage("<yellow>Middle Click")
-            }
+            val diamond = ItemStack(Items.DIAMOND).withConsumable(1f)
+            val coolSword = ItemStack(Items.NETHERITE_SWORD).withDisplayName("<red><bold><u>COOL ASS SWORD<r>").withLore("", "<gray>This is very special sword yep!", "").withMaxStackSize(256)
+            player.give(diamond)
+            player.give(coolSword)
         }
     }
 
