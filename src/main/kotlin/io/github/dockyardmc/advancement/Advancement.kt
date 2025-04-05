@@ -1,6 +1,5 @@
 package io.github.dockyardmc.advancement
 
-import io.github.dockyardmc.extentions.write
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeStringArray
 import io.github.dockyardmc.extentions.writeVarInt
@@ -16,7 +15,7 @@ data class Advancement(
 ): NetworkWritable {
     override fun write(buffer: ByteBuf) {
         buffer.writeOptional(parentId, ByteBuf::writeString)
-        buffer.writeOptional(display, ByteBuf::write)
+        buffer.writeOptional(display) { buf, it -> it.write(buf); buf }
         buffer.writeVarInt(requirements.size)
         requirements.forEach(buffer::writeStringArray)
 

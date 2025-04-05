@@ -4,7 +4,6 @@ import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerSelectAdvancementsTabEvent
-import io.github.dockyardmc.protocol.packets.play.serverbound.SelectAdvancementsTabAction
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundSelectAdvancementsTabPacket
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,7 +31,7 @@ class PlayerSelectAdvancementsTabEventTest {
 
         PlayerTestUtil.sendPacket(
             ServerboundSelectAdvancementsTabPacket(
-                SelectAdvancementsTabAction.OPENED_TAB,
+                ServerboundSelectAdvancementsTabPacket.Action.OPENED_TAB,
                 "test"
             )
         )
