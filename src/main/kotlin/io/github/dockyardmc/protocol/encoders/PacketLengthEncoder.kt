@@ -16,8 +16,10 @@ class PacketLengthEncoder: MessageToByteEncoder<ByteBuf>() {
             val size = buffer.readableBytes()
             out.writeVarInt(size)
             out.writeBytes(buffer)
-            ServerMetrics.outboundBandwidth.add(size, DataSizeCounter.Type.BYTE)
-            ServerMetrics.totalBandwidth.add(size, DataSizeCounter.Type.BYTE)
+
+            // +1 to account for the size byte that is not counted
+            ServerMetrics.outboundBandwidth.add(size + 1, DataSizeCounter.Type.BYTE)
+            ServerMetrics.totalBandwidth.add(size + 1, DataSizeCounter.Type.BYTE)
         } catch (exception: Exception) {
             log("There was an error while encoding packet length", LogType.ERROR)
             log(exception)

@@ -25,8 +25,9 @@ class PacketLengthDecoder : ByteToMessageDecoder() {
 
         out.add(buffer.retainedSlice(buffer.readerIndex(), length))
         buffer.skipBytes(length)
-        ServerMetrics.inboundBandwidth.add(length, DataSizeCounter.Type.BYTE)
-        ServerMetrics.totalBandwidth.add(length, DataSizeCounter.Type.BYTE)
+        // +1 to account for the size byte that is not counted
+        ServerMetrics.inboundBandwidth.add(length + 1, DataSizeCounter.Type.BYTE)
+        ServerMetrics.totalBandwidth.add(length + 1, DataSizeCounter.Type.BYTE)
     }
 
     override fun exceptionCaught(connection: ChannelHandlerContext, cause: Throwable) {
