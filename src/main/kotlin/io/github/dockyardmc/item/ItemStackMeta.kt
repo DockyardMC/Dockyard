@@ -36,19 +36,27 @@ class ItemStackMeta {
     }
 
     fun withComponent(vararg component: DataComponent) {
-        component.forEach(components::set)
+        var newComponents = components
+        component.forEach { c ->
+            newComponents = newComponents.set(c)
+        }
+        components = newComponents
     }
 
     fun withComponent(components: List<DataComponent>) {
-        components.forEach(this.components::set)
+        var newComponents = this.components
+        components.forEach { c ->
+            newComponents = newComponents.set(c)
+        }
+        this.components = newComponents
     }
 
     fun withDisplayName(displayName: String) {
-        components.set(CustomNameComponent("<r></u>$displayName"))
+        components = components.set(CustomNameComponent("<r></u>$displayName"))
     }
 
     fun withDyedColor(color: CustomColor) {
-        components.set(DyedColorComponent(color))
+        components = components.set(DyedColorComponent(color))
     }
 
     fun isGlider(glider: Boolean = true) {
@@ -56,11 +64,11 @@ class ItemStackMeta {
     }
 
     fun withGlider(glider: Boolean = true) {
-        if (glider) components.remove(GliderComponent()) else components.set(GliderComponent())
+        components = if (glider) components.set(GliderComponent()) else components.remove(GliderComponent::class)
     }
 
     fun withUseCooldown(cooldownSeconds: Float) {
-        components.set(UseCooldownComponent(cooldownSeconds))
+        components = components.set(UseCooldownComponent(cooldownSeconds))
     }
 
     fun withProfile(username: String? = null, uuid: UUID? = null, profile: ProfileProperty? = null) {
@@ -71,7 +79,7 @@ class ItemStackMeta {
             throw IllegalArgumentException("At least one of the parameters must be set")
         }
 
-        components.set(
+        components = components.set(
             if (profile == null) {
                 ProfileComponent(username, uuid, emptyList())
             } else {
@@ -87,7 +95,7 @@ class ItemStackMeta {
         hasParticles: Boolean = true,
         consumeEffects: List<ConsumeEffect> = listOf()
     ) {
-        components.set(
+        components = components.set(
             ConsumableComponent(
                 consumeTimeSeconds,
                 animation,
@@ -101,7 +109,7 @@ class ItemStackMeta {
     fun buildLoreComponent() {
         if (lore.isEmpty()) return
         val component = LoreComponent(lore.map { line -> "<r><gray>$line".toComponent() })
-        components.set(component)
+        components = components.set(component)
     }
 
     fun toItemStack(): ItemStack {
@@ -109,7 +117,7 @@ class ItemStackMeta {
     }
 
     fun withFood(nutrition: Int, saturation: Float = 0f, canAlwaysEat: Boolean = true) {
-        components.set(FoodComponent(nutrition, saturation, canAlwaysEat))
+        components = components.set(FoodComponent(nutrition, saturation, canAlwaysEat))
     }
 
     fun withAttributes(attributes: List<AttributeModifier>) {
@@ -121,7 +129,7 @@ class ItemStackMeta {
     }
 
     fun withRarity(rarity: ItemRarity) {
-        components.set(RarityComponent(rarity))
+        components = components.set(RarityComponent(rarity))
     }
 
     fun withEnchantmentGlint(hasGlint: Boolean) {
@@ -129,11 +137,11 @@ class ItemStackMeta {
     }
 
     fun hasEnchantmentGlint(hasGlint: Boolean) {
-        components.set(EnchantmentGlintOverrideComponent(hasGlint))
+        components = components.set(EnchantmentGlintOverrideComponent(hasGlint))
     }
 
     fun isUnbreakable(unbreakable: Boolean) {
-        if (unbreakable) components.set(UnbreakableComponent()) else components.remove(UnbreakableComponent::class)
+        components = if (unbreakable) components.set(UnbreakableComponent()) else components.remove(UnbreakableComponent::class)
     }
 
     fun withUnbreakable(unbreakable: Boolean) {
@@ -141,12 +149,12 @@ class ItemStackMeta {
     }
 
     fun withMaxStackSize(maxStackSize: Int) {
-        components.set(MaxStackSizeComponent(maxStackSize))
+        components = components.set(MaxStackSizeComponent(maxStackSize))
     }
 
     @JvmName("withCustomModelDatafloatListFloat")
     fun withCustomModelData(floats: List<Float>) {
-        components.set(CustomModelDataComponent(floats, emptyList(), emptyList(), emptyList()))
+        components = components.set(CustomModelDataComponent(floats, emptyList(), emptyList(), emptyList()))
     }
 
     @JvmName("withCustomModelDatafloatFloat")
@@ -156,7 +164,7 @@ class ItemStackMeta {
 
     @JvmName("withCustomModelDataflagsListBoolean")
     fun withCustomModelData(flags: List<Boolean>) {
-        components.set(CustomModelDataComponent(emptyList(), flags, emptyList(), emptyList()))
+        components = components.set(CustomModelDataComponent(emptyList(), flags, emptyList(), emptyList()))
     }
 
     @JvmName("withCustomModelDataflagsBoolean")
@@ -166,7 +174,7 @@ class ItemStackMeta {
 
     @JvmName("withCustomModelDatastringsListString")
     fun withCustomModelData(strings: List<String>) {
-        components.set(CustomModelDataComponent(emptyList(), emptyList(), strings, emptyList()))
+        components = components.set(CustomModelDataComponent(emptyList(), emptyList(), strings, emptyList()))
     }
 
     @JvmName("withCustomModelDatastringsString")
@@ -177,7 +185,7 @@ class ItemStackMeta {
 
     @JvmName("withCustomModelDatacolorListCustomColor")
     fun withCustomModelData(colors: List<CustomColor>) {
-        components.set(CustomModelDataComponent(listOf(), listOf(), listOf(), colors))
+        components = components.set(CustomModelDataComponent(listOf(), listOf(), listOf(), colors))
     }
 
     @JvmName("withCustomModelDatacolorListCustomColor")
@@ -187,7 +195,7 @@ class ItemStackMeta {
 
     @JvmName("withCustomModelDatawhatthefuckaaaaaaa")
     fun withCustomModelData(floats: List<Float> = listOf(), flags: List<Boolean> = listOf(), strings: List<String> = listOf(), colors: List<CustomColor> = listOf()) {
-        components.set(CustomModelDataComponent(floats, flags, strings, colors))
+        components = components.set(CustomModelDataComponent(floats, flags, strings, colors))
     }
 
     fun withMaterial(item: Item) {
