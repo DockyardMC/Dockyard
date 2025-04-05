@@ -20,10 +20,10 @@ class Interaction(location: Location): Entity(location) {
     val height: Bindable<Float> = bindablePool.provideBindable(1f)
     val responsive: Bindable<Boolean> = bindablePool.provideBindable(true)
 
-    val rightClickDispatcher: BindableDispatcher<Player> = bindablePool.provideBindableListener()
-    val leftClickDispatcher: BindableDispatcher<Player> = bindablePool.provideBindableListener()
-    val middleClickDispatcher: BindableDispatcher<Player> = bindablePool.provideBindableListener()
-    val generalInteractionDispatcher: BindableDispatcher<Player> = bindablePool.provideBindableListener()
+    val rightClickDispatcher: BindableDispatcher<Player> = bindablePool.provideBindableDispatcher()
+    val leftClickDispatcher: BindableDispatcher<Player> = bindablePool.provideBindableDispatcher()
+    val middleClickDispatcher: BindableDispatcher<Player> = bindablePool.provideBindableDispatcher()
+    val generalInteractionDispatcher: BindableDispatcher<Player> = bindablePool.provideBindableDispatcher()
 
     init {
         eventPool.on<PlayerInteractWithEntityEvent> { event ->

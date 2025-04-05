@@ -3,6 +3,7 @@ package io.github.dockyardmc.events.system
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.events.EventListener
 import io.github.dockyardmc.utils.Disposable
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -10,7 +11,7 @@ abstract class EventSystem : Disposable {
     val eventMap = mutableMapOf<KClass<out Event>, HandlerList>()
     var filter = EventFilter.empty()
 
-    val children = mutableSetOf<EventSystem>()
+    val children = ObjectOpenHashSet<EventSystem>()
     open var parent: EventSystem? = null
         internal set // assigning to this value will fuck everything, there is no point having it public.
     open var name: String = "eventsystem-${UUID.randomUUID().toString().substring(0..7)}"
@@ -53,7 +54,7 @@ abstract class EventSystem : Disposable {
         // we create a copy of the children array before running any handlers to
         //  ensure that if any children are added in the following listeners,
         //  we don't call the newly registered events
-        val children = children.toTypedArray()
+        val children = children.clone()
         eventMap[eventType]?.let { handlers ->
             handlers.listeners.forEach { executableEvent ->
                 executableEvent.function.invoke(event)

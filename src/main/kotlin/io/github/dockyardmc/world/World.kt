@@ -34,6 +34,7 @@ import io.github.dockyardmc.world.block.BatchBlockUpdate
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
+import io.github.dockyardmc.world.chunk.ChunkUtils
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap

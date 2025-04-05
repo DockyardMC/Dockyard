@@ -4,13 +4,11 @@ package io.github.dockyardmc.schematics
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.utils.ChunkUtils
+import io.github.dockyardmc.world.chunk.ChunkUtils
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.World

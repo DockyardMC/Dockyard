@@ -1,4 +1,4 @@
-package io.github.dockyardmc.utils
+package io.github.dockyardmc.world
 
 import io.github.dockyardmc.extentions.fromRGBInt
 import io.github.dockyardmc.extentions.fromRGBIntOrNull

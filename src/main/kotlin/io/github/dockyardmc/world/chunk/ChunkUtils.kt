@@ -1,8 +1,6 @@
-package io.github.dockyardmc.utils
+package io.github.dockyardmc.world.chunk
 
 import io.github.dockyardmc.maths.vectors.Vector3
-import io.github.dockyardmc.world.chunk.Chunk
-import io.github.dockyardmc.world.chunk.ChunkPos
 import kotlin.math.abs
 import kotlin.math.sin
 

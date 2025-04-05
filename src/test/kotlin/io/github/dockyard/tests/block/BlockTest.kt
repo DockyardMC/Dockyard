@@ -5,7 +5,7 @@ import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.registries.BlockRegistry
-import io.github.dockyardmc.utils.ChunkUtils
+import io.github.dockyardmc.world.chunk.ChunkUtils
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.world.WorldManager
 import org.junit.jupiter.api.Test

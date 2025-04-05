@@ -1,7 +1,6 @@
 package io.github.dockyardmc.world.chunk
 
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.utils.ChunkUtils
 
 data class ChunkPos(val x: Int, val z: Int) {
 
