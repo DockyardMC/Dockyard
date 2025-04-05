@@ -22,7 +22,8 @@ class AdvancementDisplayTest {
             Items.OAK_LOG.toItemStack(),
             background = null,
             showToast = true,
-            isHidden = false
+            isHidden = false,
+            x = 0f, y = 0f,
         )
 
         assertEquals(AdvancementDisplay.SHOW_TOAST, display.getFlags())
