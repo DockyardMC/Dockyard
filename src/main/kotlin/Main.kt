@@ -5,6 +5,7 @@ import io.github.dockyardmc.entity.Interaction
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.player.systems.GameMode
+import io.github.dockyardmc.utils.DebugSidebar
 
 
 fun main() {
@@ -17,12 +18,12 @@ fun main() {
 
     }
 
-
     Events.on<PlayerJoinEvent> { event ->
         val player = event.player
         player.permissions.add("dockyard.admin")
         player.permissions.add("dockyard.*")
         player.gameMode.value = GameMode.CREATIVE
+        DebugSidebar.sidebar.viewers.add(player)
     }
 
     Commands.add("/interaction") {

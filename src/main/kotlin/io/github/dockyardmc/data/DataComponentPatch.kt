@@ -36,12 +36,12 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
             return DataComponentPatch(components, true, false)
         }
 
-        fun read(buffer: ByteBuf, isPatch: Boolean, isTrusted: Boolean) {
+        fun read(buffer: ByteBuf, isPatch: Boolean, isTrusted: Boolean): DataComponentPatch {
             val added = buffer.readVarInt()
             val removed = if (isPatch) buffer.readVarInt() else 0
 
             if (added + removed > 256) throw IllegalStateException("Data component map too large: ${added + removed} > 256")
-            val patch: Int2ObjectMap<DataComponent> = Int2ObjectArrayMap(added + removed)
+            val patch: Int2ObjectMap<DataComponent?> = Int2ObjectArrayMap(added + removed)
 
             for (i in 0 until added) {
                 val id = buffer.readVarInt()
@@ -60,6 +60,7 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
                 val id = buffer.readVarInt()
                 patch.put(id, null)
             }
+            return DataComponentPatch(patch, isPatch, isTrusted)
         }
     }
 
@@ -72,6 +73,11 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
     fun has(component: DataComponent): Boolean {
         val componentId = component.getId()
         return components.containsKey(componentId) && components.get(componentId) != null
+    }
+
+    fun has(kclass: KClass<out DataComponent>): Boolean {
+        val id = DataComponentRegistry.dataComponentsByIdReversed.getOrThrow(kclass)
+        return components.containsKey(id) && components.get(id) != null
     }
 
     fun has(prototype: DataComponentPatch, component: DataComponent): Boolean {
@@ -109,6 +115,13 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
     fun remove(component: DataComponent): DataComponentPatch {
         val newComponents: Int2ObjectMap<DataComponent?> = Int2ObjectArrayMap<DataComponent?>(components)
         newComponents.put(component.getId(), null)
+        return DataComponentPatch(newComponents, isPatch, isTrusted)
+    }
+
+    fun remove(componentClass: KClass<out DataComponent>): DataComponentPatch {
+        val newComponents: Int2ObjectMap<DataComponent?> = Int2ObjectArrayMap<DataComponent?>(components)
+        val id = DataComponentRegistry.dataComponentsByIdReversed.getOrThrow(componentClass)
+        newComponents.put(id, null)
         return DataComponentPatch(newComponents, isPatch, isTrusted)
     }
 

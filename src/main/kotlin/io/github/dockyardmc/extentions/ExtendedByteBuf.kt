@@ -367,35 +367,6 @@ fun ByteBuf.readItemList(): MutableList<Item> {
     return list
 }
 
-fun ByteBuf.readConsumeEffects(): List<ConsumeEffect> {
-    val size = this.readVarInt()
-    val effects = mutableListOf<ConsumeEffect>()
-    for (i in 0 until size) {
-        val effect = when (val type = this.readVarInt()) {
-            0 -> ApplyEffectsConsumeEffect(this.readAppliedPotionEffectsList(), this.readFloat())
-            1 -> readRemoveEffectsConsumeEffect()
-            2 -> ClearAllEffectsConsumeEffect()
-            3 -> TeleportRandomlyConsumeEffect(this.readFloat())
-            4 -> PlaySoundConsumeEffect(Sound(SoundEvent.read(this).identifier))
-            else -> throw IllegalStateException("Invalid consume effect $type")
-        }
-    }
-    return effects
-}
-
-fun ByteBuf.readRemoveEffectsConsumeEffect(): RemoveEffectsConsumeEffect {
-    val type = this.readVarInt() - 1
-    if (type == -1) {
-        val identifier = this.readString()
-        return RemoveEffectsConsumeEffect(listOf())
-    }
-    val list = mutableListOf<PotionEffect>()
-    for (i in 0 until type) {
-        list.add(this.readPotionEffectHolder())
-    }
-    return RemoveEffectsConsumeEffect(list)
-}
-
 fun ByteBuf.readPotionEffectHolder(): PotionEffect {
     val type = this.readVarInt()
     if (type == 0) {
@@ -408,41 +379,6 @@ fun ByteBuf.readPotionEffectHolder(): PotionEffect {
 fun ByteBuf.writeAppliedPotionEffectsList(list: Collection<AppliedPotionEffect>) {
     this.writeVarInt(list.size)
     list.forEach { this.writeAppliedPotionEffect(it) }
-}
-
-fun ByteBuf.writeConsumeEffects(effects: List<ConsumeEffect>) {
-    this.writeVarInt(effects.size)
-    effects.forEach { effect ->
-        when (effect) {
-            is ApplyEffectsConsumeEffect -> {
-                this.writeVarInt(0)
-                this.writeAppliedPotionEffectsList(effect.effects)
-                this.writeFloat(effect.probability)
-            }
-
-            is RemoveEffectsConsumeEffect -> {
-                throw NotImplementedError()
-//                this.writeVarInt(1)
-//                this.writeAppliedPotionEffectsList(effect.effects)
-            }
-
-            is ClearAllEffectsConsumeEffect -> {
-                this.writeVarInt(2)
-            }
-
-            is TeleportRandomlyConsumeEffect -> {
-                this.writeVarInt(3)
-                this.writeFloat(effect.diameter)
-            }
-
-            is PlaySoundConsumeEffect -> {
-                this.writeVarInt(4)
-                CustomSoundEvent(effect.sound.identifier).write(this)
-            }
-
-            else -> throw IllegalStateException("Invalid consume effect")
-        }
-    }
 }
 
 fun ByteBuf.readCustomColor(): CustomColor {
@@ -462,33 +398,6 @@ fun ByteBuf.writeCustomColorList(list: Collection<CustomColor>) {
     list.forEach {
         this.writeInt(it.toRgbInt())
     }
-}
-
-fun ByteBuf.writeFireworkExplosion(component: FireworkExplosionItemComponent) {
-    this.writeEnum<FireworkShape>(component.shape)
-    this.writeCustomColorList(component.colors)
-    this.writeCustomColorList(component.fadeColors)
-    this.writeBoolean(component.hasTrail)
-    this.writeBoolean(component.hasTwinkle)
-}
-
-fun ByteBuf.readFireworkExplosionList(): List<FireworkExplosionItemComponent> {
-    val list = mutableListOf<FireworkExplosionItemComponent>()
-    for (i in 0 until this.readVarInt()) {
-        list.add(this.readFireworkExplosion())
-    }
-    return list
-}
-
-
-fun ByteBuf.readFireworkExplosion(): FireworkExplosionItemComponent {
-    return FireworkExplosionItemComponent(
-        this.readEnum<FireworkShape>(),
-        this.readCustomColorList(),
-        this.readCustomColorList(),
-        this.readBoolean(),
-        this.readBoolean()
-    )
 }
 
 fun ByteBuf.readEntityTypes(): List<EntityType> {
