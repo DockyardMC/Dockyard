@@ -11,7 +11,6 @@ import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.SoundEvent
 import io.github.dockyardmc.scroll.serializers.NbtToComponentSerializer

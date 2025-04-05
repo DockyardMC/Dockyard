@@ -14,7 +14,6 @@ import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.particles.spawnParticle
-import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
@@ -25,6 +24,8 @@ import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.utils.DebugSidebar
 import kotlin.time.Duration.Companion.seconds
+import io.github.dockyardmc.player.systems.GameMode
+import io.github.dockyardmc.utils.DebugSidebar
 
 fun main() {
 
