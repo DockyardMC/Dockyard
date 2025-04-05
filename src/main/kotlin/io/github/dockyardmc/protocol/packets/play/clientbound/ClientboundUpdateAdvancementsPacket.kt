@@ -1,7 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
 import io.github.dockyardmc.advancement.Advancement
-import io.github.dockyardmc.extentions.write
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeStringArray
 import io.github.dockyardmc.extentions.writeVarInt
@@ -29,17 +28,17 @@ class ClientboundUpdateAdvancementsPacket(
         buffer.writeVarInt(advancementsAdd.size)
         advancementsAdd.forEach {
             buffer.writeString(it.key)
-            buffer.write(it.value)
+            it.value.write(buffer)
         }
 
         buffer.writeStringArray(advancementsRemove)
 
         buffer.writeVarInt(progress.size)
-        progress.forEach { advId, advProgress ->
+        progress.forEach { (advId, advProgress) ->
             buffer.writeString(advId)
 
             buffer.writeVarInt(advProgress.size)
-            advProgress.forEach { criteria, timestamp ->
+            advProgress.forEach { (criteria, timestamp) ->
                 buffer.writeString(criteria)
                 buffer.writeOptional(timestamp, ByteBuf::writeLong)
             }

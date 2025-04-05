@@ -10,7 +10,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSelectA
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-class ServerboundSelectAdvancementsTabPacket(val action: SelectAdvancementsTabAction, val identifier: String?) : ServerboundPacket {
+class ServerboundSelectAdvancementsTabPacket(val action: Action, val identifier: String?) : ServerboundPacket {
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
 
@@ -18,18 +18,18 @@ class ServerboundSelectAdvancementsTabPacket(val action: SelectAdvancementsTabAc
         Events.dispatch(event)
 
         if(event.cancelled) {
-            player.sendPacket(ClientboundSelectAdvancementsTabPacket(player.advTracker.selectedTab))
+            player.sendPacket(ClientboundSelectAdvancementsTabPacket(player.advancementTracker.selectedTab))
             return
         }
 
-        player.advTracker.selectedTab = event.tabId
+        player.advancementTracker.selectedTab = event.tabId
     }
 
     companion object {
         fun read(buffer: ByteBuf): ServerboundSelectAdvancementsTabPacket {
-            val action = buffer.readVarIntEnum<SelectAdvancementsTabAction>()
+            val action = buffer.readVarIntEnum<Action>()
 
-            val id: String? = if (action == SelectAdvancementsTabAction.OPENED_TAB) {
+            val id: String? = if (action == Action.OPENED_TAB) {
                 buffer.readString()
             } else null
 
@@ -38,8 +38,8 @@ class ServerboundSelectAdvancementsTabPacket(val action: SelectAdvancementsTabAc
         }
     }
 
-}
-enum class SelectAdvancementsTabAction {
-    OPENED_TAB,
-    CLOSED_SCREEN
+    enum class Action {
+        OPENED_TAB,
+        CLOSED_SCREEN
+    }
 }

@@ -118,7 +118,7 @@ class Player(
     val playerInfoSystem = PlayerInfoSystem(this)
     val entityViewSystem = EntityViewSystem(this)
     val attributes = PlayerAttributes(this)
-    val advTracker = AdvancementManager.createAdvancementTracker(this)
+    val advancementTracker = AdvancementManager.createAdvancementTracker(this)
 
     val decoupledEntityViewSystemTicking = DockyardServer.scheduler.runRepeating(1.ticks) {
         entityViewSystem.tick()
@@ -555,7 +555,7 @@ class Player(
     override fun dispose() {
         decoupledEntityViewSystemTicking.cancel()
         attributes.dispose()
-        advTracker.dispose()
+        advancementTracker.dispose()
         super.dispose()
     }
 }

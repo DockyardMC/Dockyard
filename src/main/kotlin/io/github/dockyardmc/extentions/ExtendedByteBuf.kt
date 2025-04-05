@@ -1,6 +1,7 @@
 package io.github.dockyardmc.extentions
 
 import io.github.dockyardmc.item.*
+import io.github.dockyardmc.maths.positiveCeilDiv
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
@@ -13,8 +14,6 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.SoundEvent
-import io.github.dockyardmc.maths.positiveCeilDiv
-import io.github.dockyardmc.protocol.NetworkWritable
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
@@ -29,11 +28,6 @@ import kotlin.experimental.inv
 
 private const val SEGMENT_BITS: Byte = 0x7F
 private const val CONTINUE_BIT = 0x80
-
-fun ByteBuf.write(other: NetworkWritable): ByteBuf {
-    other.write(this)
-    return this
-}
 
 fun ByteBuf.writeOptionalOLD(item: Any?, unit: (ByteBuf) -> Unit) {
     val isPresent = item != null
