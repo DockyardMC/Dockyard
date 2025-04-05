@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol
 
 import io.netty.buffer.ByteBuf
 
-fun <T> ByteBuf.writeOptional(item: Float?, kFunction2: (ByteBuf, Float) -> ByteBuf) {
+fun <T> ByteBuf.writeOptional(item: T?, kFunction2: (ByteBuf, T) -> ByteBuf) {
     val isPresent = item != null
     this.writeBoolean(isPresent)
     if (isPresent) {
