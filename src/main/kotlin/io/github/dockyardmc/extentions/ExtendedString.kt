@@ -1,9 +1,12 @@
 package io.github.dockyardmc.extentions
 
 import com.google.common.hash.Hashing
+import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.netty.util.CharsetUtil
 import java.util.*
 import kotlin.text.isLowerCase
+
+fun String.toSoundEvent(): CustomSoundEvent = CustomSoundEvent(this)
 
 fun String.isUppercase(): Boolean = this.uppercase() == this
 
