@@ -63,7 +63,7 @@ data class ItemStack(
 
         buffer.writeVarInt(this.amount)
         buffer.writeVarInt(this.material.getProtocolId())
-        components.write(buffer)
+        DataComponentPatch.patchNetworkType(components.components).write(buffer)
     }
 
 
