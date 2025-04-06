@@ -5,9 +5,9 @@ import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.systems.GameMode
+import io.github.dockyardmc.protocol.types.ItemRarity
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.DebugSidebar
-
 
 fun main() {
 
@@ -31,10 +31,10 @@ fun main() {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
 
-            val diamond = ItemStack(Items.DIAMOND).withConsumable(1f)
-            val coolSword = ItemStack(Items.NETHERITE_SWORD).withDisplayName("<red><bold><u>COOL ASS SWORD<r>").withLore("", "<gray>This is very special sword yep!", "").withMaxStackSize(256)
+            val diamond = ItemStack(Items.DIAMOND).withRarity(ItemRarity.EPIC)
             player.give(diamond)
-            player.give(coolSword)
+//            val coolSword = ItemStack(Items.NETHERITE_SWORD).withDisplayName("<red><bold><u>COOL ASS SWORD<r>").withLore("", "<gray>This is very special sword yep!", "").withMaxStackSize(256)
+//            player.give(coolSword)
         }
     }
 

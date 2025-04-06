@@ -47,7 +47,7 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
                 val id = buffer.readVarInt()
                 val componentClass = DataComponentRegistry.dataComponentsById[id] ?: throw IllegalStateException("Unknown component with id $id")
                 if (isTrusted) {
-                    val component = componentClass.read<DataComponent>(buffer)
+                    val component = componentClass.asNetworkReadable<DataComponent>().read(buffer)
                     patch.put(id, component)
                 } else {
                     // length prefixed byte array consisting of [LENGTH, DATA_COMPONENT]
