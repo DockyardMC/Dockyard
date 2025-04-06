@@ -44,13 +44,13 @@ data class ItemStack(
     companion object {
         val AIR = ItemStack(Items.AIR, 1)
 
-        fun read(buffer: ByteBuf): ItemStack {
+        fun read(buffer: ByteBuf, isPatch: Boolean = true, isTrusted: Boolean = true): ItemStack {
             val count = buffer.readVarInt()
             if (count <= 0) return AIR
 
             val itemId = buffer.readVarInt()
 
-            val componentsPatch = DataComponentPatch.read(buffer, true, true)
+            val componentsPatch = DataComponentPatch.read(buffer, isPatch, isTrusted)
             return ItemStack(ItemRegistry.getByProtocolId(itemId), count, componentsPatch)
         }
     }
