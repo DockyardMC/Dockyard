@@ -18,6 +18,7 @@ class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: Map
         equipmentList[4] = equipment.getOrDefault(EquipmentSlot.CHESTPLATE, ItemStack.AIR)
         equipmentList[5] = equipment.getOrDefault(EquipmentSlot.HELMET, ItemStack.AIR)
         equipmentList[6] = equipment.getOrDefault(EquipmentSlot.BODY, ItemStack.AIR)
+        equipmentList[7] = equipment.getOrDefault(EquipmentSlot.SADDLE, ItemStack.AIR)
 
         var index = 0
         equipmentList.forEach {
