@@ -12,7 +12,7 @@ data class Advancement(
     val parentId: String?,
     val display: AdvancementDisplay?,
     val requirements: List<List<String>>,
-): NetworkWritable {
+) : NetworkWritable {
     override fun write(buffer: ByteBuf) {
         buffer.writeOptional(parentId, ByteBuf::writeString)
         buffer.writeOptional(display) { buf, it -> it.write(buf); buf }

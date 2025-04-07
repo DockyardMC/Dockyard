@@ -6,6 +6,7 @@ import io.github.dockyardmc.events.EventListener
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerLoadedEvent
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSelectAdvancementsTabPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateAdvancementsPacket
 import io.github.dockyardmc.utils.Disposable
 import kotlinx.datetime.Clock
@@ -17,7 +18,19 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
     private val visibleAdvancements = mutableSetOf<String>()
     private val updatedProgress = mutableMapOf<String, MutableSet<String>>()
 
+    /**
+     * Currently selected advancement tab
+     *
+     * Setting to this will send the packet to client
+     * and update the tab on their end
+     */
     var selectedTab: String? = null
+        set(value) {
+            if (field != value) {
+                player.sendPacket(ClientboundSelectAdvancementsTabPacket(value))
+            }
+            field = value
+        }
 
     init {
         var listener: EventListener<Event>? = null
@@ -28,23 +41,39 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
         }
     }
 
-    fun grantAdvancement(advId: String) {
-        val adv = progress[advId] ?: return
-
-        adv.keys.forEach { it: String ->
-            if (adv[it] == null) {
-                setProgress(advId, it, Clock.System.now().epochSeconds)
-            }
-        }
-        if (updatedProgress.isNotEmpty()) {
-            sendToClient()
-        }
+    fun grantAdvancement(advId: String): Boolean {
+        return setAllCriteriaTo(advId, Clock.System.now().epochSeconds)
     }
 
-    private fun setProgress(advId: String, criterion: String, timestamp: Long?) {
+    /**
+     * Whether the advancement was revoked
+     */
+    fun revokeAdvancement(advId: String): Boolean {
+        return setAllCriteriaTo(advId, null)
+    }
+
+    private fun setAllCriteriaTo(advId: String, timestamp: Long?): Boolean {
+        val keys: Collection<String>? = synchronized(progress) {
+            progress[advId]?.keys
+        }
+        var changed = false
+
+        keys?.forEach { criterion ->
+            changed = setProgress(advId, criterion, timestamp) || changed
+        }
+        if (changed) {
+            sendToClient()
+        }
+        return changed
+    }
+
+    /**
+     * @return whether something changed or not
+     */
+    private fun setProgress(advId: String, criterion: String, timestamp: Long?): Boolean {
         synchronized(this.progress) {
-            val adv = progress[advId] ?: return
-            if (adv[criterion] == timestamp) return
+            val adv = progress[advId] ?: return false
+            if (adv[criterion] == timestamp) return false
 
             adv[criterion] = timestamp
         }
@@ -52,20 +81,35 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
         synchronized(updatedProgress) {
             updatedProgress.getOrPut(advId) {
                 mutableSetOf()
-            }
-                .add(criterion)
+            }.add(criterion)
         }
+
+        return true
     }
 
-    fun grantCriterion(advId: String, criterion: String) {
-        val adv = progress[advId] ?: return
-        if (adv[criterion] != null) return
-
-        setProgress(advId, criterion, Clock.System.now().epochSeconds)
-        sendToClient()
+    /**
+     * @return whether something changed or not
+     */
+    fun grantCriterion(advId: String, criterion: String): Boolean {
+        val changed = setProgress(advId, criterion, Clock.System.now().epochSeconds)
+        if (changed) {
+            sendToClient()
+        }
+        return changed
     }
 
-    fun sendToClient() = DockyardServer.scheduler.run {
+    /**
+     * @return whether something changed or not
+     */
+    fun revokeCriterion(advId: String, criterion: String): Boolean {
+        val changed = setProgress(advId, criterion, null)
+        if (changed) {
+            sendToClient()
+        }
+        return changed
+    }
+
+    private fun sendToClient() = DockyardServer.scheduler.run {
         if (!player.isFullyInitialized) return@run
 
         val add = mutableMapOf<String, Advancement>()
@@ -74,9 +118,9 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
         val advancements = AdvancementManager.advancements
 
         synchronized(visibleAdvancements) {
-            advancements.forEach { id, adv ->
+            advancements.forEach { (id, adv) ->
                 if (visibleAdvancements.add(id)) {
-                    add.put(id, adv)
+                    add[id] = adv
                 }
             }
             visibleAdvancements.forEach {
@@ -98,20 +142,16 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
             }
         }
 
-        if(add.isEmpty() && remove.isEmpty() && progress.isEmpty())
-            return@run
+        if (add.isEmpty() && remove.isEmpty() && progress.isEmpty()) return@run
 
         player.sendPacket(
             ClientboundUpdateAdvancementsPacket(
-                false,
-                add,
-                remove,
-                progress
+                false, add, remove, progress
             )
         )
     }
 
-    fun onAdvancementAdded(adv: Advancement) {
+    internal fun onAdvancementAdded(adv: Advancement) {
         synchronized(progress) {
             progress[adv.id] = mutableMapOf()
 
@@ -121,7 +161,7 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
         }
     }
 
-    fun onAdvancementRemoved(adv: Advancement) {
+    internal fun onAdvancementRemoved(adv: Advancement) {
         synchronized(progress) {
             progress.remove(adv.id)
         }

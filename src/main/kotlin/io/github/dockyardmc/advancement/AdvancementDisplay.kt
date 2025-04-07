@@ -6,13 +6,12 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scroll.Component
 import io.netty.buffer.ByteBuf
 
 /**
- * @param background can use [getTextureId] to get one
- * @param icon icon of the advancement is an item, it could have enchantements, etc. IT CANNOT BE AIR OR ELSE CLIENT JUST CRASHES.
+ * @param background the background as a string to a resource of the block texture
+ * @param icon icon of the advancement is an item, it could have enchantments, etc. IT CANNOT BE AIR OR ELSE CLIENT JUST CRASHES.
  *
  * @throws IllegalArgumentException if icon is air
  */
@@ -28,7 +27,7 @@ data class AdvancementDisplay(
     val y: Float,
 ) : NetworkWritable {
     init {
-        if(icon.material == Items.AIR) throw IllegalArgumentException("advancement icon can't be air")
+        if (icon.material == Items.AIR) throw IllegalArgumentException("advancement icon can't be air")
     }
 
     override fun write(buffer: ByteBuf) {
@@ -44,13 +43,13 @@ data class AdvancementDisplay(
 
     fun getFlags(): Int {
         var flags = 0x0
-        if(background != null) {
+        if (background != null) {
             flags = flags or HAS_BACKGROUND_TEXTURE
         }
-        if(showToast) {
+        if (showToast) {
             flags = flags or SHOW_TOAST
         }
-        if(isHidden) {
+        if (isHidden) {
             flags = flags or HIDDEN
         }
         return flags

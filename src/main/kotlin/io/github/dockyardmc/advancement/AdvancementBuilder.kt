@@ -65,7 +65,7 @@ class AdvancementBuilder(val id: String) {
     fun withBackground(block: RegistryBlock) {
         val blockId = block.identifier.removePrefix("minecraft:")
 
-        // TODO: this is how it should be in 1.21.5
+        // this is how it should be in 1.21.5
         // "block/$blockId"
         this.background = "minecraft:textures/block/$blockId.png"
     }
@@ -96,14 +96,9 @@ class AdvancementBuilder(val id: String) {
 
     fun build(): Advancement {
         return Advancement(
-            id,
-            parentId,
-            AdvancementDisplay(
-                title.toComponent(), description.toComponent(), icon,
-                frame, showToast, isHidden,
-                background, x, y
-            ),
-            requirements
+            id, parentId, AdvancementDisplay(
+                title.toComponent(), description.toComponent(), icon, frame, showToast, isHidden, background, x, y
+            ), requirements
         )
     }
 }
