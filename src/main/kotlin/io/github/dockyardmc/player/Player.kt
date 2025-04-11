@@ -3,7 +3,7 @@ package io.github.dockyardmc.player
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.advancement.AdvancementManager
+import io.github.dockyardmc.advancement.PlayerAdvancementTracker
 import io.github.dockyardmc.attributes.PlayerAttributes
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
@@ -118,7 +118,7 @@ class Player(
     val playerInfoSystem = PlayerInfoSystem(this)
     val entityViewSystem = EntityViewSystem(this)
     val attributes = PlayerAttributes(this)
-    val advancementTracker = AdvancementManager.createAdvancementTracker(this)
+    val advancementTracker = PlayerAdvancementTracker(this)
 
     val decoupledEntityViewSystemTicking = DockyardServer.scheduler.runRepeating(1.ticks) {
         entityViewSystem.tick()

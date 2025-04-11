@@ -1,6 +1,5 @@
 package io.github.dockyardmc.advancement
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.events.Event
 import io.github.dockyardmc.events.EventListener
 import io.github.dockyardmc.events.Events
@@ -15,7 +14,8 @@ import kotlin.collections.set
 class PlayerAdvancementTracker(val player: Player) : Disposable {
 
     private val progress = mutableMapOf<String, MutableMap<String, Long?>>()
-    private val visibleAdvancements = mutableSetOf<String>()
+    private val visible = mutableMapOf<String, Advancement>()
+    private val visibleToClient = mutableSetOf<String>()
     private val updatedProgress = mutableMapOf<String, MutableSet<String>>()
 
     /**
@@ -109,26 +109,27 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
         return changed
     }
 
-    private fun sendToClient() = DockyardServer.scheduler.run {
-        if (!player.isFullyInitialized) return@run
+    private fun sendToClient() {
+        if (!player.isFullyInitialized) return
 
         val add = mutableMapOf<String, Advancement>()
         val remove = mutableSetOf<String>()
 
-        val advancements = AdvancementManager.advancements
+        synchronized(visibleToClient) {
 
-        synchronized(visibleAdvancements) {
-            advancements.forEach { (id, adv) ->
-                if (visibleAdvancements.add(id)) {
+            visible.forEach { (id, adv) ->
+                if (visibleToClient.add(id)) {
                     add[id] = adv
                 }
             }
-            visibleAdvancements.forEach {
-                if (!advancements.containsKey(it)) {
-                    visibleAdvancements.remove(it)
-                    remove.add(it)
+
+            visibleToClient.forEach { id ->
+                if (!visible.containsKey(id)) {
+                    remove.add(id)
                 }
             }
+            visibleToClient.removeAll(remove)
+
         }
 
         val updatedProgress: MutableMap<String, MutableSet<String>>
@@ -142,7 +143,7 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
             }
         }
 
-        if (add.isEmpty() && remove.isEmpty() && progress.isEmpty()) return@run
+        if (add.isEmpty() && remove.isEmpty() && progress.isEmpty()) return
 
         player.sendPacket(
             ClientboundUpdateAdvancementsPacket(
@@ -152,12 +153,18 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
     }
 
     internal fun onAdvancementAdded(adv: Advancement) {
-        synchronized(progress) {
-            progress[adv.id] = mutableMapOf()
+        synchronized(visible) {
+            visible[adv.id] = adv
+        }
 
-            adv.requirements.flatten().forEach { req: String ->
-                progress[adv.id]!![req] = null
-            }
+        val advProgress = mutableMapOf<String, Long?>()
+
+        adv.requirements.flatten().forEach { req: String ->
+            advProgress[req] = null
+        }
+
+        synchronized(progress) {
+            progress[adv.id] = advProgress
         }
     }
 
@@ -168,10 +175,17 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
         synchronized(updatedProgress) {
             updatedProgress.remove(adv.id)
         }
+        synchronized(visible) {
+            visible.remove(adv.id)
+        }
         sendToClient()
     }
 
     override fun dispose() {
-        AdvancementManager.removeAdvancementTracker(this)
+        synchronized(visible) {
+            while (visible.isNotEmpty()) {
+                visible.values.first().removeViewer(this.player)
+            }
+        }
     }
 }
