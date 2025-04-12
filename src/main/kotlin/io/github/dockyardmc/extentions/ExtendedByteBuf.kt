@@ -10,10 +10,10 @@ import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.SoundEvent
 import io.github.dockyardmc.maths.positiveCeilDiv
+import io.github.dockyardmc.scroll.serializers.NbtToComponentSerializer
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
@@ -55,6 +55,10 @@ fun ByteBuf.writeTextComponent(text: String) {
     this.writeTextComponent(text.toComponent())
 }
 
+fun ByteBuf.readTextComponent(): Component {
+    return NbtToComponentSerializer.serializeNbt(this.readNBT() as NBTCompound)
+}
+
 fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
     this.writeVarInt(list.size)
     list.forEach {
@@ -88,10 +92,13 @@ fun ByteBuf.writeVarIntArray(array: List<Int>) {
     array.forEach { this.writeVarInt(it) }
 }
 
-fun ByteBuf.writeLongArray(array: LongArray) {
-    this.writeLongArray(array.toList())
+object Buffer {
+    fun makeArray(writer: (ByteBuf) -> Unit): ByteArray {
+        val tempBuffer = Unpooled.buffer()
+        writer.invoke(tempBuffer)
+        return tempBuffer.array()
+    }
 }
-
 fun ByteBuf.writeLongArray(array: List<Long>) {
     this.writeVarInt(array.size)
     array.forEach { this.writeLong(it) }
@@ -123,6 +130,9 @@ fun ByteBuf.readNBT(): NBT {
     }
 }
 
+fun ByteBuf.readNBTCompound(): NBTCompound {
+    return this.readNBT() as NBTCompound
+}
 
 fun ByteBuf.writeNBT(nbt: NBT, truncateRootTag: Boolean = true) {
 
@@ -189,10 +199,10 @@ fun ByteBuf.readVarLong(): Long {
 
 fun hasContinuationBit(byte: Byte): Boolean = byte.toInt() and 0x80 == 128
 
-inline fun <reified T : Enum<T>> ByteBuf.readVarIntEnum(): T = T::class.java.enumConstants[readVarInt()]
+inline fun <reified T : Enum<T>> ByteBuf.readEnum(): T = T::class.java.enumConstants[readVarInt()]
 inline fun <reified T : Enum<T>> ByteBuf.readByteEnum(): T = T::class.java.enumConstants[readByte().toInt()]
 
-inline fun <reified T : Enum<T>> ByteBuf.writeVarIntEnum(value: T) {
+inline fun <reified T : Enum<T>> ByteBuf.writeEnum(value: T) {
     this.writeVarInt(value.ordinal)
 }
 
@@ -356,35 +366,6 @@ fun ByteBuf.readItemList(): MutableList<Item> {
     return list
 }
 
-fun ByteBuf.readConsumeEffects(): List<ConsumeEffect> {
-    val size = this.readVarInt()
-    val effects = mutableListOf<ConsumeEffect>()
-    for (i in 0 until size) {
-        val effect = when (val type = this.readVarInt()) {
-            0 -> ApplyEffectsConsumeEffect(this.readAppliedPotionEffectsList(), this.readFloat())
-            1 -> readRemoveEffectsConsumeEffect()
-            2 -> ClearAllEffectsConsumeEffect()
-            3 -> TeleportRandomlyConsumeEffect(this.readFloat())
-            4 -> PlaySoundConsumeEffect(Sound(SoundEvent.read(this).identifier))
-            else -> throw IllegalStateException("Invalid consume effect $type")
-        }
-    }
-    return effects
-}
-
-fun ByteBuf.readRemoveEffectsConsumeEffect(): RemoveEffectsConsumeEffect {
-    val type = this.readVarInt() - 1
-    if (type == -1) {
-        val identifier = this.readString()
-        return RemoveEffectsConsumeEffect(listOf())
-    }
-    val list = mutableListOf<PotionEffect>()
-    for (i in 0 until type) {
-        list.add(this.readPotionEffectHolder())
-    }
-    return RemoveEffectsConsumeEffect(list)
-}
-
 fun ByteBuf.readPotionEffectHolder(): PotionEffect {
     val type = this.readVarInt()
     if (type == 0) {
@@ -397,41 +378,6 @@ fun ByteBuf.readPotionEffectHolder(): PotionEffect {
 fun ByteBuf.writeAppliedPotionEffectsList(list: Collection<AppliedPotionEffect>) {
     this.writeVarInt(list.size)
     list.forEach { this.writeAppliedPotionEffect(it) }
-}
-
-fun ByteBuf.writeConsumeEffects(effects: List<ConsumeEffect>) {
-    this.writeVarInt(effects.size)
-    effects.forEach { effect ->
-        when (effect) {
-            is ApplyEffectsConsumeEffect -> {
-                this.writeVarInt(0)
-                this.writeAppliedPotionEffectsList(effect.effects)
-                this.writeFloat(effect.probability)
-            }
-
-            is RemoveEffectsConsumeEffect -> {
-                throw NotImplementedError()
-//                this.writeVarInt(1)
-//                this.writeAppliedPotionEffectsList(effect.effects)
-            }
-
-            is ClearAllEffectsConsumeEffect -> {
-                this.writeVarInt(2)
-            }
-
-            is TeleportRandomlyConsumeEffect -> {
-                this.writeVarInt(3)
-                this.writeFloat(effect.diameter)
-            }
-
-            is PlaySoundConsumeEffect -> {
-                this.writeVarInt(4)
-                CustomSoundEvent(effect.sound.identifier).write(this)
-            }
-
-            else -> throw IllegalStateException("Invalid consume effect")
-        }
-    }
 }
 
 fun ByteBuf.readCustomColor(): CustomColor {
@@ -451,33 +397,6 @@ fun ByteBuf.writeCustomColorList(list: Collection<CustomColor>) {
     list.forEach {
         this.writeInt(it.toRgbInt())
     }
-}
-
-fun ByteBuf.writeFireworkExplosion(component: FireworkExplosionItemComponent) {
-    this.writeVarIntEnum<FireworkShape>(component.shape)
-    this.writeCustomColorList(component.colors)
-    this.writeCustomColorList(component.fadeColors)
-    this.writeBoolean(component.hasTrail)
-    this.writeBoolean(component.hasTwinkle)
-}
-
-fun ByteBuf.readFireworkExplosionList(): List<FireworkExplosionItemComponent> {
-    val list = mutableListOf<FireworkExplosionItemComponent>()
-    for (i in 0 until this.readVarInt()) {
-        list.add(this.readFireworkExplosion())
-    }
-    return list
-}
-
-
-fun ByteBuf.readFireworkExplosion(): FireworkExplosionItemComponent {
-    return FireworkExplosionItemComponent(
-        this.readVarIntEnum<FireworkShape>(),
-        this.readCustomColorList(),
-        this.readCustomColorList(),
-        this.readBoolean(),
-        this.readBoolean()
-    )
 }
 
 fun ByteBuf.readEntityTypes(): List<EntityType> {

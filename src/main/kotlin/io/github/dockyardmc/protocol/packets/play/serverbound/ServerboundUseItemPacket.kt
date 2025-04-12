@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerRightClickWithItemEvent
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.systems.startConsumingIfApplicable
 import io.github.dockyardmc.protocol.PlayerNetworkManager
@@ -26,6 +26,6 @@ class ServerboundUseItemPacket(val hand: PlayerHand, val sequence: Int, val yaw:
 
     companion object {
         fun read(buf: ByteBuf): ServerboundUseItemPacket =
-            ServerboundUseItemPacket(buf.readVarIntEnum<PlayerHand>(), buf.readVarInt(), buf.readFloat(), buf.readFloat())
+            ServerboundUseItemPacket(buf.readEnum<PlayerHand>(), buf.readVarInt(), buf.readFloat(), buf.readFloat())
     }
 }

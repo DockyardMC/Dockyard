@@ -1,7 +1,6 @@
 package io.github.dockyardmc.attributes
 
 import io.github.dockyardmc.extentions.*
-import io.github.dockyardmc.item.AttributeModifiersItemComponent
 import io.github.dockyardmc.registry.registries.Attribute
 import io.github.dockyardmc.registry.registries.AttributeRegistry
 import io.netty.buffer.ByteBuf
@@ -25,17 +24,6 @@ enum class AttributeSlot {
     BODY
 }
 
-fun ByteBuf.readModifierList(): AttributeModifiersItemComponent {
-    val size = this.readVarInt()
-    val list = mutableListOf<Modifier>()
-    for (i in 0 until size) {
-        val modifier = Modifier.read(this)
-        list.add(modifier)
-    }
-    val showInTooltip = this.readBoolean()
-    return AttributeModifiersItemComponent(list, showInTooltip)
-}
-
 
 data class Modifier(
     val attribute: Attribute,
@@ -45,14 +33,14 @@ data class Modifier(
     fun write(buffer: ByteBuf) {
         buffer.writeVarInt(attribute.getProtocolId())
         attributeModifier.write(buffer)
-        buffer.writeVarIntEnum<EquipmentSlotGroup>(equipmentSlot)
+        buffer.writeEnum<EquipmentSlotGroup>(equipmentSlot)
     }
 
     companion object {
         fun read(buffer: ByteBuf): Modifier {
             val attribute = AttributeRegistry.getByProtocolId(buffer.readVarInt())
             val attributeModifier = AttributeModifier.read(buffer)
-            val slot = buffer.readVarIntEnum<EquipmentSlotGroup>()
+            val slot = buffer.readEnum<EquipmentSlotGroup>()
 
             return Modifier(attribute, attributeModifier, slot)
         }
@@ -67,7 +55,7 @@ data class AttributeModifier(
     fun write(buffer: ByteBuf) {
         buffer.writeString(id)
         buffer.writeDouble(amount)
-        buffer.writeVarIntEnum<AttributeOperation>(operation)
+        buffer.writeEnum<AttributeOperation>(operation)
     }
 
     companion object {
@@ -75,7 +63,7 @@ data class AttributeModifier(
             return AttributeModifier(
                 buffer.readString(),
                 buffer.readDouble(),
-                buffer.readVarIntEnum<AttributeOperation>()
+                buffer.readEnum<AttributeOperation>()
             )
         }
     }
@@ -91,5 +79,6 @@ enum class EquipmentSlotGroup {
     CHEST,
     HEAD,
     ARMOR,
-    BODY
+    BODY,
+    SADDLE,
 }

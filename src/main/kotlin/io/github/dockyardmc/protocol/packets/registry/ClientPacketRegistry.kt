@@ -43,7 +43,6 @@ object ClientPacketRegistry : PacketRegistry() {
 
         skipPlay("Bundle")
         addPlay(ClientboundSpawnEntityPacket::class)
-        skipPlay("Spawn experience orb")
         addPlay(ClientboundPlayerAnimationPacket::class)
         skipPlay("Statistics")
         addPlay(ClientboundAcknowledgeBlockChangePacket::class)
@@ -161,6 +160,7 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("nbt query response")
         addPlay(ClientboundPickupItemPacket::class)
         addPlay(ClientboundEntityTeleportPacket::class)
+        skipPlay("Test Instance block status")
         addPlay(ClientboundSetTickingStatePacket::class)
         skipPlay("tick step")
         skipPlay("transfer packet")

@@ -2,10 +2,9 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PlayerAction
-import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.buffer.ByteBuf
@@ -67,7 +66,7 @@ class ServerboundPlayerCommandPacket(val entityId: Int, val action: PlayerAction
     companion object {
         fun read(buf: ByteBuf): ServerboundPlayerCommandPacket {
             val entityId = buf.readVarInt()
-            val action = buf.readVarIntEnum<PlayerAction>()
+            val action = buf.readEnum<PlayerAction>()
             val jumpBoost = buf.readVarInt()
             return ServerboundPlayerCommandPacket(entityId, action)
         }

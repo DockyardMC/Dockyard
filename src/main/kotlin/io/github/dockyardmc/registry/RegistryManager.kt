@@ -1,6 +1,5 @@
 package io.github.dockyardmc.registry
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.registry.registries.tags.*
 import java.io.InputStream
@@ -22,6 +21,13 @@ object RegistryManager {
         FluidTagRegistry::class to "registry/fluid_tags.json.gz",
         ItemTagRegistry::class to "registry/item_tags.json.gz",
         AttributeRegistry::class to "registry/attribute_registry.json.gz",
+        WolfVariantRegistry::class to "registry/wolf_variant.json.gz",
+        WolfSoundVariantRegistry::class to "registry/wolf_sound_variant.json.gz",
+        CatVariantRegistry::class to "registry/cat_variant.json.gz",
+        CowVariantRegistry::class to "registry/cow_variant.json.gz",
+        PigVariantRegistry::class to "registry/pig_variant.json.gz",
+        FrogVariantRegistry::class to "registry/frog_variant.json.gz",
+        ChickenVariantRegistry::class to "registry/chicken_variant.json.gz",
     )
 
     val dynamicRegistries: MutableMap<String, Registry> = mutableMapOf()
@@ -42,7 +48,6 @@ object RegistryManager {
     }
 
     fun getStreamForClass(registry: KClass<*>): InputStream {
-        log(dataDrivenRegisterSources.toString())
         return ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]!!).openStream()
     }
 
