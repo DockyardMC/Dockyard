@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
-import it.unimi.dsi.fastutil.objects.ObjectSet
 import kotlin.reflect.KClass
 
 // Component list stored as a patch of added and removed components (even if none are removed)
@@ -62,10 +61,6 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
             }
             return DataComponentPatch(patch, isPatch, isTrusted)
         }
-    }
-
-    fun entrySet(): ObjectSet<Int2ObjectMap.Entry<DataComponent?>> {
-        return components.int2ObjectEntrySet()
     }
 
     fun isEmpty(): Boolean = components.isEmpty()

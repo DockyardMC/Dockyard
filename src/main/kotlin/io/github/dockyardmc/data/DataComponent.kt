@@ -11,4 +11,6 @@ abstract class DataComponent : NetworkWritable {
     fun getIdOrNull(): Int? {
         return DataComponentRegistry.dataComponentsByIdReversed.getOrDefault(this::class, null)
     }
+
+//    abstract fun hash(hasher: Hasher): Int
 }
