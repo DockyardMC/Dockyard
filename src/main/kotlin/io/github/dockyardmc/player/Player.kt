@@ -16,6 +16,8 @@ import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.percentOf
+import io.github.dockyardmc.maths.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.particles.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.systems.*
@@ -24,6 +26,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundChatCommandPacket
+import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items
@@ -38,8 +41,6 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.now
-import io.github.dockyardmc.maths.vectors.Vector3
-import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.PlayerChunkViewSystem
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
@@ -61,7 +62,6 @@ class Player(
     var crypto: PlayerCrypto? = null,
     val networkManager: PlayerNetworkManager
 ) : Entity(location) {
-    override var velocity: Vector3 = Vector3(0, 0, 0)
     override var isInvulnerable: Boolean = true
     override var isOnGround: Boolean = true
     override var health: Bindable<Float> = bindablePool.provideBindable(20f)
@@ -133,6 +133,8 @@ class Player(
     var ping = 0L
     var lastPingRequest: Long? = null
     var lastPingRequestFuture: CompletableFuture<Long>? = null
+
+    val heldInputs: MutableList<ServerboundClientInputPacket.Input> = mutableListOf()
 
     lateinit var lastSentPacket: ClientboundPacket
 
@@ -535,8 +537,8 @@ class Player(
 
     fun stopSound(sound: String? = null, category: SoundCategory? = null) {
         var flags = 0x0
-        if(category != null) flags = flags or 0x1
-        if(sound != null) flags = flags or 0x2
+        if (category != null) flags = flags or 0x1
+        if (sound != null) flags = flags or 0x2
 
         sendPacket(ClientboundStopSoundPacket(flags.toByte(), category, sound))
     }
@@ -548,6 +550,14 @@ class Player(
     enum class ChestAnimation {
         CLOSE,
         OPEN
+    }
+
+    @JvmName("asjalksjhlk")
+    fun setVelocity(velocity: Vector3d) {
+        this.velocity = velocity
+        val packet = ClientboundSetEntityVelocityPacket(this, velocity * Vector3d(8000.0 / 20.0))
+        sendPacket(packet)
+        sendPacketToViewers(packet)
     }
 
     override fun dispose() {

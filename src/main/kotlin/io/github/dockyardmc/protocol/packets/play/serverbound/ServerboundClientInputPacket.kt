@@ -2,6 +2,8 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerIputEvent
+import io.github.dockyardmc.extentions.addIfNotPresent
+import io.github.dockyardmc.extentions.removeIfPresent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.bitMask
@@ -20,7 +22,26 @@ class ServerboundClientInputPacket(
 ): ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
+        val player = processor.player
+        if(forward) player.heldInputs.addIfNotPresent(Input.FORWARD) else player.heldInputs.removeIfPresent(Input.FORWARD)
+        if(backward) player.heldInputs.addIfNotPresent(Input.BACKWARDS) else player.heldInputs.removeIfPresent(Input.BACKWARDS)
+        if(left) player.heldInputs.addIfNotPresent(Input.LEFT) else player.heldInputs.removeIfPresent(Input.LEFT)
+        if(right) player.heldInputs.addIfNotPresent(Input.RIGHT) else player.heldInputs.removeIfPresent(Input.RIGHT)
+        if(jump) player.heldInputs.addIfNotPresent(Input.JUMP) else player.heldInputs.removeIfPresent(Input.JUMP)
+        if(shift) player.heldInputs.addIfNotPresent(Input.SHIFT) else player.heldInputs.removeIfPresent(Input.SHIFT)
+        if(sprint) player.heldInputs.addIfNotPresent(Input.SPRINT) else player.heldInputs.removeIfPresent(Input.SPRINT)
+
         Events.dispatch(PlayerIputEvent(processor.player, forward, backward, left, right, jump, shift, sprint, getPlayerEventContext(processor.player)))
+    }
+
+    enum class Input {
+        FORWARD,
+        BACKWARDS,
+        LEFT,
+        RIGHT,
+        JUMP,
+        SHIFT,
+        SPRINT
     }
 
     companion object {
