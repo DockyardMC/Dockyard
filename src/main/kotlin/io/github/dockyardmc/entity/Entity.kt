@@ -51,7 +51,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     open var id: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
-    open var velocity: Vector3d = Vector3d()
+    open val velocity: Vector3d = Vector3d()
     open var isInvulnerable: Boolean = false
     open var isOnGround: Boolean = true
     open var tickable: Boolean = true

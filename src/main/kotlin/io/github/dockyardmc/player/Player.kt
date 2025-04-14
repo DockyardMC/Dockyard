@@ -552,9 +552,8 @@ class Player(
         OPEN
     }
 
-    @JvmName("asjalksjhlk")
     fun setVelocity(velocity: Vector3d) {
-        this.velocity = velocity
+        //this.velocity = velocity //specifically NOT set, this would be wrong + simulation needs to be written, so It's accurate with client
         val packet = ClientboundSetEntityVelocityPacket(this, velocity * Vector3d(8000.0 / 20.0))
         sendPacket(packet)
         sendPacketToViewers(packet)
