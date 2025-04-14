@@ -34,16 +34,8 @@ data class Vector3d(
         return subVector
     }
 
-    operator fun minusAssign(vector: Vector3d) {
-        x -= vector.x
-        y -= vector.y
-        z -= vector.z
-    }
-
-    operator fun plusAssign(vector: Vector3d) {
-        x -= vector.x
-        y -= vector.y
-        z -= vector.z
+    operator fun times(other: Double): Vector3d {
+        return times(Vector3d(other))
     }
 
     operator fun times(vector: Vector3d): Vector3d {
@@ -82,6 +74,14 @@ data class Vector3d(
             this.z * other.x - this.x * other.z,
             this.x * other.y - this.y * other.x
         )
+    }
+
+    fun squaredLength(): Double {
+        return x * x + y * y + z * z
+    }
+
+    fun length(): Double {
+        return sqrt(squaredLength())
     }
 
     fun distance(other: Vector3d): Double = sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0))

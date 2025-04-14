@@ -12,6 +12,8 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.maths.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PersistentPlayer
 import io.github.dockyardmc.player.Player
@@ -32,8 +34,6 @@ import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.utils.mergeEntityMetadata
-import io.github.dockyardmc.maths.vectors.Vector3
-import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
@@ -51,7 +51,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     open var id: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
-    open var velocity: Vector3 = Vector3()
+    open val velocity: Vector3d = Vector3d()
     open var isInvulnerable: Boolean = false
     open var isOnGround: Boolean = true
     open var tickable: Boolean = true
@@ -147,7 +147,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     override fun addViewer(player: Player) {
-        if(this.isDead) return
+        if (this.isDead) return
         val event = EntityViewerAddEvent(this, player)
         Events.dispatch(event)
         if (event.cancelled) return
@@ -189,13 +189,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         synchronized(player.entityViewSystem.visibleEntities) {
             player.entityViewSystem.visibleEntities.remove(this)
         }
-    }
-
-    //TODO move to bindable
-    open fun setEntityVelocity(velocity: Vector3) {
-        val packet = ClientboundSetEntityVelocityPacket(this, velocity)
-        viewers.sendPacket(packet)
-        sendSelfPacketIfPlayer(packet)
     }
 
     open fun lookAt(target: Entity) {
@@ -243,18 +236,18 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun teleport(location: Location) {
-        if(this.isDead) return
+        if (this.isDead) return
         this.location = location
         viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
         viewers.sendPacket(ClientboundSetHeadYawPacket(this))
 
-        if(passengers.values.isNotEmpty()) {
+        if (passengers.values.isNotEmpty()) {
             viewers.sendPacket(ClientboundMoveVehiclePacket(this))
         }
     }
 
     open fun teleportClientside(location: Location, player: Player) {
-        if(this.isDead) return
+        if (this.isDead) return
         teleportClientside(location, listOf(player))
     }
 
@@ -267,7 +260,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         val event = EntityDamageEvent(this, damage, damageType, attacker, projectile)
         Events.dispatch(event)
         if (event.cancelled) return
-        if(isDead) return
+        if (isDead) return
 
         var location: Location? = null
         if (attacker != null) location = attacker.location
@@ -298,7 +291,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun kill() {
-        if(isDead) return
+        if (isDead) return
         val event = EntityDeathEvent(this)
         Events.dispatch(event)
         if (event.cancelled) {
@@ -386,7 +379,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     fun dismountCurrentVehicle() {
-        if(vehicle != null && vehicle!!.passengers.contains(this)) {
+        if (vehicle != null && vehicle!!.passengers.contains(this)) {
             vehicle!!.passengers.remove(this)
         }
     }

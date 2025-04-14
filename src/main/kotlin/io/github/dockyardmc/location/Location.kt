@@ -104,9 +104,9 @@ class Location(
 
     fun getRotation(): Vector2f = Vector2f(yaw, pitch)
 
-    fun getDirection(): Vector3d {
+    fun getDirection(noPitch: Boolean = false): Vector3d {
         val rotX = yaw
-        val rotY = pitch
+        val rotY = if(noPitch) 0.0 else pitch
         val xz = cos(Math.toRadians(rotY.toDouble()))
         return Vector3d(
             -xz * sin(Math.toRadians(rotX.toDouble())),
