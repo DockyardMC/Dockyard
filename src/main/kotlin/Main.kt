@@ -25,7 +25,6 @@ fun main() {
     val server = DockyardServer {
         withIp("0.0.0.0")
         withPort(25565)
-        withUpdateChecker(false)
         useDebugMode(true)
     }
 
