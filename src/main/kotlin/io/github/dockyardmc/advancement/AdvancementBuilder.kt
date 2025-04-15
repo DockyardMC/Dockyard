@@ -6,7 +6,6 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.utils.debug
 
 /**
  * Build the [Advancement] WITH [AdvancementDisplay]
@@ -58,6 +57,14 @@ class AdvancementBuilder(val id: String) {
         this.isHidden = isHidden
     }
 
+    /**
+     * @param background path to a texture in minecraft resource pack
+     *
+     * Some examples:
+     * - `minecraft:textures/item/stick.png`
+     * - `minecraft:textures/block/`
+     * - `minecraft:textures/gui/book.png` (looks bad but works)
+     */
     fun withBackground(background: String?) {
         this.background = background
     }
@@ -71,9 +78,8 @@ class AdvancementBuilder(val id: String) {
     }
 
     fun withBackground(background: Item) {
-        val id = background.identifier
-        debug("id = $id // BACKGROUND")
-        TODO()
+        val id = background.identifier.removePrefix("minecraft:")
+        this.background = "minecraft:textures/item/$id.png"
     }
 
     fun withPosition(x: Float, y: Float) {
