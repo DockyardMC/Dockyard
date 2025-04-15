@@ -33,15 +33,12 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
         val progress = progress[advancement.id] ?: return
 
         val timestamp = Clock.System.now().epochSeconds
-        val changes: MutableMap<String, Long?> = mutableMapOf()
 
         advancement.requirements.flatten().forEach { criterion ->
-            if (progress.put(criterion, timestamp) != timestamp) {
-                changes[criterion] = timestamp
-            }
+            progress[criterion] = timestamp
         }
 
-        this.player.sendPacket(makePacket(progress = mapOf(advancement.id to changes)))
+        this.player.sendPacket(makePacket(progress = mapOf(advancement.id to progress)))
     }
 
     fun revokeAdvancement(advancement: Advancement) {
@@ -59,7 +56,7 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
             advProgress.remove(criterion)
         }
 
-        player.sendPacket(makePacket(progress = mapOf(advId to mapOf(criterion to timestamp))))
+        player.sendPacket(makePacket(progress = mapOf(advId to advProgress)))
     }
 
     /**
