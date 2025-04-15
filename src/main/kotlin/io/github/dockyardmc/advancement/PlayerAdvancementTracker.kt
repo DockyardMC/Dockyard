@@ -137,11 +137,14 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
             updatedProgress = this.updatedProgress.toMutableMap()
             this.updatedProgress.clear()
         }
-        val progress: Map<String, Map<String, Long?>> = synchronized(this.progress) {
-            updatedProgress.mapValues { (key, value) ->
-                value.associateWith { this.progress[key]?.get(it) }
+        val progress: Map<String, Map<String, Long?>> =
+            synchronized(this.progress) {
+                updatedProgress.mapValues { (advId, criteria) ->
+                    criteria.associateWith { criterion ->
+                        this.progress[advId]?.get(criterion)
+                    }
+                }
             }
-        }
 
         if (add.isEmpty() && remove.isEmpty() && progress.isEmpty()) return
 
@@ -154,6 +157,9 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
 
     internal fun onAdvancementAdded(adv: Advancement) {
         synchronized(visible) {
+            if(visible.containsKey(adv.id)) {
+                return
+            }
             visible[adv.id] = adv
         }
 
@@ -166,18 +172,24 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
         synchronized(progress) {
             progress[adv.id] = advProgress
         }
+
+        sendToClient()
     }
 
     internal fun onAdvancementRemoved(adv: Advancement) {
+        synchronized(visible) {
+            if(!visible.containsKey(adv.id)) {
+                return
+            }
+            visible.remove(adv.id)
+        }
         synchronized(progress) {
             progress.remove(adv.id)
         }
         synchronized(updatedProgress) {
             updatedProgress.remove(adv.id)
         }
-        synchronized(visible) {
-            visible.remove(adv.id)
-        }
+
         sendToClient()
     }
 

@@ -12,7 +12,7 @@ import io.github.dockyardmc.utils.debug
  * Build the [Advancement] WITH [AdvancementDisplay]
  */
 class AdvancementBuilder(val id: String) {
-    var parentId: String? = null
+    var parent: Advancement? = null
     val requirements = mutableListOf<List<String>>()
 
     var title: String = ""
@@ -26,8 +26,8 @@ class AdvancementBuilder(val id: String) {
     var x: Float = 0f
     var y: Float = 0f
 
-    fun withParent(id: String?) {
-        this.parentId = id
+    fun withParent(parent: Advancement) {
+        this.parent = parent
     }
 
     fun withTitle(title: String) {
@@ -96,7 +96,7 @@ class AdvancementBuilder(val id: String) {
 
     fun build(): Advancement {
         return Advancement(
-            id, parentId, AdvancementDisplay(
+            id, parent, AdvancementDisplay(
                 title.toComponent(), description.toComponent(), icon, frame, showToast, isHidden, background, x, y
             ), requirements
         )
