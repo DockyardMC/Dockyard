@@ -17,9 +17,10 @@ data class Advancement(
 ) : NetworkWritable, Viewable() {
 
     private val innerChildren = mutableListOf<Advancement>()
-    val children get() = synchronized(innerChildren) {
-        innerChildren.toList()
-    }
+    val children
+        get() = synchronized(innerChildren) {
+            innerChildren.toList()
+        }
 
     override var autoViewable: Boolean = false
 
@@ -49,6 +50,7 @@ data class Advancement(
         this.parent?.addViewer(player)
 
         player.advancementTracker.onAdvancementAdded(this)
+        viewers.add(player)
     }
 
     /**
@@ -64,6 +66,7 @@ data class Advancement(
         }
 
         player.advancementTracker.onAdvancementRemoved(this)
+        viewers.remove(player)
     }
 }
 
