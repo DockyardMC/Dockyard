@@ -5,10 +5,9 @@ import io.github.dockyardmc.maths.vectors.Vector2f
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.RegistryBlock
-import io.github.dockyardmc.scroll.extensions.toComponent
 
 /**
- * Build the [Advancement] WITH [AdvancementDisplay]
+ * Build the [Advancement]
  */
 class AdvancementBuilder(val id: String) {
     var parent: Advancement? = null
@@ -102,9 +101,7 @@ class AdvancementBuilder(val id: String) {
 
     fun build(): Advancement {
         return Advancement(
-            id, parent, AdvancementDisplay(
-                title.toComponent(), description.toComponent(), icon, frame, showToast, isHidden, background, x, y
-            ), requirements
+            id, parent, title, description, icon, frame, showToast, isHidden, background, x, y, requirements
         )
     }
 }

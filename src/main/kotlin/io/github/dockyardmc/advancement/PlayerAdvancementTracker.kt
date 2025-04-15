@@ -34,7 +34,7 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
 
         val timestamp = Clock.System.now().epochSeconds
 
-        advancement.requirements.flatten().forEach { criterion ->
+        advancement.requirements.values.flatten().forEach { criterion ->
             progress[criterion] = timestamp
         }
 
