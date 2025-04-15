@@ -54,6 +54,19 @@ data class Advancement(
     }
 
     /**
+     * Adds the player as a viewer
+     * to this advancement and ALL children
+     * recursively
+     */
+    fun addAll(player: Player) {
+        addViewer(player)
+
+        children.forEach { child ->
+            child.addAll(player)
+        }
+    }
+
+    /**
      * Removes the player-viewer from this advancement
      * and all children
      */
