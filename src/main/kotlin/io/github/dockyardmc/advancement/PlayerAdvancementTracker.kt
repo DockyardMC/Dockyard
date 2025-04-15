@@ -1,5 +1,6 @@
 package io.github.dockyardmc.advancement
 
+import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.events.Event
 import io.github.dockyardmc.events.EventListener
 import io.github.dockyardmc.events.Events
@@ -24,15 +25,14 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
      * Setting to this will send the packet to client
      * and update the tab on their end
      */
-    var selectedTab: String? = null
-        set(value) {
-            if (field != value) {
-                player.sendPacket(ClientboundSelectAdvancementsTabPacket(value))
-            }
-            field = value
-        }
+    var selectedTab = Bindable<String?>(null)
 
     init {
+        selectedTab.valueChanged {
+            if (it.oldValue != it.newValue) {
+                player.sendPacket(ClientboundSelectAdvancementsTabPacket(it.newValue))
+            }
+        }
         var listener: EventListener<Event>? = null
 
         listener = Events.on<PlayerLoadedEvent> {

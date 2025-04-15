@@ -18,11 +18,11 @@ class ServerboundSelectAdvancementsTabPacket(val action: Action, val identifier:
         Events.dispatch(event)
 
         if(event.cancelled) {
-            player.sendPacket(ClientboundSelectAdvancementsTabPacket(player.advancementTracker.selectedTab))
+            player.sendPacket(ClientboundSelectAdvancementsTabPacket(player.advancementTracker.selectedTab.value))
             return
         }
 
-        player.advancementTracker.selectedTab = event.tabId
+        player.advancementTracker.selectedTab.value = event.tabId
     }
 
     companion object {
