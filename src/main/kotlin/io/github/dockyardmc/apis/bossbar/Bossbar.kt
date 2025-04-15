@@ -44,7 +44,7 @@ class Bossbar(
 
     override fun dispose() {
         eventPool.dispose()
-        viewers.toList().forEach(viewers::remove)
+        viewers.toList().forEach(::removeViewer)
     }
 
     override fun addViewer(player: Player) {
