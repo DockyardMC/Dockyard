@@ -88,6 +88,20 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
     }
 
     /**
+     * @return All progress of the advancement as a map
+     * criteriaName -> timestamp?
+     */
+    fun getProgress(advId: String): Map<String, Long?>? {
+        return progress[advId]?.toMap()
+    }
+
+    /**
+     * @return All progress of the advancement as a map
+     * criteriaName -> timestamp?
+     */
+    fun getProgress(adv: Advancement) = getProgress(adv.id)
+
+    /**
      * @return whether something changed or not
      */
     fun grantCriterion(advId: String, criterion: String): Boolean {
