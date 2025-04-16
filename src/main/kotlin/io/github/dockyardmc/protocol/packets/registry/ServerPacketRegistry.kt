@@ -83,7 +83,7 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("set recipe book seen")
         skipPlay("name item")
         addPlay(ServerboundResourcepackResponsePacket::class)
-        skipPlay("advancement tab")
+        addPlay(ServerboundSelectAdvancementsTabPacket::class)
         skipPlay("select trade")
         skipPlay("set beacon effect")
         addPlay(ServerboundSetPlayerHeldItemPacket::class)
