@@ -8,6 +8,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityE
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRemoveEntityEffectPacket
 import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.registries.PotionEffect
+import io.github.dockyardmc.scheduler.runnables.inWholeMinecraftTicks
 import io.github.dockyardmc.utils.ticksToMs
 
 class EntityPotionEffectsHandler(override val entity: Entity) : TickableEntityHandler {
@@ -19,7 +20,7 @@ class EntityPotionEffectsHandler(override val entity: Entity) : TickableEntityHa
                 entity,
                 it.value.effect,
                 it.value.settings.amplifier,
-                it.value.settings.duration,
+                it.value.settings.duration.inWholeMinecraftTicks,
                 it.value.settings.showParticles,
                 it.value.settings.isAmbient,
                 it.value.settings.showIcon
@@ -40,8 +41,8 @@ class EntityPotionEffectsHandler(override val entity: Entity) : TickableEntityHa
 
     override fun tick() {
         entity.potionEffects.values.forEach { effect ->
-            if(effect.value.settings.duration == -1) return@forEach
-            if (System.currentTimeMillis() >= effect.value.startTime!! + ticksToMs(effect.value.settings.duration)) {
+            if(effect.value.settings.duration.isInfinite()) return@forEach
+            if (System.currentTimeMillis() >= effect.value.startTime!! + ticksToMs(effect.value.settings.duration.inWholeMinecraftTicks)) {
                 entity.potionEffects.remove(effect.key)
             }
         }

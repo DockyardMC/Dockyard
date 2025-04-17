@@ -157,6 +157,12 @@ object CommandHandler {
                         ?: throw CommandException("$value is not valid Particle in the registry!")
                 }
 
+                PotionEffect::class -> {
+                    PotionEffectRegistry.getOrNull(value)
+                        ?: throw CommandException("$value is not valid Potion Effect in the registry!")
+                }
+
+
                 else -> null
             }
         }

@@ -5,7 +5,10 @@ import io.github.dockyardmc.extentions.writeOptionalOLD
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.registry.registries.PotionEffectRegistry
+import io.github.dockyardmc.scheduler.runnables.inWholeMinecraftTicks
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.netty.buffer.ByteBuf
+import kotlin.time.Duration
 
 object PotionEffects {
     val SPEED = PotionEffectRegistry["minecraft:speed"]
@@ -57,7 +60,7 @@ data class AppliedPotionEffect(
 
 data class AppliedPotionEffectSettings(
     val amplifier: Int,
-    val duration: Int,
+    val duration: Duration,
     val isAmbient: Boolean,
     val showParticles: Boolean,
     val showIcon: Boolean,
@@ -75,13 +78,13 @@ data class AppliedPotionEffectSettings(
             if(buffer.readBoolean()) {
                 hiddenEffect = read(buffer)
             }
-            return AppliedPotionEffectSettings(amplifier, duration, isAmbient, showParticles, showIcon, hiddenEffect)
+            return AppliedPotionEffectSettings(amplifier, duration.ticks(), isAmbient, showParticles, showIcon, hiddenEffect)
         }
     }
 
     fun write(buffer: ByteBuf) {
         buffer.writeVarInt(amplifier)
-        buffer.writeVarInt(duration)
+        buffer.writeVarInt(duration.inWholeMinecraftTicks)
         buffer.writeBoolean(isAmbient)
         buffer.writeBoolean(showIcon)
         buffer.writeBoolean(showIcon)

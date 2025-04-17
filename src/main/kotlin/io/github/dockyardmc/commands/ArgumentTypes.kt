@@ -6,6 +6,7 @@ import io.github.dockyardmc.extentions.writeVarIntEnum
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.Particle
+import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
@@ -50,6 +51,16 @@ class SoundArgument(
 
     override fun write(buffer: ByteBuf) {
         buffer.writeString("minecraft:sound")
+    }
+}
+
+class PotionEffectArgument(
+): CommandArgument {
+    override var expectedType: KClass<*> = PotionEffect::class
+    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.RESOURCE
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeString("minecraft:effect")
     }
 }
 

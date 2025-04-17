@@ -51,7 +51,6 @@ class UpdateChecker {
         client.sendAsync(request, BodyHandlers.ofString()).thenAccept { res ->
             val latestVersion = Json.decodeFromString<ReposliteResponse>(res.body()).name.replace("dockyard-", "").replace(".jar", "")
             val status = compareVersions(DockyardServer.versionInfo.dockyardVersion, latestVersion)
-            log("$status, ${DockyardServer.versionInfo.dockyardVersion} - $latestVersion ")
             when(status) {
                 CurrentVersionStatus.OUTDATED -> {
                     log("You are currently running an outdated DockyardMC version. Consider updating to the latest ($latestVersion)", LOG_TYPE)

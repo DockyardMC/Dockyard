@@ -16,6 +16,7 @@ class DefaultCommands: DefaultImplementationModule {
         SchedulerCommand()
         ClearCommand()
         ListCommand()
+        EffectCommand()
         if(ConfigManager.config.debug) {
             DebugCommand()
         }
