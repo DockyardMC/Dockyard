@@ -2,6 +2,7 @@ package io.github.dockyardmc.apis.bossbar
 
 import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.events.EventPool
+import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.BossbarPacketAction
@@ -40,6 +41,11 @@ class Bossbar(
         progress.valueChanged { viewers.sendPacket(ClientboundBossbarPacket(BossbarPacketAction.UPDATE_HEALTH, this)) }
         color.valueChanged { viewers.sendPacket(ClientboundBossbarPacket(BossbarPacketAction.UPDATE_STYLE, this)) }
         notches.valueChanged { viewers.sendPacket(ClientboundBossbarPacket(BossbarPacketAction.UPDATE_STYLE, this)) }
+
+        eventPool.on<PlayerLeaveEvent> { event ->
+            if(!viewers.contains(event.player)) return@on
+            removeViewer(event.player)
+        }
     }
 
     override fun dispose() {
