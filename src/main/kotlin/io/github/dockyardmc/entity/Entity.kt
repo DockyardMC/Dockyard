@@ -26,6 +26,7 @@ import io.github.dockyardmc.registry.DamageTypes
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.PotionEffect
+import io.github.dockyardmc.scheduler.runnables.inWholeMinecraftTicks
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
@@ -40,6 +41,7 @@ import io.github.dockyardmc.world.chunk.ChunkPos
 import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.time.Duration
 
 abstract class Entity(open var location: Location, open var world: World) : Disposable, Viewable() {
 
@@ -60,7 +62,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val customNameVisible: Bindable<Boolean> = bindablePool.provideBindable(false)
     val metadata: BindableMap<EntityMetadataType, EntityMetadata> = bindablePool.provideBindableMap()
     val pose: Bindable<EntityPose> = bindablePool.provideBindable(EntityPose.STANDING)
-    val walkSpeed: Bindable<Float> = bindablePool.provideBindable(0.15f)
     val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = bindablePool.provideBindableMap()
     val isOnFire: Bindable<Boolean> = bindablePool.provideBindable(false)
     val freezeTicks: Bindable<Int> = bindablePool.provideBindable(0)
@@ -112,9 +113,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             customNameVisible = customNameVisible,
             stuckArrows = stuckArrows,
         )
-
-        //TODO add attribute modifiers
-        walkSpeed.valueChanged {}
 
         team.valueChanged {
             if (it.newValue != null && !TeamManager.teams.values.containsKey(it.newValue!!.name)) throw IllegalArgumentException(
@@ -262,9 +260,9 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         if (event.cancelled) return
         if (isDead) return
 
-        var location: Location? = null
-        if (attacker != null) location = attacker.location
-        if (projectile != null) location = projectile.location
+//        var location: Location?
+//        if (attacker != null) location = attacker.location
+//        if (projectile != null) location = projectile.location
 
         if (event.damage > 0) {
             playDamageAnimation(damageType)
@@ -299,7 +297,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             return
         }
         isDead = true
-        health.value = 0f;
+        health.value = 0f
         playDeathAnimation()
         world.scheduler.runLater(20.ticks) {
             world.despawnEntity(this)
@@ -325,7 +323,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     fun addPotionEffect(
         effect: PotionEffect,
-        duration: Int,
+        duration: Duration,
         amplifier: Int = 1,
         showParticles: Boolean = false,
         showBlueBorder: Boolean = false,
@@ -353,15 +351,15 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     fun sendPotionEffectsPacket(player: Player) {
-        potionEffects.values.values.forEach {
+        potionEffects.values.values.forEach { effect ->
             val packet = ClientboundEntityEffectPacket(
                 this,
-                it.effect,
-                it.settings.amplifier,
-                it.settings.duration,
-                it.settings.showParticles,
-                it.settings.isAmbient,
-                it.settings.showIcon
+                effect.effect,
+                effect.settings.amplifier,
+                effect.settings.duration.inWholeMinecraftTicks,
+                effect.settings.showParticles,
+                effect.settings.isAmbient,
+                effect.settings.showIcon
             )
             player.sendPacket(packet)
         }
@@ -394,6 +392,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         metadataLayers.clear()
         passengers.values.forEach(passengers::removeIfPresent)
         bindablePool.dispose()
-        EntityManager.despawnEntity(this)
+        despawnEntity(this)
     }
 }
