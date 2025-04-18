@@ -11,9 +11,7 @@ import kotlin.time.Duration
 abstract class RollingCounter<T> {
     abstract val innerValue: Bindable<T>
 
-    abstract fun add(value: T)
-    abstract fun remove(value: T)
-    abstract fun set(value: T)
+    abstract var displayValue: T
 
     var isRollingProportional: Boolean = false
 
@@ -21,9 +19,11 @@ abstract class RollingCounter<T> {
 
     var rollingEasing: Easing = Easing.OUT_QUAD
 
-    val displayedCount: T get() = innerValue.value
+    protected val animationProvider: AnimationProvider = AnimationProvider()
 
-    abstract fun getProportionalRollDuration(current: T, new: T): Duration
+    protected abstract fun getProportionalRollDuration(current: T, new: T): Duration
+
+    protected abstract fun interpolate(start: T, end: T, progress: Float): T
 
     enum class Easing(val transform: (t: Float) -> Float) {
         IN_SINE({ value -> 1 - cos(value * PI.toFloat() / 2f) }),

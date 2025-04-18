@@ -19,7 +19,7 @@ class GlobalScheduler(name: String) : Scheduler(name) {
 }
 
 @JvmName("runLaterAsyncTyped")
-fun <T> runLaterAsync(duration: Duration, unit: () -> T): CompletableFuture<T> {
+fun <T> runLaterAsync(duration: Duration, unit: (AsyncSchedulerTask<T>) -> T): CompletableFuture<T> {
     return DockyardServer.scheduler.runLaterAsync(duration, unit)
 }
 
@@ -30,16 +30,16 @@ fun <T> runAsync(unit: () -> T): CompletableFuture<T> {
 
 
 @JvmName("runLaterAsyncTypedTicks")
-fun <T> runLaterAsync(ticks: Int, unit: () -> T): CompletableFuture<T> {
+fun <T> runLaterAsync(ticks: Int, unit: (AsyncSchedulerTask<T>) -> T): CompletableFuture<T> {
     return DockyardServer.scheduler.runLaterAsync(ticks.ticks, unit)
 }
 
 @JvmName("runLaterAsyncVoid")
-fun runLaterAsync(duration: Duration, unit: () -> Unit): CompletableFuture<Unit> {
+fun runLaterAsync(duration: Duration, unit: (AsyncSchedulerTask<Unit>) -> Unit): CompletableFuture<Unit> {
     return DockyardServer.scheduler.runLaterAsync<Unit>(duration, unit)
 }
 
 @JvmName("runLaterAsyncVoidTicks")
-fun runLaterAsync(ticks: Int, unit: () -> Unit): CompletableFuture<Unit> {
+fun runLaterAsync(ticks: Int, unit: (AsyncSchedulerTask<Unit>) -> Unit): CompletableFuture<Unit> {
     return DockyardServer.scheduler.runLaterAsync<Unit>(ticks.ticks, unit)
 }
