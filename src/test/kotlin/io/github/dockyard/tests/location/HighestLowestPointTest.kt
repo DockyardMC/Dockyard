@@ -52,6 +52,7 @@ class HighestLowestPointTest {
         assertEquals(zeroZeroZero, zeroZeroZero.closestNonAirAbove?.second)
 
         world.setBlock(0, 0, 0, Blocks.AIR)
+        world.setBlock(0, 1, 0, Blocks.AIR)
         world.setBlock(0, 30, 0, Blocks.STONE)
 
         assertEquals(world.locationAt(0, 30, 0), zeroZeroZero.closestNonAirAbove?.second)

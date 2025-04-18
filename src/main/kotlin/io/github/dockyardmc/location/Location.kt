@@ -137,7 +137,6 @@ class Location(
         return this.yaw.compareTo(yaw) == 0 && this.pitch.compareTo(pitch) == 0
     }
 
-
     fun setDirection(vector: Vector3d): Location {
         val loc = this.clone()
         val x = vector.x
