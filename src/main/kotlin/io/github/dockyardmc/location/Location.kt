@@ -2,12 +2,13 @@ package io.github.dockyardmc.location
 
 import io.github.dockyardmc.apis.bounds.Bound
 import io.github.dockyardmc.extentions.truncate
-import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.maths.vectors.Vector2f
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.world.World
+import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.chunk.Chunk
 import io.netty.buffer.ByteBuf
 import kotlin.math.*
@@ -21,25 +22,25 @@ class Location(
     var world: World,
 ) {
 
-    constructor(x: Int, y: Int, z: Int, yaw: Float = 0f, pitch: Float = 0f, world: World):
+    constructor(x: Int, y: Int, z: Int, yaw: Float = 0f, pitch: Float = 0f, world: World) :
             this(x.toDouble(), y.toDouble(), z.toDouble(), yaw, pitch, world)
 
-    constructor(x: Int, y: Int, z: Int, world: World):
+    constructor(x: Int, y: Int, z: Int, world: World) :
             this(x.toDouble(), y.toDouble(), z.toDouble(), 0f, 0f, world)
 
-    constructor(x: Float, y: Float, z: Float, world: World):
+    constructor(x: Float, y: Float, z: Float, world: World) :
             this(x.toDouble(), y.toDouble(), z.toDouble(), 0f, 0f, world)
 
-    constructor(x: Double, y: Double, z: Double, world: World):
+    constructor(x: Double, y: Double, z: Double, world: World) :
             this(x, y, z, 0f, 0f, world)
 
-    constructor(vector: Vector3, yaw: Float, pitch: Float, world: World):
+    constructor(vector: Vector3, yaw: Float, pitch: Float, world: World) :
             this(vector.x, vector.y, vector.z, yaw, pitch, world)
 
-    constructor(vector: Vector3d, yaw: Float, pitch: Float, world: World):
+    constructor(vector: Vector3d, yaw: Float, pitch: Float, world: World) :
             this(vector.x, vector.y, vector.z, yaw, pitch, world)
 
-    constructor(vector: Vector3f, yaw: Float, pitch: Float, world: World):
+    constructor(vector: Vector3f, yaw: Float, pitch: Float, world: World) :
             this(vector.x.toDouble(), vector.y.toDouble(), vector.z.toDouble(), yaw, pitch, world)
 
     val blockX: Int get() = floor(x).toInt()
@@ -51,7 +52,7 @@ class Location(
     val fullZ: Int get() = ceil(z).toInt()
 
     override fun equals(other: Any?): Boolean {
-        if(other == null || other !is Location) return false
+        if (other == null || other !is Location) return false
         return x == other.x &&
                 y == other.y &&
                 z == other.z &&
@@ -106,7 +107,7 @@ class Location(
 
     fun getDirection(noPitch: Boolean = false): Vector3d {
         val rotX = yaw
-        val rotY = if(noPitch) 0.0 else pitch
+        val rotY = if (noPitch) 0.0 else pitch
         val xz = cos(Math.toRadians(rotY.toDouble()))
         return Vector3d(
             -xz * sin(Math.toRadians(rotX.toDouble())),
@@ -136,7 +137,6 @@ class Location(
         return this.yaw.compareTo(yaw) == 0 && this.pitch.compareTo(pitch) == 0
     }
 
-
     fun setDirection(vector: Vector3d): Location {
         val loc = this.clone()
         val x = vector.x
@@ -163,14 +163,14 @@ class Location(
     fun withNoRotation(): Location = this.clone().apply { yaw = 0f; pitch = 0f }
 
     val length: Double get() = sqrt(x * x + y * y + z * z)
-    val block: io.github.dockyardmc.world.block.Block get() = world.getBlock(this)
+    val block: Block get() = world.getBlock(this)
 
     fun toVector3(): Vector3 = Vector3(x.toInt(), y.toInt(), z.toInt())
     fun toVector3f(): Vector3f = Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
     fun toVector3d(): Vector3d = Vector3d(x, y, z)
 
     val blockHash: Int get() = (blockX.hashCode() + blockY.hashCode() + blockZ.hashCode() + world.name.hashCode())
-    fun equalsBlock(location: Location): Boolean  = this.blockHash == location.blockHash
+    fun equalsBlock(location: Location): Boolean = this.blockHash == location.blockHash
 
     fun sameBlock(point: Vector3): Boolean {
         return sameBlock(point.x, point.y, point.z)
@@ -180,7 +180,7 @@ class Location(
         return this.blockX == blockX && this.blockY == blockY && this.blockZ == blockZ
     }
 
-    fun setBlock(block: io.github.dockyardmc.world.block.Block) {
+    fun setBlock(block: Block) {
         world.setBlock(this, block)
     }
 
@@ -224,12 +224,73 @@ class Location(
 
         return locations
     }
+
+    val closestNonAirBelow: Pair<Block, Location>?
+        get() {
+            val minY = world.dimensionType.minY
+            val startY = this.blockY
+
+            for (y in startY downTo minY) {
+                val blockLoc = world.locationAt(this.blockX, y, this.blockZ)
+                val block = world.getBlock(blockLoc)
+                if (!block.isAir()) {
+                    return block to blockLoc
+                }
+            }
+            return null
+        }
+
+    val closestSolidBelow: Pair<Block, Location>?
+        get() {
+            val minY = world.dimensionType.minY
+            val startY = this.blockY
+
+            for (y in startY downTo minY) {
+                val blockLoc = world.locationAt(this.blockX, y, this.blockZ)
+                val block = world.getBlock(blockLoc)
+                if (block.registryBlock.isSolid) {
+                    return block to blockLoc
+                }
+            }
+            return null
+        }
+
+    val closestNonAirAbove: Pair<Block, Location>?
+        get() {
+            val maxY = world.dimensionType.height - 1
+            val startY = this.blockY
+
+            for (y in maxY downTo startY) {
+                val blockLoc = world.locationAt(this.blockX, y, this.blockZ)
+                val block = world.getBlock(blockLoc)
+                if (!block.isAir()) {
+                    return block to blockLoc
+                }
+            }
+            return null
+        }
+
+    val closestSolidAbove: Pair<Block, Location>?
+        get() {
+            val maxY = world.dimensionType.height - 1
+            val startY = this.blockY
+
+            for (y in maxY downTo startY) {
+                val blockLoc = world.locationAt(this.blockX, y, this.blockZ)
+                val block = world.getBlock(blockLoc)
+                if (block.registryBlock.isSolid) {
+                    return block to blockLoc
+                }
+            }
+            return null
+        }
+
 }
 
 fun ByteBuf.writeRotation(location: Location, delta: Boolean) {
-    if(delta) {
-        this.writeByte((location.pitch  * 256f / 360f).toInt())
-        this.writeByte((location.yaw  * 256f / 360f).toInt())
+    if (delta) {
+        this.writeByte((location.pitch * 256f / 360f).toInt())
+        this.writeByte((location.yaw * 256f / 360f).toInt())
     } else {
         this.writeFloat(location.yaw)
         this.writeFloat(location.pitch)
