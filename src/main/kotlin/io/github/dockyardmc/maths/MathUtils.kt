@@ -140,3 +140,7 @@ fun chunkInSpiral(id: Int, xOffset: Int = 0, zOffset: Int = 0): Pair<Int, Int> {
         else -> 0 to 0
     }
 }
+
+fun sin(float: Float): Float {
+    return sin(float.toDouble()).toFloat()
+}

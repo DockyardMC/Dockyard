@@ -4,7 +4,7 @@ import io.github.dockyardmc.scheduler.SchedulerTask.Status
 import io.github.dockyardmc.scheduler.SchedulerTask.Type
 import java.util.concurrent.CompletableFuture
 
-class AsyncSchedulerTask<T>(val task: (() -> T), val type: Type, val name: String? = null) {
+class AsyncSchedulerTask<T>(val task: ((AsyncSchedulerTask<T>) -> T), val type: Type, val name: String? = null) {
 
     private var innerStatus = Status.WAITING
     val status get() = innerStatus
@@ -15,9 +15,9 @@ class AsyncSchedulerTask<T>(val task: (() -> T), val type: Type, val name: Strin
     fun run(tick: Long) {
         innerStatus = Status.RUNNING
         try {
-            innerStatus = Status.FINISHED
-            val t = task.invoke()
+            val t = task.invoke(this)
             future.complete(t)
+            innerStatus = Status.FINISHED
         } catch (ex: Exception) {
             innerStatus = Status.THROW
             future.completeExceptionally(ex)
