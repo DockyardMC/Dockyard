@@ -4,7 +4,6 @@ import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.world.WorldManager
-import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,10 +13,6 @@ class HighestLowestPointTest {
     @BeforeTest
     fun prepare() {
         TestServer.getOrSetupServer()
-    }
-
-    @AfterTest
-    fun cleanup() {
     }
 
     @Test
