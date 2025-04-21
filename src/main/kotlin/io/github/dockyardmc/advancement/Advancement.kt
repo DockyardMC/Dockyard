@@ -12,6 +12,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.Viewable
 import io.netty.buffer.ByteBuf
 import kotlin.properties.Delegates
@@ -31,7 +32,7 @@ class Advancement(
     y: Float,
 
     requirements: List<List<String>>,
-) : NetworkWritable, Viewable() {
+) : NetworkWritable, Viewable(), Disposable {
 
     var id by Delegates.observable(id) { _, _, _ -> update() }
     var parent by Delegates.observable(parent) { _, _, _ -> update() }
@@ -150,7 +151,7 @@ class Advancement(
 
     fun getFlags(): Int {
         var flags = 0x0
-        if (background!= null) {
+        if (background != null) {
             flags = flags or HAS_BACKGROUND_TEXTURE
         }
         if (showToast) {
@@ -167,5 +168,21 @@ class Advancement(
         const val SHOW_TOAST = 0x02
         const val HIDDEN = 0x04
     }
-}
 
+    /**
+     * Deletes this advancement and its children
+     */
+    override fun dispose() {
+        this.parent?.innerChildren?.remove(this)
+
+        while (viewers.isNotEmpty()) {
+            removeViewer(viewers.first())
+        }
+
+        while (innerChildren.isNotEmpty()) {
+            innerChildren.removeFirstOrNull()?.parent = null
+        }
+
+        this.parent = null
+    }
+}
