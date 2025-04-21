@@ -61,7 +61,7 @@ class AdvancementBuilder(val id: String) {
      *
      * Some examples:
      * - `minecraft:textures/item/stick.png`
-     * - `minecraft:textures/block/`
+     * - `minecraft:textures/block/netherrack.png`
      * - `minecraft:textures/gui/book.png` (looks bad but works)
      */
     fun withBackground(background: String?) {

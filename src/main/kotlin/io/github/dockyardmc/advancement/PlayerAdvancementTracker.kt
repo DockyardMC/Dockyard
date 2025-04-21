@@ -102,6 +102,8 @@ class PlayerAdvancementTracker(val player: Player) {
     }
 
     internal fun onAdvancementRemoved(adv: Advancement) {
+        progress.remove(adv.id)
+
         this.player.sendPacket(makePacket(remove = listOf(adv.id)))
     }
 }
