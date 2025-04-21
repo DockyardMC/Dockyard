@@ -555,7 +555,6 @@ class Player(
     override fun dispose() {
         decoupledEntityViewSystemTicking.cancel()
         attributes.dispose()
-        advancementTracker.dispose()
         super.dispose()
     }
 }

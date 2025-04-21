@@ -1,6 +1,8 @@
 package io.github.dockyardmc.advancement
 
 import cz.lukynka.bindables.BindableList
+import io.github.dockyardmc.events.EventPool
+import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeStringArray
 import io.github.dockyardmc.extentions.writeTextComponent
@@ -53,6 +55,8 @@ class Advancement(
 
     override var autoViewable: Boolean = false
 
+    private val eventPool = EventPool()
+
     init {
         if (icon.material == Items.AIR) throw IllegalArgumentException("advancement icon can't be air")
 
@@ -63,6 +67,10 @@ class Advancement(
         }
 
         this.requirements.listUpdated { update() }
+
+        eventPool.on<PlayerLeaveEvent> { event ->
+            removeViewer(event.player)
+        }
     }
 
     fun update() {
@@ -100,6 +108,8 @@ class Advancement(
      * and all parents, all the way to root
      */
     override fun addViewer(player: Player) {
+        if (viewers.contains(player)) return
+
         // parents first
         this.parent?.addViewer(player)
 
@@ -125,6 +135,8 @@ class Advancement(
      * and all children
      */
     override fun removeViewer(player: Player) {
+        if (!viewers.contains(player)) return
+
         // children first
         synchronized(this.innerChildren) {
             this.innerChildren.forEach { child ->

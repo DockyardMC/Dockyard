@@ -4,14 +4,12 @@ import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSelectAdvancementsTabPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateAdvancementsPacket
-import io.github.dockyardmc.utils.Disposable
 import kotlinx.datetime.Clock
 import kotlin.collections.set
 
-class PlayerAdvancementTracker(val player: Player) : Disposable {
+class PlayerAdvancementTracker(val player: Player) {
 
     private val progress = mutableMapOf<String, MutableMap<String, Long>>()
-    private val visible = mutableSetOf<Advancement>()
 
     /**
      * Currently selected advancement tab
@@ -100,19 +98,11 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
     internal fun onAdvancementAdded(adv: Advancement) {
         progress[adv.id] = mutableMapOf<String, Long>()
 
-        this.visible.add(adv)
         this.player.sendPacket(makePacket(add = mapOf(adv.id to adv)))
     }
 
     internal fun onAdvancementRemoved(adv: Advancement) {
-        this.visible.remove(adv)
         this.player.sendPacket(makePacket(remove = listOf(adv.id)))
-    }
-
-    override fun dispose() {
-        visible.toList().forEach { advancement ->
-            advancement.removeViewer(this.player)
-        }
     }
 }
 
