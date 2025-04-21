@@ -109,20 +109,20 @@ class PlayerAdvancementTracker(val player: Player) : Disposable {
         this.player.sendPacket(makePacket(remove = listOf(adv.id)))
     }
 
-    fun makePacket(
-        clear: Boolean = false,
-        add: Map<String, Advancement> = mapOf(),
-        remove: Collection<String> = listOf(),
-        progress: Map<String, Map<String, Long?>> = mapOf()
-    ): ClientboundUpdateAdvancementsPacket {
-        return ClientboundUpdateAdvancementsPacket(
-            clear, add, remove, progress
-        )
-    }
-
     override fun dispose() {
         visible.toList().forEach { advancement ->
             advancement.removeViewer(this.player)
         }
     }
+}
+
+fun makePacket(
+    clear: Boolean = false,
+    add: Map<String, Advancement> = mapOf(),
+    remove: Collection<String> = listOf(),
+    progress: Map<String, Map<String, Long?>> = mapOf()
+): ClientboundUpdateAdvancementsPacket {
+    return ClientboundUpdateAdvancementsPacket(
+        clear, add, remove, progress
+    )
 }
