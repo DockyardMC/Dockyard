@@ -5,6 +5,7 @@ import com.viaversion.viaversion.exception.CancelCodecException
 import com.viaversion.viaversion.exception.CancelDecoderException
 import com.viaversion.viaversion.util.ByteBufUtil
 import com.viaversion.viaversion.util.PipelineUtil
+import cz.lukynka.prettylog.log
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandlerContext
@@ -35,6 +36,7 @@ class ViaDecodeHandler(val user: UserConnection): MessageToMessageDecoder<ByteBu
             super.channelRead(ctx, msg)
         } catch (exception: Exception) {
             if(!PipelineUtil.containsCause(exception, CancelCodecException::class.java)) {
+                log(exception)
                 throw exception
             }
         }

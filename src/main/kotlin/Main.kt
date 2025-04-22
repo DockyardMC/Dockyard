@@ -21,7 +21,7 @@ import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientI
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.PotionEffectRegistry
-import io.github.dockyardmc.server.DockyardViaProxyAdapter
+import io.github.dockyardmc.server.via.DockyardViaVersionPlatform
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugSidebar
 import kotlin.time.Duration.Companion.seconds
@@ -33,12 +33,12 @@ fun suggestPotionEffects(player: Player): List<String> {
 fun main() {
     val server = DockyardServer {
         withIp("0.0.0.0")
-        withPort(25566)
+        withPort(25565)
         useDebugMode(true)
         useMojangAuth(true)
     }
 
-    DockyardViaProxyAdapter.run()
+    DockyardViaVersionPlatform()
 
     Events.on<PlayerJoinEvent> { event ->
         val player = event.player

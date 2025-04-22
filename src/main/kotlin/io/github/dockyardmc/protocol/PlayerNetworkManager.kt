@@ -20,6 +20,7 @@ import io.github.dockyardmc.protocol.packets.play.PlayHandler
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisconnectPacket
 import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.server.ServerMetrics
+import io.github.dockyardmc.server.via.DockyardViaInjector
 import io.github.dockyardmc.utils.debug
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
@@ -32,6 +33,7 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
 
     lateinit var player: Player
     lateinit var address: String
+    lateinit var connection: ChannelHandlerContext
     var playerProtocolVersion: Int = 0
     var respondedToLastKeepAlive = true
 
@@ -45,6 +47,10 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
 
     override fun channelRead(connection: ChannelHandlerContext, msg: Any) {
         if (!this::address.isInitialized) address = connection.channel().remoteAddress().address
+        if (!this::connection.isInitialized) {
+            this.connection = connection
+            DockyardViaInjector.injectPipeline(connection.channel(), false) //TODO(config), TODO(clientside)
+        }
 
         val packet = msg as WrappedServerboundPacket
 

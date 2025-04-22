@@ -14,6 +14,7 @@ import io.github.dockyardmc.protocol.encoders.RawPacketEncoder
 import io.github.dockyardmc.utils.isAddressInUse
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelInitializer
+import io.netty.channel.ChannelPipeline
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
@@ -25,6 +26,7 @@ class NettyServer(val instance: DockyardServer) {
 
     private val bossGroup = NioEventLoopGroup()
     private val workerGroup = NioEventLoopGroup()
+    lateinit var pipeline: ChannelPipeline
 
     fun start(): CompletableFuture<Void> {
         return CompletableFuture.supplyAsync {
@@ -34,7 +36,7 @@ class NettyServer(val instance: DockyardServer) {
                 .childHandler(object : ChannelInitializer<SocketChannel>() {
                     override fun initChannel(ch: SocketChannel) {
                         val playerNetworkManager = PlayerNetworkManager()
-                        val pipeline = ch.pipeline()
+                        pipeline = ch.pipeline()
                             //encoders
                             .addFirst(ChannelHandlers.RAW_PACKET_ENCODER, RawPacketEncoder())
                             .addFirst(ChannelHandlers.RAW_PACKET_DECODER, RawPacketDecoder(playerNetworkManager))

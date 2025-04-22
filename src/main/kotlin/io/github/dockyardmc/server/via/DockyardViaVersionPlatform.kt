@@ -7,6 +7,8 @@ import com.viaversion.viaversion.api.configuration.ViaVersionConfig
 import com.viaversion.viaversion.api.platform.PlatformTask
 import com.viaversion.viaversion.api.platform.ProtocolDetectorService
 import com.viaversion.viaversion.api.platform.ViaServerProxyPlatform
+import cz.lukynka.prettylog.AnsiPair
+import cz.lukynka.prettylog.CustomLogType
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.scheduler.AsyncSchedulerTask
@@ -17,12 +19,22 @@ import java.util.logging.Logger
 
 class DockyardViaVersionPlatform: ViaServerProxyPlatform<Player> {
 
-    val config = DockyardViaConfig()
-    val api = Via.init(ViaManagerImpl.builder()
-        .platform(this)
+    companion object {
+        val LOG_TYPE = CustomLogType("\uD83D\uDD0C ViaVersion", AnsiPair.YELLOW_ISH_GREEN)
+    }
 
-        .build()
-    )
+    val config = DockyardViaConfig()
+    val api = DockyardViaApi()
+    val detectorService = ProtocolDetectorService()
+
+    init {
+        Via.init(ViaManagerImpl.builder()
+            .platform(this)
+            .injector(DockyardViaInjector())
+            .loader(DockyardViaLoader())
+            .build()
+        )
+    }
 
     override fun getLogger(): Logger {
         return Logger.getGlobal()
@@ -74,10 +86,11 @@ class DockyardViaVersionPlatform: ViaServerProxyPlatform<Player> {
     }
 
     override fun getApi(): ViaAPI<Player> {
+        return this.api
     }
 
     override fun getConf(): ViaVersionConfig {
-        return CONFIG
+        return this.config
     }
 
     override fun getDataFolder(): File {
@@ -89,6 +102,7 @@ class DockyardViaVersionPlatform: ViaServerProxyPlatform<Player> {
     }
 
     override fun protocolDetectorService(): ProtocolDetectorService {
+        return detectorService
     }
 
     class SchedulerTask(val task: AsyncSchedulerTask<Unit>? = null): PlatformTask<AsyncSchedulerTask<Unit>> {

@@ -12,4 +12,7 @@ object ChannelHandlers {
     const val PACKET_ENCRYPTOR = "packet-encryptor"
 
     const val PLAYER_NETWORK_MANAGER = "player-network-manager"
+
+    const val VIA_DECODER = "via-decoder"
+    const val VIA_ENCODER = "via-encoder"
 }
