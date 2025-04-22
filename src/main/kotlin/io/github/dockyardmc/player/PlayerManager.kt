@@ -55,6 +55,9 @@ object PlayerManager {
         synchronized(innerPlayerToEntityIdMap) {
             innerPlayerToEntityIdMap[player.id] = player
         }
+        synchronized(innerUUIDToPlayerMap) {
+            innerUUIDToPlayerMap[player.uuid] = player
+        }
 
         processor.player = player
         EntityManager.addPlayer(player)
@@ -76,6 +79,9 @@ object PlayerManager {
         }
         synchronized(playerToEntityIdMap) {
             innerPlayerToEntityIdMap.remove(player.id)
+        }
+        synchronized(innerUUIDToPlayerMap) {
+            innerUUIDToPlayerMap.remove(player.uuid)
         }
 
         player.world.removePlayer(player)
