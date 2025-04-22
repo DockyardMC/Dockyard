@@ -17,6 +17,27 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import java.util.UUID
 
+fun <T> MutableList<T>.addAllNonDuplicates(other: Collection<T>) {
+    val nonDuplicates = other.filter { item -> !this.contains(item) }
+    this.addAll(nonDuplicates)
+}
+
+fun Collection<Player>.filterByPermission(permission: String): Collection<Player> {
+    return this.filter { player -> player.hasPermission(permission) }
+}
+
+fun Collection<Player>.addPermission(permission: String) {
+    this.forEach { player ->
+        player.permissions.add(permission)
+    }
+}
+
+fun Collection<Player>.removePermission(permission: String) {
+    this.forEach { player ->
+        player.permissions.remove(permission)
+    }
+}
+
 fun Collection<Player>.teleport(location: Location) {
     this.forEach { player -> player.teleport(location) }
 }

@@ -38,8 +38,6 @@ fun main() {
 
     Events.on<PlayerJoinEvent> { event ->
         val player = event.player
-        player.permissions.add("dockyard.admin")
-        player.permissions.add("dockyard.*")
         player.gameMode.value = GameMode.CREATIVE
         DebugSidebar.sidebar.viewers.add(player)
         player.canFly.value = true
