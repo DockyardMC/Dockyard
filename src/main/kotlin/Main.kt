@@ -45,7 +45,7 @@ fun main() {
         player.canFly.value = true
     }
 
-    val rollingCounter = RollingCounterInt()
+    val rollingCounter = RollingCounterInt(DockyardServer.scheduler)
     rollingCounter.isRollingProportional = false
     rollingCounter.rollingDuration = 5.seconds
     rollingCounter.rollingEasing = RollingCounter.Easing.IN_EXPO
@@ -53,9 +53,8 @@ fun main() {
         PlayerManager.players.sendTitle("<lime>${int}", "", 0, 9999, 0)
     }
 
-    Events.on<ServerTickEvent> {
-        it.serverTicks
-        PlayerManager.players.sendActionBar("<yellow>Counter is at: <lime><bold>${rollingCounter.displayValue}")
+    Events.on<ServerTickEvent> { _ ->
+        PlayerManager.players.sendActionBar("<yellow>Counter is at: <lime><bold>${rollingCounter.animatedDisplayValue}")
     }
 
     Commands.add("/counter") {
@@ -69,7 +68,7 @@ fun main() {
                 val easing = getEnumArgument<RollingCounter.Easing>("easing")
                 rollingCounter.rollingEasing = easing
                 rollingCounter.rollingDuration = time.seconds
-                rollingCounter.innerValue.value = number
+                rollingCounter.value.value = number
             }
         }
     }

@@ -2,16 +2,17 @@ package io.github.dockyardmc.maths.counter
 
 import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.maths.sin
+import io.github.dockyardmc.scheduler.Scheduler
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.time.Duration
 
-abstract class RollingCounter<T> {
-    abstract val innerValue: Bindable<T>
+abstract class RollingCounter<T>(val scheduler: Scheduler) {
+    abstract val value: Bindable<T>
 
-    abstract var displayValue: T
+    abstract var animatedDisplayValue: T
 
     var isRollingProportional: Boolean = false
 
@@ -19,7 +20,7 @@ abstract class RollingCounter<T> {
 
     var rollingEasing: Easing = Easing.OUT_QUAD
 
-    protected val animationProvider: AnimationProvider = AnimationProvider()
+    protected val animationProvider: AnimationProvider = AnimationProvider(scheduler)
 
     protected abstract fun getProportionalRollDuration(current: T, new: T): Duration
 

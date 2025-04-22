@@ -1,12 +1,13 @@
 package io.github.dockyardmc.maths.counter
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.scheduler.Scheduler
 import io.github.dockyardmc.scheduler.SchedulerTask
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.utils.Disposable
 import kotlin.time.Duration
 
-class AnimationProvider : Disposable {
+class AnimationProvider(val scheduler: Scheduler) : Disposable {
     private var running = false
     private var schedulerTask: SchedulerTask? = null
 
@@ -18,7 +19,7 @@ class AnimationProvider : Disposable {
         running = true
         val startTime = System.currentTimeMillis()
 
-        schedulerTask = DockyardServer.scheduler.runRepeating(1.ticks) { task ->
+        schedulerTask = scheduler.runRepeating(1.ticks) { task ->
 
             if (!running) {
                 stop()

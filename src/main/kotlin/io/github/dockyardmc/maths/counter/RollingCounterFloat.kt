@@ -7,20 +7,20 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 
-class RollingCounterInt(scheduler: Scheduler) : RollingCounter<Int>(scheduler) {
+class RollingCounterFloat(scheduler: Scheduler) : RollingCounter<Float>(scheduler) {
 
-    override val value: Bindable<Int> = Bindable<Int>(0)
+    override val value: Bindable<Float> = Bindable<Float>(0f)
 
-    override var animatedDisplayValue: Int = value.value
+    override var animatedDisplayValue: Float = value.value
 
-    override fun getProportionalRollDuration(current: Int, new: Int): Duration {
+    override fun getProportionalRollDuration(current: Float, new: Float): Duration {
         if (!isRollingProportional) return rollingDuration
 
         val difference = abs(new - current)
-        return rollingDuration * difference
+        return rollingDuration * difference.toDouble()
     }
 
-    val rollDispatcher: BindableDispatcher<Int> = BindableDispatcher()
+    val rollDispatcher: BindableDispatcher<Float> = BindableDispatcher()
 
     init {
         value.valueChanged { event ->
@@ -37,7 +37,7 @@ class RollingCounterInt(scheduler: Scheduler) : RollingCounter<Int>(scheduler) {
         }
     }
 
-    override fun interpolate(start: Int, end: Int, progress: Float): Int {
-        return (start + (end - start) * progress).roundToInt()
+    override fun interpolate(start: Float, end: Float, progress: Float): Float {
+        return (start + (end - start) * progress)
     }
 }

@@ -4,23 +4,23 @@ import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableDispatcher
 import io.github.dockyardmc.scheduler.Scheduler
 import kotlin.math.abs
-import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 import kotlin.time.Duration
 
-class RollingCounterInt(scheduler: Scheduler) : RollingCounter<Int>(scheduler) {
+class RollingCounterLong(scheduler: Scheduler) : RollingCounter<Long>(scheduler) {
 
-    override val value: Bindable<Int> = Bindable<Int>(0)
+    override val value: Bindable<Long> = Bindable<Long>(0)
 
-    override var animatedDisplayValue: Int = value.value
+    override var animatedDisplayValue: Long = value.value
 
-    override fun getProportionalRollDuration(current: Int, new: Int): Duration {
+    override fun getProportionalRollDuration(current: Long, new: Long): Duration {
         if (!isRollingProportional) return rollingDuration
 
         val difference = abs(new - current)
-        return rollingDuration * difference
+        return rollingDuration * difference.toInt()
     }
 
-    val rollDispatcher: BindableDispatcher<Int> = BindableDispatcher()
+    val rollDispatcher: BindableDispatcher<Long> = BindableDispatcher()
 
     init {
         value.valueChanged { event ->
@@ -37,7 +37,7 @@ class RollingCounterInt(scheduler: Scheduler) : RollingCounter<Int>(scheduler) {
         }
     }
 
-    override fun interpolate(start: Int, end: Int, progress: Float): Int {
-        return (start + (end - start) * progress).roundToInt()
+    override fun interpolate(start: Long, end: Long, progress: Float): Long {
+        return (start + (end - start) * progress).roundToLong()
     }
 }
