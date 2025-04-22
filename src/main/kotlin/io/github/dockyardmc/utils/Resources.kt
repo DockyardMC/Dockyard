@@ -1,5 +1,7 @@
 package io.github.dockyardmc.utils
 
+import io.github.dockyardmc.DockyardServer.Companion.versionInfo
+import io.github.dockyardmc.registry.registries.MinecraftVersion
 import java.io.InputStream
 
 object Resources {
@@ -29,5 +31,13 @@ object Resources {
         val dockyardVersion: String,
         val gitBranch: String,
         val gitCommit: String
-    )
+    ) {
+        fun getFormatted(minecraftVersion: MinecraftVersion): String {
+            return "${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${minecraftVersion.versionName})"
+        }
+
+        fun getFormatted(): String {
+            return "${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch})"
+        }
+    }
 }

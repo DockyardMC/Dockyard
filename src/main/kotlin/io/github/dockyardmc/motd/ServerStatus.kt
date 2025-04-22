@@ -50,7 +50,7 @@ object ServerStatusManager {
         }
 
         val version = Version(
-            name = DockyardServer.minecraftVersion.versionName,
+            name = "DockyardMC ${DockyardServer.minecraftVersion.versionName}",
             protocol = DockyardServer.minecraftVersion.protocolId,
         )
 
