@@ -1,21 +1,41 @@
 package io.github.dockyardmc.player.permissions
 
-abstract class PermissionHolder(private val getter: () -> List<String>) {
+import io.github.dockyardmc.extentions.addAllNonDuplicates
+
+abstract class PermissionHolder {
+
+    protected val cachedPermissions: MutableList<String> = mutableListOf()
+
+    // includes inherited permissions
+    @JvmName("getCachedPermissionsFunction")
+    fun getCachedPermissions(): List<String> {
+        return cachedPermissions
+    }
+
+
+    fun buildPermissionCache(permissions: Collection<String>) {
+        cachedPermissions.clear()
+
+        permissions.forEach { permission ->
+            if (!permission.startsWith("group")) {
+                cachedPermissions.add(permission)
+            } else {
+
+                val inheritedGroupId = permission.split(".").getOrNull(1) ?: throw IllegalArgumentException("Group inheritance permissions string need be in the following format: `group.<group id>`")
+                val inheritedGroup = PermissionManager[inheritedGroupId]
+
+                cachedPermissions.addAllNonDuplicates(inheritedGroup.getCachedPermissions())
+            }
+        }
+    }
 
     fun hasPermission(permission: String): Boolean {
-        val permissions = getter.invoke()
+        if(permission.isEmpty()) return true
+        if (cachedPermissions.contains(permission)) return true
 
-        if(permission == "*") return true
+        cachedPermissions.forEach { loopPermission ->
+            if (loopPermission == "*") return true
 
-        // legacy, just for backwards support
-        if(permission == "dockyard.admin") return true
-        if(permission == "dockyard.*") return true
-
-        if (permissions.contains(permission)) {
-            return true
-        }
-
-        permissions.forEach { loopPermission ->
             if (loopPermission.endsWith(".*")) {
                 val prefix = loopPermission.removeSuffix(".*")
                 if (permission.startsWith("$prefix.")) {
@@ -23,6 +43,7 @@ abstract class PermissionHolder(private val getter: () -> List<String>) {
                 }
             }
         }
+
         return false
     }
 }

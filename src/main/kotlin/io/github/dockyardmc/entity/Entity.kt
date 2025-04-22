@@ -273,7 +273,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     fun playDeathAnimation() {
-        val packet = ClientboundEntityEventPacket(this, EntityEvent.ENTITY_DIE)
+        val packet = ClientboundEntityEventPacket(this, EntityEvent.LIVING_ENTITY_PLAY_DEATH_SOUND)
         pose.value = EntityPose.DYING
         viewers.sendPacket(packet)
         passengers.clear(false)

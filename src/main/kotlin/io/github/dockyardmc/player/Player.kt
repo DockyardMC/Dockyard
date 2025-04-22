@@ -20,6 +20,7 @@ import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.particles.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
+import io.github.dockyardmc.player.permissions.PermissionSystem
 import io.github.dockyardmc.player.systems.*
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
@@ -116,6 +117,7 @@ class Player(
     val gameModeSystem = GameModeSystem(this)
     val playerInfoSystem = PlayerInfoSystem(this)
     val entityViewSystem = EntityViewSystem(this)
+    val permissionSystem = PermissionSystem(this, permissions)
     val attributes = PlayerAttributes(this)
 
     val decoupledEntityViewSystemTicking = DockyardServer.scheduler.runRepeating(1.ticks) {
@@ -164,9 +166,6 @@ class Player(
         canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
 
         fovModifier.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, it.newValue)) }
-
-        permissions.itemAdded { rebuildCommandNodeGraph() }
-        permissions.itemRemoved { rebuildCommandNodeGraph() }
 
         health.valueChanged { sendHealthUpdatePacket() }
         food.valueChanged { sendHealthUpdatePacket() }
@@ -363,9 +362,7 @@ class Player(
     }
 
     fun hasPermission(permission: String): Boolean {
-        if (permission.isEmpty()) return true
-        if (permissions.values.contains("dockyard.all") || permissions.values.contains("dockyard.*")) return true
-        return permissions.values.contains(permission)
+        return permissionSystem.hasPermission(permission)
     }
 
     fun sendSelfMetadataPacket() {
@@ -471,7 +468,7 @@ class Player(
             val totem = ItemStack(Items.TOTEM_OF_UNDYING).withCustomModelData(customModelData)
             inventory[heldSlotIndex.value] = totem
         }
-        val packet = ClientboundEntityEventPacket(this, EntityEvent.PLAYER_PLAY_TOTEM_ANIMATION)
+        val packet = ClientboundEntityEventPacket(this, EntityEvent.LIVING_ENTITY_PLAY_TOTEM_UNDYING_ANIMATION)
         sendPacket(packet)
 
         if (customModelData != null) {

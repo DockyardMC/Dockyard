@@ -12,7 +12,7 @@ object PermissionManager {
         return getOrNull(id) ?: throw IllegalArgumentException("Permissions group with id `$id` is not registered")
     }
 
-    fun addGroup(group: PermissionGroup.Builder.() -> Unit) {
+    fun addGroup(group: PermissionGroup.Builder.() -> Unit): PermissionGroup {
         val builder = PermissionGroup.Builder()
         group.invoke(builder)
 
@@ -25,5 +25,15 @@ object PermissionManager {
         builder.id = lowercaseId
         val newGroup = PermissionGroup(lowercaseId, builder.permissions)
         groups[lowercaseId] = newGroup
+
+        return newGroup
+    }
+
+    fun removeGroup(group: PermissionGroup) {
+        groups.remove(group.id)
+    }
+
+    fun removeGroup(id: String) {
+        groups.remove(id)
     }
 }

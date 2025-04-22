@@ -1,28 +1,9 @@
 package io.github.dockyardmc.player.permissions
 
-import io.github.dockyardmc.extentions.addAllNonDuplicates
-import java.lang.IllegalArgumentException
-
-data class PermissionGroup(val id: String, private val permissions: List<String>): PermissionHolder(PermissionGroup::getCachedPermissions::call) {
-
-    // includes inherited permissions
-    private val cachedPermissions: MutableList<String> = permissions.toMutableList()
-
-    @JvmName("getCachedPermissionsFunction")
-    fun getCachedPermissions(): List<String> {
-        return cachedPermissions
-    }
+data class PermissionGroup(val id: String, private val permissions: List<String>) : PermissionHolder() {
 
     init {
-        // cache inherited permissions
-        permissions.forEach { permission ->
-            if(!permission.startsWith("group")) return@forEach
-
-            val inheritedGroupId = permission.split(".").getOrNull(1) ?: throw IllegalArgumentException("Group inheritance permissions string need be in the following format: `group.<group id>`")
-            val inheritedGroup = PermissionManager[inheritedGroupId]
-
-            cachedPermissions.addAllNonDuplicates(inheritedGroup.getCachedPermissions())
-        }
+        buildPermissionCache(permissions)
     }
 
     class Builder {
