@@ -37,6 +37,6 @@ class RollingCounterDouble(scheduler: Scheduler) : RollingCounter<Double>(schedu
     }
 
     override fun interpolate(start: Double, end: Double, progress: Float): Double {
-        return (start + (end - start) * progress)
+        return start + (end - start) * progress
     }
 }
