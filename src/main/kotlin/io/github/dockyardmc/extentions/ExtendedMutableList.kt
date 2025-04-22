@@ -22,6 +22,22 @@ fun <T> MutableList<T>.addAllNonDuplicates(other: Collection<T>) {
     this.addAll(nonDuplicates)
 }
 
+fun Collection<Player>.filterByPermission(permission: String): Collection<Player> {
+    return this.filter { player -> player.hasPermission(permission) }
+}
+
+fun Collection<Player>.addPermission(permission: String) {
+    this.forEach { player ->
+        player.permissions.add(permission)
+    }
+}
+
+fun Collection<Player>.removePermission(permission: String) {
+    this.forEach { player ->
+        player.permissions.remove(permission)
+    }
+}
+
 fun Collection<Player>.teleport(location: Location) {
     this.forEach { player -> player.teleport(location) }
 }
