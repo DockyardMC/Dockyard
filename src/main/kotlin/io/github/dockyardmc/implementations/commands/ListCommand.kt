@@ -11,7 +11,7 @@ class ListCommand {
                 val size = PlayerManager.players.size
                 if(size == 0) {
                     ctx.sendMessage(" ")
-                    ctx.sendMessage("<gray>There are <red>no players<gray> online")
+                    ctx.sendMessage(" <gray>There are <red>no players<gray> online")
                     ctx.sendMessage(" ")
                     return@execute
                 }
