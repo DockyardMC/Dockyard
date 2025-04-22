@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="StructuralSearch">
+    <searchConfiguration name="Explicit and inferred type" text="{ $param$ -&gt; $body$ }" recursive="true" caseInsensitive="true" type="Kotlin" pattern_context="default">
+      <constraint name="__context__" within="" contains="" />
+      <constraint name="param" regexp="it" within="" contains="" />
+      <constraint name="body" within="" contains="" />
+    </searchConfiguration>
+  </component>
+</project>

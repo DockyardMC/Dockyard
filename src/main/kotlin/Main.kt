@@ -1,9 +1,15 @@
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.commands.EnumArgument
+import io.github.dockyardmc.commands.IntArgument
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerFlightToggleEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.events.ServerTickEvent
-import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.extentions.sendActionBar
+import io.github.dockyardmc.extentions.sendTitle
+import io.github.dockyardmc.maths.counter.RollingCounter
+import io.github.dockyardmc.maths.counter.RollingCounterInt
 import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
@@ -12,15 +18,12 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
-import io.github.dockyardmc.registry.Biomes
-import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.PotionEffectRegistry
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.DebugSidebar
-import io.github.dockyardmc.world.WorldManager
-import io.github.dockyardmc.world.generators.VoidWorldGenerator
+import kotlin.time.Duration.Companion.seconds
 
 fun suggestPotionEffects(player: Player): List<String> {
     return PotionEffectRegistry.potionEffects.keys.toList()
@@ -42,9 +45,31 @@ fun main() {
         player.canFly.value = true
     }
 
-    Events.on<ServerTickEvent> { event ->
-        PlayerManager.players.forEach { player ->
-            player.sendActionBar("<yellow>Holding: ${player.heldInputs}")
+    val rollingCounter = RollingCounterInt(DockyardServer.scheduler)
+    rollingCounter.isRollingProportional = false
+    rollingCounter.rollingDuration = 5.seconds
+    rollingCounter.rollingEasing = RollingCounter.Easing.IN_EXPO
+    rollingCounter.rollDispatcher.subscribe { int ->
+        PlayerManager.players.sendTitle("<lime>${int}", "", 0, 9999, 0)
+    }
+
+    Events.on<ServerTickEvent> { _ ->
+        PlayerManager.players.sendActionBar("<yellow>Counter is at: <lime><bold>${rollingCounter.animatedDisplayValue}")
+    }
+
+    Commands.add("/counter") {
+        addSubcommand("set") {
+            addArgument("number", IntArgument())
+            addArgument("seconds", IntArgument())
+            addArgument("easing", EnumArgument(RollingCounter.Easing::class))
+            execute { _ ->
+                val number = getArgument<Int>("number")
+                val time = getArgument<Int>("seconds")
+                val easing = getEnumArgument<RollingCounter.Easing>("easing")
+                rollingCounter.rollingEasing = easing
+                rollingCounter.rollingDuration = time.seconds
+                rollingCounter.value.value = number
+            }
         }
     }
 

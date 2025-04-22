@@ -82,7 +82,7 @@ internal class AdaptivePalette(var dimension: Byte, var maxBitsPerEntry: Byte, b
             }
             // Find all entries and compress the palette
             val entries: IntSet = IntOpenHashSet(currentPalette.paletteToValueList.size)
-            currentPalette.getAll { x: Int, y: Int, z: Int, value: Int ->
+            currentPalette.getAll { _: Int, _: Int, _: Int, value: Int ->
                 entries.add(
                     value
                 )

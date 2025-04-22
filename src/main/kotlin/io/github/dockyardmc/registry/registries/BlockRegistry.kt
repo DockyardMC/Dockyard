@@ -127,20 +127,20 @@ data class RegistryBlock(
         return ItemRegistry[identifier]
     }
 
-    fun toBlock(): io.github.dockyardmc.world.block.Block {
-        return io.github.dockyardmc.world.block.Block(this)
+    fun toBlock(): Block {
+        return Block(this)
     }
 
-    fun withBlockStates(vararg states: Pair<String, String>): io.github.dockyardmc.world.block.Block {
-        return io.github.dockyardmc.world.block.Block(this, states.toMap())
+    fun withBlockStates(vararg states: Pair<String, String>): Block {
+        return Block(this, states.toMap())
     }
 
-    fun withBlockStates(states: Map<String, String>): io.github.dockyardmc.world.block.Block {
-        return io.github.dockyardmc.world.block.Block(this, states.toMap())
+    fun withBlockStates(states: Map<String, String>): Block {
+        return Block(this, states.toMap())
     }
 
-    fun withCustomData(customDataHolder: CustomDataHolder): io.github.dockyardmc.world.block.Block {
-        return io.github.dockyardmc.world.block.Block(this, mutableMapOf(), customDataHolder)
+    fun withCustomData(customDataHolder: CustomDataHolder): Block {
+        return Block(this, mutableMapOf(), customDataHolder)
     }
 
     override fun getNbt(): NBTCompound? = null

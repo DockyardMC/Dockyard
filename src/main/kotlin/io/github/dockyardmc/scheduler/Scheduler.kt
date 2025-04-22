@@ -2,6 +2,7 @@ package io.github.dockyardmc.scheduler
 
 import io.github.dockyardmc.extentions.round
 import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.debug
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -58,13 +59,13 @@ abstract class Scheduler(val name: String) : Disposable {
     private fun handleRepeatingTasks(tasks: MutableMap<Long, MutableList<SchedulerTask>>) {
         tasks.forEach intervalLoop@{ (interval, tasks) ->
             if (ticks % interval == 0L) {
-                tasks.toList().forEach taskLoop@{
-                    if (it.cancelled) {
-                        tasks.remove(it)
+                tasks.toList().forEach taskLoop@{ task ->
+                    if (task.cancelled) {
+                        tasks.remove(task)
                         return@taskLoop
                     }
                     executorService.submit {
-                        it.run(ticks)
+                        task.run(ticks)
                     }
                 }
             }
@@ -74,13 +75,13 @@ abstract class Scheduler(val name: String) : Disposable {
     private fun handleRepeatingTasksAsync(tasks: MutableMap<Long, MutableList<AsyncSchedulerTask<*>>>) {
         tasks.forEach intervalLoop@{ (interval, tasks) ->
             if (ticks % interval == 0L) {
-                tasks.toList().forEach taskLoop@{
-                    if (it.cancelled) {
-                        tasks.remove(it)
+                tasks.toList().forEach taskLoop@{ task ->
+                    if (task.cancelled) {
+                        tasks.remove(task)
                         return@taskLoop
                     }
                     runAsync {
-                        it.run(ticks)
+                        task.run(ticks)
                     }
                 }
             }
@@ -159,7 +160,7 @@ abstract class Scheduler(val name: String) : Disposable {
     }
 
     @JvmName("runLaterAsyncTyped")
-    fun <T> runLaterAsync(duration: Duration, unit: () -> T): CompletableFuture<T> {
+    fun <T> runLaterAsync(duration: Duration, unit: (AsyncSchedulerTask<T>) -> T): CompletableFuture<T> {
         val ticks = (duration.inWholeMilliseconds / 50) + ticks
         val task = AsyncSchedulerTask(unit, SchedulerTask.Type.TICK)
 
@@ -173,7 +174,7 @@ abstract class Scheduler(val name: String) : Disposable {
         return task.future
     }
 
-    open fun runRepeatingAsync(interval: Duration, unit: () -> Unit): AsyncSchedulerTask<Unit> {
+    open fun runRepeatingAsync(interval: Duration, unit: (AsyncSchedulerTask<Unit>) -> Unit): AsyncSchedulerTask<Unit> {
         val task = AsyncSchedulerTask(unit, SchedulerTask.Type.REPEATING)
         var list = repeatingTasksAsync[ticks]
         if (list == null) {
