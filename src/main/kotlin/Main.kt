@@ -53,7 +53,8 @@ fun main() {
         PlayerManager.players.sendTitle("<lime>${int}", "", 0, 9999, 0)
     }
 
-    Events.on<ServerTickEvent> { event ->
+    Events.on<ServerTickEvent> {
+        it.serverTicks
         PlayerManager.players.sendActionBar("<yellow>Counter is at: <lime><bold>${rollingCounter.displayValue}")
     }
 

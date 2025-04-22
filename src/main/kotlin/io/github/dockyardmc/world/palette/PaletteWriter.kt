@@ -6,21 +6,21 @@ import io.github.dockyardmc.extentions.writeVarIntArray
 import io.netty.buffer.ByteBuf
 
 fun ByteBuf.writePalette(palette: Palette) {
-    if(palette is AdaptivePalette) {
+    if (palette is AdaptivePalette) {
         val optimized: SpecializedPalette = palette.optimizedPalette()
         palette.palette = optimized
         this.writePalette(optimized)
     }
 
-    if(palette is FilledPalette) {
+    if (palette is FilledPalette) {
         this.writeByte(0)
         this.writeVarInt(palette.value)
         this.writeVarInt(0)
     }
 
-    if(palette is FlexiblePalette) {
+    if (palette is FlexiblePalette) {
         this.writeByte(palette.bitsPerEntry())
-        if(palette.bitsPerEntry() <= palette.maxBitsPerEntry()) {
+        if (palette.bitsPerEntry() <= palette.maxBitsPerEntry()) {
             this.writeVarIntArray(palette.paletteToValueList.toList())
         }
         this.writeLongArray(palette.values.toList())
