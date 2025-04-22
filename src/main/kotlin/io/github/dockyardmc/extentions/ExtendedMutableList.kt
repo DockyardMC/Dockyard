@@ -17,6 +17,11 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import java.util.UUID
 
+fun <T> MutableList<T>.addAllNonDuplicates(other: Collection<T>) {
+    val nonDuplicates = other.filter { item -> !this.contains(item) }
+    this.addAll(nonDuplicates)
+}
+
 fun Collection<Player>.teleport(location: Location) {
     this.forEach { player -> player.teleport(location) }
 }
