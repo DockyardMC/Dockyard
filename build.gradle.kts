@@ -78,6 +78,13 @@ dependencies {
     api("io.github.dockyardmc:spark-api:1.12-SNAPSHOT")
     api("io.github.dockyardmc:spark-common:1.12-SNAPSHOT")
 
+    api("com.viaversion:viaversion-common:5.3.0") {
+        exclude(group = "org.slf4j", module = "org.slf4j")
+    }
+    api("com.viaversion:viaversion-common:5.3.0") {
+        exclude(group = "org.slf4j", module = "org.slf4j")
+    }
+
     testImplementation(kotlin("test"))
     testImplementation("org.mockito:mockito-core:5.4.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
