@@ -82,8 +82,8 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
         }
     }
 
-    fun kick(message: String, connection: ChannelHandlerContext) {
-        val formattedMessage = getSystemKickMessage(message)
+    fun kick(message: String, connection: ChannelHandlerContext, raw: Boolean = false) {
+        val formattedMessage = if(raw) message else getSystemKickMessage(message)
         val packet = when(state) {
             ProtocolState.HANDSHAKE,
             ProtocolState.STATUS,
