@@ -1,7 +1,7 @@
 # Contributing guide to DockyardMC!
 ## **Bug Reporting**
 - If you found a bug, open a new issue if it's not already reported
-- Give a clear explenation and steps on how to reproduce it
+- Give a clear explanation and steps on how to reproduce it
 
 ## **Bug Fixes**
 * If you fix a bug, open a new pull request with the fix if it hasn't already been proposed.
@@ -13,4 +13,4 @@
 
 ---
 
-I appriciate all contributions to DockyardMC <3
+I appreciate all contributions to DockyardMC <3
