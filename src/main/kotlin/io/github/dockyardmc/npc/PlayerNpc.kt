@@ -19,7 +19,7 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     override val health: Bindable<Float> = Bindable(20f)
     override var inventorySize: Int = 0
 
-    var displayedSkinParts: BindableList<DisplayedSkinPart> = BindableList(
+    val displayedSkinParts: BindableList<DisplayedSkinPart> = BindableList(
         DisplayedSkinPart.CAPE,
         DisplayedSkinPart.JACKET,
         DisplayedSkinPart.LEFT_PANTS,
@@ -31,7 +31,7 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     val username: Bindable<String> = Bindable(username)
     val isListed: Bindable<Boolean> = Bindable(false)
 
-    var profile: Bindable<ProfilePropertyMap?> = Bindable(null)
+    val profile: Bindable<ProfilePropertyMap?> = Bindable(null)
 
     init {
 
