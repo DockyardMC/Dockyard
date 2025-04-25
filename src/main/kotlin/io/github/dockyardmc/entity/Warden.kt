@@ -11,7 +11,7 @@ import io.github.dockyardmc.registry.registries.EntityType
 
 open class Warden(location: Location): Entity(location) {
     override var type: EntityType = EntityTypes.WARDEN
-    override var health: Bindable<Float> = Bindable(500f)
+    override val health: Bindable<Float> = Bindable(500f)
     override var inventorySize: Int = 0
 
     val angerLevel: Bindable<Int> = Bindable(0)

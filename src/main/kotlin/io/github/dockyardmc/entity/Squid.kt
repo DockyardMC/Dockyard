@@ -7,6 +7,6 @@ import io.github.dockyardmc.registry.registries.EntityType
 
 class Squid(location: Location): Entity(location) {
     override var type: EntityType = EntityTypes.SQUID
-    override var health: Bindable<Float> = bindablePool.provideBindable(10f)
+    override val health: Bindable<Float> = bindablePool.provideBindable(10f)
     override var inventorySize: Int = 0
 }

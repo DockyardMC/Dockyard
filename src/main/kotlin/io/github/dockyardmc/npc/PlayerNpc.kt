@@ -16,7 +16,7 @@ import java.util.*
 
 class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     override var type: EntityType = EntityTypes.PLAYER
-    override var health: Bindable<Float> = Bindable(20f)
+    override val health: Bindable<Float> = Bindable(20f)
     override var inventorySize: Int = 0
 
     var displayedSkinParts: BindableList<DisplayedSkinPart> = BindableList(

@@ -12,7 +12,7 @@ import io.github.dockyardmc.registry.registries.EntityType
 
 class Parrot(location: Location): Entity(location) {
     override var type: EntityType = EntityTypes.PARROT
-    override var health: Bindable<Float> = Bindable(6f)
+    override val health: Bindable<Float> = Bindable(6f)
     override var inventorySize: Int = 0
     var variant: Bindable<ParrotVariant> = Bindable(ParrotVariant.entries.random())
 

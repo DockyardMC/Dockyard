@@ -48,7 +48,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val bindablePool = BindablePool()
 
     abstract var type: EntityType
-    abstract var health: Bindable<Float>
+    abstract val health: Bindable<Float>
     abstract var inventorySize: Int
 
     open var id: Int = EntityManager.entityIdCounter.incrementAndGet()

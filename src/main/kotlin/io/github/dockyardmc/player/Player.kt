@@ -66,7 +66,7 @@ class Player(
 ) : Entity(location) {
     override var isInvulnerable: Boolean = true
     override var isOnGround: Boolean = true
-    override var health: Bindable<Float> = bindablePool.provideBindable(20f)
+    override val health: Bindable<Float> = bindablePool.provideBindable(20f)
     override var inventorySize: Int = 35
 
     var brand: String = "minecraft:vanilla"
