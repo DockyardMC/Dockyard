@@ -10,7 +10,7 @@ class ItemDropEntity(override var location: Location, initialItem: ItemStack) : 
 
     override var type: EntityType = EntityTypes.ITEM
     override var inventorySize: Int = 0
-    override var health: Bindable<Float> = Bindable(9999f)
+    override val health: Bindable<Float> = Bindable(9999f)
 
     val itemStack: Bindable<ItemStack> = Bindable(initialItem)
     var canBePickedUp: Boolean = false

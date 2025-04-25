@@ -25,7 +25,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
         const val INNER_INVENTORY_SIZE: Int = 36
     }
 
-    var cursorItem: Bindable<ItemStack> = Bindable(ItemStack.AIR)
+    val cursorItem: Bindable<ItemStack> = Bindable(ItemStack.AIR)
 
     override fun getWindowId(): Byte {
         return 0

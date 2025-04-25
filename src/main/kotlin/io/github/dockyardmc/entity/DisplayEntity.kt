@@ -14,7 +14,7 @@ import kotlin.math.sin
 
 open class DisplayEntity(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.TEXT_DISPLAY
-    override var health: Bindable<Float> = Bindable(0f)
+    override val health: Bindable<Float> = Bindable(0f)
     override var inventorySize: Int = 0
 
     val interpolationDelay: Bindable<Int> = Bindable(0)

@@ -11,7 +11,7 @@ import io.github.dockyardmc.registry.registries.EntityType
 class Interaction(location: Location): Entity(location) {
 
     override var type: EntityType = EntityTypes.INTERACTION
-    override var health: Bindable<Float> = bindablePool.provideBindable(0f)
+    override val health: Bindable<Float> = bindablePool.provideBindable(0f)
     override var inventorySize: Int = 0
 
     private val eventPool = EventPool()

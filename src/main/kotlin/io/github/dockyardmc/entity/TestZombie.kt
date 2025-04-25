@@ -22,7 +22,7 @@ import io.github.dockyardmc.maths.randomInt
 
 class TestZombie(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.ZOMBIE
-    override var health: Bindable<Float> = Bindable(20f)
+    override val health: Bindable<Float> = Bindable(20f)
     override var inventorySize: Int = 0
 
     val eventPool = EventPool()

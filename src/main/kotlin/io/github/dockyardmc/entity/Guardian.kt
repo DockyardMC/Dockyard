@@ -13,7 +13,7 @@ open class Guardian(location: Location): Entity(location) {
     }
 
     override var type: EntityType = EntityTypes.GUARDIAN
-    override var health: Bindable<Float> = bindablePool.provideBindable(30f)
+    override val health: Bindable<Float> = bindablePool.provideBindable(30f)
     override var inventorySize: Int = 0
 
     val isRetractingSpikes: Bindable<Boolean> = bindablePool.provideBindable(false)
