@@ -45,7 +45,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
             val networkManager = player.networkManager
 
             // Send server brand
-            val serverBrandEvent = ServerBrandEvent("§3DockyardMC ${DockyardServer.versionInfo.getFormatted(DockyardServer.minecraftVersion)}")
+            val serverBrandEvent = ServerBrandEvent("§3DockyardMC ${DockyardServer.versionInfo.getFormatted(DockyardServer.minecraftVersion)}§r")
             Events.dispatch(serverBrandEvent)
             connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"), networkManager)
 

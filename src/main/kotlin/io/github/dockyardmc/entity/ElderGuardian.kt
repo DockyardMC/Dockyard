@@ -7,6 +7,6 @@ import io.github.dockyardmc.registry.registries.EntityType
 
 class ElderGuardian(location: Location): Guardian(location) {
 
-    override var health: Bindable<Float> = bindablePool.provideBindable(80f)
+    override val health: Bindable<Float> = bindablePool.provideBindable(80f)
     override var type: EntityType = EntityTypes.ELDER_GUARDIAN
 }

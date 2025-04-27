@@ -66,7 +66,7 @@ class Player(
 ) : Entity(location) {
     override var isInvulnerable: Boolean = true
     override var isOnGround: Boolean = true
-    override var health: Bindable<Float> = bindablePool.provideBindable(20f)
+    override val health: Bindable<Float> = bindablePool.provideBindable(20f)
     override var inventorySize: Int = 35
 
     var brand: String = "minecraft:vanilla"
@@ -79,15 +79,15 @@ class Player(
     var isConnected: Boolean = true
     var isDigging: Boolean = false
 
-    var gameMode: Bindable<GameMode> = bindablePool.provideBindable(GameMode.ADVENTURE)
-    var isFlying: Bindable<Boolean> = bindablePool.provideBindable(false)
-    var canFly: Bindable<Boolean> = bindablePool.provideBindable(false)
+    val gameMode: Bindable<GameMode> = bindablePool.provideBindable(GameMode.ADVENTURE)
+    val isFlying: Bindable<Boolean> = bindablePool.provideBindable(false)
+    val canFly: Bindable<Boolean> = bindablePool.provideBindable(false)
     val flySpeed: Bindable<Float> = bindablePool.provideBindable(0.05f)
 
     val permissions: BindableList<String> = bindablePool.provideBindableList()
 
     var inventory: PlayerInventory = PlayerInventory(this)
-    var heldSlotIndex: Bindable<Int> = bindablePool.provideBindable(0)
+    val heldSlotIndex: Bindable<Int> = bindablePool.provideBindable(0)
 
     var mainHandItem: ItemStack
         get() = getHeldItem(PlayerHand.MAIN_HAND)
@@ -97,7 +97,7 @@ class Player(
         get() = getHeldItem(PlayerHand.OFF_HAND)
         set(value) = setHeldItem(PlayerHand.OFF_HAND, value)
 
-    var displayedSkinParts: BindableList<DisplayedSkinPart> = bindablePool.provideBindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
+    val displayedSkinParts: BindableList<DisplayedSkinPart> = bindablePool.provideBindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     val isListed: Bindable<Boolean> = bindablePool.provideBindable(true)
 
     val tabListHeader: Bindable<Component> = bindablePool.provideBindable("".toComponent())

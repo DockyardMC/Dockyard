@@ -48,7 +48,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val bindablePool = BindablePool()
 
     abstract var type: EntityType
-    abstract var health: Bindable<Float>
+    abstract val health: Bindable<Float>
     abstract var inventorySize: Int
 
     open var id: Int = EntityManager.entityIdCounter.incrementAndGet()
@@ -65,7 +65,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = bindablePool.provideBindableMap()
     val isOnFire: Bindable<Boolean> = bindablePool.provideBindable(false)
     val freezeTicks: Bindable<Int> = bindablePool.provideBindable(0)
-    var hasNoGravity: Bindable<Boolean> = bindablePool.provideBindable(true)
+    val hasNoGravity: Bindable<Boolean> = bindablePool.provideBindable(true)
     val isSilent: Bindable<Boolean> = bindablePool.provideBindable(false)
     val stuckArrows: Bindable<Int> = bindablePool.provideBindable(0)
 
@@ -80,7 +80,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     var viewDistanceBlocks: Int = ConfigManager.config.implementationConfig.defaultEntityViewDistanceBlocks
 
-    var passengers: BindableList<Entity> = BindableList()
+    val passengers: BindableList<Entity> = BindableList()
     var vehicle: Entity? = null
 
     val equipmentHandler = EntityEquipmentHandler(this)

@@ -11,7 +11,7 @@ import io.github.dockyardmc.registry.registries.EntityType
 abstract class Ravager(location: Location) : Entity(location) {
 
     override var type: EntityType = EntityTypes.RAVAGER
-    override var health: Bindable<Float> = bindablePool.provideBindable(100f)
+    override val health: Bindable<Float> = bindablePool.provideBindable(100f)
     override var inventorySize: Int = 0
 
     fun playAttackAnimation() {

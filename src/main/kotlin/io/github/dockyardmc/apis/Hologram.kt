@@ -35,7 +35,7 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     private val lineEntities = mutableListOf<TextDisplay>()
 
     override var type: EntityType = EntityTypes.MARKER
-    override var health: Bindable<Float> = Bindable(0f)
+    override val health: Bindable<Float> = Bindable(0f)
     override var inventorySize: Int = 0
 
     override var autoViewable: Boolean = true
