@@ -12,7 +12,7 @@ plugins {
     application
 }
 
-val minecraftVersion = "1.21.4"
+val minecraftVersion = "1.21.5"
 val dockyardVersion = properties["dockyard.version"]!!
 val gitBranch = "git rev-parse --abbrev-ref HEAD".runCommand()
 val gitCommit = "git rev-parse --short=8 HEAD".runCommand()
@@ -63,7 +63,7 @@ dependencies {
 
     // Networking
     api("io.ktor:ktor-server-netty:3.1.2")
-    api("io.github.dockyardmc:tide:1.6")
+    api("io.github.dockyardmc:tide:1.7")
 
     // Logging
     implementation("org.slf4j:slf4j-nop:2.0.9")

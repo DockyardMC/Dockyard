@@ -1,0 +1,4 @@
+hashMap(
+  hashString("item_damage_per_attack"), hashInt(5),
+  hashString("disable_blocking_for_seconds"), hashFloat(1.5f),
+)

@@ -7,18 +7,18 @@ import java.util.zip.CRC32C
 
 // Loosely based on the Hasher implementation from Minestom (with permission of mattw) which is
 // loosely based on Hasher implementation of Guava, licensed under the Apache 2.0 license.
-data class Hasher(val crc32: CRC32C, val buffer: ByteBuf) {
+data class Hasher(val crc32c: CRC32C, val buffer: ByteBuf) {
     constructor(): this(CRC32C(), Unpooled.buffer(8).order(ByteOrder.LITTLE_ENDIAN))
 
     fun update(bytes: Int): Hasher {
-        crc32.update(buffer.array(), 0, bytes)
+        crc32c.update(buffer.array(), 0, bytes)
         buffer.writerIndex(0)
         buffer.readerIndex(0)
         return this
     }
 
     fun putByte(byte: Byte): Hasher {
-        crc32.update(byte.toInt())
+        crc32c.update(byte.toInt())
         return this
     }
 
@@ -65,11 +65,11 @@ data class Hasher(val crc32: CRC32C, val buffer: ByteBuf) {
     }
 
     fun putBytes(bytes: ByteArray?): Hasher {
-        crc32.update(bytes)
+        crc32c.update(bytes)
         return this
     }
 
     fun hash(): Int {
-        return crc32.value.toInt()
+        return crc32c.value.toInt()
     }
 }
