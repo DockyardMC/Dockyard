@@ -85,7 +85,9 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
     }
 
     operator fun get(component: KClass<out DataComponent>): DataComponent? {
-        return components.getValue(DataComponentRegistry.dataComponentsByIdReversed.getValue(component))
+        val key = DataComponentRegistry.dataComponentsByIdReversed.getValue(component)
+        if(!components.containsKey(key)) return null
+        return components.getValue(key)
     }
 
     operator fun get(component: DataComponent): DataComponent? {

@@ -19,6 +19,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.AppliedPotionEffectSettings
 import io.github.dockyardmc.registry.DamageTypes
@@ -34,9 +35,6 @@ import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.utils.mergeEntityMetadata
-import io.github.dockyardmc.maths.vectors.Vector3
-import io.github.dockyardmc.maths.vectors.Vector3f
-import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
