@@ -6,8 +6,8 @@ import java.net.http.HttpResponse
 
 plugins {
     `maven-publish`
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("jvm") version "2.1.0"
+    kotlin("plugin.serialization") version "2.1.0"
     id("io.ktor.plugin") version "2.2.3"
     application
 }
@@ -62,10 +62,11 @@ dependencies {
     api("com.github.Metaphoriker.pathetic:pathetic-provider:4.0")
 
     // Networking
-    api("io.ktor:ktor-server-netty:2.3.12")
+    api("io.ktor:ktor-server-netty:3.1.2")
+    api("io.github.dockyardmc:tide:1.6")
 
     // Logging
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
+    implementation("org.slf4j:slf4j-nop:2.0.9")
     api("cz.lukynka:pretty-log:1.5")
 
     // Other
