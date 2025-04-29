@@ -14,7 +14,7 @@ DockyardMC is an open-source, fast and lightweight Minecraft server protocol imp
 
 ## Quick Start
 
-You can read how to setup and use dockyard [here](https://dockyard.lukynka.cloud/wiki/quick-start)
+You can read how to set up and use dockyard [here](https://dockyard.lukynka.cloud/wiki/quick-start)
 
 ## Features
 

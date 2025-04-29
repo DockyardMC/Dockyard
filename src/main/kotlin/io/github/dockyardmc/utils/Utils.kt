@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
 fun isValidMinecraftUsername(username: String): Boolean {
     if(username.isEmpty()) return false
     if(username.contains(" ")) return false
-    if(!username.matches(Regex("^[a-zA-Z0-9]*$"))) return false
+    if(!username.matches(Regex("^[a-zA-Z0-9_]*$"))) return false
     if(username.length <= 2) return false
     if(username.length > 16) return false
 

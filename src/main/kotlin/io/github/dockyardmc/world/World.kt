@@ -173,7 +173,10 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     fun load(): CompletableFuture<Unit> {
         val task = scheduler.runAsync {
-            generateBaseChunks(6)
+            if (generator.generateBaseChunks) {
+                generateBaseChunks(6)
+            }
+            generator.onWorldLoad(this)
         }
 
         task.thenAccept {
@@ -367,20 +370,23 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     fun generateChunk(x: Int, z: Int): Chunk {
         val chunk = getChunk(x, z) ?: Chunk(x, z, this)
         // Special case for void world generator for fast void world loading. //TODO optimizations to rest of the world generators
-        if (generator is VoidWorldGenerator) {
-            chunk.sections.forEach { section ->
-                section.biomePalette.fill((generator as VoidWorldGenerator).defaultBiome.getProtocolId())
-                section.blockPalette.fill(BlockRegistry.Air.defaultBlockStateId)
+        when (generator) {
+            is VoidWorldGenerator -> {
+                chunk.sections.forEach { section ->
+                    section.biomePalette.fill((generator as VoidWorldGenerator).defaultBiome.getProtocolId())
+                    section.blockPalette.fill(BlockRegistry.Air.defaultBlockStateId)
+                }
             }
-        } else {
-            for (localX in 0..<16) {
-                for (localZ in 0..<16) {
-                    val worldX = x * 16 + localX
-                    val worldZ = z * 16 + localZ
+            else -> {
+                for (localX in 0..<16) {
+                    for (localZ in 0..<16) {
+                        val worldX = x * 16 + localX
+                        val worldZ = z * 16 + localZ
 
-                    for (y in 0..<dimensionType.height) {
-                        chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ), false)
-                        chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ), false)
+                        for (y in 0..<dimensionType.height) {
+                            chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ), false)
+                            chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ), false)
+                        }
                     }
                 }
             }
