@@ -27,6 +27,7 @@ object TranscoderCRC32C : Transcoder<TranscoderCRC32C.HashContainer<*>> {
 
     data class HashContainerMap(var map: MutableMap<Int, Int>) : HashContainer<MutableMap<Int, Int>> {
 
+        //TODO(1.21.5) sorting to make sure its always ordered by order of data components entries in the registry
         override fun getValue(): MutableMap<Int, Int> {
             return map
         }
