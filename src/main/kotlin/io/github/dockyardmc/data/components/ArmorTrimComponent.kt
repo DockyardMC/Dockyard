@@ -8,9 +8,14 @@ import io.github.dockyardmc.registry.registries.TrimMaterial
 import io.github.dockyardmc.registry.registries.TrimMaterialRegistry
 import io.github.dockyardmc.registry.registries.TrimPattern
 import io.github.dockyardmc.registry.registries.TrimPatternRegistry
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class ArmorTrimComponent(val material: TrimMaterial, val pattern: TrimPattern) : DataComponent() {
+
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeVarInt(material.getProtocolId())

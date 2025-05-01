@@ -5,9 +5,13 @@ import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.types.WorldPosition
 import io.github.dockyardmc.protocol.writeOptional
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class LodestoneTrackerComponent(val worldPosition: WorldPosition?, val tracked: Boolean) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeOptional(worldPosition, WorldPosition::write)

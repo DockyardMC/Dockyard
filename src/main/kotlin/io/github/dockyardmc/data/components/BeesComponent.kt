@@ -9,10 +9,14 @@ import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class BeesComponent(val bees: List<Bee>) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeList(bees, Bee::write)

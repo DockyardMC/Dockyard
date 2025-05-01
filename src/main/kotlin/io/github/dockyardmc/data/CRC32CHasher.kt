@@ -1,5 +1,8 @@
 package io.github.dockyardmc.data
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
+
 object CRC32CHasher {
     private val KEY_COMPARATOR: Comparator<Map.Entry<Int, Int>> = java.util.Map.Entry.comparingByKey(Comparator.comparingLong { x: Int? -> Integer.toUnsignedLong(x!!) })
     private val VALUE_COMPARATOR: Comparator<Map.Entry<Int, Int>> = java.util.Map.Entry.comparingByValue(Comparator.comparingLong { x: Int? -> Integer.toUnsignedLong(x!!) })
@@ -44,7 +47,9 @@ object CRC32CHasher {
     }
 
     fun ofInt(int: Int): Int {
-        return Hasher().putByte(TAG_INT).putInt(int).hash()
+        val hashed = Hasher().putByte(TAG_INT).putInt(int).hash()
+        log("Hashed int $hashed", LogType.TRACE)
+        return hashed
     }
 
     fun ofLong(long: Long): Int {
@@ -60,10 +65,12 @@ object CRC32CHasher {
     }
 
     fun ofString(string: String): Int {
-        return Hasher().putByte(TAG_STRING)
+        val hashed = Hasher().putByte(TAG_STRING)
             .putInt(string.length)
             .putChars(string)
             .hash()
+        log("Hashed string $hashed", LogType.TRACE)
+        return hashed
     }
 
     fun ofEmptyList(): Int = EMPTY_LIST

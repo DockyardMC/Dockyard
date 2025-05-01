@@ -14,7 +14,7 @@ object TranscoderCRC32C : Transcoder<TranscoderCRC32C.HashContainer<*>> {
         fun add(field: String, value: Int)
     }
 
-    data class HashContainerValue(var value: Int) : HashContainer<Int> {
+    data class HashContainerValue(var value: Int = 0) : HashContainer<Int> {
 
         override fun getValue(): Int {
             return value
@@ -25,7 +25,7 @@ object TranscoderCRC32C : Transcoder<TranscoderCRC32C.HashContainer<*>> {
         }
     }
 
-    data class HashContainerMap(var map: MutableMap<Int, Int>) : HashContainer<MutableMap<Int, Int>> {
+    data class HashContainerMap(var map: MutableMap<Int, Int> = mutableMapOf()) : HashContainer<MutableMap<Int, Int>> {
 
         //TODO(1.21.5) sorting to make sure its always ordered by order of data components entries in the registry
         override fun getValue(): MutableMap<Int, Int> {
@@ -37,7 +37,7 @@ object TranscoderCRC32C : Transcoder<TranscoderCRC32C.HashContainer<*>> {
         }
     }
 
-    data class HashContainerList(var list: MutableList<Int>) : HashContainer<MutableList<Int>> {
+    data class HashContainerList(var list: MutableList<Int> = mutableListOf()) : HashContainer<MutableList<Int>> {
 
         override fun getValue(): MutableList<Int> {
             return list
@@ -73,7 +73,7 @@ object TranscoderCRC32C : Transcoder<TranscoderCRC32C.HashContainer<*>> {
     }
 
     override fun <E> writeEnum(kClass: KClass<*>, format: HashContainer<*>, field: String, value: E) {
-        format.add(field, CRC32CHasher.ofInt((value as Enum<*>).ordinal))
+        format.add(field, CRC32CHasher.ofString((value as Enum<*>).name.lowercase()))
     }
 
     override fun writeFloat(format: HashContainer<*>, field: String, value: Float) {

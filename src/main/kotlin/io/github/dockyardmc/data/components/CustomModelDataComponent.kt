@@ -9,9 +9,13 @@ import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.scroll.CustomColor
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class CustomModelDataComponent(val floats: List<Float>, val flags: List<Boolean>, val strings: List<String>, val colors: List<CustomColor>) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeList(floats, ByteBuf::writeFloat)

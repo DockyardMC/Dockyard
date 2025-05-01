@@ -1,4 +1,7 @@
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.data.DataComponentHasher
+import io.github.dockyardmc.data.components.FoodComponent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.player.systems.GameMode
@@ -18,6 +21,13 @@ fun main() {
         DebugSidebar.sidebar.viewers.add(player)
         player.permissions.add("*")
     }
+
+    val component = FoodComponent(5, 6f, true)
+
+    val hash = DataComponentHasher.hash(component)
+
+    log("dockyard transcoder - $hash")
+
 
     server.start()
 }

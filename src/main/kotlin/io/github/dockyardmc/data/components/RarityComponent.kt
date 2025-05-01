@@ -1,21 +1,28 @@
 package io.github.dockyardmc.data.components
 
 import io.github.dockyardmc.data.DataComponent
-import io.github.dockyardmc.extentions.readEnum
-import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.types.ItemRarity
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
-class RarityComponent(val rarity: ItemRarity) : DataComponent() {
+class RarityComponent(val rarity: ItemRarity) : DataComponent(true) {
+    override fun getCodec(): Codec<out DataComponent> {
+        return CODEC
+    }
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeEnum(rarity)
+        CODEC.writeNetwork(buffer, this)
     }
 
     companion object : NetworkReadable<RarityComponent> {
+        val CODEC = Codec.of(
+            "rarity", Codec.enum<ItemRarity>(), RarityComponent::rarity,
+            ::RarityComponent
+        )
+
         override fun read(buffer: ByteBuf): RarityComponent {
-            return RarityComponent(buffer.readEnum())
+            return CODEC.readNetwork(buffer)
         }
     }
 }

@@ -9,6 +9,7 @@ import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.scroll.CustomColor
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class FireworkExplosionComponent(
@@ -18,6 +19,9 @@ class FireworkExplosionComponent(
     val hasTrail: Boolean,
     val hasTwinkle: Boolean
 ) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeEnum(shape)

@@ -12,9 +12,13 @@ import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.registry.registries.BannerPattern
 import io.github.dockyardmc.registry.registries.BannerPatternRegistry
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class BannerPatternsComponent(val layers: List<Layer>) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeList(layers, Layer::write)

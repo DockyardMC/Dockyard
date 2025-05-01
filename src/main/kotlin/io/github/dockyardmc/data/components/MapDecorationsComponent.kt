@@ -7,9 +7,13 @@ import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.types.readMap
 import io.github.dockyardmc.protocol.types.writeMap
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class MapDecorationsComponent(val decorations: Map<String, Decoration>) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeMap(decorations, ByteBuf::writeString, Decoration::write)

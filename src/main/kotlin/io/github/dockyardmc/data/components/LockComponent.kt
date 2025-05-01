@@ -4,10 +4,14 @@ import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.extentions.readNBTCompound
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.protocol.NetworkReadable
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class LockComponent(val data: NBTCompound) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeNBT(data)

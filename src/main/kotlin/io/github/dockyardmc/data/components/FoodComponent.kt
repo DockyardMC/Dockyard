@@ -1,22 +1,31 @@
 package io.github.dockyardmc.data.components
 
 import io.github.dockyardmc.data.DataComponent
-import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkReadable
+import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.Codecs
 import io.netty.buffer.ByteBuf
 
-class FoodComponent(val nutrition: Int, val saturationModifier: Float, val canAlwaysEat: Boolean): DataComponent() {
+class FoodComponent(val nutrition: Int, val saturationModifier: Float, val canAlwaysEat: Boolean) : DataComponent() {
 
-    override fun write(buffer: ByteBuf) {
-        buffer.writeVarInt(nutrition)
-        buffer.writeFloat(saturationModifier)
-        buffer.writeBoolean(canAlwaysEat)
+    override fun getCodec(): Codec<out DataComponent> {
+        return CODEC
     }
 
-    companion object: NetworkReadable<FoodComponent> {
+    override fun write(buffer: ByteBuf) {
+        CODEC.writeNetwork(buffer, this)
+    }
+
+    companion object : NetworkReadable<FoodComponent> {
+        val CODEC = Codec.of(
+            "nutrition", Codecs.VarInt, FoodComponent::nutrition,
+            "saturation", Codecs.Float, FoodComponent::saturationModifier,
+            "can_always_eat", Codecs.Boolean, FoodComponent::canAlwaysEat,
+            ::FoodComponent
+        )
+
         override fun read(buffer: ByteBuf): FoodComponent {
-            return FoodComponent(buffer.readVarInt(), buffer.readFloat(), buffer.readBoolean())
+            return CODEC.readNetwork(buffer)
         }
     }
 }

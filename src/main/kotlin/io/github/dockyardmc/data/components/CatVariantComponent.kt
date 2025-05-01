@@ -6,9 +6,13 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.registry.registries.CatVariant
 import io.github.dockyardmc.registry.registries.CatVariantRegistry
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 data class CatVariantComponent(val variant: CatVariant) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
        buffer.writeVarInt(variant.getProtocolId())

@@ -11,6 +11,7 @@ import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.EntityTypeRegistry
 import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.SoundEvent
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class BlocksAttacksComponent(
@@ -22,6 +23,9 @@ class BlocksAttacksComponent(
     val blockSound: String?,
     val disableSound: String?
 ) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeFloat(blocksDelaySeconds)

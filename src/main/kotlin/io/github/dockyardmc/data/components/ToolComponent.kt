@@ -10,9 +10,13 @@ import io.github.dockyardmc.protocol.types.predicate.BlockTypeFilter
 import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.protocol.writeOptional
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class ToolComponent(val rules: List<Rule>, val defaultMiningSpeed: Float, val damagePerBlock: Int, val canDestroyBlocksInCreative: Boolean) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeList(rules, Rule::write)

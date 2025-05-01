@@ -7,10 +7,14 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
 
 class TooltipDisplayComponent(val hideTooltip: Boolean, val hiddenComponents: List<KClass<out DataComponent>>): DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeBoolean(hideTooltip)

@@ -7,9 +7,13 @@ import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.ItemRegistry
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 data class PotDecorationsComponent(val back: Item, val left: Item, val right: Item, val front: Item) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeVarInt(back.getProtocolId())

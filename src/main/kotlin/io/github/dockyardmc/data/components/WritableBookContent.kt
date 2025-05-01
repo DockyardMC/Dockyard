@@ -9,9 +9,13 @@ import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.protocol.writeOptional
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class WritableBookContent(val pages: List<FilteredText>) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeList(pages, FilteredText::write)

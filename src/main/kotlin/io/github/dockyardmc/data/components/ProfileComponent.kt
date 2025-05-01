@@ -11,10 +11,14 @@ import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.protocol.writeOptional
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 import java.util.*
 
 class ProfileComponent(val name: String?, val uuid: UUID?, val properties: List<Property>) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeOptional(name, ByteBuf::writeString)

@@ -5,9 +5,13 @@ import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.types.DyeColor
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 data class TropicalFishPatternColorComponent(val color: DyeColor) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeEnum(color)

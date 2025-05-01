@@ -10,6 +10,7 @@ import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.registry.registries.PotionEffectRegistry
 import io.github.dockyardmc.scroll.CustomColor
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class PotionContentsComponent(
@@ -18,6 +19,9 @@ class PotionContentsComponent(
     val effects: List<AppliedPotionEffect>,
     val customName: String?
 ) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeOptional(potion?.getProtocolId(), ByteBuf::writeVarInt)

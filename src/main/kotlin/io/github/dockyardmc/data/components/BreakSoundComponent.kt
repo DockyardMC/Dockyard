@@ -4,9 +4,13 @@ import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.SoundEvent
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 data class BreakSoundComponent(val sound: String) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
        CustomSoundEvent(sound).write(buffer)

@@ -9,6 +9,7 @@ import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.SoundEvent
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class ConsumableComponent(
@@ -18,6 +19,9 @@ class ConsumableComponent(
     val hasParticles: Boolean,
     val effects: List<ConsumeEffect>
 ) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeFloat(consumeSeconds)

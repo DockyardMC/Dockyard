@@ -6,9 +6,13 @@ import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.writeOptional
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class UseCooldownComponent(val seconds: Float, val cooldownGroup: String? = null) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeFloat(seconds)

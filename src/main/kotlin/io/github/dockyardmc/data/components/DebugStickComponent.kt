@@ -6,9 +6,13 @@ import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.types.readMap
 import io.github.dockyardmc.protocol.types.writeMap
+import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class DebugStickComponent(val state: Map<String, String>) : DataComponent() {
+    override fun getCodec(): Codec<out DataComponent> {
+        TODO("Not yet implemented")
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeMap(state, ByteBuf::writeString, ByteBuf::writeString)
