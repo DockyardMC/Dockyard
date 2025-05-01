@@ -3,7 +3,7 @@ package io.github.dockyardmc.data
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.tide.Codec
 
-abstract class DataComponent(val isSingleField: Boolean = false, val isList: Boolean = false) : NetworkWritable {
+abstract class DataComponent(val isSingleField: Boolean = false) : NetworkWritable {
 
     fun getId(): Int {
         return getIdOrNull() ?: throw NoSuchElementException("Data Component Registry does not have this component")

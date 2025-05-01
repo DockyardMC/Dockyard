@@ -6,7 +6,7 @@ import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
-class AttributeModifiersComponent(val attributes: List<Modifier>) : DataComponent(false, true) {
+class AttributeModifiersComponent(val attributes: List<Modifier>) : DataComponent(true) {
 
     override fun getHashCodec(): Codec<out DataComponent> {
         return HASH_CODEC
