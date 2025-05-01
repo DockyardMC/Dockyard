@@ -65,5 +65,10 @@ data class Particle(
         return ParticleRegistry.protocolIds.getOrThrow(this)
     }
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+
     override fun getNbt(): NBTCompound? = null
 }

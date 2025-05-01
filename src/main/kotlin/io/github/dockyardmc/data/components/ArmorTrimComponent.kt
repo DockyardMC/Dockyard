@@ -13,7 +13,7 @@ import io.netty.buffer.ByteBuf
 
 class ArmorTrimComponent(val material: TrimMaterial, val pattern: TrimPattern) : DataComponent() {
 
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 

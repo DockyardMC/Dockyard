@@ -88,6 +88,11 @@ data class WolfSoundVariant(
         return WolfVariantRegistry.protocolIds.getOrThrow(identifier)
     }
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+
     override fun getNbt(): NBTCompound {
         return NBT.Compound { builder ->
             builder.put("ambient_sound", ambientSound)

@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
 
 class TooltipDisplayComponent(val hideTooltip: Boolean, val hiddenComponents: List<KClass<out DataComponent>>): DataComponent() {
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 

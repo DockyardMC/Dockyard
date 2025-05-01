@@ -79,6 +79,10 @@ data class CatVariant(
     val assetId: String,
 ) : RegistryEntry {
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
     override fun getProtocolId(): Int {
         return CatVariantRegistry.protocolIds.getOrThrow(identifier)
     }

@@ -93,6 +93,11 @@ data class PotionEffect(
         return PotionEffectRegistry.protocolIds.getOrThrow(identifier)
     }
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+
     override fun getNbt(): NBTCompound? = null
 }
 

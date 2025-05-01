@@ -16,7 +16,7 @@ class CowVariantComponent(val variant: CowVariant) : DynamicVariantComponent<Cow
         }
     }
 
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 }

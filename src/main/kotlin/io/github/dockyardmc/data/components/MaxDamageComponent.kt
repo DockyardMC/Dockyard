@@ -8,7 +8,7 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class MaxDamageComponent(val maxDamage: Int): DataComponent() {
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 

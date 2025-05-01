@@ -8,15 +8,16 @@ object DataComponentHasher {
         val format: TranscoderCRC32C.HashContainer<*> = if (component.isSingleField) {
             TranscoderCRC32C.HashContainerValue()
         } else {
-            TranscoderCRC32C.HashContainerMap()
+            if (component.isList) TranscoderCRC32C.HashContainerList() else TranscoderCRC32C.HashContainerMap()
         }
 
-        (component.getCodec() as Codec<DataComponent>).writeTranscoded(TranscoderCRC32C, format, component, "")
+        (component.getHashCodec() as Codec<DataComponent>).writeTranscoded(TranscoderCRC32C, format, component, "")
 
         return when (format) {
             is TranscoderCRC32C.HashContainerMap -> CRC32CHasher.ofMap(format.getValue())
             is TranscoderCRC32C.HashContainerValue -> format.getValue()
-            else -> throw IllegalArgumentException("list not supported")
+            is TranscoderCRC32C.HashContainerList -> CRC32CHasher.ofList(format.getValue())
+            else -> throw IllegalArgumentException("not supported")
         }
     }
 }

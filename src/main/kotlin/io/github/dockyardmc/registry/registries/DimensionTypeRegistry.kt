@@ -169,6 +169,11 @@ data class DimensionType(
         return DimensionTypeRegistry.protocolIds.getOrThrow(identifier)
     }
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+
     override fun getNbt(): NBTCompound {
         return NBT.Compound {
             it.put("ambient_light", ambientLight)

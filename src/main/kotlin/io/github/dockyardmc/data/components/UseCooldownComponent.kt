@@ -10,7 +10,7 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class UseCooldownComponent(val seconds: Float, val cooldownGroup: String? = null) : DataComponent() {
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 

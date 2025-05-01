@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf
 
 class FoodComponent(val nutrition: Int, val saturationModifier: Float, val canAlwaysEat: Boolean) : DataComponent() {
 
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         return CODEC
     }
 

@@ -7,7 +7,7 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class RarityComponent(val rarity: ItemRarity) : DataComponent(true) {
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         return CODEC
     }
 

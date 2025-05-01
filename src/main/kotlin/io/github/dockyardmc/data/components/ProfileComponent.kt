@@ -16,7 +16,7 @@ import io.netty.buffer.ByteBuf
 import java.util.*
 
 class ProfileComponent(val name: String?, val uuid: UUID?, val properties: List<Property>) : DataComponent() {
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 

@@ -11,7 +11,7 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 data class PotDecorationsComponent(val back: Item, val left: Item, val right: Item, val front: Item) : DataComponent() {
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 

@@ -37,6 +37,10 @@ data class Tag(
     override fun getNbt(): NBTCompound? = null
     override fun getProtocolId(): Int = -1
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
     operator fun contains(identifier: String): Boolean {
         return tags.contains(identifier)
     }

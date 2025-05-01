@@ -109,4 +109,9 @@ data class Item(
     fun toItemStack(amount: Int = 1): ItemStack {
         return ItemStack(this, amount)
     }
+
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
 }

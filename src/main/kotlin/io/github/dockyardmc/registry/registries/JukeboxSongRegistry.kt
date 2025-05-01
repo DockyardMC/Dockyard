@@ -166,4 +166,9 @@ data class JukeboxSong(
             it.put("sound_event", sound)
         }
     }
+
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
 }

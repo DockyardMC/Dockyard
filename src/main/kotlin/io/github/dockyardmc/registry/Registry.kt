@@ -37,6 +37,7 @@ interface DynamicDataDrivenRegistry : DataDrivenRegistry, DynamicRegistry
 interface RegistryEntry : NetworkWritable {
     fun getNbt(): NBTCompound?
     fun getProtocolId(): Int
+    fun getEntryIdentifier(): String
 
     override fun write(buffer: ByteBuf) {
         buffer.writeVarInt(getProtocolId())

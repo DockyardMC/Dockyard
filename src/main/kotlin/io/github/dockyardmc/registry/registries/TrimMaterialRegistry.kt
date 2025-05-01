@@ -83,6 +83,11 @@ data class TrimMaterial(
         return TrimMaterialRegistry.protocolIds.getOrThrow(identifier)
     }
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+
     override fun getNbt(): NBTCompound {
         return NBT.Compound {
             it.put("asset_name", assetName)

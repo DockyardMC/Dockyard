@@ -16,7 +16,7 @@ class ChickenVariantComponent(val variant: ChickenVariant) : DynamicVariantCompo
         }
     }
 
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 }

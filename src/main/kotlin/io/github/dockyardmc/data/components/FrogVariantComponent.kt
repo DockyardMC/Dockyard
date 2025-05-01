@@ -16,7 +16,7 @@ class FrogVariantComponent(val variant: FrogVariant) : DynamicVariantComponent<F
         }
     }
 
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 }

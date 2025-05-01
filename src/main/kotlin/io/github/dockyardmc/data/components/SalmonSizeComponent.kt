@@ -8,7 +8,7 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 data class SalmonSizeComponent(val size: Size) : DataComponent() {
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 

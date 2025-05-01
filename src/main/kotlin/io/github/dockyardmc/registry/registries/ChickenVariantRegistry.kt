@@ -83,6 +83,10 @@ data class ChickenVariant(
         return ChickenVariantRegistry.protocolIds.getOrThrow(identifier)
     }
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
     override fun getNbt(): NBTCompound {
         return NBT.Compound { builder ->
             builder.put("asset_id", assetId)

@@ -88,4 +88,9 @@ data class Fluid(
     override fun getProtocolId(): Int {
         return FluidRegistry.protocolIds.getOrThrow(identifier)
     }
+
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
 }

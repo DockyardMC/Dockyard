@@ -13,7 +13,7 @@ class CustomNameComponent(val component: Component): DataComponent() {
 
     constructor(name: String): this(name.toComponent())
 
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 

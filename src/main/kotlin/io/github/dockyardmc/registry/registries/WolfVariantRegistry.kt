@@ -85,6 +85,11 @@ data class WolfVariant(
         return WolfVariantRegistry.protocolIds.getOrThrow(identifier)
     }
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+
     override fun getNbt(): NBTCompound {
         return NBT.Compound { builder ->
             builder.put("assets") { inner ->

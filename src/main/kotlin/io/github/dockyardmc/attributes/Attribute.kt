@@ -1,8 +1,12 @@
 package io.github.dockyardmc.attributes
 
+import io.github.dockyardmc.codec.INLINE
+import io.github.dockyardmc.codec.RegistryCodec
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.registry.registries.Attribute
 import io.github.dockyardmc.registry.registries.AttributeRegistry
+import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.Codecs
 import io.netty.buffer.ByteBuf
 
 enum class AttributeOperation {
@@ -24,7 +28,6 @@ enum class AttributeSlot {
     BODY
 }
 
-
 data class Modifier(
     val attribute: Attribute,
     val attributeModifier: AttributeModifier,
@@ -37,6 +40,21 @@ data class Modifier(
     }
 
     companion object {
+
+        val NETWORK_CODEC = Codec.of(
+            "attribute", RegistryCodec.NetworkType<Attribute>(AttributeRegistry), Modifier::attribute,
+            Codec.INLINE, AttributeModifier.CODEC, Modifier::attributeModifier,
+            "slot", Codec.enum<EquipmentSlotGroup>(), Modifier::equipmentSlot,
+            ::Modifier
+        )
+
+        val HASH_CODEC = Codec.of(
+            "attribute", RegistryCodec.HashType<Attribute>(AttributeRegistry), Modifier::attribute,
+            Codec.INLINE, AttributeModifier.CODEC, Modifier::attributeModifier,
+            "slot", Codec.enum<EquipmentSlotGroup>(), Modifier::equipmentSlot,
+            ::Modifier
+        )
+
         fun read(buffer: ByteBuf): Modifier {
             val attribute = AttributeRegistry.getByProtocolId(buffer.readVarInt())
             val attributeModifier = AttributeModifier.read(buffer)
@@ -59,6 +77,13 @@ data class AttributeModifier(
     }
 
     companion object {
+        val CODEC = Codec.of(
+            "id", Codecs.String, AttributeModifier::id,
+            "amount", Codecs.Double, AttributeModifier::amount,
+            "operation", Codec.enum<AttributeOperation>(), AttributeModifier::operation,
+            ::AttributeModifier
+        )
+
         fun read(buffer: ByteBuf): AttributeModifier {
             return AttributeModifier(
                 buffer.readString(),

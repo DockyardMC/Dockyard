@@ -25,7 +25,7 @@ class EquippableComponent(
     val damageOnHurt: Boolean,
     val equipOnInteract: Boolean
 ) : DataComponent() {
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 

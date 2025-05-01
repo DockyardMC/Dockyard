@@ -75,4 +75,8 @@ data class Attribute(
     override fun getProtocolId(): Int {
         return AttributeRegistry.protocolIdMapReversed.getOrThrow(this)
     }
+
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
 }

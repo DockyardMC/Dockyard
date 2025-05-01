@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf
 
 class DamageComponent(val damage: Int) : DataComponent(true) {
 
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         return CODEC
     }
 

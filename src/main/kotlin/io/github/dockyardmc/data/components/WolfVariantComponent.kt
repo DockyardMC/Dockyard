@@ -16,7 +16,7 @@ class WolfVariantComponent(val variant: WolfVariant) : DynamicVariantComponent<W
         }
     }
 
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 }

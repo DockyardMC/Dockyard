@@ -14,7 +14,7 @@ class MapPostProcessing(val type: Type) : DataComponent() {
         SCALE
     }
 
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 

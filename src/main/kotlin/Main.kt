@@ -1,7 +1,7 @@
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.data.DataComponentHasher
-import io.github.dockyardmc.data.components.FoodComponent
+import io.github.dockyardmc.data.components.AttributeModifiersComponent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.player.systems.GameMode
@@ -22,7 +22,7 @@ fun main() {
         player.permissions.add("*")
     }
 
-    val component = FoodComponent(5, 6f, true)
+    val component = AttributeModifiersComponent(listOf())
 
     val hash = DataComponentHasher.hash(component)
 

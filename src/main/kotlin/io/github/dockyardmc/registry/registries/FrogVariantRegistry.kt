@@ -88,4 +88,9 @@ data class FrogVariant(
             builder.put("asset_id", assetId)
         }
     }
+
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
 }

@@ -16,7 +16,7 @@ class PigVariantComponent(val variant: PigVariant) : DynamicVariantComponent<Pig
         }
     }
 
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 }

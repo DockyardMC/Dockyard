@@ -19,7 +19,7 @@ class ConsumableComponent(
     val hasParticles: Boolean,
     val effects: List<ConsumeEffect>
 ) : DataComponent() {
-    override fun getCodec(): Codec<out DataComponent> {
+    override fun getHashCodec(): Codec<out DataComponent> {
         TODO("Not yet implemented")
     }
 
