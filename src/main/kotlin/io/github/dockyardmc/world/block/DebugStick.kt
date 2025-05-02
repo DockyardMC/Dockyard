@@ -99,8 +99,6 @@ class DebugStick : DefaultImplementationModule {
         }
 
         player.inventory[player.heldSlotIndex.value] = item.copy().withComponent(DebugStickItemComponent(map))
-        player.inventory[player.heldSlotIndex.value] = item.copy().withComponent(DebugStickItemComponent(map))
-        player.inventory.sendInventoryUpdate(player.heldSlotIndex.value)
 
         val currentValueOfSelectedState = block.blockStates[next.name]
         if (!silent) player.sendActionBar("selected \"${next.name}\" ($currentValueOfSelectedState)")
