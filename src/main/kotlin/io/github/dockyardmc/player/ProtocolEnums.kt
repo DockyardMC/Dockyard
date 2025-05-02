@@ -129,7 +129,7 @@ fun Direction.getOpposite(): Direction {
     }
 }
 
-fun Direction.toVector3f(): Vector3f {
+fun Direction.toNormalizedVector3f(): Vector3f {
     return when (this) {
         Direction.NORTH -> Vector3f(0f, 0f, -1f)
         Direction.SOUTH -> Vector3f(0f, 0f, 1f)

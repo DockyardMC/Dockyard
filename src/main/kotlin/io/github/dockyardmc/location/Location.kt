@@ -6,6 +6,7 @@ import io.github.dockyardmc.maths.vectors.Vector2f
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
@@ -64,14 +65,15 @@ class Location(
     override fun toString(): String =
         "Location(x=${x.truncate(2)}, y=${y.truncate(2)}, z=${z.truncate(2)}, yaw=$yaw, pitch=$pitch, world=${world.name})"
 
-    fun getAdjacentLocations(): List<Location> {
-        return listOf(
-            getBlockLocation().add(1, 0, 0),
-            getBlockLocation().add(-1, 0, 0),
-            getBlockLocation().add(0, 1, 0),
-            getBlockLocation().add(0, -1, 0),
-            getBlockLocation().add(0, 0, 1),
-            getBlockLocation().add(0, 0, -1),
+    fun getNeighbours(): Map<Direction, Location> {
+        val blockLocation = getBlockLocation()
+        return mapOf(
+            Direction.EAST to blockLocation.add(1, 0, 0),
+            Direction.WEST to blockLocation.add(-1, 0, 0),
+            Direction.UP to blockLocation.add(0, 1, 0),
+            Direction.DOWN to blockLocation.add(0, -1, 0),
+            Direction.SOUTH to blockLocation.add(0, 0, 1),
+            Direction.NORTH to blockLocation.add(0, 0, -1)
         )
     }
 
