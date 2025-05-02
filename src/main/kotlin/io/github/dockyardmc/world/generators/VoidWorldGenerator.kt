@@ -10,5 +10,5 @@ open class VoidWorldGenerator(val defaultBiome: Biome = Biomes.THE_VOID): WorldG
     override fun getBiome(x: Int, y: Int, z: Int): Biome = defaultBiome
 
     override val generateBaseChunks: Boolean
-        get() = false
+        get() = true
 }

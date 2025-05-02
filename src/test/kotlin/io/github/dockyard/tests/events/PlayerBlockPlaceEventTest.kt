@@ -7,12 +7,12 @@ import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
 import io.github.dockyardmc.events.PlayerFinishPlacingBlockEvent
 import io.github.dockyardmc.inventory.clearInventory
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundUseItemOnBlockPacket
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.maths.vectors.Vector3
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
@@ -21,6 +21,7 @@ import kotlin.test.assertTrue
 
 @TestFor(PlayerBlockPlaceEvent::class, PlayerFinishPlacingBlockEvent::class)
 class PlayerBlockPlaceEventTest {
+
     @BeforeTest
     fun prepare() {
         TestServer.getOrSetupServer()
@@ -32,8 +33,12 @@ class PlayerBlockPlaceEventTest {
         val placeCount = CountDownLatch(1)
         val finishCount = CountDownLatch(1)
 
-        pool.on<PlayerBlockPlaceEvent> { placeCount.countDown() }
-        pool.on<PlayerFinishPlacingBlockEvent> { finishCount.countDown() }
+        pool.on<PlayerBlockPlaceEvent> {
+            placeCount.countDown()
+        }
+        pool.on<PlayerFinishPlacingBlockEvent> {
+            finishCount.countDown()
+        }
 
         val player = PlayerTestUtil.getOrCreateFakePlayer()
         player.gameMode.value = GameMode.SURVIVAL
@@ -46,7 +51,7 @@ class PlayerBlockPlaceEventTest {
                 Vector3(0),
                 Direction.UP,
                 0f, 0f, 0f,
-                false, false, 0
+                insideBlock = false, hitWorldBorder = false, sequence = 0
             )
         )
 

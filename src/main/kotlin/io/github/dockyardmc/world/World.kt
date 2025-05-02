@@ -183,7 +183,8 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             log("World $name has finished loading!", WorldManager.LOG_TYPE)
             isLoaded.value = true
             playerJoinQueue.forEach(::join)
-            Events.dispatch(WorldFinishLoadingEvent(this))
+            val event = WorldFinishLoadingEvent(this)
+            Events.dispatch(event)
         }
 
         time.valueChanged {
