@@ -1,5 +1,7 @@
 package io.github.dockyardmc.item
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.tide.Codec
 import io.github.dockyardmc.tide.Transcoder
@@ -33,7 +35,9 @@ object TranscoderCRC32C : Transcoder<TranscoderCRC32C.HashContainer<*>> {
         }
 
         override fun add(field: String, value: Int) {
-            map[CRC32CHasher.ofString(field)] = value
+            val hashedFieldName = CRC32CHasher.ofString(field)
+            log("New entry in hash container map: $field (hashed field name: $hashedFieldName", LogType.USER_ACTION)
+            map[hashedFieldName] = value
         }
     }
 

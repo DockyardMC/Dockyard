@@ -69,7 +69,7 @@ object CRC32CHasher {
             .putInt(string.length)
             .putChars(string)
             .hash()
-        log("Hashed string $hashed", LogType.TRACE)
+        log("Hashed string '$string' $hashed", LogType.TRACE)
         return hashed
     }
 
