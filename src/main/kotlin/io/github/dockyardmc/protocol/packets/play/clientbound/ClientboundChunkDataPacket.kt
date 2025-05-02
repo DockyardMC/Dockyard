@@ -1,18 +1,19 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.protocol.types.writeMap
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.world.chunk.ChunkUtils
-import io.github.dockyardmc.utils.writeMSNBT
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.block.BlockEntity
 import io.github.dockyardmc.world.chunk.ChunkSection
+import io.github.dockyardmc.world.chunk.Heightmap
 import io.github.dockyardmc.world.chunk.writeChunkSection
+import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import it.unimi.dsi.fastutil.objects.ObjectCollection
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
-class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, sections: MutableList<ChunkSection>, blockEntities: ObjectCollection<BlockEntity>, light: Light) : ClientboundPacket() {
+class ClientboundChunkDataPacket(x: Int, z: Int, heightmaps: Map<Heightmap.Type, List<Long>>, sections: MutableList<ChunkSection>, blockEntities: ObjectCollection<BlockEntity>, light: Light) : ClientboundPacket() {
 
     init {
         //X Z
@@ -20,7 +21,7 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, section
         buffer.writeInt(z)
 
         //Heightmaps
-        buffer.writeMSNBT(heightMap)
+        buffer.writeMap<Int, List<Long>>(heightmaps.mapKeys { key -> key.key.ordinal }, ByteBuf::writeVarInt, ByteBuf::writeLongArray)
 
         //Chunk Sections
         val chunkSectionData = Unpooled.buffer()
@@ -40,11 +41,11 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, section
         }
 
         // Light stuff
-        buffer.writeLongArray(light.skyMask.toLongArray())
-        buffer.writeLongArray(light.blockMask.toLongArray())
+        buffer.writeLongArray(light.skyMask.toLongArray().toList())
+        buffer.writeLongArray(light.blockMask.toLongArray().toList())
 
-        buffer.writeLongArray(light.emptySkyMask.toLongArray())
-        buffer.writeLongArray(light.emptyBlockMask.toLongArray())
+        buffer.writeLongArray(light.emptySkyMask.toLongArray().toList())
+        buffer.writeLongArray(light.emptyBlockMask.toLongArray().toList())
 
         buffer.writeByteArray(light.skyLight)
         buffer.writeByteArray(light.blockLight)

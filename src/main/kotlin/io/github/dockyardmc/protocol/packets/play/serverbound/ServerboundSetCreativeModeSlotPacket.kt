@@ -39,14 +39,13 @@ class ServerboundSetCreativeModeSlotPacket(var slot: Int, var clickedItem: ItemS
             return
         }
 
-
         player.inventory[newSlot] = clickedItem
     }
 
     companion object {
         fun read(buffer: ByteBuf): ServerboundSetCreativeModeSlotPacket {
             val slot = buffer.readShort().toInt()
-            val clickedItem = ItemStack.read(buffer)
+            val clickedItem = ItemStack.read(buffer, true, false)
             return ServerboundSetCreativeModeSlotPacket(slot, clickedItem)
         }
     }

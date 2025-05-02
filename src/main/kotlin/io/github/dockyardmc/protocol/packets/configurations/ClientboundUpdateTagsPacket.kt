@@ -4,7 +4,7 @@ import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.writeList
+import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.registry.Registry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryManager
@@ -36,6 +36,10 @@ data class Tag(
 
     override fun getNbt(): NBTCompound? = null
     override fun getProtocolId(): Int = -1
+
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
 
     operator fun contains(identifier: String): Boolean {
         return tags.contains(identifier)

@@ -4,9 +4,7 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
-import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.events.EventPool
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
@@ -19,6 +17,7 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scheduler.runLaterAsync
 import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.world.WorldManager
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest

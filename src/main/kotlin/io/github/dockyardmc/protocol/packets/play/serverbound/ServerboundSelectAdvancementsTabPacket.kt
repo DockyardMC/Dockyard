@@ -2,8 +2,8 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerSelectAdvancementsTabEvent
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSelectAdvancementsTabPacket
@@ -27,7 +27,7 @@ class ServerboundSelectAdvancementsTabPacket(val action: Action, val identifier:
 
     companion object {
         fun read(buffer: ByteBuf): ServerboundSelectAdvancementsTabPacket {
-            val action = buffer.readVarIntEnum<Action>()
+            val action = buffer.readEnum<Action>()
 
             val id: String? = if (action == Action.OPENED_TAB) {
                 buffer.readString()

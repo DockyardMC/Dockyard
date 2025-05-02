@@ -9,7 +9,6 @@ import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.handlers.*
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.vectors.Vector3d
@@ -20,6 +19,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.AppliedPotionEffectSettings
 import io.github.dockyardmc.registry.DamageTypes

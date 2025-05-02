@@ -112,6 +112,10 @@ data class RegistryBlock(
     val visualShape: Map<Int, String>,
 ): RegistryEntry {
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
     @Contextual
     val possibleStatesReversed = Int2ObjectOpenHashMap(possibleStates.reversed())
 

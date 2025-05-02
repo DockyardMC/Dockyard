@@ -79,6 +79,11 @@ data class EntityType(
         return EntityTypeRegistry.protocolIds.getOrThrow(identifier)
     }
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+
     override fun getNbt(): NBTCompound? = null
 }
 

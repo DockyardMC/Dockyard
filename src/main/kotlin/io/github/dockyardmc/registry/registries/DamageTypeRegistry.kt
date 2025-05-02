@@ -122,6 +122,11 @@ data class DamageType(
         return DamageTypeRegistry.protocolIds.getOrThrow(identifier)
     }
 
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+
     override fun getNbt(): NBTCompound {
         return NBT.Compound {
             it.put("exhaustion", this.exhaustion)

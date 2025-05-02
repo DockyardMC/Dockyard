@@ -1,12 +1,8 @@
 package io.github.dockyardmc.registry.registries
 
-import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.extentions.reversed
-import io.github.dockyardmc.extentions.toByteBuf
-import io.github.dockyardmc.item.ItemComponent
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.readComponent
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
@@ -44,31 +40,31 @@ object ItemRegistry : DataDrivenRegistry {
 
         //TODO Figure default components out for future release, keeping this not implement for the time being so this update can move on
 
-        val componentsBinary = ClassLoader.getSystemResource("registry/components.bin").openStream()
-        val byteArray = componentsBinary.readAllBytes()
-        componentsBinary.close()
-
-        val buffer = byteArray.toByteBuf()
-        val size = buffer.readVarInt()
-
-        for (i in 0 until size) {
-            val itemIdentifier = buffer.readString()
-            val mapSize = buffer.readVarInt()
-
-            val defaultComponents = mutableListOf<ItemComponent>()
-
-            for (i1 in 0 until mapSize) {
-                val componentId = buffer.readVarInt()
-                val length = buffer.readVarInt()
-                val component = buffer.readBytes(length)
-                val readComponent = component.readComponent(componentId)
-                defaultComponents.add(readComponent)
-                component.release()
-            }
-
-            ItemRegistry[itemIdentifier].defaultComponents = defaultComponents
-        }
-        buffer.release()
+//        val componentsBinary = ClassLoader.getSystemResource("registry/components.bin").openStream()
+//        val byteArray = componentsBinary.readAllBytes()
+//        componentsBinary.close()
+//
+//        val buffer = byteArray.toByteBuf()
+//        val size = buffer.readVarInt()
+//
+//        for (i in 0 until size) {
+//            val itemIdentifier = buffer.readString()
+//            val mapSize = buffer.readVarInt()
+//
+//            val defaultComponents = mutableListOf<ItemComponent>()
+//
+//            for (i1 in 0 until mapSize) {
+//                val componentId = buffer.readVarInt()
+//                val length = buffer.readVarInt()
+//                val component = buffer.readBytes(length)
+//                val readComponent = component.readComponent(componentId)
+//                defaultComponents.add(readComponent)
+//                component.release()
+//            }
+//
+//            ItemRegistry[itemIdentifier].defaultComponents = defaultComponents
+//        }
+//        buffer.release()
     }
 
     override fun get(identifier: String): Item {
@@ -100,7 +96,7 @@ data class Item(
     val isDamageable: Boolean,
     val isBlock: Boolean,
     @Transient
-    var defaultComponents: List<ItemComponent>? = null
+    var defaultComponents: List<DataComponent>? = null
 ) : RegistryEntry {
 
     override fun getNbt(): NBTCompound? = null
@@ -113,4 +109,9 @@ data class Item(
     fun toItemStack(amount: Int = 1): ItemStack {
         return ItemStack(this, amount)
     }
+
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
 }
