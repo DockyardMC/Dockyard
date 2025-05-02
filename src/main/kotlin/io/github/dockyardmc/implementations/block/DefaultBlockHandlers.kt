@@ -1,6 +1,7 @@
 package io.github.dockyardmc.implementations.block
 
 import io.github.dockyardmc.implementations.DefaultImplementationModule
+import io.github.dockyardmc.world.block.DebugStick
 import io.github.dockyardmc.world.block.handlers.*
 
 class DefaultBlockHandlers: DefaultImplementationModule {
@@ -34,6 +35,8 @@ class DefaultBlockHandlers: DefaultImplementationModule {
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:trapdoors", TrapdoorBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:shulker_boxes", ShulkerboxBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:doors", DoorBlockHandler())
+
+        DebugStick().register()
 
         facingBlocks.forEach { block -> BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, block, FacingBlockHandler()) }
     }

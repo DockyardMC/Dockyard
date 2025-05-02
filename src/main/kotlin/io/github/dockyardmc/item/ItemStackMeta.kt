@@ -33,11 +33,11 @@ class ItemStackMeta {
     }
 
     fun withComponent(vararg component: ItemComponent) {
-        component.forEach(components::add)
+        component.forEach(components::addOrUpdate)
     }
 
     fun withComponent(components: List<ItemComponent>) {
-        components.forEach(this.components::add)
+        components.forEach(this.components::addOrUpdate)
     }
 
     fun withDisplayName(displayName: String) {
@@ -131,7 +131,7 @@ class ItemStackMeta {
     }
 
     fun isUnbreakable(unbreakable: Boolean) {
-        if(unbreakable) components.add(UnbreakableItemComponent()) else components.removeByType(UnbreakableItemComponent::class)
+        if(unbreakable) components.addOrUpdate(UnbreakableItemComponent()) else components.removeByType(UnbreakableItemComponent::class)
     }
 
     fun withUnbreakable(unbreakable: Boolean) {

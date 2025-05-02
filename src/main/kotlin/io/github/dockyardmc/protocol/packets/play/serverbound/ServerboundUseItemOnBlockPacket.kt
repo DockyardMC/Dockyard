@@ -68,19 +68,22 @@ class ServerboundUseItemOnBlockPacket(
             pos.toLocation(player.world)
         )
         Events.dispatch(event)
+
         if (event.cancelled) cancelled = true
 
         if (!event.cancelled) startConsumingIfApplicable(item, player)
 
+        var used = false
         BlockHandlerManager.getAllFromRegistryBlock(originalBlock.registryBlock).forEach { handler ->
-            val used = handler.onUse(player, player.getHeldItem(PlayerHand.MAIN_HAND), originalBlock, face, pos.toLocation(player.world), pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ))
+            used = handler.onUse(player, player.getHeldItem(PlayerHand.MAIN_HAND), originalBlock, face, pos.toLocation(player.world), pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ))
             if (!used) {
-                pos.toLocation(player.world).getChunk()?.let {
-                    player.sendPacket(it.packet)
+                pos.toLocation(player.world).getChunk()?.let { chunk ->
+                    player.sendPacket(chunk.packet)
                 }
             }
         }
 
+        if(used) return
         if ((item.material.isBlock) && (item.material != Items.AIR) && (player.gameMode.value != GameMode.ADVENTURE && player.gameMode.value != GameMode.SPECTATOR)) {
             var block: Block = (BlockRegistry.getOrNull(item.material.identifier) ?: Blocks.AIR).toBlock()
 

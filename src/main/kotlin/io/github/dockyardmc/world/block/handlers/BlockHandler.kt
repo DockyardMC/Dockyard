@@ -42,7 +42,7 @@ interface BlockHandler {
         cursor: Vector3f
     ): Boolean {
         // Nothing by default
-        return true
+        return false
     }
 
     fun onAttack(
