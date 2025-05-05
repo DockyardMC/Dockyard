@@ -35,6 +35,8 @@ class DefaultBlockHandlers: DefaultImplementationModule {
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:trapdoors", TrapdoorBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:shulker_boxes", ShulkerboxBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:doors", DoorBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:fences", FenceBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:iron_bars", FenceBlockHandler())
 
         DebugStick().register()
 
