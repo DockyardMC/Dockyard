@@ -9,17 +9,8 @@ import io.github.dockyardmc.world.block.Block
 
 class StairBlockHandler : BlockHandler {
 
-    companion object {
-        fun isStairs(block: Block): Boolean {
-            return block.identifier.endsWith("_stairs")
-        }
-    }
-
     override fun onUpdateByNeighbour(block: Block, world: World, location: Location, neighbour: Block, neighbourLocation: Location) {
-
-//        location.world.scheduler.runLater(1.ticks) {
         location.setBlock(location.block.withBlockStates("shape" to getShape(location.block, location)))
-//        }
     }
 
     override fun onPlace(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Block? {
@@ -118,6 +109,11 @@ class StairBlockHandler : BlockHandler {
 
         val isDif = !isStairs(worldBlock) || worldBlockFacing != facing || worldBlockHalf != half
         return isDif
+    }
+
+
+    private fun isStairs(block: Block): Boolean {
+        return block.identifier.endsWith("_stairs")
     }
 
     enum class Axis {
