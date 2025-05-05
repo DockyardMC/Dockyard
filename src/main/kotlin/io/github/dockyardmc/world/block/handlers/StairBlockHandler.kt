@@ -4,17 +4,22 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.player.*
-import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
 
 class StairBlockHandler : BlockHandler {
 
+    companion object {
+        fun isStairs(block: Block): Boolean {
+            return block.identifier.endsWith("_stairs")
+        }
+    }
+
     override fun onUpdateByNeighbour(block: Block, world: World, location: Location, neighbour: Block, neighbourLocation: Location) {
-        location.setBlock(block.withBlockStates("shape" to getShape(block, location)))
-        debug("current: ${block.identifier} (${block.blockStates})")
-        debug("update: ${getShape(block, neighbourLocation)}")
-//        location.setBlock(Blocks.REDSTONE_BLOCK)
+
+//        location.world.scheduler.runLater(1.ticks) {
+        location.setBlock(location.block.withBlockStates("shape" to getShape(location.block, location)))
+//        }
     }
 
     override fun onPlace(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Block? {
@@ -32,13 +37,6 @@ class StairBlockHandler : BlockHandler {
         states["shape"] = shape
 
         val finalBlock = block.withBlockStates(states)
-
-        location.getNeighbours().forEach { (direction, neighbourLocation) ->
-            val handlers = BlockHandlerManager.getAllFromRegistryBlock(neighbourLocation.block.registryBlock)
-            handlers.forEach { handler ->
-                handler.onUpdateByNeighbour(neighbourLocation.block, neighbourLocation.world, neighbourLocation, finalBlock, location)
-            }
-        }
 
         return finalBlock
     }
@@ -95,10 +93,6 @@ class StairBlockHandler : BlockHandler {
 //        log(block.blockStates.toString(), LogType.CRITICAL)
         val direction = block.blockStates["facing"] ?: "north"
         return Direction.valueOf(direction.uppercase())
-    }
-
-    private fun isStairs(block: Block): Boolean {
-        return block.identifier.endsWith("_stairs")
     }
 
     fun getAxis(direction: Direction): Axis {

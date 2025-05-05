@@ -511,15 +511,22 @@ class Player(
         if (item.material == Items.DEBUG_STICK) cancelled = true
 
         if (cancelled) {
-            this.world.getChunkAt(location)?.let { this.sendPacket(it.packet) }
+            this.world.getChunkAt(location)?.let { chunk -> this.sendPacket(chunk.packet) }
             return
         }
+
+        this.world.setBlock(event.location, Blocks.AIR)
 
         BlockHandlerManager.getAllFromRegistryBlock(block.registryBlock).forEach { handler ->
             handler.onDestroy(block, world, location)
         }
+        location.getNeighbours().forEach { (_, neighbourLocation) ->
+            val handlers = BlockHandlerManager.getAllFromRegistryBlock(neighbourLocation.block.registryBlock)
+            handlers.forEach { handler ->
+                handler.onUpdateByNeighbour(neighbourLocation.block, neighbourLocation.world, neighbourLocation, block, location)
+            }
+        }
 
-        this.world.setBlock(event.location, Blocks.AIR)
         this.world.players.filter { it != this }.spawnParticle(
             event.location.add(0.5, 0.5, 0.5),
             Particles.BLOCK,
