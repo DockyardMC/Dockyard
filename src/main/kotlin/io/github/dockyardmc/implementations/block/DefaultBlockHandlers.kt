@@ -37,6 +37,9 @@ class DefaultBlockHandlers: DefaultImplementationModule {
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:doors", DoorBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:fences", FenceBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:iron_bars", FenceBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:snow", SnowLayerBlockHandler())
+
+        BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:fence_gates", FacingBlockHandler())
 
         DebugStick().register()
 
