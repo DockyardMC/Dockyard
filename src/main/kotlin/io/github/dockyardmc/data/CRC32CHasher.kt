@@ -2,10 +2,16 @@ package io.github.dockyardmc.data
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.protocol.DataComponentHashable
+import io.github.dockyardmc.registry.RegistryEntry
 
 object CRC32CHasher {
-    private val KEY_COMPARATOR: Comparator<Map.Entry<Int, Int>> = java.util.Map.Entry.comparingByKey(Comparator.comparingLong { x: Int? -> Integer.toUnsignedLong(x!!) })
-    private val VALUE_COMPARATOR: Comparator<Map.Entry<Int, Int>> = java.util.Map.Entry.comparingByValue(Comparator.comparingLong { x: Int? -> Integer.toUnsignedLong(x!!) })
+
+    // should have 0 probability to appear as CRC32C hash due to odd parity, we can use it as marker for inline values in maps
+    const val INLINE: Int = 0x00000001
+
+    private val KEY_COMPARATOR: Comparator<Map.Entry<Int, Int>> = java.util.Map.Entry.comparingByKey(Comparator.comparingLong { x: Int -> Integer.toUnsignedLong(x) })
+    private val VALUE_COMPARATOR: Comparator<Map.Entry<Int, Int>> = java.util.Map.Entry.comparingByValue(Comparator.comparingLong { x: Int -> Integer.toUnsignedLong(x) })
     private val MAP_COMPARATOR: Comparator<Map.Entry<Int, Int>> = KEY_COMPARATOR.thenComparing(VALUE_COMPARATOR)
 
     const val TAG_EMPTY: Byte = 1
@@ -73,6 +79,14 @@ object CRC32CHasher {
         return hashed
     }
 
+    fun ofRegistryEntry(entry: RegistryEntry): Int {
+        return ofString(entry.getEntryIdentifier())
+    }
+
+    inline fun <reified T : Enum<T>> ofEnum(enum: T): Int {
+        return ofString(enum.name.lowercase())
+    }
+
     fun ofEmptyList(): Int = EMPTY_LIST
 
 
@@ -83,26 +97,68 @@ object CRC32CHasher {
     fun ofList(int: List<Int>): Int {
         val hasher = Hasher().putByte(TAG_LIST_START)
         int.forEach { number ->
-            hasher.putInt(number)
+            hasher.putIntBytes(number)
         }
 
         return hasher.putByte(TAG_LIST_END).hash()
+    }
+
+    @JvmName("ofListHashable")
+    fun ofList(hashables: List<DataComponentHashable>): Int {
+        return ofList(hashables.map { item -> item.hashStruct().getHash() })
     }
 
     fun onEmptyMap(): Int {
         return EMPTY_MAP
     }
 
-    fun ofMap(map: Map<Int, Int>): Int {
+    fun of(unit: HashStruct.Builder.() -> Unit): HashStruct {
+        val builder = HashStruct.Builder()
+        unit.invoke(builder)
+        return HashStruct(builder.fields)
+    }
+
+    fun ofMap(map: Map<Int, Int>, customHasher: Hasher? = null): Int {
         if (map.isEmpty()) return EMPTY_MAP
-        val hasher = Hasher().putByte(TAG_MAP_START)
+        val hasher = customHasher ?: Hasher()
+
+        hasher.putByte(TAG_MAP_START)
+
         map.entries.stream().sorted(MAP_COMPARATOR).forEach { entry ->
-            hasher.putIntBytes(entry.key)
+            log("key: ${entry.key}", LogType.DEBUG)
+            log("value: ${entry.value}", LogType.DEBUG)
+            if (entry.key != INLINE) hasher.putIntBytes(entry.key)
             hasher.putIntBytes(entry.value)
         }
 
-        return hasher.putByte(TAG_MAP_END).hash()
+        hasher.putByte(TAG_MAP_END)
+        return hasher.hash()
     }
+
+    data class WrappedKey(val value: Int, val isInline: Boolean)
+
+    @JvmName("ofPairsMap")
+    fun ofMap(vararg pairs: Pair<Int, Int>): Int {
+        return ofMap(pairs.toMap())
+    }
+
+    @JvmName("ofMapNoInline")
+    fun ofMap(vararg pairs: Pair<String, Int>): Int {
+        val newMap: Map<Int, Int> = pairs.toMap().mapKeys { key -> if (key.key.isEmpty()) INLINE else ofString(key.key) }
+        return ofMap(newMap)
+    }
+
+    @JvmName("ofMapNoInlineaaaaaa")
+    fun ofMap(map: Map<String, Int>): Int {
+        val newMap: Map<Int, Int> = map.mapKeys { key -> if (key.key.isEmpty()) INLINE else ofString(key.key) }
+        return ofMap(newMap)
+    }
+
+    @JvmName("ofMapInlineTest")
+    fun ofMap(hasher: Hasher, vararg pairs: Pair<String, Int>): Int {
+        return ofMap(pairs.toMap().mapKeys { key -> if (key.key.isEmpty()) INLINE else ofString(key.key) }, hasher)
+    }
+
 
     fun ofByteArray(byteArray: ByteArray): Int {
         return Hasher().putByte(TAG_BYTE_ARRAY_START).putBytes(byteArray).putByte(TAG_BYTE_ARRAY_END).hash()
@@ -124,3 +180,4 @@ object CRC32CHasher {
         return hasher.putByte(TAG_LONG_ARRAY_END).hash()
     }
 }
+

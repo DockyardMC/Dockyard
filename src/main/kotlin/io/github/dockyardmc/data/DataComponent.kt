@@ -1,9 +1,9 @@
 package io.github.dockyardmc.data
 
+import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.NetworkWritable
-import io.github.dockyardmc.tide.Codec
 
-abstract class DataComponent(val isSingleField: Boolean = false) : NetworkWritable {
+abstract class DataComponent(val isSingleField: Boolean = false) : NetworkWritable, DataComponentHashable {
 
     fun getId(): Int {
         return getIdOrNull() ?: throw NoSuchElementException("Data Component Registry does not have this component")
@@ -12,8 +12,4 @@ abstract class DataComponent(val isSingleField: Boolean = false) : NetworkWritab
     fun getIdOrNull(): Int? {
         return DataComponentRegistry.dataComponentsByIdReversed.getOrDefault(this::class, null)
     }
-
-    abstract fun getHashCodec(): Codec<out DataComponent>
-
-//    abstract fun hash(hasher: Hasher): Int
 }

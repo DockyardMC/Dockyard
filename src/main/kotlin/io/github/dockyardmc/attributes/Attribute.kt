@@ -2,7 +2,10 @@ package io.github.dockyardmc.attributes
 
 import io.github.dockyardmc.codec.INLINE
 import io.github.dockyardmc.codec.RegistryCodec
+import io.github.dockyardmc.data.CRC32CHasher
+import io.github.dockyardmc.data.HashStruct
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.registry.registries.Attribute
 import io.github.dockyardmc.registry.registries.AttributeRegistry
 import io.github.dockyardmc.tide.Codec
@@ -10,9 +13,9 @@ import io.github.dockyardmc.tide.Codecs
 import io.netty.buffer.ByteBuf
 
 enum class AttributeOperation {
-    ADD,
-    MULTIPLY_BASE,
-    MULTIPLY_TOTAL
+    ADD_VALUE,
+    ADD_MULTIPLY_BASE,
+    ADD_MULTIPLY_TOTAL
 }
 
 enum class AttributeSlot {
@@ -32,7 +35,7 @@ data class Modifier(
     val attribute: Attribute,
     val attributeModifier: AttributeModifier,
     val equipmentSlot: EquipmentSlotGroup
-) {
+) : DataComponentHashable {
     fun write(buffer: ByteBuf) {
         buffer.writeVarInt(attribute.getProtocolId())
         attributeModifier.write(buffer)
@@ -40,16 +43,8 @@ data class Modifier(
     }
 
     companion object {
-
         val NETWORK_CODEC = Codec.of(
             "attribute", RegistryCodec.NetworkType<Attribute>(AttributeRegistry), Modifier::attribute,
-            Codec.INLINE, AttributeModifier.CODEC, Modifier::attributeModifier,
-            "slot", Codec.enum<EquipmentSlotGroup>(), Modifier::equipmentSlot,
-            ::Modifier
-        )
-
-        val HASH_CODEC = Codec.of(
-            "attribute", RegistryCodec.HashType<Attribute>(AttributeRegistry), Modifier::attribute,
             Codec.INLINE, AttributeModifier.CODEC, Modifier::attributeModifier,
             "slot", Codec.enum<EquipmentSlotGroup>(), Modifier::equipmentSlot,
             ::Modifier
@@ -63,17 +58,33 @@ data class Modifier(
             return Modifier(attribute, attributeModifier, slot)
         }
     }
+
+    override fun hashStruct(): HashStruct {
+        return CRC32CHasher.of {
+            static("type", CRC32CHasher.ofString(attribute.identifier))
+            inline(attributeModifier.hashStruct())
+            static("slot", CRC32CHasher.ofEnum(equipmentSlot))
+        }
+    }
 }
 
 data class AttributeModifier(
     val id: String,
     val amount: Double,
     val operation: AttributeOperation
-) {
+) : DataComponentHashable {
     fun write(buffer: ByteBuf) {
         buffer.writeString(id)
         buffer.writeDouble(amount)
         buffer.writeEnum<AttributeOperation>(operation)
+    }
+
+    override fun hashStruct(): HashStruct {
+        return CRC32CHasher.of {
+            static("id", CRC32CHasher.ofString(id))
+            static("amount", CRC32CHasher.ofDouble(amount))
+            static("operation", CRC32CHasher.ofEnum(operation))
+        }
     }
 
     companion object {
