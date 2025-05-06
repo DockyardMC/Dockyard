@@ -1,9 +1,10 @@
 package io.github.dockyardmc.implementations.block
 
 import io.github.dockyardmc.implementations.DefaultImplementationModule
+import io.github.dockyardmc.world.block.DebugStick
 import io.github.dockyardmc.world.block.handlers.*
 
-class DefaultBlockHandlers: DefaultImplementationModule {
+class DefaultBlockHandlers : DefaultImplementationModule {
 
     private val facingBlocks: List<String> = listOf(
         "minecraft:furnace",
@@ -34,7 +35,20 @@ class DefaultBlockHandlers: DefaultImplementationModule {
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:trapdoors", TrapdoorBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:shulker_boxes", ShulkerboxBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:doors", DoorBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:fences", FenceBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:iron_bars", FenceBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:snow", SnowLayerBlockHandler())
 
-        facingBlocks.forEach { block -> BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, block, FacingBlockHandler()) }
+        val doublePlantHandler = DoublePlantBlockHandler()
+        DoublePlantBlockHandler.doublePlants.forEach { block ->
+            BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, block.identifier, doublePlantHandler)
+        }
+
+        BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:fence_gates", FacingBlockHandler())
+
+        DebugStick().register()
+
+        val facingBlockHandler = FacingBlockHandler()
+        facingBlocks.forEach { block -> BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, block, facingBlockHandler) }
     }
 }

@@ -8,6 +8,8 @@ import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.readBlockPosition
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.systems.GameMode
@@ -19,8 +21,6 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.isDoubleInteract
-import io.github.dockyardmc.maths.vectors.Vector3
-import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.block.GeneralBlockPlacementRules
 import io.github.dockyardmc.world.block.handlers.BlockHandlerManager
@@ -68,19 +68,22 @@ class ServerboundUseItemOnBlockPacket(
             pos.toLocation(player.world)
         )
         Events.dispatch(event)
+
         if (event.cancelled) cancelled = true
 
         if (!event.cancelled) startConsumingIfApplicable(item, player)
 
+        var used = false
         BlockHandlerManager.getAllFromRegistryBlock(originalBlock.registryBlock).forEach { handler ->
-            val used = handler.onUse(player, player.getHeldItem(PlayerHand.MAIN_HAND), originalBlock, face, pos.toLocation(player.world), pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ))
+            used = handler.onUse(player, player.getHeldItem(PlayerHand.MAIN_HAND), originalBlock, face, pos.toLocation(player.world), pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ))
             if (!used) {
-                pos.toLocation(player.world).getChunk()?.let {
-                    player.sendPacket(it.packet)
+                pos.toLocation(player.world).getChunk()?.let { chunk ->
+                    player.sendPacket(chunk.packet)
                 }
             }
         }
 
+        if (used) return
         if ((item.material.isBlock) && (item.material != Items.AIR) && (player.gameMode.value != GameMode.ADVENTURE && player.gameMode.value != GameMode.SPECTATOR)) {
             var block: Block = (BlockRegistry.getOrNull(item.material.identifier) ?: Blocks.AIR).toBlock()
 
@@ -123,6 +126,13 @@ class ServerboundUseItemOnBlockPacket(
             }
 
             player.world.setBlock(blockPlaceEvent.location, blockPlaceEvent.block)
+            blockPlaceEvent.location.getNeighbours().forEach { (_, neighbourLocation) ->
+                val handlers = BlockHandlerManager.getAllFromRegistryBlock(neighbourLocation.block.registryBlock)
+                handlers.forEach { handler ->
+                    handler.onUpdateByNeighbour(neighbourLocation.block, neighbourLocation.world, neighbourLocation, blockPlaceEvent.block, blockPlaceEvent.location)
+                }
+            }
+
             if (player.gameMode.value != GameMode.CREATIVE) {
                 val heldItem = player.getHeldItem(PlayerHand.MAIN_HAND)
                 val newItem = if (heldItem.amount - 1 == 0) ItemStack.AIR else heldItem.withAmount(heldItem.amount - 1)
