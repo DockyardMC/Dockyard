@@ -65,7 +65,6 @@ class FenceBlockHandler : BlockHandler {
         return !cannotConnect(block) && isFaceFull || (canConnectToFence && !isNetherBrickFence) || canFenceGateConnect || isNetherBrickFence
     }
 
-
     private fun canConnectToFence(block: Block): Boolean {
         val isFence = block.registryBlock.tags.contains("minecraft:fences")
         val isWoodenFence = block.registryBlock.tags.contains("minecraft:wooden_fences")

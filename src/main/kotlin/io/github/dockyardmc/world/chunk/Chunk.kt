@@ -114,7 +114,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World): Viewable() {
         val relativeY = ChunkUtils.sectionRelative(y)
 
         val id = section.blockPalette[relativeX, relativeY, relativeZ]
-        return Block.getBlockByStateId(id) ?: throw IllegalStateException("Block state with id $id not found")
+        return Block.getBlockByStateId(id)
     }
 
     fun fillBiome(biome: Biome) {
