@@ -1,6 +1,8 @@
 package io.github.dockyardmc.data.components
 
+import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
+import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.toSoundEvent
 import io.github.dockyardmc.extentions.writeVarInt
@@ -11,7 +13,6 @@ import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.EntityTypeRegistry
 import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.SoundEvent
-import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class BlocksAttacksComponent(
@@ -23,9 +24,6 @@ class BlocksAttacksComponent(
     val blockSound: String?,
     val disableSound: String?
 ) : DataComponent() {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeFloat(blocksDelaySeconds)
@@ -35,6 +33,14 @@ class BlocksAttacksComponent(
         buffer.writeOptionalList(bypassedBy?.map { type -> type.getProtocolId() }, ByteBuf::writeVarInt)
         buffer.writeOptional(blockSound?.toSoundEvent(), CustomSoundEvent::write)
         buffer.writeOptional(disableSound?.toSoundEvent(), CustomSoundEvent::write)
+    }
+
+    override fun hashStruct(): HashHolder {
+        return CRC32CHasher.of {
+            default<Float>("block_delay_seconds", 0f, blocksDelaySeconds, CRC32CHasher::ofFloat)
+            default<Float>("disable_cooldown_scale", 1f, disableCooldownScale, CRC32CHasher::ofFloat)
+            //TODO(continue here maya)
+        }
     }
 
     companion object : NetworkReadable<BlocksAttacksComponent> {
