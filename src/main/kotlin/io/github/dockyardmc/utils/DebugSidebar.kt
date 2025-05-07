@@ -36,14 +36,14 @@ object DebugSidebar {
 
     init {
         DockyardServer.scheduler.runRepeating(1.ticks) {
-            if (sidebar.viewers.size == 0) return@runRepeating // Do not update when noone is watching
+            if (sidebar.viewers.size == 0) return@runRepeating // Do not update when no one is watching
             val globalMspt = DockyardServer.scheduler.mspt
 
             val msptColor = MSPT_COLOR_MAPPER.getColor(globalMspt).toScroll()
 
             val memoryPercentColor = MEMORY_COLOR_MAPPER.getColor(ServerMetrics.memoryUsagePercent).toScroll()
 
-            var totalEvents: Int = 0
+            var totalEvents = 0
             Events.eventMap.values.forEach { eventBus ->
                 totalEvents += eventBus.list.size
             }
