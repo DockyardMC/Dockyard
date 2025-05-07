@@ -25,25 +25,10 @@ class BlocksAttacksComponent(
     val disableSound: String?
 ) : DataComponent() {
 
-    override fun write(buffer: ByteBuf) {
-        buffer.writeFloat(blocksDelaySeconds)
-        buffer.writeFloat(disableCooldownScale)
-        buffer.writeList(damageReductions, DamageReduction::write)
-        itemDamageFunction.write(buffer)
-        buffer.writeOptionalList(bypassedBy?.map { type -> type.getProtocolId() }, ByteBuf::writeVarInt)
-        buffer.writeOptional(blockSound?.toSoundEvent(), CustomSoundEvent::write)
-        buffer.writeOptional(disableSound?.toSoundEvent(), CustomSoundEvent::write)
-    }
-
-    override fun hashStruct(): HashHolder {
-        return CRC32CHasher.of {
-            default<Float>("block_delay_seconds", 0f, blocksDelaySeconds, CRC32CHasher::ofFloat)
-            default<Float>("disable_cooldown_scale", 1f, disableCooldownScale, CRC32CHasher::ofFloat)
-            //TODO(continue here maya)
-        }
-    }
-
     companion object : NetworkReadable<BlocksAttacksComponent> {
+        const val BLOCKS_DELAY_SECONDS_DEFAULT = 0f
+        const val DISABLE_COOLDOWN_SCALE_DEFAULT = 1f
+
         override fun read(buffer: ByteBuf): BlocksAttacksComponent {
             return BlocksAttacksComponent(
                 buffer.readFloat(),
@@ -56,6 +41,25 @@ class BlocksAttacksComponent(
             )
         }
     }
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeFloat(blocksDelaySeconds)
+        buffer.writeFloat(disableCooldownScale)
+        buffer.writeList(damageReductions, DamageReduction::write)
+        itemDamageFunction.write(buffer)
+        buffer.writeOptionalList(bypassedBy?.map { type -> type.getProtocolId() }, ByteBuf::writeVarInt)
+        buffer.writeOptional(blockSound?.toSoundEvent(), CustomSoundEvent::write)
+        buffer.writeOptional(disableSound?.toSoundEvent(), CustomSoundEvent::write)
+    }
+
+    override fun hashStruct(): HashHolder {
+        return CRC32CHasher.of {
+            default<Float>("block_delay_seconds", BLOCKS_DELAY_SECONDS_DEFAULT, blocksDelaySeconds, CRC32CHasher::ofFloat)
+            default<Float>("disable_cooldown_scale", DISABLE_COOLDOWN_SCALE_DEFAULT, disableCooldownScale, CRC32CHasher::ofFloat)
+            //TODO(continue here maya)
+        }
+    }
+
 
     data class ItemDamageFunction(val threshold: Float, val base: Float, val factor: Float) : NetworkWritable {
 
@@ -80,7 +84,7 @@ class BlocksAttacksComponent(
         val type: List<EntityType>?,
         val base: Float,
         val factor: Float
-    ) : NetworkWritable {
+    ) : NetworkWritable, DataComponentHashable {
 
         override fun write(buffer: ByteBuf) {
             buffer.writeFloat(horizontalBlockingAngle)
@@ -100,6 +104,14 @@ class BlocksAttacksComponent(
                     buffer.readFloat(),
                     buffer.readFloat()
                 )
+            }
+        }
+
+        override fun hashStruct(): HashHolder {
+            return CRC32CHasher.of {
+                default("horizontal_blocking_angle", DEFAULT.horizontalBlockingAngle, horizontalBlockingAngle, CRC32CHasher::ofFloat)
+                optionalList("type", type?.map { entityType -> entityType.getEntryIdentifier() }, CRC32CHasher::ofString)
+                
             }
         }
     }

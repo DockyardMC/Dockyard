@@ -46,6 +46,22 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
             fields.add(Field.Default<T>(name, default, current, kFunction1))
         }
 
+        fun <T> optional(name: String, value: T?, kFunction1: (T) -> Int) {
+            fields.add(Field.Optional<T>(name, value, kFunction1))
+        }
+
+        fun <T> list(name: String, values: Collection<T>, kFunction: (T) -> Int) {
+            fields.add(Field.List<T>(name, values, kFunction))
+        }
+
+        fun <T> defaultList(name: String, default: Collection<T>, values: Collection<T>, kFunction: (T) -> Int) {
+            fields.add(Field.DefaultList<T>(name, default, values, kFunction))
+        }
+
+        fun <T> optionalList(name: String, values: Collection<T>?, kFunction: (T) -> Int) {
+            fields.add(Field.OptionalList<T>(name, values, kFunction))
+        }
+
         fun inline(struct: HashStruct) {
             fields.add(Field.Inline(struct))
         }
@@ -55,6 +71,13 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
         val name: String
 
         data class Static(override val name: String, val hash: Int) : Field
+
+        data class Optional<T>(override val name: String, val value: T?, val kFunction1: (T) -> Int) : Field {
+            fun getHash(): Int {
+                return if (value == null) CRC32CHasher.EMPTY else kFunction1.invoke(value)
+            }
+        }
+
         data class Inline(val struct: HashStruct) : Field {
             override val name: String = ""
         }
@@ -67,6 +90,28 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
                 return kFunction1.invoke(current)
             }
         }
+
+        open class List<T>(override val name: String, val values: Collection<T>, val kFunction1: (T) -> Int) : Field {
+            open fun getHash(): Int {
+                return CRC32CHasher.ofList(values.map { value -> kFunction1.invoke(value) })
+            }
+        }
+
+        data class DefaultList<T>(override val name: String, val default: Collection<T>, val current: Collection<T>, val kFunction1: (T) -> Int) : Field {
+            fun getHash(): Int {
+                if (current == default) {
+                    return CRC32CHasher.EMPTY
+                }
+                return CRC32CHasher.ofList(current.map { value -> kFunction1.invoke(value) })
+            }
+        }
+
+        data class OptionalList<T>(override val name: String, val values: Collection<T>?, val kFunction1: (T) -> Int) : Field {
+            fun getHash(): Int {
+                return if (values == null) CRC32CHasher.EMPTY else CRC32CHasher.ofList(values.map { value -> kFunction1.invoke(value) })
+            }
+        }
+
     }
 
     private fun getFieldsAsMapFromInline(): Map<String, Int> {
@@ -76,6 +121,10 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
                 is Field.Inline -> throw IllegalArgumentException("Inline field cannot have struct containing another inline field.")
                 is Field.Default<*> -> finalMap[field.name] = field.getHash()
                 is Field.Static -> finalMap[field.name] = field.hash
+                is Field.Optional<*> -> finalMap[field.name] = field.getHash()
+                is Field.List<*> -> finalMap[field.name] = field.getHash()
+                is Field.OptionalList<*> -> finalMap[field.name] = field.getHash()
+                is Field.DefaultList<*> -> finalMap[field.name] = field.getHash()
             }
         }
         return finalMap
@@ -88,6 +137,10 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
                 is Field.Static -> mapFields[field.name] = field.hash
                 is Field.Inline -> mapFields.putAll(field.struct.getFieldsAsMapFromInline())
                 is Field.Default<*> -> mapFields[field.name] = field.getHash()
+                is Field.Optional<*> -> mapFields[field.name] = field.getHash()
+                is Field.List<*> -> mapFields[field.name] = field.getHash()
+                is Field.OptionalList<*> -> mapFields[field.name] = field.getHash()
+                is Field.DefaultList<*> -> mapFields[field.name] = field.getHash()
             }
         }
 
