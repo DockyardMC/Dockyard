@@ -1,17 +1,19 @@
 package io.github.dockyardmc.data.components
 
+import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
+import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.protocol.writeOptionalList
+import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.EntityTypeRegistry
 import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.SoundEvent
-import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class EquippableComponent(
@@ -25,9 +27,6 @@ class EquippableComponent(
     val damageOnHurt: Boolean,
     val equipOnInteract: Boolean
 ) : DataComponent() {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeEnum(equipmentSlot)
@@ -39,6 +38,15 @@ class EquippableComponent(
         buffer.writeBoolean(swappable)
         buffer.writeBoolean(damageOnHurt)
         buffer.writeBoolean(equipOnInteract)
+    }
+
+    override fun hashStruct(): HashHolder {
+        return CRC32CHasher.of {
+            static("slot", CRC32CHasher.ofEnum(equipmentSlot))
+            defaultStruct<CustomSoundEvent>("equip_sound", CustomSoundEvent(Sounds.ITEM_ARMOR_EQUIP_GENERIC), CustomSoundEvent(equipSound), CustomSoundEvent::hashStruct)
+            optional("asset_id", assetId, CRC32CHasher::ofString)
+            optional("camera_overlay", cameraOverlay, CRC32CHasher::ofString)
+        }
     }
 
     companion object : NetworkReadable<EquippableComponent> {

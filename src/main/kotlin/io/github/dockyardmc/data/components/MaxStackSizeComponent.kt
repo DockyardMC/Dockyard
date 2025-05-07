@@ -8,10 +8,6 @@ import io.netty.buffer.ByteBuf
 
 class MaxStackSizeComponent(val size: Int) : DataComponent(true) {
 
-    override fun getHashCodec(): Codec<out DataComponent> {
-        return CODEC
-    }
-
     override fun write(buffer: ByteBuf) {
         CODEC.writeNetwork(buffer, this)
     }

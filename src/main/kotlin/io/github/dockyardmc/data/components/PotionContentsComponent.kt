@@ -19,9 +19,6 @@ class PotionContentsComponent(
     val effects: List<AppliedPotionEffect>,
     val customName: String?
 ) : DataComponent() {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeOptional(potion?.getProtocolId(), ByteBuf::writeVarInt)

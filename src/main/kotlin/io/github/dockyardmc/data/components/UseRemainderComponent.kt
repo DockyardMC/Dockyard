@@ -7,9 +7,6 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class UseRemainderComponent(val remained: ItemStack): DataComponent() {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 
     override fun write(buffer: ByteBuf) {
         remained.write(buffer)

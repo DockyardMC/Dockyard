@@ -8,9 +8,6 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class MapIdComponent(val mapId: Int): DataComponent() {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeVarInt(mapId)

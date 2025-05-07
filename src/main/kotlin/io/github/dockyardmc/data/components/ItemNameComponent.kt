@@ -11,9 +11,6 @@ import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class ItemNameComponent(val itemName: Component): DataComponent() {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeTextComponent(itemName)

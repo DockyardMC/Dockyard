@@ -11,9 +11,6 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class MapDecorationsComponent(val decorations: Map<String, Decoration>) : DataComponent() {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeMap(decorations, ByteBuf::writeString, Decoration::write)

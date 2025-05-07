@@ -1,7 +1,6 @@
 package io.github.dockyardmc.data
 
 import io.github.dockyardmc.item.TranscoderCRC32C
-import io.github.dockyardmc.tide.Codec
 
 object DataComponentHasher {
     fun hash(component: DataComponent): Int {
@@ -11,7 +10,7 @@ object DataComponentHasher {
             TranscoderCRC32C.HashContainerMap()
         }
 
-        (component.getHashCodec() as Codec<DataComponent>).writeTranscoded(TranscoderCRC32C, format, component, "")
+//        (component.getHashCodec() as Codec<DataComponent>).writeTranscoded(TranscoderCRC32C, format, component, "")
 
         return when (format) {
             is TranscoderCRC32C.HashContainerMap -> CRC32CHasher.ofMap(format.getValue())

@@ -18,9 +18,6 @@ class WrittenBookContentComponent(
     val pages: List<WritableBookContent.FilteredText>,
     val resolved: Boolean
 ) : DataComponent() {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 
     override fun write(buffer: ByteBuf) {
         title.write(buffer)

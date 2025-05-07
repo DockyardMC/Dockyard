@@ -10,9 +10,6 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 data class ItemBlockStateComponent(val properties: Map<String, String>) : DataComponent() {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeMap(properties, ByteBuf::writeString, ByteBuf::writeString)

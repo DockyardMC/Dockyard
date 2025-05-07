@@ -15,8 +15,4 @@ class WolfSoundVariantComponent(val variant: WolfSoundVariant) : DynamicVariantC
             return WolfSoundVariantComponent(buffer.readVarInt().let { int -> WolfSoundVariantRegistry.getByProtocolId(int) })
         }
     }
-
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 }

@@ -13,6 +13,7 @@ class Enchantment(val id: Int, val strength: Int): NetworkWritable {
         buffer.writeVarInt(strength)
     }
 
+
     companion object: NetworkReadable<Enchantment> {
         override fun read(buffer: ByteBuf): Enchantment {
             return Enchantment(buffer.readVarInt(), buffer.readVarInt())

@@ -15,8 +15,4 @@ class FrogVariantComponent(val variant: FrogVariant) : DynamicVariantComponent<F
             return FrogVariantComponent(buffer.readVarInt().let { int -> FrogVariantRegistry.getByProtocolId(int) })
         }
     }
-
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 }

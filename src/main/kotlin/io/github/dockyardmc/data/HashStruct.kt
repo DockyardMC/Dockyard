@@ -1,28 +1,31 @@
 package io.github.dockyardmc.data
 
 import io.github.dockyardmc.data.CRC32CHasher.ofMap
+import kotlin.reflect.KFunction1
 
 interface HashHolder {
-    fun getHash(): Int
+
+    fun getHashed(): Int
 }
 
 data class HashSingle(val holder: HashHolder) : HashHolder {
 
-    override fun getHash(): Int {
-        return holder.getHash()
+    override fun getHashed(): Int {
+        return holder.getHashed()
     }
 }
 
 data class StaticHash(val hash: Int) : HashHolder {
-    override fun getHash(): Int {
+
+    override fun getHashed(): Int {
         return hash
     }
 }
 
 data class HashList(val holders: List<HashHolder>) : HashHolder {
 
-    override fun getHash(): Int {
-        return CRC32CHasher.ofList(holders.map { holder -> holder.getHash() })
+    override fun getHashed(): Int {
+        return CRC32CHasher.ofList(holders.map { holder -> holder.getHashed() })
     }
 
 }
@@ -46,6 +49,10 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
             fields.add(Field.Default<T>(name, default, current, kFunction1))
         }
 
+        fun <T> defaultStruct(name: String, default: T, current: T, kFunction1: (T) -> HashHolder) {
+            fields.add(Field.DefaultStruct<T>(name, default, current, kFunction1))
+        }
+
         fun <T> optional(name: String, value: T?, kFunction1: (T) -> Int) {
             fields.add(Field.Optional<T>(name, value, kFunction1))
         }
@@ -56,6 +63,10 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
 
         fun <T> defaultList(name: String, default: Collection<T>, values: Collection<T>, kFunction: (T) -> Int) {
             fields.add(Field.DefaultList<T>(name, default, values, kFunction))
+        }
+
+        fun <T> defaultStructList(name: String, default: Collection<T>, values: Collection<T>, struct: KFunction1<T, HashHolder>) {
+            fields.add(Field.DefaultStructList<T>(name, default, values, struct))
         }
 
         fun <T> optionalList(name: String, values: Collection<T>?, kFunction: (T) -> Int) {
@@ -91,6 +102,15 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
             }
         }
 
+        data class DefaultStruct<T>(override val name: String, val default: T, val current: T, val kFunction1: (T) -> HashHolder) : Field {
+            fun getHash(): Int {
+                if (current == default) {
+                    return CRC32CHasher.EMPTY
+                }
+                return kFunction1.invoke(current).getHashed()
+            }
+        }
+
         open class List<T>(override val name: String, val values: Collection<T>, val kFunction1: (T) -> Int) : Field {
             open fun getHash(): Int {
                 return CRC32CHasher.ofList(values.map { value -> kFunction1.invoke(value) })
@@ -98,11 +118,26 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
         }
 
         data class DefaultList<T>(override val name: String, val default: Collection<T>, val current: Collection<T>, val kFunction1: (T) -> Int) : Field {
+
             fun getHash(): Int {
                 if (current == default) {
                     return CRC32CHasher.EMPTY
                 }
                 return CRC32CHasher.ofList(current.map { value -> kFunction1.invoke(value) })
+            }
+        }
+
+        data class DefaultStructList<T>(override val name: String, val default: Collection<T>, val current: Collection<T>, val struct: KFunction1<T, HashHolder>) : Field {
+
+            fun getHash(): Int {
+                if (current == default) {
+                    return CRC32CHasher.EMPTY
+                }
+                val hashedItems = mutableListOf<Int>()
+                current.forEach { item ->
+                    hashedItems.add(struct.invoke(item).getHashed())
+                }
+                return CRC32CHasher.ofList()
             }
         }
 
@@ -120,27 +155,31 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
             when (field) {
                 is Field.Inline -> throw IllegalArgumentException("Inline field cannot have struct containing another inline field.")
                 is Field.Default<*> -> finalMap[field.name] = field.getHash()
+                is Field.DefaultStruct<*> -> finalMap[field.name] = field.getHash()
                 is Field.Static -> finalMap[field.name] = field.hash
                 is Field.Optional<*> -> finalMap[field.name] = field.getHash()
                 is Field.List<*> -> finalMap[field.name] = field.getHash()
                 is Field.OptionalList<*> -> finalMap[field.name] = field.getHash()
                 is Field.DefaultList<*> -> finalMap[field.name] = field.getHash()
+                is Field.DefaultStructList<*> -> finalMap[field.name] = field.getHash()
             }
         }
         return finalMap
     }
 
-    override fun getHash(): Int {
+    override fun getHashed(): Int {
         val mapFields = mutableMapOf<String, Int>()
         this.fields.forEach { field ->
             when (field) {
                 is Field.Static -> mapFields[field.name] = field.hash
                 is Field.Inline -> mapFields.putAll(field.struct.getFieldsAsMapFromInline())
                 is Field.Default<*> -> mapFields[field.name] = field.getHash()
+                is Field.DefaultStruct<*> -> mapFields[field.name] = field.getHash()
                 is Field.Optional<*> -> mapFields[field.name] = field.getHash()
                 is Field.List<*> -> mapFields[field.name] = field.getHash()
                 is Field.OptionalList<*> -> mapFields[field.name] = field.getHash()
                 is Field.DefaultList<*> -> mapFields[field.name] = field.getHash()
+                is Field.DefaultStructList<*> -> mapFields[field.name] = field.getHash()
             }
         }
 

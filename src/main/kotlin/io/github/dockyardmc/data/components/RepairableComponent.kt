@@ -12,9 +12,6 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class RepairableComponent(val materials: List<Item>): DataComponent() {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeList(materials.map { material -> material.getProtocolId() }, ByteBuf::writeVarInt)

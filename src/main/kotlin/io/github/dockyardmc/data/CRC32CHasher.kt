@@ -2,8 +2,10 @@ package io.github.dockyardmc.data
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.scroll.CustomColor
 
 object CRC32CHasher {
 
@@ -58,6 +60,10 @@ object CRC32CHasher {
         return hashed
     }
 
+    fun ofColor(color: CustomColor): Int {
+        return ofInt(color.toRgbInt())
+    }
+
     fun ofLong(long: Long): Int {
         return Hasher().putByte(TAG_LONG).putLong(long).hash()
     }
@@ -105,7 +111,7 @@ object CRC32CHasher {
 
     @JvmName("ofListHashable")
     fun ofList(hashables: List<DataComponentHashable>): Int {
-        return ofList(hashables.map { item -> item.hashStruct().getHash() })
+        return ofList(hashables.map { item -> item.hashStruct().getHashed() })
     }
 
     fun onEmptyMap(): Int {

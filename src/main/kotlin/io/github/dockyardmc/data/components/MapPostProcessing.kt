@@ -14,10 +14,6 @@ class MapPostProcessing(val type: Type) : DataComponent() {
         SCALE
     }
 
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
-
     override fun write(buffer: ByteBuf) {
         buffer.writeEnum(type)
     }

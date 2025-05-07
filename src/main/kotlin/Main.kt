@@ -1,17 +1,13 @@
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.attributes.AttributeModifier
-import io.github.dockyardmc.attributes.AttributeOperation
-import io.github.dockyardmc.attributes.EquipmentSlotGroup
-import io.github.dockyardmc.attributes.Modifier
 import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.HashStruct
-import io.github.dockyardmc.data.components.AttributeModifiersComponent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.DataComponentHashable
-import io.github.dockyardmc.registry.Attributes
+import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.utils.DebugSidebar
 
 fun main() {
@@ -29,9 +25,10 @@ fun main() {
         player.permissions.add("*")
     }
 
-    val component = AttributeModifiersComponent(listOf(Modifier(Attributes.SCALE, AttributeModifier("minecraft:test", 1.5, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.FEET)))
+//    val component = AttributeModifiersComponent(listOf(Modifier(Attributes.SCALE, AttributeModifier("minecraft:test", 1.5, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.FEET)))
+    val component = CustomSoundEvent("minecraft:gay")
 
-    val hash = component.hashStruct().getHash()
+    val hash = component.hashStruct().getHashed()
 
     log("dockyard transcoder - $hash")
 

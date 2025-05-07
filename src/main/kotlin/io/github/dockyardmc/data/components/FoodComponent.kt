@@ -8,10 +8,6 @@ import io.netty.buffer.ByteBuf
 
 class FoodComponent(val nutrition: Int, val saturationModifier: Float, val canAlwaysEat: Boolean) : DataComponent() {
 
-    override fun getHashCodec(): Codec<out DataComponent> {
-        return CODEC
-    }
-
     override fun write(buffer: ByteBuf) {
         CODEC.writeNetwork(buffer, this)
     }

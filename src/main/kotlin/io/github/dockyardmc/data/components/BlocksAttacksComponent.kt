@@ -53,66 +53,78 @@ class BlocksAttacksComponent(
     }
 
     override fun hashStruct(): HashHolder {
+        return unsupported(this::class)
+//        return CRC32CHasher.of {
+//            default<Float>("block_delay_seconds", BLOCKS_DELAY_SECONDS_DEFAULT, blocksDelaySeconds, CRC32CHasher::ofFloat)
+//            default<Float>("disable_cooldown_scale", DISABLE_COOLDOWN_SCALE_DEFAULT, disableCooldownScale, CRC32CHasher::ofFloat)
+//            defaultStructList<DamageReduction>("damage_reductions", listOf(DamageReduction.DEFAULT), damageReductions, DamageReduction::hashStruct)
+//            defaultStruct<ItemDamageFunction>("item_damage", ItemDamageFunction.DEFAULT, itemDamageFunction, ItemDamageFunction::hashStruct)
+//            optionalList<String>("bypassed_by", bypassedBy?.map { type -> type.getEntryIdentifier() }, CRC32CHasher::ofString)
+//            optional("block_sound")
+    }
+}
+
+
+data class ItemDamageFunction(val threshold: Float, val base: Float, val factor: Float) : NetworkWritable, DataComponentHashable {
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeFloat(threshold)
+        buffer.writeFloat(base)
+        buffer.writeFloat(factor)
+    }
+
+    companion object : NetworkReadable<ItemDamageFunction> {
+
+        val DEFAULT = ItemDamageFunction(1f, 0f, 1f)
+
+        override fun read(buffer: ByteBuf): ItemDamageFunction {
+            return ItemDamageFunction(buffer.readFloat(), buffer.readFloat(), buffer.readFloat())
+        }
+    }
+
+    override fun hashStruct(): HashHolder {
         return CRC32CHasher.of {
-            default<Float>("block_delay_seconds", BLOCKS_DELAY_SECONDS_DEFAULT, blocksDelaySeconds, CRC32CHasher::ofFloat)
-            default<Float>("disable_cooldown_scale", DISABLE_COOLDOWN_SCALE_DEFAULT, disableCooldownScale, CRC32CHasher::ofFloat)
-            //TODO(continue here maya)
+            static("threshold", CRC32CHasher.ofFloat(threshold))
+            static("base", CRC32CHasher.ofFloat(base))
+            static("factor", CRC32CHasher.ofFloat(factor))
+        }
+    }
+}
+
+data class DamageReduction(
+    val horizontalBlockingAngle: Float,
+    val type: List<EntityType>?,
+    val base: Float,
+    val factor: Float
+) : NetworkWritable, DataComponentHashable {
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeFloat(horizontalBlockingAngle)
+        buffer.writeOptionalList(type?.map { entityType -> entityType.getProtocolId() }, ByteBuf::writeVarInt)
+        buffer.writeFloat(base)
+        buffer.writeFloat(factor)
+    }
+
+    companion object : NetworkReadable<DamageReduction> {
+
+        val DEFAULT = DamageReduction(90.0f, null, 0.0f, 1.0f)
+
+        override fun read(buffer: ByteBuf): DamageReduction {
+            return DamageReduction(
+                buffer.readFloat(),
+                buffer.readOptional { b -> b.readList(ByteBuf::readVarInt).map { int -> EntityTypeRegistry.getByProtocolId(int) } },
+                buffer.readFloat(),
+                buffer.readFloat()
+            )
         }
     }
 
-
-    data class ItemDamageFunction(val threshold: Float, val base: Float, val factor: Float) : NetworkWritable {
-
-        override fun write(buffer: ByteBuf) {
-            buffer.writeFloat(threshold)
-            buffer.writeFloat(base)
-            buffer.writeFloat(factor)
-        }
-
-        companion object : NetworkReadable<ItemDamageFunction> {
-
-            val DEFAULT = ItemDamageFunction(1f, 0f, 1f)
-
-            override fun read(buffer: ByteBuf): ItemDamageFunction {
-                return ItemDamageFunction(buffer.readFloat(), buffer.readFloat(), buffer.readFloat())
-            }
-        }
-    }
-
-    data class DamageReduction(
-        val horizontalBlockingAngle: Float,
-        val type: List<EntityType>?,
-        val base: Float,
-        val factor: Float
-    ) : NetworkWritable, DataComponentHashable {
-
-        override fun write(buffer: ByteBuf) {
-            buffer.writeFloat(horizontalBlockingAngle)
-            buffer.writeOptionalList(type?.map { entityType -> entityType.getProtocolId() }, ByteBuf::writeVarInt)
-            buffer.writeFloat(base)
-            buffer.writeFloat(factor)
-        }
-
-        companion object : NetworkReadable<DamageReduction> {
-
-            val DEFAULT = DamageReduction(90.0f, null, 0.0f, 1.0f)
-
-            override fun read(buffer: ByteBuf): DamageReduction {
-                return DamageReduction(
-                    buffer.readFloat(),
-                    buffer.readOptional { b -> b.readList(ByteBuf::readVarInt).map { int -> EntityTypeRegistry.getByProtocolId(int) } },
-                    buffer.readFloat(),
-                    buffer.readFloat()
-                )
-            }
-        }
-
-        override fun hashStruct(): HashHolder {
-            return CRC32CHasher.of {
-                default("horizontal_blocking_angle", DEFAULT.horizontalBlockingAngle, horizontalBlockingAngle, CRC32CHasher::ofFloat)
-                optionalList("type", type?.map { entityType -> entityType.getEntryIdentifier() }, CRC32CHasher::ofString)
-                
-            }
+    override fun hashStruct(): HashHolder {
+        return CRC32CHasher.of {
+            default("horizontal_blocking_angle", DEFAULT.horizontalBlockingAngle, horizontalBlockingAngle, CRC32CHasher::ofFloat)
+            optionalList("type", type?.map { entityType -> entityType.getEntryIdentifier() }, CRC32CHasher::ofString)
+            static("base", CRC32CHasher.ofFloat(base))
+            static("factor", CRC32CHasher.ofFloat(factor))
         }
     }
 }

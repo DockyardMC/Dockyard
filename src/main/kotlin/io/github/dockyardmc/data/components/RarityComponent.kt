@@ -7,9 +7,6 @@ import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 class RarityComponent(val rarity: ItemRarity) : DataComponent(true) {
-    override fun getHashCodec(): Codec<out DataComponent> {
-        return CODEC
-    }
 
     override fun write(buffer: ByteBuf) {
         CODEC.writeNetwork(buffer, this)

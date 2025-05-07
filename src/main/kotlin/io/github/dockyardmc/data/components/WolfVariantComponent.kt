@@ -15,8 +15,4 @@ class WolfVariantComponent(val variant: WolfVariant) : DynamicVariantComponent<W
             return WolfVariantComponent(buffer.readVarInt().let { int -> WolfVariantRegistry.getByProtocolId(int) })
         }
     }
-
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 }

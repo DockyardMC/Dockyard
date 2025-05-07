@@ -1,12 +1,15 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.attributes.AttributeModifier
+import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.DataComponentPatch
+import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.components.*
 import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.types.ConsumeEffect
 import io.github.dockyardmc.protocol.types.ItemRarity
@@ -31,7 +34,7 @@ data class ItemStack(
     val components: DataComponentPatch,
     val existingMeta: ItemStackMeta? = null,
     val attributes: Collection<AttributeModifier> = listOf()
-) : NetworkWritable {
+) : NetworkWritable, DataComponentHashable {
 
     constructor(material: Item, amount: Int, vararg components: DataComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
     constructor(material: Item, vararg components: DataComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
@@ -66,6 +69,13 @@ data class ItemStack(
         DataComponentPatch.patchNetworkType(components.components).write(buffer)
     }
 
+    override fun hashStruct(): HashHolder {
+        return CRC32CHasher.of {
+            static("id", CRC32CHasher.ofString(material.getEntryIdentifier()))
+            default("count", 1, amount, CRC32CHasher::ofInt)
+            //TODO(Components)
+        }
+    }
 
     fun withDisplayName(displayName: String): ItemStack {
         return ItemStackMeta.fromItemStack(this).apply { withDisplayName(displayName) }.toItemStack()

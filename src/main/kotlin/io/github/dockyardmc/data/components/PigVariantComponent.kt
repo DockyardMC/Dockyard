@@ -15,8 +15,4 @@ class PigVariantComponent(val variant: PigVariant) : DynamicVariantComponent<Pig
             return PigVariantComponent(buffer.readVarInt().let { int -> PigVariantRegistry.getByProtocolId(int) })
         }
     }
-
-    override fun getHashCodec(): Codec<out DataComponent> {
-        TODO("Not yet implemented")
-    }
 }
