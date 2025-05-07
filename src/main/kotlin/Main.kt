@@ -5,8 +5,10 @@ import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.HashStruct
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.DataComponentHashable
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.utils.DebugSidebar
 
@@ -23,6 +25,7 @@ fun main() {
         player.gameMode.value = GameMode.CREATIVE
         DebugSidebar.sidebar.viewers.add(player)
         player.permissions.add("*")
+        player.give(Items.OAK_LOG.toItemStack().withMeta { withEnchantmentGlint(true) })
     }
 
 //    val component = AttributeModifiersComponent(listOf(Modifier(Attributes.SCALE, AttributeModifier("minecraft:test", 1.5, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.FEET)))

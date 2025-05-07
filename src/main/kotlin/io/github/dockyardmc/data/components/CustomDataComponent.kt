@@ -22,7 +22,8 @@ class CustomDataComponent(val nbt: NBT) : DataComponent() {
     companion object : NetworkReadable<CustomDataComponent> {
 
         override fun read(buffer: ByteBuf): CustomDataComponent {
-            return CustomDataComponent(buffer.readNBT())
+//            return CustomDataComponent(buffer.readNBT())
+            return CustomDataComponent(NBT.Compound())
         }
     }
 }
