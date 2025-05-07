@@ -1,19 +1,21 @@
 package io.github.dockyardmc.apis.sidebar
 
 import cz.lukynka.bindables.Bindable
-import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.Viewable
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
-class Sidebar(builder: Sidebar.() -> Unit) {
+class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewable(), Disposable {
 
-    val title: Bindable<String> = Bindable("")
-    val viewers: BindableList<Player> = BindableList()
-    private val innerLines: Int2ObjectOpenHashMap<SidebarLine> = Int2ObjectOpenHashMap()
-    val lines get() = innerLines.toList()
+    val title: Bindable<String> = Bindable(initialTitle)
+
+    private val indexToLineMap: Int2ObjectOpenHashMap<SidebarLine> = Int2ObjectOpenHashMap(initialLines)
+    val lines get() = indexToLineMap.toList()
 
     private val objective = UUID.randomUUID().toString()
 
@@ -21,27 +23,71 @@ class Sidebar(builder: Sidebar.() -> Unit) {
     private val removePacket get() = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.REMOVE, null, null)
     private val displayPacket get() = ClientboundDisplayObjectivePacket(ObjectivePosition.SIDEBAR, objective)
 
-    fun setTitle(title: String) {
-        this.title.value = title
+    override var autoViewable: Boolean = false
+
+    interface SidebarLine {
+
+        class Static(var value: String) : SidebarLine
+
+        class Player(var line: (io.github.dockyardmc.player.Player) -> String) : SidebarLine {
+            fun getValue(player: io.github.dockyardmc.player.Player): String = line(player)
+        }
     }
 
-    fun setGlobalLine(value: String) {
-        setGlobalLine(16 - innerLines.size, value)
+    class Builder {
+        val lines: Int2ObjectOpenHashMap<SidebarLine> = Int2ObjectOpenHashMap()
+        var title: String = ""
+
+        private val defaultLineIndex = AtomicInteger(16)
+
+        private fun addDefaultIndexedLine(line: SidebarLine) {
+            lines[defaultLineIndex.getAndDecrement()] = line
+        }
+
+        fun withTitle(title: String) {
+            this.title = title
+        }
+
+        fun withStaticLine(line: String) {
+            addDefaultIndexedLine(SidebarLine.Static(line))
+        }
+
+        fun withPlayerLine(line: (Player) -> String) {
+            addDefaultIndexedLine(SidebarLine.Player(line))
+        }
+
+        fun withStaticLine(index: Int, line: String) {
+            lines[index] = SidebarLine.Static(line)
+        }
+
+        fun withSpacer(index: Int? = null) {
+            val line = SidebarLine.Static("    ")
+            if (index == null) addDefaultIndexedLine(line) else lines[index] = line
+        }
+
+        fun withWideSpacer(index: Int? = null) {
+            val line = SidebarLine.Static("                                      ")
+            if (index == null) addDefaultIndexedLine(line) else lines[index] = line
+        }
+
+        fun withPlayerLine(index: Int, line: (Player) -> String) {
+            lines[index] = SidebarLine.Player(line)
+        }
+
+        fun build(): Sidebar {
+            return Sidebar(title, lines)
+        }
     }
 
-    fun setPlayerLine(value: (Player) -> String) {
-        setPlayerLine(16 - innerLines.size, value)
+    fun setGlobalLine(index: Int, value: String) {
+        val before = indexToLineMap[index] as SidebarLine.Static?
+        indexToLineMap[index] = SidebarLine.Static(value)
+        if (before?.value != value) viewers.forEach { viewer -> sendLinePacket(viewer, index) }
     }
 
-    fun setGlobalLine(line: Int, value: String) {
-        val before = innerLines[line] as GlobalSidebarLine?
-        innerLines[line] = GlobalSidebarLine(value)
-        if (before?.value != value) viewers.values.forEach { sendLinePacket(it, line) }
-    }
-
-    fun setPlayerLine(line: Int, value: (Player) -> String) {
-        innerLines[line] = PersonalizedSidebarLine(value)
-        viewers.values.forEach { sendLinePacket(it, line) }
+    fun setPlayerLine(index: Int, value: (Player) -> String) {
+        indexToLineMap[index] = SidebarLine.Player(value)
+        viewers.forEach { viewer -> sendLinePacket(viewer, index) }
     }
 
     private fun sendCreatePackets(player: Player) {
@@ -50,36 +96,50 @@ class Sidebar(builder: Sidebar.() -> Unit) {
     }
 
     private fun sendLinesPackets(player: Player) {
-        innerLines.toMap().forEach {
-            sendLinePacket(player, it.key)
+        indexToLineMap.forEach { line ->
+            sendLinePacket(player, line.key)
         }
     }
 
-    fun sendLinePacket(player: Player, line: Int) {
+    private fun sendLinePacket(player: Player, line: Int) {
         player.sendPacket(ClientboundUpdateScorePacket(objective, line, getLine(line, player)))
     }
 
-    private fun getLine(line: Int, player: Player): String {
-        val value = when (val it = innerLines[line]) {
-            is GlobalSidebarLine -> it.value
-            is PersonalizedSidebarLine -> it.getValue(player)
+    private fun getLine(index: Int, player: Player): String {
+        val value = when (val line = indexToLineMap[index]) {
+            is SidebarLine.Static -> line.value
+            is SidebarLine.Player -> line.getValue(player)
             else -> ""
         }
         return value.replace("'", "")
     }
 
     init {
-        builder.invoke(this)
-        viewers.itemAdded { event ->
-            sendCreatePackets(event.item)
-            sendLinesPackets(event.item)
-        }
-        viewers.itemRemoved { event ->
-            event.item.sendPacket(removePacket)
-        }
-        title.valueChanged {
-            val packet = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.EDIT_TEXT, it.newValue, ScoreboardType.INTEGER)
+        title.valueChanged { event ->
+            val packet = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.EDIT_TEXT, event.newValue, ScoreboardType.INTEGER)
             viewers.sendPacket(packet)
         }
     }
+
+    override fun addViewer(player: Player) {
+        sendCreatePackets(player)
+        sendLinesPackets(player)
+        viewers.add(player)
+    }
+
+    override fun removeViewer(player: Player) {
+        player.sendPacket(removePacket)
+    }
+
+    override fun dispose() {
+        title.dispose()
+        viewers.toList().forEach(::removeViewer)
+        indexToLineMap.clear()
+    }
+}
+
+fun sidebar(unit: Sidebar.Builder.() -> Unit): Sidebar {
+    val builder = Sidebar.Builder()
+    unit.invoke(builder)
+    return builder.build()
 }

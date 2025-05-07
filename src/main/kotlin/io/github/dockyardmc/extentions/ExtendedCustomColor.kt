@@ -23,6 +23,10 @@ fun CustomColor.Companion.fromRGBInt(color: Int): CustomColor {
 }
 
 fun CustomColor.Companion.fromRGBIntOrNull(color: Int?): CustomColor? {
-    if(color == null) return null
+    if (color == null) return null
     return fromRGBInt(color)
+}
+
+fun CustomColor.toScroll(): String {
+    return "<${this.toHex()}>"
 }

@@ -1,70 +1,60 @@
 package io.github.dockyardmc.utils
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.apis.sidebar.sidebar
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.ServerTickEvent
+import io.github.dockyardmc.extentions.toScroll
 import io.github.dockyardmc.extentions.truncate
+import io.github.dockyardmc.scheduler.runnables.ticks
+import io.github.dockyardmc.scroll.CustomColor
+import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.server.ServerMetrics
-import io.github.dockyardmc.apis.sidebar.Sidebar
-import java.lang.management.GarbageCollectorMXBean
-import java.lang.management.ManagementFactory
 
 object DebugSidebar {
 
-    val sidebar = Sidebar {
-        setTitle("<#ff641c>★ <bold>Debug Sidebar</bold> ★")
-        setGlobalLine(15, "                                      ")
-        setGlobalLine(1, "    ")
+    private val MSPT_COLOR_MAPPER = RangeColorMapper(
+        CustomColor.fromHex(LegacyTextColor.DARK_RED.hex),
+        RangeColorMapper.Step(60.0, LegacyTextColor.RED),
+        RangeColorMapper.Step(58.0, LegacyTextColor.ORANGE),
+        RangeColorMapper.Step(50.1, LegacyTextColor.YELLOW),
+        RangeColorMapper.Step(0.0, LegacyTextColor.LIME),
+    )
+
+    private val MEMORY_COLOR_MAPPER = RangeColorMapper(
+        CustomColor.fromHex(LegacyTextColor.LIME.hex),
+        RangeColorMapper.Step(90.0, LegacyTextColor.RED),
+        RangeColorMapper.Step(80.0, LegacyTextColor.ORANGE),
+        RangeColorMapper.Step(70.0, LegacyTextColor.YELLOW),
+        RangeColorMapper.Step(0.0, LegacyTextColor.LIME),
+    )
+
+    val sidebar = sidebar {
+        withTitle("<#ff641c>★ <bold>Debug Sidebar</bold> ★")
+        withWideSpacer(15)
+        withSpacer(1)
     }
 
     init {
-        Events.on<ServerTickEvent> {
-            if(sidebar.viewers.size == 0) return@on // Do not update when noone is watching
+        DockyardServer.scheduler.runRepeating(1.ticks) {
+            if (sidebar.viewers.size == 0) return@runRepeating // Do not update when no one is watching
             val globalMspt = DockyardServer.scheduler.mspt
 
-            val msptColor = when {
-                globalMspt >= 60.0 -> "<red>"
-                globalMspt >= 58.0 -> "<orange>"
-                globalMspt > 50.0 -> "<yellow>"
-                globalMspt == 50.0 -> "<lime>"
-                else -> "<dark_red>"
-            }
+            val msptColor = MSPT_COLOR_MAPPER.getColor(globalMspt).toScroll()
 
-            val memoryPercentColor = when {
-                ServerMetrics.memoryUsagePercent <= 50.0 -> "<lime>"
-                ServerMetrics.memoryUsagePercent <= 70.0 -> "<yellow>"
-                ServerMetrics.memoryUsagePercent <= 80.0 -> "<orange>"
-                ServerMetrics.memoryUsagePercent <= 90.0 -> "<red>"
-                else -> "<dark_red>"
-            }
+            val memoryPercentColor = MEMORY_COLOR_MAPPER.getColor(ServerMetrics.memoryUsagePercent).toScroll()
 
-            var totalCollections = 0L
-            var totalCollectionTime = 0L
-            var memPoolTotal = 0
-
-            val gcBeans: List<GarbageCollectorMXBean> = ManagementFactory.getGarbageCollectorMXBeans()
-            for (gcBean in gcBeans) {
-                val count = gcBean.collectionCount
-                val time = gcBean.collectionTime
-                val memPool = gcBean.memoryPoolNames.size
-
-                totalCollections += count
-                totalCollectionTime += time
-                memPoolTotal += memPool
-            }
-
-            var totalEvents: Int = 0
-            Events.eventMap.values.forEach {
-                totalEvents += it.list.size
+            var totalEvents = 0
+            Events.eventMap.values.forEach { eventBus ->
+                totalEvents += eventBus.list.size
             }
 
             sidebar.setGlobalLine(14, " MSPT:")
             sidebar.setGlobalLine(13, " ◾ Global: $msptColor${globalMspt}ms")
-            sidebar.setPlayerLine(12) {
-                var worldSchedulerColor = if(it.world.scheduler.mspt == it.world.scheduler.tickRate.value.inWholeMilliseconds.toDouble()) "<lime>" else "<orange>"
-                if(it.world.scheduler.paused.value) worldSchedulerColor = "<red>"
+            sidebar.setPlayerLine(12) { player ->
+                var worldSchedulerColor = if (player.world.scheduler.mspt == player.world.scheduler.tickRate.value.inWholeMilliseconds.toDouble()) "<lime>" else "<orange>"
+                if (player.world.scheduler.paused.value) worldSchedulerColor = "<red>"
 
-                " ◾ World: ${worldSchedulerColor}${it.world.scheduler.mspt}ms"
+                " ◾ World: ${worldSchedulerColor}${player.world.scheduler.mspt}ms"
             }
             sidebar.setGlobalLine(11, " ")
             sidebar.setGlobalLine(10, " Memory: $memoryPercentColor${ServerMetrics.memoryUsagePercent.truncate(1)}%")
