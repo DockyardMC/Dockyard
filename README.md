@@ -22,6 +22,7 @@ You can read how to set up and use dockyard [here](https://dockyard.lukynka.clou
 - Lightweight and without all the overhead the vanilla server has
 - Ability to take full control over every aspect of the server
 - Fully multithreaded worlds
+- Built-in [Spark](https://github.com/lucko/spark) profiler
 
 ## API Examples
 
