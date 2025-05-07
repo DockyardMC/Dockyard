@@ -36,12 +36,16 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
 
     class Builder {
         val lines: Int2ObjectOpenHashMap<SidebarLine> = Int2ObjectOpenHashMap()
-        val title: String = ""
+        var title: String = ""
 
         private val defaultLineIndex = AtomicInteger(16)
 
         private fun addDefaultIndexedLine(line: SidebarLine) {
             lines[defaultLineIndex.getAndDecrement()] = line
+        }
+
+        fun withTitle(title: String) {
+            this.title = title
         }
 
         fun withStaticLine(line: String) {
@@ -56,6 +60,16 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
             lines[index] = SidebarLine.Static(line)
         }
 
+        fun withSpacer(index: Int? = null) {
+            val line = SidebarLine.Static("    ")
+            if (index == null) addDefaultIndexedLine(line) else lines[index] = line
+        }
+
+        fun withWideSpacer(index: Int? = null) {
+            val line = SidebarLine.Static("                                      ")
+            if (index == null) addDefaultIndexedLine(line) else lines[index] = line
+        }
+
         fun withPlayerLine(index: Int, line: (Player) -> String) {
             lines[index] = SidebarLine.Player(line)
         }
@@ -68,12 +82,12 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
     fun setGlobalLine(index: Int, value: String) {
         val before = indexToLineMap[index] as SidebarLine.Static?
         indexToLineMap[index] = SidebarLine.Static(value)
-        if (before?.value != value) sendUpdate()
+        if (before?.value != value) viewers.forEach { viewer -> sendLinePacket(viewer, index) }
     }
 
     fun setPlayerLine(index: Int, value: (Player) -> String) {
         indexToLineMap[index] = SidebarLine.Player(value)
-        sendUpdate()
+        viewers.forEach { viewer -> sendLinePacket(viewer, index) }
     }
 
     private fun sendCreatePackets(player: Player) {
@@ -82,7 +96,7 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
     }
 
     private fun sendLinesPackets(player: Player) {
-        indexToLineMap.toMap().forEach { line ->
+        indexToLineMap.forEach { line ->
             sendLinePacket(player, line.key)
         }
     }
@@ -100,10 +114,6 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
         return value.replace("'", "")
     }
 
-    private fun sendUpdate() {
-        viewers.forEach { viewer -> sendLinesPackets(viewer) }
-    }
-
     init {
         title.valueChanged { event ->
             val packet = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.EDIT_TEXT, event.newValue, ScoreboardType.INTEGER)
@@ -114,6 +124,7 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
     override fun addViewer(player: Player) {
         sendCreatePackets(player)
         sendLinesPackets(player)
+        viewers.add(player)
     }
 
     override fun removeViewer(player: Player) {
