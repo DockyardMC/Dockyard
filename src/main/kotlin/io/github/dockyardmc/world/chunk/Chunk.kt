@@ -30,10 +30,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World): Viewable() {
     val sections: MutableList<ChunkSection> = mutableListOf()
     val blockEntities: Int2ObjectOpenHashMap<BlockEntity> = Int2ObjectOpenHashMap(0)
 
-    val light: Light = Light(
-        skyLight = ByteArray(0),
-        blockLight = ByteArray(0),
-    )
+    val light: Light = Light()
 
     val packet: ClientboundChunkDataPacket
         get() {

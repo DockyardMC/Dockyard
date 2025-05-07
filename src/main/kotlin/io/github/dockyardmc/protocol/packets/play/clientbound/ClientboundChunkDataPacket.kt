@@ -2,12 +2,14 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.writeList
 import io.github.dockyardmc.world.chunk.ChunkUtils
 import io.github.dockyardmc.utils.writeMSNBT
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.block.BlockEntity
 import io.github.dockyardmc.world.chunk.ChunkSection
 import io.github.dockyardmc.world.chunk.writeChunkSection
+import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import it.unimi.dsi.fastutil.objects.ObjectCollection
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
@@ -46,7 +48,7 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, section
         buffer.writeLongArray(light.emptySkyMask.toLongArray())
         buffer.writeLongArray(light.emptyBlockMask.toLongArray())
 
-        buffer.writeByteArray(light.skyLight)
-        buffer.writeByteArray(light.blockLight)
+        buffer.writeList(light.skyLight, ByteBuf::writeByteArray)
+        buffer.writeList(light.blockLight, ByteBuf::writeByteArray)
     }
 }
