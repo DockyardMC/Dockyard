@@ -8,7 +8,6 @@ import io.github.dockyardmc.utils.writeMSNBT
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.block.BlockEntity
 import io.github.dockyardmc.world.chunk.ChunkSection
-import io.github.dockyardmc.world.chunk.writeChunkSection
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import it.unimi.dsi.fastutil.objects.ObjectCollection
@@ -26,7 +25,9 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, section
 
         //Chunk Sections
         val chunkSectionData = Unpooled.buffer()
-        sections.forEach(chunkSectionData::writeChunkSection)
+        sections.forEach { section ->
+            section.write(chunkSectionData)
+        }
         buffer.writeByteArray(chunkSectionData.toByteArraySafe())
 
         //Block Entities

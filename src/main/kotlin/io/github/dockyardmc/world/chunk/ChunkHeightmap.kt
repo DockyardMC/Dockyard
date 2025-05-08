@@ -20,7 +20,7 @@ class ChunkHeightmap(val chunk: Chunk, val type: Type) {
             val size = toGenerate.size
             val heightmaps = ObjectArrayList<ChunkHeightmap>(size)
             val iterator = heightmaps.iterator()
-            val highest = chunk.maxSection + 16
+            val highest = chunk.highestSectionY() + 16
             for (x in 0 until 16) {
                 for (z in 0 until 16) {
                     toGenerate.forEach { type -> heightmaps.add(chunk.getOrCreateHeightmap(type)) }
@@ -94,8 +94,12 @@ class ChunkHeightmap(val chunk: Chunk, val type: Type) {
         OCEAN_FLOOR_WG(Usage.WORLD_GENERATION, BLOCKS_MOTION),
         OCEAN_FLOOR(Usage.LIVE_WORLD, BLOCKS_MOTION),
         MOTION_BLOCKING(Usage.CLIENT, { block -> block.registryBlock.isSolid || block.registryBlock.isLiquid }),
-        MOTION_BLOCKING_NO_LEAVES(Usage.LIVE_WORLD, { block -> block.registryBlock.isSolid && !block.identifier.endsWith("_leaves") }),
+        MOTION_BLOCKING_NO_LEAVES(Usage.LIVE_WORLD, { block -> block.registryBlock.isSolid && !block.identifier.endsWith("_leaves") });
+
+        fun sendToClient(): Boolean = usage == Usage.CLIENT
     }
+
+    fun getRawData(): LongArray = bitStorage.data
 
     enum class Usage {
         WORLD_GENERATION,

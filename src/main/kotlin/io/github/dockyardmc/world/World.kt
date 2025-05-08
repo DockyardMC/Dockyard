@@ -397,8 +397,8 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         when (generator) {
             is VoidWorldGenerator -> {
                 chunk.sections.forEach { section ->
-                    section.biomePalette.fill((generator as VoidWorldGenerator).defaultBiome.getProtocolId())
-                    section.blockPalette.fill(BlockRegistry.Air.defaultBlockStateId)
+                    section.fillBiome((generator as VoidWorldGenerator).defaultBiome.getProtocolId())
+                    section.fillBlock(BlockRegistry.Air.defaultBlockStateId)
                 }
             }
 
