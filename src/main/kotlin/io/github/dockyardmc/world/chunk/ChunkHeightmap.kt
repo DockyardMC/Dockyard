@@ -79,7 +79,7 @@ class ChunkHeightmap(val chunk: Chunk, val type: Type) {
     }
 
     @Suppress("AddOperatorModifier")
-    fun set(x: Int, y: Int, z: Int) {
+    fun set(x: Int, z: Int, y: Int) {
         bitStorage[indexOf(x, z)] = y - chunk.world.dimensionType.minY
     }
 
