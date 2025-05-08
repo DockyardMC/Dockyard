@@ -1,6 +1,5 @@
 package io.github.dockyardmc.world.chunk
 
-import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
@@ -55,11 +54,9 @@ class ChunkSection(
     }
 
     private fun recountNonEmptyBlocks() {
-        profiler("Recount non-empty blocks in chunk section") {
-            nonEmptyBlockCount = 0
-            for (y in 0..<16) for (z in 0..<16) for (x in 0..<16) {
-                if (blockPalette[x, y, z] == 0) nonEmptyBlockCount++
-            }
+        nonEmptyBlockCount = 0
+        for (y in 0..<16) for (z in 0..<16) for (x in 0..<16) {
+            if (blockPalette[x, y, z] == 0) nonEmptyBlockCount++
         }
     }
 

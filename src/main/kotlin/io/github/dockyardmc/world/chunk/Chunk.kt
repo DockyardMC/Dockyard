@@ -1,12 +1,9 @@
 package io.github.dockyardmc.world.chunk
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
 import io.github.dockyardmc.registry.registries.Biome
@@ -57,7 +54,6 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
                 }
             }
         }
-        log("Heightmaps: ${heightmapNbt.toSNBT()}", LogType.DEBUG)
 
         cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightmapNbt, sections, blockEntities.values, light)
     }
@@ -67,11 +63,9 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         repeat(sectionsAmount) {
             sections.add(ChunkSection.empty())
         }
-        profiler("Generate height maps") {
-            ChunkHeightmap.Type.entries.forEach { type ->
-                getOrCreateHeightmap(type)
-                ChunkHeightmap.generate(this, setOf(type))
-            }
+        ChunkHeightmap.Type.entries.forEach { type ->
+            getOrCreateHeightmap(type)
+            ChunkHeightmap.generate(this, setOf(type))
         }
         updateCache()
     }
@@ -116,10 +110,10 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         if (block.customData == null) world.customDataBlocks.remove(Location(x, y, z, world).blockHash)
         section.setBlock(relativeX, relativeY, relativeZ, block.getProtocolId())
 
-        heightmaps.getValue(ChunkHeightmap.Type.MOTION_BLOCKING).update(relativeX, relativeY, relativeZ, block)
-        heightmaps.getValue(ChunkHeightmap.Type.MOTION_BLOCKING_NO_LEAVES).update(relativeX, relativeY, relativeZ, block)
-        heightmaps.getValue(ChunkHeightmap.Type.OCEAN_FLOOR).update(relativeX, relativeY, relativeZ, block)
-        heightmaps.getValue(ChunkHeightmap.Type.WORLD_SURFACE).update(relativeX, relativeY, relativeZ, block)
+        heightmaps.getValue(ChunkHeightmap.Type.MOTION_BLOCKING).update(relativeX, y, relativeZ, block)
+        heightmaps.getValue(ChunkHeightmap.Type.MOTION_BLOCKING_NO_LEAVES).update(relativeX, y, relativeZ, block)
+        heightmaps.getValue(ChunkHeightmap.Type.OCEAN_FLOOR).update(relativeX, y, relativeZ, block)
+        heightmaps.getValue(ChunkHeightmap.Type.WORLD_SURFACE).update(relativeX, y, relativeZ, block)
 
         val index = ChunkUtils.chunkBlockIndex(x, y, z)
 
