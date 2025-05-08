@@ -17,6 +17,7 @@ class DefaultCommands: DefaultImplementationModule {
         ClearCommand()
         ListCommand()
         EffectCommand()
+        WeatherCommand()
         if(ConfigManager.config.debug) {
             DebugCommand()
         }

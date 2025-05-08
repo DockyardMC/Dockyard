@@ -1,4 +1,5 @@
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
@@ -20,6 +21,13 @@ fun main() {
         player.permissions.add("*")
         player.give(Items.DEBUG_STICK)
         player.give(Items.OAK_LOG)
+    }
+
+    Commands.add("/lighting") {
+        execute { ctx ->
+            val player = ctx.getPlayerOrThrow()
+            player.strikeLightning(player.location)
+        }
     }
 
     server.start()
