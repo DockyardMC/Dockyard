@@ -65,8 +65,8 @@ Commands.add("/explode") {
         player.spawnParticle(player.location, Particles.EXPLOSION_EMITTER, Vector3f(1f), amount = 5)
         player.playSound(Sounds.ENTITY_GENERIC_EXPLODE, volume = 2f, pitch = randomFloat(0.6f, 1.3f))
     
-        player.sendMessage("<yellow>You got <rainbow><b>totally exploded <yellow>by <red>$executingPlayer")
-        executingPlayer.sendMessage("<yellow>You <rainbow><b>totally exploded <yellow>player <red>$player")
+        player.sendMessage("<yellow>You got <b>totally exploded <yellow>by <red>$executingPlayer")
+        executingPlayer.sendMessage("<yellow>You <b>totally exploded <yellow>player <red>$player")
     }
 }
 ```
