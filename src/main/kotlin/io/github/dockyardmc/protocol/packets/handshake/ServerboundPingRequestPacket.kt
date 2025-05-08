@@ -16,7 +16,7 @@ class ServerboundPingRequestPacket(val time: Long) : ServerboundPacket {
     }
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        val out = ClientboundPingResponsePacket(Instant.now().toEpochMilli())
+        val out = ClientboundPingResponsePacket(time)
         connection.sendPacket(out, processor)
     }
 }
