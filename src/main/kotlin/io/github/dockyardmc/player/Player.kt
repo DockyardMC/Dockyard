@@ -198,6 +198,7 @@ class Player(
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
         time.valueChanged { updateWorldTime() }
+        clientWeather.valueChanged { updateWeatherState() }
 
         hasNoGravity.value = false
     }
