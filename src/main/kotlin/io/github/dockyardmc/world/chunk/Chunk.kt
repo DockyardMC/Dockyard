@@ -13,16 +13,19 @@ import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.block.BlockEntity
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
+import org.jglrxavpok.hephaistos.mca.Heightmap
 import org.jglrxavpok.hephaistos.nbt.NBT
 import java.util.*
 
-class Chunk(val chunkX: Int, val chunkZ: Int, val world: World): Viewable() {
+class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
 
     val id: UUID = UUID.randomUUID()
     val minSection = world.dimensionType.minY / 16
     val maxSection = world.dimensionType.height / 16
     private lateinit var cachedPacket: ClientboundChunkDataPacket
     override var autoViewable: Boolean = true
+
+    val heightmaps = EnumMap<_, ChunkHeightmap>(ChunkHeightmap.Type::class.java)
 
     val motionBlocking: ImmutableLongArray = ImmutableLongArray(37) { 0 }
     val worldSurface: ImmutableLongArray = ImmutableLongArray(37) { 0 }
@@ -133,6 +136,8 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World): Viewable() {
     fun getIndex(): Long = ChunkUtils.getChunkIndex(this)
 
     val chunkPos get() = ChunkPos(chunkX, chunkZ)
+
+    fun getOrCreateHeightmap(type: ChunkHeightmap.Type): ChunkHeightmap = heightmaps.computeIfAbsent(type) { ChunkHeightmap(this, type) }
 
     fun sendUpdateToViewers() {
         viewers.sendPacket(cachedPacket)

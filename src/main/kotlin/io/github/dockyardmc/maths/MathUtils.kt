@@ -4,10 +4,17 @@ import com.google.common.primitives.Ints.min
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.world.chunk.ChunkUtils.floor
 import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.world.chunk.ChunkUtils.isPowerOfTwo
+import io.github.dockyardmc.world.chunk.ChunkUtils.roundUpPow2
 import java.io.File
 import java.security.MessageDigest
 import java.util.*
 import kotlin.math.*
+
+private val MULTIPLY_DE_BRUIJN_BIT_POSITION = intArrayOf(
+    0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
+    31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
+)
 
 fun multiplyQuaternions(q1: Quaternion, q2: Quaternion): Quaternion {
     val x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y
@@ -15,6 +22,12 @@ fun multiplyQuaternions(q1: Quaternion, q2: Quaternion): Quaternion {
     val z = q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w
     val w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z
     return Quaternion(x, y, z, w)
+}
+
+@Suppress("MagicNumber")
+fun ceilLog2(value: Int): Int {
+    val temp = if (isPowerOfTwo(value)) value else roundUpPow2(value)
+    return MULTIPLY_DE_BRUIJN_BIT_POSITION[(temp.toLong() * 125613361L shr 27 and 31).toInt()]
 }
 
 fun minMax(value: Int, min: Int, max: Int): Int = min(value, max(value, max), min)

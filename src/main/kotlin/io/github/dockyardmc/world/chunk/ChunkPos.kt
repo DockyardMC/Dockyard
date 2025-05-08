@@ -8,6 +8,10 @@ data class ChunkPos(val x: Int, val z: Int) {
         return pack(x, z)
     }
 
+    override fun toString(): String {
+        return "[$x, $z]"
+    }
+
     companion object {
 
         val ZERO = ChunkPos(0, 0)

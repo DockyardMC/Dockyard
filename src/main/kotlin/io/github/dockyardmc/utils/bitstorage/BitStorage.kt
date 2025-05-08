@@ -11,8 +11,6 @@ abstract class BitStorage(val size: Int) {
 
     abstract operator fun set(index: Int, value: Int)
 
-//    fun forEach()
-
     abstract fun unpack(output: IntArray)
 
     abstract fun copy(): BitStorage
