@@ -98,6 +98,8 @@ class ChunkHeightmap(val chunk: Chunk, val type: Type) {
     }
 
     enum class Usage {
-        WORLD_GENERATION, LIVE_WORLD, CLIENT
+        WORLD_GENERATION,
+        LIVE_WORLD,
+        CLIENT
     }
 }
