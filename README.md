@@ -152,6 +152,7 @@ Contributions are always welcome! Please always check branches to see if the fea
 ## Authors
 
 - [LukynkaCZE](https://www.github.com/LukynkaCZE)
+- [p1k0chu](https://github.com/p1k0chu)
 - [AsoDesu](https://www.github.com/AsoDesu)
 
 ## Additional thanks to
