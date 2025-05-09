@@ -2,22 +2,26 @@ package io.github.dockyardmc.particles.data
 
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.registry.registries.Particle
 
-interface ParticleData: NetworkWritable {
+interface ParticleData : NetworkWritable {
 
-    var id: Int
+    val parentParticle: Particle
 
     companion object {
-        fun requiresData(particleId: Int): Boolean {
-            return particleId ==  Particles.BLOCK.getProtocolId() ||
-                    particleId == Particles.BLOCK_MARKER.getProtocolId() ||
-                    particleId == Particles.DUST.getProtocolId() ||
-                    particleId == Particles.DUST_COLOR_TRANSITION.getProtocolId() ||
-                    particleId == Particles.FALLING_DUST.getProtocolId() ||
-                    particleId == Particles.SCULK_CHARGE.getProtocolId() ||
-                    particleId == Particles.ITEM.getProtocolId() ||
-                    particleId == Particles.VIBRATION.getProtocolId() ||
-                    particleId == Particles.SHRIEK.getProtocolId()
-        }
+        val REQUIRE_PARTICLE_DATA: List<Particle> = listOf(
+            Particles.BLOCK,
+            Particles.BLOCK_MARKER,
+            Particles.BLOCK_CRUMBLE,
+            Particles.DUST,
+            Particles.DUST_COLOR_TRANSITION,
+            Particles.DUST_PILLAR,
+            Particles.FALLING_DUST,
+            Particles.SCULK_CHARGE,
+            Particles.ITEM,
+            Particles.VIBRATION,
+            Particles.SHRIEK,
+            Particles.TRAIL,
+        )
     }
 }
