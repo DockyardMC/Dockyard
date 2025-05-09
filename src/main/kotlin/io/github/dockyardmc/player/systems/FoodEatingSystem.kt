@@ -43,7 +43,7 @@ class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
                         offset = Vector3f(0.2f),
                         speed = 0.05f,
                         amount = 6,
-                        longDistance = false,
+                        alwaysShow = false,
                         overrideLimiter = false,
                         particleData = ItemParticleData(item)
                     )
