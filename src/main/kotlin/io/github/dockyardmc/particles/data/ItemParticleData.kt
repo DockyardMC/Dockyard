@@ -1,4 +1,4 @@
-package io.github.dockyardmc.particles
+package io.github.dockyardmc.particles.data
 
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.registry.Particles
@@ -8,7 +8,7 @@ class ItemParticleData(val item: ItemStack): ParticleData {
 
     override var id: Int = Particles.ITEM.getProtocolId()
 
-    override fun write(byteBuf: ByteBuf) {
-        item.write(byteBuf)
+    override fun write(buffer: ByteBuf) {
+        item.write(buffer)
     }
 }

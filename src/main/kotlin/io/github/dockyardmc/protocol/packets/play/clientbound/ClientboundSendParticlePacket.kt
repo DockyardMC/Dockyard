@@ -3,7 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.location.writeLocation
-import io.github.dockyardmc.particles.ParticleData
+import io.github.dockyardmc.particles.data.ParticleData
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.registry.registries.Particle
 import io.github.dockyardmc.maths.vectors.Vector3f
@@ -15,7 +15,7 @@ class ClientboundSendParticlePacket(
     speed: Float,
     count: Int,
     overrideLimiter: Boolean = false,
-    longDistance: Boolean = false,
+    alwaysShow: Boolean = false,
     particleData: ParticleData?
 ): ClientboundPacket() {
 
@@ -24,7 +24,7 @@ class ClientboundSendParticlePacket(
         if(particleData == null && ParticleData.requiresData(particle.getProtocolId())) throw Exception("Particle ${particle.identifier} requires particle data")
 
         buffer.writeBoolean(overrideLimiter)
-        buffer.writeBoolean(longDistance)
+        buffer.writeBoolean(alwaysShow)
         buffer.writeLocation(location)
         offset.write(buffer)
         buffer.writeFloat(speed)

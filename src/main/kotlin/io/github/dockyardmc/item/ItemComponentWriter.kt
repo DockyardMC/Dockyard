@@ -121,12 +121,12 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         }
 
         is DyedColorItemComponent -> {
-            this.writeInt(component.color.toRgbInt())
+            this.writeInt(component.color.getPackedInt())
             this.writeBoolean(component.showInTooltip)
         }
 
         is MapColorItemComponent -> {
-            this.writeInt(component.color.toRgbInt())
+            this.writeInt(component.color.getPackedInt())
         }
 
         is MapIdItemComponent -> this.writeVarInt(component.mapId)
@@ -136,7 +136,7 @@ fun ByteBuf.writeItemComponent(component: ItemComponent) {
         is BundleContentsItemComponent -> this.writeItemStackList(component.items)
         is PotionContentsItemComponent -> {
             this.writeOptionalOLD(component.potion) { this.writeVarInt(component.potion!!.getProtocolId()) }
-            this.writeOptionalOLD(component.customColor) { this.writeVarInt(component.customColor!!.toRgbInt()) }
+            this.writeOptionalOLD(component.customColor) { this.writeVarInt(component.customColor!!.getPackedInt()) }
             this.writeAppliedPotionEffectsList(component.potionEffects)
             this.writeOptionalOLD(component.customName) { this.writeString(component.customName!!) }
         }

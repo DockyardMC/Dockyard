@@ -1,7 +1,7 @@
 package io.github.dockyardmc.entity
 
 import cz.lukynka.bindables.Bindable
-import io.github.dockyardmc.extentions.toRgbInt
+import io.github.dockyardmc.extentions.getPackedInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
@@ -32,7 +32,7 @@ class TextDisplay(location: Location): DisplayEntity(location) {
         }
         backgroundColor.valueChanged {
             val type = EntityMetadataType.TEXT_DISPLAY_BACKGROUND_COLOR
-            metadata[type] = EntityMetadata(type, EntityMetaValue.VAR_INT, it.newValue.toRgbInt())
+            metadata[type] = EntityMetadata(type, EntityMetaValue.VAR_INT, it.newValue.getPackedInt())
         }
         opacity.valueChanged {
             val type = EntityMetadataType.TEXT_DISPLAY_TEXT_OPACITY

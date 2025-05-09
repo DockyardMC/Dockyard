@@ -3,7 +3,7 @@ package io.github.dockyardmc.extentions
 import io.github.dockyardmc.scroll.CustomColor
 
 //TODO add to Scroll
-fun CustomColor.toRgbInt(): Int {
+fun CustomColor.getPackedInt(): Int {
     var r = this.r
     var g = this.g
     var b = this.b

@@ -1,4 +1,4 @@
-package io.github.dockyardmc.particles
+package io.github.dockyardmc.particles.data
 
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.registry.Particles
@@ -8,7 +8,7 @@ class FallingDustParticleData(val block: io.github.dockyardmc.world.block.Block)
 
     override var id: Int = Particles.FALLING_DUST.getProtocolId()
 
-    override fun write(byteBuf: ByteBuf) {
-        byteBuf.writeVarInt(block.getProtocolId())
+    override fun write(buffer: ByteBuf) {
+        buffer.writeVarInt(block.getProtocolId())
     }
 }

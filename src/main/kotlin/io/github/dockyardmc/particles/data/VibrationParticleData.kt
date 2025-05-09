@@ -1,4 +1,4 @@
-package io.github.dockyardmc.particles
+package io.github.dockyardmc.particles.data
 
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.extentions.writeVarIntEnum
@@ -10,15 +10,15 @@ class VibrationParticleData(val vibrationSource: VibrationSource, val pos: Vecto
 
     override var id: Int = Particles.VIBRATION.getProtocolId()
 
-    override fun write(byteBuf: ByteBuf) {
-        byteBuf.writeVarIntEnum<VibrationSource>(vibrationSource)
+    override fun write(buffer: ByteBuf) {
+        buffer.writeVarIntEnum<VibrationSource>(vibrationSource)
         if(vibrationSource == VibrationSource.BLOCK) {
-            pos.write(byteBuf)
-            byteBuf.writeVarInt(ticks)
+            pos.write(buffer)
+            buffer.writeVarInt(ticks)
         } else {
-            byteBuf.writeVarInt(entityId)
-            byteBuf.writeFloat(entityEyeHeight)
-            byteBuf.writeVarInt(ticks)
+            buffer.writeVarInt(entityId)
+            buffer.writeFloat(entityEyeHeight)
+            buffer.writeVarInt(ticks)
         }
     }
 

@@ -1,13 +1,11 @@
-package io.github.dockyardmc.particles
+package io.github.dockyardmc.particles.data
 
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.Particles
-import io.netty.buffer.ByteBuf
 
-interface ParticleData {
+interface ParticleData: NetworkWritable {
 
     var id: Int
-
-    fun write(byteBuf: ByteBuf)
 
     companion object {
         fun requiresData(particleId: Int): Boolean {
