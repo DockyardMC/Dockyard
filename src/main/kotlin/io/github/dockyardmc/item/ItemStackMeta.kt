@@ -1,7 +1,7 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.attributes.AttributeModifier
-import io.github.dockyardmc.extentions.toRgbInt
+import io.github.dockyardmc.extentions.getPackedInt
 import io.github.dockyardmc.player.ProfileProperty
 import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.registry.Items
@@ -184,7 +184,7 @@ class ItemStackMeta {
 
     @JvmName("withCustomModelDatacolorListCustomColor")
     fun withCustomModelData(colors: List<CustomColor>) {
-        components.addOrUpdate(CustomModelDataItemComponent(listOf(), listOf(), listOf(), colors.map { color -> color.toRgbInt() }))
+        components.addOrUpdate(CustomModelDataItemComponent(listOf(), listOf(), listOf(), colors.map { color -> color.getPackedInt() }))
     }
 
     @JvmName("withCustomModelDatacolorListCustomColor")

@@ -7,6 +7,8 @@ import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.AppliedPotionEffectSettings
+import io.github.dockyardmc.registry.Registry
+import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
@@ -60,6 +62,18 @@ fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
     list.forEach {
         it.write(this)
     }
+}
+
+fun ByteBuf.writeColor(color: CustomColor) {
+    this.writeInt(color.getPackedInt())
+}
+
+fun ByteBuf.writeRegistryEntry(entry: RegistryEntry) {
+    this.writeVarInt(entry.getProtocolId())
+}
+
+fun <T : RegistryEntry> ByteBuf.readRegistryEntry(registry: Registry): T {
+    return registry.getByProtocolId(this.readVarInt()) as T
 }
 
 fun ByteBuf.readUUID(): UUID {
@@ -449,7 +463,7 @@ fun ByteBuf.readCustomColorList(): List<CustomColor> {
 fun ByteBuf.writeCustomColorList(list: Collection<CustomColor>) {
     this.writeVarInt(list.size)
     list.forEach {
-        this.writeInt(it.toRgbInt())
+        this.writeInt(it.getPackedInt())
     }
 }
 

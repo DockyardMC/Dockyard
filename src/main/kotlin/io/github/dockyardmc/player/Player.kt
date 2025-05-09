@@ -19,7 +19,7 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.percentOf
 import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
-import io.github.dockyardmc.particles.BlockParticleData
+import io.github.dockyardmc.particles.data.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.permissions.PermissionSystem
 import io.github.dockyardmc.player.systems.*
