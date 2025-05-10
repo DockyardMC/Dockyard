@@ -77,14 +77,14 @@ Commands.add("/explode") {
 
 #### Sidebar API
 ```kotlin
-val sidebar = Sidebar {
-    setTitle("<yellow><bold>My Cool Server")
-    setGlobalLine("")
-    setPlayerLine { player -> "Welcome, <aqua>$player" }
-    setPlayerLine { player -> "World: <yellow>${player.world.name}" }
-    setPlayerLine { player -> "Ping: <pink>${player.ping}" }
-    setGlobalLine("")
-    setGlobalLine("<yellow>www.mycoolserver.uwu")
+val sidebar = sidebar {
+    withTitle("<yellow><bold>My Cool Server")
+    withSpacer()
+    withPlayerLine { player -> "Welcome, <aqua>$player" }
+    withPlayerLine { player -> "World: <yellow>${player.world.name}" }
+    withPlayerLine { player -> "Ping: <pink>${player.ping}" }
+    withSpacer()
+    withStaticLine("<yellow>www.mycoolserver.uwu")
 }
 
 Events.on<PlayerJoinEvent> { event ->
