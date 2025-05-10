@@ -7,6 +7,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.ui.new.CookieClickerScreen
 import io.github.dockyardmc.utils.DebugSidebar
 
 fun main() {
@@ -28,6 +29,19 @@ fun main() {
     Events.on<PlayerBlockRightClickEvent> { event ->
         if (event.block.registryBlock == Blocks.CHEST) {
             event.player.playChestAnimation(event.location, Player.ChestAnimation.OPEN)
+    Commands.add("/lighting") {
+        execute { ctx ->
+            val player = ctx.getPlayerOrThrow()
+            player.strikeLightning(player.location)
+        }
+    }
+
+    Commands.add("/ui") {
+        execute { ctx ->
+            val player = ctx.getPlayerOrThrow()
+            val screen = CookieClickerScreen()
+            screen.open(player)
+            screen.render(player)
         }
     }
 

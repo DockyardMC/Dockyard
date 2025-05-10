@@ -18,8 +18,8 @@ class ExampleCookieClickerScreen(player: Player): DrawableContainerScreen(player
     val cookies: Bindable<Int> = Bindable(1)
 
     override fun onOpen(player: Player) {
-        cookies.triggerUpdate()
         player.playSound(Sounds.BLOCK_WOODEN_BUTTON_CLICK_ON)
+        cookies.triggerUpdate()
     }
 
     override fun onClose(player: Player) {
