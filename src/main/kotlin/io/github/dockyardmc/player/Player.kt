@@ -425,6 +425,7 @@ class Player(
         displayedSkinParts.triggerUpdate()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(location))
         sendPacketToViewers(ClientboundEntityTeleportPacket(this, location))
+        updateWeatherState()
     }
 
     fun refreshAbilities() {
