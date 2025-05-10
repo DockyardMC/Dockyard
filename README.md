@@ -65,8 +65,8 @@ Commands.add("/explode") {
         player.spawnParticle(player.location, Particles.EXPLOSION_EMITTER, Vector3f(1f), amount = 5)
         player.playSound(Sounds.ENTITY_GENERIC_EXPLODE, volume = 2f, pitch = randomFloat(0.6f, 1.3f))
     
-        player.sendMessage("<yellow>You got <rainbow><b>totally exploded <yellow>by <red>$executingPlayer")
-        executingPlayer.sendMessage("<yellow>You <rainbow><b>totally exploded <yellow>player <red>$player")
+        player.sendMessage("<yellow>You got <b>totally exploded <yellow>by <red>$executingPlayer")
+        executingPlayer.sendMessage("<yellow>You <b>totally exploded <yellow>player <red>$player")
     }
 }
 ```
@@ -88,7 +88,7 @@ val sidebar = Sidebar {
 }
 
 Events.on<PlayerJoinEvent> { event ->
-    sidebar.viewers.add(event.player)
+    sidebar.addViewer(event.player)
 }
 ```
 Changing any lines, title etc. will automatically send update to the viewers
@@ -102,6 +102,45 @@ Events.on<PlayerJoinEvent> { event ->
 }
 ```
 Again, changing any properties of the bossbar will automatically send updates to the viewers 
+
+---
+
+### Advancement API
+
+```kotlin
+// here's how to make an advancement
+val root = advancement("dockyard/root") {
+    withTitle("<blue>Dockyard")
+    withDescription("On github!!!\n<gold>DockyardMC/Dockyard")
+    withIcon(Items.LAPIS_LAZULI)
+    withBackground(Blocks.CHERRY_LEAVES)
+    withPosition(0f, 0f)
+}
+
+advancement("dockyard/child") {
+    // set the parent of the advancement like this
+    withParent(root)
+
+    withTitle("Child")
+    withIcon(Items.STICK.toItemStack()
+        .withComponent(EnchantmentGlintOverrideItemComponent(true)))
+
+    withPosition(1f, 0f)
+}
+
+Events.on<PlayerJoinEvent> { event ->
+    root.addAll(event.player)
+}
+```
+
+Changing any properties will automatically send updates to the viewers
+
+You can also send an advancement toast like this:
+```kotlin
+player.showToast("Hello there", Items.FEATHER.toItemStack())
+```
+
+---
 
 ### Entity Metadata Layers
 
