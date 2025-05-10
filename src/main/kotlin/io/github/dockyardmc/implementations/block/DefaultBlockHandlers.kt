@@ -23,7 +23,7 @@ class DefaultBlockHandlers : DefaultImplementationModule {
 
     override fun register() {
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:slabs", SlabBlockHandler())
-        BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:barrel", BarrelBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:barrel", FacingBlockHandler(upDown = true))
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:buttons", ButtonBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:logs", LogBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:lantern", LanternBlockHandler())
@@ -33,7 +33,7 @@ class DefaultBlockHandlers : DefaultImplementationModule {
         BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:redstone_torch", TorchBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:stairs", StairBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:trapdoors", TrapdoorBlockHandler())
-        BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:shulker_boxes", ShulkerboxBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:shulker_boxes", FacingBlockHandler(upDown = true))
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:doors", DoorBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:fences", FenceBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:iron_bars", FenceBlockHandler())
@@ -44,11 +44,11 @@ class DefaultBlockHandlers : DefaultImplementationModule {
             BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, block.identifier, doublePlantHandler)
         }
 
-        BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:fence_gates", FacingBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:fence_gates", FacingBlockHandler(upDown = false))
 
         DebugStick().register()
 
-        val facingBlockHandler = FacingBlockHandler()
+        val facingBlockHandler = FacingBlockHandler(upDown = false)
         facingBlocks.forEach { block -> BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, block, facingBlockHandler) }
     }
 }
