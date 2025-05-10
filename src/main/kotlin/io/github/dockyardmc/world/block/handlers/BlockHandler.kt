@@ -38,7 +38,6 @@ interface BlockHandler {
         block: Block,
         face: Direction,
         location: Location,
-        clickedBlock: Location,
         cursor: Vector3f
     ): Boolean {
         // Nothing by default

@@ -34,7 +34,7 @@ class DoorBlockHandler: BlockHandler {
         }
     }
 
-    override fun onUse(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Boolean {
+    override fun onUse(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
         if(player.isSneaking) return false
         if(block.registryBlock == Blocks.IRON_DOOR) return false
         val blockAbove = location.add(0, 1, 0)

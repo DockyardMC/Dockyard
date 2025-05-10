@@ -25,7 +25,7 @@ class TrapdoorBlockHandler: BlockHandler {
         return block.withBlockStates(states)
     }
 
-    override fun onUse(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Boolean {
+    override fun onUse(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
         if (player.isSneaking && !heldItem.isEmpty() && BlockRegistry.getMap().containsKey(heldItem.material.identifier)) {
             return false
         }

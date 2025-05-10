@@ -25,7 +25,7 @@ class CandleBlockHandler : BlockHandler {
         return null
     }
 
-    override fun onUse(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Boolean {
+    override fun onUse(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
         if(heldItem.material == Items.FLINT_AND_STEEL && block.blockStates["lit"] != "true") {
             location.setBlock(block.withBlockStates("lit" to "true"))
             return true
