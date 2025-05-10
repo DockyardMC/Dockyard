@@ -1,6 +1,5 @@
 package io.github.dockyardmc.maths.counter
 
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.scheduler.Scheduler
 import io.github.dockyardmc.scheduler.SchedulerTask
 import io.github.dockyardmc.scheduler.runnables.ticks

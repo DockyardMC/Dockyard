@@ -11,11 +11,11 @@ import io.github.dockyardmc.player.Player.ChestAnimation
 import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import java.util.UUID
+import java.util.*
 
 fun <T> MutableList<T>.addAllNonDuplicates(other: Collection<T>) {
     val nonDuplicates = other.filter { item -> !this.contains(item) }
@@ -24,6 +24,10 @@ fun <T> MutableList<T>.addAllNonDuplicates(other: Collection<T>) {
 
 fun Collection<Player>.filterByPermission(permission: String): Collection<Player> {
     return this.filter { player -> player.hasPermission(permission) }
+}
+
+fun Collection<Player>.strikeLighting(location: Location) {
+    this.forEach { player -> player.strikeLightning(location) }
 }
 
 fun Collection<Player>.addPermission(permission: String) {
@@ -147,16 +151,16 @@ fun Collection<Player>.setIsFlying(isFlying: Boolean) {
 }
 
 fun <E> MutableCollection<E>.addIfNotPresent(target: E) {
-    if(!this.contains(target)) this.add(target)
+    if (!this.contains(target)) this.add(target)
 }
 
 fun <E> MutableCollection<E>.removeIfPresent(target: E) {
-    if(this.contains(target)) this.remove(target)
+    if (this.contains(target)) this.remove(target)
 }
 
 fun <E> MutableList<E>.consumeFirstOrNull(): E? {
     val first = this.firstOrNull()
-    if(first != null) this.remove(first)
+    if (first != null) this.remove(first)
     return first
 }
 

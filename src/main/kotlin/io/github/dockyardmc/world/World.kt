@@ -6,12 +6,18 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
+import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.LightningBolt
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.SHA256Long
 import io.github.dockyardmc.extentions.addIfNotPresent
 import io.github.dockyardmc.extentions.hasUpperCase
 import io.github.dockyardmc.extentions.removeIfPresent
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.maths.vectors.Vector2f
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.particles.data.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Player
@@ -21,14 +27,14 @@ import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.DimensionType
 import io.github.dockyardmc.registry.registries.RegistryBlock
-import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scheduler.CustomRateScheduler
+import io.github.dockyardmc.scheduler.runLaterAsync
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.utils.*
-import io.github.dockyardmc.maths.vectors.Vector2f
-import io.github.dockyardmc.maths.vectors.Vector3
-import io.github.dockyardmc.maths.vectors.Vector3d
-import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.UsedAfterDisposedException
+import io.github.dockyardmc.utils.debug
+import io.github.dockyardmc.utils.getWorldEventContext
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.block.BatchBlockUpdate
 import io.github.dockyardmc.world.block.Block
@@ -53,6 +59,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     val difficulty: Bindable<Difficulty> = bindablePool.provideBindable(Difficulty.NORMAL)
     val worldBorder = WorldBorder(this)
+    val weather: Bindable<Weather> = bindablePool.provideBindable(Weather.CLEAR)
 
     val time: Bindable<Long> = bindablePool.provideBindable(1000L)
     var worldAge: Long = 0
@@ -83,6 +90,14 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         scheduler.runRepeating(1.ticks) {
             tick()
         }
+
+        weather.valueChanged { _ ->
+            players.forEach { player ->
+                runLaterAsync(1.ticks) {
+                    player.updateWeatherState()
+                }
+            }
+        }
     }
 
     fun schedule(unit: (World) -> Unit) {
@@ -92,6 +107,14 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             isLoaded.valueChangedThenSelfDispose { event ->
                 if (event.newValue) unit.invoke(this) else throw UsedAfterDisposedException(this)
             }
+        }
+    }
+
+    fun strikeLightning(location: Location) {
+        val entity = LightningBolt(location)
+        spawnEntity(entity)
+        scheduler.runLater(10.ticks) {
+            despawnEntity(entity)
         }
     }
 
@@ -374,10 +397,11 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         when (generator) {
             is VoidWorldGenerator -> {
                 chunk.sections.forEach { section ->
-                    section.biomePalette.fill((generator as VoidWorldGenerator).defaultBiome.getProtocolId())
-                    section.blockPalette.fill(BlockRegistry.Air.defaultBlockStateId)
+                    section.fillBiome((generator as VoidWorldGenerator).defaultBiome.getProtocolId())
+                    section.fillBlock(BlockRegistry.Air.defaultBlockStateId)
                 }
             }
+
             else -> {
                 for (localX in 0..<16) {
                     for (localZ in 0..<16) {

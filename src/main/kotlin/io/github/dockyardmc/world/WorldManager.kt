@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture
 object WorldManager {
 
     val worlds: MutableMap<String, World> = mutableMapOf()
-    val mainWorld: World = World("main", VoidWorldGenerator(Biomes.THE_VOID), DimensionTypes.OVERWORLD)
+    val mainWorld: World = World("main", VoidWorldGenerator(Biomes.PLAINS), DimensionTypes.OVERWORLD)
 
     val LOG_TYPE = CustomLogType("\uD83C\uDF0E World Manager", AnsiPair.PURPLE)
 

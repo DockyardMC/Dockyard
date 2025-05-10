@@ -8,6 +8,8 @@ import io.github.dockyardmc.attributes.PlayerAttributes
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.*
+import io.github.dockyardmc.entity.EntityManager.despawnEntity
+import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.ContainerInventory
@@ -44,6 +46,7 @@ import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.now
 import io.github.dockyardmc.world.PlayerChunkViewSystem
+import io.github.dockyardmc.world.Weather
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.block.handlers.BlockHandlerManager
@@ -111,6 +114,7 @@ class Player(
     val redVignette: Bindable<Float> = bindablePool.provideBindable(0f)
     val time: Bindable<Long> = bindablePool.provideBindable(-1)
     val fovModifier: Bindable<Float> = bindablePool.provideBindable(0.1f)
+    val clientWeather: Bindable<Weather?> = bindablePool.provideBindable(null)
 
     val cooldownSystem = CooldownSystem(this)
     val foodEatingSystem = FoodEatingSystem(this)
@@ -194,6 +198,7 @@ class Player(
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
         time.valueChanged { updateWorldTime() }
+        clientWeather.valueChanged { updateWeatherState() }
 
         hasNoGravity.value = false
     }
@@ -420,6 +425,7 @@ class Player(
         displayedSkinParts.triggerUpdate()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(location))
         sendPacketToViewers(ClientboundEntityTeleportPacket(this, location))
+        updateWeatherState()
     }
 
     fun refreshAbilities() {
@@ -569,5 +575,34 @@ class Player(
         decoupledEntityViewSystemTicking.cancel()
         attributes.dispose()
         super.dispose()
+    }
+
+    fun strikeLightning(location: Location) {
+        val entity = LightningBolt(location)
+        entity.autoViewable = false
+        world.spawnEntity(entity)
+        entity.addViewer(this)
+        world.scheduler.runLater(10.ticks) {
+            world.despawnEntity(entity)
+        }
+    }
+
+    fun updateWeatherState() {
+        var raining: Boolean = world.weather.value.rain
+        var thunder: Boolean = world.weather.value.thunder
+
+        val playerWeather = clientWeather.value
+        if (playerWeather != null) {
+            raining = playerWeather.rain
+            thunder = playerWeather.thunder
+        }
+
+        val rainPacket = if (raining) ClientboundGameEventPacket(GameEvent.START_RAINING, 1f) else ClientboundGameEventPacket(GameEvent.END_RAINING, 1f)
+        val rainLevelPacket = if (raining) ClientboundGameEventPacket(GameEvent.RAIN_LEVEL_CHANGE, 1f) else ClientboundGameEventPacket(GameEvent.RAIN_LEVEL_CHANGE, 0f)
+        val thunderPacket = if (thunder) ClientboundGameEventPacket(GameEvent.THUNDER_LEVEL_CHANGE, 1f) else ClientboundGameEventPacket(GameEvent.THUNDER_LEVEL_CHANGE, 0f)
+
+        sendPacket(rainPacket)
+        sendPacket(rainLevelPacket)
+        sendPacket(thunderPacket)
     }
 }
