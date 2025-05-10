@@ -38,6 +38,7 @@ class DefaultBlockHandlers : DefaultImplementationModule {
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:fences", FenceBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:iron_bars", FenceBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:snow", SnowLayerBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:candles", CandleBlockHandler())
 
         val doublePlantHandler = DoublePlantBlockHandler()
         DoublePlantBlockHandler.doublePlants.forEach { block ->
