@@ -52,6 +52,8 @@ object TestServer {
 
         mainWorldCountdownLatch.await()
         secondWorldCountDownLatch.await()
+
+        PlayerTestUtil.getOrCreateFakePlayer()
     }
 }
 

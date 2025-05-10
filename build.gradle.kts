@@ -79,13 +79,23 @@ dependencies {
     api("io.github.dockyardmc:spark-common:1.12-SNAPSHOT")
 
     testImplementation(kotlin("test"))
+    testImplementation("cz.lukynka:astral:0.7")
     testImplementation("org.mockito:mockito-core:5.4.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 }
 
 tasks.test {
     useJUnitPlatform()
+    systemProperty("file.encoding", "utf-8")
 //    forkEvery = 1
+}
+
+tasks.compileJava {
+    options.encoding = "UTF-8"
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
 }
 
 fun String.runCommand(

@@ -17,6 +17,10 @@ interface Event {
         other: Set<Any> = setOf<Any>(),
         val isGlobalEvent: Boolean = false
     ) {
+        companion object {
+            val EMPTY = Context()
+        }
+
         // what the fuck
         val players = players + entities.filterIsInstance<Player>()
         var entities = entities + players
@@ -30,6 +34,8 @@ interface Event {
         // i hate everything about this
         // please suggest something better.
     }
+
+
 }
 
 operator fun EventFilter.not(): EventFilter {
