@@ -103,6 +103,45 @@ Events.on<PlayerJoinEvent> { event ->
 ```
 Again, changing any properties of the bossbar will automatically send updates to the viewers 
 
+---
+
+### Advancement API
+
+```kotlin
+// here's how to make an advancement
+val root = advancement("dockyard/root") {
+    withTitle("<blue>Dockyard")
+    withDescription("On github!!!\n<gold>DockyardMC/Dockyard")
+    withIcon(Items.LAPIS_LAZULI)
+    withBackground(Blocks.CHERRY_LEAVES)
+    withPosition(0f, 0f)
+}
+
+advancement("dockyard/child") {
+    // set the parent of the advancement like this
+    withParent(root)
+
+    withTitle("Child")
+    withIcon(Items.STICK.toItemStack()
+        .withComponent(EnchantmentGlintOverrideItemComponent(true)))
+
+    withPosition(1f, 0f)
+}
+
+Events.on<PlayerJoinEvent> { event ->
+    root.addAll(event.player)
+}
+```
+
+Changing any properties will automatically send updates to the viewers
+
+You can also send an advancement toast like this:
+```kotlin
+player.showToast("Hello there", Items.FEATHER.toItemStack())
+```
+
+---
+
 ### Entity Metadata Layers
 
 Layering entity metadata per player allows for client-side changes to entities for purposes like client-side glowing and client-side invisibility. 
