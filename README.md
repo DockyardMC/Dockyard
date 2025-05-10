@@ -88,7 +88,7 @@ val sidebar = Sidebar {
 }
 
 Events.on<PlayerJoinEvent> { event ->
-    sidebar.viewers.add(event.player)
+    sidebar.addViewer(event.player)
 }
 ```
 Changing any lines, title etc. will automatically send update to the viewers
