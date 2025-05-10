@@ -21,7 +21,7 @@ class WeatherCommand {
                 val world = getArgumentOrNull<World>("world") ?: ctx.getPlayerOrThrow().world
 
                 world.weather.value = weather
-                ctx.sendMessage("<gray>Set weather in world <white>${world.name}<gray>to <yellow>${weather.name.properStrictCase()}")
+                ctx.sendMessage("<gray>Set weather in world <white>${world.name} <gray>to <yellow>${weather.name.properStrictCase()}")
             }
         }
     }
