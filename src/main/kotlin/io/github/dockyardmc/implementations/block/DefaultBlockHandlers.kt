@@ -41,6 +41,7 @@ class DefaultBlockHandlers : DefaultImplementationModule {
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:candles", CandleBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:grass_block", GrassBlockBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:dirt", DirtBlockHandler())
+        BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:chiseled_bookshelf", ChiseledBookshelfBlockHandler())
 
         val doublePlantHandler = DoublePlantBlockHandler()
         DoublePlantBlockHandler.doublePlants.forEach { block ->
