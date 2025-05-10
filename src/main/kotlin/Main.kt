@@ -4,9 +4,8 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.systems.GameMode
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundGameEventPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.GameEvent
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.ui.new.CookieClickerScreen
 import io.github.dockyardmc.utils.DebugSidebar
 
 fun main() {
@@ -32,14 +31,12 @@ fun main() {
         }
     }
 
-    Commands.add("/rain") {
+    Commands.add("/ui") {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
-
-            val rainPacket = ClientboundGameEventPacket(GameEvent.START_RAINING, 0f)
-            val rainLevelPacket = ClientboundGameEventPacket(GameEvent.RAIN_LEVEL_CHANGE, 1f)
-            player.sendPacket(rainPacket)
-            player.sendPacket(rainLevelPacket)
+            val screen = CookieClickerScreen()
+            screen.open(player)
+            screen.render(player)
         }
     }
 
