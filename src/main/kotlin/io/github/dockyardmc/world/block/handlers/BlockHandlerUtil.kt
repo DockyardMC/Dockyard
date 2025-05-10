@@ -7,13 +7,13 @@ import io.github.dockyardmc.world.block.handlers.StairBlockHandler.Axis
 object BlockHandlerUtil {
     fun getAxis(direction: Direction): Axis {
         val axis = when (direction) {
-            Direction.DOWN -> Axis.Y
+            Direction.DOWN,
             Direction.UP -> Axis.Y
 
-            Direction.NORTH -> Axis.Z
+            Direction.NORTH,
             Direction.SOUTH -> Axis.Z
 
-            Direction.WEST -> Axis.X
+            Direction.WEST,
             Direction.EAST -> Axis.X
         }
         return axis

@@ -6,22 +6,12 @@ import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.block.Block
+import io.github.dockyardmc.world.block.handlers.BlockHandlerUtil.getAxis
 
 class LogBlockHandler : BlockHandler {
 
     override fun onPlace(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Block? {
-        val axis: String = when (face) {
-            Direction.DOWN,
-            Direction.UP -> "y"
-
-            Direction.SOUTH,
-            Direction.NORTH -> "z"
-
-            Direction.EAST,
-            Direction.WEST -> "x"
-        }
-
-        return block.withBlockStates("axis" to axis)
+        return block.withBlockStates("axis" to getAxis(face).name.lowercase())
     }
 
 }
