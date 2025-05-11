@@ -13,6 +13,7 @@ import io.github.dockyardmc.world.block.Block
 class DirtBlockHandler : BlockHandler {
     override fun onUse(player: Player, hand: PlayerHand, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
         if(!Tags.ITEM_SHOVELS.contains(heldItem.material.identifier)) return false
+        if(!location.add(0, 1, 0).block.isAir()) return false
 
         location.setBlock(Blocks.DIRT_PATH)
         return true
