@@ -69,6 +69,10 @@ class DefaultBlockHandlers : DefaultImplementationModule {
             "minecraft:dispenser",
             "minecraft:dropper",
             "minecraft:observer",
+            "minecraft:small_amethyst_bud",
+            "minecraft:medium_amethyst_bud",
+            "minecraft:large_amethyst_bud",
+            "minecraft:amethyst_cluster",
 
             // thats funny one. if its facing up its invalid so it faces down as default
             "minecraft:hopper",
