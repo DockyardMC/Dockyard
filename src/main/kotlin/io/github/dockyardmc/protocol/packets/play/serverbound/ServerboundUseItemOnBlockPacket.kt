@@ -83,7 +83,10 @@ class ServerboundUseItemOnBlockPacket(
             }
         }
 
-        if (used) return
+        if (used) {
+            player.lastInteractionTime = System.currentTimeMillis()
+            return
+        }
         if ((item.material.isBlock) && (item.material != Items.AIR) && (player.gameMode.value != GameMode.ADVENTURE && player.gameMode.value != GameMode.SPECTATOR)) {
             var block: Block = (BlockRegistry.getOrNull(item.material.identifier) ?: Blocks.AIR).toBlock()
 
@@ -139,6 +142,14 @@ class ServerboundUseItemOnBlockPacket(
                 player.setHeldItem(hand, newItem)
                 Events.dispatch(finishPlacingBlockEvent)
             }
+        } else {
+            // cancelled still equals false
+            // just return instead of assigning `true` to `cancelled`
+            return
+        }
+
+        if(!cancelled) {
+            player.lastInteractionTime = System.currentTimeMillis()
         }
     }
 
