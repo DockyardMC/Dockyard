@@ -6,11 +6,12 @@ import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.block.Block
+import io.github.dockyardmc.world.block.handlers.BlockHandlerUtil.getAxis
 
-class BarrelBlockHandler: BlockHandler {
+class AxisFacingBlockHandler : BlockHandler {
 
     override fun onPlace(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Block? {
-        return block.withBlockStates("facing" to face.name.lowercase())
+        return block.withBlockStates("axis" to getAxis(face).name.lowercase())
     }
 
 }

@@ -18,6 +18,9 @@ class FenceBlockHandler : BlockHandler {
             "minecraft:melon",
             "minecraft:pumpkin",
         )
+        val CANNOT_CONNECT_TAGS: List<String> = listOf(
+            "minecraft:walls"
+        )
     }
 
     override fun onUpdateByNeighbour(block: Block, world: World, location: Location, neighbour: Block, neighbourLocation: Location) {
@@ -81,5 +84,7 @@ class FenceBlockHandler : BlockHandler {
                 block.isAir()
                 ||
                 !block.registryBlock.isSolid
+                ||
+                block.tags.any { tag -> CANNOT_CONNECT_TAGS.contains(tag) }
     }
 }
