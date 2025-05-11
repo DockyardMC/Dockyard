@@ -15,7 +15,6 @@ object GeneralBlockPlacementRules {
 
         val clickedBlock = world.getBlock(originalClickedBlock)
         val placementLocation = world.getBlock(where)
-        val blockBelow = where.subtract(0, 1, 0).block
 
         if (!placementLocation.isAir() && placementLocation.registryBlock != Blocks.LIGHT && !placementLocation.registryBlock.isLiquid) canBePlaced = CancelReason(false, "Block at new location is not air (${placementLocation.identifier})")
 
@@ -24,8 +23,8 @@ object GeneralBlockPlacementRules {
                 placer.world.entities
             ) && newBlock.registryBlock.isSolid
         ) canBePlaced = CancelReason(false, "Block collides with entity")
-        if (!blockBelow.registryBlock.isSolid) canBePlaced =
-            CancelReason(false, "Block is not full block (${blockBelow.identifier})")
+        if (!clickedBlock.registryBlock.isSolid) canBePlaced =
+            CancelReason(false, "Block is not full block (${clickedBlock.identifier})")
         if (BlockDataHelper.isClickable(clickedBlock) && !placer.isSneaking) canBePlaced =
             CancelReason(false, "Block is clickable and player is not sneaking")
 
