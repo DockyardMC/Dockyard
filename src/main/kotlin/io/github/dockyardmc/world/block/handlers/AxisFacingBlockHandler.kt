@@ -8,7 +8,7 @@ import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.block.handlers.BlockHandlerUtil.getAxis
 
-class LogBlockHandler : BlockHandler {
+class AxisFacingBlockHandler : BlockHandler {
 
     override fun onPlace(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Block? {
         return block.withBlockStates("axis" to getAxis(face).name.lowercase())
