@@ -78,17 +78,16 @@ class ServerboundUseItemOnBlockPacket(
             used = handler.onUse(player, hand, player.getHeldItem(hand), originalBlock, face, pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ)) || used
         }
 
-        // prevent desync?
-        if (!used) {
-            pos.toLocation(player.world).getChunk()?.let { chunk ->
-                player.sendPacket(chunk.packet)
-            }
-        }
-
         if (used) {
             player.lastInteractionTime = System.currentTimeMillis()
             return
         }
+
+        // prevent desync?
+        pos.toLocation(player.world).getChunk()?.let { chunk ->
+            player.sendPacket(chunk.packet)
+        }
+
         if ((item.material.isBlock) && (item.material != Items.AIR) && (player.gameMode.value != GameMode.ADVENTURE && player.gameMode.value != GameMode.SPECTATOR)) {
             var block: Block = (BlockRegistry.getOrNull(item.material.identifier) ?: Blocks.AIR).toBlock()
 
