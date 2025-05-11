@@ -75,11 +75,13 @@ class ServerboundUseItemOnBlockPacket(
 
         var used = false
         BlockHandlerManager.getAllFromRegistryBlock(originalBlock.registryBlock).forEach { handler ->
-            used = handler.onUse(player, hand, player.getHeldItem(hand), originalBlock, face, pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ))
-            if (!used) {
-                pos.toLocation(player.world).getChunk()?.let { chunk ->
-                    player.sendPacket(chunk.packet)
-                }
+            used = used || handler.onUse(player, hand, player.getHeldItem(hand), originalBlock, face, pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ))
+        }
+
+        // prevent desync?
+        if (!used) {
+            pos.toLocation(player.world).getChunk()?.let { chunk ->
+                player.sendPacket(chunk.packet)
             }
         }
 
