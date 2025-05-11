@@ -5,13 +5,14 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Tags
 import io.github.dockyardmc.world.block.Block
 import kotlin.math.roundToInt
 
 class ChiseledBookshelfBlockHandler : BlockHandler {
-    override fun onUse(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
+    override fun onUse(player: Player, hand: PlayerHand, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
         if(player.gameMode.value == GameMode.ADVENTURE) return false
         val facing = block.blockStates["facing"] ?: return false
         if (face.name.lowercase() != facing) return false

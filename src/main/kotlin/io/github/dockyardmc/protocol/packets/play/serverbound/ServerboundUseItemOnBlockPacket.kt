@@ -75,7 +75,7 @@ class ServerboundUseItemOnBlockPacket(
 
         var used = false
         BlockHandlerManager.getAllFromRegistryBlock(originalBlock.registryBlock).forEach { handler ->
-            used = handler.onUse(player, player.getHeldItem(PlayerHand.MAIN_HAND), originalBlock, face, pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ))
+            used = handler.onUse(player, hand, player.getHeldItem(hand), originalBlock, face, pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ))
             if (!used) {
                 pos.toLocation(player.world).getChunk()?.let { chunk ->
                     player.sendPacket(chunk.packet)
@@ -134,9 +134,9 @@ class ServerboundUseItemOnBlockPacket(
             }
 
             if (player.gameMode.value != GameMode.CREATIVE) {
-                val heldItem = player.getHeldItem(PlayerHand.MAIN_HAND)
-                val newItem = if (heldItem.amount - 1 == 0) ItemStack.AIR else heldItem.withAmount(heldItem.amount - 1)
-                player.setHeldItem(PlayerHand.MAIN_HAND, newItem)
+                val heldItem = player.getHeldItem(hand)
+                val newItem = if (heldItem.amount <= 1) ItemStack.AIR else heldItem.withAmount(heldItem.amount - 1)
+                player.setHeldItem(hand, newItem)
                 Events.dispatch(finishPlacingBlockEvent)
             }
         }

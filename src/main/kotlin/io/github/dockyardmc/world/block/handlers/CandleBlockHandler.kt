@@ -5,6 +5,7 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.world.block.Block
 
@@ -25,7 +26,7 @@ class CandleBlockHandler : BlockHandler {
         return null
     }
 
-    override fun onUse(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
+    override fun onUse(player: Player, hand: PlayerHand, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
         if(heldItem.material == Items.FLINT_AND_STEEL && block.blockStates["lit"] != "true") {
             location.setBlock(block.withBlockStates("lit" to "true"))
             return true

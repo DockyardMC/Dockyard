@@ -2,12 +2,9 @@ package io.github.dockyardmc.world.block.handlers
 
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.Direction
-import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.getDirection
-import io.github.dockyardmc.player.getOpposite
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.player.*
 import io.github.dockyardmc.world.block.Block
 
 class TrapdoorBlockHandler: BlockHandler {
@@ -25,7 +22,7 @@ class TrapdoorBlockHandler: BlockHandler {
         return block.withBlockStates(states)
     }
 
-    override fun onUse(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
+    override fun onUse(player: Player, hand: PlayerHand, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
         if (player.isSneaking && !heldItem.isEmpty() && BlockRegistry.getMap().containsKey(heldItem.material.identifier)) {
             return false
         }
