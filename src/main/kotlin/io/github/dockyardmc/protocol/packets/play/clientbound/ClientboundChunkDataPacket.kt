@@ -1,20 +1,20 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.extentions.toByteArraySafe
+import io.github.dockyardmc.extentions.writeByteArray
+import io.github.dockyardmc.extentions.writeNBT
+import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.writeList
-import io.github.dockyardmc.world.chunk.ChunkUtils
 import io.github.dockyardmc.utils.writeMSNBT
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.block.BlockEntity
 import io.github.dockyardmc.world.chunk.ChunkSection
-import io.netty.buffer.ByteBuf
+import io.github.dockyardmc.world.chunk.ChunkUtils
 import io.netty.buffer.Unpooled
 import it.unimi.dsi.fastutil.objects.ObjectCollection
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, sections: MutableList<ChunkSection>, blockEntities: ObjectCollection<BlockEntity>, light: Light) : ClientboundPacket() {
-
     init {
         //X Z
         buffer.writeInt(x)
@@ -42,14 +42,6 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightMap: NBTCompound, section
             buffer.writeNBT(blockEntity.data)
         }
 
-        // Light stuff
-        buffer.writeLongArray(light.skyMask.toLongArray())
-        buffer.writeLongArray(light.blockMask.toLongArray())
-
-        buffer.writeLongArray(light.emptySkyMask.toLongArray())
-        buffer.writeLongArray(light.emptyBlockMask.toLongArray())
-
-        buffer.writeList(light.skyLight, ByteBuf::writeByteArray)
-        buffer.writeList(light.blockLight, ByteBuf::writeByteArray)
+        light.write(buffer)
     }
 }

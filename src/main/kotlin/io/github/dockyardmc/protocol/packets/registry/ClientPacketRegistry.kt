@@ -84,7 +84,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addPlay(ClientboundChunkDataPacket::class)
         addPlay(ClientboundWorldEventPacket::class)
         addPlay(ClientboundSendParticlePacket::class)
-        skipPlay("update light")
+        addPlay(ClientboundUpdateLightPacket::class)
         addPlay(ClientboundLoginPacket::class)
         skipPlay("map data")
         skipPlay("trade list")
