@@ -153,40 +153,40 @@ class Player(
         gameModeSystem.handle(gameMode)
         playerInfoSystem.handle(customName, isListed)
 
-        heldSlotIndex.valueChanged {
-            this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
-            val item = inventory[it.newValue]
+        heldSlotIndex.valueChanged { index ->
+            this.sendPacket(ClientboundSetHeldItemPacket(index.newValue))
+            val item = inventory[index.newValue]
             equipment[EquipmentSlot.MAIN_HAND] = item
         }
 
-        isFlying.valueChanged {
-            if (it.newValue) {
+        isFlying.valueChanged { event ->
+            if (event.newValue) {
                 // force standing pose if player is flying
                 this.pose.value = EntityPose.STANDING
             } else if (this.isSneaking) {
                 this.pose.value = EntityPose.SNEAKING
             }
 
-            this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value))
+            this.sendPacket(ClientboundPlayerAbilitiesPacket(event.newValue, isInvulnerable, canFly.value, flySpeed.value))
         }
-        canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
+        canFly.valueChanged { event -> this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, event.newValue, flySpeed.value)) }
 
-        fovModifier.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, it.newValue)) }
+        fovModifier.valueChanged { event -> this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, event.newValue)) }
 
         health.valueChanged { sendHealthUpdatePacket() }
         food.valueChanged { sendHealthUpdatePacket() }
         saturation.valueChanged { sendHealthUpdatePacket() }
 
-        tabListHeader.valueChanged { sendPacket(ClientboundTabListPacket(it.newValue, tabListFooter.value)) }
-        tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
+        tabListHeader.valueChanged { event -> sendPacket(ClientboundTabListPacket(event.newValue, tabListFooter.value)) }
+        tabListFooter.valueChanged { event -> sendPacket(ClientboundTabListPacket(tabListHeader.value, event.newValue)) }
 
-        redVignette.valueChanged {
-            val distance = percentOf(it.newValue * 10, world.worldBorder.diameter).toInt()
+        redVignette.valueChanged { event ->
+            val distance = percentOf(event.newValue * 10, world.worldBorder.diameter).toInt()
             sendPacket(ClientboundSetWorldBorderWarningDistance(distance))
         }
 
-        pose.valueChanged {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
+        pose.valueChanged { event ->
+            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, event.newValue)
             sendMetadataPacketToViewers()
             sendSelfMetadataPacket()
         }
@@ -252,20 +252,21 @@ class Player(
         health.value = 0f
     }
 
-    override fun addViewer(player: Player) {
-        if (player == this) return
+    override fun addViewer(player: Player): Boolean {
+        if (player == this) return false
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
         val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(customName.value)))
         player.sendPacket(namePacket)
 
-        super.addViewer(player)
+        if (!super.addViewer(player)) return false
 
         player.sendMetadataPacket(this)
         this.displayedSkinParts.triggerUpdate()
         sendMetadataPacket(player)
         sendEquipmentPacket(player)
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))))
+        return true
     }
 
     fun getHeldItem(hand: PlayerHand): ItemStack {
@@ -287,19 +288,13 @@ class Player(
 
     override fun removeViewer(player: Player) {
         if (player == this) return
-//        //
-//        if(isDisconnect) {
-//            val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this)
-//            player.sendPacket(playerRemovePacket)
-//        }
-        viewers.remove(player)
         super.removeViewer(player)
     }
 
     // Hold messages client receives before state is PLAY, then send them after state changes to PLAY
     private var queuedMessages = mutableListOf<Pair<Component, Boolean>>()
     fun releaseMessagesQueue() {
-        queuedMessages.forEach { sendSystemMessage(it.first, it.second) }
+        queuedMessages.forEach { message -> sendSystemMessage(message.first, message.second) }
         queuedMessages.clear()
     }
 
@@ -461,8 +456,8 @@ class Player(
     fun openInventory(inventory: ContainerInventory) {
         this.currentOpenInventory = inventory
         sendPacket(ClientboundOpenContainerPacket(InventoryType.valueOf("GENERIC_9X${inventory.rows}"), inventory.name))
-        inventory.contents.forEach {
-            sendPacket(ClientboundSetContainerSlotPacket(it.key, it.value))
+        inventory.contents.forEach { (slot, item) ->
+            sendPacket(ClientboundSetContainerSlotPacket(slot, item))
         }
         if (inventory is DrawableContainerScreen) {
             inventory.slots.triggerUpdate()

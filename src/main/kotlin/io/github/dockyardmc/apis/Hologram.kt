@@ -86,12 +86,12 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     fun setStaticLine(lineIndex: Int, line: StaticContentLine) {
         val currentLine = lines.getOrNull(lineIndex) ?: return
 
-        if(currentLine !is StaticContentLine) {
+        if (currentLine !is StaticContentLine) {
             viewers.forEach(::updateFull)
             return
         }
 
-        if(line.line == currentLine.line) return
+        if (line.line == currentLine.line) return
 
         lines[lineIndex] = currentLine
         setGlobalLineContent(lineIndex, line.line)
@@ -104,7 +104,7 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     fun setPlayerLine(lineIndex: Int, line: PlayerContentLine) {
         val currentLine = lines.getOrNull(lineIndex) ?: return
 
-        if(currentLine !is PlayerContentLine) {
+        if (currentLine !is PlayerContentLine) {
             viewers.forEach(::updateFull)
             return
         }
@@ -118,19 +118,21 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
 
     private fun updateFull(player: Player) {
 
-        lines.forEachIndexed { index, line  ->
+        lines.forEachIndexed { index, line ->
             var entity = lineEntities.getOrNull(index)
-            if(entity == null) {
+            if (entity == null) {
                 entity = location.world.spawnEntity(TextDisplay(location.subtract(0.0, index * 0.3, 0.0))) as TextDisplay
                 entity.autoViewable = false
                 entity.lineWidth.value = Int.MAX_VALUE
                 lineEntities.add(entity)
             }
-            if(line !is PlayerContentLine && entity.metadataLayers.values.isNotEmpty()) entity.metadataLayers.clear()
+            if (line !is PlayerContentLine && entity.metadataLayers.values.isNotEmpty()) entity.metadataLayers.clear()
 
-            when(line) {
+            when (line) {
                 is StaticContentLine -> setGlobalLineContent(index, line.line)
-                is PlayerContentLine -> { setPlayerLineContent(player, index, line.line.invoke(player)) }
+                is PlayerContentLine -> {
+                    setPlayerLineContent(player, index, line.line.invoke(player))
+                }
             }
 
             entity.addViewer(player)
@@ -140,7 +142,7 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     private fun setPlayerLineContent(player: Player, lineIndex: Int, message: String) {
         val display = lineEntities.getOrNull(lineIndex) ?: return
 
-        if(display.metadataLayers[player.toPersistent()] == null) display.metadataLayers[player.toPersistent()] = mutableMapOf()
+        if (display.metadataLayers[player.toPersistent()] == null) display.metadataLayers[player.toPersistent()] = mutableMapOf()
         val layer = display.metadataLayers[player.toPersistent()]!!
         layer[EntityMetadataType.TEXT_DISPLAY_TEXT] = EntityMetadata(EntityMetadataType.TEXT_DISPLAY_TEXT, EntityMetaValue.TEXT_COMPONENT, message.toComponent())
         display.sendMetadataPacket(player)
@@ -148,33 +150,33 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
 
     private fun setGlobalLineContent(lineIndex: Int, message: String) {
         val display = lineEntities.getOrNull(lineIndex) ?: return
-        display.text.value = if(message.replace(" ", "").isEmpty()) "" else message
+        display.text.value = if (message.replace(" ", "").isEmpty()) "" else message
     }
 
     override fun dispose() {
         lineEntities.toList().forEach { entity ->
             world.despawnEntity(entity)
         }
-        viewers.clear()
+        clearViewers()
         lines.clear()
         lineEntities.clear()
         super.dispose()
     }
 
-    override fun addViewer(player: Player) {
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
+
         lineEntities.forEach { entity ->
             entity.addViewer(player)
         }
-        viewers.add(player)
         updateFull(player)
-        super.addViewer(player)
+        return true
     }
 
     override fun removeViewer(player: Player) {
         lineEntities.forEach { entity ->
             entity.removeViewer(player)
         }
-        viewers.remove(player)
         super.removeViewer(player)
     }
 

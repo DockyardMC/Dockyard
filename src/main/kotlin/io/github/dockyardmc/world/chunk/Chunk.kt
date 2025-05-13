@@ -7,7 +7,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
 import io.github.dockyardmc.registry.registries.Biome
-import io.github.dockyardmc.utils.Viewable
+import io.github.dockyardmc.utils.viewable.Viewable
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
@@ -184,13 +184,14 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         viewers.sendPacket(cachedPacket)
     }
 
-    override fun addViewer(player: Player) {
-        viewers.add(player)
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
         player.sendPacket(cachedPacket)
+        return true
     }
 
     override fun removeViewer(player: Player) {
-        viewers.remove(player)
+        super.removeViewer(player)
         player.sendPacket(ClientboundUnloadChunkPacket(this.chunkPos))
     }
 }

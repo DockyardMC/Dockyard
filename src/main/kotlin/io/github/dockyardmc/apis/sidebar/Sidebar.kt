@@ -5,7 +5,7 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.Viewable
+import io.github.dockyardmc.utils.viewable.Viewable
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -121,10 +121,11 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
         }
     }
 
-    override fun addViewer(player: Player) {
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
         sendCreatePackets(player)
         sendLinesPackets(player)
-        viewers.add(player)
+        return true
     }
 
     override fun removeViewer(player: Player) {
