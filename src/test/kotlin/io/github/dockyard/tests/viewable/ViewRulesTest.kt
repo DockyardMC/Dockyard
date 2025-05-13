@@ -1,6 +1,5 @@
 package io.github.dockyard.tests.viewable
 
-import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
