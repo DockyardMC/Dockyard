@@ -5,8 +5,8 @@ import io.github.dockyardmc.entity.metadata.EntityMetadata
 import io.github.dockyardmc.entity.metadata.EntityMetadataType
 
 fun mergeEntityMetadata(base: Entity, layer: Map<EntityMetadataType, EntityMetadata>?): List<EntityMetadata> {
-    if(layer == null) return base.metadata.values.values.toList()
-    val metadata = base.metadata.values
+    if(layer == null) return base.metadata.getValues().values.toList()
+    val metadata = base.metadata.getValues()
     val final = mutableMapOf<EntityMetadataType, EntityMetadata>()
     metadata.forEach {
         val index = it.key

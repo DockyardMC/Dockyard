@@ -4,14 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Dockyard.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Dockyard.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Dockyard.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Dockyard.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Protocol/DockyardMC.Protocol.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Protocol/DockyardMC.Protocol.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Protocol/DockyardMC.Protocol.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Protocol/DockyardMC.Protocol.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Sailboat/DockyardMC.Sailboat.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Sailboat/DockyardMC.Sailboat.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Sailboat/DockyardMC.Sailboat.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Sailboat/DockyardMC.Sailboat.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Socket/DockyardMC.Socket.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Socket/DockyardMC.Socket.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Socket/DockyardMC.Socket.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Socket/DockyardMC.Socket.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/io.github.dockyardmc.Dockyard.main.iml" filepath="$PROJECT_DIR$/.idea/modules/io.github.dockyardmc.Dockyard.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/io.github.dockyardmc.Dockyard.test.iml" filepath="$PROJECT_DIR$/.idea/modules/io.github.dockyardmc.Dockyard.test.iml" />
     </modules>
   </component>
 </project>

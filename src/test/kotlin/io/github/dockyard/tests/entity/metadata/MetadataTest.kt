@@ -21,13 +21,13 @@ class MetadataTest {
 
     @AfterTest
     fun cleanup() {
-//        val player = PlayerTestUtil.getOrCreateFakePlayer()
-//        player.hasNoGravity.value = false
-//        player.isOnFire.value = false
-//        player.freezeTicks.value = 0
-//        player.isGlowing.value = false
-//        player.isInvisible.value = false
-//        player.pose.value = EntityPose.STANDING
+        val player = PlayerTestUtil.getOrCreateFakePlayer()
+        player.hasNoGravity.value = false
+        player.isOnFire.value = false
+        player.freezeTicks.value = 0
+        player.isGlowing.value = false
+        player.isInvisible.value = false
+        player.pose.value = EntityPose.STANDING
     }
 
     @Test
@@ -48,8 +48,9 @@ class MetadataTest {
         player.isInvisible.value = true
         player.pose.value = EntityPose.SWIMMING
 
-        log("${player.metadata.values}", LogType.FATAL)
-        val stateMeta = getEntityMetadataStateBuilder(player.metadata[EntityMetadataType.STATE].value as Byte, player)
+        val state = player.metadata[EntityMetadataType.STATE]
+
+        val stateMeta = getEntityMetadataStateBuilder(state.value as Byte, player)
 
         assertEquals(true, player.metadata[EntityMetadataType.HAS_NO_GRAVITY].value)
         assertEquals(true, stateMeta.isOnFire)

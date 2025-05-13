@@ -2,6 +2,7 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.advancement.PlayerAdvancementTracker
 import io.github.dockyardmc.attributes.PlayerAttributes
@@ -152,7 +153,6 @@ class Player(
     override fun toString(): String = username
 
     init {
-
         gameModeSystem.handle(gameMode)
         playerInfoSystem.handle(customName, isListed)
 
@@ -172,6 +172,7 @@ class Player(
 
             this.sendPacket(ClientboundPlayerAbilitiesPacket(event.newValue, isInvulnerable, canFly.value, flySpeed.value))
         }
+
         canFly.valueChanged { event -> this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, event.newValue, flySpeed.value)) }
 
         fovModifier.valueChanged { event -> this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, event.newValue)) }
@@ -186,12 +187,6 @@ class Player(
         redVignette.valueChanged { event ->
             val distance = percentOf(event.newValue * 10, world.worldBorder.diameter).toInt()
             sendPacket(ClientboundSetWorldBorderWarningDistance(distance))
-        }
-
-        pose.valueChanged { event ->
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, event.newValue)
-            sendMetadataPacketToViewers()
-            sendSelfMetadataPacket()
         }
 
         displayedSkinParts.listUpdated {

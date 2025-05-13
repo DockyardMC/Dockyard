@@ -4,6 +4,8 @@ import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
 import cz.lukynka.bindables.BindableMap
 import cz.lukynka.bindables.BindablePool
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.handlers.*
@@ -86,7 +88,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     var vehicle: Entity? = null
 
     val equipmentHandler = EntityEquipmentHandler(this)
-    val metadataHandler = EntityMetadataHandler(this)
     val vehicleHandler = EntityVehicleHandler(this)
     val potionEffectsHandler = EntityPotionEffectsHandler(this)
     val itemPickupHandler = EntityItemPickupHandler(this)
@@ -101,7 +102,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         equipmentHandler.handle(equipment, equipmentLayers)
         vehicleHandler.handle(passengers)
         potionEffectsHandler.handle(potionEffects)
-        metadataHandler.handleBindables(
+        metadata.handleBindables(
             hasNoGravity = hasNoGravity,
             entityIsOnFire = isOnFire,
             freezeTicks = freezeTicks,
@@ -209,6 +210,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun sendMetadataPacket(player: Player) {
+        log("meta", LogType.WARNING)
         val metadata = mergeEntityMetadata(this, metadataLayers[player.toPersistent()])
         val packet = ClientboundSetEntityMetadataPacket(this, metadata)
         player.sendPacket(packet)
