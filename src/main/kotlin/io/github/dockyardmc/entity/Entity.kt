@@ -210,7 +210,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun sendMetadataPacket(player: Player) {
-        log("meta", LogType.WARNING)
         val metadata = mergeEntityMetadata(this, metadataLayers[player.toPersistent()])
         val packet = ClientboundSetEntityMetadataPacket(this, metadata)
         player.sendPacket(packet)
