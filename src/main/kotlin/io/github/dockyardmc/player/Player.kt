@@ -282,12 +282,12 @@ class Player(
 
     override fun addViewer(player: Player): Boolean {
         if (player == this) return false
+        if (!super.addViewer(player)) return false
+
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
         val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(customName.value)))
         player.sendPacket(namePacket)
-
-        if (!super.addViewer(player)) return false
 
         player.sendMetadataPacket(this)
         this.displayedSkinParts.triggerUpdate()
