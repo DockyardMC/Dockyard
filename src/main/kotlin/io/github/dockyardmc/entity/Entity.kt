@@ -7,6 +7,8 @@ import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.handlers.*
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.item.EquipmentSlot
@@ -60,7 +62,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     val customName: Bindable<String?> = bindablePool.provideBindable(null)
     val customNameVisible: Bindable<Boolean> = bindablePool.provideBindable(false)
-    val metadata: BindableMap<EntityMetadataType, EntityMetadata> = bindablePool.provideBindableMap()
+    val metadata: EntityMetadataHandler = EntityMetadataHandler(this)
     val pose: Bindable<EntityPose> = bindablePool.provideBindable(EntityPose.STANDING)
     val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = bindablePool.provideBindableMap()
     val isOnFire: Bindable<Boolean> = bindablePool.provideBindable(false)
@@ -99,11 +101,10 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         equipmentHandler.handle(equipment, equipmentLayers)
         vehicleHandler.handle(passengers)
         potionEffectsHandler.handle(potionEffects)
-        metadataHandler.handle(
+        metadataHandler.handleBindables(
             hasNoGravity = hasNoGravity,
             entityIsOnFire = isOnFire,
             freezeTicks = freezeTicks,
-            metadata = metadata,
             metadataLayers = metadataLayers,
             isGlowing = isGlowing,
             isInvisible = isInvisible,
@@ -114,12 +115,12 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             stuckArrows = stuckArrows,
         )
 
-        team.valueChanged {
-            if (it.newValue != null && !TeamManager.teams.values.containsKey(it.newValue!!.name)) throw IllegalArgumentException(
-                "Team ${it.newValue!!.name} is not registered!"
+        team.valueChanged { event ->
+            if (event.newValue != null && !TeamManager.teams.values.containsKey(event.newValue!!.name)) throw IllegalArgumentException(
+                "Team ${event.newValue!!.name} is not registered!"
             )
-            it.oldValue?.entities?.remove(this)
-            it.newValue?.entities?.add(this)
+            event.oldValue?.entities?.remove(this)
+            event.newValue?.entities?.add(this)
         }
     }
 

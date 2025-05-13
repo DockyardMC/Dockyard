@@ -1,5 +1,7 @@
-package io.github.dockyardmc.entity
+package io.github.dockyardmc.entity.metadata
 
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.TextDisplay
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
@@ -24,11 +26,11 @@ data class EntityMetadata(
     val value: Any?
 ) {
     override fun toString(): String =
-        "EntityMetadata(${type.name}[${type.index}, ${writer.name}[${writer.ordinal}], $value)"
+        "EntityMetadata(${type.name}[${type.protocolIndex}, ${writer.name}[${writer.ordinal}], $value)"
 }
 
 fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
-    this.writeByte(metadata.type.index)
+    this.writeByte(metadata.type.protocolIndex)
     this.writeVarInt(metadata.writer.ordinal)
     val valuePresent = metadata.value != null
     val v = metadata.value
@@ -133,7 +135,7 @@ fun getTextDisplayFormatting(entity: TextDisplay, builder: (TextDisplayFormattin
     return EntityMetadata(EntityMetadataType.TEXT_DISPLAY_FORMATTING, EntityMetaValue.BYTE, bitMask)
 }
 
-enum class EntityMetadataType(var index: Int) {
+enum class EntityMetadataType(var protocolIndex: Int) {
     STATE(0),
     AIR_TICKS(1),
     CUSTOM_NAME(2),

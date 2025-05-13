@@ -10,6 +10,9 @@ import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.metadata.EntityMetaValue
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.ContainerInventory
@@ -192,7 +195,7 @@ class Player(
         }
 
         displayedSkinParts.listUpdated {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
+            metadata[EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
         }
 
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
