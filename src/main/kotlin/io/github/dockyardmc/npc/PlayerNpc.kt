@@ -75,26 +75,27 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
         viewers.sendPacket(packet)
     }
 
-    override fun addViewer(player: Player) {
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
+
         val profileMap = if (profile.value == null) ProfilePropertyMap(username.value, mutableListOf()) else profile.value!!
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(profileMap))
         val listedPacket = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(listedPacket))
 
-        super.addViewer(player)
 
         sendMetadataPacket(player)
         sendEquipmentPacket(player)
         sendPotionEffectsPacket(player)
 
         if (profile.value == null) setSkin(username.value)
+        return true
     }
 
     override fun removeViewer(player: Player) {
         val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this.uuid)
         player.sendPacket(playerRemovePacket)
-        viewers.remove(player)
         super.removeViewer(player)
     }
 

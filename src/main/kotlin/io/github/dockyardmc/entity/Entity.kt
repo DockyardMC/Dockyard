@@ -33,8 +33,8 @@ import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.utils.mergeEntityMetadata
+import io.github.dockyardmc.utils.viewable.Viewable
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
@@ -144,11 +144,14 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         return false
     }
 
-    override fun addViewer(player: Player) {
-        if (this.isDead) return
+    override fun addViewer(player: Player): Boolean {
+        if (this.isDead) return false
+
         val event = EntityViewerAddEvent(this, player)
         Events.dispatch(event)
-        if (event.cancelled) return
+        if (event.cancelled) return false
+
+        if (!super.addViewer(player)) return false
 
         sendMetadataPacket(player)
         val entitySpawnPacket = ClientboundSpawnEntityPacket(id, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
@@ -158,13 +161,11 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             player.entityViewSystem.visibleEntities.add(this)
         }
 
-        synchronized(viewers) {
-            viewers.add(player)
-        }
-
         player.sendPacket(entitySpawnPacket)
         sendMetadataPacket(player)
         sendMetadataPacketToViewers()
+
+        return true
     }
 
     fun canSee(entity: Entity): Boolean {
@@ -177,9 +178,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         Events.dispatch(event)
         if (event.cancelled) return
 
-        synchronized(viewers) {
-            viewers.remove(player)
-        }
+        super.removeViewer(player)
 
         val entityDespawnPacket = ClientboundEntityRemovePacket(this)
         player.sendPacket(entityDespawnPacket)
