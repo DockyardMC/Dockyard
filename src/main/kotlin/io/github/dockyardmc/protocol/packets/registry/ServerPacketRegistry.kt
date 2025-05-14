@@ -101,6 +101,6 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("test instance block action packet")
         addPlay(ServerboundUseItemOnBlockPacket::class)
         addPlay(ServerboundUseItemPacket::class)
-        skipPlay("custom click action")
+        addPlay(ServerboundCustomClickActionPacket::class)
     }
 }
