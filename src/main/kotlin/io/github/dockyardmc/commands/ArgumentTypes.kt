@@ -47,7 +47,7 @@ class WorldArgument(
 class SoundArgument(
 ): CommandArgument {
     override var expectedType: KClass<*> = Sound::class
-    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.RESOURCE
+    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.RESOURCE_KEY
 
     override fun write(buffer: ByteBuf) {
         buffer.writeString("minecraft:sound")
@@ -57,7 +57,7 @@ class SoundArgument(
 class PotionEffectArgument(
 ): CommandArgument {
     override var expectedType: KClass<*> = PotionEffect::class
-    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.RESOURCE
+    override var parser: ArgumentCommandNodeParser = ArgumentCommandNodeParser.RESOURCE_KEY
 
     override fun write(buffer: ByteBuf) {
         buffer.writeString("minecraft:effect")
