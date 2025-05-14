@@ -165,10 +165,16 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
         val oldWorld = player.world
 
+        player.entityViewSystem.lock.lock()
+        player.chunkViewSystem.lock.lock()
+
+        oldWorld.removePlayer(player)
+        oldWorld.chunks.filter { chunk -> chunk.value.viewers.contains(player) }.forEach { (_, chunk) ->
+            chunk.removeViewer(player)
+        }
+
         player.world.innerPlayers.removeIfPresent(player)
         player.world = this
-
-        player.entityViewSystem.lock.lock()
 
         player.viewers.toList().forEach { viewer ->
             viewer.removeViewer(player)
@@ -185,6 +191,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         playerJoinQueue.removeIfPresent(player)
 
         player.entityViewSystem.lock.unlock()
+        player.chunkViewSystem.lock.unlock()
 
         player.respawn()
         player.entityViewSystem.tick()
