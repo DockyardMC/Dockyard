@@ -34,11 +34,13 @@ object ServerPacketRegistry : PacketRegistry() {
         skipConfiguration("pong")
         skipConfiguration("resourcepack status")
         skipConfiguration("known packs")
+        skipConfiguration("custom click action")
 
         addPlay(ServerboundTeleportConfirmationPacket::class)
         skipPlay("query block nbt")
         skipPlay("select bundle item")
         skipPlay("change difficulty")
+        skipPlay("change game mode")
         skipPlay("chat ack")
         addPlay(ServerboundChatCommandPacket::class)
         skipPlay("signed command")
@@ -99,5 +101,6 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("test instance block action packet")
         addPlay(ServerboundUseItemOnBlockPacket::class)
         addPlay(ServerboundUseItemPacket::class)
+        skipPlay("custom click action")
     }
 }
