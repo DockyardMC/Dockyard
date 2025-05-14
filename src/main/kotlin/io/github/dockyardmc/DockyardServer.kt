@@ -77,6 +77,12 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 RegistryManager.register(FluidTagRegistry)
                 RegistryManager.register(ItemTagRegistry)
                 RegistryManager.register(BiomeTagRegistry)
+
+                RegistryManager.register(DialogTypeRegistry)
+                RegistryManager.register(DialogBodyTypeRegistry)
+                RegistryManager.register(DialogRegistry)
+                RegistryManager.register(DialogInputTypeRegistry)
+                RegistryManager.register(DialogSubmitMethodTypeRegistry)
             }
 
             profiler("Default Implementations") {

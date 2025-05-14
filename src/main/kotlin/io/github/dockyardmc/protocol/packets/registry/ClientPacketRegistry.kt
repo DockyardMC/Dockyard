@@ -40,7 +40,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addConfiguration(ClientboundKnownPacksPackets::class)
         skipConfiguration("Custom Reports")
         addConfiguration(ClientboundConfigurationServerLinksPacket::class)
-        skipConfiguration("clear dialog")
+        addConfiguration(ClientboundConfigurationClearDialogPacket::class)
         skipConfiguration("show dialog")
 
         skipPlay("Bundle")
@@ -175,8 +175,8 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("custom report details")
         skipPlay("server links")
         skipPlay("waypoint")
-        skipPlay("clear dialog")
-        skipPlay("show dialog")
+        addPlay(ClientboundClearDialogPacket::class)
+        addPlay(ClientboundShowDialogPacket::class)
     }
 }
 

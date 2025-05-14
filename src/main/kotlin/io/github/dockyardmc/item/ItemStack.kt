@@ -10,6 +10,7 @@ import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.DataComponentHashable
+import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.types.ConsumeEffect
 import io.github.dockyardmc.protocol.types.ItemRarity
@@ -26,6 +27,7 @@ import io.github.dockyardmc.utils.CustomDataHolder
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound
 import java.io.UnsupportedEncodingException
 
 data class ItemStack(
@@ -34,7 +36,7 @@ data class ItemStack(
     val components: DataComponentPatch,
     val existingMeta: ItemStackMeta? = null,
     val attributes: Collection<AttributeModifier> = listOf()
-) : NetworkWritable, DataComponentHashable {
+) : NetworkWritable, DataComponentHashable, NbtWritable {
 
     constructor(material: Item, amount: Int, vararg components: DataComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
     constructor(material: Item, vararg components: DataComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
@@ -67,6 +69,14 @@ data class ItemStack(
         buffer.writeVarInt(this.amount)
         buffer.writeVarInt(this.material.getProtocolId())
         DataComponentPatch.patchNetworkType(components.components).write(buffer)
+    }
+
+    override fun getNbt(): NBT {
+        return NBT.Compound { builder ->
+            builder.put("id", this.material.getEntryIdentifier())
+            builder.put("count", this.amount)
+            builder.put("components", NBTCompound()) // TODO: real nbt of components
+        }
     }
 
     override fun hashStruct(): HashHolder {
