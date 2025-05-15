@@ -249,7 +249,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun getChunk(x: Int, z: Int): Chunk? {
-        return chunks[ChunkUtils.getChunkIndex(x, z)]
+        return chunks.getOrDefault(ChunkUtils.getChunkIndex(x, z), null)
     }
 
     fun destroyNaturally(vector: Vector3) {
