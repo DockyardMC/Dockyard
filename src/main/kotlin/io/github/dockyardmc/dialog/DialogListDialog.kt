@@ -5,7 +5,6 @@ import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.DialogTypes
 import io.github.dockyardmc.registry.registries.DialogType
 import io.github.dockyardmc.scroll.ClickEvent
-import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.put
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
@@ -28,7 +27,7 @@ class DialogListDialog(
         return (super.getNbt() as NBTCompound).kmodify {
             put("dialogs", NBTList(NBTType.TAG_Compound, dialogs.map(NbtWritable::getNbt)))
             if(onCancel != null)
-                put("on_cancel", Component(clickEvent = onCancel).toNBT())
+                put("on_cancel", onCancel.getNbt())
             put("columns", columns)
             put("button_width", buttonWidth)
         }
