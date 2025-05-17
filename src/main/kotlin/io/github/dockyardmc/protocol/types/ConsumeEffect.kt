@@ -1,6 +1,10 @@
 package io.github.dockyardmc.protocol.types
 
+import io.github.dockyardmc.data.CRC32CHasher
+import io.github.dockyardmc.data.HashHolder
+import io.github.dockyardmc.data.StaticHash
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.AppliedPotionEffect
@@ -14,7 +18,7 @@ import io.netty.buffer.ByteBuf
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
-interface ConsumeEffect : NetworkWritable {
+interface ConsumeEffect : NetworkWritable, DataComponentHashable {
 
     companion object : NetworkReadable<ConsumeEffect> {
         val effects = BiMap<Int, KClass<out ConsumeEffect>>()
@@ -59,6 +63,13 @@ interface ConsumeEffect : NetworkWritable {
             }
         }
 
+        override fun hashStruct(): HashHolder {
+            return CRC32CHasher.of {
+                structList("effects", effects, AppliedPotionEffect::hashStruct)
+                default("probability", 1f, probability, CRC32CHasher::ofFloat)
+            }
+        }
+
     }
 
     data class RemoveEffects(val effects: List<PotionEffect>) : ConsumeEffect {
@@ -75,9 +86,15 @@ interface ConsumeEffect : NetworkWritable {
                 return RemoveEffects(buffer.readList { b -> RegistryEntry.read<PotionEffect>(b, PotionEffectRegistry) })
             }
         }
+
+        override fun hashStruct(): HashHolder {
+            return CRC32CHasher.of {
+                list("effects", effects, CRC32CHasher::ofRegistryEntry)
+            }
+        }
     }
 
-    class ClearAllEffects() : ConsumeEffect {
+    class ClearAllEffects : ConsumeEffect {
 
         override fun write(buffer: ByteBuf) {
             buffer.writeVarInt(effects.getByValue(this::class))
@@ -90,6 +107,10 @@ interface ConsumeEffect : NetworkWritable {
                 return ClearAllEffects()
             }
         }
+
+        override fun hashStruct(): HashHolder {
+            return StaticHash(CRC32CHasher.EMPTY)
+        }
     }
 
     data class TeleportRandomly(val diameter: Float) : ConsumeEffect {
@@ -97,6 +118,12 @@ interface ConsumeEffect : NetworkWritable {
         override fun write(buffer: ByteBuf) {
             buffer.writeVarInt(effects.getByValue(this::class))
             buffer.writeFloat(diameter)
+        }
+
+        override fun hashStruct(): HashHolder {
+            return CRC32CHasher.of {
+                default("diameter", DEFAULT_DIAMETER, diameter, CRC32CHasher::ofFloat)
+            }
         }
 
         companion object : NetworkReadable<TeleportRandomly> {
@@ -121,6 +148,12 @@ interface ConsumeEffect : NetworkWritable {
 
             override fun read(buffer: ByteBuf): PlaySound {
                 return PlaySound(SoundEvent.read(buffer).identifier)
+            }
+        }
+
+        override fun hashStruct(): HashHolder {
+            return CRC32CHasher.of {
+                static("sound", CustomSoundEvent(sound).hashStruct().hashCode())
             }
         }
     }

@@ -90,7 +90,8 @@ object CRC32CHasher {
     }
 
     inline fun <reified T : Enum<T>> ofEnum(enum: T): Int {
-        return ofString(enum.name.lowercase())
+        val hashed = ofString(enum.name.lowercase())
+        return hashed
     }
 
     fun ofEmptyList(): Int = EMPTY_LIST
@@ -131,6 +132,7 @@ object CRC32CHasher {
         hasher.putByte(TAG_MAP_START)
 
         map.entries.stream().sorted(MAP_COMPARATOR).forEach { entry ->
+            if(entry.value == EMPTY) return@forEach
             log("key: ${entry.key}", LogType.DEBUG)
             log("value: ${entry.value}", LogType.DEBUG)
             if (entry.key != INLINE) hasher.putIntBytes(entry.key)

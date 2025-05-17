@@ -44,6 +44,13 @@ data class BuiltinSoundEvent(override val identifier: String, val id: Int) : Sou
     override fun hashStruct(): HashHolder {
         return StaticHash(CRC32CHasher.ofString(identifier))
     }
+
+    companion object {
+        fun of(identifier: String): BuiltinSoundEvent {
+            val id = SoundRegistry[identifier]
+            return BuiltinSoundEvent(identifier, id)
+        }
+    }
 }
 
 data class CustomSoundEvent(override val identifier: String, val range: Float? = null) : SoundEvent {

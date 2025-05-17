@@ -1,16 +1,14 @@
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.attributes.AttributeModifier
-import io.github.dockyardmc.data.CRC32CHasher
-import io.github.dockyardmc.data.HashStruct
+import io.github.dockyardmc.data.components.ConsumableComponent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.systems.GameMode
-import io.github.dockyardmc.protocol.DataComponentHashable
-import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.sounds.CustomSoundEvent
+import io.github.dockyardmc.protocol.types.ConsumeEffect
+import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.utils.DebugSidebar
+import kotlin.time.Duration.Companion.seconds
 
 fun main() {
 
@@ -28,25 +26,16 @@ fun main() {
         player.give(Items.OAK_LOG.toItemStack().withMeta { withEnchantmentGlint(true) })
     }
 
-//    val component = AttributeModifiersComponent(listOf(Modifier(Attributes.SCALE, AttributeModifier("minecraft:test", 1.5, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.FEET)))
-    val component = CustomSoundEvent("minecraft:gay")
+    val effects = listOf(
+        AppliedPotionEffect(PotionEffects.OOZING, AppliedPotionEffectSettings(1, 30.seconds, true, true, false))
+    )
 
-    val hash = component.hashStruct().getHashed()
+    val applyEffect = ConsumeEffect.ApplyEffects(effects, 1f)
+//    val component = ConsumableComponent(1f, ConsumableComponent.Animation.EAT, Sounds.ENTITY_GENERIC_EAT, false, applyEffects)
+
+    val hash = applyEffect.hashStruct().getHashed()
 
     log("dockyard transcoder - $hash")
 
     server.start()
-}
-
-//hasher object
-// normal -> writes map to the hasher
-// inline -> writes directly to the hasher
-
-data class TestThing(val modifier: AttributeModifier, val test: String) : DataComponentHashable {
-    override fun hashStruct(): HashStruct {
-        return CRC32CHasher.of {
-            inline(modifier.hashStruct())
-            static("test", CRC32CHasher.ofString(test))
-        }
-    }
 }
