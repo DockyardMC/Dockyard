@@ -8,12 +8,12 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class DialogFormInput(
     val key: String,
-    val input: DialogInput
+    val input: DialogInput,
 ) : NbtWritable {
-    override fun getNbt(): NBT {
+    override fun getNbt(): NBTCompound {
         return NBT.Compound { builder ->
             builder.put("key", key)
-            builder.putAll(input.getNbt() as NBTCompound)
+            builder.putAll(input.getNbt())
         }
     }
 }

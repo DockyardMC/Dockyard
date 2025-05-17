@@ -5,13 +5,13 @@ import io.github.dockyardmc.registry.registries.DialogInputType
 import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.toComponent
 import org.jglrxavpok.hephaistos.nbt.NBT
+import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
-abstract class DialogInput(
-    val label: String,
-) : NbtWritable {
+abstract class DialogInput : NbtWritable {
+    abstract val label: String
     abstract val type: DialogInputType
 
-    override fun getNbt(): NBT {
+    override fun getNbt(): NBTCompound {
         return NBT.Compound { builder ->
             builder.put("label", label.toComponent().toNBT())
             builder.put("type", type.getEntryIdentifier())

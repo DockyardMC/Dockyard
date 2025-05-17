@@ -6,28 +6,28 @@ import io.github.dockyardmc.registry.DialogTypes
 import io.github.dockyardmc.registry.registries.DialogType
 import io.github.dockyardmc.scroll.ClickEvent
 import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTList
 import org.jglrxavpok.hephaistos.nbt.NBTType
 
 class DialogListDialog(
-    title: String,
-    externalTitle: String?,
-    canCloseWithEsc: Boolean,
-    body: List<DialogBody>,
+    override val title: String,
+    override val externalTitle: String?,
+    override val canCloseWithEsc: Boolean,
+    override val body: List<DialogBody>,
     val dialogs: Collection<Dialog>,
     val onCancel: ClickEvent? = null,
     val columns: Int = 2,
-    val buttonWidth: Int = 150
-) : Dialog(title, externalTitle, canCloseWithEsc, body) {
+    val buttonWidth: Int = 150,
+) : Dialog() {
     override val type: DialogType = DialogTypes.DIALOG_LIST
 
-    override fun getNbt(): NBT {
-        return (super.getNbt() as NBTCompound).kmodify {
+    override fun getNbt(): NBTCompound {
+        return super.getNbt().kmodify {
             put("dialogs", NBTList(NBTType.TAG_Compound, dialogs.map(NbtWritable::getNbt)))
-            if(onCancel != null)
-                put("on_cancel", onCancel.getNbt())
+            onCancel?.let {
+                put("on_cancel", it.getNbt())
+            }
             put("columns", columns)
             put("button_width", buttonWidth)
         }

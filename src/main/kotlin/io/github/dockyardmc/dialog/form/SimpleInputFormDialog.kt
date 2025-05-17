@@ -6,23 +6,22 @@ import io.github.dockyardmc.dialog.form.submit.DialogFormSubmit
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.DialogTypes
 import io.github.dockyardmc.registry.registries.DialogType
-import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTList
 import org.jglrxavpok.hephaistos.nbt.NBTType
 
 class SimpleInputFormDialog(
-    title: String,
-    externalTitle: String?,
-    canCloseWithEsc: Boolean,
-    body: List<DialogBody>,
+    override val title: String,
+    override val externalTitle: String?,
+    override val canCloseWithEsc: Boolean,
+    override val body: List<DialogBody>,
     val inputs: Collection<DialogFormInput>,
-    val action: DialogFormSubmit
-) : Dialog(title, externalTitle, canCloseWithEsc, body) {
+    val action: DialogFormSubmit,
+) : Dialog() {
     override val type: DialogType = DialogTypes.SIMPLE_INPUT_FORM
 
-    override fun getNbt(): NBT {
-        return (super.getNbt() as NBTCompound).kmodify {
+    override fun getNbt(): NBTCompound {
+        return super.getNbt().kmodify {
             put("inputs", NBTList(NBTType.TAG_Compound, inputs.map(NbtWritable::getNbt)))
             put("action", action.getNbt())
         }

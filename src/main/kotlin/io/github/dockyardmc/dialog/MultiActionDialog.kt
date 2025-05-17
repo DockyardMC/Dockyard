@@ -7,31 +7,31 @@ import io.github.dockyardmc.registry.DialogTypes
 import io.github.dockyardmc.registry.registries.DialogType
 import io.github.dockyardmc.scroll.ClickEvent
 import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTList
 import org.jglrxavpok.hephaistos.nbt.NBTType
 
 class MultiActionDialog(
-    title: String,
-    externalTitle: String?,
-    canCloseWithEsc: Boolean,
-    body: List<DialogBody>,
+    override val title: String,
+    override val externalTitle: String?,
+    override val canCloseWithEsc: Boolean,
+    override val body: List<DialogBody>,
     val actions: Collection<DialogButton>,
     val onCancel: ClickEvent? = null,
-    val columns: Int = 2
-) : Dialog(title, externalTitle, canCloseWithEsc, body) {
+    val columns: Int = 2,
+) : Dialog() {
     override val type: DialogType = DialogTypes.MULTI_ACTION
 
     init {
         if(actions.isEmpty()) throw IllegalArgumentException("actions can't be empty")
     }
 
-    override fun getNbt(): NBT {
-        return (super.getNbt() as NBTCompound).kmodify {
+    override fun getNbt(): NBTCompound {
+        return super.getNbt().kmodify {
             put("actions", NBTList(NBTType.TAG_Compound, actions.map(NbtWritable::getNbt)))
-            if(onCancel != null)
-                put("on_cancel", onCancel.getNbt())
+            onCancel?.let {
+                put("on_cancel", it.getNbt())
+            }
             put("columns", columns)
         }
     }

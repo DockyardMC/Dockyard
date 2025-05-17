@@ -3,23 +3,21 @@ package io.github.dockyardmc.dialog.input
 import io.github.dockyardmc.registry.DialogInputTypes
 import io.github.dockyardmc.registry.registries.DialogInputType
 import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class NumberRangeDialogInput(
-    label: String,
+    override val label: String,
     val min: Double,
     val max: Double,
     val steps: Int,
     val width: Int = 200,
     val initial: Double? = null,
-    val labelFormat: String = "options.generic_value"
-) : DialogInput(label) {
-    override val type: DialogInputType
-        get() = DialogInputTypes.NUMBER_RANGE
+    val labelFormat: String = "options.generic_value",
+) : DialogInput() {
+    override val type: DialogInputType = DialogInputTypes.NUMBER_RANGE
 
-    override fun getNbt(): NBT {
-        return (super.getNbt() as NBTCompound).kmodify {
+    override fun getNbt(): NBTCompound {
+        return super.getNbt().kmodify {
             put("label_format", labelFormat)
             put("width", width)
             put("start", min)

@@ -11,19 +11,19 @@ import org.jglrxavpok.hephaistos.nbt.NBTList
 import org.jglrxavpok.hephaistos.nbt.NBTType
 
 class SingleOptionDialogInput(
-    label: String,
+    override val label: String,
     val options: Collection<Option>,
     val width: Int = 200,
-    val labelVisible: Boolean = true
-) : DialogInput(label) {
+    val labelVisible: Boolean = true,
+) : DialogInput() {
     override val type: DialogInputType = DialogInputTypes.SINGLE_OPTION
 
     init {
         if(options.isEmpty()) throw IllegalArgumentException("options can't be empty")
     }
 
-    override fun getNbt(): NBT {
-        return (super.getNbt() as NBTCompound).kmodify {
+    override fun getNbt(): NBTCompound {
+        return super.getNbt().kmodify {
             put("width", width)
             put("options", NBTList(NBTType.TAG_Compound, options.map(NbtWritable::getNbt)))
             put("label_visible", labelVisible)
