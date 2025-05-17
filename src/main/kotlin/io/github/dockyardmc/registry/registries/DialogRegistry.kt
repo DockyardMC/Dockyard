@@ -44,17 +44,17 @@ object DialogRegistry : DynamicRegistry {
         cachedPacket = ClientboundRegistryDataPacket(this)
     }
 
-    override fun get(identifier: String): RegistryEntry {
+    override fun get(identifier: String): DialogEntry {
         return dialogs[identifier] ?: throw RegistryException(identifier, dialogs.size)
     }
 
-    override fun getOrNull(identifier: String): RegistryEntry? {
+    override fun getOrNull(identifier: String): DialogEntry? {
         return dialogs[identifier]
     }
 
     fun getProtocolId(identifier: String): Int = _protocolIds[identifier] ?: throw RegistryException(identifier, dialogs.size)
 
-    override fun getByProtocolId(id: Int): RegistryEntry {
+    override fun getByProtocolId(id: Int): DialogEntry {
         return protocolIds.entries
             .first { entry -> entry.value == id }
             .let { entry ->
@@ -62,7 +62,7 @@ object DialogRegistry : DynamicRegistry {
             }
     }
 
-    override fun getMap(): Map<String, RegistryEntry> {
+    override fun getMap(): Map<String, DialogEntry> {
         return dialogs.toMap()
     }
 }
