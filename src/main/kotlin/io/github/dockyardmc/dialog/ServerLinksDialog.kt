@@ -5,24 +5,24 @@ import io.github.dockyardmc.registry.DialogTypes
 import io.github.dockyardmc.registry.registries.DialogType
 import io.github.dockyardmc.scroll.ClickEvent
 import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class ServerLinksDialog(
-    title: String,
-    externalTitle: String?,
-    canCloseWithEsc: Boolean,
-    body: List<DialogBody>,
+    override val title: String,
+    override val externalTitle: String?,
+    override val canCloseWithEsc: Boolean,
+    override val body: List<DialogBody>,
     val onCancel: ClickEvent? = null,
     val columns: Int = 2,
     val buttonWidth: Int = 150,
-) : Dialog(title, externalTitle, canCloseWithEsc, body) {
+) : Dialog() {
     override val type: DialogType = DialogTypes.SERVER_LINKS
 
-    override fun getNbt(): NBT {
-        return (super.getNbt() as NBTCompound).kmodify {
-            if(onCancel != null)
-                put("on_cancel", onCancel.getNbt())
+    override fun getNbt(): NBTCompound {
+        return super.getNbt().kmodify {
+            onCancel?.let {
+                put("on_cancel", it.getNbt())
+            }
             put("columns", columns)
             put("button_width", buttonWidth)
         }

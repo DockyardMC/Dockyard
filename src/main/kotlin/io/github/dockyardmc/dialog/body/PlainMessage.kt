@@ -4,13 +4,13 @@ import io.github.dockyardmc.registry.DialogBodyTypes
 import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.toComponent
 import org.jglrxavpok.hephaistos.nbt.NBT
+import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
-// TODO: maybe rename
 class PlainMessage(
     val content: String,
-    val width: Int = 200
+    val width: Int = 200,
 ) : DialogBody {
-    override fun getNbt(): NBT {
+    override fun getNbt(): NBTCompound {
         return NBT.Compound { builder ->
             builder.put("type", DialogBodyTypes.PLAIN_MESSAGE.getEntryIdentifier())
 
