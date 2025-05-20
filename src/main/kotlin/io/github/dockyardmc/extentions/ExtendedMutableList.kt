@@ -86,12 +86,8 @@ fun Collection<Player>.stopSound(category: SoundCategory = SoundCategory.MASTER)
     this.forEach { player -> player.stopSound(null, category) }
 }
 
-fun Collection<Player>.sendMessage(message: String) {
-    this.forEach { it.sendMessage(message) }
-}
-
-fun Collection<Player>.sendMessage(message: Component) {
-    this.toList().forEach { it.sendMessage(message) }
+fun Collection<Player>.sendMessage(message: String, isSystem: Boolean = false) {
+    this.forEach { player -> player.sendMessage(message, isSystem) }
 }
 
 fun Collection<Player>.sendPacket(packet: ClientboundPacket) {
@@ -99,11 +95,7 @@ fun Collection<Player>.sendPacket(packet: ClientboundPacket) {
 }
 
 fun Collection<Player>.sendActionBar(message: String) {
-    this.toList().forEach { it.sendActionBar(message) }
-}
-
-fun Collection<Player>.sendActionBar(message: Component) {
-    this.toList().forEach { it.sendActionBar(message) }
+    this.toList().forEach { player -> player.sendActionBar(message) }
 }
 
 fun Collection<Player>.sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
