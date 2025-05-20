@@ -1,7 +1,6 @@
 package io.github.dockyardmc.commands
 
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.utils.Console
 
@@ -115,12 +114,8 @@ data class CommandExecutor(
         return player
     }
 
-    fun sendMessage(message: String) {
-        if(this.isPlayer) this.player!!.sendMessage(message) else this.console.sendMessage(message)
-    }
-
-    fun sendMessage(component: Component) {
-        if(this.isPlayer) this.player!!.sendMessage(component) else this.console.sendMessage(component.toString())
+    fun sendMessage(message: String, isSystem: Boolean = false) {
+        if(this.isPlayer) this.player!!.sendMessage(message, isSystem) else this.console.sendMessage(message)
     }
 
     fun hasPermission(permission: String): Boolean =

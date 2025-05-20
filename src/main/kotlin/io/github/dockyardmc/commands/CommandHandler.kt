@@ -46,10 +46,10 @@ object CommandHandler {
                 if (testEnv) throw IllegalArgumentException(ex)
                 if (ex is CommandException) {
                     val message = "<red>${ex.message}"
-                    executor.sendMessage(message)
+                    executor.sendMessage(message, true)
                 } else {
                     log(ex)
-                    executor.sendMessage("<dark_red>Error <dark_gray>| <red>A <orange><hover:show_text:'<dark_red>${ex.message}'>${ex::class.qualifiedName}</hover> <red>was thrown during execution of this command!")
+                    executor.sendMessage("<dark_red>Error <dark_gray>| <red>A <orange><hover:show_text:'<dark_red>${ex.message}'>${ex::class.qualifiedName}</hover> <red>was thrown during execution of this command!", true)
                 }
             }
         }

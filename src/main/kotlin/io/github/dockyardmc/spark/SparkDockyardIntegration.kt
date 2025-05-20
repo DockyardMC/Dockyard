@@ -7,6 +7,7 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.CommandExecutor
 import io.github.dockyardmc.extentions.sendMessage
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSystemChatMessagePacket
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -108,6 +109,10 @@ class SparkDockyardIntegration : SparkPlugin, Disposable {
 
     fun broadcastPrefixed(component: Component) {
         if (component.color == null) component.apply { color = LegacyTextColor.GRAY.hex }
-        PlayerManager.players.filter { player -> player.hasPermission("spark.use") }.sendMessage(Component.compound(mutableListOf("$prefix <gray>".toComponent(), component)))
+        PlayerManager.players.filter { player -> player.hasPermission("spark.use") }.forEach { player ->
+            // well this sucks but whatever I'm not adding component field back because I need full string message in the event
+            val packet = ClientboundSystemChatMessagePacket(Component.compound(mutableListOf("$prefix <gray>".toComponent(), component)), false)
+            player.sendPacket(packet)
+        }
     }
 }

@@ -2,15 +2,16 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.advancement.PlayerAdvancementTracker
 import io.github.dockyardmc.attributes.PlayerAttributes
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.entity.*
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.ItemDropEntity
+import io.github.dockyardmc.entity.LightningBolt
 import io.github.dockyardmc.entity.metadata.EntityMetaValue
 import io.github.dockyardmc.entity.metadata.EntityMetadata
 import io.github.dockyardmc.entity.metadata.EntityMetadataType
@@ -290,7 +291,7 @@ class Player(
     }
 
     // Hold messages client receives before state is PLAY, then send them after state changes to PLAY
-    private var queuedMessages = mutableListOf<Pair<Component, Boolean>>()
+    private var queuedMessages = mutableListOf<Pair<String, Boolean>>()
     fun releaseMessagesQueue() {
         queuedMessages.forEach { message -> sendSystemMessage(message.first, message.second) }
         queuedMessages.clear()
@@ -312,29 +313,30 @@ class Player(
         this.networkManager.kick(reason, connection)
     }
 
-    fun sendMessage(message: String) {
-        this.sendMessage(message.toComponent())
-    }
-
-    fun sendMessage(component: Component) {
-        sendSystemMessage(component, false)
+    fun sendMessage(message: String, isSystem: Boolean = false) {
+        this.sendSystemMessage(message, false, isSystem)
     }
 
     fun sendActionBar(message: String) {
-        this.sendActionBar(message.toComponent())
+        this.sendSystemMessage(message, isActionBar = true, isSystem = false)
     }
 
-    fun sendActionBar(component: Component) {
-        sendSystemMessage(component, true)
-    }
-
-    private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
+    private fun sendSystemMessage(message: String, isActionBar: Boolean, isSystem: Boolean = false) {
         if (!isConnected) return
+
+        // this event and the `isSystem` arg is quite literally only for one feature in my other project,
+        // but it's my server implementation anyway I can do whatever I want
+        // - maya
+        val event = ServerSendPlayerMessageEvent(this, message, isSystem, getPlayerEventContext(this))
+        Events.dispatch(event)
+        if (event.cancelled) return
+
         if (networkManager.state != ProtocolState.PLAY) {
-            queuedMessages.add(component to isActionBar)
+            queuedMessages.add(message to isActionBar)
             return
         }
-        this.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))
+
+        this.sendPacket(ClientboundSystemChatMessagePacket(message.toComponent(), isActionBar))
     }
 
     fun sendPacket(packet: ClientboundPacket) {
