@@ -4,7 +4,6 @@ import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableMap
 import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.debug
 
 abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Disposable {
 
@@ -25,11 +24,10 @@ abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Dispos
     }
 
     protected fun onRenderInternal() {
-        buildComponent()
         if(!initialized) {
+            buildComponent()
             bindableRefs.forEach { (bindable, _) ->
                 bindable.triggerUpdate()
-                debug("<lime>triggered bindable update", true)
             }
         }
 
@@ -52,7 +50,10 @@ abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Dispos
     }
 
     fun withComposite(slot: Int, compositeDrawable: CompositeDrawable) {
-        if(children[compositeDrawable] == slot) return //already exists
+        if(children[compositeDrawable] == slot) {
+            return
+        }
+
         compositeDrawable.parent = this
         children[compositeDrawable] = slot
     }
