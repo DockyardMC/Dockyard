@@ -51,6 +51,7 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.debug
+import io.github.dockyardmc.ui.new.Screen
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.now
 import io.github.dockyardmc.world.PlayerChunkViewSystem
@@ -142,6 +143,7 @@ class Player(
 
     var lastInteractionTime: Long = -1L
     var currentOpenInventory: ContainerInventory? = null
+    var currentlyOpenScreen: Screen? = null
     val hasInventoryOpen: Boolean get() = currentOpenInventory != null
     var itemInUse: ItemInUse? = null
 
