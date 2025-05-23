@@ -1,25 +1,30 @@
 package io.github.dockyardmc.ui.new
 
 import cz.lukynka.bindables.Bindable
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.utils.debug
 
 class CookieComponent : CompositeDrawable() {
 
-    val cookieCount: Bindable<Int> = Bindable<Int>(0)
+    val cookieCount: Bindable<Int> = Bindable<Int>(1)
+
+    init {
+        debug("<yellow><bold>CREATED COOKIE COMPONENT", true)
+    }
 
     override fun buildComponent() {
 
-        withSlot(5) {
-            withItem(Items.COOKIE)
-            withAmount(1)
-            onClick { player, type ->
-                cookieCount.value++
+        withBindable(cookieCount) { event ->
+            debug("<pink>bindable event (${event.newValue})", true)
+            withSlot(0) {
+                withItemStack(ItemStack(Items.COOKIE).withMaxStackSize(256))
+                withAmount(cookieCount.value)
+                onClick { player, type ->
+                    cookieCount.value++
+                }
             }
         }
-    }
-
-    override fun onRender() {
-
     }
 
     override fun dispose() {

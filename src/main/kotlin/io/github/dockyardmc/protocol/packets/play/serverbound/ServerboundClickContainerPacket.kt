@@ -7,6 +7,7 @@ import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.inventory.InventoryClickHandler
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
 import io.github.dockyardmc.item.*
+import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -15,7 +16,6 @@ import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableClickType
 import io.github.dockyardmc.ui.DrawableContainerScreen
 import io.github.dockyardmc.utils.getPlayerEventContext
-import io.github.dockyardmc.maths.randomFloat
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import kotlin.math.ceil
@@ -46,6 +46,11 @@ class ServerboundClickContainerPacket(
             player,
             drawableClickType
         )
+
+        if (player.currentlyOpenScreen != null && properSlot >= 0) {
+            player.currentlyOpenScreen!!.onClick(slot, player, drawableClickType)
+        }
+
         Events.dispatch(InventoryClickEvent(player, getPlayerEventContext(player)))
 
         if (windowId == 0) {
@@ -101,7 +106,7 @@ class ServerboundClickContainerPacket(
                     return
                 }
 
-                if(action == NormalButtonAction.RIGHT_CLICK_OUTSIDE_INVENTORY) {
+                if (action == NormalButtonAction.RIGHT_CLICK_OUTSIDE_INVENTORY) {
                     val cursor = player.inventory.cursorItem.value
                     if (!cursor.isEmpty()) {
                         val cancelled = player.inventory.drop(cursor.withAmount(1))
@@ -172,7 +177,7 @@ class ServerboundClickContainerPacket(
                     if ((clickedEquipmentSlot != null && clickedEquipmentSlot != EquipmentSlot.MAIN_HAND) && (player.equipment[clickedEquipmentSlot] != null && player.equipment[clickedEquipmentSlot] != empty) && !player.equipment[clickedEquipmentSlot]!!.isEmpty()) {
                         unequip(player, clickedEquipmentSlot, equipmentComponent)
                         val giveInventory = player.inventory.give(clickedSlotItem, 9 to 35)
-                        if(!giveInventory) player.inventory.give(clickedSlotItem, 0 to 8)
+                        if (!giveInventory) player.inventory.give(clickedSlotItem, 0 to 8)
                         return
                     }
 
@@ -233,19 +238,19 @@ class ServerboundClickContainerPacket(
                 }
             }
 
-            if(mode == ContainerClickMode.DOUBLE_CLICK) {
+            if (mode == ContainerClickMode.DOUBLE_CLICK) {
                 val action = DoubleClickButtonAction.entries.find { it.button == button } ?: return
 
-                if(action == DoubleClickButtonAction.DOUBLE_CLICK) {
+                if (action == DoubleClickButtonAction.DOUBLE_CLICK) {
                     val cursor = player.inventory.cursorItem.value
-                    if(cursor == ItemStack.AIR) return
+                    if (cursor == ItemStack.AIR) return
 
                     var currentStackSize = cursor.amount
 
                     player.inventory.slots.values.toList().sortedBy { it.second.amount }.forEach { (slot, itemStack) ->
-                        if(itemStack.isSameAs(cursor)) {
-                            if(currentStackSize + itemStack.amount >= cursor.maxStackSize) {
-                                if(cursor.maxStackSize == currentStackSize) return@forEach
+                        if (itemStack.isSameAs(cursor)) {
+                            if (currentStackSize + itemStack.amount >= cursor.maxStackSize) {
+                                if (cursor.maxStackSize == currentStackSize) return@forEach
 
                                 val spaceAvailable = cursor.maxStackSize - currentStackSize
                                 if (spaceAvailable <= 0) return@forEach
@@ -253,7 +258,7 @@ class ServerboundClickContainerPacket(
                                 val totalAmount = itemStack.amount + currentStackSize
                                 currentStackSize = cursor.maxStackSize
                                 val remainder = totalAmount - cursor.maxStackSize
-                                val newItem = if(remainder == 0) ItemStack.AIR else itemStack.withAmount(remainder)
+                                val newItem = if (remainder == 0) ItemStack.AIR else itemStack.withAmount(remainder)
                                 player.inventory[slot] = newItem
                             } else {
                                 player.inventory.slots[slot] = ItemStack.AIR
@@ -429,9 +434,9 @@ class ServerboundClickContainerPacket(
         val cursorItem = player.inventory.cursorItem.value
         val cursorItemEquipmentSlot = getEquipmentSlot(cursorItem)
 
-        if(!cursorItem.isEmpty() && cursorItemEquipmentSlot.first == null) return false
+        if (!cursorItem.isEmpty() && cursorItemEquipmentSlot.first == null) return false
 
-        if(!cursorItem.isEmpty() && cursorItemEquipmentSlot.first != equipmentSlot) {
+        if (!cursorItem.isEmpty() && cursorItemEquipmentSlot.first != equipmentSlot) {
             player.inventory.sendFullInventoryUpdate()
             return true
         }

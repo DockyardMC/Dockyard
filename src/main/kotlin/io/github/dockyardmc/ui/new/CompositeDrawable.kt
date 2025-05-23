@@ -6,25 +6,35 @@ import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.debug
 
-abstract class CompositeDrawable(val parent: CompositeDrawable? = null) : Disposable {
+abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Disposable {
 
     protected val bindablePool = BindablePool()
     private val items: BindableMap<Int, DrawableItem> = bindablePool.provideBindableMap()
     private val bindableRefs: MutableMap<Bindable<*>, (Bindable.ValueChangedEvent<*>) -> Unit> = mutableMapOf()
     private val children: MutableMap<CompositeDrawable, Int> = mutableMapOf()
+    private var initialized: Boolean = false
 
     abstract fun buildComponent()
 
     init {
         items.mapUpdated {
-            parent?.renderChildren()
+            if(initialized) {
+                parent?.renderChildren()
+            }
         }
     }
 
     protected fun onRenderInternal() {
         buildComponent()
+        if(!initialized) {
+            bindableRefs.forEach { (bindable, _) ->
+                bindable.triggerUpdate()
+                debug("<lime>triggered bindable update", true)
+            }
+        }
+
         renderChildren()
-        bindableRefs.forEach { (bindable, _) -> bindable.triggerUpdate() }
+        initialized = true
     }
 
     protected fun renderChildren() {
@@ -42,17 +52,19 @@ abstract class CompositeDrawable(val parent: CompositeDrawable? = null) : Dispos
     }
 
     fun withComposite(slot: Int, compositeDrawable: CompositeDrawable) {
-        debug("added composite ${compositeDrawable::class.simpleName} with slot $slot (this -> ${this::class.simpleName}", true)
+        if(children[compositeDrawable] == slot) return //already exists
+        compositeDrawable.parent = this
         children[compositeDrawable] = slot
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <T> withBindable(bindable: Bindable<T>, update: (Bindable.ValueChangedEvent<T>) -> Unit) {
+        if(bindableRefs.containsKey(bindable)) return
         bindableRefs[bindable] = update as (Bindable.ValueChangedEvent<*>) -> Unit
+        bindable.valueChanged(update)
     }
 
     fun renderChild(child: CompositeDrawable) {
-        debug("${this::class.simpleName} -> rendering child ${child::class.simpleName}", true)
         val offsetIndex = children[child] ?: throw IllegalStateException("${child::class.simpleName} is not child of ${this::class.simpleName}")
 
         child.onRenderInternal()

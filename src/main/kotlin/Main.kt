@@ -36,7 +36,6 @@ fun main() {
             val player = ctx.getPlayerOrThrow()
             val screen = CookieClickerScreen()
             screen.open(player)
-            screen.render(player)
         }
     }
 
