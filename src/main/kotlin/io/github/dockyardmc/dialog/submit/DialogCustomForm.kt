@@ -1,4 +1,4 @@
-package io.github.dockyardmc.dialog.form.submit
+package io.github.dockyardmc.dialog.submit
 
 import io.github.dockyardmc.registry.DialogSubmitMethodTypes
 import io.github.dockyardmc.registry.registries.DialogSubmitMethodType

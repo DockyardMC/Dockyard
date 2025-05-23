@@ -7,7 +7,7 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
-abstract class DialogInput : NbtWritable {
+sealed class DialogInput : NbtWritable {
     abstract val label: String
     abstract val type: DialogInputType
 
