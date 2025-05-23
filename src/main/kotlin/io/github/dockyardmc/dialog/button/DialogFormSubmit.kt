@@ -1,6 +1,6 @@
-package io.github.dockyardmc.dialog.form.submit
+package io.github.dockyardmc.dialog.button
 
-import io.github.dockyardmc.dialog.button.AbstractDialogButton
+import io.github.dockyardmc.dialog.submit.DialogSubmitMethod
 import io.github.dockyardmc.scroll.extensions.put
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 

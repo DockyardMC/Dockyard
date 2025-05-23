@@ -10,7 +10,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTList
 import org.jglrxavpok.hephaistos.nbt.NBTType
 
-abstract class Dialog : NbtWritable {
+sealed class Dialog : NbtWritable {
     abstract val title: String
     /** the title of this dialog on other screens, like [DialogListDialog] or pause menu */
     abstract val externalTitle: String?

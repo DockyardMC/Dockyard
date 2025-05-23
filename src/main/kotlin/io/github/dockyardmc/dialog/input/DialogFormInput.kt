@@ -1,17 +1,18 @@
-package io.github.dockyardmc.dialog.form.submit
+package io.github.dockyardmc.dialog.input
 
 import io.github.dockyardmc.protocol.NbtWritable
-import io.github.dockyardmc.registry.registries.DialogSubmitMethodType
 import io.github.dockyardmc.scroll.extensions.put
 import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
-abstract class DialogSubmitMethod : NbtWritable {
-    abstract val type: DialogSubmitMethodType
-
+class DialogFormInput(
+    val key: String,
+    val input: DialogInput,
+) : NbtWritable {
     override fun getNbt(): NBTCompound {
         return NBT.Compound { builder ->
-            builder.put("type", type.getEntryIdentifier())
+            builder.put("key", key)
+            builder.putAll(input.getNbt())
         }
     }
 }
