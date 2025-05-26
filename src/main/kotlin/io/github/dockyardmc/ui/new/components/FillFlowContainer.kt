@@ -1,0 +1,33 @@
+package io.github.dockyardmc.ui.new.components
+
+import io.github.dockyardmc.ui.new.CompositeDrawable
+
+class FillFlowContainer(val direction: Direction, val components: List<CompositeDrawable>) : CompositeDrawable() {
+
+    enum class Direction {
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN
+    }
+
+    override fun buildComponent() {
+        var x: Int = 0
+        var y: Int = 0
+
+        components.forEach { drawable ->
+            withComposite(x, y, drawable)
+            when (direction) {
+                Direction.LEFT -> x--
+                Direction.RIGHT -> x++
+                Direction.UP -> y--
+                Direction.DOWN -> y++
+            }
+        }
+    }
+
+    override fun dispose() {
+        components.forEach { drawable -> drawable.dispose() }
+    }
+
+}

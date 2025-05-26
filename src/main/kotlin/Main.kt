@@ -1,11 +1,9 @@
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
-import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.systems.GameMode
-import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.ui.new.CookieClickerScreen
 import io.github.dockyardmc.utils.DebugSidebar
@@ -26,16 +24,6 @@ fun main() {
         player.give(Items.OAK_LOG)
     }
 
-    Events.on<PlayerBlockRightClickEvent> { event ->
-        if (event.block.registryBlock == Blocks.CHEST) {
-            event.player.playChestAnimation(event.location, Player.ChestAnimation.OPEN)
-    Commands.add("/lighting") {
-        execute { ctx ->
-            val player = ctx.getPlayerOrThrow()
-            player.strikeLightning(player.location)
-        }
-    }
-
     Commands.add("/ui") {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
@@ -43,6 +31,7 @@ fun main() {
             screen.open(player)
         }
     }
+
 
     server.start()
 }

@@ -9,6 +9,8 @@ import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.*
 import io.github.dockyardmc.maths.randomInt
+import io.github.dockyardmc.ui.new.getSlotIndexFromVector2
+import io.github.dockyardmc.ui.new.getVector2FromSlotIndex
 
 class ExampleMinesweeperScreen(player: Player, val bombs: Int) : DrawableContainerScreen(player) {
 

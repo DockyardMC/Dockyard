@@ -10,6 +10,8 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetCont
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.maths.vectors.Vector2
+import io.github.dockyardmc.ui.new.getSlotIndexFromVector2
+import io.github.dockyardmc.ui.new.getVector2FromSlotIndex
 
 abstract class DrawableContainerScreen(val player: Player): ContainerInventory, Disposable {
     override var name: String = "Drawable Container"
@@ -72,16 +74,3 @@ abstract class DrawableContainerScreen(val player: Player): ContainerInventory, 
     }
 }
 
-fun getSlotIndexFromVector2(x: Int, y: Int): Int {
-    require(!(x < 0 || y < 0)) { "Coordinates cannot be negative" }
-    return x + (y * 9)
-}
-
-fun getVector2FromSlotIndex(slotIndex: Int): Vector2 {
-    require(slotIndex >= 0) { "Slot index cannot be negative" }
-
-    val y = slotIndex / 9
-    val x = slotIndex % 9
-
-    return Vector2(x, y)
-}
