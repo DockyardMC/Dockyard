@@ -44,10 +44,13 @@ import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.resourcepack.Resourcepack
+import io.github.dockyardmc.scheduler.runAsync
+import io.github.dockyardmc.scheduler.runLaterAsync
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.DrawableContainerScreen
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.now
 import io.github.dockyardmc.world.PlayerChunkViewSystem
@@ -541,7 +544,7 @@ class Player(
     }
 
     fun playChestAnimation(chestLocation: Location, animation: ChestAnimation) {
-        sendPacket(ClientboundBlockActionPacket(chestLocation, 1, animation.ordinal.toByte(), Blocks.CHEST))
+        sendPacket(ClientboundBlockActionPacket(chestLocation, 1, animation.ordinal.toByte(), location.block.registryBlock))
     }
 
     fun stopSound(sound: String? = null, category: SoundCategory? = null) {
