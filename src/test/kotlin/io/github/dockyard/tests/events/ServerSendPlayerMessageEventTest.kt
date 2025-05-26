@@ -33,4 +33,19 @@ class ServerSendPlayerMessageEventTest {
         assertTrue(count.await(5L, TimeUnit.SECONDS))
         pool.dispose()
     }
+
+    @Test
+    fun testEventDoesNotFire() {
+        val pool = EventPool()
+        val count = CountDownLatch(1)
+
+        pool.on<ServerSendPlayerMessageEvent> {
+            count.countDown()
+        }
+        PlayerTestUtil.getOrCreateFakePlayer().sendActionBar("not :3")
+
+        count.await(2L, TimeUnit.SECONDS)
+        assertTrue { count.count == 1L }
+        pool.dispose()
+    }
 }
