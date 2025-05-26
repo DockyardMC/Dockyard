@@ -19,7 +19,6 @@ import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.BlockRegistry
-import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.isDoubleInteract
 import io.github.dockyardmc.world.block.Block
