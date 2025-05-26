@@ -60,6 +60,11 @@ class ServerboundUseItemOnBlockPacket(
             Direction.NORTH -> newPos.z += -1
         }
 
+        // prevent desync?
+        pos.toLocation(player.world).getChunk()?.let { chunk ->
+            player.sendPacket(chunk.packet)
+        }
+
         val event = PlayerBlockRightClickEvent(
             player,
             item,
@@ -81,11 +86,6 @@ class ServerboundUseItemOnBlockPacket(
         if (used) {
             player.lastInteractionTime = System.currentTimeMillis()
             return
-        }
-
-        // prevent desync?
-        pos.toLocation(player.world).getChunk()?.let { chunk ->
-            player.sendPacket(chunk.packet)
         }
 
         if ((item.material.isBlock) && (item.material != Items.AIR) && (player.gameMode.value != GameMode.ADVENTURE && player.gameMode.value != GameMode.SPECTATOR)) {
