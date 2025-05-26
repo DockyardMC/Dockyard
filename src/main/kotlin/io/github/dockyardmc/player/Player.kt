@@ -327,9 +327,11 @@ class Player(
         // this event and the `isSystem` arg is quite literally only for one feature in my other project,
         // but it's my server implementation anyway I can do whatever I want
         // - maya
-        val event = ServerSendPlayerMessageEvent(this, message, isSystem, getPlayerEventContext(this))
-        Events.dispatch(event)
-        if (event.cancelled) return
+        if (!isActionBar) {
+            val event = ServerSendPlayerMessageEvent(this, message, isSystem, getPlayerEventContext(this))
+            Events.dispatch(event)
+            if (event.cancelled) return
+        }
 
         if (networkManager.state != ProtocolState.PLAY) {
             queuedMessages.add(message to isActionBar)
