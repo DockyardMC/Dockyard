@@ -10,7 +10,6 @@ import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.LightningBolt
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.SHA256Long
-import io.github.dockyardmc.extentions.addIfNotPresent
 import io.github.dockyardmc.extentions.hasUpperCase
 import io.github.dockyardmc.extentions.removeIfPresent
 import io.github.dockyardmc.location.Location
@@ -74,7 +73,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     val entities get() = innerEntities.toList()
 
     val isLoaded: Bindable<Boolean> = bindablePool.provideBindable(false)
-    val playerJoinQueue: MutableList<Player> = mutableListOf()
+    val playerJoinQueue: MutableMap<Player, Location> = mutableMapOf()
 
     var isHardcore: Boolean = false
     var freezeTime: Boolean = false
@@ -155,10 +154,10 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         }
     }
 
-    fun join(player: Player) {
+    fun join(player: Player, location: Location? = null) {
         if (player.world == this && player.isFullyInitialized) return
-        if (!isLoaded.value && !playerJoinQueue.contains(player)) {
-            playerJoinQueue.addIfNotPresent(player)
+        if (!isLoaded.value && !playerJoinQueue.containsKey(player)) {
+            playerJoinQueue[player] = location ?: player.location
             debug("$player joined before world $name is loaded, added to joinQueue", logType = LogType.DEBUG)
             return
         }
@@ -188,14 +187,14 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
         Events.dispatch(PlayerChangeWorldEvent(player, oldWorld, this))
 
-        playerJoinQueue.removeIfPresent(player)
+        playerJoinQueue.remove(player)
 
         player.entityViewSystem.lock.unlock()
         player.chunkViewSystem.lock.unlock()
 
         player.respawn()
         player.entityViewSystem.tick()
-        player.sendPacketToViewers(ClientboundEntityTeleportPacket(player, player.location))
+        player.sendPacketToViewers(ClientboundEntityTeleportPacket(player, location ?: player.location))
 
         player.isFullyInitialized = true
         player.updateWorldTime()
@@ -212,7 +211,9 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         task.thenAccept {
             log("World $name has finished loading!", WorldManager.LOG_TYPE)
             isLoaded.value = true
-            playerJoinQueue.forEach(::join)
+            playerJoinQueue.forEach { (player, location) ->
+                join(player, location)
+            }
             val event = WorldFinishLoadingEvent(this)
             Events.dispatch(event)
         }

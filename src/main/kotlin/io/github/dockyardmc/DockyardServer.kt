@@ -40,9 +40,12 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             instance = this
             configBuilder.invoke(config)
 
-            profiler("Load Registries") {
+            profiler("Register packets") {
                 ServerPacketRegistry.load()
                 ClientPacketRegistry.load()
+            }
+
+            profiler("Load Registries") {
 
                 SoundRegistry.initialize(RegistryManager.getStreamFromPath("registry/sound_registry.json.gz"))
 
