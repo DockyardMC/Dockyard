@@ -35,6 +35,11 @@ class DrawableItem(val itemStack: ItemStack, val onClick: ((Player, DrawableClic
             this.onClick = onClick
         }
 
+        fun isNoxesiumImmovable(immovable: Boolean) {
+            //TODO(noxesium integrating)
+            throw NotImplementedError("Tell maya to implement noxesium stuff")
+        }
+
         fun build(): DrawableItem {
             return DrawableItem(itemStack, onClick)
         }
