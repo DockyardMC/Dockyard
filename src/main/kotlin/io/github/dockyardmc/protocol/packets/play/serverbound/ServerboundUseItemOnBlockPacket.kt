@@ -125,7 +125,6 @@ class ServerboundUseItemOnBlockPacket(
 
             if (cancelled) {
                 player.world.getChunkAt(newPos.x, newPos.z)?.let { player.sendPacket(it.packet) }
-                debug("sent chunk update to cancel", true)
                 player.inventory.sendInventoryUpdate(player.heldSlotIndex.value)
                 Events.dispatch(finishPlacingBlockEvent)
                 return
