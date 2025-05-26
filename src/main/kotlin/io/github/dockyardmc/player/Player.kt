@@ -355,7 +355,7 @@ class Player(
 
     override fun teleport(location: Location) {
         if (!WorldManager.worlds.containsValue(location.world)) throw Exception("That world does not exist!")
-        if (location.world != world) location.world.join(this)
+        if (location.world != world) location.world.join(this, location)
 
         val teleportPacket = ClientboundPlayerSynchronizePositionPacket(location)
         this.sendPacket(teleportPacket)
