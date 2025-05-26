@@ -78,7 +78,7 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     override fun addViewer(player: Player): Boolean {
         if (!super.addViewer(player)) return false
 
-        val profileMap = if (profile.value == null) ProfilePropertyMap(username.value, mutableListOf()) else profile.value!!
+        val profileMap = profile.value ?: ProfilePropertyMap(username.value, mutableListOf())
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(profileMap))
         val listedPacket = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
