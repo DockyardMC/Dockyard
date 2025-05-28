@@ -61,8 +61,8 @@ class ItemStackMeta {
         components.addOrUpdate(UseCooldownItemComponent(cooldownSeconds))
     }
 
-    fun withNoxesiumImmovable() {
-
+    fun withNoxesiumImmovable(immovable: Boolean) {
+        this.noxesiumImmovable = immovable
     }
 
     fun withProfile(username: String? = null, uuid: UUID? = null, profile: ProfileProperty? = null) {
