@@ -1,8 +1,10 @@
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.commands.BooleanArgument
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.ui.new.CookieClickerScreen
@@ -13,6 +15,7 @@ fun main() {
         withIp("0.0.0.0")
         withPort(25565)
         useDebugMode(true)
+        useMojangAuth(false)
     }
 
     Events.on<PlayerJoinEvent> { event ->
@@ -29,6 +32,15 @@ fun main() {
             val player = ctx.getPlayerOrThrow()
             val screen = CookieClickerScreen()
             screen.open(player)
+        }
+    }
+
+    Commands.add("/immovable") {
+        addArgument("immovable", BooleanArgument())
+        execute { ctx ->
+            val player = ctx.getPlayerOrThrow()
+            val item = ItemStack(Items.AMETHYST_CLUSTER).withNoxesiumImmovable(getArgument("immovable"))
+            player.give(item)
         }
     }
 

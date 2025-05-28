@@ -3,9 +3,8 @@ package io.github.dockyardmc.item
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.AttributeModifier
-import io.github.dockyardmc.extentions.put
-import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.noxesium.Noxesium
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
@@ -34,7 +33,7 @@ data class ItemStack(
     constructor(material: Item, components: Set<ItemComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components, attributes = attributes)
 
     init {
-        if(amount <= 0) throw IllegalArgumentException("ItemStack amount cannot be less than 1")
+        if (amount <= 0) throw IllegalArgumentException("ItemStack amount cannot be less than 1")
     }
 
     companion object {
@@ -42,7 +41,7 @@ data class ItemStack(
 
         fun read(buffer: ByteBuf): ItemStack {
             val count = buffer.readVarInt()
-            if(count <= 0) return ItemStack.AIR
+            if (count <= 0) return AIR
 
             val itemId = buffer.readVarInt()
             val componentsToAdd = buffer.readVarInt()
@@ -68,14 +67,14 @@ data class ItemStack(
     }
 
     override fun write(buffer: ByteBuf) {
-        if(this.material == Items.AIR) {
+        if (this.material == Items.AIR) {
             buffer.writeVarInt(0)
             return
         }
 
         val itemComponents = mutableListOf<ItemComponent>()
         itemComponents.addAll(this.components)
-        if(!customData.isEmpty()) {
+        if (!customData.isEmpty()) {
             itemComponents.add(CustomDataItemComponent(customData))
         }
 
@@ -206,20 +205,40 @@ data class ItemStack(
     }
 
     val customModelData: CustomModelDataItemComponent
-        get() { return components.getOrNull(CustomModelDataItemComponent::class) ?: CustomModelDataItemComponent() }
+        get() {
+            return components.getOrNull(CustomModelDataItemComponent::class) ?: CustomModelDataItemComponent()
+        }
 
     val maxStackSize: Int
-        get() { return components.getOrNull(MaxStackSizeItemComponent::class)?.maxStackSize ?: material.maxStack }
+        get() {
+            return components.getOrNull(MaxStackSizeItemComponent::class)?.maxStackSize ?: material.maxStack
+        }
 
     val unbreakable: Boolean
-        get() { return components.getOrNull(UnbreakableItemComponent::class) != null }
+        get() {
+            return components.getOrNull(UnbreakableItemComponent::class) != null
+        }
 
     val hasGlint: Boolean
-        get() { return components.getOrNull(EnchantmentGlintOverrideItemComponent::class)?.hasGlint ?: false }
+        get() {
+            return components.getOrNull(EnchantmentGlintOverrideItemComponent::class)?.hasGlint ?: false
+        }
 
+    var noxesiumImmovable: Boolean
+        set(value) {
+            if (value) {
+                setCustomData<NBTCompound>(Noxesium.BUKKIT_TAG, Noxesium.BUKKIT_COMPOUND)
+            } else {
+                removeCustomData(Noxesium.BUKKIT_TAG)
+            }
+        }
+        get() {
+            val tag = getCustomDataOrNull<NBTCompound>(Noxesium.BUKKIT_TAG)?.getAsBoolean(Noxesium.IMMOVABLE_TAG) ?: false
+            return tag
+        }
 
-    private val customDataHolder = CustomDataHolder()
-    var customData: NBTCompound  = NBTCompound.EMPTY
+    val customDataHolder = CustomDataHolder()
+    var customData: NBTCompound = NBTCompound.EMPTY
 
     fun <T : Any> setCustomData(key: String, value: T) {
         customDataHolder[key] = value
@@ -231,26 +250,36 @@ data class ItemStack(
         rebuildCustomDataNbt()
     }
 
-    fun <T: Any> getCustomDataOrNull(key: String): T? {
+    inline fun <reified T : Any> getCustomDataOrNull(key: String): T? {
         updateCustomDataHolderFromComponent()
         val value = customDataHolder.dataStore[key] ?: return null
-        return value as T
+        if (T::class == Boolean::class) {
+            return (value as Byte?)?.toBoolean() as T?
+        }
+        return value as T?
     }
 
-    private fun updateCustomDataHolderFromComponent() {
+    fun withNoxesiumImmovable(immovable: Boolean): ItemStack {
+        noxesiumImmovable = immovable
+        return this
+    }
+
+    fun updateCustomDataHolderFromComponent() {
         val component = components.getOrNull<CustomDataItemComponent>(CustomDataItemComponent::class)
-        if(component == null) {
+        if (component == null) {
             log("Custom Data Component Not Found: $components", LogType.CRITICAL)
             return
         }
+
         component.data.forEach {
-            val value = when(it.value) {
+            val value: Any = when (it.value) {
                 is NBTString -> (it.value as NBTString).value
                 is NBTInt -> (it.value as NBTInt).value
                 is NBTFloat -> (it.value as NBTFloat).value
                 is NBTDouble -> (it.value as NBTDouble).value
                 is NBTLong -> (it.value as NBTLong).value
                 is NBTByte -> (it.value as NBTByte).value
+                is NBTCompound -> it.value as NBTCompound
                 else -> throw UnsupportedEncodingException("${it.value::class.simpleName} is not supported in custom data nbt")
             }
 
@@ -261,20 +290,22 @@ data class ItemStack(
     private fun rebuildCustomDataNbt() {
         customData = NBT.Compound { nbt ->
             customDataHolder.dataStore.forEach {
-                when(it.value) {
+                when (it.value) {
                     is String -> nbt.put(it.key, it.value as String)
                     is Int -> nbt.put(it.key, it.value as Int)
                     is Float -> nbt.put(it.key, it.value as Float)
                     is Double -> nbt.put(it.key, it.value as Double)
                     is Long -> nbt.put(it.key, it.value as Long)
                     is Byte -> nbt.put(it.key, it.value as Byte)
+                    is Boolean -> nbt.put(it.key, (it.value as Boolean).toByte())
+                    is NBTCompound -> nbt.put(it.key, it.value as NBTCompound)
                     else -> throw UnsupportedEncodingException("${it.value::class.simpleName} is not supported in custom data nbt")
                 }
             }
         }
     }
 
-    fun <T: Any> getCustomData(key: String): T {
+    inline fun <reified T : Any> getCustomData(key: String): T {
         return getCustomDataOrNull<T>(key) ?: throw IllegalArgumentException("Value for key $key not found in data holder")
     }
 
@@ -283,7 +314,7 @@ data class ItemStack(
     override fun toString(): String = "ItemStack(${material.identifier}, ${components}, $amount)".stripComponentTags()
 
     override fun equals(other: Any?): Boolean {
-        if(other == null || other !is ItemStack) return false
+        if (other == null || other !is ItemStack) return false
         return isSameAs(other)
     }
 }

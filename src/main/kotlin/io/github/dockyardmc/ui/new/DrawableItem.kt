@@ -10,6 +10,7 @@ class DrawableItem(val itemStack: ItemStack, val onClick: ((Player, DrawableClic
     class Builder {
         private var itemStack: ItemStack = ItemStack.AIR
         private var onClick: ((Player, DrawableClickType) -> Unit)? = null
+        private var noxesiumImmovable: Boolean? = null
 
         fun withItemStack(itemStack: ItemStack) {
             this.itemStack = itemStack
@@ -36,11 +37,11 @@ class DrawableItem(val itemStack: ItemStack, val onClick: ((Player, DrawableClic
         }
 
         fun isNoxesiumImmovable(immovable: Boolean) {
-            //TODO(noxesium integrating)
-            throw NotImplementedError("Tell maya to implement noxesium stuff")
+            this.noxesiumImmovable = immovable
         }
 
         fun build(): DrawableItem {
+            if (noxesiumImmovable != null) itemStack.withNoxesiumImmovable(noxesiumImmovable!!)
             return DrawableItem(itemStack, onClick)
         }
     }

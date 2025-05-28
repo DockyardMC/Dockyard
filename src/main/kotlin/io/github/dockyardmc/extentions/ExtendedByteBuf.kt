@@ -545,3 +545,14 @@ fun ByteBuf.readItemHolder(): Item {
 fun ByteBuf.writeByte(byte: Byte) {
     this.writeByte(byte.toInt())
 }
+
+fun Byte.toBoolean(): Boolean {
+    return this == 1.toByte()
+}
+
+fun Boolean.toByte(): Byte {
+    return if (this) 1.toByte() else 0.toByte()
+}
+
+
+fun NBTCompound.getAsBoolean(key: String): Boolean? = getNumber(key)?.toByte()?.toBoolean()

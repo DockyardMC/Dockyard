@@ -12,8 +12,8 @@ class FillFlowContainer(val direction: Direction, val components: List<Composite
     }
 
     override fun buildComponent() {
-        var x: Int = 0
-        var y: Int = 0
+        var x = 0
+        var y = 0
 
         components.forEach { drawable ->
             withComposite(x, y, drawable)

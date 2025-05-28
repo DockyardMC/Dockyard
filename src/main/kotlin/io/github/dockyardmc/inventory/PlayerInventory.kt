@@ -72,7 +72,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
         val event = PlayerSwapOffhandEvent(player, mainHandItem, offhandItem, getPlayerEventContext(player))
         Events.dispatch(event)
-        if(event.cancelled) return
+        if (event.cancelled) return
 
         player.mainHandItem = event.offHandItem
         player.offHandItem = event.mainHandItem
@@ -80,14 +80,14 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
     fun getSlotByItemStack(itemStack: ItemStack): Int? {
         slots.values.forEach { (index, item) ->
-            if(item.isSameAs(itemStack)) return index
+            if (item.isSameAs(itemStack)) return index
         }
         return null
     }
 
     fun getSlotByItem(item: Item): Int? {
         slots.values.forEach { (index, itemStack) ->
-            if(itemStack.material == item) {
+            if (itemStack.material == item) {
                 return index
             }
         }
@@ -146,12 +146,15 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
         val event = PlayerDropItemEvent(player, itemStack)
         Events.dispatch(event)
+
+        if (itemStack.noxesiumImmovable) return true
+
         if (event.cancelled) {
             sendFullInventoryUpdate()
             return true
         }
 
-        if(ConfigManager.config.implementationConfig.itemDroppingAndPickup) {
+        if (ConfigManager.config.implementationConfig.itemDroppingAndPickup) {
             player.world.spawnEntity(ItemDropEntity(player.location, itemStack))
         }
         return false
