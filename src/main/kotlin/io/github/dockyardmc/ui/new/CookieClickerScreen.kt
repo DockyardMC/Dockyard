@@ -1,7 +1,6 @@
 package io.github.dockyardmc.ui.new
 
 import cz.lukynka.bindables.BindableList
-import io.github.dockyardmc.maths.randomInt
 import io.github.dockyardmc.maths.vectors.Vector2
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.ItemRegistry

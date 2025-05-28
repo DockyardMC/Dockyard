@@ -33,9 +33,11 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
         return currentOffset > 0
     }
 
+    private lateinit var itemsBindableListener: BindableList.BindableListUpdateListener<DrawableItemStack>
+
     override fun buildComponent() {
 
-        items.listUpdated {
+        itemsBindableListener = items.listUpdated {
             currentOffset = 0
             rebuildItems()
         }
@@ -87,6 +89,7 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
                         val rowOffset = y * size.x
                         currentOffset + rowOffset + x
                     }
+
                     Direction.VERTICAL -> currentOffset + (y * size.x) + x
                 }
                 if (index < items.size) {
@@ -97,7 +100,6 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
             }
         }
     }
-
 
 
     fun scrollNext() {
@@ -149,5 +151,6 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
     }
 
     override fun dispose() {
+        items.unregister(itemsBindableListener)
     }
 }
