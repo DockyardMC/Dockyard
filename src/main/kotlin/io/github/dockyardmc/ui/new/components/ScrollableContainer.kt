@@ -5,9 +5,13 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.vectors.Vector2
 import io.github.dockyardmc.ui.new.CompositeDrawable
 import io.github.dockyardmc.ui.new.DrawableItemStack
-import io.github.dockyardmc.ui.new.drawableItemStack
 
-open class ScrollableContainer(val layout: Layout, val size: Vector2, val smoothScrolling: Boolean, val arrowNext: ItemStack, val arrowPrevious: ItemStack, val largeArrows: Boolean, val items: BindableList<DrawableItemStack>) : CompositeDrawable() {
+open class ScrollableContainer(
+    val layout: Layout,
+    val size: Vector2,
+    val smoothScrolling: Boolean,
+    private val items: BindableList<DrawableItemStack>
+) : CompositeDrawable() {
 
     enum class Layout {
         VERTICAL,
@@ -24,6 +28,7 @@ open class ScrollableContainer(val layout: Layout, val size: Vector2, val smooth
                 val visibleColumns = if (smoothScrolling) 1 else size.x
                 (currentOffset + visibleColumns) * size.y < items.size
             }
+
             Layout.VERTICAL -> {
                 if (smoothScrolling) {
                     (currentOffset + 1) * size.x < items.size
@@ -38,7 +43,6 @@ open class ScrollableContainer(val layout: Layout, val size: Vector2, val smooth
         return currentOffset > 0
     }
 
-
     private lateinit var itemsBindableListener: BindableList.BindableListUpdateListener<DrawableItemStack>
 
     override fun buildComponent() {
@@ -48,49 +52,7 @@ open class ScrollableContainer(val layout: Layout, val size: Vector2, val smooth
             rebuildItems()
         }
 
-        if (layout == Layout.HORIZONTAL) {
-            val arrowPrevLoc = Vector2(-1, 0)
-            val arrowNextLoc = Vector2(size.x, 0)
-
-            withSlot(arrowNextLoc.x, arrowNextLoc.y, getNextArrow())
-            withSlot(arrowPrevLoc.x, arrowPrevLoc.y, getPrevArrow())
-
-            if (largeArrows) {
-                for (i in 0 until (size.y)) {
-                    withSlot(arrowNextLoc.x, arrowNextLoc.y + i, getNextArrow())
-                }
-                for (i in 0 until (size.y)) {
-                    withSlot(arrowPrevLoc.x, arrowPrevLoc.y + i, getPrevArrow())
-                }
-            }
-        } else {
-            val arrowPrevLoc = Vector2(size.x, 0)
-            val arrowNextLoc = Vector2(size.x, size.y - 1)
-
-            withSlot(arrowNextLoc.x, arrowNextLoc.y, getNextArrow())
-            withSlot(arrowPrevLoc.x, arrowPrevLoc.y, getPrevArrow())
-        }
         fillVisibleSlots()
-    }
-
-    private fun getNextArrow(): DrawableItemStack {
-        return drawableItemStack {
-            withItemStack(arrowNext)
-            withNoxesiumImmovable(true)
-            onClick { _, _ ->
-                scrollNext()
-            }
-        }
-    }
-
-    private fun getPrevArrow(): DrawableItemStack {
-        return drawableItemStack {
-            withItemStack(arrowPrevious)
-            withNoxesiumImmovable(true)
-            onClick { _, _ ->
-                scrollPrevious()
-            }
-        }
     }
 
     private fun fillVisibleSlots() {
@@ -112,6 +74,7 @@ open class ScrollableContainer(val layout: Layout, val size: Vector2, val smooth
                     }
                 }
             }
+
             Layout.VERTICAL -> {
                 val startIndex = currentOffset * size.x
                 for (y in 0 until size.y) {
@@ -127,7 +90,7 @@ open class ScrollableContainer(val layout: Layout, val size: Vector2, val smooth
     }
 
 
-    fun scrollNext() {
+    fun scrollNext(): Boolean {
         if (canScrollNext()) {
             if (smoothScrolling) {
                 currentOffset++
@@ -138,11 +101,13 @@ open class ScrollableContainer(val layout: Layout, val size: Vector2, val smooth
                 }
             }
             rebuildItems()
+            return true
         }
+        return false
     }
 
 
-    fun scrollPrevious() {
+    fun scrollPrevious(): Boolean {
         if (canScrollPrevious()) {
             if (smoothScrolling) {
                 currentOffset--
@@ -153,9 +118,15 @@ open class ScrollableContainer(val layout: Layout, val size: Vector2, val smooth
                 }
             }
             rebuildItems()
+            return true
         }
+        return false
     }
 
+    fun resetScrollPosition() {
+        currentOffset = 0
+        fillVisibleSlots()
+    }
 
     private fun rebuildItems() {
         currentOffset = currentOffset.coerceAtLeast(0)

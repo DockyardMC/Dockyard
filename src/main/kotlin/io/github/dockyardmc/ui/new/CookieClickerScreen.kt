@@ -11,6 +11,9 @@ class CookieClickerScreen : Screen() {
 
     override fun buildComponent() {
         val randomItems = BindableList<DrawableItemStack>()
+        val scrollableContainer = ScrollableContainer(ScrollableContainer.Layout.VERTICAL, Vector2(7, 4), true, randomItems)
+
+        // for testing stuffs
         repeat(37) {
             val item = drawableItemStack {
                 withItem(Items.AMETHYST_CLUSTER)
@@ -23,17 +26,19 @@ class CookieClickerScreen : Screen() {
             randomItems.add(item)
         }
 
-        withComposite(
-            1, 0,
-            ScrollableContainer(
-                ScrollableContainer.Layout.VERTICAL,
-                Vector2(7, 4),
-                true,
-                Items.LIME_STAINED_GLASS_PANE.toItemStack().withDisplayName("Next"),
-                Items.LIME_STAINED_GLASS_PANE.toItemStack().withDisplayName("Prev"),
-                true,
-                randomItems,
-            )
-        )
+        withSlot(8, 4) {
+            withItem(Items.SPECTRAL_ARROW)
+            withName("<lime><u>Scroll")
+            onClick { _, clickType ->
+                when (clickType) {
+                    DrawableItemStack.ClickType.LEFT_CLICK -> scrollableContainer.scrollNext()
+                    DrawableItemStack.ClickType.RIGHT_CLICK -> scrollableContainer.scrollPrevious()
+                    DrawableItemStack.ClickType.MIDDLE_CLICK -> scrollableContainer.resetScrollPosition()
+                    else -> { /* fuck off */ }
+                }
+            }
+        }
+
+        withComposite(1, 0, scrollableContainer)
     }
 }
