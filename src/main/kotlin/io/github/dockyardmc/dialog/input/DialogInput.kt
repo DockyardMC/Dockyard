@@ -8,11 +8,13 @@ import org.jglrxavpok.hephaistos.nbt.NBT
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 sealed class DialogInput : NbtWritable {
+    abstract val key: String
     abstract val label: String
     abstract val type: DialogInputType
 
     override fun getNbt(): NBTCompound {
         return NBT.Compound { builder ->
+            builder.put("key", key)
             builder.put("label", label.toComponent().toNBT())
             builder.put("type", type.getEntryIdentifier())
         }

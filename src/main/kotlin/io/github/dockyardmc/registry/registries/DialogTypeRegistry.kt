@@ -30,8 +30,6 @@ object DialogTypeRegistry : DynamicRegistry {
         addEntry(DialogType("minecraft:server_links"))
         addEntry(DialogType("minecraft:dialog_list"))
         addEntry(DialogType("minecraft:multi_action"))
-        addEntry(DialogType("minecraft:multi_action_input_form"))
-        addEntry(DialogType("minecraft:simple_input_form"))
         addEntry(DialogType("minecraft:confirmation"))
     }
 
