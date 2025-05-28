@@ -18,6 +18,7 @@ class ItemStackMeta {
     var lore: MutableList<String> = mutableListOf()
     var attributes: MutableList<AttributeModifier> = mutableListOf()
     var components: MutableList<ItemComponent> = mutableListOf()
+    var noxesiumImmovable: Boolean = false
 
     companion object {
         fun fromItemStack(stack: ItemStack): ItemStackMeta {
@@ -60,6 +61,10 @@ class ItemStackMeta {
         components.addOrUpdate(UseCooldownItemComponent(cooldownSeconds))
     }
 
+    fun withNoxesiumImmovable() {
+
+    }
+
     fun withProfile(username: String? = null, uuid: UUID? = null, profile: ProfileProperty? = null) {
         if (material != Items.PLAYER_HEAD) {
             throw IllegalArgumentException("Item must be a player head")
@@ -97,7 +102,7 @@ class ItemStackMeta {
     }
 
     fun buildLoreComponent() {
-        if(lore.isEmpty()) return
+        if (lore.isEmpty()) return
         val component = LoreItemComponent(lore.map { "<r><gray>$it" }.toComponents())
         components.addOrUpdate(component)
     }
@@ -131,7 +136,7 @@ class ItemStackMeta {
     }
 
     fun isUnbreakable(unbreakable: Boolean) {
-        if(unbreakable) components.addOrUpdate(UnbreakableItemComponent()) else components.removeByType(UnbreakableItemComponent::class)
+        if (unbreakable) components.addOrUpdate(UnbreakableItemComponent()) else components.removeByType(UnbreakableItemComponent::class)
     }
 
     fun withUnbreakable(unbreakable: Boolean) {
@@ -202,7 +207,7 @@ class ItemStackMeta {
     }
 
     fun withAmount(amount: Int) {
-        if(amount <= 0) this.amount = 1 else this.amount = amount
+        if (amount <= 0) this.amount = 1 else this.amount = amount
     }
 
     fun clearLore() {
@@ -231,16 +236,18 @@ class ItemStackMeta {
 }
 
 fun itemStack(builder: ItemStackMeta.() -> Unit): ItemStack {
-    val meta: ItemStackMeta = ItemStackMeta()
+    val meta = ItemStackMeta()
     builder.invoke(meta)
 
     meta.buildLoreComponent()
     val itemStack = ItemStack(meta.material, meta.amount, meta.components.toSet(), meta, meta.attributes)
+    itemStack.withNoxesiumImmovable(meta.noxesiumImmovable)
     return itemStack.clone()
 }
 
 fun itemStack(meta: ItemStackMeta): ItemStack {
     meta.buildLoreComponent()
     val itemStack = ItemStack(meta.material, meta.amount, meta.components.toSet(), meta, meta.attributes)
+    itemStack.withNoxesiumImmovable(meta.noxesiumImmovable)
     return itemStack.clone()
 }
