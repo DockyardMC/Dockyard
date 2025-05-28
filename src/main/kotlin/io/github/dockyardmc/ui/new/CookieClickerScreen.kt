@@ -1,5 +1,6 @@
 package io.github.dockyardmc.ui.new
 
+import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.maths.randomInt
 import io.github.dockyardmc.maths.vectors.Vector2
 import io.github.dockyardmc.registry.Items
@@ -11,9 +12,17 @@ class CookieClickerScreen : Screen() {
     override val rows: Int = 6
 
     override fun buildComponent() {
-        val randomItems = mutableListOf<DrawableItemStack>()
-        repeat(65) {
-            randomItems.add(DrawableItemStack(ItemRegistry.items.values.random().toItemStack(randomInt(1, 64))))
+        val randomItems = BindableList<DrawableItemStack>()
+        repeat(35) {
+            val item = drawableItemStack {
+                withItem(ItemRegistry.items.values.random())
+                withAmount(it + 1)
+                withNoxesiumImmovable(true)
+                onClick { _, _ ->
+                    randomItems.remove(randomItems.values.random())
+                }
+            }
+            randomItems.add(item)
         }
 
         withComposite(

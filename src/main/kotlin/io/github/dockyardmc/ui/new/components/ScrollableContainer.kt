@@ -1,12 +1,13 @@
 package io.github.dockyardmc.ui.new.components
 
+import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.vectors.Vector2
 import io.github.dockyardmc.ui.new.CompositeDrawable
 import io.github.dockyardmc.ui.new.DrawableItemStack
 import io.github.dockyardmc.ui.new.drawableItemStack
 
-open class ScrollableContainer(val layout: Direction, val scrollDirection: Direction, val size: Vector2, val smoothScrolling: Boolean, val arrowNext: ItemStack, val arrowPrevious: ItemStack, val largeArrows: Boolean, val items: List<DrawableItemStack>) : CompositeDrawable() {
+open class ScrollableContainer(val layout: Direction, val scrollDirection: Direction, val size: Vector2, val smoothScrolling: Boolean, val arrowNext: ItemStack, val arrowPrevious: ItemStack, val largeArrows: Boolean, val items: BindableList<DrawableItemStack>) : CompositeDrawable() {
 
     enum class Direction {
         VERTICAL,
@@ -28,12 +29,17 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
         }
     }
 
-
     fun canScrollPrevious(): Boolean {
         return currentOffset > 0
     }
 
     override fun buildComponent() {
+
+        items.listUpdated {
+            currentOffset = 0
+            rebuildItems()
+        }
+
         if (layout == Direction.HORIZONTAL) {
             val arrowPrevLoc = Vector2(-1, 0)
             val arrowNextLoc = Vector2(size.x, 0)
@@ -77,18 +83,21 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
         for (y in 0 until size.y) {
             for (x in 0 until size.x) {
                 val index = when (scrollDirection) {
-                    Direction.HORIZONTAL -> currentOffset + (y * items.size / size.y) + x
+                    Direction.HORIZONTAL -> {
+                        val rowOffset = y * size.x
+                        currentOffset + rowOffset + x
+                    }
                     Direction.VERTICAL -> currentOffset + (y * size.x) + x
                 }
-
                 if (index < items.size) {
-                    withSlot(x, y, items[index])
+                    withSlot(x, y, items.values[index])
                 } else {
                     withSlot(x, y, DrawableItemStack(ItemStack.AIR))
                 }
             }
         }
     }
+
 
 
     fun scrollNext() {
@@ -138,7 +147,6 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
             }
         }
     }
-
 
     override fun dispose() {
     }
