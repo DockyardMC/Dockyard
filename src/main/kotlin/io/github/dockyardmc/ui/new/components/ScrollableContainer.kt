@@ -7,9 +7,9 @@ import io.github.dockyardmc.ui.new.CompositeDrawable
 import io.github.dockyardmc.ui.new.DrawableItemStack
 import io.github.dockyardmc.ui.new.drawableItemStack
 
-open class ScrollableContainer(val layout: Direction, val scrollDirection: Direction, val size: Vector2, val smoothScrolling: Boolean, val arrowNext: ItemStack, val arrowPrevious: ItemStack, val largeArrows: Boolean, val items: BindableList<DrawableItemStack>) : CompositeDrawable() {
+open class ScrollableContainer(val layout: Layout, val size: Vector2, val smoothScrolling: Boolean, val arrowNext: ItemStack, val arrowPrevious: ItemStack, val largeArrows: Boolean, val items: BindableList<DrawableItemStack>) : CompositeDrawable() {
 
-    enum class Direction {
+    enum class Layout {
         VERTICAL,
         HORIZONTAL
     }
@@ -19,19 +19,25 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
     private val rowSize = size.x
 
     fun canScrollNext(): Boolean {
-        return when (scrollDirection) {
-            Direction.HORIZONTAL -> {
-                val lastVisibleIndex = currentOffset + (size.y - 1) * (items.size / size.y) + size.x - 1
-                lastVisibleIndex < items.size - 1
+        return when (layout) {
+            Layout.HORIZONTAL -> {
+                val visibleColumns = if (smoothScrolling) 1 else size.x
+                (currentOffset + visibleColumns) * size.y < items.size
             }
-
-            Direction.VERTICAL -> (currentOffset + totalSlots) < items.size
+            Layout.VERTICAL -> {
+                if (smoothScrolling) {
+                    (currentOffset + 1) * size.x < items.size
+                } else {
+                    (currentOffset + size.y) * size.x < items.size
+                }
+            }
         }
     }
 
     fun canScrollPrevious(): Boolean {
         return currentOffset > 0
     }
+
 
     private lateinit var itemsBindableListener: BindableList.BindableListUpdateListener<DrawableItemStack>
 
@@ -42,7 +48,7 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
             rebuildItems()
         }
 
-        if (layout == Direction.HORIZONTAL) {
+        if (layout == Layout.HORIZONTAL) {
             val arrowPrevLoc = Vector2(-1, 0)
             val arrowNextLoc = Vector2(size.x, 0)
 
@@ -57,6 +63,12 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
                     withSlot(arrowPrevLoc.x, arrowPrevLoc.y + i, getPrevArrow())
                 }
             }
+        } else {
+            val arrowPrevLoc = Vector2(size.x, 0)
+            val arrowNextLoc = Vector2(size.x, size.y - 1)
+
+            withSlot(arrowNextLoc.x, arrowNextLoc.y, getNextArrow())
+            withSlot(arrowPrevLoc.x, arrowPrevLoc.y, getPrevArrow())
         }
         fillVisibleSlots()
     }
@@ -84,18 +96,31 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
     private fun fillVisibleSlots() {
         for (y in 0 until size.y) {
             for (x in 0 until size.x) {
-                val index = when (scrollDirection) {
-                    Direction.HORIZONTAL -> {
-                        val rowOffset = y * size.x
-                        currentOffset + rowOffset + x
-                    }
+                withSlot(x, y, DrawableItemStack(ItemStack.AIR))
+            }
+        }
 
-                    Direction.VERTICAL -> currentOffset + (y * size.x) + x
+        when (layout) {
+            Layout.HORIZONTAL -> {
+                for (y in 0 until size.y) {
+                    for (x in 0 until size.x) {
+                        val column = x + currentOffset
+                        val index = column * size.y + y
+                        if (index < items.size) {
+                            withSlot(x, y, items.values[index])
+                        }
+                    }
                 }
-                if (index < items.size) {
-                    withSlot(x, y, items.values[index])
-                } else {
-                    withSlot(x, y, DrawableItemStack(ItemStack.AIR))
+            }
+            Layout.VERTICAL -> {
+                val startIndex = currentOffset * size.x
+                for (y in 0 until size.y) {
+                    for (x in 0 until size.x) {
+                        val index = startIndex + (y * size.x) + x
+                        if (index < items.size) {
+                            withSlot(x, y, items.values[index])
+                        }
+                    }
                 }
             }
         }
@@ -104,28 +129,27 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
 
     fun scrollNext() {
         if (canScrollNext()) {
-            currentOffset += when (scrollDirection) {
-                Direction.HORIZONTAL -> {
-                    if (smoothScrolling) 1 else rowSize
-                }
-
-                Direction.VERTICAL -> {
-                    if (smoothScrolling) rowSize else totalSlots
+            if (smoothScrolling) {
+                currentOffset++
+            } else {
+                currentOffset += when (layout) {
+                    Layout.HORIZONTAL -> size.x
+                    Layout.VERTICAL -> size.y
                 }
             }
             rebuildItems()
         }
     }
 
+
     fun scrollPrevious() {
         if (canScrollPrevious()) {
-            currentOffset -= when (scrollDirection) {
-                Direction.HORIZONTAL -> {
-                    if (smoothScrolling) 1 else rowSize
-                }
-
-                Direction.VERTICAL -> {
-                    if (smoothScrolling) rowSize else totalSlots
+            if (smoothScrolling) {
+                currentOffset--
+            } else {
+                currentOffset -= when (layout) {
+                    Layout.HORIZONTAL -> size.x
+                    Layout.VERTICAL -> size.y
                 }
             }
             rebuildItems()
@@ -135,7 +159,7 @@ open class ScrollableContainer(val layout: Direction, val scrollDirection: Direc
 
     private fun rebuildItems() {
         currentOffset = currentOffset.coerceAtLeast(0)
-        val maxOffset = items.size - (if (scrollDirection == Direction.HORIZONTAL) rowSize else totalSlots)
+        val maxOffset = items.size - (if (layout == Layout.HORIZONTAL) rowSize else totalSlots)
         currentOffset = currentOffset.coerceAtMost(maxOffset.coerceAtLeast(0))
 
         clearSlots()
