@@ -4,7 +4,6 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundOpenContainerPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetContainerSlotPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ScreenSize
-import io.github.dockyardmc.ui.DrawableClickType
 
 abstract class Screen : CompositeDrawable() {
 
@@ -14,7 +13,7 @@ abstract class Screen : CompositeDrawable() {
 
     open fun onOpen() {}
     open fun onClose() {}
-    open fun onClick(slot: Int, clickType: DrawableClickType) {}
+    open fun onClick(slot: Int, clickType: DrawableItemStack.ClickType) {}
     open fun onRerender() {}
 
     class InvalidScreenSlotOperationException(override val message: String) : Exception(message)
@@ -46,7 +45,7 @@ abstract class Screen : CompositeDrawable() {
         onRerender()
     }
 
-    fun onClick(slot: Int, player: Player, clickType: DrawableClickType) {
+    fun onClick(slot: Int, player: Player, clickType: DrawableItemStack.ClickType) {
         val clickedSlot = getSlots()[slot]
 
         if (clickedSlot == null) {

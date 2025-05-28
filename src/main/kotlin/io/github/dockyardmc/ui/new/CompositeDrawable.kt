@@ -9,7 +9,7 @@ import io.github.dockyardmc.utils.Disposable
 abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Disposable {
 
     protected val bindablePool = BindablePool()
-    private val items: BindableMap<Int, DrawableItem> = bindablePool.provideBindableMap()
+    private val items: BindableMap<Int, DrawableItemStack> = bindablePool.provideBindableMap()
     private val bindableRefs: MutableMap<Bindable<*>, (Bindable.ValueChangedEvent<*>) -> Unit> = mutableMapOf()
     private val children: MutableMap<CompositeDrawable, Int> = mutableMapOf()
     private var initialized: Boolean = false
@@ -43,24 +43,24 @@ abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Dispos
         children.forEach { (composite, _) -> this.renderChild(composite) }
     }
 
-    fun withSlot(slot: Int, item: DrawableItem) {
+    fun withSlot(slot: Int, item: DrawableItemStack) {
         items[slot] = item
     }
 
-    fun withSlot(x: Int, y: Int, item: DrawableItem) {
+    fun withSlot(x: Int, y: Int, item: DrawableItemStack) {
         val index = getSlotIndexFromVector2(x, y)
         withSlot(index, item)
     }
 
-    fun withSlot(slot: Int, builder: DrawableItem.Builder.() -> Unit) {
-        val instance = DrawableItem.Builder()
+    fun withSlot(slot: Int, builder: DrawableItemStack.Builder.() -> Unit) {
+        val instance = DrawableItemStack.Builder()
         builder.invoke(instance)
         items[slot] = instance.build()
     }
 
-    fun withSlot(x: Int, y: Int, builder: DrawableItem.Builder.() -> Unit) {
+    fun withSlot(x: Int, y: Int, builder: DrawableItemStack.Builder.() -> Unit) {
         val index = getSlotIndexFromVector2(x, y)
-        val instance = DrawableItem.Builder()
+        val instance = DrawableItemStack.Builder()
         builder.invoke(instance)
         items[index] = instance.build()
     }
@@ -105,6 +105,6 @@ abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Dispos
         }
     }
 
-    fun getSlots(): Map<Int, DrawableItem> = items.values.toMap()
+    fun getSlots(): Map<Int, DrawableItemStack> = items.values.toMap()
     fun getChildren(): Map<CompositeDrawable, Int> = children.toMap()
 }

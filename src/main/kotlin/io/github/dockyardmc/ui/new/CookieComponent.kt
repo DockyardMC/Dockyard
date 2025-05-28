@@ -5,8 +5,6 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.ui.DrawableClickType
-import io.github.dockyardmc.utils.debug
 
 class CookieComponent : CompositeDrawable() {
 
@@ -18,9 +16,9 @@ class CookieComponent : CompositeDrawable() {
             withSlot(0) {
                 withItemStack(ItemStack(Items.COOKIE).withMaxStackSize(256))
                 withAmount(cookieCount.value)
+                withNoxesiumImmovable(true)
                 onClick { player, type ->
-                    debug("<pink>CLICKED ($cookieCount)", true)
-                    if (type != DrawableClickType.LEFT_CLICK) return@onClick
+                    if (type != DrawableItemStack.ClickType.LEFT_CLICK) return@onClick
 
                     cookieCount.value++ // <- reactive, automatically re-renders anything in the `withBindable`
                     player.playSound(Sounds.ENTITY_GENERIC_EAT)

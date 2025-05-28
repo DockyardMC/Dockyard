@@ -3,14 +3,26 @@ package io.github.dockyardmc.ui.new
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.registries.Item
-import io.github.dockyardmc.ui.DrawableClickType
 
-class DrawableItem(val itemStack: ItemStack, val onClick: ((Player, DrawableClickType) -> Unit)? = null) {
+class DrawableItemStack(val itemStack: ItemStack, val onClick: ((Player, ClickType) -> Unit)? = null) {
+
+    enum class ClickType {
+        LEFT_CLICK,
+        RIGHT_CLICK,
+        LEFT_CLICK_SHIFT,
+        RIGHT_CLICK_SHIFT,
+        MIDDLE_CLICK,
+        HOTKEY,
+        OFFHAND,
+        DROP,
+        LEFT_CLICK_OUTSIDE_INVENTORY,
+        RIGHT_CLICK_OUTSIDE_INVENTORY
+    }
 
     class Builder {
         private var itemStack: ItemStack = ItemStack.AIR
-        private var onClick: ((Player, DrawableClickType) -> Unit)? = null
-        private var noxesiumImmovable: Boolean? = null
+        private var onClick: ((Player, ClickType) -> Unit)? = null
+        private var noxesiumImmovable: Boolean = true
 
         fun withItemStack(itemStack: ItemStack) {
             this.itemStack = itemStack
@@ -32,7 +44,7 @@ class DrawableItem(val itemStack: ItemStack, val onClick: ((Player, DrawableClic
             itemStack = itemStack.withAmount(amount)
         }
 
-        fun onClick(onClick: (Player, DrawableClickType) -> Unit) {
+        fun onClick(onClick: (Player, ClickType) -> Unit) {
             this.onClick = onClick
         }
 
@@ -40,9 +52,14 @@ class DrawableItem(val itemStack: ItemStack, val onClick: ((Player, DrawableClic
             this.noxesiumImmovable = immovable
         }
 
-        fun build(): DrawableItem {
-            if (noxesiumImmovable != null) itemStack.withNoxesiumImmovable(noxesiumImmovable!!)
-            return DrawableItem(itemStack, onClick)
+        fun build(): DrawableItemStack {
+            return DrawableItemStack(itemStack.withNoxesiumImmovable(noxesiumImmovable), onClick)
         }
     }
+}
+
+fun drawableItemStack(unit: DrawableItemStack.Builder.() -> Unit): DrawableItemStack {
+    val builder = DrawableItemStack.Builder()
+    unit.invoke(builder)
+    return builder.build()
 }
