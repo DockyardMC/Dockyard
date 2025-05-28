@@ -89,7 +89,6 @@ open class ScrollableContainer(
         }
     }
 
-
     fun scrollNext(): Boolean {
         if (canScrollNext()) {
             if (smoothScrolling) {

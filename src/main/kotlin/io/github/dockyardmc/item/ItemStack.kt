@@ -265,11 +265,7 @@ data class ItemStack(
     }
 
     fun updateCustomDataHolderFromComponent() {
-        val component = components.getOrNull<CustomDataItemComponent>(CustomDataItemComponent::class)
-        if (component == null) {
-            log("Custom Data Component Not Found: $components", LogType.CRITICAL)
-            return
-        }
+        val component = components.getOrNull<CustomDataItemComponent>(CustomDataItemComponent::class) ?: return
 
         component.data.forEach {
             val value: Any = when (it.value) {
