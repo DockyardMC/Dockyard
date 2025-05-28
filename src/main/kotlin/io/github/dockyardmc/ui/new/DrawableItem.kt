@@ -36,7 +36,7 @@ class DrawableItem(val itemStack: ItemStack, val onClick: ((Player, DrawableClic
             this.onClick = onClick
         }
 
-        fun isNoxesiumImmovable(immovable: Boolean) {
+        fun withNoxesiumImmovable(immovable: Boolean) {
             this.noxesiumImmovable = immovable
         }
 

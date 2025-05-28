@@ -144,7 +144,7 @@ class ItemStackMeta {
     }
 
     fun withMaxStackSize(maxStackSize: Int) {
-        components.addOrUpdate(MaxStackSizeItemComponent(maxStackSize))
+        components.addOrUpdate(MaxStackSizeItemComponent(maxStackSize.coerceIn(1, 99)))
     }
 
     @JvmName("withCustomModelDatafloatListFloat")
