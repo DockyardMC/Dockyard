@@ -82,7 +82,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 RegistryManager.register(DialogBodyTypeRegistry)
                 RegistryManager.register(DialogRegistry)
                 RegistryManager.register(DialogInputTypeRegistry)
-                RegistryManager.register(DialogSubmitMethodTypeRegistry)
+                RegistryManager.register(DialogActionTypeRegistry)
             }
 
             profiler("Default Implementations") {

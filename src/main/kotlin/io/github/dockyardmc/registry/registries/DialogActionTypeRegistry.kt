@@ -7,10 +7,10 @@ import io.github.dockyardmc.registry.RegistryException
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.util.concurrent.atomic.AtomicInteger
 
-object DialogSubmitMethodTypeRegistry : DynamicRegistry {
-    override val identifier: String = "minecraft:submit_method_type"
+object DialogActionTypeRegistry : DynamicRegistry {
+    override val identifier: String = "minecraft:dialog_action_type"
 
-    private val submitMethodTypes: MutableMap<String, DialogSubmitMethodType> = mutableMapOf()
+    private val submitMethodTypes: MutableMap<String, DialogActionType> = mutableMapOf()
     private val _protocolIds: MutableMap<String, Int> = mutableMapOf()
     private val protocolIdCounter = AtomicInteger()
 
@@ -20,15 +20,27 @@ object DialogSubmitMethodTypeRegistry : DynamicRegistry {
 
     override fun getMaxProtocolId(): Int = protocolIdCounter.get()
 
-    private fun addEntry(entry: DialogSubmitMethodType) {
+    private fun addEntry(entry: DialogActionType) {
         _protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         submitMethodTypes[entry.identifier] = entry
     }
 
     override fun register() {
-        addEntry(DialogSubmitMethodType("command_template"))
-        addEntry(DialogSubmitMethodType("custom_template"))
-        addEntry(DialogSubmitMethodType("custom_form"))
+        // this is not okay
+        listOf(
+            "open_url",
+            "run_command",
+            "suggest_command",
+            "change_page",
+            "copy_to_clipboard",
+            "show_dialog",
+            "custom",
+
+            "dynamic/run_command",
+            "dynamic/custom"
+        ).forEach {
+            addEntry(DialogActionType(it))
+        }
         updateCache()
     }
 
@@ -41,11 +53,11 @@ object DialogSubmitMethodTypeRegistry : DynamicRegistry {
         cachedPacket = ClientboundRegistryDataPacket(this)
     }
 
-    override fun get(identifier: String): DialogSubmitMethodType {
+    override fun get(identifier: String): DialogActionType {
         return submitMethodTypes[identifier] ?: throw RegistryException(identifier, submitMethodTypes.size)
     }
 
-    override fun getOrNull(identifier: String): DialogSubmitMethodType? {
+    override fun getOrNull(identifier: String): DialogActionType? {
         return submitMethodTypes[identifier]
     }
 
@@ -64,7 +76,7 @@ object DialogSubmitMethodTypeRegistry : DynamicRegistry {
     }
 }
 
-data class DialogSubmitMethodType(
+data class DialogActionType(
     val identifier: String,
 ) : RegistryEntry {
     override fun getNbt(): NBTCompound? {
@@ -72,7 +84,7 @@ data class DialogSubmitMethodType(
     }
 
     override fun getProtocolId(): Int {
-        return DialogSubmitMethodTypeRegistry.getProtocolId(identifier)
+        return DialogActionTypeRegistry.getProtocolId(identifier)
     }
 
     override fun getEntryIdentifier(): String {

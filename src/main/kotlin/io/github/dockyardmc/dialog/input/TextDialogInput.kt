@@ -6,6 +6,7 @@ import io.github.dockyardmc.scroll.extensions.put
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
 class TextDialogInput(
+    override val key: String,
     override val label: String,
     val width: Int = 200,
     val labelVisible: Boolean = true,

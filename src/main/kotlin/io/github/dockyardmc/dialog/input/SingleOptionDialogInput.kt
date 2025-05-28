@@ -11,6 +11,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTList
 import org.jglrxavpok.hephaistos.nbt.NBTType
 
 class SingleOptionDialogInput(
+    override val key: String,
     override val label: String,
     val options: Collection<Option>,
     val width: Int = 200,
