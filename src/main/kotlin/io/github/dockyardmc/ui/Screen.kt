@@ -1,11 +1,15 @@
 package io.github.dockyardmc.ui
 
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerScreenCloseEvent
+import io.github.dockyardmc.events.PlayerScreenOpenEvent
 import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundOpenContainerPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetContainerSlotPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ScreenSize
 import io.github.dockyardmc.ui.snapshot.InventorySnapshot
+import io.github.dockyardmc.utils.getPlayerEventContext
 
 abstract class Screen : CompositeDrawable() {
 
@@ -25,8 +29,13 @@ abstract class Screen : CompositeDrawable() {
 
     fun open(player: Player) {
         this.player = player
+
+        val event = PlayerScreenOpenEvent(player, this, getPlayerEventContext(player))
+        Events.dispatch(event)
+        if (event.cancelled) return
+
         inventorySnapshot = InventorySnapshot(player)
-        if(isFullscreen) {
+        if (isFullscreen) {
             player.clearInventory()
         }
 
@@ -76,6 +85,8 @@ abstract class Screen : CompositeDrawable() {
         getChildren().forEach { (child, _) ->
             child.dispose()
         }
+        player.currentlyOpenScreen = null
         if (isFullscreen) inventorySnapshot.restoreAndDispose()
+        Events.dispatch(PlayerScreenCloseEvent(player, this, getPlayerEventContext(player)))
     }
 }
