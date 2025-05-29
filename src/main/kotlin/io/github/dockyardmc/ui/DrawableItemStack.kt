@@ -1,4 +1,4 @@
-package io.github.dockyardmc.ui.new
+package io.github.dockyardmc.ui
 
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player

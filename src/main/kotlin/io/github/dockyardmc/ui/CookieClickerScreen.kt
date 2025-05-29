@@ -1,22 +1,28 @@
-package io.github.dockyardmc.ui.new
+package io.github.dockyardmc.ui
 
 import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.maths.vectors.Vector2
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.ui.new.components.ScrollableContainer
+import io.github.dockyardmc.registry.registries.ItemRegistry
+import io.github.dockyardmc.ui.components.ScrollableContainer
 
 class CookieClickerScreen : Screen() {
 
     override val rows: Int = 6
+    override val isFullscreen: Boolean = true
 
     override fun buildComponent() {
         val randomItems = BindableList<DrawableItemStack>()
-        val scrollableContainer = ScrollableContainer(ScrollableContainer.Layout.VERTICAL, Vector2(7, 4), true, randomItems)
+        val scrollableContainer = ScrollableContainer(ScrollableContainer.Layout.VERTICAL, Vector2(7, 4), false, randomItems)
+
+        withSlot(4, 8) {
+          withItem(Items.ITEM_FRAME)
+        }
 
         // for testing stuffs
         repeat(37) {
             val item = drawableItemStack {
-                withItem(Items.AMETHYST_CLUSTER)
+                withItem(ItemRegistry.items.values.random())
                 withAmount(it + 1)
                 withNoxesiumImmovable(true)
                 onClick { _, _ ->

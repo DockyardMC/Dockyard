@@ -1,7 +1,7 @@
-package io.github.dockyardmc.ui.new.components
+package io.github.dockyardmc.ui.components
 
-import io.github.dockyardmc.ui.new.CompositeDrawable
-import io.github.dockyardmc.ui.new.DrawableItemStack
+import io.github.dockyardmc.ui.CompositeDrawable
+import io.github.dockyardmc.ui.DrawableItemStack
 
 class StaticDrawableItemComponent(val item: DrawableItemStack) : CompositeDrawable() {
 

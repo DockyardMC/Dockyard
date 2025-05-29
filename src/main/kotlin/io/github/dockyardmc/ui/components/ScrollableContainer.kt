@@ -1,10 +1,10 @@
-package io.github.dockyardmc.ui.new.components
+package io.github.dockyardmc.ui.components
 
 import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.vectors.Vector2
-import io.github.dockyardmc.ui.new.CompositeDrawable
-import io.github.dockyardmc.ui.new.DrawableItemStack
+import io.github.dockyardmc.ui.CompositeDrawable
+import io.github.dockyardmc.ui.DrawableItemStack
 
 open class ScrollableContainer(
     val layout: Layout,

@@ -13,7 +13,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.ui.new.Screen
+import io.github.dockyardmc.ui.Screen
 import java.util.*
 
 fun <T> MutableList<T>.addAllNonDuplicates(other: Collection<T>) {

@@ -1,13 +1,11 @@
 package io.github.dockyard.tests.inventory
 
-import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
 import io.github.dockyard.tests.assertSlot
 import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundCloseContainerPacket
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import kotlin.test.AfterTest

@@ -1,13 +1,13 @@
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.commands.BooleanArgument
+import io.github.dockyardmc.commands.CommandException
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
-import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.ui.new.CookieClickerScreen
+import io.github.dockyardmc.ui.CookieClickerScreen
+import io.github.dockyardmc.ui.snapshot.InventorySnapshot
 import io.github.dockyardmc.utils.DebugSidebar
 
 fun main() {
@@ -34,12 +34,23 @@ fun main() {
         }
     }
 
-    Commands.add("/immovable") {
-        addArgument("immovable", BooleanArgument())
-        execute { ctx ->
-            val player = ctx.getPlayerOrThrow()
-            val item = ItemStack(Items.AMETHYST_CLUSTER).withNoxesiumImmovable(getArgument("immovable"))
-            player.give(item)
+    var snapshot: InventorySnapshot? = null
+    Commands.add("/snapshot") {
+        addSubcommand("take") {
+            execute { ctx ->
+                val player = ctx.getPlayerOrThrow()
+                snapshot = InventorySnapshot(player)
+                player.sendMessage("<orange>taken inventory snapshot")
+            }
+        }
+
+        addSubcommand("restore") {
+            execute { ctx ->
+                val player = ctx.getPlayerOrThrow()
+                if(snapshot == null) throw CommandException("There is not inventory snapshot taken")
+                snapshot!!.restore()
+                player.sendMessage("<lime>Restored inventory snapshot from ${snapshot!!.created.toEpochMilliseconds()}")
+            }
         }
     }
 

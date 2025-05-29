@@ -47,7 +47,7 @@ import io.github.dockyardmc.resourcepack.Resourcepack
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.ui.new.Screen
+import io.github.dockyardmc.ui.Screen
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.now
 import io.github.dockyardmc.world.PlayerChunkViewSystem

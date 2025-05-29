@@ -1,13 +1,15 @@
-package io.github.dockyardmc.ui.new
+package io.github.dockyardmc.ui
 
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundOpenContainerPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetContainerSlotPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ScreenSize
+import io.github.dockyardmc.ui.snapshot.InventorySnapshot
 
 abstract class Screen : CompositeDrawable() {
 
     abstract val rows: Int
+    open val isFullscreen: Boolean = false
     open val name: String = "Screen(${this::class.simpleName})"
     lateinit var player: Player
 
@@ -15,6 +17,8 @@ abstract class Screen : CompositeDrawable() {
     open fun onClose() {}
     open fun onClick(slot: Int, clickType: DrawableItemStack.ClickType) {}
     open fun onRerender() {}
+
+    private val inventorySnapshot = InventorySnapshot(player)
 
     class InvalidScreenSlotOperationException(override val message: String) : Exception(message)
 
@@ -36,9 +40,9 @@ abstract class Screen : CompositeDrawable() {
 
     fun update(player: Player) {
         getSlots().forEach { (slot, item) ->
-            if (slot > getScreenSize().getModifiableSlots() - 1) {
+            if (slot > getScreenSize().getModifiableSlots(this) - 1) {
                 player.closeInventory()
-                throw InvalidScreenSlotOperationException("Slot $slot is out of bounds for screen with ${getScreenSize().getModifiableSlots() - 1} slots (${getScreenSize().rows} rows)")
+                throw InvalidScreenSlotOperationException("Slot $slot is out of bounds for screen with ${getScreenSize().getModifiableSlots(this) - 1} slots (${getScreenSize().rows} rows)")
             }
             player.sendPacket(ClientboundSetContainerSlotPacket(slot, item.itemStack))
         }
@@ -68,5 +72,6 @@ abstract class Screen : CompositeDrawable() {
         getChildren().forEach { (child, _) ->
             child.dispose()
         }
+        inventorySnapshot.restoreAndDispose()
     }
 }

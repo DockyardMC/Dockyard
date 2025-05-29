@@ -1,6 +1,6 @@
-package io.github.dockyardmc.ui.new.components
+package io.github.dockyardmc.ui.components
 
-import io.github.dockyardmc.ui.new.CompositeDrawable
+import io.github.dockyardmc.ui.CompositeDrawable
 
 class FillFlowContainer(val direction: Direction, val components: List<CompositeDrawable>) : CompositeDrawable() {
 

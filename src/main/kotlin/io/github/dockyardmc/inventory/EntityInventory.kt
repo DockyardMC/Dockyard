@@ -39,30 +39,6 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
     }
 
     open fun give(item: ItemStack, range: Pair<Int, Int> = 0 to 36): Boolean {
-//        val suitableSlot = InventoryClickHandler.findSuitableSlotInRange(this, range.first, range.second, item)
-//        if(suitableSlot == null) {
-//            Events.dispatch(InventoryGiveItemEvent(this.entity, item, false, getEntityEventContext(this.entity)))
-//            return false
-//        }
-//
-//        val existingItem = slots[suitableSlot]
-//        if(existingItem == null) {
-//            slots[suitableSlot] = item
-//        } else {
-//            if(existingItem.isSameAs(item)) {
-//                val newAmount = item.withAmount(existingItem.amount + item.amount)
-//                if(newAmount.amount > item.maxStackSize) {
-//                    slots[suitableSlot] = item.withAmount(item.maxStackSize)
-//                    give(item.withAmount(newAmount.amount - newAmount.maxStackSize), range)
-//                } else {
-//                    slots[suitableSlot] = newAmount
-//                }
-//            }
-//        }
-//        Events.dispatch(InventoryGiveItemEvent(this.entity, item, true, getEntityEventContext(this.entity)))
-//        log("${slots.values}", LogType.DEBUG)
-//        return true
-
         val suitableSlots = mutableListOf<Int>()
         for (i in range.first until range.second) {
             val slot = get(i)

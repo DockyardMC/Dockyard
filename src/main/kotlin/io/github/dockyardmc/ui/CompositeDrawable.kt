@@ -1,4 +1,4 @@
-package io.github.dockyardmc.ui.new
+package io.github.dockyardmc.ui
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableMap

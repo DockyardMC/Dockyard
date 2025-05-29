@@ -13,7 +13,7 @@ import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.ui.new.DrawableItemStack
+import io.github.dockyardmc.ui.DrawableItemStack
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext

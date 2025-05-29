@@ -1,4 +1,4 @@
-package io.github.dockyardmc.ui.new
+package io.github.dockyardmc.ui
 
 import io.github.dockyardmc.registry.Items
 

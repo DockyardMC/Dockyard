@@ -1,6 +1,7 @@
 package io.github.dockyardmc.inventory
 
 import cz.lukynka.bindables.Bindable
+import cz.lukynka.prettylog.LogType
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.ItemDropEntity
@@ -15,6 +16,8 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventoryCursorPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
 import io.github.dockyardmc.registry.registries.Item
+import io.github.dockyardmc.scheduler.runAsync
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getPlayerEventContext
 
 class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SIZE) {
@@ -134,10 +137,13 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
     }
 
     fun sendFullInventoryUpdate() {
-        for (i in 0 until INNER_INVENTORY_SIZE) {
-            sendInventoryUpdate(i)
+        if(player.currentlyOpenScreen?.isFullscreen != true) {
+            for (i in 0 until INNER_INVENTORY_SIZE) {
+                sendInventoryUpdate(i)
+            }
         }
         player.inventory.cursorItem.triggerUpdate()
+        player.equipment.triggerUpdate()
     }
 
     fun drop(itemStack: ItemStack): Boolean {
