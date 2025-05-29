@@ -129,7 +129,7 @@ open class ScrollableContainer(
 
     private fun rebuildItems() {
         currentOffset = currentOffset.coerceAtLeast(0)
-        val maxOffset = items.size - (if (layout == Layout.HORIZONTAL) rowSize else totalSlots)
+        val maxOffset = items.size - if (layout == Layout.HORIZONTAL) rowSize else totalSlots
         currentOffset = currentOffset.coerceAtMost(maxOffset.coerceAtLeast(0))
 
         clearSlots()

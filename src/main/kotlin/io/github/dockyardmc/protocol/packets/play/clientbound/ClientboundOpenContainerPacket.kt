@@ -52,6 +52,6 @@ enum class ScreenSize(val inventoryType: InventoryType, val rows: Int, val colum
     GENERIC_9X6(InventoryType.GENERIC_9X6, 6, 9);
 
     fun getModifiableSlots(screen: Screen): Int {
-        return (this.rows + if(screen.isFullscreen) 3 else 0) * (this.columns)
+        return (this.rows + if(screen.isFullscreen) 3 else 0) * this.columns
     }
 }
