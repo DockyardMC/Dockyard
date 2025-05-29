@@ -44,13 +44,10 @@ import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.resourcepack.Resourcepack
-import io.github.dockyardmc.scheduler.runAsync
-import io.github.dockyardmc.scheduler.runLaterAsync
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.ui.DrawableContainerScreen
-import io.github.dockyardmc.utils.debug
+import io.github.dockyardmc.ui.Screen
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.now
 import io.github.dockyardmc.world.PlayerChunkViewSystem
@@ -141,8 +138,8 @@ class Player(
     val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
 
     var lastInteractionTime: Long = -1L
-    var currentOpenInventory: ContainerInventory? = null
-    val hasInventoryOpen: Boolean get() = currentOpenInventory != null
+    var currentlyOpenScreen: Screen? = null
+    val hasInventoryOpen: Boolean get() = currentlyOpenScreen != null
     var itemInUse: ItemInUse? = null
 
     private val pingRequestCounter = AtomicInteger(0)
@@ -434,6 +431,8 @@ class Player(
     }
 
     fun closeInventory() {
+        if(currentlyOpenScreen != null) currentlyOpenScreen!!.dispose()
+
         sendPacket(ClientboundCloseInventoryPacket(0))
         sendPacket(ClientboundCloseInventoryPacket(1))
         if (inventory.cursorItem.value != ItemStack.AIR) {
@@ -456,18 +455,6 @@ class Player(
         val time = if (time.value == -1L) world.time.value else time.value
         val packet = ClientboundUpdateTimePacket(world.worldAge, time, world.freezeTime)
         sendPacket(packet)
-    }
-
-    fun openInventory(inventory: ContainerInventory) {
-        this.currentOpenInventory = inventory
-        sendPacket(ClientboundOpenContainerPacket(InventoryType.valueOf("GENERIC_9X${inventory.rows}"), inventory.name))
-        inventory.contents.forEach { (slot, item) ->
-            sendPacket(ClientboundSetContainerSlotPacket(slot, item))
-        }
-        if (inventory is DrawableContainerScreen) {
-            inventory.slots.triggerUpdate()
-            inventory.onOpen(this)
-        }
     }
 
     fun playTotemAnimation(customModelData: Int? = null) {

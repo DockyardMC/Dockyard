@@ -49,7 +49,7 @@ object CommandHandler {
                     executor.sendMessage(message, true)
                 } else {
                     log(ex)
-                    executor.sendMessage("<dark_red>Error <dark_gray>| <red>A <orange><hover:show_text:'<dark_red>${ex.message}'>${ex::class.qualifiedName}</hover> <red>was thrown during execution of this command!", true)
+                    executor.sendMessage("<hover:show_text:'<dark_red>${ex.message}'><dark_red>Error <dark_gray>| <red>A <orange>${ex::class.simpleName} <red>was thrown during execution of this command! <gray>(Hover for more info)</hover>", true)
                 }
             }
         }

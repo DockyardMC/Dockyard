@@ -7,15 +7,14 @@ import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.inventory.InventoryClickHandler
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
 import io.github.dockyardmc.item.*
+import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.ui.DrawableClickType
-import io.github.dockyardmc.ui.DrawableContainerScreen
+import io.github.dockyardmc.ui.DrawableItemStack
 import io.github.dockyardmc.utils.getPlayerEventContext
-import io.github.dockyardmc.maths.randomFloat
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import kotlin.math.ceil
@@ -32,7 +31,6 @@ class ServerboundClickContainerPacket(
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
-        val currentInventory = player.currentOpenInventory
         val properSlot = PlayerInventoryUtils.convertPlayerInventorySlot(slot, PlayerInventoryUtils.OFFSET)
 
         val clickedSlotItem = player.inventory[properSlot].clone()
@@ -40,12 +38,10 @@ class ServerboundClickContainerPacket(
 
         val drawableClickType = getDrawableClick(mode)
 
+        if (player.currentlyOpenScreen != null && properSlot >= 0) {
+            player.currentlyOpenScreen!!.onClick(slot, player, drawableClickType)
+        }
 
-        if (currentInventory != null && currentInventory is DrawableContainerScreen && properSlot >= 0) currentInventory.click(
-            slot,
-            player,
-            drawableClickType
-        )
         Events.dispatch(InventoryClickEvent(player, getPlayerEventContext(player)))
 
         if (windowId == 0) {
@@ -101,7 +97,7 @@ class ServerboundClickContainerPacket(
                     return
                 }
 
-                if(action == NormalButtonAction.RIGHT_CLICK_OUTSIDE_INVENTORY) {
+                if (action == NormalButtonAction.RIGHT_CLICK_OUTSIDE_INVENTORY) {
                     val cursor = player.inventory.cursorItem.value
                     if (!cursor.isEmpty()) {
                         val cancelled = player.inventory.drop(cursor.withAmount(1))
@@ -172,7 +168,7 @@ class ServerboundClickContainerPacket(
                     if ((clickedEquipmentSlot != null && clickedEquipmentSlot != EquipmentSlot.MAIN_HAND) && (player.equipment[clickedEquipmentSlot] != null && player.equipment[clickedEquipmentSlot] != empty) && !player.equipment[clickedEquipmentSlot]!!.isEmpty()) {
                         unequip(player, clickedEquipmentSlot, equipmentComponent)
                         val giveInventory = player.inventory.give(clickedSlotItem, 9 to 35)
-                        if(!giveInventory) player.inventory.give(clickedSlotItem, 0 to 8)
+                        if (!giveInventory) player.inventory.give(clickedSlotItem, 0 to 8)
                         return
                     }
 
@@ -233,19 +229,19 @@ class ServerboundClickContainerPacket(
                 }
             }
 
-            if(mode == ContainerClickMode.DOUBLE_CLICK) {
+            if (mode == ContainerClickMode.DOUBLE_CLICK) {
                 val action = DoubleClickButtonAction.entries.find { it.button == button } ?: return
 
-                if(action == DoubleClickButtonAction.DOUBLE_CLICK) {
+                if (action == DoubleClickButtonAction.DOUBLE_CLICK) {
                     val cursor = player.inventory.cursorItem.value
-                    if(cursor == ItemStack.AIR) return
+                    if (cursor == ItemStack.AIR) return
 
                     var currentStackSize = cursor.amount
 
                     player.inventory.slots.values.toList().sortedBy { it.second.amount }.forEach { (slot, itemStack) ->
-                        if(itemStack.isSameAs(cursor)) {
-                            if(currentStackSize + itemStack.amount >= cursor.maxStackSize) {
-                                if(cursor.maxStackSize == currentStackSize) return@forEach
+                        if (itemStack.isSameAs(cursor)) {
+                            if (currentStackSize + itemStack.amount >= cursor.maxStackSize) {
+                                if (cursor.maxStackSize == currentStackSize) return@forEach
 
                                 val spaceAvailable = cursor.maxStackSize - currentStackSize
                                 if (spaceAvailable <= 0) return@forEach
@@ -253,7 +249,7 @@ class ServerboundClickContainerPacket(
                                 val totalAmount = itemStack.amount + currentStackSize
                                 currentStackSize = cursor.maxStackSize
                                 val remainder = totalAmount - cursor.maxStackSize
-                                val newItem = if(remainder == 0) ItemStack.AIR else itemStack.withAmount(remainder)
+                                val newItem = if (remainder == 0) ItemStack.AIR else itemStack.withAmount(remainder)
                                 player.inventory[slot] = newItem
                             } else {
                                 player.inventory.slots[slot] = ItemStack.AIR
@@ -429,9 +425,9 @@ class ServerboundClickContainerPacket(
         val cursorItem = player.inventory.cursorItem.value
         val cursorItemEquipmentSlot = getEquipmentSlot(cursorItem)
 
-        if(!cursorItem.isEmpty() && cursorItemEquipmentSlot.first == null) return false
+        if (!cursorItem.isEmpty() && cursorItemEquipmentSlot.first == null) return false
 
-        if(!cursorItem.isEmpty() && cursorItemEquipmentSlot.first != equipmentSlot) {
+        if (!cursorItem.isEmpty() && cursorItemEquipmentSlot.first != equipmentSlot) {
             player.inventory.sendFullInventoryUpdate()
             return true
         }
@@ -464,17 +460,17 @@ class ServerboundClickContainerPacket(
         player.playSound(sound, pitch = randomFloat(0.6f, 0.8f))
     }
 
-    private fun getDrawableClick(mode: ContainerClickMode): DrawableClickType {
-        var drawableClickType: DrawableClickType = DrawableClickType.LEFT_CLICK
+    private fun getDrawableClick(mode: ContainerClickMode): DrawableItemStack.ClickType {
+        var drawableClickType: DrawableItemStack.ClickType = DrawableItemStack.ClickType.LEFT_CLICK
         when (mode) {
             ContainerClickMode.NORMAL -> {
                 val action = NormalButtonAction.entries.find { it.button == button }
                     ?: throw IllegalArgumentException("Button $button is not part of NormalButtonAction")
                 drawableClickType = when (action) {
-                    NormalButtonAction.LEFT_MOUSE_CLICK -> DrawableClickType.LEFT_CLICK
-                    NormalButtonAction.RIGHT_MOUSE_CLICK -> DrawableClickType.RIGHT_CLICK
-                    NormalButtonAction.LEFT_CLICK_OUTSIDE_INVENTORY -> DrawableClickType.LEFT_CLICK_OUTSIDE_INVENTORY
-                    NormalButtonAction.RIGHT_CLICK_OUTSIDE_INVENTORY -> DrawableClickType.RIGHT_CLICK_OUTSIDE_INVENTORY
+                    NormalButtonAction.LEFT_MOUSE_CLICK -> DrawableItemStack.ClickType.LEFT_CLICK
+                    NormalButtonAction.RIGHT_MOUSE_CLICK -> DrawableItemStack.ClickType.RIGHT_CLICK
+                    NormalButtonAction.LEFT_CLICK_OUTSIDE_INVENTORY -> DrawableItemStack.ClickType.LEFT_CLICK_OUTSIDE_INVENTORY
+                    NormalButtonAction.RIGHT_CLICK_OUTSIDE_INVENTORY -> DrawableItemStack.ClickType.RIGHT_CLICK_OUTSIDE_INVENTORY
                 }
             }
 
@@ -482,39 +478,39 @@ class ServerboundClickContainerPacket(
                 val action = NormalShiftButtonAction.entries.find { it.button == button }
                     ?: throw IllegalArgumentException("Button $button is not part of NormalShiftButtonAction")
                 drawableClickType = when (action) {
-                    NormalShiftButtonAction.SHIFT_LEFT_MOUSE_CLICK -> DrawableClickType.LEFT_CLICK_SHIFT
-                    NormalShiftButtonAction.SHIFT_RIGHT_MOUSE_CLICK -> DrawableClickType.RIGHT_CLICK_SHIFT
+                    NormalShiftButtonAction.SHIFT_LEFT_MOUSE_CLICK -> DrawableItemStack.ClickType.LEFT_CLICK_SHIFT
+                    NormalShiftButtonAction.SHIFT_RIGHT_MOUSE_CLICK -> DrawableItemStack.ClickType.RIGHT_CLICK_SHIFT
                 }
             }
 
             ContainerClickMode.HOTKEY -> {
                 val action = if (button == 40) HotkeyButtonAction.OFFHAND_SWAP else HotkeyButtonAction.CHANGE_TO_SLOT
                 drawableClickType =
-                    if (action == HotkeyButtonAction.OFFHAND_SWAP) DrawableClickType.OFFHAND else DrawableClickType.HOTKEY
+                    if (action == HotkeyButtonAction.OFFHAND_SWAP) DrawableItemStack.ClickType.OFFHAND else DrawableItemStack.ClickType.HOTKEY
             }
 
-            ContainerClickMode.MIDDLE_CLICK -> drawableClickType = DrawableClickType.MIDDLE_CLICK
-            ContainerClickMode.DROP -> drawableClickType = DrawableClickType.DROP
+            ContainerClickMode.MIDDLE_CLICK -> drawableClickType = DrawableItemStack.ClickType.MIDDLE_CLICK
+            ContainerClickMode.DROP -> drawableClickType = DrawableItemStack.ClickType.DROP
             ContainerClickMode.SLOT_DRAG -> {
                 val action = DragButtonAction.entries.find { it.button == button }
                 drawableClickType = when (action) {
                     DragButtonAction.STARTING_LEFT_MOUSE_DRAG,
                     DragButtonAction.ADD_SLOT_FOR_LEFT_MOUSE_DRAG,
-                    DragButtonAction.ENDING_LEFT_MOUSE_DRAG -> DrawableClickType.LEFT_CLICK
+                    DragButtonAction.ENDING_LEFT_MOUSE_DRAG -> DrawableItemStack.ClickType.LEFT_CLICK
 
                     DragButtonAction.STARTING_RIGHT_MOUSE_DRAG,
                     DragButtonAction.ENDING_RIGHT_MOUSE_DRAG,
-                    DragButtonAction.ADD_SLOT_FOR_RIGHT_MOUSE_DRAG -> DrawableClickType.RIGHT_CLICK
+                    DragButtonAction.ADD_SLOT_FOR_RIGHT_MOUSE_DRAG -> DrawableItemStack.ClickType.RIGHT_CLICK
 
                     DragButtonAction.STARTING_MIDDLE_MOUSE_DRAG,
                     DragButtonAction.ADD_SLOT_FOR_MIDDLE_MOUSE_DRAG,
-                    DragButtonAction.ENDING_MIDDLE_MOUSE_DRAG -> DrawableClickType.MIDDLE_CLICK
+                    DragButtonAction.ENDING_MIDDLE_MOUSE_DRAG -> DrawableItemStack.ClickType.MIDDLE_CLICK
 
                     null -> throw IllegalStateException("action with button $button of DragButtonAction not set")
                 }
             }
 
-            ContainerClickMode.DOUBLE_CLICK -> drawableClickType = DrawableClickType.LEFT_CLICK
+            ContainerClickMode.DOUBLE_CLICK -> drawableClickType = DrawableItemStack.ClickType.LEFT_CLICK
         }
         return drawableClickType
     }

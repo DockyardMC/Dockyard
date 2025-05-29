@@ -93,9 +93,7 @@ object ItemComponents  {
 
 }
 
-interface ItemComponent {
-
-}
+interface ItemComponent
 
 data class CustomDataItemComponent(
     var data: NBTCompound,

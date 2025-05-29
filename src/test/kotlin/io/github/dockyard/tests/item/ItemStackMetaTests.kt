@@ -28,7 +28,7 @@ class ItemStackMetaTests {
             withDisplayName("<aqua><underline>Cool Diamond Sword")
             withRarity(ItemRarity.EPIC)
             withCustomModelData(69f)
-            withMaxStackSize(420)
+            withMaxStackSize(99)
             withEnchantmentGlint(true)
             withUnbreakable(true)
             withAmount(1)
@@ -45,7 +45,7 @@ class ItemStackMetaTests {
 
         assertContains(item.components, RarityItemComponent(ItemRarity.EPIC))
         assertContains(item.components, CustomModelDataItemComponent(listOf(69f)))
-        assertContains(item.components, MaxStackSizeItemComponent(420))
+        assertContains(item.components, MaxStackSizeItemComponent(99))
         assertContains(item.components, EnchantmentGlintOverrideItemComponent(true))
         assertContains(item.components, UnbreakableItemComponent(false))
         assertContains(item.components, UseCooldownItemComponent(2f))
