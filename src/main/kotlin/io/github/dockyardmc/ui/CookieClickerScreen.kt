@@ -1,50 +1,11 @@
 package io.github.dockyardmc.ui
 
-import cz.lukynka.bindables.BindableList
-import io.github.dockyardmc.maths.vectors.Vector2
-import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.registry.registries.ItemRegistry
-import io.github.dockyardmc.ui.components.ScrollableContainer
-
 class CookieClickerScreen : Screen() {
 
-    override val rows: Int = 6
-    override val isFullscreen: Boolean = true
+    override val rows: Int = 5
+    override val name: String = "<black><bold>Cookie Clicker"
 
     override fun buildComponent() {
-        val randomItems = BindableList<DrawableItemStack>()
-        val scrollableContainer = ScrollableContainer(ScrollableContainer.Layout.VERTICAL, Vector2(7, 4), false, randomItems)
-
-        withSlot(4, 8) {
-          withItem(Items.ITEM_FRAME)
-        }
-
-        // for testing stuffs
-        repeat(37) {
-            val item = drawableItemStack {
-                withItem(ItemRegistry.items.values.random())
-                withAmount(it + 1)
-                withNoxesiumImmovable(true)
-                onClick { _, _ ->
-                    randomItems.remove(randomItems.values.random())
-                }
-            }
-            randomItems.add(item)
-        }
-
-        withSlot(8, 4) {
-            withItem(Items.SPECTRAL_ARROW)
-            withName("<lime><u>Scroll")
-            onClick { _, clickType ->
-                when (clickType) {
-                    DrawableItemStack.ClickType.LEFT_CLICK -> scrollableContainer.scrollNext()
-                    DrawableItemStack.ClickType.RIGHT_CLICK -> scrollableContainer.scrollPrevious()
-                    DrawableItemStack.ClickType.MIDDLE_CLICK -> scrollableContainer.resetScrollPosition()
-                    else -> { /* fuck off */ }
-                }
-            }
-        }
-
-        withComposite(1, 0, scrollableContainer)
+        withComposite(4, 2, CookieComponent())
     }
 }

@@ -6,8 +6,10 @@ import io.github.dockyard.tests.assertSlot
 import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundCloseContainerPacket
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.ItemRegistry
+import io.github.dockyardmc.ui.CookieClickerScreen
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -24,21 +26,22 @@ class InventoryTests {
     fun cleanup() {
     }
 
-//    @Test
-//    fun testInventoryOpen() {
-//        val player = PlayerTestUtil.getOrCreateFakePlayer()
-//        assertEquals(null, player.currentOpenInventory)
-//        assertEquals(false, player.hasInventoryOpen)
-//
-//        player.openInventory(ExampleCookieClickerScreen(player))
-//        assertEquals(true, player.currentOpenInventory is ExampleCookieClickerScreen)
-//        assertEquals(true, player.hasInventoryOpen)
-//
-//        PlayerTestUtil.sendPacket(player, ServerboundCloseContainerPacket(1))
-//
-//        assertEquals(null, player.currentOpenInventory)
-//        assertEquals(false, player.hasInventoryOpen)
-//    }
+    @Test
+    fun testInventoryOpen() {
+        val player = PlayerTestUtil.getOrCreateFakePlayer()
+        val screen = CookieClickerScreen()
+        assertEquals(null, player.currentlyOpenScreen)
+        assertEquals(false, player.hasInventoryOpen)
+
+        screen.open(player)
+        assertEquals(true, player.currentlyOpenScreen is CookieClickerScreen)
+        assertEquals(true, player.hasInventoryOpen)
+
+        PlayerTestUtil.sendPacket(player, ServerboundCloseContainerPacket(1))
+
+        assertEquals(null, player.currentlyOpenScreen)
+        assertEquals(false, player.hasInventoryOpen)
+    }
 
     @Test
     fun testInventoryClose() {

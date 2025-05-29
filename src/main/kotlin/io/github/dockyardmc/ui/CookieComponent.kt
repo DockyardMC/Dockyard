@@ -14,12 +14,12 @@ class CookieComponent : CompositeDrawable() {
 
         withBindable(cookieCount) { _ ->
             withSlot(0) {
-                withItemStack(ItemStack(Items.COOKIE).withMaxStackSize(256))
+                withItemStack(ItemStack(Items.COOKIE).withMaxStackSize(99))
                 withAmount(cookieCount.value)
+                withName("<orange><u>Cookie Clicker")
+                withLore("", "<gray>You have: <yellow>${cookieCount} <gray>cookies!")
                 withNoxesiumImmovable(true)
-                onClick { player, type ->
-                    if (type != DrawableItemStack.ClickType.LEFT_CLICK) return@onClick
-
+                onClick { player, _ ->
                     cookieCount.value++ // <- reactive, automatically re-renders anything in the `withBindable`
                     player.playSound(Sounds.ENTITY_GENERIC_EAT)
                 }

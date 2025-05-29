@@ -138,9 +138,8 @@ class Player(
     val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
 
     var lastInteractionTime: Long = -1L
-    var currentOpenInventory: ContainerInventory? = null
     var currentlyOpenScreen: Screen? = null
-    val hasInventoryOpen: Boolean get() = currentOpenInventory != null
+    val hasInventoryOpen: Boolean get() = currentlyOpenScreen != null
     var itemInUse: ItemInUse? = null
 
     private val pingRequestCounter = AtomicInteger(0)
@@ -432,6 +431,8 @@ class Player(
     }
 
     fun closeInventory() {
+        if(currentlyOpenScreen != null) currentlyOpenScreen!!.dispose()
+
         sendPacket(ClientboundCloseInventoryPacket(0))
         sendPacket(ClientboundCloseInventoryPacket(1))
         if (inventory.cursorItem.value != ItemStack.AIR) {

@@ -14,7 +14,6 @@ class ServerboundCloseContainerPacket(val windowId: Int) : ServerboundPacket {
             openInventory.onClose()
             openInventory.dispose()
         }
-        processor.player.currentOpenInventory = null
         processor.player.currentlyOpenScreen = null
     }
 

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.ui
 
+import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundOpenContainerPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetContainerSlotPacket
@@ -18,12 +19,16 @@ abstract class Screen : CompositeDrawable() {
     open fun onClick(slot: Int, clickType: DrawableItemStack.ClickType) {}
     open fun onRerender() {}
 
-    private val inventorySnapshot = InventorySnapshot(player)
+    lateinit var inventorySnapshot: InventorySnapshot
 
     class InvalidScreenSlotOperationException(override val message: String) : Exception(message)
 
     fun open(player: Player) {
         this.player = player
+        inventorySnapshot = InventorySnapshot(player)
+        if(isFullscreen) {
+            player.clearInventory()
+        }
 
         player.sendPacket(ClientboundOpenContainerPacket(getScreenSize().inventoryType, name))
 
@@ -34,8 +39,7 @@ abstract class Screen : CompositeDrawable() {
     }
 
     fun getScreenSize(): ScreenSize {
-        val rowsMax = rows.coerceIn(1, 6)
-        return ScreenSize.valueOf("GENERIC_9X${rowsMax}")
+        return ScreenSize.valueOf("GENERIC_9X${rows.coerceIn(1, 6)}")
     }
 
     fun update(player: Player) {
@@ -72,6 +76,6 @@ abstract class Screen : CompositeDrawable() {
         getChildren().forEach { (child, _) ->
             child.dispose()
         }
-        inventorySnapshot.restoreAndDispose()
+        if (isFullscreen) inventorySnapshot.restoreAndDispose()
     }
 }

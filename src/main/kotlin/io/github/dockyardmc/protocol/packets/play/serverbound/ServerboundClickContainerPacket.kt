@@ -31,7 +31,6 @@ class ServerboundClickContainerPacket(
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
-        val currentInventory = player.currentOpenInventory
         val properSlot = PlayerInventoryUtils.convertPlayerInventorySlot(slot, PlayerInventoryUtils.OFFSET)
 
         val clickedSlotItem = player.inventory[properSlot].clone()
