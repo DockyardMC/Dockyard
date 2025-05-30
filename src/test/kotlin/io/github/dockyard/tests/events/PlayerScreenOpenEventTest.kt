@@ -5,7 +5,7 @@ import io.github.dockyard.tests.TestFor
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerScreenOpenEvent
-import io.github.dockyardmc.ui.CookieClickerScreen
+import io.github.dockyardmc.ui.TestScreen
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
@@ -28,7 +28,7 @@ class PlayerScreenOpenEventTest {
         pool.on<PlayerScreenOpenEvent> { count.countDown() }
 
         val player = PlayerTestUtil.getOrCreateFakePlayer()
-        val screen = CookieClickerScreen()
+        val screen = TestScreen()
 
         screen.open(player)
 

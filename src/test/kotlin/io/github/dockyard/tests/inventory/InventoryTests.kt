@@ -9,7 +9,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundCloseContainerPacket
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.ItemRegistry
-import io.github.dockyardmc.ui.CookieClickerScreen
+import io.github.dockyardmc.ui.TestScreen
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -29,12 +29,12 @@ class InventoryTests {
     @Test
     fun testInventoryOpen() {
         val player = PlayerTestUtil.getOrCreateFakePlayer()
-        val screen = CookieClickerScreen()
+        val screen = TestScreen()
         assertEquals(null, player.currentlyOpenScreen)
         assertEquals(false, player.hasInventoryOpen)
 
         screen.open(player)
-        assertEquals(true, player.currentlyOpenScreen is CookieClickerScreen)
+        assertEquals(true, player.currentlyOpenScreen is TestScreen)
         assertEquals(true, player.hasInventoryOpen)
 
         PlayerTestUtil.sendPacket(player, ServerboundCloseContainerPacket(1))

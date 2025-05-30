@@ -6,7 +6,7 @@ import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.ui.CookieClickerScreen
+import io.github.dockyardmc.ui.TestScreen
 import io.github.dockyardmc.ui.snapshot.InventorySnapshot
 import io.github.dockyardmc.utils.DebugSidebar
 
@@ -29,7 +29,7 @@ fun main() {
     Commands.add("/ui") {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
-            val screen = CookieClickerScreen()
+            val screen = TestScreen()
             screen.open(player)
         }
     }

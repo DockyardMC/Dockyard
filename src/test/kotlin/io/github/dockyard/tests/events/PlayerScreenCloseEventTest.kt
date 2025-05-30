@@ -6,7 +6,7 @@ import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerScreenCloseEvent
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundCloseContainerPacket
-import io.github.dockyardmc.ui.CookieClickerScreen
+import io.github.dockyardmc.ui.TestScreen
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
@@ -29,7 +29,7 @@ class PlayerScreenCloseEventTest {
         pool.on<PlayerScreenCloseEvent> { count.countDown() }
 
         val player = PlayerTestUtil.getOrCreateFakePlayer()
-        val screen = CookieClickerScreen()
+        val screen = TestScreen()
 
         screen.open(player)
         PlayerTestUtil.sendPacket(player, ServerboundCloseContainerPacket(1))
