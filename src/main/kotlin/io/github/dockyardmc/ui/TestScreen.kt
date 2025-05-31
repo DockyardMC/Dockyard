@@ -7,19 +7,24 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.ui.components.ScrollableContainer
 
-class TestScreen : Screen() {
+class TestScreen(val gayName: String) : Screen() {
 
     override val rows: Int = 6
     val items = BindableList<DrawableItemStack>()
     val scrollableContainer = ScrollableContainer(ScrollableContainer.Layout.VERTICAL, Vector2(7, 2), false, items)
 
     override fun buildComponent() {
-        repeat(15) {
-            items.add(DrawableItemStack(ItemRegistry.items.values.random().toItemStack(randomInt(1, 64))))
+        items.clear()
+        repeat(20) {
+            items.add(DrawableItemStack(ItemRegistry.items.values.random().toItemStack(randomInt(1, 33))))
+        }
+
+        withSlot(5, 5) {
+            withItem(Items.GLASS_BOTTLE)
         }
 
         withSlot(7, 5) {
-            withItem(Items.SPECTRAL_ARROW)
+            withItem(Items.APPLE)
             onClick { _, clickType ->
                 if (clickType == DrawableItemStack.ClickType.LEFT_CLICK) {
                     scrollableContainer.scrollNext()

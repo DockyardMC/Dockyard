@@ -106,5 +106,17 @@ abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Dispos
     }
 
     fun getSlots(): Map<Int, DrawableItemStack> = items.values.toMap()
+
+    fun rebuiltSelfAndChildren() {
+        children.forEach { (child, _) ->
+            child.rebuiltSelfAndChildren()
+        }
+        items.clear(true)
+        children.forEach { (child, _) ->
+            child.buildComponent()
+        }
+        buildComponent()
+    }
+
     fun getChildren(): Map<CompositeDrawable, Int> = children.toMap()
 }

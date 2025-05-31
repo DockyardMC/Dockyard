@@ -2,7 +2,9 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.CommandException
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.InstrumentationHotReloadEvent
 import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Items
@@ -17,6 +19,8 @@ fun main() {
         useDebugMode(true)
     }
 
+    HotReloadDetector.setupHotReloadDetection()
+
     Events.on<PlayerJoinEvent> { event ->
         val player = event.player
         player.gameMode.value = GameMode.CREATIVE
@@ -29,7 +33,7 @@ fun main() {
     Commands.add("/ui") {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
-            val screen = TestScreen()
+            val screen = TestScreen("maya")
             screen.open(player)
         }
     }
@@ -47,11 +51,15 @@ fun main() {
         addSubcommand("restore") {
             execute { ctx ->
                 val player = ctx.getPlayerOrThrow()
-                if(snapshot == null) throw CommandException("There is not inventory snapshot taken")
+                if(snapshot == null) throw CommandException("There is not inventory snapshot taken!")
                 snapshot!!.restore()
                 player.sendMessage("<lime>Restored inventory snapshot from ${snapshot!!.created.toEpochMilliseconds()}")
             }
         }
+    }
+
+    Events.on<InstrumentationHotReloadEvent> { event ->
+
     }
 
     server.start()

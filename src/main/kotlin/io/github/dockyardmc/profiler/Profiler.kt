@@ -50,9 +50,19 @@ inline fun profiler(name: String, block: () -> Unit) {
 
 inline fun profiler(name: String, logToChat: Boolean, block: () -> Unit) {
     val ms = measureTimeMillis(block)
-    debug("\"$name\" took ${ms}ms")
+    if (ms > 0) {
+        debug("\"$name\" took ${ms}ms")
+        if (logToChat) {
+            sendProfilerChatMessage(name, ms, false)
+        }
+    }
+}
+
+inline fun profiler(name: String, logToChat: Boolean, threadBlocking: Boolean, block: () -> Unit) {
+    val ms = measureTimeMillis(block)
+    debug("\"$name\" took ${ms}ms and blocked the thread")
     if (logToChat && ms > 0) {
-        sendProfilerChatMessage(name, ms, false)
+        sendProfilerChatMessage(name, ms, threadBlocking)
     }
 }
 

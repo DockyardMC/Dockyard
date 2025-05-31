@@ -1,13 +1,14 @@
 package io.github.dockyardmc.ui
 
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerScreenCloseEvent
-import io.github.dockyardmc.events.PlayerScreenOpenEvent
+import HotReloadDetector
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundOpenContainerPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetContainerSlotPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ScreenSize
+import io.github.dockyardmc.scheduler.runLaterAsync
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.ui.snapshot.InventorySnapshot
 import io.github.dockyardmc.utils.getPlayerEventContext
 
@@ -24,6 +25,7 @@ abstract class Screen : CompositeDrawable() {
     open fun onRerender() {}
 
     lateinit var inventorySnapshot: InventorySnapshot
+    private var hotReloadHook: EventListener<Event>? = null
 
     class InvalidScreenSlotOperationException(override val message: String) : Exception(message)
 
@@ -45,6 +47,21 @@ abstract class Screen : CompositeDrawable() {
         onRenderInternal()
         update(player)
         onOpen()
+
+        if (HotReloadDetector.enabled) {
+            hotReloadHook = Events.on<InstrumentationHotReloadEvent> { instrumentationHotReloadEvent ->
+                if (instrumentationHotReloadEvent.kclass == this::class) {
+                    player.closeInventory()
+
+                    runLaterAsync(1.ticks) {
+                        rebuiltSelfAndChildren()
+                        buildComponent()
+                        renderChildren()
+                        open(player)
+                    }
+                }
+            }
+        }
     }
 
     fun getScreenSize(): ScreenSize {
@@ -87,6 +104,7 @@ abstract class Screen : CompositeDrawable() {
         }
         player.currentlyOpenScreen = null
         if (isFullscreen) inventorySnapshot.restoreAndDispose()
+        if (hotReloadHook != null) Events.unregister(hotReloadHook!!)
         Events.dispatch(PlayerScreenCloseEvent(player, this, getPlayerEventContext(player)))
     }
 }
