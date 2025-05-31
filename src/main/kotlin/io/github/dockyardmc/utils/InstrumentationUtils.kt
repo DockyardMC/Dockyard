@@ -21,12 +21,7 @@ object InstrumentationUtils {
 
     fun isDebuggerAttached(): Boolean {
         val arguments = ManagementFactory.getRuntimeMXBean().inputArguments
-        for (arg in arguments) {
-            if (arg.contains("jdwp")) {
-                return true
-            }
-        }
-        return false
+        return arguments.any { arg -> arg.contains("jdwp") }
     }
 
     fun setupHotReloadDetection() {
