@@ -9,11 +9,14 @@ import io.github.dockyardmc.ui.components.ScrollableContainer
 
 class TestScreen(val gayName: String) : Screen() {
 
-    override val rows: Int = 6
     val items = BindableList<DrawableItemStack>()
     val scrollableContainer = ScrollableContainer(ScrollableContainer.Layout.VERTICAL, Vector2(7, 2), false, items)
 
     override fun buildComponent() {
+        withScreenName("testing testings")
+        withScreenFullscreen(true)
+        withScreenRows(5)
+        
         items.clear()
         repeat(20) {
             items.add(DrawableItemStack(ItemRegistry.items.values.random().toItemStack(randomInt(1, 33))))

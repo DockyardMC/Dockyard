@@ -1,6 +1,7 @@
 package io.github.dockyardmc.ui
 
 import HotReloadDetector
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.player.Player
@@ -14,9 +15,11 @@ import io.github.dockyardmc.utils.getPlayerEventContext
 
 abstract class Screen : CompositeDrawable() {
 
-    abstract val rows: Int
-    open val isFullscreen: Boolean = false
-    open val name: String = "Screen(${this::class.simpleName})"
+    var isFullscreen: Boolean = false
+        protected set
+
+    protected var name: String = "Screen(${this::class.simpleName})"
+    protected var rows: Int = 6
     lateinit var player: Player
 
     open fun onOpen() {}
@@ -41,12 +44,15 @@ abstract class Screen : CompositeDrawable() {
             player.clearInventory()
         }
 
+        player.currentlyOpenScreen = this
+
+        onRenderInternal()
+
         player.sendPacket(ClientboundOpenContainerPacket(getScreenSize().inventoryType, name))
 
-        player.currentlyOpenScreen = this
-        onRenderInternal()
         update(player)
         onOpen()
+
 
         if (HotReloadDetector.enabled) {
             hotReloadHook = Events.on<InstrumentationHotReloadEvent> { instrumentationHotReloadEvent ->
@@ -54,10 +60,15 @@ abstract class Screen : CompositeDrawable() {
                     player.closeInventory()
 
                     runLaterAsync(1.ticks) {
-                        rebuiltSelfAndChildren()
-                        buildComponent()
-                        renderChildren()
-                        open(player)
+                        try {
+                            rebuildSelfAndChildren()
+                            buildComponent()
+                            renderChildren()
+                            open(player)
+                        } catch (exception: Exception) {
+                            player.sendMessage("<red>Failed to rebuild screen: $exception")
+                            log(exception)
+                        }
                     }
                 }
             }
@@ -95,6 +106,18 @@ abstract class Screen : CompositeDrawable() {
         }
 
         update(player)
+    }
+
+    fun withScreenRows(rows: Int) {
+        this.rows = rows
+    }
+
+    fun withScreenName(name: String) {
+        this.name = name
+    }
+
+    fun withScreenFullscreen(isFullscreen: Boolean) {
+        this.isFullscreen = isFullscreen
     }
 
     override fun dispose() {
