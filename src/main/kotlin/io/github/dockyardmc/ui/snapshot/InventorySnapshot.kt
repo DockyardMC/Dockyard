@@ -32,7 +32,7 @@ class InventorySnapshot(val player: Player) : Iterable<Pair<Int, ItemStack>>, Di
     }
 
     init {
-        profiler("Take $player Inventory Snapshot", true) {
+        profiler("Take $player Inventory Snapshot") {
 
             // fill inventory with air
             repeat(46) { i ->

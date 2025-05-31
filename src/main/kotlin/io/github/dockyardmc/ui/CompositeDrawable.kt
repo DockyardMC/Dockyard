@@ -26,7 +26,7 @@ abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Dispos
     }
 
     protected open fun onRenderInternal() {
-        profiler("Render ${this::class.simpleName}", true) {
+        profiler("Render ${this::class.simpleName}") {
             if (!initialized) {
                 buildComponent()
                 bindableRefs.forEach { (bindable, _) ->

@@ -1,6 +1,5 @@
 package io.github.dockyardmc.ui
 
-import io.github.dockyardmc.utils.InstrumentationUtils
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.inventory.clearInventory
@@ -11,6 +10,8 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ScreenSize
 import io.github.dockyardmc.scheduler.runLaterAsync
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.ui.snapshot.InventorySnapshot
+import io.github.dockyardmc.utils.InstrumentationUtils
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getPlayerEventContext
 
 abstract class Screen : CompositeDrawable() {
@@ -72,6 +73,7 @@ abstract class Screen : CompositeDrawable() {
                     }
                 }
             }
+            debug("Registered hot reload event listener to ${this::class.simpleName}", true)
         }
     }
 
@@ -127,7 +129,10 @@ abstract class Screen : CompositeDrawable() {
         }
         player.currentlyOpenScreen = null
         if (isFullscreen) inventorySnapshot.restoreAndDispose()
-        if (hotReloadHook != null) Events.unregister(hotReloadHook!!)
+        if (hotReloadHook != null) {
+            Events.unregister(hotReloadHook!!)
+            debug("Hot Reload listener unregistered from ${this::class.simpleName}", true)
+        }
         Events.dispatch(PlayerScreenCloseEvent(player, this, getPlayerEventContext(player)))
     }
 }

@@ -23,7 +23,7 @@ class TestScreen() : Screen() {
         }
 
         withSlot(5, 5) {
-            withItem(Items.GLASS_BOTTLE)
+            withItem(Items.END_PORTAL_FRAME)
         }
         withSlot(5, 3) {
             withItem(Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE)
