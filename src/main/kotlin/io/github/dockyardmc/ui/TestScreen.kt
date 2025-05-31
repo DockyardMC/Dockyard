@@ -7,7 +7,7 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.ui.components.ScrollableContainer
 
-class TestScreen(val gayName: String) : Screen() {
+class TestScreen() : Screen() {
 
     val items = BindableList<DrawableItemStack>()
     val scrollableContainer = ScrollableContainer(ScrollableContainer.Layout.VERTICAL, Vector2(7, 2), false, items)
@@ -24,6 +24,9 @@ class TestScreen(val gayName: String) : Screen() {
 
         withSlot(5, 5) {
             withItem(Items.GLASS_BOTTLE)
+        }
+        withSlot(5, 3) {
+            withItem(Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE)
         }
 
         withSlot(7, 5) {

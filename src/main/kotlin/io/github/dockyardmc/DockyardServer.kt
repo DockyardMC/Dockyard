@@ -1,5 +1,6 @@
 package io.github.dockyardmc
 
+import io.github.dockyardmc.utils.InstrumentationUtils
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.config.Config
@@ -87,6 +88,12 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
             Events.dispatch(ServerFinishLoadEvent(this))
             if (ConfigManager.config.updateChecker) UpdateChecker()
+
+            if (InstrumentationUtils.isDebuggerAttached()) {
+                profiler("Setup hot reload detection") {
+                    InstrumentationUtils.setupHotReloadDetection()
+                }
+            }
         }
     }
 

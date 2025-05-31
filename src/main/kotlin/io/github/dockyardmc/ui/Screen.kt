@@ -1,6 +1,6 @@
 package io.github.dockyardmc.ui
 
-import HotReloadDetector
+import io.github.dockyardmc.utils.InstrumentationUtils
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.inventory.clearInventory
@@ -54,7 +54,7 @@ abstract class Screen : CompositeDrawable() {
         onOpen()
 
 
-        if (HotReloadDetector.enabled) {
+        if (InstrumentationUtils.isDebuggerAttached()) {
             hotReloadHook = Events.on<InstrumentationHotReloadEvent> { instrumentationHotReloadEvent ->
                 if (instrumentationHotReloadEvent.kclass == this::class) {
                     player.closeInventory()
