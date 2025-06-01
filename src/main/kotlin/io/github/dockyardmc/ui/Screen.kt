@@ -1,21 +1,26 @@
 package io.github.dockyardmc.ui
 
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerScreenCloseEvent
-import io.github.dockyardmc.events.PlayerScreenOpenEvent
+import cz.lukynka.prettylog.log
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundOpenContainerPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetContainerSlotPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ScreenSize
+import io.github.dockyardmc.scheduler.runLaterAsync
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.ui.snapshot.InventorySnapshot
+import io.github.dockyardmc.utils.InstrumentationUtils
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getPlayerEventContext
 
 abstract class Screen : CompositeDrawable() {
 
-    abstract val rows: Int
-    open val isFullscreen: Boolean = false
-    open val name: String = "Screen(${this::class.simpleName})"
+    var isFullscreen: Boolean = false
+        protected set
+
+    protected var name: String = "Screen(${this::class.simpleName})"
+    protected var rows: Int = 6
     lateinit var player: Player
 
     open fun onOpen() {}
@@ -24,6 +29,7 @@ abstract class Screen : CompositeDrawable() {
     open fun onRerender() {}
 
     lateinit var inventorySnapshot: InventorySnapshot
+    private var hotReloadHook: EventListener<Event>? = null
 
     class InvalidScreenSlotOperationException(override val message: String) : Exception(message)
 
@@ -39,12 +45,36 @@ abstract class Screen : CompositeDrawable() {
             player.clearInventory()
         }
 
+        player.currentlyOpenScreen = this
+
+        onRenderInternal()
+
         player.sendPacket(ClientboundOpenContainerPacket(getScreenSize().inventoryType, name))
 
-        player.currentlyOpenScreen = this
-        onRenderInternal()
         update(player)
         onOpen()
+
+
+        if (InstrumentationUtils.isDebuggerAttached()) {
+            hotReloadHook = Events.on<InstrumentationHotReloadEvent> { instrumentationHotReloadEvent ->
+                if (instrumentationHotReloadEvent.kclass == this::class) {
+                    player.closeInventory()
+
+                    runLaterAsync(1.ticks) {
+                        try {
+                            rebuildSelfAndChildren()
+                            buildComponent()
+                            renderChildren()
+                            open(player)
+                        } catch (exception: Exception) {
+                            player.sendMessage("<red>Failed to rebuild screen: $exception")
+                            log(exception)
+                        }
+                    }
+                }
+            }
+            debug("Registered hot reload event listener to ${this::class.simpleName}", true)
+        }
     }
 
     fun getScreenSize(): ScreenSize {
@@ -80,6 +110,18 @@ abstract class Screen : CompositeDrawable() {
         update(player)
     }
 
+    fun withScreenRows(rows: Int) {
+        this.rows = rows
+    }
+
+    fun withScreenName(name: String) {
+        this.name = name
+    }
+
+    fun withScreenFullscreen(isFullscreen: Boolean) {
+        this.isFullscreen = isFullscreen
+    }
+
     override fun dispose() {
         onClose()
         getChildren().forEach { (child, _) ->
@@ -87,6 +129,10 @@ abstract class Screen : CompositeDrawable() {
         }
         player.currentlyOpenScreen = null
         if (isFullscreen) inventorySnapshot.restoreAndDispose()
+        if (hotReloadHook != null) {
+            Events.unregister(hotReloadHook!!)
+            debug("Hot Reload listener unregistered from ${this::class.simpleName}", true)
+        }
         Events.dispatch(PlayerScreenCloseEvent(player, this, getPlayerEventContext(player)))
     }
 }

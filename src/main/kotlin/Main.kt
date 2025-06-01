@@ -1,13 +1,13 @@
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.commands.CommandException
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.events.PlayerRightClickWithItemEvent
 import io.github.dockyardmc.inventory.give
+import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.ui.TestScreen
-import io.github.dockyardmc.ui.snapshot.InventorySnapshot
 import io.github.dockyardmc.utils.DebugSidebar
 
 fun main() {
@@ -26,31 +26,15 @@ fun main() {
         player.give(Items.OAK_LOG)
     }
 
+    Events.on<PlayerRightClickWithItemEvent> { event ->
+        event.player.setVelocity(Vector3d(0, 20.5, 0))
+    }
+
     Commands.add("/ui") {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
             val screen = TestScreen()
             screen.open(player)
-        }
-    }
-
-    var snapshot: InventorySnapshot? = null
-    Commands.add("/snapshot") {
-        addSubcommand("take") {
-            execute { ctx ->
-                val player = ctx.getPlayerOrThrow()
-                snapshot = InventorySnapshot(player)
-                player.sendMessage("<orange>taken inventory snapshot")
-            }
-        }
-
-        addSubcommand("restore") {
-            execute { ctx ->
-                val player = ctx.getPlayerOrThrow()
-                if(snapshot == null) throw CommandException("There is not inventory snapshot taken")
-                snapshot!!.restore()
-                player.sendMessage("<lime>Restored inventory snapshot from ${snapshot!!.created.toEpochMilliseconds()}")
-            }
         }
     }
 

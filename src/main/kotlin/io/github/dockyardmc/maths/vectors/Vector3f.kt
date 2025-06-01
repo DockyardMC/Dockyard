@@ -14,7 +14,11 @@ data class Vector3f(
     var z: Float,
 ): NetworkWritable {
     constructor() : this(0f, 0f, 0f)
+    constructor(x: Int, y: Int, z: Int) : this(x.toFloat(), y.toFloat(), z.toFloat())
+    constructor(x: Int, y: Float, z: Int) : this(x.toFloat(), y, z.toFloat())
+    constructor(x: Float, y: Int, z: Float) : this(x, y.toFloat(), z)
     constructor(single: Float) : this(single, single, single)
+
 
     operator fun minus(vector: Vector3f): Vector3f {
         val subVector = this.copy()

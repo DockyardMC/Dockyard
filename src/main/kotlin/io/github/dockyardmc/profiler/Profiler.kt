@@ -7,6 +7,7 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.filterByPermission
 import io.github.dockyardmc.extentions.sendMessage
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.utils.InstrumentationUtils
 import io.github.dockyardmc.utils.debug
 import java.time.Instant
 import kotlin.system.measureTimeMillis
@@ -43,19 +44,13 @@ class Profiler {
     }
 }
 
-inline fun profiler(name: String, block: () -> Unit) {
+inline fun profiler(name: String, block: () -> Unit): Long {
     val ms = measureTimeMillis(block)
-    debug("\"$name\" took ${ms}ms", false)
-}
-
-inline fun profiler(name: String, logToChat: Boolean, block: () -> Unit) {
-    val ms = measureTimeMillis(block)
-    debug("\"$name\" took ${ms}ms")
-    if (logToChat && ms > 0) {
-        sendProfilerChatMessage(name, ms, false)
+    if (ms > 0) {
+        debug("\"$name\" took ${ms}ms")
+        if (InstrumentationUtils.isDebuggerAttached()) {
+            PlayerManager.players.filterByPermission("dockyard.debug").sendMessage("<gray>(⌚) \"<#d9d9d9>$name<gray>\" took <#d9d9d9>${ms}ms<gray>")
+        }
     }
-}
-
-fun sendProfilerChatMessage(name: String, ms: Long, threadBlocking: Boolean = false) {
-    PlayerManager.players.filterByPermission("dockyard.debug").sendMessage("<gray>(⌚) \"<#d9d9d9>$name<gray>\" took <#d9d9d9>${ms}ms<gray> ${if (threadBlocking) "and blocked the thread" else ""}")
+    return ms
 }

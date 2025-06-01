@@ -129,11 +129,11 @@ open class ScrollableContainer(
 
     private fun rebuildItems() {
 
-        clearSlots()
+        resetSlots()
         fillVisibleSlots()
     }
 
-    private fun clearSlots() {
+    private fun resetSlots() {
         for (x in 0 until size.x) {
             for (y in 0 until size.y) {
                 withSlot(x, y, DrawableItemStack(ItemStack.AIR))

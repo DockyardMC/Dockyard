@@ -26,7 +26,7 @@ abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Dispos
     }
 
     protected open fun onRenderInternal() {
-        profiler("Render ${this::class.simpleName}", true) {
+        profiler("Render ${this::class.simpleName}") {
             if (!initialized) {
                 buildComponent()
                 bindableRefs.forEach { (bindable, _) ->
@@ -106,5 +106,17 @@ abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Dispos
     }
 
     fun getSlots(): Map<Int, DrawableItemStack> = items.values.toMap()
+
+    fun rebuildSelfAndChildren() {
+        children.forEach { (child, _) ->
+            child.rebuildSelfAndChildren()
+        }
+        items.clear(true)
+        children.forEach { (child, _) ->
+            child.buildComponent()
+        }
+        buildComponent()
+    }
+
     fun getChildren(): Map<CompositeDrawable, Int> = children.toMap()
 }

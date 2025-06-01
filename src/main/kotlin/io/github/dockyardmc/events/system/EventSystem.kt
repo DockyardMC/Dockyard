@@ -163,11 +163,12 @@ abstract class EventSystem : Disposable {
     fun debugTree(indent: Int = 1): String {
         return buildString {
             append(name)
-            children.forEach {
+            append(" <gray>(${eventList().size} listeners)")
+            children.forEach { child ->
                 appendLine()
                 append(" ".repeat(indent))
                 append("<gray>⇒ <aqua>")
-                append(it.debugTree(indent + 1))
+                append(child.debugTree(indent + 1))
             }
         }
     }
