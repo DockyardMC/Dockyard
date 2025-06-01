@@ -23,7 +23,8 @@ class EnforceEventTests : EnforceTestsAbstract() {
         ServerHandshakeEvent::class.java,
         PacketReceivedEvent::class.java,
         PlayerJoinEvent::class.java,
-        ServerBrandEvent::class.java
+        ServerBrandEvent::class.java,
+        InstrumentationHotReloadEvent::class.java
     )
     override val superClass: Class<out Any> = Event::class.java
 }
