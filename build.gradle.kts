@@ -55,6 +55,7 @@ dependencies {
     api("io.github.jglrxavpok.hephaistos:gson:2.2.0")
     api("io.github.dockyardmc:scroll:2.8")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
+    api("net.kyori:adventure-nbt:4.21.0")
 
     // Pathfinding
     api("com.github.Metaphoriker.pathetic:pathetic-engine:4.0")
