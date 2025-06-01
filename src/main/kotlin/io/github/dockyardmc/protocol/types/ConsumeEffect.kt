@@ -109,11 +109,11 @@ interface ConsumeEffect : NetworkWritable, DataComponentHashable {
         }
 
         override fun hashStruct(): HashHolder {
-            return StaticHash(CRC32CHasher.EMPTY)
+            return StaticHash(CRC32CHasher.EMPTY_MAP)
         }
     }
 
-    data class TeleportRandomly(val diameter: Float) : ConsumeEffect {
+    data class TeleportRandomly(val diameter: Float = DEFAULT_DIAMETER) : ConsumeEffect {
 
         override fun write(buffer: ByteBuf) {
             buffer.writeVarInt(effects.getByValue(this::class))
@@ -153,7 +153,7 @@ interface ConsumeEffect : NetworkWritable, DataComponentHashable {
 
         override fun hashStruct(): HashHolder {
             return CRC32CHasher.of {
-                static("sound", CustomSoundEvent(sound).hashStruct().hashCode())
+                static("sound", CustomSoundEvent(sound).hashStruct().getHashed())
             }
         }
     }

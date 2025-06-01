@@ -37,7 +37,6 @@ class ConsumableComponent(
             defaultStruct("sound", BuiltinSoundEvent.of(Sounds.ENTITY_GENERIC_EAT), CustomSoundEvent(sound), SoundEvent::hashStruct)
             default<Boolean>("has_consume_particles", HAS_CONSUME_PARTICLES_DEFAULT, hasParticles, CRC32CHasher::ofBoolean)
             defaultStructList("on_consume_effects", listOf(), effects, ConsumeEffect::hashStruct)
-//            static("on_consume_effects", CRC32CHasher.EMPTY)
         }
     }
 

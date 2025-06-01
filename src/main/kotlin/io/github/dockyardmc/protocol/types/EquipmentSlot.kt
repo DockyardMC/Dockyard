@@ -1,14 +1,23 @@
 package io.github.dockyardmc.protocol.types
 
-enum class EquipmentSlot {
-    MAIN_HAND,
-    BOOTS,
-    LEGGINGS,
-    CHESTPLATE,
-    HELMET,
-    OFF_HAND,
-    BODY,
-    SADDLE;
+import io.github.dockyardmc.data.CRC32CHasher
+import io.github.dockyardmc.data.HashHolder
+import io.github.dockyardmc.data.StaticHash
+import io.github.dockyardmc.protocol.DataComponentHashable
+
+enum class EquipmentSlot(val nbtName: String): DataComponentHashable {
+    MAIN_HAND("mainhand"),
+    OFF_HAND("offhand"),
+    BOOTS("feet"),
+    LEGGINGS("legs"),
+    CHESTPLATE("chest"),
+    HELMET("head"),
+    BODY("body"),
+    SADDLE("saddle");
+
+    override fun hashStruct(): HashHolder {
+        return StaticHash(CRC32CHasher.ofString(nbtName))
+    }
 
     companion object {
         fun isBody(equipmentSlot: EquipmentSlot?): Boolean {

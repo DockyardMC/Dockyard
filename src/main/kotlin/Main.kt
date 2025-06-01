@@ -1,6 +1,5 @@
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.data.components.ConsumableComponent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give

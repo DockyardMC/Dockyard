@@ -12,6 +12,7 @@ import io.github.dockyardmc.protocol.writeOptionalList
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.EntityTypeRegistry
+import io.github.dockyardmc.sounds.BuiltinSoundEvent
 import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.SoundEvent
 import io.netty.buffer.ByteBuf
@@ -43,9 +44,14 @@ class EquippableComponent(
     override fun hashStruct(): HashHolder {
         return CRC32CHasher.of {
             static("slot", CRC32CHasher.ofEnum(equipmentSlot))
-            defaultStruct<CustomSoundEvent>("equip_sound", CustomSoundEvent(Sounds.ITEM_ARMOR_EQUIP_GENERIC), CustomSoundEvent(equipSound), CustomSoundEvent::hashStruct)
+            defaultStruct<SoundEvent>("equip_sound", BuiltinSoundEvent.of(Sounds.ITEM_ARMOR_EQUIP_GENERIC), CustomSoundEvent(equipSound), SoundEvent::hashStruct)
             optional("asset_id", assetId, CRC32CHasher::ofString)
             optional("camera_overlay", cameraOverlay, CRC32CHasher::ofString)
+            optionalList("allowed_entities", allowedEntities, CRC32CHasher::ofRegistryEntry)
+            default("dispensable", true, dispensable, CRC32CHasher::ofBoolean)
+            default("swappable", true, swappable, CRC32CHasher::ofBoolean)
+            default("damage_on_hurt", true, damageOnHurt, CRC32CHasher::ofBoolean)
+            default("equip_on_interact", false, equipOnInteract, CRC32CHasher::ofBoolean)
         }
     }
 

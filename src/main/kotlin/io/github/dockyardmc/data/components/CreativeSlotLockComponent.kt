@@ -13,7 +13,7 @@ class CreativeSlotLockComponent : DataComponent() {
     }
 
     override fun hashStruct(): HashHolder {
-        return StaticHash(CRC32CHasher.EMPTY)
+        return StaticHash(CRC32CHasher.EMPTY_MAP)
     }
 
     companion object : NetworkReadable<CreativeSlotLockComponent> {

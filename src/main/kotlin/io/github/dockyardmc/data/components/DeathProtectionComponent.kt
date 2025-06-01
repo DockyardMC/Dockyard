@@ -11,7 +11,6 @@ import io.netty.buffer.ByteBuf
 class DeathProtectionComponent(val deathEffects: List<ConsumeEffect>) : DataComponent() {
 
     override fun write(buffer: ByteBuf) {
-//        buffer.writeList(deathEffects, ConsumeEffect::write)
         buffer.writeList(emptyList(), ConsumeEffect::write)
     }
 

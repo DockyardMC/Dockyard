@@ -1,6 +1,7 @@
 package io.github.dockyardmc.data.components
 
 import io.github.dockyardmc.data.DataComponent
+import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.extentions.fromRGBInt
 import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.writeEnum
@@ -19,6 +20,9 @@ class FireworkExplosionComponent(
     val hasTwinkle: Boolean
 ) : DataComponent() {
 
+    override fun hashStruct(): HashHolder {
+        return unsupported(this)
+    }
 
     override fun write(buffer: ByteBuf) {
         buffer.writeEnum(shape)

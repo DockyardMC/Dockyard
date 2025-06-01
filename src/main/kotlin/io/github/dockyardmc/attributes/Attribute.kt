@@ -63,7 +63,7 @@ data class Modifier(
         return CRC32CHasher.of {
             static("type", CRC32CHasher.ofString(attribute.identifier))
             inline(attributeModifier.hashStruct())
-            static("slot", CRC32CHasher.ofEnum(equipmentSlot))
+            default("slot", EquipmentSlotGroup.ANY, equipmentSlot, CRC32CHasher::ofEnum)
         }
     }
 }

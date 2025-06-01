@@ -2,7 +2,7 @@ package io.github.dockyardmc.data
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.extentions.toRgbInt
+import io.github.dockyardmc.extentions.asRGBHash
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.scroll.CustomColor
@@ -61,7 +61,7 @@ object CRC32CHasher {
     }
 
     fun ofColor(color: CustomColor): Int {
-        return ofInt(color.toRgbInt())
+        return ofInt(color.asRGBHash())
     }
 
     fun ofLong(long: Long): Int {
@@ -90,6 +90,7 @@ object CRC32CHasher {
     }
 
     inline fun <reified T : Enum<T>> ofEnum(enum: T): Int {
+        if(enum is DataComponentHashable) return enum.hashStruct().getHashed()
         val hashed = ofString(enum.name.lowercase())
         return hashed
     }

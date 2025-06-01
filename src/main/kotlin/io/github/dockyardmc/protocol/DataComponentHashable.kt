@@ -13,4 +13,8 @@ interface DataComponentHashable {
     fun unsupported(kclass: KClass<*>): HashHolder {
         throw UnsupportedOperationException("${kclass.simpleName} is not supported yet! If you require use of this component please open an issue")
     }
+
+    fun unsupported(any: Any): HashHolder {
+        return unsupported(any::class)
+    }
 }
