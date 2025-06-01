@@ -18,6 +18,7 @@ import io.github.dockyardmc.registry.registries.SoundRegistry
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.sounds.BuiltinSoundEvent
 import io.github.dockyardmc.sounds.CustomSoundEvent
+import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -55,8 +56,14 @@ class HashTest {
             ItemBlockStateComponent(mapOf("month?" to "gay!")) to 725075553,
             LodestoneTrackerComponent(WorldPosition("minecraft:main", Vector3(1, 2, 3)), true) to 728072173,
             MapDecorationsComponent(mapOf("test" to MapDecorationsComponent.Decoration("test", 1.0, 2.0, 3f))) to -1461889578,
-            PotionContentsComponent(PotionTypeRegistry["minecraft:awkward"], CustomColor(1, 1, 1), listOf(), "test") to 484392761
-
+            PotionContentsComponent(PotionTypeRegistry["minecraft:awkward"], CustomColor(1, 1, 1), listOf(), "test") to 484392761,
+            ProfileComponent("LukynkaCZE", UUID.fromString("0c9151e4-7083-418d-a29c-bbc58f7c741b"), listOf()) to 1731625998,
+            SuspiciousStewEffectsComponent(
+                listOf(
+                    SuspiciousStewEffectsComponent.Effect(PotionEffects.LUCK, 5.seconds),
+                    SuspiciousStewEffectsComponent.Effect(PotionEffects.BAD_LUCK, 8.seconds),
+                )
+            ) to 72427758
         )
 
         expectedHashes.forEach { (hashable, hash) ->

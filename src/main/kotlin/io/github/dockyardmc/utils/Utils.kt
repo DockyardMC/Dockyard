@@ -113,6 +113,14 @@ fun isAddressInUse(host: String, port: Int): Boolean {
     return false
 }
 
+fun UUID.toIntArray(): IntArray {
+    return uuidToIntArray(this)
+}
+
+fun IntArray.toUUID(): UUID {
+    return intArrayToUuid(this)
+}
+
 fun intArrayToUuid(array: IntArray): UUID {
     val uuidMost = array[0].toLong() shl 32 or (array[1].toLong() and 0xFFFFFFFFL)
     val uuidLeast = array[2].toLong() shl 32 or (array[3].toLong() and 0xFFFFFFFFL)
