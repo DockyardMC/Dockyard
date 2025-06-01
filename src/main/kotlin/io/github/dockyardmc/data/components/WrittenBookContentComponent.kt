@@ -1,6 +1,7 @@
 package io.github.dockyardmc.data.components
 
 import io.github.dockyardmc.data.DataComponent
+import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeString
@@ -24,6 +25,10 @@ class WrittenBookContentComponent(
         buffer.writeVarInt(generation)
         buffer.writeList(pages, WritableBookContent.FilteredText::write)
         buffer.writeBoolean(resolved)
+    }
+
+    override fun hashStruct(): HashHolder {
+        return unsupported(this)
     }
 
     companion object : NetworkReadable<WrittenBookContentComponent> {
