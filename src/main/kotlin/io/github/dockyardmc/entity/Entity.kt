@@ -4,8 +4,6 @@ import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
 import cz.lukynka.bindables.BindableMap
 import cz.lukynka.bindables.BindablePool
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.handlers.*

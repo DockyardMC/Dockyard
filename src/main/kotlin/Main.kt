@@ -38,12 +38,5 @@ fun main() {
         }
     }
 
-    Commands.add("/test") {
-        execute { ctx ->
-            ctx.sendMessage("gay ass ")
-            ctx.sendMessage("asd ass ")
-        }
-    }
-
     server.start()
 }

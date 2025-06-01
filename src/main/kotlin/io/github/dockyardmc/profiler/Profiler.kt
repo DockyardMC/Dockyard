@@ -44,7 +44,7 @@ class Profiler {
     }
 }
 
-inline fun profiler(name: String, block: () -> Unit) {
+inline fun profiler(name: String, block: () -> Unit): Long {
     val ms = measureTimeMillis(block)
     if (ms > 0) {
         debug("\"$name\" took ${ms}ms")
@@ -52,4 +52,5 @@ inline fun profiler(name: String, block: () -> Unit) {
             PlayerManager.players.filterByPermission("dockyard.debug").sendMessage("<gray>(⌚) \"<#d9d9d9>$name<gray>\" took <#d9d9d9>${ms}ms<gray>")
         }
     }
+    return ms
 }

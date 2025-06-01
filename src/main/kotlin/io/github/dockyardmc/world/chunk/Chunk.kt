@@ -194,4 +194,8 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         super.removeViewer(player)
         player.sendPacket(ClientboundUnloadChunkPacket(this.chunkPos))
     }
+
+    override fun toString(): String {
+        return "Chunk(${chunkPos.x}, ${chunkPos.z}, ${world.name})"
+    }
 }
