@@ -7,10 +7,13 @@ import io.github.dockyardmc.attributes.EquipmentSlotGroup
 import io.github.dockyardmc.attributes.Modifier
 import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.components.*
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.types.ConsumeEffect
 import io.github.dockyardmc.protocol.types.EquipmentSlot
+import io.github.dockyardmc.protocol.types.WorldPosition
 import io.github.dockyardmc.registry.*
+import io.github.dockyardmc.registry.registries.PotionTypeRegistry
 import io.github.dockyardmc.registry.registries.SoundRegistry
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.sounds.BuiltinSoundEvent
@@ -48,6 +51,11 @@ class HashTest {
             ConsumeEffect.TeleportRandomly(5.0f) to 984729518,
             CustomModelDataComponent(listOf(1f, 2f), listOf(true, false), listOf("gay", "month"), listOf(CustomColor(1, 1, 1))) to 766388248,
             EquippableComponent(EquipmentSlot.CHESTPLATE, Sounds.ITEM_GOAT_HORN_SOUND_0, "minecraft:dockyard", null, null, true, true, false, false) to 888528263,
+            FoodComponent(2, 1.3f, true) to 474066665,
+            ItemBlockStateComponent(mapOf("month?" to "gay!")) to 725075553,
+            LodestoneTrackerComponent(WorldPosition("minecraft:main", Vector3(1, 2, 3)), true) to 728072173,
+            MapDecorationsComponent(mapOf("test" to MapDecorationsComponent.Decoration("test", 1.0, 2.0, 3f))) to -1461889578,
+            PotionContentsComponent(PotionTypeRegistry["minecraft:awkward"], CustomColor(1, 1, 1), listOf(), "test") to 484392761
 
         )
 

@@ -6,7 +6,6 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.registry.registries.PaintingVariant
 import io.github.dockyardmc.registry.registries.PaintingVariantRegistry
-import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 
 data class PaintingVariantComponent(val variant: PaintingVariant) : DataComponent() {

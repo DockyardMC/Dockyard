@@ -62,6 +62,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 RegistryManager.register(BiomeRegistry)
                 RegistryManager.register(ItemRegistry)
                 RegistryManager.register(FluidRegistry)
+                RegistryManager.register(PotionTypeRegistry)
 
                 RegistryManager.register(WolfVariantRegistry)
                 RegistryManager.register(WolfSoundVariantRegistry)

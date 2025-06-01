@@ -28,6 +28,7 @@ object RegistryManager {
         PigVariantRegistry::class to "registry/pig_variant.json.gz",
         FrogVariantRegistry::class to "registry/frog_variant.json.gz",
         ChickenVariantRegistry::class to "registry/chicken_variant.json.gz",
+        PotionTypeRegistry::class to "registry/potion_type_registry.json.gz",
     )
 
     val dynamicRegistries: MutableMap<String, Registry> = mutableMapOf()
@@ -35,7 +36,7 @@ object RegistryManager {
 
     fun register(registry: Registry) {
         registries.add(registry)
-        if(registry is DataDrivenRegistry) {
+        if (registry is DataDrivenRegistry) {
             val resource = ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]) ?: throw IllegalStateException("No resource file path for registry ${registry.identifier}")
             registry.initialize(resource.openStream())
         }
@@ -44,7 +45,7 @@ object RegistryManager {
             registry.updateCache()
         }
 
-        if(registry !is TagRegistry) dynamicRegistries[registry.identifier] = registry
+        if (registry !is TagRegistry) dynamicRegistries[registry.identifier] = registry
     }
 
     fun getStreamForClass(registry: KClass<*>): InputStream {
@@ -55,7 +56,7 @@ object RegistryManager {
         return ClassLoader.getSystemResource(path).openStream()
     }
 
-    fun <T: Registry> getFromIdentifier(identifier: String): T {
+    fun <T : Registry> getFromIdentifier(identifier: String): T {
         return (dynamicRegistries[identifier] ?: throw NoSuchElementException("Registry with identifier $identifier was not found!")) as T
     }
 }

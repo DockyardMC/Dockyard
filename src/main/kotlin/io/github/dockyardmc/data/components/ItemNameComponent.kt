@@ -6,7 +6,6 @@ import io.github.dockyardmc.extentions.writeTextComponent
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.serializers.NbtToComponentSerializer
-import io.github.dockyardmc.tide.Codec
 import io.netty.buffer.ByteBuf
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 

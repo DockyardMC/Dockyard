@@ -16,7 +16,9 @@ class FoodComponent(val nutrition: Int, val saturationModifier: Float, val canAl
 
     override fun hashStruct(): HashHolder {
         return CRC32CHasher.of {
-
+            static("nutrition", CRC32CHasher.ofInt(nutrition))
+            static("saturation", CRC32CHasher.ofFloat(saturationModifier))
+            default("can_always_eat", false, canAlwaysEat, CRC32CHasher::ofBoolean)
         }
     }
 
