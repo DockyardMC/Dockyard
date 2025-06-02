@@ -1,28 +1,29 @@
 package io.github.dockyardmc.data.components
 
+import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.HashHolder
+import io.github.dockyardmc.data.StaticHash
+import io.github.dockyardmc.extentions.readNBTCompound
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBT
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
-class CustomDataComponent(val nbt: NBT) : DataComponent() {
+class CustomDataComponent(val nbt: CompoundBinaryTag) : DataComponent() {
 
     override fun write(buffer: ByteBuf) {
         buffer.writeNBT(nbt)
     }
 
-    //TODO(1.21.5): NBT Hashing
     override fun hashStruct(): HashHolder {
-        return unsupported(this::class)
+        return StaticHash(CRC32CHasher.ofNbt(nbt))
     }
 
     companion object : NetworkReadable<CustomDataComponent> {
 
         override fun read(buffer: ByteBuf): CustomDataComponent {
-//            return CustomDataComponent(buffer.readNBT())
-            return CustomDataComponent(NBT.Compound())
+            return CustomDataComponent(buffer.readNBTCompound())
         }
     }
 }

@@ -13,15 +13,16 @@ import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.scroll.serializers.NbtToComponentSerializer
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.SoundEvent
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.ByteBufInputStream
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
-import org.jglrxavpok.hephaistos.nbt.*
+import net.kyori.adventure.nbt.BinaryTag
+import net.kyori.adventure.nbt.BinaryTagIO
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.time.Instant
@@ -58,7 +59,7 @@ fun ByteBuf.writeTextComponent(text: String) {
 }
 
 fun ByteBuf.readTextComponent(): Component {
-    return NbtToComponentSerializer.serializeNbt(this.readNBT() as NBTCompound)
+    return this.readNBTCompound().toComponent()
 }
 
 fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
@@ -115,58 +116,68 @@ fun ByteBuf.readByteArray(): ByteArray {
     return byteArray
 }
 
-fun ByteBuf.readNBT(): NBT {
-    val buffer = this
-    val nbtReader = NBTReader(object : InputStream() {
-
-        override fun read(): Int = buffer.readByte().toInt() and 0xFF
-        override fun available(): Int = buffer.readableBytes()
-
-    }, CompressedProcesser.NONE)
-    return try {
-        val tagId: Byte = buffer.readByte()
-        if (tagId.toInt() == NBTType.TAG_End.ordinal) NBTEnd else nbtReader.readRaw(tagId.toInt())
-    } catch (e: IOException) {
-        throw java.lang.RuntimeException(e)
-    } catch (e: NBTException) {
-        throw java.lang.RuntimeException(e)
-    }
+fun ByteBuf.readNBT(): BinaryTag {
+    val inputStream = ByteBufInputStream(this)
+    val nbt = BinaryTagIO.reader().read(inputStream as InputStream)
+    return nbt
 }
 
-fun ByteBuf.readNBTCompound(): NBTCompound {
-    return this.readNBT() as NBTCompound
+//    val buffer = this
+//    val nbtReader = NBTReader(object : InputStream() {
+//
+//        override fun read(): Int = buffer.readByte().toInt() and 0xFF
+//        override fun available(): Int = buffer.readableBytes()
+//
+//    }, CompressedProcesser.NONE)
+//    return try {
+//        val tagId: Byte = buffer.readByte()
+//        if (tagId.toInt() == NBTType.TAG_End.ordinal) NBTEnd else nbtReader.readRaw(tagId.toInt())
+//    } catch (e: IOException) {
+//        throw java.lang.RuntimeException(e)
+//    } catch (e: NBTException) {
+//        throw java.lang.RuntimeException(e)
+//    }
+
+fun ByteBuf.readNBTCompound(): CompoundBinaryTag {
+    return this.readNBT() as CompoundBinaryTag
 }
 
-fun ByteBuf.writeNBT(nbt: NBT, truncateRootTag: Boolean = true) {
+fun ByteBuf.writeNBT(nbt: CompoundBinaryTag) {
 
     val outputStream = ByteArrayOutputStream()
     try {
-        val writer = NBTWriter(outputStream, CompressedProcesser.NONE)
-        writer.writeNamed("", nbt)
-        writer.close()
+        BinaryTagIO.writer().write(nbt, outputStream)
     } finally {
-        if (truncateRootTag) {
-            var outData = outputStream.toByteArray()
-
-            // Since 1.20.2 (Protocol 764) NBT sent over the network has been updated to exclude the name from the root TAG_COMPOUND
-            // ┌───────────┬────────┬────────────────┬──────────────┬───────────┐
-            // │  Version  │ TypeID │ Length of Name │     Name     │  Payload  │
-            // ├───────────┼────────┼────────────────┼──────────────┼───────────┤
-            // │ < 1.20.2  │ 0x0a   │ 0x00 0x00      │ Empty String │ 0x02 0x09 │
-            // │ >= 1.20.2 │ 0x0a   │ N/A            │ N/A          │ 0x02 0x09 │
-            // └───────────┴────────┴────────────────┴──────────────┴───────────┘
-
-            // Thanks to Kev (kev_dev) for pointing this out because I think I would have gone mad otherwise
-            val list = outData.toMutableList()
-            list.removeAt(1)
-            list.removeAt(1)
-            outData = list.toByteArray()
-            writeBytes(outData)
-        } else {
-            writeBytes(outputStream.toByteArray())
-        }
+        this.writeBytes(outputStream.toByteArray())
     }
 }
+
+//    try {
+//        val writer = NBTWriter(outputStream, CompressedProcesser.NONE)
+//        writer.writeNamed("", nbt)
+//        writer.close()
+//    } finally {
+//        if (truncateRootTag) {
+//            var outData = outputStream.toByteArray()
+//
+//            // Since 1.20.2 (Protocol 764) NBT sent over the network has been updated to exclude the name from the root TAG_COMPOUND
+//            // ┌───────────┬────────┬────────────────┬──────────────┬───────────┐
+//            // │  Version  │ TypeID │ Length of Name │     Name     │  Payload  │
+//            // ├───────────┼────────┼────────────────┼──────────────┼───────────┤
+//            // │ < 1.20.2  │ 0x0a   │ 0x00 0x00      │ Empty String │ 0x02 0x09 │
+//            // │ >= 1.20.2 │ 0x0a   │ N/A            │ N/A          │ 0x02 0x09 │
+//            // └───────────┴────────┴────────────────┴──────────────┴───────────┘
+//
+//            // Thanks to Kev (kev_dev) for pointing this out because I think I would have gone mad otherwise
+//            val list = outData.toMutableList()
+//            list.removeAt(1)
+//            list.removeAt(1)
+//            outData = list.toByteArray()
+//            writeBytes(outData)
+//        } else {
+//            writeBytes(outputStream.toByteArray())
+//        }
+//    }
 
 fun ByteBuf.readFixedBitSet(i: Int): BitSet {
     val bs = ByteArray(positiveCeilDiv(i, 8))
@@ -357,8 +368,8 @@ inline fun <reified T : Any> ByteBuf.readOptionalOrNull(): T? {
         Vector3::class -> Vector3.read(this) as T
         Vector3d::class -> Vector3d.read(this) as T
         Vector3f::class -> Vector3f.read(this) as T
-        NBT::class -> (this.readNBT() as NBTCompound) as T
-        NBTCompound::class -> this.readNBT() as T
+        BinaryTag::class -> (this.readNBT() as CompoundBinaryTag) as T
+        CompoundBinaryTag::class -> this.readNBTCompound() as T
         Sound::class -> Sound(SoundEvent.read(this).identifier) as T
         EntityType::class -> EntityTypeRegistry[this.readString()] as T
         PotionEffect::class -> PotionEffectRegistry.getByProtocolId(this.readVarInt()) as T

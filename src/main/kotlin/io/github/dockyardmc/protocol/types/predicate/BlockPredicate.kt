@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.types.predicate
 
 import io.github.dockyardmc.extentions.readNBTCompound
+import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.readOptional
@@ -8,10 +9,10 @@ import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.utils.writeMSNBT
 import io.github.dockyardmc.world.block.Block
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.function.Predicate
 
-class BlockPredicate(val blocks: BlockTypeFilter?, val state: PropertiesPredicate?, val nbt: NBTCompound?) : Predicate<Block>, NetworkWritable {
+class BlockPredicate(val blocks: BlockTypeFilter?, val state: PropertiesPredicate?, val nbt: CompoundBinaryTag?) : Predicate<Block>, NetworkWritable {
 
     companion object: NetworkReadable<BlockPredicate> {
         val ALL = BlockPredicate(null, null, null)
@@ -35,6 +36,6 @@ class BlockPredicate(val blocks: BlockTypeFilter?, val state: PropertiesPredicat
     override fun write(buffer: ByteBuf) {
         buffer.writeOptional(blocks, BlockTypeFilter::write)
         buffer.writeOptional(state, PropertiesPredicate::write)
-        buffer.writeOptional(nbt, ByteBuf::writeMSNBT)
+        buffer.writeOptional(nbt, ByteBuf::writeNBT)
     }
 }

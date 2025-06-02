@@ -5,7 +5,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.BinaryTag
 import java.io.InputStream
 
 interface Registry {
@@ -35,7 +35,7 @@ interface DataDrivenRegistry : Registry {
 interface DynamicDataDrivenRegistry : DataDrivenRegistry, DynamicRegistry
 
 interface RegistryEntry : NetworkWritable {
-    fun getNbt(): NBTCompound?
+    fun getNbt(): BinaryTag?
     fun getProtocolId(): Int
     fun getEntryIdentifier(): String
 

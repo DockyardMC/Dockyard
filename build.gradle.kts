@@ -51,9 +51,7 @@ dependencies {
     api("com.google.protobuf:protobuf-javalite:4.28.2")
 
     // Minecraft
-    api("io.github.jglrxavpok.hephaistos:common:2.2.0")
-    api("io.github.jglrxavpok.hephaistos:gson:2.2.0")
-    api("io.github.dockyardmc:scroll:2.8")
+    api("io.github.dockyardmc:scroll:3.0")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
     api("net.kyori:adventure-nbt:4.21.0")
 

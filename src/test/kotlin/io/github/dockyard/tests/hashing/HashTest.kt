@@ -18,6 +18,9 @@ import io.github.dockyardmc.registry.registries.SoundRegistry
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.sounds.BuiltinSoundEvent
 import io.github.dockyardmc.sounds.CustomSoundEvent
+import net.kyori.adventure.nbt.CompoundBinaryTag
+import net.kyori.adventure.nbt.IntBinaryTag
+import net.kyori.adventure.nbt.ListBinaryTag
 import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -33,6 +36,28 @@ class HashTest {
 
     @Test
     fun testHashing() {
+        val byteArray = byteArrayOf(0x48, 0x65, 0x6C, 0x6C, 0x6F)
+
+        val innerCompound = CompoundBinaryTag.builder()
+            .putBoolean("gay", true)
+            .putByte("testing", 1.toByte())
+            .putString("id", "minecraft:estrogen_potion")
+            .putByteArray("bytes", byteArray)
+            .putDouble("gay_factor", 3.3)
+            .putFloat("gay_offset", 5f)
+            .build()
+
+        val compound = CompoundBinaryTag.builder()
+            .put("test", IntBinaryTag.intBinaryTag(5))
+            .putBoolean("gay", true)
+            .putString("maya", "lukynka")
+            .put("list", ListBinaryTag.from(listOf()))
+            .putIntArray("yas", intArrayOf(1, 2, 3, 4))
+            .put(innerCompound)
+            .put("named", innerCompound)
+            .build()
+
+
         val expectedHashes = mapOf<DataComponentHashable, Int>(
             UseCooldownComponent(1.6f, "minecraft:test") to 493336604,
             AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE) to -1483981544,
@@ -63,7 +88,8 @@ class HashTest {
                     SuspiciousStewEffectsComponent.Effect(PotionEffects.LUCK, 5.seconds),
                     SuspiciousStewEffectsComponent.Effect(PotionEffects.BAD_LUCK, 8.seconds),
                 )
-            ) to 72427758
+            ) to 72427758,
+            BeesComponent(listOf(BeesComponent.Bee(compound, 6, 9))) to -1245536178
         )
 
         expectedHashes.forEach { (hashable, hash) ->

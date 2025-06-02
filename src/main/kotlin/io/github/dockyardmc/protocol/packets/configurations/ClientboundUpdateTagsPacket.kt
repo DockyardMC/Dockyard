@@ -13,7 +13,7 @@ import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.registry.registries.tags.TagRegistry
 import io.netty.buffer.ByteBuf
 import kotlinx.serialization.Serializable
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.BinaryTag
 
 class ClientboundUpdateTagsPacket(val registries: List<TagRegistry>) : ClientboundPacket() {
 
@@ -34,7 +34,7 @@ data class Tag(
     val registryIdentifier: String,
 ) : NetworkWritable, RegistryEntry {
 
-    override fun getNbt(): NBTCompound? = null
+    override fun getNbt(): BinaryTag? = null
     override fun getProtocolId(): Int = -1
 
     override fun getEntryIdentifier(): String {

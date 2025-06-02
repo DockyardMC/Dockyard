@@ -7,11 +7,13 @@ import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.*
 import io.github.dockyardmc.registry.registries.SoundRegistry
-import io.github.dockyardmc.scroll.extensions.put
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBT
+import net.kyori.adventure.nbt.BinaryTag
+import net.kyori.adventure.nbt.CompoundBinaryTag
+import net.kyori.adventure.nbt.StringBinaryTag
 
 interface SoundEvent : NetworkWritable, NbtWritable, DataComponentHashable {
     companion object {
@@ -37,8 +39,8 @@ data class BuiltinSoundEvent(override val identifier: String, val id: Int) : Sou
         buffer.writeVarInt(id + 1)
     }
 
-    override fun getNbt(): NBT {
-        return NBT.String(identifier)
+    override fun getNbt(): BinaryTag {
+        return StringBinaryTag.stringBinaryTag(identifier)
     }
 
     override fun hashStruct(): HashHolder {
@@ -61,10 +63,10 @@ data class CustomSoundEvent(override val identifier: String, val range: Float? =
         buffer.writeOptional<Float>(range, ByteBuf::writeFloat)
     }
 
-    override fun getNbt(): NBT {
-        return NBT.Compound { builder ->
-            builder.put("sound_id", identifier)
-            if (range != null) builder.put("range", range)
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withString("sound_id", identifier)
+            if (range != null) withFloat("range", range)
         }
     }
 

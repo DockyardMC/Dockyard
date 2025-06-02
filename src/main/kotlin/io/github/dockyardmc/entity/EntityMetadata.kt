@@ -13,7 +13,7 @@ import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.maths.writeQuaternion
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.*
 import kotlin.experimental.and
 import kotlin.experimental.or
@@ -52,7 +52,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.OPTIONAL_UUID -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeUUID(v as UUID)}
         EntityMetaValue.BLOCK_STATE -> this.writeVarInt((v as io.github.dockyardmc.world.block.Block).getProtocolId())
         EntityMetaValue.OPTIONAL_BLOCK_STATE -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
-        EntityMetaValue.NBT -> this.writeNBT(v as NBTCompound)
+        EntityMetaValue.NBT -> this.writeNBT(v as CompoundBinaryTag)
         EntityMetaValue.PARTICLE -> TODO()
         EntityMetaValue.VILLAGER_DATA -> (v as Vector3).write(this)
         EntityMetaValue.OPTIONAL_VAR_INT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}

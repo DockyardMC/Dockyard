@@ -5,7 +5,9 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.asRGBHash
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
+import net.kyori.adventure.nbt.BinaryTag
 
 object CRC32CHasher {
 
@@ -41,6 +43,14 @@ object CRC32CHasher {
     val EMPTY_LIST = Hasher().putByte(TAG_LIST_START).putByte(TAG_LIST_END).hash()
     val FALSE = Hasher().putByte(TAG_BOOLEAN).putByte(0).hash()
     val TRUE = Hasher().putByte(TAG_BOOLEAN).putByte(1).hash()
+
+    fun ofComponent(component: Component): Int {
+        return NbtHasher.hashCompound(component.toNBT())
+    }
+
+    fun ofNbt(nbt: BinaryTag): Int {
+        return NbtHasher.hashTag(nbt)
+    }
 
     fun ofBoolean(boolean: Boolean): Int {
         return if (boolean) TRUE else FALSE
@@ -90,7 +100,7 @@ object CRC32CHasher {
     }
 
     inline fun <reified T : Enum<T>> ofEnum(enum: T): Int {
-        if(enum is DataComponentHashable) return enum.hashStruct().getHashed()
+        if (enum is DataComponentHashable) return enum.hashStruct().getHashed()
         val hashed = ofString(enum.name.lowercase())
         return hashed
     }
@@ -133,7 +143,7 @@ object CRC32CHasher {
         hasher.putByte(TAG_MAP_START)
 
         map.entries.stream().sorted(MAP_COMPARATOR).forEach { entry ->
-            if(entry.value == EMPTY) return@forEach
+            if (entry.value == EMPTY) return@forEach
             log("key: ${entry.key}", LogType.DEBUG)
             log("value: ${entry.value}", LogType.DEBUG)
             if (entry.key != INLINE) hasher.putIntBytes(entry.key)

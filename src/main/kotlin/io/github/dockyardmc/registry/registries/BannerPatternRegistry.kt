@@ -1,16 +1,15 @@
 package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.extentions.getOrThrow
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.concurrent.atomic.AtomicInteger
 
-object BannerPatternRegistry: DynamicRegistry {
+object BannerPatternRegistry : DynamicRegistry {
 
     override val identifier: String = "minecraft:banner_pattern"
 
@@ -18,7 +17,7 @@ object BannerPatternRegistry: DynamicRegistry {
 
     val bannerPatterns: MutableMap<String, BannerPattern> = mutableMapOf()
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
-    private val protocolIdCounter =  AtomicInteger()
+    private val protocolIdCounter = AtomicInteger()
 
     override fun getMaxProtocolId(): Int {
         return protocolIdCounter.get()
@@ -27,7 +26,7 @@ object BannerPatternRegistry: DynamicRegistry {
     fun addEntry(entry: BannerPattern, updateCache: Boolean = true) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         bannerPatterns[entry.identifier] = entry
-        if(updateCache) updateCache()
+        if (updateCache) updateCache()
     }
 
     override fun register() {
@@ -78,7 +77,7 @@ object BannerPatternRegistry: DynamicRegistry {
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
-        if(!::cachedPacket.isInitialized) updateCache()
+        if (!::cachedPacket.isInitialized) updateCache()
         return cachedPacket
     }
 
@@ -107,7 +106,7 @@ object BannerPatternRegistry: DynamicRegistry {
 data class BannerPattern(
     val identifier: String,
     val translationKey: String,
-): RegistryEntry {
+) : RegistryEntry {
 
     override fun getProtocolId(): Int {
         return BannerPatternRegistry.protocolIds.getOrThrow(identifier)
@@ -117,10 +116,10 @@ data class BannerPattern(
         return identifier
     }
 
-    override fun getNbt(): NBTCompound {
-        return NBT.Compound {
-            it.put("asset_id", this.identifier)
-            it.put("translation_key", this.translationKey)
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withString("asset_id", identifier)
+            withString("translation_key", translationKey)
         }
     }
 }

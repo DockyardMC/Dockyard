@@ -6,9 +6,9 @@ import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.DataComponentPatch
 import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.components.*
-import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.types.ConsumeEffect
@@ -19,13 +19,11 @@ import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
-import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.*
 import java.io.UnsupportedEncodingException
 
 data class ItemStack(
@@ -194,7 +192,7 @@ data class ItemStack(
 
     val customModelData: CustomDataComponent
         get() {
-            return components[CustomDataComponent::class] as CustomDataComponent? ?: CustomDataComponent(NBT.Compound())
+            return components[CustomDataComponent::class] as CustomDataComponent? ?: CustomDataComponent(CompoundBinaryTag.empty())
         }
 
     val maxStackSize: Int
@@ -214,7 +212,7 @@ data class ItemStack(
 
 
     private val customDataHolder = CustomDataHolder()
-    var customData: NBTCompound = NBTCompound.EMPTY
+    var customData: CompoundBinaryTag = CompoundBinaryTag.empty()
 
     fun <T : Any> setCustomData(key: String, value: T) {
         customDataHolder[key] = value
@@ -232,39 +230,36 @@ data class ItemStack(
         return value as T
     }
 
-    //TODO(1.21.5)
     private fun updateCustomDataHolderFromComponent() {
-//        val component = components.getOrNull<CustomDataItemComponent>(CustomDataItemComponent::class)
-//        if (component == null) {
-//            log("Custom Data Component Not Found: $components", LogType.CRITICAL)
-//            return
-//        }
-//        component.data.forEach {
-//            val value = when (it.value) {
-//                is NBTString -> (it.value as NBTString).value
-//                is NBTInt -> (it.value as NBTInt).value
-//                is NBTFloat -> (it.value as NBTFloat).value
-//                is NBTDouble -> (it.value as NBTDouble).value
-//                is NBTLong -> (it.value as NBTLong).value
-//                is NBTByte -> (it.value as NBTByte).value
-//                else -> throw UnsupportedEncodingException("${it.value::class.simpleName} is not supported in custom data nbt")
-//            }
-//
-//            customDataHolder[it.key] = value
-//        }
+        val component = components[CustomDataComponent::class] as CustomDataComponent? ?: return
+
+        component.nbt.forEach { nbt ->
+            val value = when (nbt.value) {
+                is StringBinaryTag -> (nbt.value as StringBinaryTag)
+                is IntBinaryTag -> (nbt.value as IntBinaryTag)
+                is FloatBinaryTag -> (nbt.value as FloatBinaryTag)
+                is DoubleBinaryTag -> (nbt.value as DoubleBinaryTag)
+                is LongBinaryTag -> (nbt.value as LongBinaryTag)
+                is ByteBinaryTag -> (nbt.value as ByteBinaryTag)
+                is ByteArrayBinaryTag -> (nbt.value as ByteArrayBinaryTag)
+                is CompoundBinaryTag -> (nbt.value as CompoundBinaryTag)
+                else -> throw UnsupportedEncodingException("${nbt.value::class.simpleName} is not supported in custom data nbt")
+            }
+            customDataHolder[nbt.key] = value
+        }
     }
 
     private fun rebuildCustomDataNbt() {
-        customData = NBT.Compound { nbt ->
-            customDataHolder.dataStore.forEach {
-                when (it.value) {
-                    is String -> nbt.put(it.key, it.value as String)
-                    is Int -> nbt.put(it.key, it.value as Int)
-                    is Float -> nbt.put(it.key, it.value as Float)
-                    is Double -> nbt.put(it.key, it.value as Double)
-                    is Long -> nbt.put(it.key, it.value as Long)
-                    is Byte -> nbt.put(it.key, it.value as Byte)
-                    else -> throw UnsupportedEncodingException("${it.value::class.simpleName} is not supported in custom data nbt")
+        customData = nbt {
+            customDataHolder.dataStore.forEach { data ->
+                when (data.value) {
+                    is String -> withString(data.key, data.value as String)
+                    is Int -> withInt(data.key, data.value as Int)
+                    is Float -> withFloat(data.key, data.value as Float)
+                    is Double -> withDouble(data.key, data.value as Double)
+                    is Long -> withLong(data.key, data.value as Long)
+                    is Byte -> withByte(data.key, data.value as Byte)
+                    is Boolean -> withBoolean(data.key, data.value as Boolean)
                 }
             }
         }

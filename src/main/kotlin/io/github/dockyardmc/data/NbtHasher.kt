@@ -4,6 +4,7 @@ import net.kyori.adventure.nbt.*
 
 object NbtHasher {
 
+    // # (get it)
     fun hashTag(tag: BinaryTag): Int {
         return when (tag) {
             is IntBinaryTag -> CRC32CHasher.ofInt(tag.value())

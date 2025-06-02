@@ -1,9 +1,12 @@
 package io.github.dockyardmc.nbt
 
+import net.kyori.adventure.nbt.BinaryTag
+import net.kyori.adventure.nbt.BinaryTagType
 import net.kyori.adventure.nbt.CompoundBinaryTag
+import net.kyori.adventure.nbt.ListBinaryTag
 
 class NbtBuilder {
-    val compound = CompoundBinaryTag.empty()
+    val compound = CompoundBinaryTag.builder()
 
     fun withInt(name: String, value: Int): NbtBuilder {
         compound.putInt(name, value)
@@ -27,6 +30,11 @@ class NbtBuilder {
 
     fun withLong(name: String, value: Long): NbtBuilder {
         compound.putLong(name, value)
+        return this
+    }
+
+    fun withByte(name: String, value: Byte): NbtBuilder {
+        compound.putByte(name, value)
         return this
     }
 
@@ -55,6 +63,10 @@ class NbtBuilder {
         return this
     }
 
+    fun withList(name: String, type: BinaryTagType<*>, list: List<BinaryTag>) {
+        compound.put(name, ListBinaryTag.listBinaryTag(type, list))
+    }
+
     fun withCompound(value: CompoundBinaryTag): NbtBuilder {
         compound.put(value)
         return this
@@ -72,7 +84,7 @@ class NbtBuilder {
         compound.put(name, builder.build())
     }
 
-    fun build(): CompoundBinaryTag = compound
+    fun build(): CompoundBinaryTag = compound.build()
 }
 
 fun nbt(compound: NbtBuilder.() -> Unit): CompoundBinaryTag {

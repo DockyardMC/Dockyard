@@ -14,7 +14,7 @@ import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 class BeesComponent(val bees: List<Bee>) : DataComponent() {
 
@@ -32,7 +32,7 @@ class BeesComponent(val bees: List<Bee>) : DataComponent() {
         }
     }
 
-    data class Bee(val entityData: NBTCompound, val ticksInHive: Int, val minTicksInHive: Int) : NetworkWritable, DataComponentHashable {
+    data class Bee(val entityData: CompoundBinaryTag, val ticksInHive: Int, val minTicksInHive: Int) : NetworkWritable, DataComponentHashable {
 
         override fun write(buffer: ByteBuf) {
             buffer.writeNBT(entityData)
@@ -48,7 +48,7 @@ class BeesComponent(val bees: List<Bee>) : DataComponent() {
 
         override fun hashStruct(): HashHolder {
             return CRC32CHasher.of {
-                static("entity_data", 0) //TODO(AW FUCK I FORGOT ABOUT NBT)
+                static("entity_data", CRC32CHasher.ofNbt(entityData))
                 static("ticks_in_hive", CRC32CHasher.ofInt(ticksInHive))
                 static("min_ticks_in_hive", CRC32CHasher.ofInt(minTicksInHive))
             }

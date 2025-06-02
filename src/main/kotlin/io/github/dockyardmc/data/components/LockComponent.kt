@@ -5,9 +5,9 @@ import io.github.dockyardmc.extentions.readNBTCompound
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
-class LockComponent(val data: NBTCompound) : DataComponent() {
+class LockComponent(val data: CompoundBinaryTag) : DataComponent() {
 
     override fun write(buffer: ByteBuf) {
         buffer.writeNBT(data)

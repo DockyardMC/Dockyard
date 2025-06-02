@@ -10,7 +10,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.BinaryTag
 import java.io.InputStream
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
@@ -68,7 +68,7 @@ data class Attribute(
     val maxValue: Double? = null
 ): RegistryEntry {
 
-    override fun getNbt(): NBTCompound? {
+    override fun getNbt(): BinaryTag? {
         return null
     }
 
