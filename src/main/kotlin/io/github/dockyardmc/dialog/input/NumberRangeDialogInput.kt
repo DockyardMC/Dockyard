@@ -10,12 +10,18 @@ class NumberRangeDialogInput(
     override val label: String,
     val min: Double,
     val max: Double,
-    val steps: Int,
+    val step: Float?,
     val width: Int = 200,
     val initial: Double? = null,
     val labelFormat: String = "options.generic_value",
 ) : DialogInput() {
     override val type: DialogInputType = DialogInputTypes.NUMBER_RANGE
+
+    init {
+        step?.let {
+            if (it < 0) throw IllegalArgumentException("step must be positive")
+        }
+    }
 
     override fun getNbt(): NBTCompound {
         return super.getNbt().kmodify {
@@ -24,7 +30,7 @@ class NumberRangeDialogInput(
             put("start", min)
             put("end", max)
             put("initial", initial)
-            put("steps", steps)
+            put("step", step)
         }
     }
 }
