@@ -1,9 +1,12 @@
 package io.github.dockyardmc.dialog
 
+import io.github.dockyardmc.annotations.DialogDsl
 import io.github.dockyardmc.dialog.body.DialogBody
 import io.github.dockyardmc.dialog.button.DialogButton
 import io.github.dockyardmc.dialog.input.DialogInput
 import io.github.dockyardmc.registry.DialogTypes
+import io.github.dockyardmc.registry.registries.DialogEntry
+import io.github.dockyardmc.registry.registries.DialogRegistry
 import io.github.dockyardmc.registry.registries.DialogType
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 
@@ -25,4 +28,41 @@ class ConfirmationDialog(
             put("no", no.getNbt())
         }
     }
+
+    class Builder : Dialog.Builder() {
+        lateinit var yes: DialogButton
+        lateinit var no: DialogButton
+
+        fun withYes(label: String, block: (DialogButton.Builder.() -> Unit)? = null) {
+            yes = DialogButton.Builder(label).apply {
+                block?.let { apply(it) }
+            }.build()
+        }
+
+        fun withNo(label: String, block: (DialogButton.Builder.() -> Unit)? = null) {
+            no = DialogButton.Builder(label).apply {
+                block?.let { apply(it) }
+            }.build()
+        }
+
+        override fun build(): ConfirmationDialog {
+            return ConfirmationDialog(
+                title,
+                externalTitle,
+                canCloseWithEsc,
+                body.toList(),
+                afterAction,
+                inputs.toList(),
+                yes,
+                no
+            )
+        }
+    }
+}
+
+fun createConfirmationDialog(id: String, block: @DialogDsl ConfirmationDialog.Builder.() -> Unit): DialogEntry {
+    return DialogRegistry.addEntry(
+        id,
+        ConfirmationDialog.Builder().apply(block).build()
+    )
 }

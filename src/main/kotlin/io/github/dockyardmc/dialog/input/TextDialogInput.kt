@@ -1,5 +1,6 @@
 package io.github.dockyardmc.dialog.input
 
+import io.github.dockyardmc.annotations.DialogDsl
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.DialogInputTypes
 import io.github.dockyardmc.registry.registries.DialogInputType
@@ -10,16 +11,17 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound
 class TextDialogInput(
     override val key: String,
     override val label: String,
-    val width: Int = 200,
-    val labelVisible: Boolean = true,
-    val initial: String = "",
-    val maxLength: Int = 32,
+    val width: Int,
+    val labelVisible: Boolean,
+    val initial: String,
+    val maxLength: Int,
     val multiline: Multiline?,
 ) : DialogInput() {
     override val type: DialogInputType = DialogInputTypes.TEXT
 
     init {
         if (maxLength < 0) throw IllegalArgumentException("maxLength must be positive")
+        if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
     }
 
     override fun getNbt(): NBTCompound {
@@ -50,6 +52,32 @@ class TextDialogInput(
                 it.put("max_lines", maxLines)
                 it.put("height", height)
             }
+        }
+
+        class Builder {
+            var maxLines: Int? = null
+            var height: Int? = null
+
+            fun build(): Multiline {
+                return Multiline(maxLines, height)
+            }
+        }
+    }
+
+    @DialogDsl
+    class Builder(key: String) : DialogInput.Builder(key) {
+        var width: Int = 200
+        var labelVisible: Boolean = true
+        var initial: String = ""
+        var maxLength: Int = 32
+        var multiline: Multiline? = null
+
+        fun useMultiline(block: Multiline.Builder.() -> Unit) {
+            multiline = Multiline.Builder().apply(block).build()
+        }
+
+        override fun build(): DialogInput {
+            return TextDialogInput(key, label, width, labelVisible, initial, maxLength, multiline)
         }
     }
 }

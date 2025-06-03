@@ -1,10 +1,13 @@
 package io.github.dockyardmc.dialog
 
+import io.github.dockyardmc.annotations.DialogDsl
 import io.github.dockyardmc.dialog.body.DialogBody
 import io.github.dockyardmc.dialog.button.DialogButton
 import io.github.dockyardmc.dialog.input.DialogInput
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.DialogTypes
+import io.github.dockyardmc.registry.registries.DialogEntry
+import io.github.dockyardmc.registry.registries.DialogRegistry
 import io.github.dockyardmc.registry.registries.DialogType
 import io.github.dockyardmc.scroll.extensions.put
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
@@ -25,7 +28,7 @@ class MultiActionDialog(
     override val type: DialogType = DialogTypes.MULTI_ACTION
 
     init {
-        if(actions.isEmpty()) throw IllegalArgumentException("actions can't be empty")
+        if (actions.isEmpty()) throw IllegalArgumentException("actions can't be empty")
     }
 
     override fun getNbt(): NBTCompound {
@@ -37,4 +40,40 @@ class MultiActionDialog(
             put("columns", columns)
         }
     }
+
+    @DialogDsl
+    class Builder : Dialog.Builder() {
+        val actions = mutableListOf<DialogButton>()
+        var exitAction: DialogButton? = null
+        var columns: Int = 2
+
+        fun addAction(label: String, block: (DialogButton.Builder.() -> Unit)? = null) {
+            actions.add(
+                DialogButton.Builder(label).apply {
+                    block?.let { apply(it) }
+                }.build()
+            )
+        }
+
+        override fun build(): MultiActionDialog {
+            return MultiActionDialog(
+                title,
+                externalTitle,
+                canCloseWithEsc,
+                body.toList(),
+                afterAction,
+                inputs.toList(),
+                actions.toList(),
+                exitAction,
+                columns
+            )
+        }
+    }
+}
+
+fun createMultiActionDialog(id: String, block: @DialogDsl MultiActionDialog.Builder.() -> Unit): DialogEntry {
+    return DialogRegistry.addEntry(
+        id,
+        MultiActionDialog.Builder().apply(block).build()
+    )
 }
