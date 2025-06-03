@@ -19,9 +19,9 @@ class PlainMessage(
     }
 
     override fun getNbt(): NBTCompound {
-        return NBT.Compound { builder ->
-            builder.put("contents", content.toComponent().toNBT())
-            builder.put("width", width)
+        return super.getNbt().kmodify {
+            put("contents", content.toComponent().toNBT())
+            put("width", width)
         }
     }
 
