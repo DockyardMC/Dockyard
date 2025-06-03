@@ -1,5 +1,6 @@
 package io.github.dockyardmc.dialog.button
 
+import io.github.dockyardmc.annotations.DialogDsl
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -19,5 +20,13 @@ sealed class AbstractDialogButton : NbtWritable {
             }
             builder.put("width", width)
         }
+    }
+
+    @DialogDsl
+    sealed class Builder(val label: String) {
+        var tooltip: String? = null
+        var width: Int = 150
+
+        abstract fun build(): AbstractDialogButton
     }
 }
