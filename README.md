@@ -1,4 +1,4 @@
-[<img src="https://github.com/user-attachments/assets/cfac1e41-d046-4092-9c84-befb79a48d96">](https://github.com/DockyardMC/Dockyard)
+[<img src="https://github.com/user-attachments/assets/5c488d9e-30b0-4025-9b32-b3e474fc4eb1">](https://github.com/DockyardMC/Dockyard)
 
 ---
 [![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmvn.devos.one%2Freleases%2Fio%2Fgithub%2Fdockyardmc%2Fdockyard%2Fmaven-metadata.xml&style=for-the-badge&logo=maven&logoColor=%23FFFFFF&label=Latest%20Version&color=%23afff87)](https://mvn.devos.one/#/releases/io/github/dockyardmc/dockyard)
