@@ -28,15 +28,15 @@ data class DialogItemBody(
     }
 
     override fun getNbt(): NBTCompound {
-        return NBT.Compound { builder ->
-            builder.put("item", item.getNbt())
+        return super.getNbt().kmodify {
+            put("item", item.getNbt())
             description?.let {
-                builder.put("description", it.getNbt())
+                put("description", it.getNbt())
             }
-            builder.put("show_decorations", showDecorations)
-            builder.put("show_tooltip", showTooltip)
-            builder.put("width", width)
-            builder.put("height", height)
+            put("show_decorations", showDecorations)
+            put("show_tooltip", showTooltip)
+            put("width", width)
+            put("height", height)
         }
     }
 
