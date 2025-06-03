@@ -4,7 +4,6 @@ import io.github.dockyardmc.annotations.DialogDsl
 import io.github.dockyardmc.dialog.body.DialogBody
 import io.github.dockyardmc.dialog.button.DialogButton
 import io.github.dockyardmc.dialog.input.DialogInput
-import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.DialogTypes
 import io.github.dockyardmc.registry.registries.DialogEntry
 import io.github.dockyardmc.registry.registries.DialogRegistry
@@ -12,6 +11,7 @@ import io.github.dockyardmc.registry.registries.DialogType
 import io.github.dockyardmc.scroll.extensions.put
 import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import org.jglrxavpok.hephaistos.nbt.NBTList
+import org.jglrxavpok.hephaistos.nbt.NBTString
 import org.jglrxavpok.hephaistos.nbt.NBTType
 
 class DialogListDialog(
@@ -21,7 +21,7 @@ class DialogListDialog(
     override val body: List<DialogBody>,
     override val afterAction: AfterAction,
     override val inputs: Collection<DialogInput>,
-    val dialogs: Collection<Dialog>,
+    val dialogs: Collection<DialogEntry>,
     val exitAction: DialogButton?,
     val columns: Int,
     val buttonWidth: Int,
@@ -30,7 +30,7 @@ class DialogListDialog(
 
     override fun getNbt(): NBTCompound {
         return super.getNbt().kmodify {
-            put("dialogs", NBTList(NBTType.TAG_Compound, dialogs.map(NbtWritable::getNbt)))
+            put("dialogs", NBTList(NBTType.TAG_String, dialogs.map { NBTString(it.getEntryIdentifier()) }))
             exitAction?.let {
                 put("exit_action", it.getNbt())
             }
@@ -41,7 +41,7 @@ class DialogListDialog(
 
     @DialogDsl
     class Builder : Dialog.Builder() {
-        val dialogs = mutableListOf<Dialog>()
+        val dialogs = mutableListOf<DialogEntry>()
         var exitAction: DialogButton? = null
         var columns: Int = 2
         var buttonWidth: Int = 150
