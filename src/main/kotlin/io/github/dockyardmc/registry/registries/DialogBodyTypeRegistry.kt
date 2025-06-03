@@ -1,7 +1,7 @@
 package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.dialog.body.DialogBody
-import io.github.dockyardmc.dialog.body.ItemBody
+import io.github.dockyardmc.dialog.body.DialogItemBody
 import io.github.dockyardmc.dialog.body.PlainMessage
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.*
@@ -28,7 +28,7 @@ object DialogBodyTypeRegistry : DynamicRegistry {
     }
 
     override fun register() {
-        addEntry(DialogBodyType("minecraft:item", ItemBody::class))
+        addEntry(DialogBodyType("minecraft:item", DialogItemBody::class))
         addEntry(DialogBodyType("minecraft:plain_message", PlainMessage::class))
     }
 
