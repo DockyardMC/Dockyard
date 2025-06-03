@@ -1,5 +1,6 @@
 package io.github.dockyardmc.dialog.input
 
+import io.github.dockyardmc.annotations.DialogDsl
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.registries.DialogInputType
 import io.github.dockyardmc.scroll.extensions.put
@@ -18,5 +19,12 @@ sealed class DialogInput : NbtWritable {
             builder.put("label", label.toComponent().toNBT())
             builder.put("type", type.getEntryIdentifier())
         }
+    }
+
+    @DialogDsl
+    sealed class Builder(val key: String) {
+        var label: String = ""
+
+        abstract fun build() : DialogInput
     }
 }
