@@ -7,7 +7,7 @@ import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.world.World
 
-class VelocityPhysics(
+class VelocitySimulation(
     startLocation: Location,
     initialVelocity: Vector3f,
     val handlesCollision: Boolean = false,
