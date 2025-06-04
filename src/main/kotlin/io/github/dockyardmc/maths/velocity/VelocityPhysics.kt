@@ -7,7 +7,13 @@ import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.world.World
 
-class VelocityPhysics(startLocation: Location, initialVelocity: Vector3f, val handlesCollision: Boolean = false) : Disposable {
+class VelocityPhysics(
+    startLocation: Location,
+    initialVelocity: Vector3f,
+    val handlesCollision: Boolean = false,
+    val floorBouncinessFactor: Float = 0.4f,
+
+    ) : Disposable {
 
     private val gravity: Vector3f = Vector3f(0f, -0.05f, 0f)
     private val airFriction: Vector3f = Vector3f(0.98f)
@@ -23,7 +29,7 @@ class VelocityPhysics(startLocation: Location, initialVelocity: Vector3f, val ha
         if (!running) return@runRepeating
 
         var friction = airFriction
-        if(currentLocation.subtract(0.0, 0.03, 0.0).block.registryBlock.isSolid) {
+        if (currentLocation.subtract(0.0, 0.05, 0.0).block.registryBlock.isSolid) {
             friction = groundFriction
         }
 
@@ -38,7 +44,7 @@ class VelocityPhysics(startLocation: Location, initialVelocity: Vector3f, val ha
             currentVelocity.x = 0f
         }
         if (newLocYOnly.block.registryBlock.isSolid) {
-            currentVelocity.y = 0f
+            currentVelocity.y = if (floorBouncinessFactor == -1f) 0f else (currentVelocity.y * -1) - 0.4f
         }
         if (newLocZOnly.block.registryBlock.isSolid) {
             currentVelocity.z = 0f
