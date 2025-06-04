@@ -41,6 +41,10 @@ abstract class Screen : CompositeDrawable() {
         if (event.cancelled) return
 
         inventorySnapshot = InventorySnapshot(player)
+
+        // build before isFullscreen check to make sure that one is set
+        buildComponent()
+
         if (isFullscreen) {
             player.clearInventory()
         }

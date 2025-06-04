@@ -12,6 +12,7 @@ class TestScreen : Screen() {
 
     override fun buildComponent() {
         withScreenName("test")
+        withScreenFullscreen(true)
         withScreenRows(6)
 
         withSlot(4, 2) {
