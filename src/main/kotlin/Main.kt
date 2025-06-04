@@ -43,7 +43,7 @@ fun main() {
     Commands.add("/test") {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
-            player.world.scheduler.repeat(30, 1.ticks) {
+            player.world.scheduler.repeat(5, 1.ticks) {
                 repeat(3) {
                     val physics = VelocityPhysics(player.location.add(0.0, 0.5, 0.0), Vector3f(randomFloat(-0.50f, 0.50f), 0.5f, randomFloat(-0.50f, 0.50f)), true)
                     val entity = player.world.spawnEntity(ItemDropEntity(player.location, ItemStack(ItemRegistry.items.values.random()))) as ItemDropEntity

@@ -44,14 +44,21 @@ class VelocityPhysics(startLocation: Location, initialVelocity: Vector3f, val ha
             currentVelocity.z = 0f
         }
 
-        currentLocation = Location(
-            currentLocation.x + currentVelocity.x,
-            currentLocation.y + currentVelocity.y,
-            currentLocation.z + currentVelocity.z,
-            currentLocation.yaw,
-            currentLocation.pitch,
-            currentLocation.world
-        )
+        val newLocFull = newLocation(currentVelocity.x, currentVelocity.y, currentVelocity.z, currentLocation.yaw, currentLocation.pitch, currentLocation.world)
+        if (handlesCollision && newLocFull.block.registryBlock.isSolid) {
+            currentVelocity = Vector3f(0f, 0f, 0f) // Stop all movement
+        }
+
+        if (!handlesCollision || !newLocFull.block.registryBlock.isSolid) {
+            currentLocation = Location(
+                currentLocation.x + currentVelocity.x,
+                currentLocation.y + currentVelocity.y,
+                currentLocation.z + currentVelocity.z,
+                currentLocation.yaw,
+                currentLocation.pitch,
+                currentLocation.world
+            )
+        }
 
         if (currentVelocity.isZero) {
             dispose()
@@ -73,7 +80,6 @@ class VelocityPhysics(startLocation: Location, initialVelocity: Vector3f, val ha
         schedulerTask.cancel()
         onTick.dispose()
     }
-
 
     private fun newLocation(newX: Float, newY: Float, newZ: Float, yaw: Float, pitch: Float, world: World): Location {
         return Location(
