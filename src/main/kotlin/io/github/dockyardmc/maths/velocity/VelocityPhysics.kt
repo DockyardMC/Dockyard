@@ -23,7 +23,7 @@ class VelocityPhysics(startLocation: Location, initialVelocity: Vector3f, val ha
         if (!running) return@runRepeating
 
         var friction = airFriction
-        if(currentLocation.subtract(0.0, 0.05, 0.0).block.registryBlock.isSolid) {
+        if(currentLocation.subtract(0.0, 0.03, 0.0).block.registryBlock.isSolid) {
             friction = groundFriction
         }
 
@@ -47,6 +47,7 @@ class VelocityPhysics(startLocation: Location, initialVelocity: Vector3f, val ha
         val newLocFull = newLocation(currentVelocity.x, currentVelocity.y, currentVelocity.z, currentLocation.yaw, currentLocation.pitch, currentLocation.world)
         if (handlesCollision && newLocFull.block.registryBlock.isSolid) {
             currentVelocity = Vector3f(0f, 0f, 0f) // Stop all movement
+            return@runRepeating
         }
 
         if (!handlesCollision || !newLocFull.block.registryBlock.isSolid) {
