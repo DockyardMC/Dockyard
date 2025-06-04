@@ -147,7 +147,7 @@ class Player(
     var lastPingRequest: Long? = null
     var lastPingRequestFuture: CompletableFuture<Long>? = null
 
-    val heldInputs: MutableList<ServerboundClientInputPacket.Input> = mutableListOf()
+    val heldInputs = BindableList<ServerboundClientInputPacket.Input>()
 
     lateinit var lastSentPacket: ClientboundPacket
 
@@ -198,6 +198,35 @@ class Player(
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
         time.valueChanged { updateWorldTime() }
         clientWeather.valueChanged { updateWeatherState() }
+
+        heldInputs.itemAdded {
+            if (it.item == ServerboundClientInputPacket.Input.SHIFT) {
+                isSneaking = true
+
+                // the only pose that allows sneaking
+                if (pose.value == EntityPose.STANDING &&
+                    !isFlying.value
+                ) {
+                    pose.value = EntityPose.SNEAKING
+                }
+
+                dismountCurrentVehicle()
+
+                Events.dispatch(PlayerSneakToggleEvent(this, true))
+            }
+        }
+
+        heldInputs.itemRemoved {
+            if (it.item == ServerboundClientInputPacket.Input.SHIFT) {
+                isSneaking = false
+
+                if (pose.value == EntityPose.SNEAKING) {
+                    pose.value = EntityPose.STANDING
+                }
+
+                Events.dispatch(PlayerSneakToggleEvent(this, false))
+            }
+        }
 
         hasNoGravity.value = false
     }
