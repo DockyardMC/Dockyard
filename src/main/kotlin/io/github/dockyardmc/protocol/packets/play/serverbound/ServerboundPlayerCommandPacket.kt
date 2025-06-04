@@ -19,32 +19,6 @@ class ServerboundPlayerCommandPacket(val entityId: Int, val action: PlayerAction
         val player = processor.player
 
         val event = when (action) {
-            PlayerAction.SNEAKING_START -> {
-                player.isSneaking = true
-
-                // the only pose that allows sneaking
-                if (player.pose.value == EntityPose.STANDING &&
-                    !player.isFlying.value
-                ) {
-                    player.pose.value = EntityPose.SNEAKING
-                }
-
-                player.dismountCurrentVehicle()
-
-                PlayerSneakToggleEvent(player, true)
-
-            }
-
-            PlayerAction.SNEAKING_STOP -> {
-                player.isSneaking = false
-
-                if (player.pose.value == EntityPose.SNEAKING) {
-                    player.pose.value = EntityPose.STANDING
-                }
-
-                PlayerSneakToggleEvent(player, true)
-            }
-
             PlayerAction.LEAVE_BED -> PlayerBedLeaveEvent(player)
             PlayerAction.SPRINTING_START -> {
                 player.isSprinting = true; PlayerSprintToggleEvent(player, true)
