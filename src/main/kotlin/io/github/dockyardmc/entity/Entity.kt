@@ -70,6 +70,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val hasNoGravity: Bindable<Boolean> = bindablePool.provideBindable(true)
     val isSilent: Bindable<Boolean> = bindablePool.provideBindable(false)
     val stuckArrows: Bindable<Int> = bindablePool.provideBindable(0)
+    var gravityTickCount = 0
 
     val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = bindablePool.provideBindableMap()
     val isInvisible: Bindable<Boolean> = bindablePool.provideBindable(false)

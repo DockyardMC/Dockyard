@@ -15,7 +15,7 @@ import io.github.dockyardmc.world.chunk.Chunk
 import io.netty.buffer.ByteBuf
 import kotlin.math.*
 
-class Location(
+data class Location(
     var x: Double,
     var y: Double,
     var z: Double,
