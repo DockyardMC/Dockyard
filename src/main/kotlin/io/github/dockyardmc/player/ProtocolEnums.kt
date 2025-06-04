@@ -21,8 +21,6 @@ enum class ClientParticleSettings {
 }
 
 enum class PlayerAction {
-    SNEAKING_START,
-    SNEAKING_STOP,
     LEAVE_BED,
     SPRINTING_START,
     SPRINTING_END,

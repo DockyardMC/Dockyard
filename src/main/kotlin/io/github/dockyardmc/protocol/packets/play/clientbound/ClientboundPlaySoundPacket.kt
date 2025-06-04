@@ -33,5 +33,6 @@ enum class SoundCategory {
     NEUTRAL,
     PLAYERS,
     AMBIENT,
-    VOICE;
+    VOICE,
+    UI;
 }

@@ -3,6 +3,7 @@ package io.github.dockyardmc.registry
 import io.github.dockyardmc.registry.registries.MinecraftVersionRegistry
 
 object MinecraftVersions {
+    val v1_21_6_pre_3 = MinecraftVersionRegistry[0x400000FE]
     val v1_21_6_pre_1 = MinecraftVersionRegistry[0x400000FC]
     val v25w20a = MinecraftVersionRegistry[0x400000FA]
     val v1_21_5 = MinecraftVersionRegistry[770]
