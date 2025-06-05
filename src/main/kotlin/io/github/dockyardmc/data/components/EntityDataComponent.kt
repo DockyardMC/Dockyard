@@ -4,7 +4,6 @@ import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.StaticHash
-import io.github.dockyardmc.extentions.readNBT
 import io.github.dockyardmc.extentions.readNBTCompound
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.protocol.NetworkReadable

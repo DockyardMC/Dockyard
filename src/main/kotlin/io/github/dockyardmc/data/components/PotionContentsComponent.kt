@@ -9,7 +9,6 @@ import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.registry.AppliedPotionEffect
-import io.github.dockyardmc.registry.registries.PotionEffectRegistry
 import io.github.dockyardmc.registry.registries.PotionType
 import io.github.dockyardmc.registry.registries.PotionTypeRegistry
 import io.github.dockyardmc.scroll.CustomColor
