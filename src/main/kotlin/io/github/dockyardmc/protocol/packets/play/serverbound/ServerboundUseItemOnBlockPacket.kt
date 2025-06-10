@@ -88,8 +88,8 @@ class ServerboundUseItemOnBlockPacket(
             return
         }
 
-        if ((item.material.isBlock) && (item.material != Items.AIR) && (player.gameMode.value != GameMode.ADVENTURE && player.gameMode.value != GameMode.SPECTATOR)) {
-            var block: Block = (BlockRegistry.getOrNull(item.material.identifier) ?: Blocks.AIR).toBlock()
+        if ((item.material.isBlock || item.material == Items.REDSTONE) && (item.material != Items.AIR) && (player.gameMode.value != GameMode.ADVENTURE && player.gameMode.value != GameMode.SPECTATOR)) {
+            var block: Block = if(item.material == Items.REDSTONE) Blocks.REDSTONE_WIRE.toBlock() else (BlockRegistry.getOrNull(item.material.identifier) ?: Blocks.AIR).toBlock()
 
             BlockHandlerManager.getAllFromRegistryBlock(block.registryBlock).forEach { handler ->
                 val result = handler.onPlace(player, item, block, face, newPos.toLocation(player.world), pos.toLocation(player.world), Vector3f(cursorX, cursorY, cursorZ))

@@ -1,24 +1,17 @@
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.entity.EntityManager.despawnEntity
-import io.github.dockyardmc.entity.EntityManager.spawnEntity
-import io.github.dockyardmc.entity.ItemDropEntity
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerJoinEvent
-import io.github.dockyardmc.events.PlayerRightClickWithItemEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.inventory.give
-import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.maths.randomFloat
-import io.github.dockyardmc.maths.vectors.Vector3d
-import io.github.dockyardmc.maths.vectors.Vector3f
-import io.github.dockyardmc.maths.velocity.VelocitySimulation
+import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.player.Direction
+import io.github.dockyardmc.player.getOpposite
 import io.github.dockyardmc.player.systems.GameMode
+import io.github.dockyardmc.player.toNormalizedVector3f
+import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
-import io.github.dockyardmc.registry.registries.ItemRegistry
-import io.github.dockyardmc.scheduler.runLaterAsync
-import io.github.dockyardmc.scheduler.runnables.ticks
+import io.github.dockyardmc.scheduler.runAsync
 import io.github.dockyardmc.utils.DebugSidebar
-import kotlin.time.Duration.Companion.seconds
+import io.github.dockyardmc.world.block.Block
+
 
 fun main() {
     val server = DockyardServer {
@@ -36,32 +29,136 @@ fun main() {
         player.give(Items.OAK_LOG)
     }
 
-    Events.on<PlayerRightClickWithItemEvent> { event ->
-        event.player.setVelocity(Vector3d(0, 20.5, 0))
+    Events.on<PlayerBlockPlaceEvent> { event ->
+        val visited = mutableSetOf<Location>()
+        if (event.block.registryBlock == Blocks.REDSTONE_BLOCK) {
+            runAsync {
+                event.location.getNeighbours().forEach { (_, neighborLoc) ->
+                    updateRedstoneComponent(neighborLoc, true, visited)
+                }
+            }
+        }
     }
 
-    Commands.add("/test") {
-        execute { ctx ->
-            val player = ctx.getPlayerOrThrow()
-            player.world.scheduler.repeat(5, 1.ticks) {
-                repeat(3) {
-                    val physics = VelocitySimulation(player.location.add(0.0, 0.5, 0.0), Vector3f(randomFloat(-0.50f, 0.50f), 0.5f, randomFloat(-0.50f, 0.50f)), true)
-                    val entity = player.world.spawnEntity(ItemDropEntity(player.location, ItemStack(ItemRegistry.items.values.random()))) as ItemDropEntity
+    Events.on<PlayerBlockBreakEvent> { event ->
+        val visited = mutableSetOf<Location>()
+        if (event.block.registryBlock == Blocks.REDSTONE_BLOCK) {
+            runAsync {
+                event.location.getNeighbours().forEach { (_, neighborLoc) ->
+                    updateRedstoneComponent(neighborLoc, false, visited)
+                }
+            }
+        }
+    }
 
-                    physics.onTick.subscribe { location ->
-                        entity.teleport(location)
-                    }
+    Events.on<PlayerBlockRightClickEvent> { event ->
+        val player = event.player
+        val block: Block = event.block
+        val registryBlock = event.block.registryBlock
 
-                    physics.start()
-
-                    runLaterAsync(5.seconds) {
-                        physics.dispose()
-                        player.world.despawnEntity(entity)
-                    }
+        if(registryBlock != Blocks.LEVER) return@on
+        val powered = block.blockStates["powered"]!!.toBoolean()
+        event.location.setBlock(block.withBlockStates("powered" to (!powered).toString()))
+        runAsync {
+            repeat(2) { yOffset ->
+                event.location.getNeighbours().forEach { (_, neighborLoc) ->
+                    updateRedstoneComponent(neighborLoc.subtract(0, yOffset, 0), !powered, mutableSetOf())
                 }
             }
         }
     }
 
     server.start()
+}
+
+fun updateRedstoneComponent(location: Location, powered: Boolean, visited: MutableSet<Location>) {
+    if (visited.contains(location)) return
+    visited.add(location)
+
+    val block = location.block
+    when (block.registryBlock) {
+        Blocks.REDSTONE_WIRE -> {
+            location.setBlock(block.withBlockStates("power" to if (powered) "15" else "0"))
+
+            location.getNeighbours().forEach { (_, neighborLoc) ->
+                updateRedstoneComponent(neighborLoc, powered, visited)
+            }
+        }
+
+        // is a logic gate
+        Blocks.REPEATER -> {
+            val facing = block.blockStates["facing"] ?: "north"
+            val delay = block.blockStates["delay"]?.toInt() ?: 1
+
+            when (delay) {
+
+                // NOT gate
+                1 -> {
+                    val inputDirection = when (facing) {
+                        "north" -> Direction.SOUTH
+                        "south" -> Direction.NORTH
+                        "east" -> Direction.WEST
+                        "west" -> Direction.EAST
+                        else -> Direction.SOUTH
+                    }.getOpposite()
+
+                    val outputLocation = location.add(inputDirection.getOpposite().toNormalizedVector3f())
+                    updateRedstoneComponent(outputLocation, !powered, visited)
+                }
+
+                // AND gate
+                // should take inputs from both sides and output if both are on
+                2 -> {
+                    val (leftDir, rightDir) = when (facing) {
+                        "north" -> Direction.WEST to Direction.EAST
+                        "south" -> Direction.EAST to Direction.WEST
+                        "east" -> Direction.NORTH to Direction.SOUTH
+                        "west" -> Direction.SOUTH to Direction.NORTH
+                        else -> Direction.WEST to Direction.EAST
+                    }
+
+                    val leftInput = location.relative(leftDir)
+                    val rightInput = location.relative(rightDir)
+
+                    val leftPowered = isPowered(leftInput)
+                    val rightPowered = isPowered(rightInput)
+                    val bothPowered = leftPowered && rightPowered
+
+                    val outputLocation = location.relative(Direction.valueOf(facing.uppercase()).getOpposite())
+                    updateRedstoneComponent(outputLocation, bothPowered, visited)
+                }
+                3 -> {
+                    val (leftDir, rightDir) = when (facing) {
+                        "north" -> Direction.WEST to Direction.EAST
+                        "south" -> Direction.EAST to Direction.WEST
+                        "east" -> Direction.NORTH to Direction.SOUTH
+                        "west" -> Direction.SOUTH to Direction.NORTH
+                        else -> Direction.WEST to Direction.EAST
+                    }
+
+                    val leftInput = location.relative(leftDir)
+                    val rightInput = location.relative(rightDir)
+
+                    val leftPowered = isPowered(leftInput)
+                    val rightPowered = isPowered(rightInput)
+                    val bothNotPowered = !leftPowered && !rightPowered
+
+                    val outputLocation = location.relative(Direction.valueOf(facing.uppercase()).getOpposite())
+                    updateRedstoneComponent(outputLocation, bothNotPowered, visited)
+                }
+
+                else -> {}
+            }
+        }
+        Blocks.REDSTONE_LAMP -> {
+            location.setBlock(block.withBlockStates("lit" to powered.toString()))
+        }
+    }
+}
+
+fun isPowered(location: Location): Boolean {
+    val block = location.block
+    if (block.registryBlock != Blocks.REDSTONE_WIRE) return false
+    val power = block.blockStates["power"]?.toInt() ?: return false
+    return power != 0
 }

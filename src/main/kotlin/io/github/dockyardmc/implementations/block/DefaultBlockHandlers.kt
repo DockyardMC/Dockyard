@@ -56,7 +56,7 @@ class DefaultBlockHandlers : DefaultImplementationModule {
         BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:dirt_path", DirtPathBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:chiseled_bookshelf", ChiseledBookshelfBlockHandler())
         BlockHandlerManager.register(BlockHandlerManager.Type.TAG, "minecraft:fence_gates", facingBlockHandler)
-
+        BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, "minecraft:redstone_wire", RedstoneDustHandler())
 
         DoublePlantBlockHandler.doublePlants.forEach { block ->
             BlockHandlerManager.register(BlockHandlerManager.Type.BLOCK, block.identifier, doublePlantHandler)

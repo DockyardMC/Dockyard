@@ -9,6 +9,8 @@ import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.registry.Items
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -25,10 +27,12 @@ class ServerboundPickItemFromBlockPacket(val blockPosition: Vector3, val include
         if(event.cancelled) return
         if(event.block.isAir()) return
 
+        val newItem = if(block.registryBlock == Blocks.REDSTONE_WIRE) Items.REDSTONE else block.toItem()
+
         if(player.gameMode.value == GameMode.CREATIVE) {
-            player.mainHandItem = event.block.toItem().toItemStack()
+            player.mainHandItem = newItem.toItemStack()
         } else {
-            val slot = player.inventory.getSlotByItem(block.toItem()) ?: return
+            val slot = player.inventory.getSlotByItem(newItem) ?: return
 
             if(slot <= 8) {
                 player.heldSlotIndex.value = slot
