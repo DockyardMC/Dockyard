@@ -203,7 +203,6 @@ data class DimensionType(
             withBoolean("respawn_anchor_works", respawnAnchorWorks)
             withBoolean("ultrawarm", ultraWarm)
         }
-        log(TagStringIO.get().asString(nbt))
         return nbt
     }
 }

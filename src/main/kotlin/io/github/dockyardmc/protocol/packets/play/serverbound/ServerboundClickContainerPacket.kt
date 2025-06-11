@@ -540,9 +540,9 @@ class ServerboundClickContainerPacket(
 
             val carriedItem = HashedItemStack.read(buffer)
 
-            val rest = buffer.readableBytes()
-            buffer.readBytes(rest)
-            buffer.clear()
+//            val rest = buffer.readableBytes()
+//            buffer.readBytes(rest)
+//            buffer.clear()
 
             return ServerboundClickContainerPacket(
                 windowsId,

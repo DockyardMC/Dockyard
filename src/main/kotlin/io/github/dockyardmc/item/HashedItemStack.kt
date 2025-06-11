@@ -24,7 +24,7 @@ class HashedItemStack(val item: Item, val amount: Int, val addedComponents: Map<
         buffer.writeBoolean(true)
         buffer.writeRegistryEntry(item)
         buffer.writeVarInt(amount)
-        buffer.writeMap(resolvedAdded, ByteBuf::writeVarInt, ByteBuf::writeVarInt)
+        buffer.writeMap(resolvedAdded, ByteBuf::writeVarInt, ByteBuf::writeInt)
         buffer.writeList(resolvedRemoved, ByteBuf::writeVarInt)
     }
 
@@ -40,7 +40,7 @@ class HashedItemStack(val item: Item, val amount: Int, val addedComponents: Map<
             val addedComponents = mutableMapOf<KClass<out DataComponent>, Int>()
             val removedComponents = mutableSetOf<KClass<out DataComponent>>()
 
-            val addedResolved = buffer.readMap(ByteBuf::readVarInt, ByteBuf::readVarInt)
+            val addedResolved = buffer.readMap(ByteBuf::readVarInt, ByteBuf::readInt)
             val removedResolved = buffer.readList(ByteBuf::readVarInt)
 
             addedResolved.forEach { (id, hash) ->
