@@ -84,11 +84,32 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
         }
     }
 
+    fun has(prototype: DataComponentPatch, component: KClass<out DataComponent>): Boolean {
+        val id = DataComponentRegistry.dataComponentsByIdReversed.getOrThrow(component)
+        return if (components.containsKey(id)) {
+            components.get(id) != null
+        } else {
+            prototype.has(component)
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    operator fun <T> get(prototype: DataComponentPatch, component: KClass<out DataComponent>): T? {
+        val key = DataComponentRegistry.dataComponentsByIdReversed.getValue(component)
+        return if (components.containsKey(key)) {
+            components.get(key) as T?
+        } else {
+            prototype[component] as T?
+        }
+    }
+
+
     operator fun get(component: KClass<out DataComponent>): DataComponent? {
         val key = DataComponentRegistry.dataComponentsByIdReversed.getValue(component)
         if (!components.containsKey(key)) return null
         return components.getValue(key)
     }
+
 
     operator fun get(component: DataComponent): DataComponent? {
         return get(component::class)
