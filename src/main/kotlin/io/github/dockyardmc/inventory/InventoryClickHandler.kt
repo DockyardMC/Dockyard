@@ -1,10 +1,11 @@
 package io.github.dockyardmc.inventory
 
+import io.github.dockyardmc.item.HashedItemStack
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.clone
 import io.github.dockyardmc.item.isSameAs
-import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.maths.isBetween
+import io.github.dockyardmc.player.Player
 import kotlin.math.ceil
 
 object InventoryClickHandler {
@@ -82,22 +83,23 @@ object InventoryClickHandler {
     }
 
 
-    fun findSuitableSlotInRange(inventory: EntityInventory, min: Int, max: Int, item: ItemStack): Int? {
+    fun findSuitableSlotInRange(inventory: EntityInventory, min: Int, max: Int, item: HashedItemStack): Int? {
         val suitableSlots = mutableListOf<Int>()
 
         for (i in min until max) {
             val slot = inventory[i]
+            val hashedSlot = HashedItemStack.fromItemStack(slot)
             if (slot.isEmpty()) {
                 suitableSlots.add(i)
             } else {
-                val canStack = slot.isSameAs(item) &&
+                val canStack = hashedSlot == item &&
                         slot.amount != slot.maxStackSize &&
                         slot.amount + item.amount <= slot.maxStackSize
 
                 if (canStack) {
                     suitableSlots.add(i)
                 } else {
-                    if (slot.isSameAs(item) && slot.amount != slot.maxStackSize) {
+                    if (hashedSlot == item && slot.amount != slot.maxStackSize) {
                         suitableSlots.add(i)
                     }
                 }

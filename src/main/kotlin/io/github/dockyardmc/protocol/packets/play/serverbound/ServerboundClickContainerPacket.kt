@@ -28,8 +28,8 @@ class ServerboundClickContainerPacket(
     var slot: Int,
     var button: Int,
     var mode: ContainerClickMode,
-    var changedSlots: MutableMap<Int, ItemStack>,
-    var item: ItemStack,
+    var changedSlots: MutableMap<Int, HashedItemStack>,
+    var item: HashedItemStack,
 ) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
@@ -529,16 +529,16 @@ class ServerboundClickContainerPacket(
             val slot = buffer.readShort().toInt()
             val button = buffer.readByte().toInt()
             val mode = buffer.readEnum<ContainerClickMode>()
-            val changedSlots = mutableMapOf<Int, ItemStack>()
+            val changedSlots = mutableMapOf<Int, HashedItemStack>()
 
             val arraySize = buffer.readVarInt()
             for (i in 0 until arraySize) {
                 val slotNumber = buffer.readShort().toInt()
-                val slotData = ItemStack.read(buffer)
+                val slotData = HashedItemStack.read(buffer)
                 changedSlots[slotNumber] = slotData
             }
 
-            val carriedItem = ItemStack.read(buffer)
+            val carriedItem = HashedItemStack.read(buffer)
 
             val rest = buffer.readableBytes()
             buffer.readBytes(rest)

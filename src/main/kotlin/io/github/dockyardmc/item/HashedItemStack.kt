@@ -69,7 +69,5 @@ class HashedItemStack(val item: Item, val amount: Int, val addedComponents: Map<
 
             return HashedItemStack(itemStack.material, itemStack.amount, addedComponents, removedComponents)
         }
-
-
     }
 }
