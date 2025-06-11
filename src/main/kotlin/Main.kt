@@ -12,6 +12,7 @@ fun main() {
         withIp("0.0.0.0")
         withPort(25565)
         useDebugMode(true)
+        useMojangAuth(false)
     }
 
     Events.on<PlayerJoinEvent> { event ->

@@ -1,9 +1,7 @@
 package io.github.dockyardmc.nbt
 
-import net.kyori.adventure.nbt.BinaryTag
-import net.kyori.adventure.nbt.BinaryTagType
-import net.kyori.adventure.nbt.CompoundBinaryTag
-import net.kyori.adventure.nbt.ListBinaryTag
+import cz.lukynka.prettylog.log
+import net.kyori.adventure.nbt.*
 
 class NbtBuilder {
     val compound = CompoundBinaryTag.builder()
@@ -84,7 +82,9 @@ class NbtBuilder {
         compound.put(name, builder.build())
     }
 
-    fun build(): CompoundBinaryTag = compound.build()
+    fun build(): CompoundBinaryTag {
+        return compound.build()
+    }
 }
 
 fun nbt(compound: NbtBuilder.() -> Unit): CompoundBinaryTag {

@@ -91,7 +91,7 @@ data class WolfVariant(
 
     override fun getNbt(): CompoundBinaryTag {
         return nbt {
-            withCompound {
+            withCompound("assets") {
                 withString("angry", angry)
                 withString("tame", tame)
                 withString("wild", wild)

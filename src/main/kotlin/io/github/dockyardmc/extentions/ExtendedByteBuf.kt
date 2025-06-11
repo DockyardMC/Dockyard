@@ -122,22 +122,6 @@ fun ByteBuf.readNBT(): BinaryTag {
     return nbt
 }
 
-//    val buffer = this
-//    val nbtReader = NBTReader(object : InputStream() {
-//
-//        override fun read(): Int = buffer.readByte().toInt() and 0xFF
-//        override fun available(): Int = buffer.readableBytes()
-//
-//    }, CompressedProcesser.NONE)
-//    return try {
-//        val tagId: Byte = buffer.readByte()
-//        if (tagId.toInt() == NBTType.TAG_End.ordinal) NBTEnd else nbtReader.readRaw(tagId.toInt())
-//    } catch (e: IOException) {
-//        throw java.lang.RuntimeException(e)
-//    } catch (e: NBTException) {
-//        throw java.lang.RuntimeException(e)
-//    }
-
 fun ByteBuf.readNBTCompound(): CompoundBinaryTag {
     return this.readNBT() as CompoundBinaryTag
 }
@@ -150,38 +134,11 @@ fun ByteBuf.writeNBT(nbt: CompoundBinaryTag) {
 
     val outputStream = ByteArrayOutputStream()
     try {
-        BinaryTagIO.writer().write(nbt, outputStream)
+        BinaryTagIO.writer().writeNameless(nbt, outputStream)
     } finally {
         this.writeBytes(outputStream.toByteArray())
     }
 }
-
-//    try {
-//        val writer = NBTWriter(outputStream, CompressedProcesser.NONE)
-//        writer.writeNamed("", nbt)
-//        writer.close()
-//    } finally {
-//        if (truncateRootTag) {
-//            var outData = outputStream.toByteArray()
-//
-//            // Since 1.20.2 (Protocol 764) NBT sent over the network has been updated to exclude the name from the root TAG_COMPOUND
-//            // ┌───────────┬────────┬────────────────┬──────────────┬───────────┐
-//            // │  Version  │ TypeID │ Length of Name │     Name     │  Payload  │
-//            // ├───────────┼────────┼────────────────┼──────────────┼───────────┤
-//            // │ < 1.20.2  │ 0x0a   │ 0x00 0x00      │ Empty String │ 0x02 0x09 │
-//            // │ >= 1.20.2 │ 0x0a   │ N/A            │ N/A          │ 0x02 0x09 │
-//            // └───────────┴────────┴────────────────┴──────────────┴───────────┘
-//
-//            // Thanks to Kev (kev_dev) for pointing this out because I think I would have gone mad otherwise
-//            val list = outData.toMutableList()
-//            list.removeAt(1)
-//            list.removeAt(1)
-//            outData = list.toByteArray()
-//            writeBytes(outData)
-//        } else {
-//            writeBytes(outputStream.toByteArray())
-//        }
-//    }
 
 fun ByteBuf.readFixedBitSet(i: Int): BitSet {
     val bs = ByteArray(positiveCeilDiv(i, 8))

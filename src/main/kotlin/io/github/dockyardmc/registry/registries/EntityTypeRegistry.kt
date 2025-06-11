@@ -83,7 +83,6 @@ data class EntityType(
         return identifier
     }
 
-
     override fun getNbt(): CompoundBinaryTag? = null
 }
 

@@ -10,6 +10,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
+import net.kyori.adventure.nbt.BinaryTag
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.io.InputStream
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
@@ -65,6 +67,10 @@ data class PotionType(
 
     override fun getProtocolId(): Int {
         return PotionTypeRegistry.protocolIdMapReversed.getOrThrow(this)
+    }
+
+    override fun getNbt(): BinaryTag {
+        return CompoundBinaryTag.empty()
     }
 
     override fun getEntryIdentifier(): String {

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
@@ -7,6 +8,7 @@ import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
 import net.kyori.adventure.nbt.CompoundBinaryTag
+import net.kyori.adventure.nbt.TagStringIO
 import java.util.concurrent.atomic.AtomicInteger
 
 object DimensionTypeRegistry : DynamicRegistry {
@@ -181,7 +183,7 @@ data class DimensionType(
 
 
     override fun getNbt(): CompoundBinaryTag {
-        return nbt {
+        val nbt = nbt {
             withFloat("ambient_light", ambientLight)
             withBoolean("bed_works", bedWorks)
             withDouble("coordinate_scale", coordinateScale)
@@ -201,6 +203,8 @@ data class DimensionType(
             withBoolean("respawn_anchor_works", respawnAnchorWorks)
             withBoolean("ultrawarm", ultraWarm)
         }
+        log(TagStringIO.get().asString(nbt))
+        return nbt
     }
 }
 
