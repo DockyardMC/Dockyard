@@ -10,7 +10,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.io.InputStream
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
@@ -84,7 +84,7 @@ data class EntityType(
     }
 
 
-    override fun getNbt(): NBTCompound? = null
+    override fun getNbt(): CompoundBinaryTag? = null
 }
 
 @Serializable

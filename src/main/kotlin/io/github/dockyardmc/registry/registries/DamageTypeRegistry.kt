@@ -1,16 +1,15 @@
 package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.extentions.getOrThrow
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.concurrent.atomic.AtomicInteger
 
-object DamageTypeRegistry: DynamicRegistry {
+object DamageTypeRegistry : DynamicRegistry {
 
     override val identifier: String = "minecraft:damage_type"
 
@@ -18,7 +17,7 @@ object DamageTypeRegistry: DynamicRegistry {
 
     val damageTypes: MutableMap<String, DamageType> = mutableMapOf()
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
-    private val protocolIdCounter =  AtomicInteger()
+    private val protocolIdCounter = AtomicInteger()
 
     override fun getMaxProtocolId(): Int {
         return protocolIdCounter.get()
@@ -27,21 +26,21 @@ object DamageTypeRegistry: DynamicRegistry {
     fun addEntry(entry: DamageType, updateCache: Boolean = true) {
         protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
         damageTypes[entry.identifier] = entry
-        if(updateCache) updateCache()
+        if (updateCache) updateCache()
     }
 
     override fun register() {
         addEntry(DamageType("minecraft:arrow", exhaustion = 0.1f, messageId = "arrow", scaling = "when_caused_by_living_non_player"), false)
         addEntry(DamageType("minecraft:bad_respawn_point", deathMessageType = "intentional_game_design", exhaustion = 0.1f, messageId = "badRespawnPoint", scaling = "always"), false)
-        addEntry(DamageType("minecraft:cactus", exhaustion = 0.1f, messageId = "cactus", scaling = "when_caused_by_living_non_player" ), false)
-        addEntry(DamageType("minecraft:campfire", effects = "burning", exhaustion = 0.1f, messageId = "inFire",scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:cactus", exhaustion = 0.1f, messageId = "cactus", scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:campfire", effects = "burning", exhaustion = 0.1f, messageId = "inFire", scaling = "when_caused_by_living_non_player"), false)
         addEntry(DamageType("minecraft:cramming", exhaustion = 0.0f, messageId = "cramming", scaling = "when_caused_by_living_non_player"), false)
         addEntry(DamageType("minecraft:dragon_breath", exhaustion = 0.0f, messageId = "dragonBreath", scaling = "when_caused_by_living_non_player"), false)
-        addEntry(DamageType("minecraft:drown", effects = "drowning", exhaustion = 0.0f, messageId = "drown",scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:drown", effects = "drowning", exhaustion = 0.0f, messageId = "drown", scaling = "when_caused_by_living_non_player"), false)
         addEntry(DamageType("minecraft:dry_out", exhaustion = 0.1f, messageId = "dryout", scaling = "when_caused_by_living_non_player"), false)
         addEntry(DamageType("minecraft:explosion", exhaustion = 0.1f, messageId = "explosion", scaling = "always"), false)
         addEntry(DamageType("minecraft:is_explosion", exhaustion = 0.1f, messageId = "explosion", scaling = "always"), false)
-        addEntry(DamageType("minecraft:fall", deathMessageType = "fall_variants", exhaustion = 0.0f, messageId = "fall",scaling = "when_caused_by_living_non_player"), false)
+        addEntry(DamageType("minecraft:fall", deathMessageType = "fall_variants", exhaustion = 0.0f, messageId = "fall", scaling = "when_caused_by_living_non_player"), false)
         addEntry(DamageType("minecraft:falling_anvil", exhaustion = 0.1f, messageId = "anvil", scaling = "when_caused_by_living_non_player"), false)
         addEntry(DamageType("minecraft:falling_block", exhaustion = 0.1f, messageId = "fallingBlock", scaling = "when_caused_by_living_non_player"), false)
         addEntry(DamageType("minecraft:falling_stalactite", exhaustion = 0.1f, messageId = "fallingStalactite", scaling = "when_caused_by_living_non_player"), false)
@@ -84,7 +83,7 @@ object DamageTypeRegistry: DynamicRegistry {
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
-        if(!::cachedPacket.isInitialized) updateCache()
+        if (!::cachedPacket.isInitialized) updateCache()
         return cachedPacket
     }
 
@@ -116,7 +115,7 @@ data class DamageType(
     val scaling: String,
     val effects: String? = null,
     val deathMessageType: String? = null,
-): RegistryEntry {
+) : RegistryEntry {
 
     override fun getProtocolId(): Int {
         return DamageTypeRegistry.protocolIds.getOrThrow(identifier)
@@ -127,11 +126,11 @@ data class DamageType(
     }
 
 
-    override fun getNbt(): NBTCompound {
-        return NBT.Compound {
-            it.put("exhaustion", this.exhaustion)
-            it.put("message_id", this.messageId)
-            it.put("scaling", this.scaling)
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withFloat("exhaustion", exhaustion)
+            withString("message_id", messageId)
+            withString("scaling", scaling)
         }
     }
 }

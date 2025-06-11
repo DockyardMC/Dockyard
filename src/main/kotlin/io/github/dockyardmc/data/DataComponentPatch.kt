@@ -86,12 +86,16 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
 
     operator fun get(component: KClass<out DataComponent>): DataComponent? {
         val key = DataComponentRegistry.dataComponentsByIdReversed.getValue(component)
-        if(!components.containsKey(key)) return null
+        if (!components.containsKey(key)) return null
         return components.getValue(key)
     }
 
     operator fun get(component: DataComponent): DataComponent? {
         return get(component::class)
+    }
+
+    inline fun <reified T : DataComponent> get(): T? {
+        return get(T::class) as T?
     }
 
     fun getOfPrototype(prototype: DataComponentPatch, component: DataComponent): DataComponent? {
@@ -104,22 +108,19 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
     }
 
     fun set(component: DataComponent): DataComponentPatch {
-        val newComponents: Int2ObjectMap<DataComponent?> = Int2ObjectArrayMap<DataComponent?>(components)
-        newComponents.put(component.getId(), component)
-        return DataComponentPatch(newComponents, isPatch, isTrusted)
+        components.put(component.getId(), component)
+        return this
     }
 
     fun remove(component: DataComponent): DataComponentPatch {
-        val newComponents: Int2ObjectMap<DataComponent?> = Int2ObjectArrayMap<DataComponent?>(components)
-        newComponents.put(component.getId(), null)
-        return DataComponentPatch(newComponents, isPatch, isTrusted)
+        components.put(component.getId(), null)
+        return this
     }
 
     fun remove(componentClass: KClass<out DataComponent>): DataComponentPatch {
-        val newComponents: Int2ObjectMap<DataComponent?> = Int2ObjectArrayMap<DataComponent?>(components)
         val id = DataComponentRegistry.dataComponentsByIdReversed.getOrThrow(componentClass)
-        newComponents.put(id, null)
-        return DataComponentPatch(newComponents, isPatch, isTrusted)
+        components.put(id, null)
+        return this
     }
 
     override fun write(buffer: ByteBuf) {

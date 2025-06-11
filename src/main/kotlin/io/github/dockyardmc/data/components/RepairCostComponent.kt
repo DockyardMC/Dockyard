@@ -9,7 +9,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.netty.buffer.ByteBuf
 
-class RepairCostComponent(val cost: Int) : DataComponent() {
+data class RepairCostComponent(val cost: Int) : DataComponent() {
 
     override fun write(buffer: ByteBuf) {
         buffer.writeVarInt(cost)

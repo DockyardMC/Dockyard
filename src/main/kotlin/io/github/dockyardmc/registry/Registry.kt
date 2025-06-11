@@ -35,7 +35,7 @@ interface DataDrivenRegistry : Registry {
 interface DynamicDataDrivenRegistry : DataDrivenRegistry, DynamicRegistry
 
 interface RegistryEntry : NetworkWritable {
-    fun getNbt(): BinaryTag?
+    fun getNbt(): BinaryTag? = null
     fun getProtocolId(): Int
     fun getEntryIdentifier(): String
 

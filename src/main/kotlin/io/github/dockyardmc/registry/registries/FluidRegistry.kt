@@ -10,12 +10,12 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.io.InputStream
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
 
-object FluidRegistry: DataDrivenRegistry, DynamicRegistry {
+object FluidRegistry : DataDrivenRegistry, DynamicRegistry {
 
     val fluids: MutableMap<String, Fluid> = mutableMapOf()
     val protocolIds: MutableMap<String, Int> = mutableMapOf()
@@ -39,11 +39,11 @@ object FluidRegistry: DataDrivenRegistry, DynamicRegistry {
         protocolIds[entry.identifier] = protocolId
         protocolIdsReversed[protocolId] = entry
         fluids[entry.identifier] = entry
-        if(updateCache) updateCache()
+        if (updateCache) updateCache()
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
-        if(!::packet.isInitialized) updateCache()
+        if (!::packet.isInitialized) updateCache()
         return packet
     }
 
@@ -81,9 +81,9 @@ data class Fluid(
     val pickupSound: String,
     val explosionResistance: Float,
     val block: String
-): RegistryEntry {
+) : RegistryEntry {
 
-    override fun getNbt(): NBTCompound? = null
+    override fun getNbt(): CompoundBinaryTag? = null
 
     override fun getProtocolId(): Int {
         return FluidRegistry.protocolIds.getOrThrow(identifier)

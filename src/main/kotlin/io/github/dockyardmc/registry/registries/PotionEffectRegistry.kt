@@ -4,10 +4,9 @@ import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.registry.Registry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.util.concurrent.atomic.AtomicInteger
 
-object PotionEffectRegistry: Registry {
+object PotionEffectRegistry : Registry {
 
     override val identifier: String = "minecraft:potion_effect"
 
@@ -87,7 +86,7 @@ data class PotionEffect(
     val identifier: String,
     val name: String,
     val type: PotionEffectType,
-): RegistryEntry {
+) : RegistryEntry {
 
     override fun getProtocolId(): Int {
         return PotionEffectRegistry.protocolIds.getOrThrow(identifier)
@@ -97,8 +96,6 @@ data class PotionEffect(
         return identifier
     }
 
-
-    override fun getNbt(): NBTCompound? = null
 }
 
 enum class PotionEffectType {

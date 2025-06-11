@@ -12,11 +12,10 @@ import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.block.BlockEntity
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
-import org.jglrxavpok.hephaistos.nbt.NBT
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.*
 
-class Chunk(val chunkX: Int, val chunkZ: Int, val world: World): Viewable() {
+class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
 
     val id: UUID = UUID.randomUUID()
     val minSection = world.dimensionType.minY / 16
@@ -24,7 +23,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World): Viewable() {
     private lateinit var cachedPacket: ClientboundChunkDataPacket
     override var autoViewable: Boolean = true
 
-    val heightmapArray: ImmutableLongArray = ImmutableLongArray(37) { 0 }
+    val heightmapArray: LongArray = LongArray(37) { 0 }
 
     val sections: MutableList<ChunkSection> = mutableListOf()
     val blockEntities: Int2ObjectOpenHashMap<BlockEntity> = Int2ObjectOpenHashMap(0)
@@ -94,7 +93,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World): Viewable() {
         val index = ChunkUtils.chunkBlockIndex(x, y, z)
 
         if (block.registryBlock.isBlockEntity) {
-            val blockEntity = BlockEntity(index, block.registryBlock, NBT.Compound())
+            val blockEntity = BlockEntity(index, block.registryBlock, CompoundBinaryTag.empty())
             blockEntities[index] = blockEntity
         } else {
             blockEntities.remove(index)

@@ -1,18 +1,17 @@
 package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.extentions.getOrThrow
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import io.github.dockyardmc.scroll.extensions.put
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.io.InputStream
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
@@ -90,12 +89,12 @@ data class WolfVariant(
     }
 
 
-    override fun getNbt(): NBTCompound {
-        return NBT.Compound { builder ->
-            builder.put("assets") { inner ->
-                inner.put("angry", angry)
-                inner.put("tame", tame)
-                inner.put("wild", wild)
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withCompound {
+                withString("angry", angry)
+                withString("tame", tame)
+                withString("wild", wild)
             }
         }
     }

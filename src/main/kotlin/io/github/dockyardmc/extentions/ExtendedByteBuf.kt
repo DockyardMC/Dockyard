@@ -142,6 +142,10 @@ fun ByteBuf.readNBTCompound(): CompoundBinaryTag {
     return this.readNBT() as CompoundBinaryTag
 }
 
+fun ByteBuf.writeNBT(nbt: BinaryTag) {
+    this.writeNBT(nbt as CompoundBinaryTag)
+}
+
 fun ByteBuf.writeNBT(nbt: CompoundBinaryTag) {
 
     val outputStream = ByteArrayOutputStream()

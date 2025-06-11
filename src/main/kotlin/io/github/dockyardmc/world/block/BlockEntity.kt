@@ -1,12 +1,12 @@
 package io.github.dockyardmc.world.block
 
 import io.github.dockyardmc.registry.registries.RegistryBlock
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 data class BlockEntity(
     val positionIndex: Int,
     val block: RegistryBlock,
-    val data: NBTCompound,
+    val data: CompoundBinaryTag,
 ) {
     val blockEntityTypeId get() = block.blockEntityId!!
 }

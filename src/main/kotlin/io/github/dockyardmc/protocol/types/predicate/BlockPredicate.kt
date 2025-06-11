@@ -6,7 +6,6 @@ import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.writeOptional
-import io.github.dockyardmc.utils.writeMSNBT
 import io.github.dockyardmc.world.block.Block
 import io.netty.buffer.ByteBuf
 import net.kyori.adventure.nbt.CompoundBinaryTag
@@ -14,7 +13,7 @@ import java.util.function.Predicate
 
 class BlockPredicate(val blocks: BlockTypeFilter?, val state: PropertiesPredicate?, val nbt: CompoundBinaryTag?) : Predicate<Block>, NetworkWritable {
 
-    companion object: NetworkReadable<BlockPredicate> {
+    companion object : NetworkReadable<BlockPredicate> {
         val ALL = BlockPredicate(null, null, null)
         val NONE = BlockPredicate(null, PropertiesPredicate(mapOf("uwu_owo_nya" to ValuePredicate.Exact("purrr"))), null)
 

@@ -10,7 +10,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
 import java.io.InputStream
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
@@ -63,9 +62,6 @@ object PotionTypeRegistry : DataDrivenRegistry {
 data class PotionType(
     val identifier: String,
 ) : RegistryEntry {
-    override fun getNbt(): NBTCompound {
-        return NBTCompound.EMPTY
-    }
 
     override fun getProtocolId(): Int {
         return PotionTypeRegistry.protocolIdMapReversed.getOrThrow(this)

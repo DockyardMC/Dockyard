@@ -1,13 +1,12 @@
 package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.extentions.getOrThrow
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.concurrent.atomic.AtomicInteger
 
 object JukeboxSongRegistry : DynamicRegistry {
@@ -156,14 +155,14 @@ data class JukeboxSong(
         return JukeboxSongRegistry.protocolIds.getOrThrow(identifier)
     }
 
-    override fun getNbt(): NBTCompound {
-        return NBT.Compound {
-            it.put("comparator_output", comparatorOutput)
-            it.put("description", NBT.Compound { desc ->
-                desc.put("translate", description)
-            })
-            it.put("length_in_seconds", lengthInSeconds)
-            it.put("sound_event", sound)
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withInt("comparator_output", comparatorOutput)
+            withCompound("description") {
+                withString("translate", description)
+            }
+            withFloat("length_in_seconds", lengthInSeconds)
+            withString("sound_event", sound)
         }
     }
 
