@@ -5,7 +5,6 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerHandshakeEvent
 import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -16,18 +15,30 @@ class ServerboundHandshakePacket(
     val version: Int,
     val serverAddress: String,
     val port: Short,
-    val nextState: ProtocolState,
-): ServerboundPacket {
+    val intent: Intent,
+) : ServerboundPacket {
+
+    enum class Intent(val id: Int) {
+        STATUS(1),
+        LOGIN(2),
+        TRANSFER(3);
+
+        companion object {
+            fun fromId(id: Int): Intent {
+                return entries.firstOrNull { intent -> intent.id == id } ?: throw IllegalArgumentException("Unknown connection intent")
+            }
+        }
+    }
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
 
-        val event = ServerHandshakeEvent(version, serverAddress, port, nextState, Event.Context(isGlobalEvent = true))
+        val event = ServerHandshakeEvent(version, serverAddress, port, intent, Event.Context(isGlobalEvent = true))
         Events.dispatch(event)
-        if(event.cancelled) return
+        if (event.cancelled) return
 
         processor.joinedThroughIp = serverAddress
 
-        if(nextState == ProtocolState.LOGIN) {
+        if (intent == Intent.LOGIN) {
             processor.loginHandler.handleHandshake(this, connection)
             return
         }
@@ -41,7 +52,7 @@ class ServerboundHandshakePacket(
                 version = byteBuf.readVarInt(),
                 serverAddress = byteBuf.readString(),
                 port = byteBuf.readUnsignedShort().toShort(),
-                nextState = byteBuf.readEnum<ProtocolState>()
+                intent = Intent.fromId(byteBuf.readVarInt())
             )
         }
     }

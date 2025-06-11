@@ -4,8 +4,8 @@ import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.StaticHash
+import io.github.dockyardmc.extentions.asRGBHash
 import io.github.dockyardmc.extentions.fromRGBInt
-import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.scroll.CustomColor
 import io.netty.buffer.ByteBuf
@@ -13,7 +13,7 @@ import io.netty.buffer.ByteBuf
 class DyedColorComponent(val color: CustomColor) : DataComponent() {
 
     override fun write(buffer: ByteBuf) {
-        buffer.writeInt(color.toRgbInt())
+        buffer.writeInt(color.asRGBHash())
     }
 
     override fun hashStruct(): HashHolder {

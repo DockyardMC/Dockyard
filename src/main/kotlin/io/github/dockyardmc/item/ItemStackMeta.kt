@@ -56,15 +56,12 @@ class ItemStackMeta {
     }
 
     fun withDyedColor(color: CustomColor) {
-        components = components.set(DyedColorComponent(color))
+        components[DyedColorComponent(color)]
     }
 
-    fun isGlider(glider: Boolean = true) {
-        withGlider(glider)
-    }
 
-    fun withGlider(glider: Boolean = true) {
-        components = if (glider) components.set(GliderComponent()) else components.remove(GliderComponent::class)
+    fun withGlider() {
+        components[GliderComponent()]
     }
 
     fun withUseCooldown(cooldownSeconds: Float) {

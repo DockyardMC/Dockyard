@@ -3,7 +3,9 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.systems.GameMode
+import io.github.dockyardmc.protocol.types.ItemRarity
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.utils.DebugSidebar
 
 fun main() {
@@ -19,7 +21,14 @@ fun main() {
         player.gameMode.value = GameMode.CREATIVE
         DebugSidebar.sidebar.viewers.add(player)
         player.permissions.add("*")
-        player.give(Items.OAK_LOG.toItemStack().withMeta { withEnchantmentGlint(true) })
+        player.give(Items.OAK_LOG.toItemStack().withMeta {
+            withEnchantmentGlint(true)
+            withDyedColor(CustomColor.fromHex("#ff0000"))
+            withDisplayName("<red><u>Crazy Oak Log")
+            withRarity(ItemRarity.EPIC)
+            withLore("test", "test2", "test3")
+            withGlider()
+        })
     }
 
     server.start()
