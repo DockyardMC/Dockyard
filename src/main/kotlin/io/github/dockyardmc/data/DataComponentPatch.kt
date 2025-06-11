@@ -61,6 +61,27 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
             }
             return DataComponentPatch(patch, isPatch, isTrusted)
         }
+
+        fun diff(prototype: DataComponentPatch, patch: DataComponentPatch, isPatch: Boolean = false, isTrusted: Boolean = true): DataComponentPatch {
+            if (patch.components.toList().isEmpty()) return EMPTY
+
+            val diff: Int2ObjectArrayMap<DataComponent?> = Int2ObjectArrayMap(patch.components);
+            val iter = diff.int2ObjectEntrySet().fastIterator()
+            while (iter.hasNext()) {
+                val entry = iter.next()
+                val protoComp = prototype.components.get(entry.intKey)
+                if (entry.value == null) {
+                    // If the component is removed, remove it from the diff if it is not in the prototype
+                    if (!prototype.components.containsKey(entry.intKey)) {
+                        iter.remove()
+                    } else if (protoComp != null && protoComp == entry.value) {
+                        // If the component is the same as in the prototype, remove it from the diff
+                        iter.remove()
+                    }
+                }
+            }
+            return DataComponentPatch(diff, isPatch, isTrusted)
+        }
     }
 
     fun isEmpty(): Boolean = components.isEmpty()

@@ -3,11 +3,17 @@ package io.github.dockyard.tests.datacomponents
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.data.DataComponentPatch
 import io.github.dockyardmc.data.components.BannerPatternsComponent
+import io.github.dockyardmc.data.components.ConsumableComponent
 import io.github.dockyardmc.data.components.CustomNameComponent
 import io.github.dockyardmc.data.components.ItemNameComponent
+import io.github.dockyardmc.data.components.RarityComponent
 import io.github.dockyardmc.data.components.RepairCostComponent
+import io.github.dockyardmc.protocol.types.ItemRarity
+import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.netty.buffer.Unpooled
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap
+import java.util.HexFormat
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,6 +26,24 @@ class DataComponentPatchTest {
     @BeforeTest
     fun prepare() {
         TestServer.getOrSetupServer()
+    }
+
+    @Test
+    fun testWriting() {
+        val buffer = Unpooled.buffer()
+        val patch = DataComponentPatch(Int2ObjectArrayMap(), true, true)
+        patch.set(RepairCostComponent(69))
+        patch.set(RarityComponent(ItemRarity.RARE))
+        patch.remove(ConsumableComponent::class)
+
+        patch.write(buffer)
+        buffer.resetReaderIndex()
+        buffer.resetWriterIndex()
+
+        val expected = "0201104509021400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        val actual = HexFormat.of().formatHex(buffer.array())
+        assertEquals(expected, actual)
+
     }
 
     @Test
@@ -64,5 +88,16 @@ class DataComponentPatchTest {
         // non existent
         assertFalse(patch.has(prototype, BannerPatternsComponent::class))
         assertNull(patch[prototype, BannerPatternsComponent::class])
+    }
+
+    @Test
+    fun testDiff() {
+        val prototype = DataComponentPatch(Int2ObjectArrayMap(), false, true)
+        prototype.set(RepairCostComponent(10))
+
+        val patch = DataComponentPatch.EMPTY
+        val diff = DataComponentPatch.diff(prototype, patch)
+
+        assertNull(diff[RepairCostComponent::class])
     }
 }
