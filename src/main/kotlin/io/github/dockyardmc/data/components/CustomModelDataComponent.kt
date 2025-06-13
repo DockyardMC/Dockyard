@@ -4,8 +4,8 @@ import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.extentions.fromRGBInt
+import io.github.dockyardmc.extentions.getPackedInt
 import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.extentions.toRgbInt
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.types.readList
@@ -19,7 +19,7 @@ class CustomModelDataComponent(val floats: List<Float>, val flags: List<Boolean>
         buffer.writeList(floats, ByteBuf::writeFloat)
         buffer.writeList(flags, ByteBuf::writeBoolean)
         buffer.writeList(strings, ByteBuf::writeString)
-        buffer.writeList(colors.map { color -> color.toRgbInt() }, ByteBuf::writeInt)
+        buffer.writeList(colors.map { color -> color.getPackedInt() }, ByteBuf::writeInt)
     }
 
     override fun hashStruct(): HashHolder {

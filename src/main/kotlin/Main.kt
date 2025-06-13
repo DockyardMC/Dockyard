@@ -22,7 +22,7 @@ fun main() {
     Events.on<PlayerJoinEvent> { event ->
         val player = event.player
         player.gameMode.value = GameMode.CREATIVE
-        DebugSidebar.sidebar.viewers.add(player)
+        DebugSidebar.sidebar.addViewer(player)
         player.permissions.add("*")
         player.give(Items.OAK_LOG.toItemStack().withMeta {
             withEnchantmentGlint(true)

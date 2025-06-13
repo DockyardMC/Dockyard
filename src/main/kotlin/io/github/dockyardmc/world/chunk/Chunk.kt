@@ -2,6 +2,7 @@ package io.github.dockyardmc.world.chunk
 
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
@@ -17,6 +18,11 @@ import java.util.*
 
 class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
 
+    companion object {
+        private const val SECTION_BITS = 4
+        private const val SECTION_MASK = 15
+    }
+
     val id: UUID = UUID.randomUUID()
     val minSection = world.dimensionType.minY / 16
     val maxSection = world.dimensionType.height / 16
@@ -27,6 +33,8 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
 
     val motionBlocking: LongArray = LongArray(37) { 0 }
     val worldSurface: LongArray = LongArray(37) { 0 }
+
+    val heightMap: LongArray = LongArray(37) { 0 }
 
     val sections: MutableList<ChunkSection> = mutableListOf()
     val blockEntities: Int2ObjectOpenHashMap<BlockEntity> = Int2ObjectOpenHashMap(0)
@@ -39,15 +47,34 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
             return cachedPacket
         }
 
+    init {
+        val sectionsAmount = maxSection - minSection
+        repeat(sectionsAmount) {
+            sections.add(ChunkSection.empty())
+        }
+        ChunkHeightmap.Type.entries.forEach { type ->
+            getOrCreateHeightmap(type)
+            ChunkHeightmap.generate(this, setOf(type))
+        }
+        updateCache()
+    }
+
     fun updateCache() {
-        val heightmapNbt = NBT.Compound { builder ->
+        val heightmapData: MutableMap<ChunkHeightmap.Type, LongArray> = mutableMapOf()
+
+        heightmaps.forEach { (type, heightmap) ->
+            if (!type.sendToClient()) return@forEach
+            heightmapData[type] = heightmap.getRawData()
+        }
+
+        val heightmapNbt = nbt {
             heightmaps.forEach { map ->
                 if (map.key.sendToClient()) {
-                    builder.put(map.key.name, map.value.getRawData())
+                    withLongArray(map.key.name, map.value.getRawData())
                 }
             }
         }
-        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightMap, sections, blockEntities.values, light)
+        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightmapData, sections, blockEntities.values, light)
     }
 
     init {

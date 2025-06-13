@@ -1,16 +1,13 @@
 package io.github.dockyardmc.item
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.AttributeModifier
-import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.DataComponentPatch
-import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.components.*
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.nbt.nbt
+import io.github.dockyardmc.noxesium.Noxesium
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.types.ConsumeEffect
@@ -21,7 +18,6 @@ import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
-import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.CustomDataHolder
@@ -60,7 +56,7 @@ data class ItemStack(
     }
 
     override fun write(buffer: ByteBuf) {
-        if(this.material == Items.AIR) {
+        if (this.material == Items.AIR) {
             buffer.writeVarInt(0)
             return
         }
@@ -69,14 +65,6 @@ data class ItemStack(
         buffer.writeVarInt(this.material.getProtocolId())
         DataComponentPatch.patchNetworkType(components.components).write(buffer)
     }
-
-//    override fun hashStruct(): HashHolder {
-//        return CRC32CHasher.of {
-//            static("id", CRC32CHasher.ofString(material.getEntryIdentifier()))
-//            default("count", 1, amount, CRC32CHasher::ofInt)
-//            //TODO(Components)
-//        }
-//    }
 
     fun withDisplayName(displayName: String): ItemStack {
         return ItemStackMeta.fromItemStack(this).apply { withDisplayName(displayName) }.toItemStack()
@@ -213,6 +201,19 @@ data class ItemStack(
             return (components[EnchantmentGlintOverrideComponent::class] as EnchantmentGlintOverrideComponent?)?.enchantGlint ?: false
         }
 
+    var noxesiumImmovable: Boolean
+        set(value) {
+            if (value) {
+                setCustomData<CompoundBinaryTag>(Noxesium.BUKKIT_TAG, Noxesium.BUKKIT_COMPOUND)
+            } else {
+                removeCustomData(Noxesium.BUKKIT_TAG)
+            }
+        }
+        get() {
+            val tag = getCustomDataOrNull<CompoundBinaryTag>(Noxesium.BUKKIT_TAG)?.getBoolean(Noxesium.IMMOVABLE_TAG) ?: false
+            return tag
+        }
+
 
     private val customDataHolder = CustomDataHolder()
     var customData: CompoundBinaryTag = CompoundBinaryTag.empty()
@@ -231,6 +232,11 @@ data class ItemStack(
         updateCustomDataHolderFromComponent()
         val value = customDataHolder.dataStore[key] ?: return null
         return value as T
+    }
+
+    fun withNoxesiumImmovable(immovable: Boolean): ItemStack {
+        noxesiumImmovable = immovable
+        return this
     }
 
     private fun updateCustomDataHolderFromComponent() {

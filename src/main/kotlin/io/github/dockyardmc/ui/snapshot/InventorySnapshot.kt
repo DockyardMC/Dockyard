@@ -1,9 +1,9 @@
 package io.github.dockyardmc.ui.snapshot
 
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.profiler.profiler
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.utils.Disposable
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant

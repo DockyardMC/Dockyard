@@ -75,13 +75,6 @@ fun ByteBuf.writeColor(color: CustomColor) {
     this.writeInt(color.getPackedInt())
 }
 
-fun ByteBuf.writeRegistryEntry(entry: RegistryEntry) {
-    this.writeVarInt(entry.getProtocolId())
-}
-
-fun <T : RegistryEntry> ByteBuf.readRegistryEntry(registry: Registry): T {
-    return registry.getByProtocolId(this.readVarInt()) as T
-}
 
 fun ByteBuf.readUUID(): UUID {
     val most = this.readLong()
@@ -466,6 +459,3 @@ fun Byte.toBoolean(): Boolean {
 fun Boolean.toByte(): Byte {
     return if (this) 1.toByte() else 0.toByte()
 }
-
-
-fun NBTCompound.getAsBoolean(key: String): Boolean? = getNumber(key)?.toByte()?.toBoolean()
