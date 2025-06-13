@@ -1,7 +1,6 @@
 package io.github.dockyardmc.extentions
 
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
@@ -11,11 +10,11 @@ import io.github.dockyardmc.player.Player.ChestAnimation
 import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
-import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.extensions.toComponent
-import java.util.UUID
+import io.github.dockyardmc.ui.Screen
+import java.util.*
 
 fun <T> MutableList<T>.addAllNonDuplicates(other: Collection<T>) {
     val nonDuplicates = other.filter { item -> !this.contains(item) }
@@ -24,6 +23,10 @@ fun <T> MutableList<T>.addAllNonDuplicates(other: Collection<T>) {
 
 fun Collection<Player>.filterByPermission(permission: String): Collection<Player> {
     return this.filter { player -> player.hasPermission(permission) }
+}
+
+fun Collection<Player>.strikeLighting(location: Location) {
+    this.forEach { player -> player.strikeLightning(location) }
 }
 
 fun Collection<Player>.addPermission(permission: String) {
@@ -54,8 +57,8 @@ fun Collection<Player>.giveItem(vararg item: Item) {
     this.forEach { player -> player.give(*item) }
 }
 
-fun Collection<Player>.openInventory(inventory: ContainerInventory) {
-    this.forEach { player -> player.openInventory(inventory) }
+fun Collection<Player>.openScreen(screen: Screen) {
+    this.forEach { player -> screen.open(player) }
 }
 
 fun Collection<Player>.playTotemAnimation(customModelData: Int? = null) {
@@ -82,12 +85,8 @@ fun Collection<Player>.stopSound(category: SoundCategory = SoundCategory.MASTER)
     this.forEach { player -> player.stopSound(null, category) }
 }
 
-fun Collection<Player>.sendMessage(message: String) {
-    this.forEach { it.sendMessage(message) }
-}
-
-fun Collection<Player>.sendMessage(message: Component) {
-    this.toList().forEach { it.sendMessage(message) }
+fun Collection<Player>.sendMessage(message: String, isSystem: Boolean = false) {
+    this.forEach { player -> player.sendMessage(message, isSystem) }
 }
 
 fun Collection<Player>.sendPacket(packet: ClientboundPacket) {
@@ -95,11 +94,7 @@ fun Collection<Player>.sendPacket(packet: ClientboundPacket) {
 }
 
 fun Collection<Player>.sendActionBar(message: String) {
-    this.toList().forEach { it.sendActionBar(message) }
-}
-
-fun Collection<Player>.sendActionBar(message: Component) {
-    this.toList().forEach { it.sendActionBar(message) }
+    this.toList().forEach { player -> player.sendActionBar(message) }
 }
 
 fun Collection<Player>.sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
@@ -147,16 +142,16 @@ fun Collection<Player>.setIsFlying(isFlying: Boolean) {
 }
 
 fun <E> MutableCollection<E>.addIfNotPresent(target: E) {
-    if(!this.contains(target)) this.add(target)
+    if (!this.contains(target)) this.add(target)
 }
 
 fun <E> MutableCollection<E>.removeIfPresent(target: E) {
-    if(this.contains(target)) this.remove(target)
+    if (this.contains(target)) this.remove(target)
 }
 
 fun <E> MutableList<E>.consumeFirstOrNull(): E? {
     val first = this.firstOrNull()
-    if(first != null) this.remove(first)
+    if (first != null) this.remove(first)
     return first
 }
 

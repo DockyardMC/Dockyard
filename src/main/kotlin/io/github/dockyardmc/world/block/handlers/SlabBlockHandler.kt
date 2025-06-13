@@ -4,14 +4,14 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.toVector3f
+import io.github.dockyardmc.player.toNormalizedVector3f
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.world.block.Block
 
 class SlabBlockHandler : BlockHandler {
 
     override fun onPlace(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Block? {
-        var existingBlockLocation = clickedBlock.add(face.toVector3f())
+        var existingBlockLocation = clickedBlock.add(face.toNormalizedVector3f())
         var existingBlock = existingBlockLocation.block
         val states = mutableMapOf<String, String>()
 

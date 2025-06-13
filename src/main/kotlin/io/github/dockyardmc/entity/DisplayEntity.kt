@@ -1,7 +1,10 @@
 package io.github.dockyardmc.entity
 
 import cz.lukynka.bindables.Bindable
-import io.github.dockyardmc.extentions.toRgbInt
+import io.github.dockyardmc.entity.metadata.EntityMetaValue
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
+import io.github.dockyardmc.extentions.getPackedInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
@@ -79,7 +82,7 @@ open class DisplayEntity(location: Location) : Entity(location) {
         }
         glowColor.valueChanged {
             val type = EntityMetadataType.DISPLAY_GLOW_COLOR
-            metadata[type] = EntityMetadata(type, EntityMetaValue.VAR_INT, it.newValue.toRgbInt())
+            metadata[type] = EntityMetadata(type, EntityMetaValue.VAR_INT, it.newValue.getPackedInt())
         }
         interpolationDelay.value = -1
     }

@@ -190,8 +190,8 @@ class ItemStackMeta {
     }
 
     @JvmName("withCustomModelDatawhatthefuckaaaaaaa")
-    fun withCustomModelData(floats: List<Float> = listOf(), flags: List<Boolean> = listOf(), strings: List<String> = listOf(), colors: List<CustomColor> = listOf()) {
-        components = components.set(CustomModelDataComponent(floats, flags, strings, colors))
+    fun withCustomModelData(floats: List<Float> = listOf(), flags: List<Boolean> = listOf(), strings: List<String> = listOf(), colors: List<Int> = listOf()) {
+        components.addOrUpdate(CustomModelDataItemComponent(floats, flags, strings, colors))
     }
 
     fun withMaterial(item: Item) {
@@ -199,7 +199,7 @@ class ItemStackMeta {
     }
 
     fun withAmount(amount: Int) {
-        if (amount <= 0) this.amount = 1 else this.amount = amount
+        if(amount <= 0) this.amount = 1 else this.amount = amount
     }
 
     fun clearLore() {
@@ -232,12 +232,14 @@ fun itemStack(builder: ItemStackMeta.() -> Unit): ItemStack {
     builder.invoke(meta)
 
     meta.buildLoreComponent()
-    val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes)
+    val itemStack = ItemStack(meta.material, meta.amount, meta.components.toSet(), meta, meta.attributes)
+    itemStack.withNoxesiumImmovable(meta.noxesiumImmovable)
     return itemStack.clone()
 }
 
 fun itemStack(meta: ItemStackMeta): ItemStack {
     meta.buildLoreComponent()
-    val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes)
+    val itemStack = ItemStack(meta.material, meta.amount, meta.components.toSet(), meta, meta.attributes)
+    itemStack.withNoxesiumImmovable(meta.noxesiumImmovable)
     return itemStack.clone()
 }

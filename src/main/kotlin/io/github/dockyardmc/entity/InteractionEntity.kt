@@ -2,6 +2,9 @@ package io.github.dockyardmc.entity
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableDispatcher
+import io.github.dockyardmc.entity.metadata.EntityMetaValue
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player

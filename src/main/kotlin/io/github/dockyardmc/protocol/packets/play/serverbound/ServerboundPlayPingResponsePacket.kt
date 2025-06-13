@@ -9,7 +9,6 @@ import io.netty.channel.ChannelHandlerContext
 class ServerboundPlayPingResponsePacket(val number: Long): ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        debug("received ping response (${processor.player}) - $number", true)
 //        processor.player.ping = number
 //        processor.player.sendPacket(ClientboundPlayPingResponsePacket(number))
     }

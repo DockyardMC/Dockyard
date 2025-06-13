@@ -4,7 +4,10 @@ import cz.lukynka.prettylog.AnsiPair
 import cz.lukynka.prettylog.CustomLogType
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.extentions.filterByPermission
+import io.github.dockyardmc.extentions.sendMessage
+import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.utils.InstrumentationUtils
 import io.github.dockyardmc.utils.debug
 import java.time.Instant
 import kotlin.system.measureTimeMillis
@@ -30,8 +33,8 @@ class Profiler {
     fun end(): Long {
         endTime = Instant.now()
         val overall = endTime.toEpochMilli() - startTime.toEpochMilli()
-        if(onlyLogAbove != null) {
-            if(overall > onlyLogAbove!!) {
+        if (onlyLogAbove != null) {
+            if (overall > onlyLogAbove!!) {
                 log("Profiler \"$name\" ended. Took ${overall}ms, ${overall - onlyLogAbove!!}ms more than expected", LogType.DEBUG)
             }
         } else {
@@ -41,7 +44,13 @@ class Profiler {
     }
 }
 
-inline fun profiler(name: String, block: () -> Unit) {
+inline fun profiler(name: String, block: () -> Unit): Long {
     val ms = measureTimeMillis(block)
-    debug("\"$name\" took ${ms}ms", false)
+    if (ms > 0) {
+        debug("\"$name\" took ${ms}ms")
+        if (InstrumentationUtils.isDebuggerAttached()) {
+            PlayerManager.players.filterByPermission("dockyard.debug").sendMessage("<gray>(⌚) \"<#d9d9d9>$name<gray>\" took <#d9d9d9>${ms}ms<gray>")
+        }
+    }
+    return ms
 }

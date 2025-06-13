@@ -2,7 +2,7 @@ package io.github.dockyardmc.world
 
 import io.github.dockyardmc.extentions.fromRGBInt
 import io.github.dockyardmc.extentions.fromRGBIntOrNull
-import io.github.dockyardmc.extentions.toRgbInt
+import io.github.dockyardmc.extentions.getPackedInt
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.CustomColor
@@ -37,18 +37,18 @@ class BiomeBuilder(val identifier: String) {
         return Biome(
             identifier = identifier, downfall = rainChance,
             effects = Effects(
-                fogColor = fogColor?.toRgbInt(),
-                foliageColor = foliageColor?.toRgbInt(),
-                grassColor = grassColor?.toRgbInt(),
+                fogColor = fogColor?.getPackedInt(),
+                foliageColor = foliageColor?.getPackedInt(),
+                grassColor = grassColor?.getPackedInt(),
                 grassColorModifier = grassColorModifier.serializableValue,
                 moodSound = moodSound,
                 music = music,
                 ambientAdditions = ambientAdditions,
                 ambientLoop = ambientLoop,
                 particle = particles,
-                skyColor = skyColor.toRgbInt(),
-                waterColor = waterColor.toRgbInt(),
-                waterFogColor = waterFogColor.toRgbInt(),
+                skyColor = skyColor.getPackedInt(),
+                waterColor = waterColor.getPackedInt(),
+                waterFogColor = waterFogColor.getPackedInt(),
             ),
             hasRain = hasRain,
             temperature = temperature,

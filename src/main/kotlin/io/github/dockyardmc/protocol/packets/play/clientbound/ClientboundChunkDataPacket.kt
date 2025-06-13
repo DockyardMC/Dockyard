@@ -3,6 +3,7 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.types.writeMap
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.world.chunk.ChunkUtils
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.block.BlockEntity
@@ -25,7 +26,9 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightmaps: Map<Heightmap.Type,
 
         //Chunk Sections
         val chunkSectionData = Unpooled.buffer()
-        sections.forEach(chunkSectionData::writeChunkSection)
+        sections.forEach { section ->
+            section.write(chunkSectionData)
+        }
         buffer.writeByteArray(chunkSectionData.toByteArraySafe())
 
         //Block Entities
@@ -47,7 +50,7 @@ class ClientboundChunkDataPacket(x: Int, z: Int, heightmaps: Map<Heightmap.Type,
         buffer.writeLongArray(light.emptySkyMask.toLongArray().toList())
         buffer.writeLongArray(light.emptyBlockMask.toLongArray().toList())
 
-        buffer.writeByteArray(light.skyLight)
-        buffer.writeByteArray(light.blockLight)
+        buffer.writeList(light.skyLight, ByteBuf::writeByteArray)
+        buffer.writeList(light.blockLight, ByteBuf::writeByteArray)
     }
 }

@@ -12,6 +12,8 @@ data class Vector2(
     var x: Int,
     var y: Int,
 ) : NetworkWritable {
+    constructor() : this(0, 0)
+    constructor(single: Int) : this(single, single)
     operator fun minus(vector: Vector2): Vector2 {
         val subVector = this.copy()
         subVector.x -= vector.x

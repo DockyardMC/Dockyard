@@ -71,7 +71,7 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("steer boat")
         addPlay(ServerboundPickItemFromBlockPacket::class)
         addPlay(ServerboundPickItemFromEntityPacket::class)
-        skipPlay("ping request")
+        addPlay(ServerboundPlayPingRequestPacket::class)
         skipPlay("place recipe")
         addPlay(ServerboundPlayerAbilitiesPacket::class)
         addPlay(ServerboundPlayerActionPacket::class)

@@ -6,6 +6,8 @@ import io.github.dockyardmc.maths.vectors.Vector2f
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.player.Direction
+import io.github.dockyardmc.player.toNormalizedVector3f
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
@@ -13,7 +15,7 @@ import io.github.dockyardmc.world.chunk.Chunk
 import io.netty.buffer.ByteBuf
 import kotlin.math.*
 
-class Location(
+data class Location(
     var x: Double,
     var y: Double,
     var z: Double,
@@ -64,18 +66,23 @@ class Location(
     override fun toString(): String =
         "Location(x=${x.truncate(2)}, y=${y.truncate(2)}, z=${z.truncate(2)}, yaw=$yaw, pitch=$pitch, world=${world.name})"
 
-    fun getAdjacentLocations(): List<Location> {
-        return listOf(
-            getBlockLocation().add(1, 0, 0),
-            getBlockLocation().add(-1, 0, 0),
-            getBlockLocation().add(0, 1, 0),
-            getBlockLocation().add(0, -1, 0),
-            getBlockLocation().add(0, 0, 1),
-            getBlockLocation().add(0, 0, -1),
+    fun getNeighbours(): Map<Direction, Location> {
+        val blockLocation = getBlockLocation()
+        return mapOf(
+            Direction.EAST to blockLocation.add(1, 0, 0),
+            Direction.WEST to blockLocation.add(-1, 0, 0),
+            Direction.UP to blockLocation.add(0, 1, 0),
+            Direction.DOWN to blockLocation.add(0, -1, 0),
+            Direction.SOUTH to blockLocation.add(0, 0, 1),
+            Direction.NORTH to blockLocation.add(0, 0, -1)
         )
     }
 
     fun getChunk(): Chunk? = world.getChunkAt(this)
+
+    fun relative(direction: Direction): Location {
+        return this.add(direction.toNormalizedVector3f())
+    }
 
     fun add(vector: Vector3f): Location = Location(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.yaw, this.pitch, this.world)
     fun add(x: Int, y: Int, z: Int): Location = Location(this.x + x, this.y + y, this.z + z, this.yaw, this.pitch, this.world)
@@ -329,8 +336,11 @@ fun ByteBuf.writeBlockPosition(location: Location) {
     val blockX = location.blockX.toLong()
     val blockY = location.blockY.toLong()
     val blockZ = location.blockZ.toLong()
-    val encoded = (((blockX and 0x3FFFFFF) shl 38) or ((blockZ and 0x3FFFFFF) shl 12) or (blockY and 0xFFF))
-    this.writeLong(encoded)
+    val longPos = ((blockX and 0x3FFFFFFL) shl 38) or
+            ((blockZ and 0x3FFFFFFL) shl 12) or
+            (blockY and 0xFFFL)
+
+    this.writeLong(longPos)
 }
 
 fun ByteBuf.writeBlockPosition(vector: Vector3) {

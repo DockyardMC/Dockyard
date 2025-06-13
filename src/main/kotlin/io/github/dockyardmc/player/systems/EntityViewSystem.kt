@@ -4,7 +4,7 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.player.Player
 import java.util.concurrent.locks.ReentrantLock
 
-class EntityViewSystem(val player: Player): TickablePlayerSystem {
+class EntityViewSystem(val player: Player) : TickablePlayerSystem {
 
     var visibleEntities: MutableList<Entity> = mutableListOf()
     val lock = ReentrantLock()
@@ -19,11 +19,18 @@ class EntityViewSystem(val player: Player): TickablePlayerSystem {
     }
 
     override fun tick() {
-        if(lock.isLocked) return
+        if (lock.isLocked) return
         val entities = player.world.entities.toList().filter { it.autoViewable && it != player }
 
-        val add = entities.filter { it.location.distance(player.location) <= it.viewDistanceBlocks && !visibleEntities.contains(it) }
-        val remove = entities.filter { it.location.distance(player.location) > it.viewDistanceBlocks && visibleEntities.contains(it) }
+        val add = entities.filter { entity ->
+            entity.location.distance(player.location) <= entity.viewDistanceBlocks
+                    && !visibleEntities.contains(entity)
+                    && entity.passesViewRules(player)
+        }
+        val remove = entities.filter { entity ->
+            (entity.location.distance(player.location) > entity.viewDistanceBlocks || !entity.passesViewRules(player)) &&
+                    visibleEntities.contains(entity)
+        }
 
         add.forEach { entity ->
             entity.addViewer(player)

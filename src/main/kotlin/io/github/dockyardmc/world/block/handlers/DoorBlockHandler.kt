@@ -7,6 +7,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.getDirection
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
 
@@ -34,7 +35,8 @@ class DoorBlockHandler: BlockHandler {
         }
     }
 
-    override fun onUse(player: Player, heldItem: ItemStack, block: Block, face: Direction, location: Location, clickedBlock: Location, cursor: Vector3f): Boolean {
+    override fun onUse(player: Player, hand: PlayerHand, heldItem: ItemStack, block: Block, face: Direction, location: Location, cursor: Vector3f): Boolean {
+        if(player.isSneaking) return false
         if(block.registryBlock == Blocks.IRON_DOOR) return false
         val blockAbove = location.add(0, 1, 0)
         val blockBelow = location.add(0, -1, 0)

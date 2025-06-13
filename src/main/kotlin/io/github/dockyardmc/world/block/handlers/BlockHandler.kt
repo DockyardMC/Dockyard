@@ -6,6 +6,7 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.world.Weather
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
@@ -34,15 +35,15 @@ interface BlockHandler {
 
     fun onUse(
         player: Player,
+        hand: PlayerHand,
         heldItem: ItemStack,
         block: Block,
         face: Direction,
         location: Location,
-        clickedBlock: Location,
         cursor: Vector3f
     ): Boolean {
         // Nothing by default
-        return true
+        return false
     }
 
     fun onAttack(

@@ -6,7 +6,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
 import io.github.dockyardmc.registry.registries.Biome
-import io.github.dockyardmc.utils.Viewable
+import io.github.dockyardmc.utils.viewable.Viewable
 import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
@@ -23,15 +23,15 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
     private lateinit var cachedPacket: ClientboundChunkDataPacket
     override var autoViewable: Boolean = true
 
-    val heightmapArray: LongArray = LongArray(37) { 0 }
+    val heightmaps = EnumMap<_, ChunkHeightmap>(ChunkHeightmap.Type::class.java)
+
+    val motionBlocking: LongArray = LongArray(37) { 0 }
+    val worldSurface: LongArray = LongArray(37) { 0 }
 
     val sections: MutableList<ChunkSection> = mutableListOf()
     val blockEntities: Int2ObjectOpenHashMap<BlockEntity> = Int2ObjectOpenHashMap(0)
 
-    val light: Light = Light(
-        skyLight = ByteArray(0),
-        blockLight = ByteArray(0),
-    )
+    val light: Light = Light()
 
     val packet: ClientboundChunkDataPacket
         get() {
@@ -40,12 +40,14 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         }
 
     fun updateCache() {
-        val emptyHeightmaps = mutableMapOf<Heightmap.Type, List<Long>>()
-        Heightmap.Type.entries.forEach { entry ->
-            emptyHeightmaps[entry] = heightmapArray.toList()
+        val heightmapNbt = NBT.Compound { builder ->
+            heightmaps.forEach { map ->
+                if (map.key.sendToClient()) {
+                    builder.put(map.key.name, map.value.getRawData())
+                }
+            }
         }
-
-        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, mapOf(), sections, blockEntities.values, light)
+        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightMap, sections, blockEntities.values, light)
     }
 
     init {
@@ -62,8 +64,14 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
 
-        section.blockPalette[relativeX, relativeY, relativeZ] = blockStateId
+        section.setBlock(relativeX, relativeY, relativeZ, blockStateId)
         world.customDataBlocks.remove(Location(x, y, z, world).blockHash)
+
+        val block = Block.getBlockByStateId(blockStateId)
+        heightmaps.getValue(ChunkHeightmap.Type.MOTION_BLOCKING).update(relativeX, relativeY, relativeZ, block)
+        heightmaps.getValue(ChunkHeightmap.Type.MOTION_BLOCKING_NO_LEAVES).update(relativeX, relativeY, relativeZ, block)
+        heightmaps.getValue(ChunkHeightmap.Type.OCEAN_FLOOR).update(relativeX, relativeY, relativeZ, block)
+        heightmaps.getValue(ChunkHeightmap.Type.WORLD_SURFACE).update(relativeX, relativeY, relativeZ, block)
 
         if (shouldCache) updateCache()
     }
@@ -75,7 +83,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
 
-        section.biomePalette[relativeX, relativeY, relativeZ] = biome.getProtocolId()
+        section.setBiome(relativeX, relativeY, relativeZ, biome.getProtocolId())
         if (shouldCache) updateCache()
     }
 
@@ -88,7 +96,12 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
 
         if (block.customData != null) world.customDataBlocks[Location(x, y, z, world).blockHash] = block
         if (block.customData == null) world.customDataBlocks.remove(Location(x, y, z, world).blockHash)
-        section.blockPalette[relativeX, relativeY, relativeZ] = block.getProtocolId()
+        section.setBlock(relativeX, relativeY, relativeZ, block.getProtocolId())
+
+        heightmaps.getValue(ChunkHeightmap.Type.MOTION_BLOCKING).update(relativeX, y, relativeZ, block)
+        heightmaps.getValue(ChunkHeightmap.Type.MOTION_BLOCKING_NO_LEAVES).update(relativeX, y, relativeZ, block)
+        heightmaps.getValue(ChunkHeightmap.Type.OCEAN_FLOOR).update(relativeX, y, relativeZ, block)
+        heightmaps.getValue(ChunkHeightmap.Type.WORLD_SURFACE).update(relativeX, y, relativeZ, block)
 
         val index = ChunkUtils.chunkBlockIndex(x, y, z)
 
@@ -112,19 +125,19 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         val relativeZ = ChunkUtils.sectionRelative(z)
         val relativeY = ChunkUtils.sectionRelative(y)
 
-        val id = section.blockPalette[relativeX, relativeY, relativeZ]
-        return Block.getBlockByStateId(id) ?: throw IllegalStateException("Block state with id $id not found")
+        val id = section.getBlock(relativeX, relativeY, relativeZ)
+        return Block.getBlockByStateId(id)
     }
 
     fun fillBiome(biome: Biome) {
-        sections.forEach {
-            it.biomePalette.fill(biome.getProtocolId())
+        sections.forEach { section ->
+            section.fillBiome(biome.getProtocolId())
         }
     }
 
     fun fillBlocks(block: Block) {
-        sections.forEach {
-            it.biomePalette.fill(block.getProtocolId())
+        sections.forEach { section ->
+            section.fillBlock(block.getProtocolId())
         }
     }
 
@@ -136,17 +149,41 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
 
     val chunkPos get() = ChunkPos(chunkX, chunkZ)
 
+    fun highestNonEmptySectionIndex(): Int? {
+        for (i in sections.size - 1 downTo 0) {
+            val section = sections[i]
+            if (!section.hasOnlyAir()) return i
+        }
+        return null
+    }
+
+    fun highestSectionY(): Int {
+        val highestSectionIndex = highestNonEmptySectionIndex() ?: return world.dimensionType.minY
+        return getSectionYFromSectionIndex(highestSectionIndex)
+    }
+
+    fun getSectionYFromSectionIndex(index: Int): Int {
+        return index + world.dimensionType.minY shr SECTION_BITS
+    }
+
+    fun getOrCreateHeightmap(type: ChunkHeightmap.Type): ChunkHeightmap = heightmaps.computeIfAbsent(type) { ChunkHeightmap(this, type) }
+
     fun sendUpdateToViewers() {
         viewers.sendPacket(cachedPacket)
     }
 
-    override fun addViewer(player: Player) {
-        viewers.add(player)
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
         player.sendPacket(cachedPacket)
+        return true
     }
 
     override fun removeViewer(player: Player) {
-        viewers.remove(player)
+        super.removeViewer(player)
         player.sendPacket(ClientboundUnloadChunkPacket(this.chunkPos))
+    }
+
+    override fun toString(): String {
+        return "Chunk(${chunkPos.x}, ${chunkPos.z}, ${world.name})"
     }
 }

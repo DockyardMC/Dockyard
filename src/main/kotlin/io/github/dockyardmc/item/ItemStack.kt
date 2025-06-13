@@ -1,5 +1,7 @@
 package io.github.dockyardmc.item
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.AttributeModifier
 import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
@@ -19,6 +21,7 @@ import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
+import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.CustomDataHolder
@@ -57,7 +60,7 @@ data class ItemStack(
     }
 
     override fun write(buffer: ByteBuf) {
-        if (this.material == Items.AIR) {
+        if(this.material == Items.AIR) {
             buffer.writeVarInt(0)
             return
         }

@@ -1,9 +1,9 @@
 package io.github.dockyardmc.utils
 
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.entity.EntityMetadata
-import io.github.dockyardmc.entity.EntityMetadataType
-import io.github.dockyardmc.entity.getEntityMetadataState
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
+import io.github.dockyardmc.entity.metadata.getEntityMetadataState
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
 import java.net.InetSocketAddress
@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
 fun isValidMinecraftUsername(username: String): Boolean {
     if(username.isEmpty()) return false
     if(username.contains(" ")) return false
-    if(!username.matches(Regex("^[a-zA-Z0-9]*$"))) return false
+    if(!username.matches(Regex("^[a-zA-Z0-9_]*$"))) return false
     if(username.length <= 2) return false
     if(username.length > 16) return false
 

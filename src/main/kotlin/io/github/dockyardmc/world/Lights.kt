@@ -7,6 +7,6 @@ data class Light(
     var blockMask: BitSet = BitSet(),
     var emptySkyMask: BitSet = BitSet(),
     var emptyBlockMask: BitSet = BitSet(),
-    var skyLight: ByteArray = ByteArray(0),
-    var blockLight: ByteArray = ByteArray(0)
+    var skyLight: List<ByteArray> = emptyList(),
+    var blockLight: List<ByteArray> = emptyList()
 )

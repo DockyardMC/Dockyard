@@ -2,14 +2,15 @@ package io.github.dockyardmc.world
 
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerEnterChunkEvent
+import io.github.dockyardmc.maths.chunkInSpiral
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetCenterChunkPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
-import io.github.dockyardmc.world.chunk.ChunkUtils
-import io.github.dockyardmc.maths.chunkInSpiral
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
+import io.github.dockyardmc.world.chunk.ChunkUtils
+import java.util.concurrent.locks.ReentrantLock
 
 class PlayerChunkViewSystem(val player: Player) {
 
@@ -18,8 +19,10 @@ class PlayerChunkViewSystem(val player: Player) {
     }
 
     private var previousChunkPos = ChunkPos.ZERO
+    val lock = ReentrantLock()
 
     fun update() {
+        if (lock.isLocked) return
         val world = player.world
 
         world.scheduler.runAsync {
@@ -77,7 +80,7 @@ class PlayerChunkViewSystem(val player: Player) {
 
     fun unloadChunk(pos: ChunkPos) {
         val chunk = player.world.getChunk(pos)
-        if(chunk == null) {
+        if (chunk == null) {
             player.sendPacket(ClientboundUnloadChunkPacket(pos))
         } else {
             chunk.removeViewer(player)

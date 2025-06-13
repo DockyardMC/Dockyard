@@ -3,7 +3,7 @@ package io.github.dockyardmc.player.systems
 import io.github.dockyardmc.data.components.ConsumableComponent
 import io.github.dockyardmc.data.components.FoodComponent
 import io.github.dockyardmc.item.*
-import io.github.dockyardmc.particles.ItemParticleData
+import io.github.dockyardmc.particles.data.ItemParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.ItemInUse
 import io.github.dockyardmc.player.Player
@@ -46,7 +46,7 @@ class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
                         offset = Vector3f(0.2f),
                         speed = 0.05f,
                         amount = 6,
-                        longDistance = false,
+                        alwaysShow = false,
                         overrideLimiter = false,
                         particleData = ItemParticleData(item)
                     )

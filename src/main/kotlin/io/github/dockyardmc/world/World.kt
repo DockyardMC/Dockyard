@@ -6,13 +6,18 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
+import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.LightningBolt
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.SHA256Long
-import io.github.dockyardmc.extentions.addIfNotPresent
 import io.github.dockyardmc.extentions.hasUpperCase
 import io.github.dockyardmc.extentions.removeIfPresent
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.particles.BlockParticleData
+import io.github.dockyardmc.maths.vectors.Vector2f
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.maths.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.particles.data.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityTeleportPacket
@@ -21,14 +26,14 @@ import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.DimensionType
 import io.github.dockyardmc.registry.registries.RegistryBlock
-import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scheduler.CustomRateScheduler
+import io.github.dockyardmc.scheduler.runLaterAsync
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.utils.*
-import io.github.dockyardmc.maths.vectors.Vector2f
-import io.github.dockyardmc.maths.vectors.Vector3
-import io.github.dockyardmc.maths.vectors.Vector3d
-import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.UsedAfterDisposedException
+import io.github.dockyardmc.utils.debug
+import io.github.dockyardmc.utils.getWorldEventContext
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.block.BatchBlockUpdate
 import io.github.dockyardmc.world.block.Block
@@ -44,7 +49,7 @@ import java.util.concurrent.CompletableFuture
 class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType) : Disposable {
 
     val eventPool = EventPool()
-    private val bindablePool = BindablePool()
+    val bindablePool = BindablePool()
     val scheduler = CustomRateScheduler("${name}_world_scheduler")
     val uuid = UUID.randomUUID()
 
@@ -53,6 +58,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     val difficulty: Bindable<Difficulty> = bindablePool.provideBindable(Difficulty.NORMAL)
     val worldBorder = WorldBorder(this)
+    val weather: Bindable<Weather> = bindablePool.provideBindable(Weather.CLEAR)
 
     val time: Bindable<Long> = bindablePool.provideBindable(1000L)
     var worldAge: Long = 0
@@ -67,7 +73,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     val entities get() = innerEntities.toList()
 
     val isLoaded: Bindable<Boolean> = bindablePool.provideBindable(false)
-    val playerJoinQueue: MutableList<Player> = mutableListOf()
+    val playerJoinQueue: MutableMap<Player, Location> = mutableMapOf()
 
     var isHardcore: Boolean = false
     var freezeTime: Boolean = false
@@ -83,6 +89,14 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         scheduler.runRepeating(1.ticks) {
             tick()
         }
+
+        weather.valueChanged { _ ->
+            players.forEach { player ->
+                runLaterAsync(1.ticks) {
+                    player.updateWeatherState()
+                }
+            }
+        }
     }
 
     fun schedule(unit: (World) -> Unit) {
@@ -92,6 +106,14 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             isLoaded.valueChangedThenSelfDispose { event ->
                 if (event.newValue) unit.invoke(this) else throw UsedAfterDisposedException(this)
             }
+        }
+    }
+
+    fun strikeLightning(location: Location) {
+        val entity = LightningBolt(location)
+        spawnEntity(entity)
+        scheduler.runLater(10.ticks) {
+            despawnEntity(entity)
         }
     }
 
@@ -132,20 +154,26 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         }
     }
 
-    fun join(player: Player) {
+    fun join(player: Player, location: Location? = null) {
         if (player.world == this && player.isFullyInitialized) return
-        if (!isLoaded.value && !playerJoinQueue.contains(player)) {
-            playerJoinQueue.addIfNotPresent(player)
+        if (!isLoaded.value && !playerJoinQueue.containsKey(player)) {
+            playerJoinQueue[player] = location ?: player.location
             debug("$player joined before world $name is loaded, added to joinQueue", logType = LogType.DEBUG)
             return
         }
 
         val oldWorld = player.world
 
+        player.entityViewSystem.lock.lock()
+        player.chunkViewSystem.lock.lock()
+
+        oldWorld.removePlayer(player)
+        oldWorld.chunks.filter { chunk -> chunk.value.viewers.contains(player) }.forEach { (_, chunk) ->
+            chunk.removeViewer(player)
+        }
+
         player.world.innerPlayers.removeIfPresent(player)
         player.world = this
-
-        player.entityViewSystem.lock.lock()
 
         player.viewers.toList().forEach { viewer ->
             viewer.removeViewer(player)
@@ -159,13 +187,14 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
         Events.dispatch(PlayerChangeWorldEvent(player, oldWorld, this))
 
-        playerJoinQueue.removeIfPresent(player)
+        playerJoinQueue.remove(player)
 
         player.entityViewSystem.lock.unlock()
+        player.chunkViewSystem.lock.unlock()
 
         player.respawn()
         player.entityViewSystem.tick()
-        player.sendPacketToViewers(ClientboundEntityTeleportPacket(player, player.location))
+        player.sendPacketToViewers(ClientboundEntityTeleportPacket(player, location ?: player.location))
 
         player.isFullyInitialized = true
         player.updateWorldTime()
@@ -173,14 +202,20 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     fun load(): CompletableFuture<Unit> {
         val task = scheduler.runAsync {
-            generateBaseChunks(6)
+            if (generator.generateBaseChunks) {
+                generateBaseChunks(6)
+            }
+            generator.onWorldLoad(this)
         }
 
         task.thenAccept {
             log("World $name has finished loading!", WorldManager.LOG_TYPE)
             isLoaded.value = true
-            playerJoinQueue.forEach(::join)
-            Events.dispatch(WorldFinishLoadingEvent(this))
+            playerJoinQueue.forEach { (player, location) ->
+                join(player, location)
+            }
+            val event = WorldFinishLoadingEvent(this)
+            Events.dispatch(event)
         }
 
         time.valueChanged {
@@ -215,7 +250,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun getChunk(x: Int, z: Int): Chunk? {
-        return chunks[ChunkUtils.getChunkIndex(x, z)]
+        return chunks.getOrDefault(ChunkUtils.getChunkIndex(x, z), null)
     }
 
     fun destroyNaturally(vector: Vector3) {
@@ -367,20 +402,24 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     fun generateChunk(x: Int, z: Int): Chunk {
         val chunk = getChunk(x, z) ?: Chunk(x, z, this)
         // Special case for void world generator for fast void world loading. //TODO optimizations to rest of the world generators
-        if (generator is VoidWorldGenerator) {
-            chunk.sections.forEach { section ->
-                section.biomePalette.fill((generator as VoidWorldGenerator).defaultBiome.getProtocolId())
-                section.blockPalette.fill(BlockRegistry.Air.defaultBlockStateId)
+        when (generator) {
+            is VoidWorldGenerator -> {
+                chunk.sections.forEach { section ->
+                    section.fillBiome((generator as VoidWorldGenerator).defaultBiome.getProtocolId())
+                    section.fillBlock(BlockRegistry.Air.defaultBlockStateId)
+                }
             }
-        } else {
-            for (localX in 0..<16) {
-                for (localZ in 0..<16) {
-                    val worldX = x * 16 + localX
-                    val worldZ = z * 16 + localZ
 
-                    for (y in 0..<dimensionType.height) {
-                        chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ), false)
-                        chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ), false)
+            else -> {
+                for (localX in 0..<16) {
+                    for (localZ in 0..<16) {
+                        val worldX = x * 16 + localX
+                        val worldZ = z * 16 + localZ
+
+                        for (y in 0..<dimensionType.height) {
+                            chunk.setBlock(localX, y, localZ, generator.getBlock(worldX, y, worldZ), false)
+                            chunk.setBiome(localX, y, localZ, generator.getBiome(worldX, y, worldZ), false)
+                        }
                     }
                 }
             }

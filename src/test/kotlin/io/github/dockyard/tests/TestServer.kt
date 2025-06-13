@@ -1,15 +1,12 @@
 package io.github.dockyard.tests
 
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.events.EventPool
-import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.DimensionTypes
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import org.junit.jupiter.api.BeforeAll
-import java.lang.IllegalStateException
 import java.util.concurrent.CountDownLatch
 
 object TestServer {
@@ -22,7 +19,7 @@ object TestServer {
     }
 
     fun getOrSetupServer(): DockyardServer {
-        if(server == null) beforeAll()
+        if (server == null) beforeAll()
         return getServer()
     }
 
@@ -36,6 +33,7 @@ object TestServer {
             useMojangAuth(false)
             withUpdateChecker(false)
             withImplementations { spark = false }
+            useDebugMode(true)
         }
         server!!.start()
 
@@ -44,18 +42,16 @@ object TestServer {
 
         testWorld = WorldManager.create("test", VoidWorldGenerator(Biomes.THE_VOID), DimensionTypes.OVERWORLD)
 
-        val pool = EventPool()
-        pool.on<WorldFinishLoadingEvent> {
-            if(it.world == WorldManager.mainWorld) {
-                mainWorldCountdownLatch.countDown()
-            }
-            if(it.world == testWorld) {
-                secondWorldCountDownLatch.countDown()
-            }
+        testWorld.schedule { world ->
+            secondWorldCountDownLatch.countDown()
         }
+
+        WorldManager.mainWorld.schedule { world ->
+            mainWorldCountdownLatch.countDown()
+        }
+
         mainWorldCountdownLatch.await()
         secondWorldCountDownLatch.await()
-        pool.dispose()
     }
 }
 

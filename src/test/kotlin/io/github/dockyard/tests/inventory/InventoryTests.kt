@@ -1,19 +1,15 @@
 package io.github.dockyard.tests.inventory
 
-import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
 import io.github.dockyard.tests.assertSlot
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.InventoryGiveItemEvent
 import io.github.dockyardmc.inventory.clearInventory
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundCloseContainerPacket
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.ItemRegistry
-import io.github.dockyardmc.ui.examples.ExampleCookieClickerScreen
-import java.util.concurrent.CountDownLatch
+import io.github.dockyardmc.ui.TestScreen
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -33,16 +29,17 @@ class InventoryTests {
     @Test
     fun testInventoryOpen() {
         val player = PlayerTestUtil.getOrCreateFakePlayer()
-        assertEquals(null, player.currentOpenInventory)
+        val screen = TestScreen()
+        assertEquals(null, player.currentlyOpenScreen)
         assertEquals(false, player.hasInventoryOpen)
 
-        player.openInventory(ExampleCookieClickerScreen(player))
-        assertEquals(true, player.currentOpenInventory is ExampleCookieClickerScreen)
+        screen.open(player)
+        assertEquals(true, player.currentlyOpenScreen is TestScreen)
         assertEquals(true, player.hasInventoryOpen)
 
         PlayerTestUtil.sendPacket(player, ServerboundCloseContainerPacket(1))
 
-        assertEquals(null, player.currentOpenInventory)
+        assertEquals(null, player.currentlyOpenScreen)
         assertEquals(false, player.hasInventoryOpen)
     }
 

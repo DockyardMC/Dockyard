@@ -122,7 +122,7 @@ data class Block(
             val blockIdentifier = identifier.split("[")[0]
             val block = BlockRegistry[blockIdentifier]
             val id = block.possibleStates[identifier] ?: throw IllegalArgumentException("No matching state sequence found on ${block.identifier}")
-            return Block.Companion.getBlockByStateId(id)
+            return getBlockByStateId(id)
         }
     }
 }

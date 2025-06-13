@@ -71,6 +71,18 @@ fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
     }
 }
 
+fun ByteBuf.writeColor(color: CustomColor) {
+    this.writeInt(color.getPackedInt())
+}
+
+fun ByteBuf.writeRegistryEntry(entry: RegistryEntry) {
+    this.writeVarInt(entry.getProtocolId())
+}
+
+fun <T : RegistryEntry> ByteBuf.readRegistryEntry(registry: Registry): T {
+    return registry.getByProtocolId(this.readVarInt()) as T
+}
+
 fun ByteBuf.readUUID(): UUID {
     val most = this.readLong()
     val least = this.readLong()
@@ -391,7 +403,7 @@ fun ByteBuf.readCustomColorList(): List<CustomColor> {
 fun ByteBuf.writeCustomColorList(list: Collection<CustomColor>) {
     this.writeVarInt(list.size)
     list.forEach {
-        this.writeInt(it.toRgbInt())
+        this.writeInt(it.getPackedInt())
     }
 }
 
@@ -446,3 +458,14 @@ fun ByteBuf.readItemHolder(): Item {
 fun ByteBuf.writeByte(byte: Byte) {
     this.writeByte(byte.toInt())
 }
+
+fun Byte.toBoolean(): Boolean {
+    return this == 1.toByte()
+}
+
+fun Boolean.toByte(): Byte {
+    return if (this) 1.toByte() else 0.toByte()
+}
+
+
+fun NBTCompound.getAsBoolean(key: String): Boolean? = getNumber(key)?.toByte()?.toBoolean()

@@ -7,8 +7,8 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.extentions.broadcastMessage
 
 fun debug(text: String, toChat: Boolean = false, logType: CustomLogType = LogType.DEBUG) {
-    if(toChat) {
-        DockyardServer.broadcastMessage("<#fc6203>[DEBUG] $text")
+    if(InstrumentationUtils.isDebuggerAttached() && toChat) {
+        DockyardServer.broadcastMessage("<#5b6070>(⚑) <#9097ad>$text")
     }
     if(DockyardServer.debug) log(text, logType)
 }

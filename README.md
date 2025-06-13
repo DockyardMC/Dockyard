@@ -1,4 +1,4 @@
-[<img src="https://github.com/user-attachments/assets/cfac1e41-d046-4092-9c84-befb79a48d96">](https://github.com/DockyardMC/Dockyard)
+[<img src="https://github.com/user-attachments/assets/5c488d9e-30b0-4025-9b32-b3e474fc4eb1">](https://github.com/DockyardMC/Dockyard)
 
 ---
 [![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmvn.devos.one%2Freleases%2Fio%2Fgithub%2Fdockyardmc%2Fdockyard%2Fmaven-metadata.xml&style=for-the-badge&logo=maven&logoColor=%23FFFFFF&label=Latest%20Version&color=%23afff87)](https://mvn.devos.one/#/releases/io/github/dockyardmc/dockyard)
@@ -14,7 +14,7 @@ DockyardMC is an open-source, fast and lightweight Minecraft server protocol imp
 
 ## Quick Start
 
-You can read how to setup and use dockyard [here](https://dockyard.lukynka.cloud/wiki/quick-start)
+You can read how to set up and use dockyard [here](https://dockyard.lukynka.cloud/wiki/quick-start)
 
 ## Features
 
@@ -22,6 +22,7 @@ You can read how to setup and use dockyard [here](https://dockyard.lukynka.cloud
 - Lightweight and without all the overhead the vanilla server has
 - Ability to take full control over every aspect of the server
 - Fully multithreaded worlds
+- Built-in [Spark](https://github.com/lucko/spark) profiler
 
 ## API Examples
 
@@ -64,8 +65,8 @@ Commands.add("/explode") {
         player.spawnParticle(player.location, Particles.EXPLOSION_EMITTER, Vector3f(1f), amount = 5)
         player.playSound(Sounds.ENTITY_GENERIC_EXPLODE, volume = 2f, pitch = randomFloat(0.6f, 1.3f))
     
-        player.sendMessage("<yellow>You got <rainbow><b>totally exploded <yellow>by <red>$executingPlayer")
-        executingPlayer.sendMessage("<yellow>You <rainbow><b>totally exploded <yellow>player <red>$player")
+        player.sendMessage("<yellow>You got <b>totally exploded <yellow>by <red>$executingPlayer")
+        executingPlayer.sendMessage("<yellow>You <b>totally exploded <yellow>player <red>$player")
     }
 }
 ```
@@ -76,18 +77,18 @@ Commands.add("/explode") {
 
 #### Sidebar API
 ```kotlin
-val sidebar = Sidebar {
-    setTitle("<yellow><bold>My Cool Server")
-    setGlobalLine("")
-    setPlayerLine { player -> "Welcome, <aqua>$player" }
-    setPlayerLine { player -> "World: <yellow>${player.world.name}" }
-    setPlayerLine { player -> "Ping: <pink>${player.ping}" }
-    setGlobalLine("")
-    setGlobalLine("<yellow>www.mycoolserver.uwu")
+val sidebar = sidebar {
+    withTitle("<yellow><bold>My Cool Server")
+    withSpacer()
+    withPlayerLine { player -> "Welcome, <aqua>$player" }
+    withPlayerLine { player -> "World: <yellow>${player.world.name}" }
+    withPlayerLine { player -> "Ping: <pink>${player.ping}" }
+    withSpacer()
+    withStaticLine("<yellow>www.mycoolserver.uwu")
 }
 
 Events.on<PlayerJoinEvent> { event ->
-    sidebar.viewers.add(event.player)
+    sidebar.addViewer(event.player)
 }
 ```
 Changing any lines, title etc. will automatically send update to the viewers
@@ -101,6 +102,45 @@ Events.on<PlayerJoinEvent> { event ->
 }
 ```
 Again, changing any properties of the bossbar will automatically send updates to the viewers 
+
+---
+
+### Advancement API
+
+```kotlin
+// here's how to make an advancement
+val root = advancement("dockyard/root") {
+    withTitle("<blue>Dockyard")
+    withDescription("On github!!!\n<gold>DockyardMC/Dockyard")
+    withIcon(Items.LAPIS_LAZULI)
+    withBackground(Blocks.CHERRY_LEAVES)
+    withPosition(0f, 0f)
+}
+
+advancement("dockyard/child") {
+    // set the parent of the advancement like this
+    withParent(root)
+
+    withTitle("Child")
+    withIcon(Items.STICK.toItemStack()
+        .withComponent(EnchantmentGlintOverrideItemComponent(true)))
+
+    withPosition(1f, 0f)
+}
+
+Events.on<PlayerJoinEvent> { event ->
+    root.addAll(event.player)
+}
+```
+
+Changing any properties will automatically send updates to the viewers
+
+You can also send an advancement toast like this:
+```kotlin
+player.showToast("Hello there", Items.FEATHER.toItemStack())
+```
+
+---
 
 ### Entity Metadata Layers
 
@@ -151,6 +191,7 @@ Contributions are always welcome! Please always check branches to see if the fea
 ## Authors
 
 - [LukynkaCZE](https://www.github.com/LukynkaCZE)
+- [p1k0chu](https://github.com/p1k0chu)
 - [AsoDesu](https://www.github.com/AsoDesu)
 
 ## Additional thanks to

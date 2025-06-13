@@ -2,9 +2,9 @@ package io.github.dockyardmc.npc
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
-import io.github.dockyardmc.entity.EntityMetaValue
-import io.github.dockyardmc.entity.EntityMetadata
-import io.github.dockyardmc.entity.EntityMetadataType
+import io.github.dockyardmc.entity.metadata.EntityMetaValue
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
@@ -41,7 +41,7 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
         }
 
         displayedSkinParts.listUpdated {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(
+            metadata[EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS] = EntityMetadata(
                 EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS,
                 EntityMetaValue.BYTE,
                 displayedSkinParts.values.getBitMask()
@@ -75,26 +75,27 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
         viewers.sendPacket(packet)
     }
 
-    override fun addViewer(player: Player) {
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
+
         val profileMap = if (profile.value == null) ProfilePropertyMap(username.value, mutableListOf()) else profile.value!!
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(profileMap))
         val listedPacket = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(listedPacket))
 
-        super.addViewer(player)
 
         sendMetadataPacket(player)
         sendEquipmentPacket(player)
         sendPotionEffectsPacket(player)
 
         if (profile.value == null) setSkin(username.value)
+        return true
     }
 
     override fun removeViewer(player: Player) {
         val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this.uuid)
         player.sendPacket(playerRemovePacket)
-        viewers.remove(player)
         super.removeViewer(player)
     }
 

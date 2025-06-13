@@ -7,7 +7,14 @@ import io.github.dockyardmc.advancement.PlayerAdvancementTracker
 import io.github.dockyardmc.attributes.PlayerAttributes
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.entity.*
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.EntityManager.despawnEntity
+import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.ItemDropEntity
+import io.github.dockyardmc.entity.LightningBolt
+import io.github.dockyardmc.entity.metadata.EntityMetaValue
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.ContainerInventory
@@ -18,7 +25,7 @@ import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.percentOf
 import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
-import io.github.dockyardmc.particles.BlockParticleData
+import io.github.dockyardmc.particles.data.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.permissions.PermissionSystem
 import io.github.dockyardmc.player.systems.*
@@ -40,10 +47,11 @@ import io.github.dockyardmc.resourcepack.Resourcepack
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.ui.DrawableContainerScreen
+import io.github.dockyardmc.ui.Screen
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.now
 import io.github.dockyardmc.world.PlayerChunkViewSystem
+import io.github.dockyardmc.world.Weather
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.block.handlers.BlockHandlerManager
@@ -111,6 +119,7 @@ class Player(
     val redVignette: Bindable<Float> = bindablePool.provideBindable(0f)
     val time: Bindable<Long> = bindablePool.provideBindable(-1)
     val fovModifier: Bindable<Float> = bindablePool.provideBindable(0.1f)
+    val clientWeather: Bindable<Weather?> = bindablePool.provideBindable(null)
 
     val cooldownSystem = CooldownSystem(this)
     val foodEatingSystem = FoodEatingSystem(this)
@@ -129,8 +138,8 @@ class Player(
     val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
 
     var lastInteractionTime: Long = -1L
-    var currentOpenInventory: ContainerInventory? = null
-    val hasInventoryOpen: Boolean get() = currentOpenInventory != null
+    var currentlyOpenScreen: Screen? = null
+    val hasInventoryOpen: Boolean get() = currentlyOpenScreen != null
     var itemInUse: ItemInUse? = null
 
     private val pingRequestCounter = AtomicInteger(0)
@@ -145,55 +154,50 @@ class Player(
     override fun toString(): String = username
 
     init {
-
         gameModeSystem.handle(gameMode)
         playerInfoSystem.handle(customName, isListed)
 
-        heldSlotIndex.valueChanged {
-            this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
-            val item = inventory[it.newValue]
+        heldSlotIndex.valueChanged { index ->
+            this.sendPacket(ClientboundSetHeldItemPacket(index.newValue))
+            val item = inventory[index.newValue]
             equipment[EquipmentSlot.MAIN_HAND] = item
         }
 
-        isFlying.valueChanged {
-            if (it.newValue) {
+        isFlying.valueChanged { event ->
+            if (event.newValue) {
                 // force standing pose if player is flying
                 this.pose.value = EntityPose.STANDING
             } else if (this.isSneaking) {
                 this.pose.value = EntityPose.SNEAKING
             }
 
-            this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value))
+            this.sendPacket(ClientboundPlayerAbilitiesPacket(event.newValue, isInvulnerable, canFly.value, flySpeed.value))
         }
-        canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
 
-        fovModifier.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, it.newValue)) }
+        canFly.valueChanged { event -> this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, event.newValue, flySpeed.value)) }
+
+        fovModifier.valueChanged { event -> this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, event.newValue)) }
 
         health.valueChanged { sendHealthUpdatePacket() }
         food.valueChanged { sendHealthUpdatePacket() }
         saturation.valueChanged { sendHealthUpdatePacket() }
 
-        tabListHeader.valueChanged { sendPacket(ClientboundTabListPacket(it.newValue, tabListFooter.value)) }
-        tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
+        tabListHeader.valueChanged { event -> sendPacket(ClientboundTabListPacket(event.newValue, tabListFooter.value)) }
+        tabListFooter.valueChanged { event -> sendPacket(ClientboundTabListPacket(tabListHeader.value, event.newValue)) }
 
-        redVignette.valueChanged {
-            val distance = percentOf(it.newValue * 10, world.worldBorder.diameter).toInt()
+        redVignette.valueChanged { event ->
+            val distance = percentOf(event.newValue * 10, world.worldBorder.diameter).toInt()
             sendPacket(ClientboundSetWorldBorderWarningDistance(distance))
         }
 
-        pose.valueChanged {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
-            sendMetadataPacketToViewers()
-            sendSelfMetadataPacket()
-        }
-
         displayedSkinParts.listUpdated {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
+            metadata[EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
         }
 
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
         time.valueChanged { updateWorldTime() }
+        clientWeather.valueChanged { updateWeatherState() }
 
         hasNoGravity.value = false
     }
@@ -247,20 +251,21 @@ class Player(
         health.value = 0f
     }
 
-    override fun addViewer(player: Player) {
-        if (player == this) return
+    override fun addViewer(player: Player): Boolean {
+        if (player == this) return false
         val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
         val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(customName.value)))
         player.sendPacket(namePacket)
 
-        super.addViewer(player)
+        if (!super.addViewer(player)) return false
 
         player.sendMetadataPacket(this)
         this.displayedSkinParts.triggerUpdate()
         sendMetadataPacket(player)
         sendEquipmentPacket(player)
         player.sendPacket(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))))
+        return true
     }
 
     fun getHeldItem(hand: PlayerHand): ItemStack {
@@ -282,19 +287,13 @@ class Player(
 
     override fun removeViewer(player: Player) {
         if (player == this) return
-//        //
-//        if(isDisconnect) {
-//            val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this)
-//            player.sendPacket(playerRemovePacket)
-//        }
-        viewers.remove(player)
         super.removeViewer(player)
     }
 
     // Hold messages client receives before state is PLAY, then send them after state changes to PLAY
-    private var queuedMessages = mutableListOf<Pair<Component, Boolean>>()
+    private var queuedMessages = mutableListOf<Pair<String, Boolean>>()
     fun releaseMessagesQueue() {
-        queuedMessages.forEach { sendSystemMessage(it.first, it.second) }
+        queuedMessages.forEach { message -> sendSystemMessage(message.first, message.second) }
         queuedMessages.clear()
     }
 
@@ -314,29 +313,32 @@ class Player(
         this.networkManager.kick(reason, connection)
     }
 
-    fun sendMessage(message: String) {
-        this.sendMessage(message.toComponent())
-    }
-
-    fun sendMessage(component: Component) {
-        sendSystemMessage(component, false)
+    fun sendMessage(message: String, isSystem: Boolean = false) {
+        this.sendSystemMessage(message, false, isSystem)
     }
 
     fun sendActionBar(message: String) {
-        this.sendActionBar(message.toComponent())
+        this.sendSystemMessage(message, isActionBar = true, isSystem = false)
     }
 
-    fun sendActionBar(component: Component) {
-        sendSystemMessage(component, true)
-    }
-
-    private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
+    private fun sendSystemMessage(message: String, isActionBar: Boolean, isSystem: Boolean = false) {
         if (!isConnected) return
+
+        // this event and the `isSystem` arg is quite literally only for one feature in my other project,
+        // but it's my server implementation anyway I can do whatever I want
+        // - maya
+        if (!isActionBar) {
+            val event = ServerSendPlayerMessageEvent(this, message, isSystem, getPlayerEventContext(this))
+            Events.dispatch(event)
+            if (event.cancelled) return
+        }
+
         if (networkManager.state != ProtocolState.PLAY) {
-            queuedMessages.add(component to isActionBar)
+            queuedMessages.add(message to isActionBar)
             return
         }
-        this.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))
+
+        this.sendPacket(ClientboundSystemChatMessagePacket(message.toComponent(), isActionBar))
     }
 
     fun sendPacket(packet: ClientboundPacket) {
@@ -355,7 +357,7 @@ class Player(
 
     override fun teleport(location: Location) {
         if (!WorldManager.worlds.containsValue(location.world)) throw Exception("That world does not exist!")
-        if (location.world != world) location.world.join(this)
+        if (location.world != world) location.world.join(this, location)
 
         val teleportPacket = ClientboundPlayerSynchronizePositionPacket(location)
         this.sendPacket(teleportPacket)
@@ -420,6 +422,7 @@ class Player(
         displayedSkinParts.triggerUpdate()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(location))
         sendPacketToViewers(ClientboundEntityTeleportPacket(this, location))
+        updateWeatherState()
     }
 
     fun refreshAbilities() {
@@ -428,6 +431,8 @@ class Player(
     }
 
     fun closeInventory() {
+        if(currentlyOpenScreen != null) currentlyOpenScreen!!.dispose()
+
         sendPacket(ClientboundCloseInventoryPacket(0))
         sendPacket(ClientboundCloseInventoryPacket(1))
         if (inventory.cursorItem.value != ItemStack.AIR) {
@@ -450,18 +455,6 @@ class Player(
         val time = if (time.value == -1L) world.time.value else time.value
         val packet = ClientboundUpdateTimePacket(world.worldAge, time, world.freezeTime)
         sendPacket(packet)
-    }
-
-    fun openInventory(inventory: ContainerInventory) {
-        this.currentOpenInventory = inventory
-        sendPacket(ClientboundOpenContainerPacket(InventoryType.valueOf("GENERIC_9X${inventory.rows}"), inventory.name))
-        inventory.contents.forEach {
-            sendPacket(ClientboundSetContainerSlotPacket(it.key, it.value))
-        }
-        if (inventory is DrawableContainerScreen) {
-            inventory.slots.triggerUpdate()
-            inventory.onOpen(this)
-        }
     }
 
     fun playTotemAnimation(customModelData: Int? = null) {
@@ -511,15 +504,22 @@ class Player(
         if (item.material == Items.DEBUG_STICK) cancelled = true
 
         if (cancelled) {
-            this.world.getChunkAt(location)?.let { this.sendPacket(it.packet) }
+            this.world.getChunkAt(location)?.let { chunk -> this.sendPacket(chunk.packet) }
             return
         }
+
+        this.world.setBlock(event.location, Blocks.AIR)
 
         BlockHandlerManager.getAllFromRegistryBlock(block.registryBlock).forEach { handler ->
             handler.onDestroy(block, world, location)
         }
+        location.getNeighbours().forEach { (_, neighbourLocation) ->
+            val handlers = BlockHandlerManager.getAllFromRegistryBlock(neighbourLocation.block.registryBlock)
+            handlers.forEach { handler ->
+                handler.onUpdateByNeighbour(neighbourLocation.block, neighbourLocation.world, neighbourLocation, block, location)
+            }
+        }
 
-        this.world.setBlock(event.location, Blocks.AIR)
         this.world.players.filter { it != this }.spawnParticle(
             event.location.add(0.5, 0.5, 0.5),
             Particles.BLOCK,
@@ -531,7 +531,7 @@ class Player(
     }
 
     fun playChestAnimation(chestLocation: Location, animation: ChestAnimation) {
-        sendPacket(ClientboundBlockActionPacket(chestLocation, 1, animation.ordinal.toByte(), Blocks.CHEST))
+        sendPacket(ClientboundBlockActionPacket(chestLocation, 1, animation.ordinal.toByte(), location.block.registryBlock))
     }
 
     fun stopSound(sound: String? = null, category: SoundCategory? = null) {
@@ -562,5 +562,34 @@ class Player(
         decoupledEntityViewSystemTicking.cancel()
         attributes.dispose()
         super.dispose()
+    }
+
+    fun strikeLightning(location: Location) {
+        val entity = LightningBolt(location)
+        entity.autoViewable = false
+        world.spawnEntity(entity)
+        entity.addViewer(this)
+        world.scheduler.runLater(10.ticks) {
+            world.despawnEntity(entity)
+        }
+    }
+
+    fun updateWeatherState() {
+        var raining: Boolean = world.weather.value.rain
+        var thunder: Boolean = world.weather.value.thunder
+
+        val playerWeather = clientWeather.value
+        if (playerWeather != null) {
+            raining = playerWeather.rain
+            thunder = playerWeather.thunder
+        }
+
+        val rainPacket = if (raining) ClientboundGameEventPacket(GameEvent.START_RAINING, 1f) else ClientboundGameEventPacket(GameEvent.END_RAINING, 1f)
+        val rainLevelPacket = if (raining) ClientboundGameEventPacket(GameEvent.RAIN_LEVEL_CHANGE, 1f) else ClientboundGameEventPacket(GameEvent.RAIN_LEVEL_CHANGE, 0f)
+        val thunderPacket = if (thunder) ClientboundGameEventPacket(GameEvent.THUNDER_LEVEL_CHANGE, 1f) else ClientboundGameEventPacket(GameEvent.THUNDER_LEVEL_CHANGE, 0f)
+
+        sendPacket(rainPacket)
+        sendPacket(rainLevelPacket)
+        sendPacket(thunderPacket)
     }
 }
