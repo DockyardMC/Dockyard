@@ -4,7 +4,6 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
-import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.declaredMemberFunctions
 
@@ -26,6 +25,6 @@ fun <T> KClass<*>.read(buffer: ByteBuf): T {
     } catch (exception: Exception) {
         log("Failed to call read on class ${this.simpleName}")
         log(exception)
-        throw IllegalStateException("Calling the read method failed: $exception")
+        throw IllegalStateException("Calling the read method failed: $exception (${exception.cause} ${exception.cause?.message})")
     }
 }

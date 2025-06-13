@@ -67,13 +67,13 @@ data class ItemStack(
         DataComponentPatch.patchNetworkType(components.components).write(buffer)
     }
 
-    override fun hashStruct(): HashHolder {
-        return CRC32CHasher.of {
-            static("id", CRC32CHasher.ofString(material.getEntryIdentifier()))
-            default("count", 1, amount, CRC32CHasher::ofInt)
-            //TODO(Components)
-        }
-    }
+//    override fun hashStruct(): HashHolder {
+//        return CRC32CHasher.of {
+//            static("id", CRC32CHasher.ofString(material.getEntryIdentifier()))
+//            default("count", 1, amount, CRC32CHasher::ofInt)
+//            //TODO(Components)
+//        }
+//    }
 
     fun withDisplayName(displayName: String): ItemStack {
         return ItemStackMeta.fromItemStack(this).apply { withDisplayName(displayName) }.toItemStack()

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.data
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.netty.buffer.ByteBuf

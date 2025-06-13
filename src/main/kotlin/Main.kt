@@ -1,10 +1,13 @@
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.data.components.ConsumableComponent
+import io.github.dockyardmc.data.components.ItemModelComponent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.types.ItemRarity
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.utils.DebugSidebar
 
@@ -27,6 +30,11 @@ fun main() {
             withDisplayName("<red><u>Crazy Oak Log")
             withRarity(ItemRarity.EPIC)
             withLore("test", "test2", "test3")
+            withConsumable(1.3f, ConsumableComponent.Animation.EAT, Sounds.ITEM_MACE_SMASH_GROUND, true)
+            withFood(2, 0f, true)
+            withCustomModelData(listOf(1f))
+            withMaxStackSize(99)
+            withComponent(ItemModelComponent("minecraft:birch_log"))
             withGlider()
         })
     }

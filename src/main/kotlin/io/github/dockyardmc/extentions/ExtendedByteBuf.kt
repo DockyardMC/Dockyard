@@ -1,5 +1,7 @@
 package io.github.dockyardmc.extentions
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.positiveCeilDiv
 import io.github.dockyardmc.maths.vectors.Vector3
@@ -117,9 +119,20 @@ fun ByteBuf.readByteArray(): ByteArray {
 }
 
 fun ByteBuf.readNBT(): BinaryTag {
-    val inputStream = ByteBufInputStream(this)
-    val nbt = BinaryTagIO.reader().read(inputStream as InputStream)
-    return nbt
+    try {
+        val inputStream = ByteBufInputStream(this) // bro is greedy and takes ALL THE BYTES to himself >:(
+        val nbt = BinaryTagIO.reader().readNameless(inputStream as InputStream, BinaryTagIO.Compression.NONE)
+
+        // read the rest of the bytes leftover, put them back and reset the reader index
+        val rest = inputStream.readAllBytes()
+        this.writeBytes(rest)
+        this.resetReaderIndex()
+
+        return nbt
+    } catch (ex: Exception) {
+        log("Failed to read NBT ($ex). Buffer state: readableBytes=${this.readableBytes()}", LogType.FATAL)
+        throw ex
+    }
 }
 
 fun ByteBuf.readNBTCompound(): CompoundBinaryTag {
@@ -134,7 +147,7 @@ fun ByteBuf.writeNBT(nbt: CompoundBinaryTag) {
 
     val outputStream = ByteArrayOutputStream()
     try {
-        BinaryTagIO.writer().writeNameless(nbt, outputStream)
+        BinaryTagIO.writer().writeNameless(nbt, outputStream, BinaryTagIO.Compression.NONE)
     } finally {
         this.writeBytes(outputStream.toByteArray())
     }

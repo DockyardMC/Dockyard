@@ -59,7 +59,6 @@ class ItemStackMeta {
         components[DyedColorComponent(color)]
     }
 
-
     fun withGlider() {
         components[GliderComponent()]
     }

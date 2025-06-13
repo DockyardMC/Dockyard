@@ -35,6 +35,7 @@ object DataComponentRegistry {
     val REPAIR_COST = register("minecraft:repair_cost", RepairCostComponent::class)
     val CREATIVE_SLOT_LOCK = register("minecraft:creative_slot_lock", CreativeSlotLockComponent::class)
     val ENCHANTMENT_GLINT_OVERRIDE = register("minecraft:enchantment_glint_override", EnchantmentGlintOverrideComponent::class)
+    val INTANGIBLE_PROJECTILE = register("minecraft:intangible_projectile", IntangibleProjectileComponent::class)
     val FOOD = register("minecraft:food", FoodComponent::class)
     val CONSUMABLE = register("minecraft:consumable", ConsumableComponent::class)
     val USE_REMAINDER = register("minecraft:use_remainder", UseRemainderComponent::class)

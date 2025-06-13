@@ -7,6 +7,7 @@ import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.types.ConsumeEffect
+import io.github.dockyardmc.protocol.types.readList
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.BuiltinSoundEvent
@@ -51,8 +52,8 @@ class ConsumableComponent(
                 buffer.readEnum(),
                 SoundEvent.read(buffer).identifier,
                 buffer.readBoolean(),
-                //buffer.readList(ConsumeEffect::read)
-                emptyList() //TODO(1.21.5): Consume effects hashing
+                buffer.readList(ConsumeEffect::read)
+//                emptyList() //TODO(1.21.5): Consume effects hashing
             )
         }
     }
