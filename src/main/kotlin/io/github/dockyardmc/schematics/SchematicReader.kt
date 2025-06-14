@@ -11,6 +11,8 @@ import java.io.File
 
 object SchematicReader {
 
+    val READER = BinaryTagIO.reader(Long.MAX_VALUE)
+
     fun read(file: File): Schematic {
         if (!file.exists()) throw Exception("File $file does not exist!")
         return read(file.readBytes())
@@ -18,8 +20,7 @@ object SchematicReader {
 
     fun read(byteArray: ByteArray): Schematic {
 
-        var nbt = BinaryTagIO.reader().read(ByteArrayInputStream(byteArray), BinaryTagIO.Compression.GZIP)
-
+        var nbt = READER.read(ByteArrayInputStream(byteArray), BinaryTagIO.Compression.GZIP)
 
         // newer versions of FAWE put it in there for some reason?
         if (nbt.contains("Schematic")) {
