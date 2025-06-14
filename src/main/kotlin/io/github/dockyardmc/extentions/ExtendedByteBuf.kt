@@ -1,6 +1,8 @@
 package io.github.dockyardmc.extentions
 
-import io.github.dockyardmc.item.*
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.positiveCeilDiv
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.maths.vectors.Vector3d
@@ -13,15 +15,16 @@ import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.SoundEvent
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.ByteBufInputStream
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
-import org.jglrxavpok.hephaistos.nbt.*
+import net.kyori.adventure.nbt.BinaryTag
+import net.kyori.adventure.nbt.BinaryTagIO
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.time.Instant
@@ -57,6 +60,10 @@ fun ByteBuf.writeTextComponent(text: String) {
     this.writeTextComponent(text.toComponent())
 }
 
+fun ByteBuf.readTextComponent(): Component {
+    return this.readNBTCompound().toComponent()
+}
+
 fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
     this.writeVarInt(list.size)
     list.forEach {
@@ -68,13 +75,6 @@ fun ByteBuf.writeColor(color: CustomColor) {
     this.writeInt(color.getPackedInt())
 }
 
-fun ByteBuf.writeRegistryEntry(entry: RegistryEntry) {
-    this.writeVarInt(entry.getProtocolId())
-}
-
-fun <T : RegistryEntry> ByteBuf.readRegistryEntry(registry: Registry): T {
-    return registry.getByProtocolId(this.readVarInt()) as T
-}
 
 fun ByteBuf.readUUID(): UUID {
     val most = this.readLong()
@@ -102,8 +102,12 @@ fun ByteBuf.writeVarIntArray(array: List<Int>) {
     array.forEach { this.writeVarInt(it) }
 }
 
-fun ByteBuf.writeLongArray(array: LongArray) {
-    this.writeLongArray(array.toList())
+object Buffer {
+    fun makeArray(writer: (ByteBuf) -> Unit): ByteArray {
+        val tempBuffer = Unpooled.buffer()
+        writer.invoke(tempBuffer)
+        return tempBuffer.array()
+    }
 }
 
 fun ByteBuf.writeLongArray(array: List<Long>) {
@@ -119,53 +123,38 @@ fun ByteBuf.readByteArray(): ByteArray {
     return byteArray
 }
 
-fun ByteBuf.readNBT(): NBT {
-    val buffer = this
-    val nbtReader = NBTReader(object : InputStream() {
+fun ByteBuf.readNBT(): BinaryTag {
+    try {
+        val inputStream = ByteBufInputStream(this) // bro is greedy and takes ALL THE BYTES to himself >:(
+        val nbt = BinaryTagIO.reader().readNameless(inputStream as InputStream, BinaryTagIO.Compression.NONE)
 
-        override fun read(): Int = buffer.readByte().toInt() and 0xFF
-        override fun available(): Int = buffer.readableBytes()
+        // read the rest of the bytes leftover, put them back and reset the reader index
+        val rest = inputStream.readAllBytes()
+        this.writeBytes(rest)
+        this.resetReaderIndex()
 
-    }, CompressedProcesser.NONE)
-    return try {
-        val tagId: Byte = buffer.readByte()
-        if (tagId.toInt() == NBTType.TAG_End.ordinal) NBTEnd else nbtReader.readRaw(tagId.toInt())
-    } catch (e: IOException) {
-        throw java.lang.RuntimeException(e)
-    } catch (e: NBTException) {
-        throw java.lang.RuntimeException(e)
+        return nbt
+    } catch (ex: Exception) {
+        log("Failed to read NBT ($ex). Buffer state: readableBytes=${this.readableBytes()}", LogType.FATAL)
+        throw ex
     }
 }
 
+fun ByteBuf.readNBTCompound(): CompoundBinaryTag {
+    return this.readNBT() as CompoundBinaryTag
+}
 
-fun ByteBuf.writeNBT(nbt: NBT, truncateRootTag: Boolean = true) {
+fun ByteBuf.writeNBT(nbt: BinaryTag) {
+    this.writeNBT(nbt as CompoundBinaryTag)
+}
+
+fun ByteBuf.writeNBT(nbt: CompoundBinaryTag) {
 
     val outputStream = ByteArrayOutputStream()
     try {
-        val writer = NBTWriter(outputStream, CompressedProcesser.NONE)
-        writer.writeNamed("", nbt)
-        writer.close()
+        BinaryTagIO.writer().writeNameless(nbt, outputStream, BinaryTagIO.Compression.NONE)
     } finally {
-        if (truncateRootTag) {
-            var outData = outputStream.toByteArray()
-
-            // Since 1.20.2 (Protocol 764) NBT sent over the network has been updated to exclude the name from the root TAG_COMPOUND
-            // ┌───────────┬────────┬────────────────┬──────────────┬───────────┐
-            // │  Version  │ TypeID │ Length of Name │     Name     │  Payload  │
-            // ├───────────┼────────┼────────────────┼──────────────┼───────────┤
-            // │ < 1.20.2  │ 0x0a   │ 0x00 0x00      │ Empty String │ 0x02 0x09 │
-            // │ >= 1.20.2 │ 0x0a   │ N/A            │ N/A          │ 0x02 0x09 │
-            // └───────────┴────────┴────────────────┴──────────────┴───────────┘
-
-            // Thanks to Kev (kev_dev) for pointing this out because I think I would have gone mad otherwise
-            val list = outData.toMutableList()
-            list.removeAt(1)
-            list.removeAt(1)
-            outData = list.toByteArray()
-            writeBytes(outData)
-        } else {
-            writeBytes(outputStream.toByteArray())
-        }
+        this.writeBytes(outputStream.toByteArray())
     }
 }
 
@@ -203,10 +192,10 @@ fun ByteBuf.readVarLong(): Long {
 
 fun hasContinuationBit(byte: Byte): Boolean = byte.toInt() and 0x80 == 128
 
-inline fun <reified T : Enum<T>> ByteBuf.readVarIntEnum(): T = T::class.java.enumConstants[readVarInt()]
+inline fun <reified T : Enum<T>> ByteBuf.readEnum(): T = T::class.java.enumConstants[readVarInt()]
 inline fun <reified T : Enum<T>> ByteBuf.readByteEnum(): T = T::class.java.enumConstants[readByte().toInt()]
 
-inline fun <reified T : Enum<T>> ByteBuf.writeVarIntEnum(value: T) {
+inline fun <reified T : Enum<T>> ByteBuf.writeEnum(value: T) {
     this.writeVarInt(value.ordinal)
 }
 
@@ -258,6 +247,14 @@ fun ByteBuf.readString(i: Int): String {
     this.readerIndex(this.readerIndex() + size)
     if (string.length > i) throw DecoderException("The received string was longer than the allowed (${string.length} > $i)")
     return string
+}
+
+fun <T : RegistryEntry> ByteBuf.readRegistryEntry(registry: Registry): T {
+    return registry.getByProtocolId(this.readVarInt()) as T
+}
+
+fun ByteBuf.writeRegistryEntry(entry: RegistryEntry) {
+    this.writeVarInt(entry.getProtocolId())
 }
 
 fun ByteBuf.readStringList(): List<String> {
@@ -350,8 +347,8 @@ inline fun <reified T : Any> ByteBuf.readOptionalOrNull(): T? {
         Vector3::class -> Vector3.read(this) as T
         Vector3d::class -> Vector3d.read(this) as T
         Vector3f::class -> Vector3f.read(this) as T
-        NBT::class -> (this.readNBT() as NBTCompound) as T
-        NBTCompound::class -> this.readNBT() as T
+        BinaryTag::class -> (this.readNBT() as CompoundBinaryTag) as T
+        CompoundBinaryTag::class -> this.readNBTCompound() as T
         Sound::class -> Sound(SoundEvent.read(this).identifier) as T
         EntityType::class -> EntityTypeRegistry[this.readString()] as T
         PotionEffect::class -> PotionEffectRegistry.getByProtocolId(this.readVarInt()) as T
@@ -370,35 +367,6 @@ fun ByteBuf.readItemList(): MutableList<Item> {
     return list
 }
 
-fun ByteBuf.readConsumeEffects(): List<ConsumeEffect> {
-    val size = this.readVarInt()
-    val effects = mutableListOf<ConsumeEffect>()
-    for (i in 0 until size) {
-        val effect = when (val type = this.readVarInt()) {
-            0 -> ApplyEffectsConsumeEffect(this.readAppliedPotionEffectsList(), this.readFloat())
-            1 -> readRemoveEffectsConsumeEffect()
-            2 -> ClearAllEffectsConsumeEffect()
-            3 -> TeleportRandomlyConsumeEffect(this.readFloat())
-            4 -> PlaySoundConsumeEffect(Sound(SoundEvent.read(this).identifier))
-            else -> throw IllegalStateException("Invalid consume effect $type")
-        }
-    }
-    return effects
-}
-
-fun ByteBuf.readRemoveEffectsConsumeEffect(): RemoveEffectsConsumeEffect {
-    val type = this.readVarInt() - 1
-    if (type == -1) {
-        val identifier = this.readString()
-        return RemoveEffectsConsumeEffect(listOf())
-    }
-    val list = mutableListOf<PotionEffect>()
-    for (i in 0 until type) {
-        list.add(this.readPotionEffectHolder())
-    }
-    return RemoveEffectsConsumeEffect(list)
-}
-
 fun ByteBuf.readPotionEffectHolder(): PotionEffect {
     val type = this.readVarInt()
     if (type == 0) {
@@ -411,41 +379,6 @@ fun ByteBuf.readPotionEffectHolder(): PotionEffect {
 fun ByteBuf.writeAppliedPotionEffectsList(list: Collection<AppliedPotionEffect>) {
     this.writeVarInt(list.size)
     list.forEach { this.writeAppliedPotionEffect(it) }
-}
-
-fun ByteBuf.writeConsumeEffects(effects: List<ConsumeEffect>) {
-    this.writeVarInt(effects.size)
-    effects.forEach { effect ->
-        when (effect) {
-            is ApplyEffectsConsumeEffect -> {
-                this.writeVarInt(0)
-                this.writeAppliedPotionEffectsList(effect.effects)
-                this.writeFloat(effect.probability)
-            }
-
-            is RemoveEffectsConsumeEffect -> {
-                throw NotImplementedError()
-//                this.writeVarInt(1)
-//                this.writeAppliedPotionEffectsList(effect.effects)
-            }
-
-            is ClearAllEffectsConsumeEffect -> {
-                this.writeVarInt(2)
-            }
-
-            is TeleportRandomlyConsumeEffect -> {
-                this.writeVarInt(3)
-                this.writeFloat(effect.diameter)
-            }
-
-            is PlaySoundConsumeEffect -> {
-                this.writeVarInt(4)
-                CustomSoundEvent(effect.sound.identifier).write(this)
-            }
-
-            else -> throw IllegalStateException("Invalid consume effect")
-        }
-    }
 }
 
 fun ByteBuf.readCustomColor(): CustomColor {
@@ -465,33 +398,6 @@ fun ByteBuf.writeCustomColorList(list: Collection<CustomColor>) {
     list.forEach {
         this.writeInt(it.getPackedInt())
     }
-}
-
-fun ByteBuf.writeFireworkExplosion(component: FireworkExplosionItemComponent) {
-    this.writeVarIntEnum<FireworkShape>(component.shape)
-    this.writeCustomColorList(component.colors)
-    this.writeCustomColorList(component.fadeColors)
-    this.writeBoolean(component.hasTrail)
-    this.writeBoolean(component.hasTwinkle)
-}
-
-fun ByteBuf.readFireworkExplosionList(): List<FireworkExplosionItemComponent> {
-    val list = mutableListOf<FireworkExplosionItemComponent>()
-    for (i in 0 until this.readVarInt()) {
-        list.add(this.readFireworkExplosion())
-    }
-    return list
-}
-
-
-fun ByteBuf.readFireworkExplosion(): FireworkExplosionItemComponent {
-    return FireworkExplosionItemComponent(
-        this.readVarIntEnum<FireworkShape>(),
-        this.readCustomColorList(),
-        this.readCustomColorList(),
-        this.readBoolean(),
-        this.readBoolean()
-    )
 }
 
 fun ByteBuf.readEntityTypes(): List<EntityType> {
@@ -553,6 +459,3 @@ fun Byte.toBoolean(): Boolean {
 fun Boolean.toByte(): Byte {
     return if (this) 1.toByte() else 0.toByte()
 }
-
-
-fun NBTCompound.getAsBoolean(key: String): Boolean? = getNumber(key)?.toByte()?.toBoolean()

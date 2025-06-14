@@ -1,16 +1,15 @@
 package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.extentions.getOrThrow
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.concurrent.atomic.AtomicInteger
 
-object TrimMaterialRegistry: DynamicRegistry {
+object TrimMaterialRegistry : DynamicRegistry {
 
     override val identifier: String = "minecraft:trim_material"
 
@@ -36,8 +35,8 @@ object TrimMaterialRegistry: DynamicRegistry {
         addEntry(TrimMaterial("minecraft:diamond", "diamond", "#6EECD2", "trim_material.minecraft.diamond", "minecraft:diamond", mapOf("minecraft:diamond" to "diamond_darker")))
         addEntry(TrimMaterial("minecraft:emerald", "emerald", "#11A036", "trim_material.minecraft.emerald", "minecraft:emerald"))
         addEntry(TrimMaterial("minecraft:gold", "gold", "#DEB12D", "trim_material.minecraft.gold", "minecraft:gold_ingot", mapOf("minecraft:gold" to "gold_darker")))
-        addEntry(TrimMaterial("minecraft:iron", "iron", "#ECECEC", "trim_material.minecraft.iron", "minecraft:iron_ingot",  mapOf("minecraft:iron" to "iron_darker")))
-        addEntry(TrimMaterial("minecraft:lapis", "lapis", "#416E97", "trim_material.minecraft.lapis", "minecraft:lapis_lazuli", ))
+        addEntry(TrimMaterial("minecraft:iron", "iron", "#ECECEC", "trim_material.minecraft.iron", "minecraft:iron_ingot", mapOf("minecraft:iron" to "iron_darker")))
+        addEntry(TrimMaterial("minecraft:lapis", "lapis", "#416E97", "trim_material.minecraft.lapis", "minecraft:lapis_lazuli"))
         addEntry(TrimMaterial("minecraft:netherite", "netherite", "#625859", "trim_material.minecraft.netherite", "minecraft:netherite_ingot", mapOf("minecraft:netherite" to "netherite_darker")))
         addEntry(TrimMaterial("minecraft:quartz", "quartz", "#E3D4C4", "trim_material.minecraft.quartz", "minecraft:quartz"))
         addEntry(TrimMaterial("minecraft:redstone", "redstone", "#971607", "trim_material.minecraft.redstone", "minecraft:redstone"))
@@ -45,7 +44,7 @@ object TrimMaterialRegistry: DynamicRegistry {
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
-        if(!::cachedPacket.isInitialized) updateCache()
+        if (!::cachedPacket.isInitialized) updateCache()
         return cachedPacket
     }
 
@@ -77,20 +76,25 @@ data class TrimMaterial(
     val translate: String,
     val ingredient: String,
     val overrideArmorMaterials: Map<String, String>? = null,
-): RegistryEntry {
+) : RegistryEntry {
 
     override fun getProtocolId(): Int {
         return TrimMaterialRegistry.protocolIds.getOrThrow(identifier)
     }
 
-    override fun getNbt(): NBTCompound {
-        return NBT.Compound {
-            it.put("asset_name", assetName)
-            it.put("description", NBT.Compound { desc ->
-                desc.put("color", color)
-                desc.put("translate", translate)
-            })
-            it.put("ingredient", ingredient)
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withString("asset_name", assetName)
+            withCompound("description") {
+                withString("color", color)
+                withString("translate", translate)
+            }
+            withString("ingredient", ingredient)
         }
     }
 }

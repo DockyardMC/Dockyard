@@ -1,16 +1,15 @@
 package io.github.dockyardmc.registry.registries
 
 import io.github.dockyardmc.extentions.getOrThrow
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.concurrent.atomic.AtomicInteger
 
-object PaintingVariantRegistry: DynamicRegistry {
+object PaintingVariantRegistry : DynamicRegistry {
 
     override val identifier: String = "minecraft:painting_variant"
 
@@ -65,7 +64,7 @@ object PaintingVariantRegistry: DynamicRegistry {
     }
 
     override fun getCachedPacket(): ClientboundRegistryDataPacket {
-        if(!::cachedPacket.isInitialized) updateCache()
+        if (!::cachedPacket.isInitialized) updateCache()
         return cachedPacket
     }
 
@@ -95,17 +94,22 @@ data class PaintingVariant(
     val assetId: String,
     val height: Int,
     val width: Int,
-): RegistryEntry {
+) : RegistryEntry {
 
     override fun getProtocolId(): Int {
         return PaintingVariantRegistry.protocolIds.getOrThrow(identifier)
     }
 
-    override fun getNbt(): NBTCompound {
-        return NBT.Compound {
-            it.put("asset_id", assetId)
-            it.put("height", height)
-            it.put("width", width)
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withString("asset_id", assetId)
+            withInt("height", height)
+            withInt("width", width)
         }
     }
 }

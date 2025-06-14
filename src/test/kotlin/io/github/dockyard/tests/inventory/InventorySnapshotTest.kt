@@ -3,8 +3,8 @@ package io.github.dockyard.tests.inventory
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.inventory.clearInventory
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.ui.snapshot.InventorySnapshot
 import kotlin.test.BeforeTest

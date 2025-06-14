@@ -1,6 +1,5 @@
 package io.github.dockyardmc.registry
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.registry.registries.tags.*
 import java.io.InputStream
@@ -22,6 +21,14 @@ object RegistryManager {
         FluidTagRegistry::class to "registry/fluid_tags.json.gz",
         ItemTagRegistry::class to "registry/item_tags.json.gz",
         AttributeRegistry::class to "registry/attribute_registry.json.gz",
+        WolfVariantRegistry::class to "registry/wolf_variant.json.gz",
+        WolfSoundVariantRegistry::class to "registry/wolf_sound_variant.json.gz",
+        CatVariantRegistry::class to "registry/cat_variant.json.gz",
+        CowVariantRegistry::class to "registry/cow_variant.json.gz",
+        PigVariantRegistry::class to "registry/pig_variant.json.gz",
+        FrogVariantRegistry::class to "registry/frog_variant.json.gz",
+        ChickenVariantRegistry::class to "registry/chicken_variant.json.gz",
+        PotionTypeRegistry::class to "registry/potion_type_registry.json.gz",
     )
 
     val dynamicRegistries: MutableMap<String, Registry> = mutableMapOf()
@@ -29,7 +36,7 @@ object RegistryManager {
 
     fun register(registry: Registry) {
         registries.add(registry)
-        if(registry is DataDrivenRegistry) {
+        if (registry is DataDrivenRegistry) {
             val resource = ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]) ?: throw IllegalStateException("No resource file path for registry ${registry.identifier}")
             registry.initialize(resource.openStream())
         }
@@ -38,11 +45,10 @@ object RegistryManager {
             registry.updateCache()
         }
 
-        if(registry !is TagRegistry) dynamicRegistries[registry.identifier] = registry
+        if (registry !is TagRegistry) dynamicRegistries[registry.identifier] = registry
     }
 
     fun getStreamForClass(registry: KClass<*>): InputStream {
-        log(dataDrivenRegisterSources.toString())
         return ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]!!).openStream()
     }
 
@@ -50,7 +56,7 @@ object RegistryManager {
         return ClassLoader.getSystemResource(path).openStream()
     }
 
-    fun <T: Registry> getFromIdentifier(identifier: String): T {
+    fun <T : Registry> getFromIdentifier(identifier: String): T {
         return (dynamicRegistries[identifier] ?: throw NoSuchElementException("Registry with identifier $identifier was not found!")) as T
     }
 }

@@ -1,9 +1,10 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
+import io.github.dockyardmc.data.components.EquippableComponent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.InventoryClickEvent
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
 import io.github.dockyardmc.inventory.InventoryClickHandler
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
 import io.github.dockyardmc.item.*
@@ -11,9 +12,11 @@ import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableItemStack
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -25,8 +28,8 @@ class ServerboundClickContainerPacket(
     var slot: Int,
     var button: Int,
     var mode: ContainerClickMode,
-    var changedSlots: MutableMap<Int, ItemStack>,
-    var item: ItemStack,
+    var changedSlots: MutableMap<Int, HashedItemStack>,
+    var item: HashedItemStack,
 ) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
@@ -145,14 +148,16 @@ class ServerboundClickContainerPacket(
                 if (action == NormalShiftButtonAction.SHIFT_LEFT_MOUSE_CLICK || action == NormalShiftButtonAction.SHIFT_RIGHT_MOUSE_CLICK) {
 
                     var equipmentSlot: EquipmentSlot? = null
-                    val equipmentComponent = clickedSlotItem.components.getOrNull<EquippableItemComponent>(EquippableItemComponent::class)
+                    val equipmentComponent = clickedSlotItem.components[EquippableComponent::class] as EquippableComponent?
 
                     if (equipmentComponent == null) {
                         val defaultEquipment = PlayerInventoryUtils.getDefaultEquipmentSlot(clickedSlotItem.material)
                         if (defaultEquipment != null) equipmentSlot = defaultEquipment
                     } else {
-                        if (equipmentComponent.allowedEntities.contains(player.type)) equipmentSlot =
-                            equipmentComponent.slot
+                        if (equipmentComponent.allowedEntities != null) {
+                            if (equipmentComponent.allowedEntities.contains(player.type)) equipmentSlot =
+                                equipmentComponent.equipmentSlot
+                        }
                     }
 
                     if (EquipmentSlot.isBody(equipmentSlot)) {
@@ -173,14 +178,14 @@ class ServerboundClickContainerPacket(
                     }
 
                     val range = if (properSlot <= 8) 9 to 35 else 0 to 8
-                    val suitableSlotIndex: Int = InventoryClickHandler.findSuitableSlotInRange(player.inventory, range.first, range.second, item) ?: return
+                    val suitableSlotIndex: Int = InventoryClickHandler.findSuitableSlotInRange(player.inventory, range.first, range.second, HashedItemStack.fromItemStack(clickedSlotItem)) ?: return
 
                     val existingItem = player.inventory[suitableSlotIndex].clone()
 
                     if (clickedSlotItem.isSameAs(empty)) return
 
-                    val shouldStack = !existingItem.isSameAs(empty) &&
-                            existingItem.isSameAs(clickedSlotItem) &&
+                    val shouldStack = !existingItem.isEmpty() &&
+                            existingItem == clickedSlotItem &&
                             (existingItem.amount + clickedSlotItem.amount) <= existingItem.maxStackSize
 
                     if (shouldStack) {
@@ -189,11 +194,10 @@ class ServerboundClickContainerPacket(
                             existingItem.withAmount(existingItem.amount + clickedSlotItem.amount)
 
                     } else {
-
                         val isSameItemButCantFullyStack =
                             existingItem.isSameAs(clickedSlotItem) && (existingItem.amount + clickedSlotItem.amount) > existingItem.maxStackSize
                         if (isSameItemButCantFullyStack) {
-                            //is the same item but cant stack everything, so we only stack what we can and leave the rest
+                            //is the same item but can't stack everything, so we only stack what we can and leave the rest
                             val totalAmount = existingItem.amount + clickedSlotItem.amount
                             val newClicked = existingItem.maxStackSize
                             val remainder = totalAmount - existingItem.maxStackSize
@@ -312,9 +316,9 @@ class ServerboundClickContainerPacket(
         player.inventory.cursorItem.value = player.inventory.cursorItem.value
     }
 
-    fun getEquipmentSlot(item: ItemStack): Pair<EquipmentSlot?, EquippableItemComponent?> {
-        val component = item.components.getOrNull<EquippableItemComponent>(EquippableItemComponent::class)
-        if (component != null) return component.slot to component
+    fun getEquipmentSlot(item: ItemStack): Pair<EquipmentSlot?, EquippableComponent?> {
+        val component = item.components[EquippableComponent::class] as EquippableComponent?
+        if (component != null) return component.equipmentSlot to component
 
         return PlayerInventoryUtils.getDefaultEquipmentSlot(item.material) to null
     }
@@ -443,20 +447,20 @@ class ServerboundClickContainerPacket(
         clickedSlot: Int,
         equipmentSlot: EquipmentSlot,
         item: ItemStack,
-        component: EquippableItemComponent?
+        component: EquippableComponent?
     ) {
         player.equipment[equipmentSlot] = item
         player.inventory[clickedSlot] = item
 
-        val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
+        val sound = component?.equipSound ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
         player.playSound(sound, pitch = randomFloat(1.0f, 1.2f))
     }
 
-    private fun unequip(player: Player, equipmentSlot: EquipmentSlot, component: EquippableItemComponent?) {
+    private fun unequip(player: Player, equipmentSlot: EquipmentSlot, component: EquippableComponent?) {
         player.equipment[equipmentSlot] = ItemStack.AIR
         player.inventory[player.inventory.getSlotId(equipmentSlot, player.heldSlotIndex.value)] = ItemStack.AIR
 
-        val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
+        val sound = component?.equipSound ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
         player.playSound(sound, pitch = randomFloat(0.6f, 0.8f))
     }
 
@@ -521,21 +525,17 @@ class ServerboundClickContainerPacket(
             val stateId = buffer.readVarInt()
             val slot = buffer.readShort().toInt()
             val button = buffer.readByte().toInt()
-            val mode = buffer.readVarIntEnum<ContainerClickMode>()
-            val changedSlots = mutableMapOf<Int, ItemStack>()
+            val mode = buffer.readEnum<ContainerClickMode>()
+            val changedSlots = mutableMapOf<Int, HashedItemStack>()
 
             val arraySize = buffer.readVarInt()
             for (i in 0 until arraySize) {
                 val slotNumber = buffer.readShort().toInt()
-                val slotData = ItemStack.read(buffer)
+                val slotData = HashedItemStack.read(buffer)
                 changedSlots[slotNumber] = slotData
             }
 
-            val carriedItem = ItemStack.read(buffer)
-
-            val rest = buffer.readableBytes()
-            buffer.readBytes(rest)
-            buffer.clear()
+            val carriedItem = HashedItemStack.read(buffer)
 
             return ServerboundClickContainerPacket(
                 windowsId,

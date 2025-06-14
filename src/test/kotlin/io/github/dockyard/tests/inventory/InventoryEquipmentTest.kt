@@ -9,11 +9,11 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.InventoryClickEvent
 import io.github.dockyardmc.events.PlayerEquipEvent
 import io.github.dockyardmc.inventory.clearInventory
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.protocol.packets.play.serverbound.ContainerClickMode
 import io.github.dockyardmc.protocol.packets.play.serverbound.NormalButtonAction
 import io.github.dockyardmc.protocol.packets.play.serverbound.NormalShiftButtonAction
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.Items
 import java.util.concurrent.CountDownLatch
 import kotlin.test.AfterTest

@@ -54,7 +54,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 RegistryManager.register(BlockRegistry)
                 RegistryManager.register(EntityTypeRegistry)
                 RegistryManager.register(DimensionTypeRegistry)
-                RegistryManager.register(WolfVariantRegistry)
                 RegistryManager.register(BannerPatternRegistry)
                 RegistryManager.register(DamageTypeRegistry)
                 RegistryManager.register(JukeboxSongRegistry)
@@ -67,6 +66,15 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 RegistryManager.register(BiomeRegistry)
                 RegistryManager.register(ItemRegistry)
                 RegistryManager.register(FluidRegistry)
+                RegistryManager.register(PotionTypeRegistry)
+
+                RegistryManager.register(WolfVariantRegistry)
+                RegistryManager.register(WolfSoundVariantRegistry)
+                RegistryManager.register(CatVariantRegistry)
+                RegistryManager.register(CowVariantRegistry)
+                RegistryManager.register(PigVariantRegistry)
+                RegistryManager.register(FrogVariantRegistry)
+                RegistryManager.register(ChickenVariantRegistry)
 
                 RegistryManager.register(ItemTagRegistry)
                 RegistryManager.register(BlockTagRegistry)
@@ -117,7 +125,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     companion object {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         lateinit var instance: DockyardServer
-        val minecraftVersion = MinecraftVersions.v1_21_4
+        val minecraftVersion = MinecraftVersions.v1_21_5
         var allowAnyVersion: Boolean = false
 
         val scheduler = GlobalScheduler("main_scheduler")

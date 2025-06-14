@@ -1,36 +1,41 @@
 package io.github.dockyardmc.item
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.AttributeModifier
-import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.data.DataComponent
+import io.github.dockyardmc.data.DataComponentPatch
+import io.github.dockyardmc.data.components.*
+import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.noxesium.Noxesium
+import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.NetworkWritable
+import io.github.dockyardmc.protocol.types.ConsumeEffect
+import io.github.dockyardmc.protocol.types.ItemRarity
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
-import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.*
+import net.kyori.adventure.nbt.*
 import java.io.UnsupportedEncodingException
 
 data class ItemStack(
     var material: Item,
     var amount: Int = 1,
-    val components: Set<ItemComponent> = setOf(),
+    val components: DataComponentPatch,
     val existingMeta: ItemStackMeta? = null,
     val attributes: Collection<AttributeModifier> = listOf()
-) : NetworkWritable {
+) : NetworkWritable, DataComponentHashable {
 
-    constructor(material: Item, amount: Int = 1, vararg components: ItemComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toSet(), attributes = attributes)
-    constructor(material: Item, vararg components: ItemComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components.toSet(), attributes = attributes)
-    constructor(material: Item, components: Set<ItemComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, components, attributes = attributes)
+    constructor(material: Item, amount: Int, vararg components: DataComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
+    constructor(material: Item, vararg components: DataComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
+    constructor(material: Item, components: Set<DataComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
 
     init {
         if (amount <= 0) throw IllegalArgumentException("ItemStack amount cannot be less than 1")
@@ -39,30 +44,14 @@ data class ItemStack(
     companion object {
         val AIR = ItemStack(Items.AIR, 1)
 
-        fun read(buffer: ByteBuf): ItemStack {
+        fun read(buffer: ByteBuf, isPatch: Boolean = true, isTrusted: Boolean = true): ItemStack {
             val count = buffer.readVarInt()
             if (count <= 0) return AIR
 
             val itemId = buffer.readVarInt()
-            val componentsToAdd = buffer.readVarInt()
-            val componentsToRemove = buffer.readVarInt()
 
-            val components: MutableList<ItemComponent> = mutableListOf()
-            val removeComponents: MutableList<ItemComponent> = mutableListOf()
-
-            for (i in 0 until componentsToAdd) {
-                val type = buffer.readVarInt()
-                val component = buffer.readComponent(type)
-                components.add(component)
-            }
-            for (i in 0 until componentsToRemove) {
-                val type = buffer.readVarInt()
-            }
-
-            var item = ItemStack(ItemRegistry.getByProtocolId(itemId), count)
-            components.forEach { item = item.withComponent(it) }
-
-            return item
+            val componentsPatch = DataComponentPatch.read(buffer, isPatch, isTrusted)
+            return ItemStack(ItemRegistry.getByProtocolId(itemId), count, componentsPatch)
         }
     }
 
@@ -72,22 +61,10 @@ data class ItemStack(
             return
         }
 
-        val itemComponents = mutableListOf<ItemComponent>()
-        itemComponents.addAll(this.components)
-        if (!customData.isEmpty()) {
-            itemComponents.add(CustomDataItemComponent(customData))
-        }
-
         buffer.writeVarInt(this.amount)
         buffer.writeVarInt(this.material.getProtocolId())
-        buffer.writeVarInt(itemComponents.size)
-        buffer.writeVarInt(0)
-
-        itemComponents.forEach {
-            buffer.writeItemComponent(it)
-        }
+        DataComponentPatch.patchNetworkType(components.components).write(buffer)
     }
-
 
     fun withDisplayName(displayName: String): ItemStack {
         return ItemStackMeta.fromItemStack(this).apply { withDisplayName(displayName) }.toItemStack()
@@ -101,13 +78,13 @@ data class ItemStack(
         return ItemStackMeta.fromItemStack(this).apply { withHideTooltip(hideTooltip) }.toItemStack()
     }
 
-    fun withComponent(vararg component: ItemComponent): ItemStack {
+    fun withComponent(vararg component: DataComponent): ItemStack {
         return ItemStackMeta.fromItemStack(this).apply { withComponent(component.toList()) }.toItemStack()
     }
 
     fun withConsumable(
         consumeTimeSeconds: Float,
-        animation: ConsumableAnimation = ConsumableAnimation.EAT,
+        animation: ConsumableComponent.Animation = ConsumableComponent.Animation.EAT,
         sound: String = Sounds.ENTITY_GENERIC_EAT,
         hasParticles: Boolean = true,
         consumeEffects: List<ConsumeEffect> = listOf()
@@ -184,11 +161,6 @@ data class ItemStack(
         return withMeta { withCustomModelData(colors) }
     }
 
-    @JvmName("withCustomModelDatacolorInt")
-    fun withCustomModelData(vararg color: Int): ItemStack {
-        return withMeta { withCustomModelData(*color) }
-    }
-
     @JvmName("withCustomModelDatacolorListCustomColor")
     fun withCustomModelData(colors: List<CustomColor>): ItemStack {
         return withMeta { withCustomModelData(colors) }
@@ -204,41 +176,42 @@ data class ItemStack(
         return withMeta { withCustomModelData(floats, flags, strings, colors) }
     }
 
-    val customModelData: CustomModelDataItemComponent
+    val customModelData: CustomDataComponent
         get() {
-            return components.getOrNull(CustomModelDataItemComponent::class) ?: CustomModelDataItemComponent()
+            return components[CustomDataComponent::class] as CustomDataComponent? ?: CustomDataComponent(CompoundBinaryTag.empty())
         }
 
     val maxStackSize: Int
         get() {
-            return components.getOrNull(MaxStackSizeItemComponent::class)?.maxStackSize ?: material.maxStack
+            return (components[MaxStackSizeComponent::class] as MaxStackSizeComponent?)?.size ?: material.maxStack
         }
 
     val unbreakable: Boolean
         get() {
-            return components.getOrNull(UnbreakableItemComponent::class) != null
+            return components[UnbreakableComponent::class] != null
         }
 
     val hasGlint: Boolean
         get() {
-            return components.getOrNull(EnchantmentGlintOverrideItemComponent::class)?.hasGlint ?: false
+            return (components[EnchantmentGlintOverrideComponent::class] as EnchantmentGlintOverrideComponent?)?.enchantGlint ?: false
         }
 
     var noxesiumImmovable: Boolean
         set(value) {
             if (value) {
-                setCustomData<NBTCompound>(Noxesium.BUKKIT_TAG, Noxesium.BUKKIT_COMPOUND)
+                setCustomData<CompoundBinaryTag>(Noxesium.BUKKIT_TAG, Noxesium.BUKKIT_COMPOUND)
             } else {
                 removeCustomData(Noxesium.BUKKIT_TAG)
             }
         }
         get() {
-            val tag = getCustomDataOrNull<NBTCompound>(Noxesium.BUKKIT_TAG)?.getAsBoolean(Noxesium.IMMOVABLE_TAG) ?: false
+            val tag = getCustomDataOrNull<CompoundBinaryTag>(Noxesium.BUKKIT_TAG)?.getBoolean(Noxesium.IMMOVABLE_TAG) ?: false
             return tag
         }
 
-    val customDataHolder = CustomDataHolder()
-    var customData: NBTCompound = NBTCompound.EMPTY
+
+    private val customDataHolder = CustomDataHolder()
+    var customData: CompoundBinaryTag = CompoundBinaryTag.empty()
 
     fun <T : Any> setCustomData(key: String, value: T) {
         customDataHolder[key] = value
@@ -250,13 +223,10 @@ data class ItemStack(
         rebuildCustomDataNbt()
     }
 
-    inline fun <reified T : Any> getCustomDataOrNull(key: String): T? {
+    fun <T : Any> getCustomDataOrNull(key: String): T? {
         updateCustomDataHolderFromComponent()
         val value = customDataHolder.dataStore[key] ?: return null
-        if (T::class == Boolean::class) {
-            return (value as Byte?)?.toBoolean() as T?
-        }
-        return value as T?
+        return value as T
     }
 
     fun withNoxesiumImmovable(immovable: Boolean): ItemStack {
@@ -264,54 +234,66 @@ data class ItemStack(
         return this
     }
 
-    fun updateCustomDataHolderFromComponent() {
-        val component = components.getOrNull<CustomDataItemComponent>(CustomDataItemComponent::class) ?: return
+    private fun updateCustomDataHolderFromComponent() {
+        val component = components[CustomDataComponent::class] as CustomDataComponent? ?: return
 
-        component.data.forEach {
-            val value: Any = when (it.value) {
-                is NBTString -> (it.value as NBTString).value
-                is NBTInt -> (it.value as NBTInt).value
-                is NBTFloat -> (it.value as NBTFloat).value
-                is NBTDouble -> (it.value as NBTDouble).value
-                is NBTLong -> (it.value as NBTLong).value
-                is NBTByte -> (it.value as NBTByte).value
-                is NBTCompound -> it.value as NBTCompound
-                else -> throw UnsupportedEncodingException("${it.value::class.simpleName} is not supported in custom data nbt")
+        component.nbt.forEach { nbt ->
+            val value = when (nbt.value) {
+                is StringBinaryTag -> (nbt.value as StringBinaryTag)
+                is IntBinaryTag -> (nbt.value as IntBinaryTag)
+                is FloatBinaryTag -> (nbt.value as FloatBinaryTag)
+                is DoubleBinaryTag -> (nbt.value as DoubleBinaryTag)
+                is LongBinaryTag -> (nbt.value as LongBinaryTag)
+                is ByteBinaryTag -> (nbt.value as ByteBinaryTag)
+                is ByteArrayBinaryTag -> (nbt.value as ByteArrayBinaryTag)
+                is CompoundBinaryTag -> (nbt.value as CompoundBinaryTag)
+                else -> throw UnsupportedEncodingException("${nbt.value::class.simpleName} is not supported in custom data nbt")
             }
-
-            customDataHolder[it.key] = value
+            customDataHolder[nbt.key] = value
         }
     }
 
     private fun rebuildCustomDataNbt() {
-        customData = NBT.Compound { nbt ->
-            customDataHolder.dataStore.forEach {
-                when (it.value) {
-                    is String -> nbt.put(it.key, it.value as String)
-                    is Int -> nbt.put(it.key, it.value as Int)
-                    is Float -> nbt.put(it.key, it.value as Float)
-                    is Double -> nbt.put(it.key, it.value as Double)
-                    is Long -> nbt.put(it.key, it.value as Long)
-                    is Byte -> nbt.put(it.key, it.value as Byte)
-                    is Boolean -> nbt.put(it.key, (it.value as Boolean).toByte())
-                    is NBTCompound -> nbt.put(it.key, it.value as NBTCompound)
-                    else -> throw UnsupportedEncodingException("${it.value::class.simpleName} is not supported in custom data nbt")
+        customData = nbt {
+            customDataHolder.dataStore.forEach { data ->
+                when (data.value) {
+                    is String -> withString(data.key, data.value as String)
+                    is Int -> withInt(data.key, data.value as Int)
+                    is Float -> withFloat(data.key, data.value as Float)
+                    is Double -> withDouble(data.key, data.value as Double)
+                    is Long -> withLong(data.key, data.value as Long)
+                    is Byte -> withByte(data.key, data.value as Byte)
+                    is Boolean -> withBoolean(data.key, data.value as Boolean)
                 }
             }
         }
     }
 
-    inline fun <reified T : Any> getCustomData(key: String): T {
+    fun <T : Any> getCustomData(key: String): T {
         return getCustomDataOrNull<T>(key) ?: throw IllegalArgumentException("Value for key $key not found in data holder")
     }
 
-    fun isEmpty(): Boolean = this.isSameAs(AIR)
+    fun isEmpty(): Boolean = this.material == Items.AIR
 
     override fun toString(): String = "ItemStack(${material.identifier}, ${components}, $amount)".stripComponentTags()
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is ItemStack) return false
-        return isSameAs(other)
+        return material.getProtocolId() == other.material.getProtocolId()
+//                && attributes == other.attributes //TODO why no same??
+                && this.components.getComparisonHash() == other.components.getComparisonHash()
+
+    }
+
+    override fun hashCode(): Int {
+        var result = material.getProtocolId().hashCode()
+        result = 31 * result + this.components.getComparisonHash().hashCode()
+//        result = 31 * result + attributes.hashCode() //TODO why no same??
+        return result
+    }
+
+    fun isSameAs(other: ItemStack): Boolean {
+        return this == other
     }
 }
 
@@ -323,10 +305,4 @@ fun Collection<String>.toComponents(): Collection<Component> {
 
 fun ItemStack.clone(): ItemStack {
     return ItemStack(material, amount, components, existingMeta, attributes)
-}
-
-fun ItemStack.toComparisonString(): String = "ItemStack(${this.components};${this.material.identifier})".stripComponentTags()
-
-fun ItemStack.isSameAs(other: ItemStack): Boolean {
-    return this.toComparisonString() == other.toComparisonString()
 }

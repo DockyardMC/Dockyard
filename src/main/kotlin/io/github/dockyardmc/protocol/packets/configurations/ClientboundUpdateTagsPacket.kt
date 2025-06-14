@@ -4,7 +4,7 @@ import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.writeList
+import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.registry.Registry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryManager
@@ -13,7 +13,7 @@ import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.registry.registries.tags.TagRegistry
 import io.netty.buffer.ByteBuf
 import kotlinx.serialization.Serializable
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.BinaryTag
 
 class ClientboundUpdateTagsPacket(val registries: List<TagRegistry>) : ClientboundPacket() {
 
@@ -34,8 +34,12 @@ data class Tag(
     val registryIdentifier: String,
 ) : NetworkWritable, RegistryEntry {
 
-    override fun getNbt(): NBTCompound? = null
+    override fun getNbt(): BinaryTag? = null
     override fun getProtocolId(): Int = -1
+
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
 
     operator fun contains(identifier: String): Boolean {
         return tags.contains(identifier)

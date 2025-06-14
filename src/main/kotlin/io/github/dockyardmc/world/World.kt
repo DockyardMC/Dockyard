@@ -201,6 +201,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun load(): CompletableFuture<Unit> {
+        val future = CompletableFuture<Unit>()
         val task = scheduler.runAsync {
             if (generator.generateBaseChunks) {
                 generateBaseChunks(6)
@@ -216,6 +217,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             }
             val event = WorldFinishLoadingEvent(this)
             Events.dispatch(event)
+            future.complete(Unit)
         }
 
         time.valueChanged {
@@ -234,7 +236,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
                 time.setSilently(time.value + 1)
             }
         }
-        return task
+        return future
     }
 
     fun getChunkAt(x: Int, z: Int): Chunk? {

@@ -1,7 +1,7 @@
 package io.github.dockyardmc.apis.serverlinks
 
 import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkReadable
@@ -17,7 +17,7 @@ data class DefaultServerLink(val type: Type, override val url: String): ServerLi
 
     companion object: NetworkReadable<DefaultServerLink> {
         override fun read(buffer: ByteBuf): DefaultServerLink {
-            return DefaultServerLink(buffer.readVarIntEnum<Type>(), buffer.readString())
+            return DefaultServerLink(buffer.readEnum<Type>(), buffer.readString())
         }
     }
 

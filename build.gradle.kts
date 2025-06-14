@@ -6,13 +6,13 @@ import java.net.http.HttpResponse
 
 plugins {
     `maven-publish`
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("jvm") version "2.1.0"
+    kotlin("plugin.serialization") version "2.1.0"
     id("io.ktor.plugin") version "2.2.3"
     application
 }
 
-val minecraftVersion = "1.21.4"
+val minecraftVersion = "1.21.5"
 val dockyardVersion = properties["dockyard.version"]!!
 val gitBranch = "git rev-parse --abbrev-ref HEAD".runCommand()
 val gitCommit = "git rev-parse --short=8 HEAD".runCommand()
@@ -52,10 +52,9 @@ dependencies {
     api("com.google.protobuf:protobuf-javalite:4.28.2")
 
     // Minecraft
-    api("io.github.jglrxavpok.hephaistos:common:2.2.0")
-    api("io.github.jglrxavpok.hephaistos:gson:2.2.0")
-    api("io.github.dockyardmc:scroll:2.8")
+    api("io.github.dockyardmc:scroll:3.0")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
+    api("net.kyori:adventure-nbt:4.21.0")
 
     // Pathfinding
     api("com.github.Metaphoriker.pathetic:pathetic-engine:4.0")
@@ -63,10 +62,11 @@ dependencies {
     api("com.github.Metaphoriker.pathetic:pathetic-provider:4.0")
 
     // Networking
-    api("io.ktor:ktor-server-netty:2.3.12")
+    api("io.ktor:ktor-server-netty:3.1.2")
+    api("io.github.dockyardmc:tide:1.7")
 
     // Logging
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
+    implementation("org.slf4j:slf4j-nop:2.0.9")
     api("cz.lukynka:pretty-log:1.5")
 
     // Other
@@ -86,7 +86,6 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-//    forkEvery = 1
 }
 
 fun String.runCommand(

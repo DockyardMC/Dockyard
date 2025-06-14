@@ -1,7 +1,11 @@
 package io.github.dockyardmc.registry
 
+import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import io.netty.buffer.ByteBuf
+import net.kyori.adventure.nbt.BinaryTag
 import java.io.InputStream
 
 interface Registry {
@@ -18,20 +22,31 @@ interface Registry {
     fun getMaxProtocolId(): Int
 }
 
-interface DynamicRegistry: Registry {
+interface DynamicRegistry : Registry {
     fun getCachedPacket(): ClientboundRegistryDataPacket
     fun updateCache()
     fun register()
 }
 
-interface DataDrivenRegistry: Registry {
+interface DataDrivenRegistry : Registry {
     fun initialize(inputStream: InputStream)
 }
 
-interface DynamicDataDrivenRegistry: DataDrivenRegistry, DynamicRegistry {
-}
+interface DynamicDataDrivenRegistry : DataDrivenRegistry, DynamicRegistry
 
-interface RegistryEntry {
-    fun getNbt(): NBTCompound?
+interface RegistryEntry : NetworkWritable {
+    fun getNbt(): BinaryTag? = null
     fun getProtocolId(): Int
+    fun getEntryIdentifier(): String
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeVarInt(getProtocolId())
+    }
+
+    companion object {
+        fun <T : RegistryEntry> read(buffer: ByteBuf, registry: Registry): T {
+            @Suppress("UNCHECKED_CAST")
+            return registry.getByProtocolId(buffer.readVarInt()) as T
+        }
+    }
 }

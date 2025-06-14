@@ -1,5 +1,7 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt

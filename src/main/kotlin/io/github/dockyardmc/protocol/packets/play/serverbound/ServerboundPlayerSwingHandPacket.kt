@@ -2,7 +2,7 @@ package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerSwingHandEvent
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -22,7 +22,7 @@ class ServerboundPlayerSwingHandPacket(val hand: PlayerHand) : ServerboundPacket
 
     companion object {
         fun read(buf: ByteBuf): ServerboundPlayerSwingHandPacket {
-            return ServerboundPlayerSwingHandPacket(buf.readVarIntEnum<PlayerHand>())
+            return ServerboundPlayerSwingHandPacket(buf.readEnum<PlayerHand>())
         }
     }
 }

@@ -1,23 +1,25 @@
 package io.github.dockyardmc.item
 
 import io.github.dockyardmc.attributes.AttributeModifier
-import io.github.dockyardmc.extentions.getPackedInt
+import io.github.dockyardmc.data.DataComponent
+import io.github.dockyardmc.data.DataComponentPatch
+import io.github.dockyardmc.data.components.*
 import io.github.dockyardmc.player.ProfileProperty
-import io.github.dockyardmc.player.ProfilePropertyMap
+import io.github.dockyardmc.protocol.types.ConsumeEffect
+import io.github.dockyardmc.protocol.types.ItemRarity
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.sounds.Sound
 import java.util.*
 
 class ItemStackMeta {
     var material: Item = Items.AIR
     var amount: Int = 1
     var lore: MutableList<String> = mutableListOf()
-    var attributes: MutableList<AttributeModifier> = mutableListOf()
-    var components: MutableList<ItemComponent> = mutableListOf()
+    var attributes: MutableSet<AttributeModifier> = mutableSetOf()
+    var components: DataComponentPatch = DataComponentPatch.patchNetworkType(DataComponentPatch.EMPTY.components)
     var noxesiumImmovable: Boolean = false
 
     companion object {
@@ -26,39 +28,43 @@ class ItemStackMeta {
             meta.material = stack.material
             meta.amount = stack.amount
             meta.lore = stack.existingMeta?.lore ?: mutableListOf()
-            meta.components = stack.components.toMutableList()
-            meta.attributes = stack.attributes.toMutableList()
+            meta.components = stack.components
+            meta.attributes = stack.attributes.toMutableSet()
 
             return meta
         }
     }
 
-    fun withComponent(vararg component: ItemComponent) {
-        component.forEach(components::addOrUpdate)
+    fun withComponent(vararg component: DataComponent) {
+        var newComponents = components
+        component.forEach { c ->
+            newComponents = newComponents.set(c)
+        }
+        components = newComponents
     }
 
-    fun withComponent(components: List<ItemComponent>) {
-        components.forEach(this.components::addOrUpdate)
+    fun withComponent(components: List<DataComponent>) {
+        var newComponents = this.components
+        components.forEach { c ->
+            newComponents = newComponents.set(c)
+        }
+        this.components = newComponents
     }
 
     fun withDisplayName(displayName: String) {
-        components.addOrUpdate(CustomNameItemComponent("<r></u>$displayName".toComponent()))
+        components = components.set(CustomNameComponent("<r></u>$displayName"))
     }
 
     fun withDyedColor(color: CustomColor) {
-        components.addOrUpdate(DyedColorItemComponent(color))
+        components = components.set(DyedColorComponent(color))
     }
 
-    fun isGlider(glider: Boolean = true) {
-        withGlider(glider)
-    }
-
-    fun withGlider(glider: Boolean = true) {
-        if (glider) components.remove(GliderItemComponent()) else components.addOrUpdate(GliderItemComponent())
+    fun withGlider() {
+        components = components.set(GliderComponent())
     }
 
     fun withUseCooldown(cooldownSeconds: Float) {
-        components.addOrUpdate(UseCooldownItemComponent(cooldownSeconds))
+        components = components.set(UseCooldownComponent(cooldownSeconds))
     }
 
     fun withNoxesiumImmovable(immovable: Boolean) {
@@ -73,28 +79,27 @@ class ItemStackMeta {
             throw IllegalArgumentException("At least one of the parameters must be set")
         }
 
-        components.addOrUpdate(
-            PlayerHeadProfileItemComponent(
-                username, uuid, ProfilePropertyMap(
-                    username.orEmpty(),
-                    if (profile != null) mutableListOf(profile) else mutableListOf<ProfileProperty>()
-                )
-            )
+        components = components.set(
+            if (profile == null) {
+                ProfileComponent(username, uuid, emptyList())
+            } else {
+                ProfileComponent(username, uuid, listOf(ProfileComponent.Property("textures", profile.value, profile.signature)))
+            }
         )
     }
 
     fun withConsumable(
         consumeTimeSeconds: Float,
-        animation: ConsumableAnimation = ConsumableAnimation.EAT,
+        animation: ConsumableComponent.Animation = ConsumableComponent.Animation.EAT,
         sound: String = Sounds.ENTITY_GENERIC_EAT,
         hasParticles: Boolean = true,
         consumeEffects: List<ConsumeEffect> = listOf()
     ) {
-        components.addOrUpdate(
-            ConsumableItemComponent(
+        components = components.set(
+            ConsumableComponent(
                 consumeTimeSeconds,
                 animation,
-                Sound(sound),
+                sound,
                 hasParticles,
                 consumeEffects
             )
@@ -103,8 +108,8 @@ class ItemStackMeta {
 
     fun buildLoreComponent() {
         if (lore.isEmpty()) return
-        val component = LoreItemComponent(lore.map { "<r><gray>$it" }.toComponents())
-        components.addOrUpdate(component)
+        val component = LoreComponent(lore.map { line -> "<r><gray>$line".toComponent() })
+        components = components.set(component)
     }
 
     fun toItemStack(): ItemStack {
@@ -112,11 +117,11 @@ class ItemStackMeta {
     }
 
     fun withFood(nutrition: Int, saturation: Float = 0f, canAlwaysEat: Boolean = true) {
-        components.addOrUpdate(FoodItemComponent(nutrition, saturation, canAlwaysEat))
+        components = components.set(FoodComponent(nutrition, saturation, canAlwaysEat))
     }
 
     fun withAttributes(attributes: List<AttributeModifier>) {
-        this.attributes = attributes.toMutableList()
+        this.attributes = attributes.toMutableSet()
     }
 
     fun addAttribute(vararg attributes: AttributeModifier) {
@@ -124,7 +129,7 @@ class ItemStackMeta {
     }
 
     fun withRarity(rarity: ItemRarity) {
-        components.addOrUpdate(RarityItemComponent(rarity))
+        components = components.set(RarityComponent(rarity))
     }
 
     fun withEnchantmentGlint(hasGlint: Boolean) {
@@ -132,11 +137,11 @@ class ItemStackMeta {
     }
 
     fun hasEnchantmentGlint(hasGlint: Boolean) {
-        components.addOrUpdate(EnchantmentGlintOverrideItemComponent(hasGlint))
+        components = components.set(EnchantmentGlintOverrideComponent(hasGlint))
     }
 
     fun isUnbreakable(unbreakable: Boolean) {
-        if (unbreakable) components.addOrUpdate(UnbreakableItemComponent()) else components.removeByType(UnbreakableItemComponent::class)
+        components = if (unbreakable) components.set(UnbreakableComponent()) else components.remove(UnbreakableComponent::class)
     }
 
     fun withUnbreakable(unbreakable: Boolean) {
@@ -144,12 +149,12 @@ class ItemStackMeta {
     }
 
     fun withMaxStackSize(maxStackSize: Int) {
-        components.addOrUpdate(MaxStackSizeItemComponent(maxStackSize.coerceIn(1, 99)))
+        components = components.set(MaxStackSizeComponent(maxStackSize))
     }
 
     @JvmName("withCustomModelDatafloatListFloat")
     fun withCustomModelData(floats: List<Float>) {
-        components.addOrUpdate(CustomModelDataItemComponent(floats))
+        components = components.set(CustomModelDataComponent(floats, emptyList(), emptyList(), emptyList()))
     }
 
     @JvmName("withCustomModelDatafloatFloat")
@@ -159,7 +164,7 @@ class ItemStackMeta {
 
     @JvmName("withCustomModelDataflagsListBoolean")
     fun withCustomModelData(flags: List<Boolean>) {
-        components.addOrUpdate(CustomModelDataItemComponent(listOf(), flags))
+        components = components.set(CustomModelDataComponent(emptyList(), flags, emptyList(), emptyList()))
     }
 
     @JvmName("withCustomModelDataflagsBoolean")
@@ -169,7 +174,7 @@ class ItemStackMeta {
 
     @JvmName("withCustomModelDatastringsListString")
     fun withCustomModelData(strings: List<String>) {
-        components.addOrUpdate(CustomModelDataItemComponent(listOf(), listOf(), strings))
+        components = components.set(CustomModelDataComponent(emptyList(), emptyList(), strings, emptyList()))
     }
 
     @JvmName("withCustomModelDatastringsString")
@@ -177,19 +182,10 @@ class ItemStackMeta {
         withCustomModelData(string.toList())
     }
 
-    @JvmName("withCustomModelDatacolorsListInt")
-    fun withCustomModelData(colors: List<Int>) {
-        components.addOrUpdate(CustomModelDataItemComponent(listOf(), listOf(), listOf(), colors))
-    }
-
-    @JvmName("withCustomModelDatacolorInt")
-    fun withCustomModelData(vararg color: Int) {
-        withCustomModelData(color.toList())
-    }
 
     @JvmName("withCustomModelDatacolorListCustomColor")
     fun withCustomModelData(colors: List<CustomColor>) {
-        components.addOrUpdate(CustomModelDataItemComponent(listOf(), listOf(), listOf(), colors.map { color -> color.getPackedInt() }))
+        components = components.set(CustomModelDataComponent(listOf(), listOf(), listOf(), colors))
     }
 
     @JvmName("withCustomModelDatacolorListCustomColor")
@@ -198,8 +194,8 @@ class ItemStackMeta {
     }
 
     @JvmName("withCustomModelDatawhatthefuckaaaaaaa")
-    fun withCustomModelData(floats: List<Float> = listOf(), flags: List<Boolean> = listOf(), strings: List<String> = listOf(), colors: List<Int> = listOf()) {
-        components.addOrUpdate(CustomModelDataItemComponent(floats, flags, strings, colors))
+    fun withCustomModelData(floats: List<Float> = listOf(), flags: List<Boolean> = listOf(), strings: List<String> = listOf(), colors: List<CustomColor> = listOf()) {
+        components.set(CustomModelDataComponent(floats, flags, strings, colors))
     }
 
     fun withMaterial(item: Item) {
@@ -207,7 +203,7 @@ class ItemStackMeta {
     }
 
     fun withAmount(amount: Int) {
-        if (amount <= 0) this.amount = 1 else this.amount = amount
+        if(amount <= 0) this.amount = 1 else this.amount = amount
     }
 
     fun clearLore() {
@@ -240,14 +236,14 @@ fun itemStack(builder: ItemStackMeta.() -> Unit): ItemStack {
     builder.invoke(meta)
 
     meta.buildLoreComponent()
-    val itemStack = ItemStack(meta.material, meta.amount, meta.components.toSet(), meta, meta.attributes)
+    val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes)
     itemStack.withNoxesiumImmovable(meta.noxesiumImmovable)
     return itemStack.clone()
 }
 
 fun itemStack(meta: ItemStackMeta): ItemStack {
     meta.buildLoreComponent()
-    val itemStack = ItemStack(meta.material, meta.amount, meta.components.toSet(), meta, meta.attributes)
+    val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes)
     itemStack.withNoxesiumImmovable(meta.noxesiumImmovable)
     return itemStack.clone()
 }

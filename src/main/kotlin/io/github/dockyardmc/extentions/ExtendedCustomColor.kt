@@ -1,6 +1,7 @@
 package io.github.dockyardmc.extentions
 
 import io.github.dockyardmc.scroll.CustomColor
+import io.netty.buffer.ByteBuf
 
 //TODO add to Scroll
 fun CustomColor.getPackedInt(): Int {
@@ -15,6 +16,12 @@ fun CustomColor.getPackedInt(): Int {
     return -0x1000000 or r or g or b
 }
 
+fun CustomColor.asRGBHash(): Int {
+    var rgb: Int = r
+    rgb = (rgb shl 8) + g
+    return (rgb shl 8) + b
+}
+
 fun CustomColor.Companion.fromRGBInt(color: Int): CustomColor {
     val red = (color shr 16) and 0xFF
     val green = (color shr 8) and 0xFF
@@ -27,6 +34,16 @@ fun CustomColor.Companion.fromRGBIntOrNull(color: Int?): CustomColor? {
     return fromRGBInt(color)
 }
 
+fun CustomColor.writePackedInt(buffer: ByteBuf) {
+    buffer.writeInt(this.asRGBHash())
+}
+
+fun CustomColor.readPackedInt(buffer: ByteBuf): CustomColor {
+    return customColor(buffer)
+}
+
 fun CustomColor.toScroll(): String {
     return "<${this.toHex()}>"
 }
+
+private fun customColor(buffer: ByteBuf) = CustomColor.fromRGBInt(buffer.readInt())

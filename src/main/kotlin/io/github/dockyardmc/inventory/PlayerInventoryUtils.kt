@@ -1,6 +1,6 @@
 package io.github.dockyardmc.inventory
 
-import io.github.dockyardmc.item.EquipmentSlot
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 
@@ -66,7 +66,7 @@ object PlayerInventoryUtils {
             6 -> CHESTPLATE_SLOT
             7 -> LEGGINGS_SLOT
             8 -> BOOTS_SLOT
-            else -> PlayerInventoryUtils.convertSlot(slot, offset)
+            else -> convertSlot(slot, offset)
         }
     }
 

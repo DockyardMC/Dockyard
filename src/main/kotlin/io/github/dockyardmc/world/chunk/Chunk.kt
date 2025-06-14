@@ -1,8 +1,8 @@
 package io.github.dockyardmc.world.chunk
 
-import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
@@ -13,8 +13,7 @@ import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.block.BlockEntity
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
-import org.jglrxavpok.hephaistos.nbt.NBT
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.*
 
 class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
@@ -32,8 +31,10 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
 
     val heightmaps = EnumMap<_, ChunkHeightmap>(ChunkHeightmap.Type::class.java)
 
-    val motionBlocking: ImmutableLongArray = ImmutableLongArray(37) { 0 }
-    val worldSurface: ImmutableLongArray = ImmutableLongArray(37) { 0 }
+    val motionBlocking: LongArray = LongArray(37) { 0 }
+    val worldSurface: LongArray = LongArray(37) { 0 }
+
+    val heightMap: LongArray = LongArray(37) { 0 }
 
     val sections: MutableList<ChunkSection> = mutableListOf()
     val blockEntities: Int2ObjectOpenHashMap<BlockEntity> = Int2ObjectOpenHashMap(0)
@@ -46,18 +47,6 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
             return cachedPacket
         }
 
-    fun updateCache() {
-        val heightmapNbt = NBT.Compound { builder ->
-            heightmaps.forEach { map ->
-                if (map.key.sendToClient()) {
-                    builder.put(map.key.name, map.value.getRawData())
-                }
-            }
-        }
-
-        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightmapNbt, sections, blockEntities.values, light)
-    }
-
     init {
         val sectionsAmount = maxSection - minSection
         repeat(sectionsAmount) {
@@ -66,6 +55,32 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         ChunkHeightmap.Type.entries.forEach { type ->
             getOrCreateHeightmap(type)
             ChunkHeightmap.generate(this, setOf(type))
+        }
+        updateCache()
+    }
+
+    fun updateCache() {
+        val heightmapData: MutableMap<ChunkHeightmap.Type, LongArray> = mutableMapOf()
+
+        heightmaps.forEach { (type, heightmap) ->
+            if (!type.sendToClient()) return@forEach
+            heightmapData[type] = heightmap.getRawData()
+        }
+
+        val heightmapNbt = nbt {
+            heightmaps.forEach { map ->
+                if (map.key.sendToClient()) {
+                    withLongArray(map.key.name, map.value.getRawData())
+                }
+            }
+        }
+        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightmapData, sections, blockEntities.values, light)
+    }
+
+    init {
+        val sectionsAmount = maxSection - minSection
+        repeat(sectionsAmount) {
+            sections.add(ChunkSection.empty())
         }
         updateCache()
     }
@@ -118,7 +133,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         val index = ChunkUtils.chunkBlockIndex(x, y, z)
 
         if (block.registryBlock.isBlockEntity) {
-            val blockEntity = BlockEntity(index, block.registryBlock, NBT.Compound())
+            val blockEntity = BlockEntity(index, block.registryBlock, CompoundBinaryTag.empty())
             blockEntities[index] = blockEntity
         } else {
             blockEntities.remove(index)
