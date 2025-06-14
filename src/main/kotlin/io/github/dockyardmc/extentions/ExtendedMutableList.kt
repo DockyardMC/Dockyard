@@ -61,7 +61,7 @@ fun Collection<Player>.openScreen(screen: Screen) {
     this.forEach { player -> screen.open(player) }
 }
 
-fun Collection<Player>.playTotemAnimation(customModelData: Int? = null) {
+fun Collection<Player>.playTotemAnimation(customModelData: Float? = null) {
     this.forEach { player -> player.playTotemAnimation(customModelData) }
 }
 

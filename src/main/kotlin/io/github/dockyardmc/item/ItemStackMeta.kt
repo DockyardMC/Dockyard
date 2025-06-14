@@ -56,11 +56,11 @@ class ItemStackMeta {
     }
 
     fun withDyedColor(color: CustomColor) {
-        components[DyedColorComponent(color)]
+        components = components.set(DyedColorComponent(color))
     }
 
     fun withGlider() {
-        components[GliderComponent()]
+        components = components.set(GliderComponent())
     }
 
     fun withUseCooldown(cooldownSeconds: Float) {

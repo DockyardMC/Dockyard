@@ -35,7 +35,6 @@ fun main() {
             withCustomModelData(listOf(1f))
             withMaxStackSize(99)
             withComponent(ItemModelComponent("minecraft:birch_log"))
-            withGlider()
         })
     }
 

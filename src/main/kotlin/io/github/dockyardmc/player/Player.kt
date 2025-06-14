@@ -457,7 +457,7 @@ class Player(
         sendPacket(packet)
     }
 
-    fun playTotemAnimation(customModelData: Int? = null) {
+    fun playTotemAnimation(customModelData: Float? = null) {
         val held = getHeldItem(PlayerHand.MAIN_HAND)
         if (customModelData != null) {
             val totem = ItemStack(Items.TOTEM_OF_UNDYING).withCustomModelData(customModelData)

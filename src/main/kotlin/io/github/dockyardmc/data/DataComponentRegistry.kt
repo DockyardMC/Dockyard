@@ -43,6 +43,7 @@ object DataComponentRegistry {
     val DAMAGE_RESISTANT = register("minecraft:damage_resistant", DamageResistantComponent::class)
     val TOOL = register("minecraft:tool", ToolComponent::class)
     val WEAPON = register("minecraft:weapon", WeaponComponent::class)
+    val ENCHANTABLE = register("minecraft:enchantable", EnchantableComponent::class)
     val EQUIPABBLE = register("minecraft:equippable", EquippableComponent::class)
     val REPAIRABLE = register("minecraft:repairable", RepairableComponent::class)
     val GLIDER = register("minecraft:glider", GliderComponent::class)

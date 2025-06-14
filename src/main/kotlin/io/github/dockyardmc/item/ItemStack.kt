@@ -161,11 +161,6 @@ data class ItemStack(
         return withMeta { withCustomModelData(colors) }
     }
 
-    @JvmName("withCustomModelDatacolorInt")
-    fun withCustomModelData(vararg color: Int): ItemStack {
-        return withMeta { withCustomModelData(*color) }
-    }
-
     @JvmName("withCustomModelDatacolorListCustomColor")
     fun withCustomModelData(colors: List<CustomColor>): ItemStack {
         return withMeta { withCustomModelData(colors) }

@@ -33,6 +33,10 @@ object PermissionManager {
         groups.remove(group.id)
     }
 
+    fun removeAll() {
+        groups.clear()
+    }
+
     fun removeGroup(id: String) {
         groups.remove(id)
     }
