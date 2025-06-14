@@ -14,6 +14,9 @@ import io.github.dockyardmc.maths.Quaternion
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.maths.writeQuaternion
+import io.github.dockyardmc.registry.registries.ChickenVariant
+import io.github.dockyardmc.registry.registries.CowVariant
+import io.github.dockyardmc.registry.registries.PigVariant
 import io.netty.buffer.ByteBuf
 import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.*
@@ -66,6 +69,9 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.SNIFFER_STATE -> this.writeVarInt(v as Int)
         EntityMetaValue.VECTOR3 -> (v as Vector3f).write(this)
         EntityMetaValue.QUATERNION -> this.writeQuaternion(v as Quaternion)
+        EntityMetaValue.COW_VARIANT -> this.writeRegistryEntry(v as CowVariant)
+        EntityMetaValue.CHICKEN_VARIANT -> this.writeRegistryEntry(v as ChickenVariant)
+        EntityMetaValue.PIG_VARIANT -> this.writeRegistryEntry(v as PigVariant)
         else -> throw Exception("noop in entity meta")
     }
 }
@@ -325,6 +331,10 @@ enum class EntityMetadataType(var protocolIndex: Int) {
     DISPLAY_VIEW_RANGE(17),
     DISPLAY_SHADOW_RADIUS(18),
     DISPLAY_SHADOW_STRENGTH(19),
+    LLAMA_VARIANT(19),
+    COW_VARIANT(17),
+    PIG_VARIANT(18),
+    CHICKEN_VARIANT(17),
     DISPLAY_WIDTH(20),
     DISPLAY_HEIGHT(21),
     DISPLAY_GLOW_COLOR(22),
@@ -367,6 +377,9 @@ enum class EntityMetaValue {
     CAT_VARIANT,
     WOLF_VARIANT,
     FROG_VARIANT,
+    COW_VARIANT,
+    PIG_VARIANT,
+    CHICKEN_VARIANT,
     OPTIONAL_GLOBAL_POSITION,
     PAINTING_VARIANT,
     SNIFFER_STATE,
