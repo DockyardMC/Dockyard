@@ -53,7 +53,6 @@ class ConsumableComponent(
                 SoundEvent.read(buffer).identifier,
                 buffer.readBoolean(),
                 buffer.readList(ConsumeEffect::read)
-//                emptyList() //TODO(1.21.5): Consume effects hashing
             )
         }
     }

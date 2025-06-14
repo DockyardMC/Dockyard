@@ -25,7 +25,6 @@ object WorldManager {
             mainWorld.load().thenAccept {
                 worlds["main"] = mainWorld
                 generateDefaultStonePlatform(mainWorld)
-                log("1")
             }
         }
     }

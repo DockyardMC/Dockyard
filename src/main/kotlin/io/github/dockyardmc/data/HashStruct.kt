@@ -1,7 +1,5 @@
 package io.github.dockyardmc.data
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.data.CRC32CHasher.ofMap
 import kotlin.reflect.KFunction1
 
@@ -123,9 +121,7 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
 
         data class Default<T>(override val name: String, val default: T, val current: T, val kFunction1: (T) -> Int) : Field {
             fun getHash(): Int {
-                log("($name) $current - $default [${current == default}]")
                 if (current == default) {
-                    log("Hashed null ($name)", LogType.TRACE)
                     return CRC32CHasher.EMPTY
                 }
                 return kFunction1.invoke(current)
@@ -134,9 +130,7 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
 
         data class DefaultStruct<T>(override val name: String, val default: T, val current: T, val kFunction1: (T) -> HashHolder) : Field {
             fun getHash(): Int {
-                log("($name) $current - $default [${current == default}]")
                 if (current == default) {
-                    log("Hashed null ($name)", LogType.TRACE)
                     return CRC32CHasher.EMPTY
                 }
                 return kFunction1.invoke(current).getHashed()
