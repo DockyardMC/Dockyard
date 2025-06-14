@@ -2,7 +2,8 @@
 
 ---
 [![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmvn.devos.one%2Freleases%2Fio%2Fgithub%2Fdockyardmc%2Fdockyard%2Fmaven-metadata.xml&style=for-the-badge&logo=maven&logoColor=%23FFFFFF&label=Latest%20Version&color=%23afff87)](https://mvn.devos.one/#/releases/io/github/dockyardmc/dockyard)
-[![Static Badge](https://img.shields.io/badge/Language-Kotlin-Kotlin?style=for-the-badge&color=%23963cf4)](https://kotlinlang.org/)
+[![Mc Version](https://img.shields.io/badge/Minecraft_Version-1.21.5-Minecraft?style=for-the-badge&color=%23ff9969)](https://kotlinlang.org/)
+[![Language](https://img.shields.io/badge/Language-Kotlin-Kotlin?style=for-the-badge&color=%23ff6969)](https://kotlinlang.org/)
 
 [![wakatime](https://wakatime.com/badge/github/DockyardMC/Dockyard.svg?style=for-the-badge)](https://wakatime.com/badge/github/DockyardMC/Dockyard)
 [![Discord](https://img.shields.io/discord/1242845647892123650?label=Discord%20Server&color=%237289DA&style=for-the-badge&logo=discord&logoColor=%23FFFFFF)](https://discord.gg/SA9nmfMkdc)
@@ -182,7 +183,7 @@ Contributions are always welcome! Please always check branches to see if the fea
 ## Related Libraries / Projects
 
 - **[Scroll](https://github.com/DockyardMC/Scroll/)** - Minecraft component library made for DockyardMC
-- **[Chart](https://github.com/DockyardMC/Chart)** - Minecraft NBT library made for DockyardMC
+- **[adventure-nbt](https://github.com/DockyardMC/Chart)** - Minecraft NBT library
 - **[kotlin-bindables](https://github.com/LukynkaCZE/kotlin-bindables)** - Bindable system inspired by [osu!framework](https://github.com/ppy/osu-framework/)
 - **[Pathetic](https://github.com/Metaphoriker/pathetic)** - A powerful, optimized and easy-to-use Java A* Pathfinding Library for 3D environments.
 - **[Spark](https://github.com/lucko/spark)** - A performance profiler for Minecraft clients, servers, and proxies
