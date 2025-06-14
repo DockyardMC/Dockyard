@@ -183,7 +183,7 @@ Contributions are always welcome! Please always check branches to see if the fea
 ## Related Libraries / Projects
 
 - **[Scroll](https://github.com/DockyardMC/Scroll/)** - Minecraft component library made for DockyardMC
-- **[adventure-nbt](https://github.com/DockyardMC/Chart)** - Minecraft NBT library
+- **[adventure-nbt](https://github.com/KyoriPowered/adventure/tree/main/4/nbt)** - Minecraft NBT library
 - **[kotlin-bindables](https://github.com/LukynkaCZE/kotlin-bindables)** - Bindable system inspired by [osu!framework](https://github.com/ppy/osu-framework/)
 - **[Pathetic](https://github.com/Metaphoriker/pathetic)** - A powerful, optimized and easy-to-use Java A* Pathfinding Library for 3D environments.
 - **[Spark](https://github.com/lucko/spark)** - A performance profiler for Minecraft clients, servers, and proxies
