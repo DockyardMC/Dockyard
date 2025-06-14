@@ -4,6 +4,7 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
+import io.github.dockyardmc.item.HashedItemStack
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
@@ -57,7 +58,7 @@ object PlayerTestUtil {
 }
 
 fun sendSlotClick(player: Player, slot: Int, button: Int, mode: ContainerClickMode, itemStack: ItemStack) {
-    PlayerTestUtil.sendPacket(player, ServerboundClickContainerPacket(0, 0, PlayerInventoryUtils.convertToPacketSlot(slot), button, mode, mutableMapOf(), itemStack))
+    PlayerTestUtil.sendPacket(player, ServerboundClickContainerPacket(0, 0, PlayerInventoryUtils.convertToPacketSlot(slot), button, mode, mutableMapOf(), HashedItemStack.fromItemStack(itemStack)))
 }
 
 fun assertSlot(player: Player, slot: Int, expected: ItemStack) {

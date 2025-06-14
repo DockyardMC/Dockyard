@@ -1,5 +1,6 @@
 package io.github.dockyardmc.item
 
+import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.DataComponentRegistry
 import io.github.dockyardmc.extentions.*
@@ -26,6 +27,28 @@ class HashedItemStack(val item: Item, val amount: Int, val addedComponents: Map<
         buffer.writeVarInt(amount)
         buffer.writeMap(resolvedAdded, ByteBuf::writeVarInt, ByteBuf::writeInt)
         buffer.writeList(resolvedRemoved, ByteBuf::writeVarInt)
+    }
+
+    fun getComparisonHash(): Int {
+        val resolvedAdded = addedComponents.mapKeys { entry -> DataComponentRegistry.dataComponentsByIdReversed.getOrThrow(entry.key) }
+        val resolvedRemoved = removedComponents.map { entry -> DataComponentRegistry.dataComponentsByIdReversed.getOrThrow(entry) }
+
+        return CRC32CHasher.of {
+            static("added", CRC32CHasher.ofMap(resolvedAdded))
+            static("removed", CRC32CHasher.ofList(resolvedRemoved))
+        }.getHashed()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is HashedItemStack) return false
+        return item.getProtocolId() == other.item.getProtocolId()
+                && this.getComparisonHash() == other.getComparisonHash()
+    }
+
+    override fun hashCode(): Int {
+        var result = item.getProtocolId().hashCode()
+        result = 31 * result + getComparisonHash().hashCode()
+        return result
     }
 
     companion object : NetworkReadable<HashedItemStack> {

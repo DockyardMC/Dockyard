@@ -38,6 +38,9 @@ class RegistryTests {
             Tags.BIOME_ALLOWS_TROPICAL_FISH_SPAWNS_AT_ANY_HEIGHT
             Tags.ITEM_STONE_BRICKS
             Attributes.GRAVITY
+            PigVariants.TEMPERATE
+            ChickenVariants.WARM
+            CowVariants.COLD
         }
     }
 

@@ -1,6 +1,5 @@
 package io.github.dockyardmc.data
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.netty.buffer.ByteBuf
@@ -164,6 +163,25 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
         val id = DataComponentRegistry.dataComponentsByIdReversed.getOrThrow(componentClass)
         components.put(id, null)
         return this
+    }
+
+
+    fun getComparisonHash(): Int {
+        val addedComponents = mutableMapOf<Int, DataComponent?>()
+        val removedComponents = mutableListOf<Int>()
+
+        components.forEach { (key, value) ->
+            if (value != null) {
+                addedComponents[key] = value
+            } else {
+                removedComponents.add(key)
+            }
+        }
+
+        return CRC32CHasher.of {
+            static("added", CRC32CHasher.ofMap(addedComponents.mapValues { map -> map.value!!.hashStruct().getHashed() }))
+            static("removed", CRC32CHasher.ofList(removedComponents))
+        }.getHashed()
     }
 
     override fun write(buffer: ByteBuf) {

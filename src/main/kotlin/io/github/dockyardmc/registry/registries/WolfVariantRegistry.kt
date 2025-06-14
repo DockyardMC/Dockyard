@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket

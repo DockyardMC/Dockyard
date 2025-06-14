@@ -6,7 +6,6 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.InventoryGiveItemEvent
 import io.github.dockyardmc.events.InventoryItemChangeEvent
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.utils.getEntityEventContext
@@ -45,14 +44,14 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
             if (slot.isEmpty()) {
                 suitableSlots.add(i)
             } else {
-                val canStack = slot.isSameAs(item) &&
+                val canStack = slot == item &&
                         slot.amount != slot.maxStackSize &&
                         slot.amount + item.amount <= slot.maxStackSize
 
                 if (canStack) {
                     suitableSlots.add(i)
                 } else {
-                    if (slot.isSameAs(item) && slot.amount != slot.maxStackSize) {
+                    if (slot == item && slot.amount != slot.maxStackSize) {
                         suitableSlots.add(i)
                     }
                 }
@@ -62,7 +61,7 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
         // non-empty first so items can stack
         suitableSlots.filter { !get(it).isEmpty() }.forEach { index ->
             val slot = get(index)
-            val canStack = slot.isSameAs(item) &&
+            val canStack = slot == item &&
                     slot.amount != slot.maxStackSize &&
                     slot.amount + item.amount <= slot.maxStackSize
             if (canStack) {
@@ -92,7 +91,7 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
     fun getAmountOf(itemStack: ItemStack): Int {
         var totalAmount = 0
         slots.values.values.forEach { item ->
-            if (!item.isSameAs(itemStack)) return@forEach
+            if (item != itemStack) return@forEach
             totalAmount += item.amount
         }
         return totalAmount

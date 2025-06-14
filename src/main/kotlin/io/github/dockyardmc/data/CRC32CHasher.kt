@@ -1,7 +1,5 @@
 package io.github.dockyardmc.data
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.asRGBHash
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.registry.RegistryEntry
@@ -66,7 +64,6 @@ object CRC32CHasher {
 
     fun ofInt(int: Int): Int {
         val hashed = Hasher().putByte(TAG_INT).putInt(int).hash()
-        log("Hashed int $hashed", LogType.TRACE)
         return hashed
     }
 
@@ -91,7 +88,6 @@ object CRC32CHasher {
             .putInt(string.length)
             .putChars(string)
             .hash()
-        log("Hashed string '$string' $hashed", LogType.TRACE)
         return hashed
     }
 
@@ -144,8 +140,6 @@ object CRC32CHasher {
 
         map.entries.stream().sorted(MAP_COMPARATOR).forEach { entry ->
             if (entry.value == EMPTY) return@forEach
-            log("key: ${entry.key}", LogType.DEBUG)
-            log("value: ${entry.value}", LogType.DEBUG)
             if (entry.key != INLINE) hasher.putIntBytes(entry.key)
             hasher.putIntBytes(entry.value)
         }

@@ -3,9 +3,9 @@ package io.github.dockyardmc.inventory
 import io.github.dockyardmc.item.HashedItemStack
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.clone
-import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.maths.isBetween
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.utils.debug
 import kotlin.math.ceil
 
 object InventoryClickHandler {

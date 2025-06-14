@@ -32,22 +32,17 @@ object WorldManager {
 
     fun generateDefaultStonePlatform(world: World, size: Int = 30) {
         try {
-            log("2")
 
             val centerX = (size - 1) / 2
             val centerZ = (size - 1) / 2
 
             world.defaultSpawnLocation = Location(centerX + 0.5, 1.0, centerZ + 0.5, world)
-            log("3")
 
             for (x in 0 until size) {
                 for (z in 0 until size) {
-                    log("3 - $x $z")
                     world.setBlock(x, 0, z, Blocks.STONE)
-                    log("Set block at $x, 0, $z to stone")
                 }
             }
-            log("4")
 
         } catch (ex: Exception) {
             log(ex)

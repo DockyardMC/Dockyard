@@ -16,6 +16,7 @@ import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableItemStack
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -177,14 +178,14 @@ class ServerboundClickContainerPacket(
                     }
 
                     val range = if (properSlot <= 8) 9 to 35 else 0 to 8
-                    val suitableSlotIndex: Int = InventoryClickHandler.findSuitableSlotInRange(player.inventory, range.first, range.second, item) ?: return
+                    val suitableSlotIndex: Int = InventoryClickHandler.findSuitableSlotInRange(player.inventory, range.first, range.second, HashedItemStack.fromItemStack(clickedSlotItem)) ?: return
 
                     val existingItem = player.inventory[suitableSlotIndex].clone()
 
                     if (clickedSlotItem.isSameAs(empty)) return
 
-                    val shouldStack = !existingItem.isSameAs(empty) &&
-                            existingItem.isSameAs(clickedSlotItem) &&
+                    val shouldStack = !existingItem.isEmpty() &&
+                            existingItem == clickedSlotItem &&
                             (existingItem.amount + clickedSlotItem.amount) <= existingItem.maxStackSize
 
                     if (shouldStack) {
@@ -193,11 +194,10 @@ class ServerboundClickContainerPacket(
                             existingItem.withAmount(existingItem.amount + clickedSlotItem.amount)
 
                     } else {
-
                         val isSameItemButCantFullyStack =
                             existingItem.isSameAs(clickedSlotItem) && (existingItem.amount + clickedSlotItem.amount) > existingItem.maxStackSize
                         if (isSameItemButCantFullyStack) {
-                            //is the same item but cant stack everything, so we only stack what we can and leave the rest
+                            //is the same item but can't stack everything, so we only stack what we can and leave the rest
                             val totalAmount = existingItem.amount + clickedSlotItem.amount
                             val newClicked = existingItem.maxStackSize
                             val remainder = totalAmount - existingItem.maxStackSize
@@ -536,10 +536,6 @@ class ServerboundClickContainerPacket(
             }
 
             val carriedItem = HashedItemStack.read(buffer)
-
-//            val rest = buffer.readableBytes()
-//            buffer.readBytes(rest)
-//            buffer.clear()
 
             return ServerboundClickContainerPacket(
                 windowsId,

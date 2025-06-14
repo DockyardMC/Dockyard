@@ -1,5 +1,6 @@
 package io.github.dockyardmc.ui.snapshot
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.profiler.profiler
@@ -18,11 +19,11 @@ class InventorySnapshot(val player: Player) : Iterable<Pair<Int, ItemStack>>, Di
     val size get() = indexToItemMap.size
 
     fun restore() {
-        indexToItemMap.forEach { (index, item) ->
-            player.inventory[index] = item
-        }
         equipment.forEach { (slot, item) ->
             player.equipment[slot] = item
+        }
+        indexToItemMap.forEach { (index, item) ->
+            player.inventory[index] = item
         }
     }
 

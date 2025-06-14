@@ -278,13 +278,27 @@ data class ItemStack(
         return getCustomDataOrNull<T>(key) ?: throw IllegalArgumentException("Value for key $key not found in data holder")
     }
 
-    fun isEmpty(): Boolean = this.isSameAs(AIR)
+    fun isEmpty(): Boolean = this.material == Items.AIR
 
     override fun toString(): String = "ItemStack(${material.identifier}, ${components}, $amount)".stripComponentTags()
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is ItemStack) return false
-        return isSameAs(other)
+        return material.getProtocolId() == other.material.getProtocolId()
+//                && attributes == other.attributes //TODO why no same??
+                && this.components.getComparisonHash() == other.components.getComparisonHash()
+
+    }
+
+    override fun hashCode(): Int {
+        var result = material.getProtocolId().hashCode()
+        result = 31 * result + this.components.getComparisonHash().hashCode()
+//        result = 31 * result + attributes.hashCode() //TODO why no same??
+        return result
+    }
+
+    fun isSameAs(other: ItemStack): Boolean {
+        return this == other
     }
 }
 
@@ -296,10 +310,4 @@ fun Collection<String>.toComponents(): Collection<Component> {
 
 fun ItemStack.clone(): ItemStack {
     return ItemStack(material, amount, components, existingMeta, attributes)
-}
-
-fun ItemStack.toComparisonString(): String = "ItemStack(${this.components};${this.material.identifier})".stripComponentTags()
-
-fun ItemStack.isSameAs(other: ItemStack): Boolean {
-    return this.toComparisonString() == other.toComparisonString()
 }
