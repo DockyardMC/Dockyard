@@ -129,9 +129,7 @@ fun ByteBuf.readNBT(): BinaryTag {
         val nbt = BinaryTagIO.reader().readNameless(inputStream as InputStream, BinaryTagIO.Compression.NONE)
 
         // read the rest of the bytes leftover, put them back and reset the reader index
-        val rest = inputStream.readAllBytes()
-        this.writeBytes(rest)
-        this.resetReaderIndex()
+        this.readerIndex(writerIndex() - inputStream.available())
 
         return nbt
     } catch (ex: Exception) {
