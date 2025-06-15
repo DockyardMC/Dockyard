@@ -1,6 +1,6 @@
 package io.github.dockyardmc.protocol.cryptography
 
-import java.time.Instant
+import kotlinx.datetime.Instant
 import java.util.*
 
 class PlayerSession(

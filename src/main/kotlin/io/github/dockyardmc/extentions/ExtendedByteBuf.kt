@@ -164,7 +164,7 @@ fun ByteBuf.readFixedBitSet(i: Int): BitSet {
     return BitSet.valueOf(bs)
 }
 
-fun ByteBuf.readInstant(): Instant = Instant.ofEpochMilli(this.readLong())
+fun ByteBuf.readInstant(): kotlinx.datetime.Instant = kotlinx.datetime.Instant.fromEpochMilliseconds(this.readLong())
 
 fun ByteBuf.writeVarLong(long: Long): ByteBuf {
     var modLong = long
