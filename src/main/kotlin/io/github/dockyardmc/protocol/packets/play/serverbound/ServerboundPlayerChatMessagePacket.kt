@@ -12,7 +12,7 @@ import io.netty.channel.ChannelHandlerContext
 import kotlinx.datetime.Instant
 import java.util.*
 
-class ServerboundPlayerChatMessagePacket(var message: String, val timestamp: Instant, val salt: Long, val signature: ByteBuf?, val ackOffset: Int, val ackList: BitSet, val checksum: Byte) : ServerboundPacket {
+class ServerboundPlayerChatMessagePacket(var message: String, val timestamp: Instant, val salt: Long, val signature: ByteBuf?, val ackOffset: Int, val ackList: BitSet? = null, val checksum: Byte) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val event = PlayerChatMessageEvent(message, processor.player)

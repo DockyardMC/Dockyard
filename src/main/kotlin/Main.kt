@@ -1,9 +1,5 @@
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.schematics.SchematicReader
-import io.github.dockyardmc.schematics.placeSchematicAsync
-import java.io.File
 
 fun main() {
 
@@ -16,11 +12,8 @@ fun main() {
     Commands.add("/test") {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
-            val location = player.location
-            val schematic = SchematicReader.read(File("./test.schem"))
-            location.world.placeSchematicAsync(schematic, location).thenAccept {
-                broadcastMessage("<lime>done")
-            }
+            player.sendMessage("<click:open_url:'https://github.com/DockyardMC/Dockyard'>[Click to Open Github]")
+
         }
     }
 

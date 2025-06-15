@@ -12,7 +12,7 @@ class VersionAndHelpCommand {
             withAliases("ver", "info", "server", "dockyard")
             execute { ctx ->
                 ctx.sendMessage("")
-                ctx.sendMessage(" <gray>This server is running <${DockyardBranding.COLOR}>DockyardMC ${DockyardServer.versionInfo.dockyardVersion}<gray>. A custom Minecraft server implementation written from scratch in Kotlin with no code from Mojang. <yellow><hover:show_text:'<yellow>https://github.com/DockyardMC/Dockyard'><click:open_url:https://github.com/DockyardMC/Dockyard>[Click to Open Github]<reset>")
+                ctx.sendMessage(" <gray>This server is running <${DockyardBranding.COLOR}>DockyardMC ${DockyardServer.versionInfo.dockyardVersion}<gray>. A custom Minecraft server implementation written from scratch in Kotlin with no code from Mojang. <yellow><hover:show_text:'<yellow>https://github.com/DockyardMC/Dockyard'><click:open_url:'https://github.com/DockyardMC/Dockyard'>[Click to Open Github]<reset>")
                 ctx.sendMessage("")
             }
         }

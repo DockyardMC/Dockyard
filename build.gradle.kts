@@ -52,7 +52,7 @@ dependencies {
     api("com.google.protobuf:protobuf-javalite:4.28.2")
 
     // Minecraft
-    api("io.github.dockyardmc:scroll:3.0")
+    api("io.github.dockyardmc:scroll:3.2")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
     api("net.kyori:adventure-nbt:4.21.0")
 
@@ -223,7 +223,7 @@ fun embed(): String {
             }
           ],
           "username": "Mavenboo",
-          "avatar_url": "https://storage.moemate.io/9edcfd27fd20abe29e93bf904f633d61b4fccadc/3f1c4383-1ba3-43f9-891e-f6a96abbe970.webp",
+          "avatar_url": "https://pbs.twimg.com/media/GZFDin2X0AAeiMY.jpg",
           "attachments": []
         }
     """.trimIndent()
