@@ -1,8 +1,8 @@
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.Commands
-import io.github.dockyardmc.dialog.createNoticeDialog
-import io.github.dockyardmc.dialog.showDialog
-import io.github.dockyardmc.registry.registries.DialogRegistry
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.player.systems.GameMode
 
 fun main() {
 
@@ -12,28 +12,15 @@ fun main() {
         useDebugMode(true)
     }
 
-    val dialog = createNoticeDialog("test") {
-        title = "Important poll !!!!"
-        canCloseWithEsc = false
-
-        addBooleanInput("is_gay") {
-            label = "Are you gay?"
-        }
-        addBooleanInput("uses_nix") {
-            label = "Do you use NixOS?"
-        }
-
-        withButton("Submit") {
-            withCustomClickAction("dockyard:gay_nix_poll")
-        }
+    Events.on<PlayerJoinEvent> { event ->
+        val player = event.player
+        player.permissions.add("*")
+        player.gameMode.value = GameMode.CREATIVE
     }
-
 
     Commands.add("/test") {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
-
-            player.showDialog(dialog)
         }
     }
 
