@@ -1,12 +1,12 @@
 package io.github.dockyardmc.dialog.input
 
 import io.github.dockyardmc.annotations.DialogDsl
+import io.github.dockyardmc.extentions.modify
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.DialogInputTypes
 import io.github.dockyardmc.registry.registries.DialogInputType
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 class TextDialogInput(
     override val key: String,
@@ -24,13 +24,13 @@ class TextDialogInput(
         if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
     }
 
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
-            put("width", width)
-            put("label_visible", labelVisible)
-            put("initial", initial)
-            put("max_length", maxLength)
-            multiline?.let { put("multiline", it.getNbt()) }
+    override fun getNbt(): CompoundBinaryTag {
+        return super.getNbt().modify {
+            withInt("width", width)
+            withBoolean("label_visible", labelVisible)
+            withString("initial", initial)
+            withInt("max_length", maxLength)
+            multiline?.let { withCompound("multiline", it.getNbt()) }
         }
     }
 
@@ -47,10 +47,10 @@ class TextDialogInput(
             }
         }
 
-        override fun getNbt(): NBTCompound {
-            return NBT.Compound {
-                it.put("max_lines", maxLines)
-                it.put("height", height)
+        override fun getNbt(): CompoundBinaryTag {
+            return nbt {
+                maxLines?.let { withInt("max_lines", maxLines) }
+                height?.let { withInt("height", height) }
             }
         }
 

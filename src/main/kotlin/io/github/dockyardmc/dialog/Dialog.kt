@@ -4,12 +4,9 @@ import io.github.dockyardmc.annotations.DialogDsl
 import io.github.dockyardmc.dialog.body.DialogBody
 import io.github.dockyardmc.dialog.body.DialogItemBody
 import io.github.dockyardmc.dialog.body.PlainMessage
-import io.github.dockyardmc.dialog.input.BooleanDialogInput
-import io.github.dockyardmc.dialog.input.DialogInput
-import io.github.dockyardmc.dialog.input.NumberRangeDialogInput
-import io.github.dockyardmc.dialog.input.SingleOptionDialogInput
-import io.github.dockyardmc.dialog.input.TextDialogInput
+import io.github.dockyardmc.dialog.input.*
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundClearDialogPacket
@@ -17,12 +14,9 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundShowDia
 import io.github.dockyardmc.registry.registries.DialogEntry
 import io.github.dockyardmc.registry.registries.DialogType
 import io.github.dockyardmc.registry.registries.Item
-import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.toComponent
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import org.jglrxavpok.hephaistos.nbt.NBTList
-import org.jglrxavpok.hephaistos.nbt.NBTType
+import net.kyori.adventure.nbt.BinaryTagTypes
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 sealed class Dialog : NbtWritable {
     abstract val title: String
@@ -41,21 +35,21 @@ sealed class Dialog : NbtWritable {
      */
     abstract val afterAction: AfterAction
 
-    override fun getNbt(): NBTCompound {
-        return NBT.Compound { builder ->
-            builder.put("type", type.getEntryIdentifier())
-            builder.put("title", title.toComponent().toNBT())
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withString("type", type.getEntryIdentifier())
+            withCompound("title", title.toComponent().toNBT())
 
             externalTitle?.let {
-                builder.put("external_title", it.toComponent().toNBT())
+                withCompound("external_title", it.toComponent().toNBT())
             }
 
-            builder.put("can_close_with_escape", canCloseWithEsc)
-            builder.put("body", NBTList(NBTType.TAG_Compound, body.map { it.getNbt() }))
+            withBoolean("can_close_with_escape", canCloseWithEsc)
+            withList("body", BinaryTagTypes.COMPOUND, body.map { it.getNbt() })
             // you can't play singleplayer on dockyard
-            builder.put("pause", false)
-            builder.put("after_action", afterAction.name.lowercase())
-            builder.put("inputs", NBTList(NBTType.TAG_Compound, inputs.map { it.getNbt() }))
+            withBoolean("pause", false)
+            withString("after_action", afterAction.name.lowercase())
+            withList("inputs", BinaryTagTypes.COMPOUND, inputs.map { it.getNbt() })
         }
     }
 

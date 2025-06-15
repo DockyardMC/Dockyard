@@ -1,12 +1,11 @@
 package io.github.dockyardmc.dialog.body
 
 import io.github.dockyardmc.annotations.DialogDsl
+import io.github.dockyardmc.extentions.modify
 import io.github.dockyardmc.registry.DialogBodyTypes
 import io.github.dockyardmc.registry.registries.DialogBodyType
-import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.toComponent
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 class PlainMessage(
     val content: String,
@@ -18,10 +17,10 @@ class PlainMessage(
         if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
     }
 
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
-            put("contents", content.toComponent().toNBT())
-            put("width", width)
+    override fun getNbt(): CompoundBinaryTag {
+        return super.getNbt().modify {
+            withCompound("contents", content.toComponent().toNBT())
+            withInt("width", width)
         }
     }
 

@@ -4,7 +4,7 @@ import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryD
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.concurrent.atomic.AtomicInteger
 
 object DialogTypeRegistry : DynamicRegistry {
@@ -68,7 +68,7 @@ object DialogTypeRegistry : DynamicRegistry {
 data class DialogType(
     val identifier: String,
 ) : RegistryEntry {
-    override fun getNbt(): NBTCompound? {
+    override fun getNbt(): CompoundBinaryTag? {
         return null
     }
 

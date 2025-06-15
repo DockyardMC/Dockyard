@@ -1,17 +1,16 @@
 package io.github.dockyardmc.dialog.action
 
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.registries.DialogActionType
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 sealed class DialogAction : NbtWritable {
     abstract val type: DialogActionType
 
-    override fun getNbt(): NBTCompound {
-        return NBT.Compound { builder ->
-            builder.put("type", type.getEntryIdentifier())
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withString("type", type.getEntryIdentifier())
         }
     }
 }

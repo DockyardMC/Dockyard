@@ -6,7 +6,7 @@ import io.github.dockyardmc.dialog.action.CustomDialogAction
 import io.github.dockyardmc.dialog.action.DialogAction
 import io.github.dockyardmc.dialog.action.StaticDialogAction
 import io.github.dockyardmc.scroll.ClickEvent
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 class DialogButton(
     override val label: String,
@@ -18,13 +18,12 @@ class DialogButton(
         if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
     }
 
-
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
-            action?.let {
-                put("action", it.getNbt())
-            }
+    override fun getNbt(): CompoundBinaryTag {
+        var nbt = super.getNbt()
+        action?.let {
+            nbt = nbt.put("action", it.getNbt())
         }
+        return nbt
     }
 
     @DialogDsl
@@ -41,7 +40,7 @@ class DialogButton(
         /**
          * @see CustomDialogAction
          */
-        fun withCustomClickAction(id: String, additions: NBTCompound? = null) {
+        fun withCustomClickAction(id: String, additions: CompoundBinaryTag? = null) {
             action = CustomDialogAction(id, additions)
         }
 

@@ -1,15 +1,14 @@
 package io.github.dockyardmc.dialog.input
 
 import io.github.dockyardmc.annotations.DialogDsl
+import io.github.dockyardmc.extentions.modify
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.DialogInputTypes
 import io.github.dockyardmc.registry.registries.DialogInputType
-import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.toComponent
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import org.jglrxavpok.hephaistos.nbt.NBTList
-import org.jglrxavpok.hephaistos.nbt.NBTType
+import net.kyori.adventure.nbt.BinaryTagTypes
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 class SingleOptionDialogInput(
     override val key: String,
@@ -21,15 +20,15 @@ class SingleOptionDialogInput(
     override val type: DialogInputType = DialogInputTypes.SINGLE_OPTION
 
     init {
-        if(options.isEmpty()) throw IllegalArgumentException("options can't be empty")
+        if (options.isEmpty()) throw IllegalArgumentException("options can't be empty")
         if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
     }
 
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
-            put("width", width)
-            put("options", NBTList(NBTType.TAG_Compound, options.map(NbtWritable::getNbt)))
-            put("label_visible", labelVisible)
+    override fun getNbt(): CompoundBinaryTag {
+        return super.getNbt().modify {
+            withInt("width", width)
+            withList("options", BinaryTagTypes.COMPOUND, options.map(NbtWritable::getNbtAsCompound))
+            withBoolean("label_visible", labelVisible)
         }
     }
 
@@ -41,11 +40,11 @@ class SingleOptionDialogInput(
         val label: String,
         val initial: Boolean
     ) : NbtWritable {
-        override fun getNbt(): NBT {
-            return NBT.Compound { builder ->
-                builder.put("id", id)
-                builder.put("display", label.toComponent().toNBT())
-                builder.put("initial", initial)
+        override fun getNbt(): CompoundBinaryTag {
+            return nbt {
+                withString("id", id)
+                withCompound("display", label.toComponent().toNBT())
+                withBoolean("initial", initial)
             }
         }
 

@@ -1,9 +1,9 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundCustomClickActionPacket
-import org.jglrxavpok.hephaistos.nbt.NBT
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 /**
  * @see ServerboundCustomClickActionPacket
  */
-class ServerboundConfigurationCustomClickActionPacket(id: String, payload: NBT?) : ServerboundCustomClickActionPacket(id, payload)
+class ServerboundConfigurationCustomClickActionPacket(id: String, payload: CompoundBinaryTag?) : ServerboundCustomClickActionPacket(id, payload)

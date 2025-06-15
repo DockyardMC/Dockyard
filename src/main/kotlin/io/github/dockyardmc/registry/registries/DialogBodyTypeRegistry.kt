@@ -5,7 +5,7 @@ import io.github.dockyardmc.dialog.body.DialogItemBody
 import io.github.dockyardmc.dialog.body.PlainMessage
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.*
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
@@ -64,7 +64,7 @@ data class DialogBodyType(
     val identifier: String,
     val clazz: KClass<out DialogBody>
 ) : RegistryEntry {
-    override fun getNbt(): NBTCompound? {
+    override fun getNbt(): CompoundBinaryTag? {
         return null
     }
 

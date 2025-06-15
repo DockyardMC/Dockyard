@@ -4,12 +4,12 @@ import io.github.dockyardmc.annotations.DialogDsl
 import io.github.dockyardmc.dialog.body.DialogBody
 import io.github.dockyardmc.dialog.button.DialogButton
 import io.github.dockyardmc.dialog.input.DialogInput
+import io.github.dockyardmc.extentions.modify
 import io.github.dockyardmc.registry.DialogTypes
 import io.github.dockyardmc.registry.registries.DialogEntry
 import io.github.dockyardmc.registry.registries.DialogRegistry
 import io.github.dockyardmc.registry.registries.DialogType
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 class ServerLinksDialog(
     override val title: String,
@@ -24,13 +24,13 @@ class ServerLinksDialog(
 ) : Dialog() {
     override val type: DialogType = DialogTypes.SERVER_LINKS
 
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
+    override fun getNbt(): CompoundBinaryTag {
+        return super.getNbt().modify {
             exitAction?.let {
-                put("exit_action", it.getNbt())
+                withCompound("exit_action", it.getNbt())
             }
-            put("columns", columns)
-            put("button_width", buttonWidth)
+            withInt("columns", columns)
+            withInt("button_width", buttonWidth)
         }
     }
 

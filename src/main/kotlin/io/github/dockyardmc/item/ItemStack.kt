@@ -67,11 +67,11 @@ data class ItemStack(
         DataComponentPatch.patchNetworkType(components.components).write(buffer)
     }
 
-    override fun getNbt(): NBT {
-        return NBT.Compound { builder ->
-            builder.put("id", this.material.getEntryIdentifier())
-            builder.put("count", this.amount)
-            builder.put("components", NBTCompound()) // TODO: real nbt of components
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withString("id", material.getEntryIdentifier())
+            withInt("count", amount)
+            withCompound("components", CompoundBinaryTag.empty()) // TODO: real nbt of components
         }
     }
 
