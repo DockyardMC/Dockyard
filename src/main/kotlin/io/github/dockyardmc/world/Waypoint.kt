@@ -31,7 +31,6 @@ data class Waypoint(val id: Either<UUID, String>, val icon: Icon, val target: Ta
             override fun read(buffer: ByteBuf): Icon {
                 return Icon(buffer.readString(), buffer.readOptional(ByteBuf::readCustomColor))
             }
-
         }
 
         override fun write(buffer: ByteBuf) {
