@@ -1,12 +1,11 @@
 package io.github.dockyardmc.dialog.body
 
 import io.github.dockyardmc.annotations.DialogDsl
+import io.github.dockyardmc.extentions.modify
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.registry.DialogBodyTypes
 import io.github.dockyardmc.registry.registries.DialogBodyType
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 /**
  * @param showDecorations show item count and durability
@@ -27,16 +26,16 @@ data class DialogItemBody(
         if (height < 1 || height > 256) throw IllegalArgumentException("height must be between 1 and 256 (inclusive)")
     }
 
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
-            put("item", item.getNbt())
+    override fun getNbt(): CompoundBinaryTag {
+        return super.getNbt().modify {
+            withCompound("item", item.getNbt())
             description?.let {
-                put("description", it.getNbt())
+                withCompound("description", it.getNbt())
             }
-            put("show_decorations", showDecorations)
-            put("show_tooltip", showTooltip)
-            put("width", width)
-            put("height", height)
+            withBoolean("show_decorations", showDecorations)
+            withBoolean("show_tooltip", showTooltip)
+            withInt("width", width)
+            withInt("height", height)
         }
     }
 

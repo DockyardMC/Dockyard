@@ -1,6 +1,5 @@
 package io.github.dockyardmc.nbt
 
-import cz.lukynka.prettylog.log
 import net.kyori.adventure.nbt.*
 
 class NbtBuilder {

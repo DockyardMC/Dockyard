@@ -1,24 +1,23 @@
 package io.github.dockyardmc.dialog.button
 
 import io.github.dockyardmc.annotations.DialogDsl
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.NbtWritable
-import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.scroll.extensions.toComponent
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 sealed class AbstractDialogButton : NbtWritable {
     abstract val label: String
     abstract val tooltip: String?
     abstract val width: Int
 
-    override fun getNbt(): NBTCompound {
-        return NBT.Compound { builder ->
-            builder.put("label", label.toComponent().toNBT())
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withCompound("label", label.toComponent().toNBT())
             tooltip?.let {
-                builder.put("tooltip", it.toComponent().toNBT())
+                withCompound("tooltip", it.toComponent().toNBT())
             }
-            builder.put("width", width)
+            withInt("width", width)
         }
     }
 

@@ -4,15 +4,14 @@ import io.github.dockyardmc.annotations.DialogDsl
 import io.github.dockyardmc.dialog.body.DialogBody
 import io.github.dockyardmc.dialog.button.DialogButton
 import io.github.dockyardmc.dialog.input.DialogInput
+import io.github.dockyardmc.extentions.putList
 import io.github.dockyardmc.registry.DialogTypes
 import io.github.dockyardmc.registry.registries.DialogEntry
 import io.github.dockyardmc.registry.registries.DialogRegistry
 import io.github.dockyardmc.registry.registries.DialogType
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import org.jglrxavpok.hephaistos.nbt.NBTList
-import org.jglrxavpok.hephaistos.nbt.NBTString
-import org.jglrxavpok.hephaistos.nbt.NBTType
+import net.kyori.adventure.nbt.BinaryTagTypes
+import net.kyori.adventure.nbt.CompoundBinaryTag
+import net.kyori.adventure.nbt.StringBinaryTag
 
 class DialogListDialog(
     override val title: String,
@@ -28,15 +27,17 @@ class DialogListDialog(
 ) : Dialog() {
     override val type: DialogType = DialogTypes.DIALOG_LIST
 
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
-            put("dialogs", NBTList(NBTType.TAG_String, dialogs.map { NBTString(it.getEntryIdentifier()) }))
-            exitAction?.let {
-                put("exit_action", it.getNbt())
-            }
-            put("columns", columns)
-            put("button_width", buttonWidth)
+    override fun getNbt(): CompoundBinaryTag {
+        var nbt = super.getNbt()
+
+        nbt = nbt.putList("dialogs", BinaryTagTypes.STRING, dialogs.map { StringBinaryTag.stringBinaryTag(it.getEntryIdentifier()) })
+
+        exitAction?.let {
+            nbt = nbt.put("exit_action", it.getNbt())
         }
+        nbt = nbt.putInt("columns", columns)
+        nbt = nbt.putInt("button_width", buttonWidth)
+        return nbt
     }
 
     @DialogDsl

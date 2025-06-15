@@ -1,10 +1,10 @@
 package io.github.dockyardmc.dialog.input
 
 import io.github.dockyardmc.annotations.DialogDsl
+import io.github.dockyardmc.extentions.modify
 import io.github.dockyardmc.registry.DialogInputTypes
 import io.github.dockyardmc.registry.registries.DialogInputType
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 class BooleanDialogInput(
     override val key: String,
@@ -15,11 +15,11 @@ class BooleanDialogInput(
 ) : DialogInput() {
     override val type: DialogInputType = DialogInputTypes.BOOLEAN
 
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
-            put("initial", initial)
-            put("on_true", onTrue)
-            put("on_false", onFalse)
+    override fun getNbt(): CompoundBinaryTag {
+        return super.getNbt().modify {
+            withBoolean("initial", initial)
+            withString("on_true", onTrue)
+            withString("on_false", onFalse)
         }
     }
 

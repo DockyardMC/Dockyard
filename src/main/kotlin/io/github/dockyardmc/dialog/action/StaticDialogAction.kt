@@ -1,9 +1,10 @@
 package io.github.dockyardmc.dialog.action
 
+import io.github.dockyardmc.extentions.modify
 import io.github.dockyardmc.registry.registries.DialogActionType
 import io.github.dockyardmc.registry.registries.DialogActionTypeRegistry
 import io.github.dockyardmc.scroll.ClickEvent
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 /**
  * Just a wrapper for [ClickEvent]
@@ -23,12 +24,12 @@ class StaticDialogAction(
         }
     }
 
-    override fun getNbt(): NBTCompound {
+    override fun getNbt(): CompoundBinaryTag {
         // it writes the type on its own c:
-        // however, if you modify the parent class in any way you'd expect this one to inherit,
+        // however, if you modify the parent class in any way, you'd expect this one to inherit,
         // so I'll keep it that way
-        return super.getNbt().kmodify {
-            putAll(clickEvent.getNbt())
+        return super.getNbt().modify {
+            withCompound(clickEvent.getNbt())
         }
     }
 }

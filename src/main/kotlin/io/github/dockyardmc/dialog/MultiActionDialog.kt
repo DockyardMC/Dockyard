@@ -4,15 +4,14 @@ import io.github.dockyardmc.annotations.DialogDsl
 import io.github.dockyardmc.dialog.body.DialogBody
 import io.github.dockyardmc.dialog.button.DialogButton
 import io.github.dockyardmc.dialog.input.DialogInput
+import io.github.dockyardmc.extentions.putList
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.DialogTypes
 import io.github.dockyardmc.registry.registries.DialogEntry
 import io.github.dockyardmc.registry.registries.DialogRegistry
 import io.github.dockyardmc.registry.registries.DialogType
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import org.jglrxavpok.hephaistos.nbt.NBTList
-import org.jglrxavpok.hephaistos.nbt.NBTType
+import net.kyori.adventure.nbt.BinaryTagTypes
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 class MultiActionDialog(
     override val title: String,
@@ -31,14 +30,15 @@ class MultiActionDialog(
         if (actions.isEmpty()) throw IllegalArgumentException("actions can't be empty")
     }
 
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
-            put("actions", NBTList(NBTType.TAG_Compound, actions.map(NbtWritable::getNbt)))
-            exitAction?.let {
-                put("exit_action", it.getNbt())
-            }
-            put("columns", columns)
+    override fun getNbt(): CompoundBinaryTag {
+        var nbt = super.getNbt()
+        nbt = nbt.putList("actions", BinaryTagTypes.COMPOUND, actions.map(NbtWritable::getNbtAsCompound))
+        exitAction?.let {
+            nbt = nbt.put("exit_action", it.getNbt())
         }
+        nbt = nbt.putInt("columns", columns)
+
+        return nbt
     }
 
     @DialogDsl

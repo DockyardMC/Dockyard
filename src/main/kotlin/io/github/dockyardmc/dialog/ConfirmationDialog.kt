@@ -8,7 +8,7 @@ import io.github.dockyardmc.registry.DialogTypes
 import io.github.dockyardmc.registry.registries.DialogEntry
 import io.github.dockyardmc.registry.registries.DialogRegistry
 import io.github.dockyardmc.registry.registries.DialogType
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 class ConfirmationDialog(
     override val title: String,
@@ -22,11 +22,12 @@ class ConfirmationDialog(
 ) : Dialog() {
     override val type: DialogType = DialogTypes.CONFIRMATION
 
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
-            put("yes", yes.getNbt())
-            put("no", no.getNbt())
-        }
+    override fun getNbt(): CompoundBinaryTag {
+        var nbt = super.getNbt()
+        nbt = nbt.put("yes", yes.getNbt())
+        nbt = nbt.put("no", no.getNbt())
+
+        return nbt
     }
 
     class Builder : Dialog.Builder() {

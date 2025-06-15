@@ -1,10 +1,10 @@
 package io.github.dockyardmc.dialog.input
 
 import io.github.dockyardmc.annotations.DialogDsl
+import io.github.dockyardmc.extentions.modify
 import io.github.dockyardmc.registry.DialogInputTypes
 import io.github.dockyardmc.registry.registries.DialogInputType
-import io.github.dockyardmc.scroll.extensions.put
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 class NumberRangeDialogInput(
     override val key: String,
@@ -24,14 +24,14 @@ class NumberRangeDialogInput(
         if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
     }
 
-    override fun getNbt(): NBTCompound {
-        return super.getNbt().kmodify {
-            put("label_format", labelFormat)
-            put("width", width)
-            put("start", range.start)
-            put("end", range.endInclusive)
-            put("initial", initial)
-            put("step", step)
+    override fun getNbt(): CompoundBinaryTag {
+        return super.getNbt().modify {
+            withString("label_format", labelFormat)
+            withInt("width", width)
+            withDouble("start", range.start)
+            withDouble("end", range.endInclusive)
+            initial?.apply { withDouble("initial", initial) }
+            step?.apply { withFloat("step", step) }
         }
     }
 
