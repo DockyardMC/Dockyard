@@ -1,18 +1,32 @@
 package io.github.dockyardmc.world.chunk
 
+import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.protocol.NetworkReadable
+import io.github.dockyardmc.protocol.NetworkWritable
+import io.netty.buffer.ByteBuf
 
-data class ChunkPos(val x: Int, val z: Int) {
+data class ChunkPos(val x: Int, val z: Int) : NetworkWritable {
 
     fun pack(): Long {
         return pack(x, z)
+    }
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeVarInt(x)
+        buffer.writeVarInt(z)
     }
 
     override fun toString(): String {
         return "[$x, $z]"
     }
 
-    companion object {
+    companion object : NetworkReadable<ChunkPos> {
+
+        override fun read(buffer: ByteBuf): ChunkPos {
+            return ChunkPos(buffer.readVarInt(), buffer.readVarInt())
+        }
 
         val ZERO = ChunkPos(0, 0)
 

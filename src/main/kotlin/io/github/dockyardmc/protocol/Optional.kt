@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol
 
+import io.github.dockyardmc.scroll.CustomColor
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KFunction2
 
@@ -29,6 +30,8 @@ fun <T> ByteBuf.writeOptional(item: T?, kFunction2: KFunction2<ByteBuf, T, Unit>
         kFunction2.invoke(this, item!!)
     }
 }
+
+
 
 fun <T> ByteBuf.readOptional(unit: (ByteBuf) -> T): T? {
     val present = this.readBoolean()

@@ -38,10 +38,6 @@ fun CustomColor.writePackedInt(buffer: ByteBuf) {
     buffer.writeInt(this.asRGBHash())
 }
 
-fun CustomColor.readPackedInt(buffer: ByteBuf): CustomColor {
-    return customColor(buffer)
-}
-
 fun CustomColor.toScroll(): String {
     return "<${this.toHex()}>"
 }
