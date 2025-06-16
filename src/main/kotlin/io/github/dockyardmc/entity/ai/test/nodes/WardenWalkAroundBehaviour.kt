@@ -4,6 +4,7 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.ai.EntityBehaviourNode
 import io.github.dockyardmc.entity.ai.EntityBehaviourResult
 import io.github.dockyardmc.entity.ai.test.WardenBehaviourCoordinator
+import io.github.dockyardmc.maths.randomInt
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toPathPosition
 import io.github.dockyardmc.pathfinding.PathfindingHelper
 import io.github.dockyardmc.registry.Sounds
@@ -14,14 +15,14 @@ class WardenWalkAroundBehaviour(val coordinator: WardenBehaviourCoordinator) : E
 
     override val interruptible: Boolean = true
     var failedTimes: Int = 0
-    var scorerMultiplier = 1f
 
     override fun getScorer(entity: Entity): Float {
-        return 0.05f * if(scorerMultiplier < 1f) 0f else 1f
+        return 0.05f
     }
 
     override fun onStart(entity: Entity) {
         var foundPath = false
+        this.cooldown = randomInt(40, 80)
 
         coordinator.navigator.navigationCompleteDispatcher.subscribe {
             getBehaviourFuture().complete(EntityBehaviourResult.SUCCESS)
@@ -54,20 +55,6 @@ class WardenWalkAroundBehaviour(val coordinator: WardenBehaviourCoordinator) : E
     }
 
     override fun onBackstageTick(tick: Int) {
-        if (failedTimes >= 5 && scorerMultiplier == 1f) {
-            scorerMultiplier = 0f
-            debug("<red>5 Failed attempts, scorerMultiplier set to 0", true)
-            return
-        }
-
-        if (scorerMultiplier < 1f) {
-            scorerMultiplier += 0.005f
-            debug("<dark_gray>scorerMultiplier now $scorerMultiplier", true)
-            if (scorerMultiplier == 1f) {
-                debug("<lime>scorerMultiplier back to 1", true)
-                failedTimes = 0
-            }
-        }
     }
 
     override fun onFrontstageTick(tick: Int) {

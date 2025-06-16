@@ -37,7 +37,7 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Disposable {
         evaluateBehaviours()
 
         if (activeBehaviour?.getBehaviourFuture() != null && activeBehaviour?.getBehaviourFuture()!!.isDone) {
-            debug("${activeBehaviour!!::class.simpleName} finished", true)
+            debug("<lime>${activeBehaviour!!::class.simpleName} finished", true)
             stopBehaviour()
         }
         if (activeBehaviour != null) {
@@ -48,11 +48,15 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Disposable {
         behaviours.forEach { behaviour ->
             if (behaviour == activeBehaviour) return@forEach
             behaviour.onBackstageTick(backstageTicks)
+            if (behaviour.cooldown > 0) {
+                behaviour.cooldown--
+            }
         }
 
     }
 
     fun stopBehaviour() {
+        if(activeBehaviour != null) debug("<red>${activeBehaviour!!::class.simpleName} stopped", true)
         activeBehaviour?.onStop(entity, true)
         activeBehaviour?.getBehaviourFuture()?.cancel(true)
         activeBehaviour = null
@@ -61,6 +65,7 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Disposable {
     fun forceBehaviour(behaviourNode: EntityBehaviourNode) {
         stopBehaviour()
 
+        debug("<aqua>Set new behaviour: ${behaviourNode::class.simpleName}")
         behaviourNode.setBehaviourFuture(CompletableFuture<EntityBehaviourResult>())
         this.activeBehaviour = behaviourNode
         behaviourNode.onStart(entity)
@@ -74,12 +79,12 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Disposable {
 
         try {
             val filtered = behaviours.filter { behaviour ->
-                behaviour != activeBehaviour && behaviour.getScorer(entity) != 0f
+                behaviour != activeBehaviour && behaviour.getScorer(entity) != 0f && behaviour.cooldown == 0
             }
             val bestNode = filtered.maxByOrNull { behaviour -> behaviour.getScorer(entity) }
             if (bestNode != null) {
-                debug("New best node: ${bestNode::class.simpleName} (scorer ${bestNode.getScorer(entity)})", true)
                 if ((activeBehaviour != null && activeBehaviour!!.interruptible && activeBehaviour!!.getScorer(entity) > currentScorer) || activeBehaviour == null) {
+                    debug("New best node: ${bestNode::class.simpleName} (scorer ${bestNode.getScorer(entity)})", true)
                     forceBehaviour(bestNode)
                 }
             }

@@ -148,6 +148,7 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
         navigationNodeStepDispatcher.dispose()
         path.clear()
         newPathQueue.clear()
+        isCurrentlyPathfinding = false
     }
 }
 

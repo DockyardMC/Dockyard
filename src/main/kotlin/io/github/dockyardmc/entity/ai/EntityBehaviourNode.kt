@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture
 abstract class EntityBehaviourNode {
     open val interruptible: Boolean = true
     private var future = CompletableFuture<EntityBehaviourResult>()
+    var cooldown: Int = 0
 
     fun getBehaviourFuture(): CompletableFuture<EntityBehaviourResult> = future
     fun setBehaviourFuture(newFuture: CompletableFuture<EntityBehaviourResult>) {

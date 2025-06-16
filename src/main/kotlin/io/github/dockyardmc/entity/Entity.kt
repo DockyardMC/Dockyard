@@ -194,6 +194,11 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         teleport(newLoc)
     }
 
+    open fun lookAt(targetLocation: Location) {
+        val newLoc = this.location.setDirection(targetLocation.toVector3d() - (this.location).toVector3d())
+        teleport(newLoc)
+    }
+
     open fun lookAtClientside(target: Entity, player: Player) {
         lookAtClientside(target, listOf(player))
     }
