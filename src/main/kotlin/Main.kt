@@ -1,5 +1,10 @@
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.Commands
+import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.Warden
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.player.systems.GameMode
 
 fun main() {
 
@@ -9,11 +14,15 @@ fun main() {
         useDebugMode(true)
     }
 
-    Commands.add("/test") {
+    Events.on<PlayerJoinEvent> { event ->
+        val player = event.player
+        player.gameMode.value = GameMode.CREATIVE
+    }
+
+    Commands.add("/warden") {
         execute { ctx ->
             val player = ctx.getPlayerOrThrow()
-            player.sendMessage("<click:open_url:'https://github.com/DockyardMC/Dockyard'>[Click to Open Github]")
-
+            val warden = player.world.spawnEntity(Warden(player.location)) as Warden
         }
     }
 

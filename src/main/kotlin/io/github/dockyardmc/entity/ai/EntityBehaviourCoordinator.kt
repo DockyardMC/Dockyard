@@ -1,0 +1,98 @@
+package io.github.dockyardmc.entity.ai
+
+import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.events.EventPool
+import io.github.dockyardmc.events.system.EventFilter
+import io.github.dockyardmc.pathfinding.IsSolidPathFilter
+import io.github.dockyardmc.pathfinding.Navigator
+import io.github.dockyardmc.pathfinding.Pathfinder
+import io.github.dockyardmc.pathfinding.RequiredHeightPathfindingFilter
+import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.debug
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicBoolean
+
+abstract class EntityBehaviourCoordinator(val entity: Entity) : Disposable {
+
+    val eventPool = EventPool().withFilter(EventFilter.containsEntity(entity))
+    val behaviours: MutableList<EntityBehaviourNode> = mutableListOf()
+    var activeBehaviour: EntityBehaviourNode? = null
+    private val isEvaluating = AtomicBoolean(false)
+    val pathfinder = Pathfinder.createPathfinder {
+        async(true)
+        maxIterations(300)
+        maxLength(60)
+    }
+
+    val navigator: Navigator = Navigator(entity, 15, pathfinder, listOf(RequiredHeightPathfindingFilter(2), IsSolidPathFilter()))
+
+    var generalTicks = 0
+    var frontStageTicks = 0
+    var backstageTicks = 0
+
+    fun tick() {
+        generalTicks++
+        backstageTicks++
+
+        evaluateBehaviours()
+
+        if (activeBehaviour?.getBehaviourFuture() != null && activeBehaviour?.getBehaviourFuture()!!.isDone) {
+            debug("${activeBehaviour!!::class.simpleName} finished", true)
+            stopBehaviour()
+        }
+        if (activeBehaviour != null) {
+            frontStageTicks++
+            activeBehaviour!!.onGeneralTick(generalTicks)
+            activeBehaviour!!.onFrontstageTick(frontStageTicks)
+        }
+        behaviours.forEach { behaviour ->
+            if (behaviour == activeBehaviour) return@forEach
+            behaviour.onBackstageTick(backstageTicks)
+        }
+
+    }
+
+    fun stopBehaviour() {
+        activeBehaviour?.onStop(entity, true)
+        activeBehaviour?.getBehaviourFuture()?.cancel(true)
+        activeBehaviour = null
+    }
+
+    fun forceBehaviour(behaviourNode: EntityBehaviourNode) {
+        stopBehaviour()
+
+        behaviourNode.setBehaviourFuture(CompletableFuture<EntityBehaviourResult>())
+        this.activeBehaviour = behaviourNode
+        behaviourNode.onStart(entity)
+    }
+
+    fun evaluateBehaviours() {
+        if (isEvaluating.get()) return
+        isEvaluating.set(true)
+
+        val currentScorer = activeBehaviour?.getScorer(entity) ?: 0f
+
+        try {
+            val filtered = behaviours.filter { behaviour ->
+                behaviour != activeBehaviour && behaviour.getScorer(entity) != 0f
+            }
+            val bestNode = filtered.maxByOrNull { behaviour -> behaviour.getScorer(entity) }
+            if (bestNode != null) {
+                debug("New best node: ${bestNode::class.simpleName} (scorer ${bestNode.getScorer(entity)})", true)
+                if ((activeBehaviour != null && activeBehaviour!!.interruptible && activeBehaviour!!.getScorer(entity) > currentScorer) || activeBehaviour == null) {
+                    forceBehaviour(bestNode)
+                }
+            }
+
+        } finally {
+            isEvaluating.set(false)
+        }
+    }
+
+    override fun dispose() {
+        eventPool.dispose()
+        activeBehaviour?.onStop(entity, true)
+        activeBehaviour?.getBehaviourFuture()?.cancel(false)
+    }
+
+}

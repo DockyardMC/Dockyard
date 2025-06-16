@@ -3,8 +3,6 @@ package io.github.dockyardmc.entity
 import cz.lukynka.bindables.Bindable
 import de.metaphoriker.pathetic.api.pathing.configuration.HeuristicWeights
 import de.metaphoriker.pathetic.api.pathing.filter.filters.PassablePathFilter
-import io.github.dockyardmc.entity.ai.AIGoal
-import io.github.dockyardmc.entity.ai.AIManager
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.location.Location
@@ -26,7 +24,6 @@ class TestZombie(location: Location) : Entity(location) {
     override var inventorySize: Int = 0
 
     val eventPool = EventPool()
-    val brain = AIManager(this)
     val pathfinder = Pathfinder.createPathfinder {
         async(true)
         maxLength(25)
@@ -38,7 +35,6 @@ class TestZombie(location: Location) : Entity(location) {
 
     init {
 
-        brain.addGoal(ZombieLookAroundAIGoal(this, 1))
 //        brain.addGoal(ZombieGroanAiGoal(this, 1))
 //        brain.addGoal(RandomWalkAroundGoal(this, 1, navigator))
 
@@ -66,55 +62,4 @@ class TestZombie(location: Location) : Entity(location) {
         eventPool.dispose() // automatically unregister all above events
         super.dispose()
     }
-}
-
-
-class ZombieLookAroundAIGoal(override var entity: Entity, override var priority: Int) : AIGoal() {
-
-    val zombie = entity as TestZombie
-    val chancePerTick = 50
-
-    var lookingAroundTime: Int = 0
-
-    override fun startCondition(): Boolean {
-        return randomInt(chancePerTick, 100) == chancePerTick
-
-    }
-
-    override fun start() {
-        lookingAroundTime = 10
-        zombie.teleport(zombie.location.clone().apply { pitch = 0f; yaw += randomFloat(-90f, 90f) })
-    }
-
-    override fun end() {
-        cooldown = randomInt(3, 5) * 20
-    }
-
-    override fun endCondition(): Boolean = lookingAroundTime <= 0
-
-    override fun tick() {
-        lookingAroundTime--
-    }
-}
-
-class ZombieGroanAiGoal(override var entity: Entity, override var priority: Int) : AIGoal() {
-
-    val zombie = entity as TestZombie
-    val chancePerTick = 50
-
-    override fun startCondition(): Boolean {
-        return randomInt(chancePerTick, 100) == chancePerTick
-    }
-
-    override fun start() {
-        zombie.playSoundToViewers(Sound("minecraft:entity.zombie.ambient", pitch = randomFloat(0.8f, 1.2f)))
-    }
-
-    override fun end() {
-        cooldown = randomInt(1, 2) * 20
-    }
-
-    override fun endCondition(): Boolean = true
-
-    override fun tick() {}
 }

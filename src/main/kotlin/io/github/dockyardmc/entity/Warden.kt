@@ -1,9 +1,13 @@
 package io.github.dockyardmc.entity
 
 import cz.lukynka.bindables.Bindable
+import io.github.dockyardmc.entity.ai.test.WardenBehaviourCoordinator
 import io.github.dockyardmc.entity.metadata.EntityMetaValue
 import io.github.dockyardmc.entity.metadata.EntityMetadata
 import io.github.dockyardmc.entity.metadata.EntityMetadataType
+import io.github.dockyardmc.events.EventPool
+import io.github.dockyardmc.events.WorldTickEvent
+import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
@@ -12,22 +16,28 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEvent
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 
-open class Warden(location: Location): Entity(location) {
+open class Warden(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.WARDEN
     override val health: Bindable<Float> = Bindable(500f)
     override var inventorySize: Int = 0
 
     val angerLevel: Bindable<Int> = Bindable(0)
+    val behaviourController = WardenBehaviourCoordinator(this)
+    val pool = EventPool.withFilter("warden-pool", EventFilter.containsWorld(location.world))
 
     init {
         angerLevel.valueChanged {
             metadata[EntityMetadataType.WARDEN_ANGER_LEVEL] = EntityMetadata(EntityMetadataType.WARDEN_ANGER_LEVEL, EntityMetaValue.VAR_INT, it.newValue)
         }
+
+        pool.on<WorldTickEvent> {
+            behaviourController.tick()
+        }
     }
 
     fun playAnimation(animation: WardenAnimation) {
 
-        when(animation) {
+        when (animation) {
             WardenAnimation.EMERGE -> pose.value = EntityPose.EMERGING
             WardenAnimation.ROAR -> pose.value = EntityPose.ROARING
             WardenAnimation.SNIFF -> pose.value = EntityPose.SNIFFING
