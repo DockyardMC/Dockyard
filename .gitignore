@@ -38,12 +38,13 @@ bin/
 .DS_Store
 log
 dockyard.toml
-dockyard.toml
 map.schem
 test.schem
 changelog.md
-src/main/kotlin/io/github/dockyardmc/Main.kt
 .profileconfig.json
 /spark/
-src/main/kotlin/io/github/dockyardmc/Main.kt
 .kotlin/errors
+
+# all main.kt files
+# grrrr
+Main.kt
