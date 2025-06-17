@@ -8,9 +8,8 @@ import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
 import io.github.dockyardmc.events.PlayerMoveEvent
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.scroll.LegacyTextColor
-import io.github.dockyardmc.team.TeamCollisionRule
+import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
-import io.github.dockyardmc.team.TeamNameTagVisibility
 
 abstract class NpcEntity(location: Location) : Entity(location) {
 
@@ -34,12 +33,12 @@ abstract class NpcEntity(location: Location) : Entity(location) {
         onDamage = event
     }
 
-    private fun getTeamNametagVisibility(): TeamNameTagVisibility {
-        return if (nametagVisible.value) TeamNameTagVisibility.VISIBLE else TeamNameTagVisibility.HIDDEN
+    private fun getTeamNametagVisibility(): Team.NameTagVisibility {
+        return if (nametagVisible.value) Team.NameTagVisibility.VISIBLE else Team.NameTagVisibility.HIDDEN
     }
 
-    private fun getTeamCollision(): TeamCollisionRule {
-        return if (hasCollision.value) TeamCollisionRule.ALWAYS else TeamCollisionRule.NEVER
+    private fun getTeamCollision(): Team.CollisionRule {
+        return if (hasCollision.value) Team.CollisionRule.ALWAYS else Team.CollisionRule.NEVER
     }
 
     init {
@@ -61,9 +60,9 @@ abstract class NpcEntity(location: Location) : Entity(location) {
         }
 
         nametagVisible.valueChanged {
-            npcTeam.teamNameTagVisibility.value = getTeamNametagVisibility(); team.value = npcTeam
+            npcTeam.nameTagVisibility.value = getTeamNametagVisibility(); team.value = npcTeam
         }
-        hasCollision.valueChanged { npcTeam.teamCollisionRule.value = getTeamCollision(); team.value = npcTeam }
+        hasCollision.valueChanged { npcTeam.collisionRule.value = getTeamCollision(); team.value = npcTeam }
         teamColor.valueChanged { npcTeam.color.value = it.newValue }
     }
 
