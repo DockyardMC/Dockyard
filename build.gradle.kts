@@ -8,7 +8,6 @@ plugins {
     `maven-publish`
     kotlin("jvm") version "2.1.0"
     kotlin("plugin.serialization") version "2.1.0"
-    id("io.ktor.plugin") version "2.2.3"
     `java-library`
 }
 
