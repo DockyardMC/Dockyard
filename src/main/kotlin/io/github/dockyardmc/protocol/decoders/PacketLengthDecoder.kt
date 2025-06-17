@@ -18,7 +18,7 @@ class PacketLengthDecoder : ByteToMessageDecoder() {
         val length = buffer.readVarInt()
 
         // reset the reader index if we don't have enough bytes and wait for next part of the message to arrive and check again
-        if(length > buffer.readableBytes()) {
+        if (length > buffer.readableBytes()) {
             buffer.resetReaderIndex()
             return
         }
@@ -32,7 +32,8 @@ class PacketLengthDecoder : ByteToMessageDecoder() {
 
     override fun exceptionCaught(connection: ChannelHandlerContext, cause: Throwable) {
         log("Error occurred while decoding frame: ", LogType.ERROR)
-        log(cause.cause as Exception)
+        val exception = (if (cause.cause == null) cause else cause.cause) as Exception
+        log(exception)
         connection.channel().close().sync()
     }
 }

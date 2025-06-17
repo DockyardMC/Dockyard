@@ -70,6 +70,7 @@ object DataComponentRegistry {
     val BLOCK_ENTITY_DATA = register("minecraft:block_entity_data", BlockEntityDataComponent::class)
     val INSTRUMENT = register("minecraft:instrument", InstrumentComponent::class)
     val PROVIDES_TRIM_MATERIAL = register("minecraft:provides_trim_material", ProvidesTrimMaterialComponent::class)
+    val OMINOUS_BOTTLE_AMPLIFIER = register("minecraft:ominous_battle_amplifier", OminousBattleAmplifier::class)
     val JUKEBOX_PLAYABLE = register("minecraft:jukebox_playable", JukeboxPlayableComponent::class)
     val PROVIDES_BANNER_PATTERNS = register("minecraft:provides_banner_patterns", ProvidesBannerPatterns::class)
     val RECIPES = register("minecraft:recipes", RecipesComponent::class)
