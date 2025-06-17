@@ -174,7 +174,7 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("projectile power")
         skipPlay("custom report details")
         skipPlay("server links")
-        skipPlay("waypoint")
+        addPlay(ClientboundTrackedWaypointPacket::class)
         addPlay(ClientboundClearDialogPacket::class)
         addPlay(ClientboundShowDialogPacket::class)
     }

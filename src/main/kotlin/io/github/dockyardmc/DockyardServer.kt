@@ -155,7 +155,8 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             "ClientboundChunkDataPacket",
             "ServerboundClientTickEndPacket",
             "ClientboundEntityTeleportPacket",
-            "ClientboundUnloadChunkPacket"
+            "ClientboundUnloadChunkPacket",
+            "ClientboundTrackedWaypointPacket"
         )
     }
 }
