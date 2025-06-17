@@ -1,6 +1,7 @@
-package io.github.dockyardmc.world
+package io.github.dockyardmc.world.waypoint
 
 import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
@@ -13,7 +14,7 @@ import io.github.dockyardmc.world.chunk.ChunkPos
 import io.netty.buffer.ByteBuf
 import java.util.*
 
-data class Waypoint(val id: Either<UUID, String>, val icon: Icon, val target: Target) : NetworkWritable {
+data class WaypointData(val id: Either<UUID, String>, val icon: Icon, val target: Target) : NetworkWritable {
 
     override fun write(buffer: ByteBuf) {
         buffer.writeEither(id, ByteBuf::writeUUID, ByteBuf::writeString)
@@ -29,13 +30,13 @@ data class Waypoint(val id: Either<UUID, String>, val icon: Icon, val target: Ta
             val DEFAULT = Icon(DEFAULT_STYLE, null)
 
             override fun read(buffer: ByteBuf): Icon {
-                return Icon(buffer.readString(), buffer.readOptional(ByteBuf::readCustomColor))
+                return Icon(buffer.readString(), buffer.readOptional(CustomColor::read))
             }
         }
 
         override fun write(buffer: ByteBuf) {
             buffer.writeString(style)
-            buffer.writeOptional(color, CustomColor::writePackedInt)
+            buffer.writeOptional(color, CustomColor::write)
         }
     }
 
@@ -80,6 +81,8 @@ data class Waypoint(val id: Either<UUID, String>, val icon: Icon, val target: Ta
     }
 
     data class Vec3(val vector3: Vector3) : Target {
+
+        constructor(location: Location) : this(location.toVector3())
 
         override val type: Target.Type = Target.Type.VEC3
 

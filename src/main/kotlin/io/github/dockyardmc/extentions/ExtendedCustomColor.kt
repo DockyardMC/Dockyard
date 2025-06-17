@@ -1,5 +1,6 @@
 package io.github.dockyardmc.extentions
 
+import io.github.dockyardmc.protocol.types.ARGB
 import io.github.dockyardmc.scroll.CustomColor
 import io.netty.buffer.ByteBuf
 
@@ -16,7 +17,7 @@ fun CustomColor.getPackedInt(): Int {
     return -0x1000000 or r or g or b
 }
 
-fun CustomColor.asRGBHash(): Int {
+fun CustomColor.asRGB(): Int {
     var rgb: Int = r
     rgb = (rgb shl 8) + g
     return (rgb shl 8) + b
@@ -35,7 +36,7 @@ fun CustomColor.Companion.fromRGBIntOrNull(color: Int?): CustomColor? {
 }
 
 fun CustomColor.writePackedInt(buffer: ByteBuf) {
-    buffer.writeInt(this.asRGBHash())
+    buffer.writeInt(this.asRGB())
 }
 
 fun CustomColor.toScroll(): String {
@@ -43,3 +44,13 @@ fun CustomColor.toScroll(): String {
 }
 
 private fun customColor(buffer: ByteBuf) = CustomColor.fromRGBInt(buffer.readInt())
+
+fun CustomColor.write(buffer: ByteBuf) {
+    buffer.writeByte(ARGB.red(this.getPackedInt()))
+    buffer.writeByte(ARGB.green(this.getPackedInt()))
+    buffer.writeByte(ARGB.blue(this.getPackedInt()))
+}
+
+fun CustomColor.Companion.read(buffer: ByteBuf): CustomColor {
+    return CustomColor.fromRGBInt(ARGB.color(buffer.readByte().toInt() and 0xFF, buffer.readByte().toInt() and 0xFF, buffer.readByte().toInt() and 0xFF))
+}
