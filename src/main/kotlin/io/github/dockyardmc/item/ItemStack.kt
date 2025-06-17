@@ -176,9 +176,9 @@ data class ItemStack(
         return withMeta { withCustomModelData(floats, flags, strings, colors) }
     }
 
-    val customModelData: CustomDataComponent
+    val customModelData: CustomModelDataComponent
         get() {
-            return components[CustomDataComponent::class] as CustomDataComponent? ?: CustomDataComponent(CompoundBinaryTag.empty())
+            return components[CustomModelDataComponent::class] as CustomModelDataComponent? ?: CustomModelDataComponent(listOf(), listOf(), listOf(), listOf())
         }
 
     val maxStackSize: Int
