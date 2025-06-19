@@ -41,7 +41,7 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("query block nbt")
         skipPlay("select bundle item")
         skipPlay("change difficulty")
-        skipPlay("change game mode")
+        addPlay(ClientChangeGameModePacket::class)
         skipPlay("chat ack")
         addPlay(ServerboundChatCommandPacket::class)
         skipPlay("signed command")

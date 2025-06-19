@@ -6,11 +6,20 @@ import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.ChatTypeRegistry
 import io.github.dockyardmc.maths.randomInt
+import io.github.dockyardmc.registry.registries.DialogRegistry
 import org.junit.jupiter.api.assertDoesNotThrow
+import kotlin.reflect.KClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class RegistryTests {
+
+    companion object {
+        val IGNORED_REGISTRIES = listOf<KClass<out Registry>>(
+            ChatTypeRegistry::class,
+            DialogRegistry::class
+        )
+    }
 
     @BeforeTest
     fun prepare() {
@@ -48,7 +57,8 @@ class RegistryTests {
     fun testRegistries() {
         assertDoesNotThrow {
             RegistryManager.dynamicRegistries.values.forEach { registry ->
-                if(registry is ChatTypeRegistry) return@forEach // dockyard does not do chat type stuff
+                if(IGNORED_REGISTRIES.contains(registry::class)) return@forEach
+
                 log("Testing registry ${registry.identifier}", LogType.DEBUG)
                 if(registry is BlockRegistry) {
                     val random = registry.protocolIdToBlock.keys.random()

@@ -57,12 +57,11 @@ class HashTest {
             .put("named", innerCompound)
             .build()
 
-
         val expectedHashes = mapOf<DataComponentHashable, Int>(
             UseCooldownComponent(1.6f, "minecraft:test") to 493336604,
             AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE) to -1483981544,
-            Modifier(Attributes.ATTACK_SPEED, AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.ANY) to 1291119738,
-            AttributeModifiersComponent(listOf(Modifier(Attributes.ATTACK_SPEED, AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.ANY))) to 168186938,
+            Modifier(Attributes.ATTACK_SPEED, AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.ANY, Modifier.Display.Hidden.INSTANCE) to 1210832950,
+            AttributeModifiersComponent(listOf(Modifier(Attributes.ATTACK_SPEED, AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.ANY, Modifier.Display.Default.INSTANCE))) to 168186938,
             AttributeModifiersComponent(listOf()) to -1978007022,
             CustomSoundEvent(Sounds.BLOCK_NOTE_BLOCK_BANJO, null) to 2036171673,
             BuiltinSoundEvent(Sounds.BLOCK_NOTE_BLOCK_BANJO, SoundRegistry[Sounds.BLOCK_NOTE_BLOCK_BANJO]) to 952047800,

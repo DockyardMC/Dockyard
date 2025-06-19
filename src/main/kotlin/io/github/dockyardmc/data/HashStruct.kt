@@ -1,5 +1,6 @@
 package io.github.dockyardmc.data
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.data.CRC32CHasher.ofMap
 import kotlin.reflect.KFunction1
 
