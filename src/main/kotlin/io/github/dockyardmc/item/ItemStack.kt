@@ -304,5 +304,5 @@ fun Collection<String>.toComponents(): Collection<Component> {
 }
 
 fun ItemStack.clone(): ItemStack {
-    return ItemStack(material, amount, components, existingMeta, attributes)
+    return ItemStack(material, amount, components.clone(), existingMeta, attributes.toList())
 }

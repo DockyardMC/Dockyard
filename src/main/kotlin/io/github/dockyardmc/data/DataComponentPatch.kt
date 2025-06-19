@@ -84,6 +84,10 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
         }
     }
 
+    fun clone(): DataComponentPatch {
+        return DataComponentPatch(Int2ObjectArrayMap(components.toMap()), isPatch, isTrusted)
+    }
+
     fun isEmpty(): Boolean = components.isEmpty()
 
     fun has(component: DataComponent): Boolean {
