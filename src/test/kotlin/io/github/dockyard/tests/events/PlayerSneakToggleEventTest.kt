@@ -4,8 +4,7 @@ import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerSneakToggleEvent
-import io.github.dockyardmc.player.PlayerAction
-import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundPlayerCommandPacket
+import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
@@ -28,8 +27,8 @@ class PlayerSneakToggleEventTest {
         }
 
         val player = PlayerTestUtil.getOrCreateFakePlayer()
-        PlayerTestUtil.sendPacket(player, ServerboundPlayerCommandPacket(player.id, PlayerAction.SNEAKING_START))
-        PlayerTestUtil.sendPacket(player, ServerboundPlayerCommandPacket(player.id, PlayerAction.SNEAKING_STOP))
+        PlayerTestUtil.sendPacket(player, ServerboundClientInputPacket(false, false, false, false, false, true, false))
+        PlayerTestUtil.sendPacket(player, ServerboundClientInputPacket(false, false, false, false, false, false, false))
 
         assertTrue(count.await(5L, TimeUnit.SECONDS))
         pool.dispose()

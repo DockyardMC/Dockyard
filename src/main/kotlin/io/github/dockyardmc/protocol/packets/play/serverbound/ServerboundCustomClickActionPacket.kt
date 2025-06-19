@@ -8,13 +8,13 @@ import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.protocol.readOptional
-import io.github.dockyardmc.protocol.types.readLengthPrefixed
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import net.kyori.adventure.nbt.CompoundBinaryTag
 
 open class ServerboundCustomClickActionPacket(val id: String, val payload: CompoundBinaryTag?) : ServerboundPacket {
+
     companion object : NetworkReadable<ServerboundCustomClickActionPacket> {
         override fun read(buffer: ByteBuf): ServerboundCustomClickActionPacket {
             val packet =  ServerboundCustomClickActionPacket(

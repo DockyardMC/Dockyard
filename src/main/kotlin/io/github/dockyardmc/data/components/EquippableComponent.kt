@@ -26,7 +26,9 @@ class EquippableComponent(
     val dispensable: Boolean,
     val swappable: Boolean,
     val damageOnHurt: Boolean,
-    val equipOnInteract: Boolean
+    val equipOnInteract: Boolean,
+    val canBeSheared: Boolean,
+    val sounds: String
 ) : DataComponent() {
 
     override fun write(buffer: ByteBuf) {
@@ -39,6 +41,7 @@ class EquippableComponent(
         buffer.writeBoolean(swappable)
         buffer.writeBoolean(damageOnHurt)
         buffer.writeBoolean(equipOnInteract)
+        buffer.writeBoolean(canBeSheared)
     }
 
     override fun hashStruct(): HashHolder {
@@ -66,7 +69,9 @@ class EquippableComponent(
                 buffer.readBoolean(),
                 buffer.readBoolean(),
                 buffer.readBoolean(),
-                buffer.readBoolean()
+                buffer.readBoolean(),
+                buffer.readBoolean(),
+                SoundEvent.read(buffer).identifier
             )
         }
     }
