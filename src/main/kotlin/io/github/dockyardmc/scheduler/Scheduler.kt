@@ -179,9 +179,10 @@ abstract class Scheduler(val name: String) : Disposable {
     open fun runRepeatingAsync(interval: Duration, unit: (AsyncSchedulerTask<Unit>) -> Unit): AsyncSchedulerTask<Unit> {
         val task = AsyncSchedulerTask(unit, SchedulerTask.Type.REPEATING)
         var list = repeatingTasksAsync[ticks]
+
         if (list == null) {
-            repeatingTasksAsync[ticks] = mutableListOf()
-            list = scheduledTasksAsync[ticks] ?: return task
+            list = mutableListOf()
+            repeatingTasksAsync[ticks] = list
         }
 
         list.add(task)

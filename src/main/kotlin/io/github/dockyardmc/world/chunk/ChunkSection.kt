@@ -56,7 +56,7 @@ class ChunkSection(
     private fun recountNonEmptyBlocks() {
         nonEmptyBlockCount = 0
         for (y in 0..<16) for (z in 0..<16) for (x in 0..<16) {
-            if (blockPalette[x, y, z] == 0) nonEmptyBlockCount++
+            if (blockPalette[x, y, z] != 0) nonEmptyBlockCount++
         }
     }
 

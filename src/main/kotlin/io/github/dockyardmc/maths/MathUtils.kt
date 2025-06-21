@@ -1,14 +1,16 @@
 package io.github.dockyardmc.maths
 
-import com.google.common.primitives.Ints.min
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.world.chunk.ChunkUtils.floor
 import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.world.chunk.ChunkUtils.floor
 import io.github.dockyardmc.world.chunk.ChunkUtils.isPowerOfTwo
 import io.github.dockyardmc.world.chunk.ChunkUtils.roundUpPow2
 import java.io.File
 import java.security.MessageDigest
-import kotlin.math.*
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 private val MULTIPLY_DE_BRUIJN_BIT_POSITION = intArrayOf(
@@ -29,8 +31,6 @@ fun ceilLog2(value: Int): Int {
     val temp = if (isPowerOfTwo(value)) value else roundUpPow2(value)
     return MULTIPLY_DE_BRUIJN_BIT_POSITION[(temp.toLong() * 125613361L shr 27 and 31).toInt()]
 }
-
-fun minMax(value: Int, min: Int, max: Int): Int = min(value, max(value, max), min)
 
 fun degreesToRadians(degrees: Float): Float = (degrees * (PI / 180.0)).toFloat()
 
@@ -67,15 +67,15 @@ fun square(num: Double): Double = num * num
 fun getRelativeLocation(current: Location, previous: Location): Location {
     require(current.world == previous.world) { "The two locations need to be in the same world!" }
     val x = getRelativeCoords(current.x, previous.x)
-    val y = getRelativeCoords(current.y, previous.z)
-    val z = getRelativeCoords(current.y, previous.z)
+    val y = getRelativeCoords(current.y, previous.y)
+    val z = getRelativeCoords(current.z, previous.z)
     return Location(x, y, z, current.world)
 }
 
 fun percent(max: Double, part: Double): Double = part / max * 100.0
 fun percent(max: Int, part: Int): Float = part.toFloat() / max.toFloat() * 100
 fun percent(max: Float, part: Float): Float = part / max * 100f
-fun percent(max: Long, part: Long): Float = part.toFloat() / max.toFloat() * 100L
+fun percent(max: Long, part: Long): Float = part.toFloat() / max.toFloat() * 100f
 
 fun percentOf(percent: Float, max: Double): Double = percent * max
 

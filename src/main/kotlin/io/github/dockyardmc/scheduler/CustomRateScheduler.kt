@@ -10,9 +10,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 
-class CustomRateScheduler(initialTickRate: Duration = 50.milliseconds, name: String) : Scheduler(name) {
-
-    constructor(name: String): this(50.milliseconds, name)
+class CustomRateScheduler(name: String, initialTickRate: Duration = 50.milliseconds) : Scheduler(name) {
 
     var tickRate = Bindable<Duration>(initialTickRate)
     var paused = Bindable<Boolean>(false)

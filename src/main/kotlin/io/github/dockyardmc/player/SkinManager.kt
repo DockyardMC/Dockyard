@@ -12,15 +12,12 @@ object SkinManager {
 
     val skinCache = mutableMapOf<UUID, ProfileProperty>()
 
-    // Get UUID of username first
     fun setSkinOf(player: Player, username: String) {
-
-        var uuid: UUID? = null
-        val asyncRunnable = DockyardServer.scheduler.runAsync {
-            uuid = MojangUtil.getUUIDFromUsername(username)
-        }
-        asyncRunnable.thenAccept {
-            uuid?.let { setSkinOf(player, it) }
+        DockyardServer.scheduler.runAsync {
+            MojangUtil.getUUIDFromUsername(username)
+                ?.let { uuid ->
+                    setSkinOf(player, uuid)
+                }
         }
     }
 
