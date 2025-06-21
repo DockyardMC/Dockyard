@@ -57,12 +57,11 @@ class HashTest {
             .put("named", innerCompound)
             .build()
 
-
         val expectedHashes = mapOf<DataComponentHashable, Int>(
             UseCooldownComponent(1.6f, "minecraft:test") to 493336604,
             AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE) to -1483981544,
-            Modifier(Attributes.ATTACK_SPEED, AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.ANY) to 1291119738,
-            AttributeModifiersComponent(listOf(Modifier(Attributes.ATTACK_SPEED, AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.ANY))) to 168186938,
+            Modifier(Attributes.ATTACK_SPEED, AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.ANY, Modifier.Display.Hidden.INSTANCE) to 1210832950,
+            AttributeModifiersComponent(listOf(Modifier(Attributes.ATTACK_SPEED, AttributeModifier("minecraft:test", 6.9, AttributeOperation.ADD_VALUE), EquipmentSlotGroup.ANY, Modifier.Display.Default.INSTANCE))) to 168186938,
             AttributeModifiersComponent(listOf()) to -1978007022,
             CustomSoundEvent(Sounds.BLOCK_NOTE_BLOCK_BANJO, null) to 2036171673,
             BuiltinSoundEvent(Sounds.BLOCK_NOTE_BLOCK_BANJO, SoundRegistry[Sounds.BLOCK_NOTE_BLOCK_BANJO]) to 952047800,
@@ -76,7 +75,7 @@ class HashTest {
             ConsumeEffect.TeleportRandomly() to -982207288,
             ConsumeEffect.TeleportRandomly(5.0f) to 984729518,
             CustomModelDataComponent(listOf(1f, 2f), listOf(true, false), listOf("gay", "month"), listOf(CustomColor(1, 1, 1))) to 766388248,
-            EquippableComponent(EquipmentSlot.CHESTPLATE, Sounds.ITEM_GOAT_HORN_SOUND_0, "minecraft:dockyard", null, null, true, true, false, false) to 888528263,
+            EquippableComponent(EquipmentSlot.CHESTPLATE, BuiltinSoundEvent.of(Sounds.ITEM_GOAT_HORN_SOUND_0), null, null, null, true, true, true, true, false, BuiltinSoundEvent.of(Sounds.ITEM_GOAT_HORN_SOUND_0)) to 1213362121,
             FoodComponent(2, 1.3f, true) to 474066665,
             ItemBlockStateComponent(mapOf("month?" to "gay!")) to 725075553,
             LodestoneTrackerComponent(WorldPosition("minecraft:main", Vector3(1, 2, 3)), true) to 728072173,

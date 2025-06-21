@@ -1,6 +1,6 @@
 package io.github.dockyardmc.data
 
-import io.github.dockyardmc.extentions.asRGBHash
+import io.github.dockyardmc.extentions.asRGB
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.scroll.Component
@@ -68,7 +68,7 @@ object CRC32CHasher {
     }
 
     fun ofColor(color: CustomColor): Int {
-        return ofInt(color.asRGBHash())
+        return ofInt(color.asRGB())
     }
 
     fun ofLong(long: Long): Int {

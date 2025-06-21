@@ -9,6 +9,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.noxesium.Noxesium
 import io.github.dockyardmc.protocol.DataComponentHashable
+import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.types.ConsumeEffect
 import io.github.dockyardmc.protocol.types.ItemRarity
@@ -31,7 +32,7 @@ data class ItemStack(
     val components: DataComponentPatch,
     val existingMeta: ItemStackMeta? = null,
     val attributes: Collection<AttributeModifier> = listOf()
-) : NetworkWritable, DataComponentHashable {
+) : NetworkWritable, DataComponentHashable, NbtWritable {
 
     constructor(material: Item, amount: Int, vararg components: DataComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
     constructor(material: Item, vararg components: DataComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
@@ -64,6 +65,14 @@ data class ItemStack(
         buffer.writeVarInt(this.amount)
         buffer.writeVarInt(this.material.getProtocolId())
         DataComponentPatch.patchNetworkType(components.components).write(buffer)
+    }
+
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withString("id", material.getEntryIdentifier())
+            withInt("count", amount)
+            withCompound("components", CompoundBinaryTag.empty())
+        }
     }
 
     fun withDisplayName(displayName: String): ItemStack {

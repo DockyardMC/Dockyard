@@ -40,6 +40,8 @@ object ClientPacketRegistry : PacketRegistry() {
         addConfiguration(ClientboundKnownPacksPackets::class)
         skipConfiguration("Custom Reports")
         addConfiguration(ClientboundConfigurationServerLinksPacket::class)
+        addConfiguration(ClientboundConfigurationClearDialogPacket::class)
+        skipConfiguration("show dialog")
 
         skipPlay("Bundle")
         addPlay(ClientboundSpawnEntityPacket::class)
@@ -172,6 +174,9 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("projectile power")
         skipPlay("custom report details")
         skipPlay("server links")
+        addPlay(ClientboundTrackedWaypointPacket::class)
+        addPlay(ClientboundClearDialogPacket::class)
+        addPlay(ClientboundShowDialogPacket::class)
     }
 }
 

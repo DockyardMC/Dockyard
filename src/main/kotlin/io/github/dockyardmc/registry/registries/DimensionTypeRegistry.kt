@@ -1,6 +1,5 @@
 package io.github.dockyardmc.registry.registries
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
@@ -8,7 +7,6 @@ import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.RegistryException
 import net.kyori.adventure.nbt.CompoundBinaryTag
-import net.kyori.adventure.nbt.TagStringIO
 import java.util.concurrent.atomic.AtomicInteger
 
 object DimensionTypeRegistry : DynamicRegistry {
@@ -171,6 +169,7 @@ data class DimensionType(
     val respawnAnchorWorks: Boolean,
     val ultraWarm: Boolean,
     val fixedTime: Long? = null,
+    val cloudHeight: Int? = null
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
@@ -202,6 +201,7 @@ data class DimensionType(
             withBoolean("piglin_safe", piglinSafe)
             withBoolean("respawn_anchor_works", respawnAnchorWorks)
             withBoolean("ultrawarm", ultraWarm)
+            cloudHeight?.let { withInt("cloud_height", cloudHeight) }
         }
         return nbt
     }

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.registry
 
 import io.github.dockyardmc.protocol.packets.configurations.ServerboundClientInformationPacket
+import io.github.dockyardmc.protocol.packets.configurations.ServerboundConfigurationCustomClickActionPacket
 import io.github.dockyardmc.protocol.packets.configurations.ServerboundConfigurationPluginMessagePacket
 import io.github.dockyardmc.protocol.packets.configurations.ServerboundFinishConfigurationAcknowledgePacket
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
@@ -34,11 +35,13 @@ object ServerPacketRegistry : PacketRegistry() {
         skipConfiguration("pong")
         skipConfiguration("resourcepack status")
         skipConfiguration("known packs")
+        addConfiguration(ServerboundConfigurationCustomClickActionPacket::class)
 
         addPlay(ServerboundTeleportConfirmationPacket::class)
         skipPlay("query block nbt")
         skipPlay("select bundle item")
         skipPlay("change difficulty")
+        addPlay(ClientChangeGameModePacket::class)
         skipPlay("chat ack")
         addPlay(ServerboundChatCommandPacket::class)
         skipPlay("signed command")
@@ -99,5 +102,6 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("test instance block action packet")
         addPlay(ServerboundUseItemOnBlockPacket::class)
         addPlay(ServerboundUseItemPacket::class)
+        addPlay(ServerboundCustomClickActionPacket::class)
     }
 }

@@ -82,6 +82,12 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 RegistryManager.register(FluidTagRegistry)
                 RegistryManager.register(ItemTagRegistry)
                 RegistryManager.register(BiomeTagRegistry)
+
+                RegistryManager.register(DialogTypeRegistry)
+                RegistryManager.register(DialogBodyTypeRegistry)
+                RegistryManager.register(DialogRegistry)
+                RegistryManager.register(DialogInputTypeRegistry)
+                RegistryManager.register(DialogActionTypeRegistry)
             }
 
             profiler("Default Implementations") {
@@ -125,7 +131,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     companion object {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         lateinit var instance: DockyardServer
-        val minecraftVersion = MinecraftVersions.v1_21_5
+        val minecraftVersion = MinecraftVersions.v1_21_6
         var allowAnyVersion: Boolean = false
 
         val scheduler = GlobalScheduler("main_scheduler")
@@ -149,7 +155,8 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             "ClientboundChunkDataPacket",
             "ServerboundClientTickEndPacket",
             "ClientboundEntityTeleportPacket",
-            "ClientboundUnloadChunkPacket"
+            "ClientboundUnloadChunkPacket",
+            "ClientboundTrackedWaypointPacket"
         )
     }
 }
