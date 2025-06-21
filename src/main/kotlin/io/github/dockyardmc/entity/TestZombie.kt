@@ -18,7 +18,7 @@ import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.maths.randomFloat
-import io.github.dockyardmc.maths.randomInt
+import kotlin.random.Random
 
 class TestZombie(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.ZOMBIE
@@ -46,7 +46,7 @@ class TestZombie(location: Location) : Entity(location) {
             val entity = event.entity
             if (entity != this) return@on
 
-            entity.world.playSound(Sounds.ENTITY_ZOMBIE_HURT, pitch = randomFloat(0.7f, 1.2f))
+            entity.world.playSound(Sounds.ENTITY_ZOMBIE_HURT, pitch = Random.randomFloat(0.7f, 1.2f))
             entity.damage(1f, DamageTypes.GENERIC, event.player, event.entity)
             event.player.sendMessage("<red>${health.value}")
         }
@@ -77,17 +77,16 @@ class ZombieLookAroundAIGoal(override var entity: Entity, override var priority:
     var lookingAroundTime: Int = 0
 
     override fun startCondition(): Boolean {
-        return randomInt(chancePerTick, 100) == chancePerTick
-
+        return Random.nextInt(chancePerTick, 100) == chancePerTick
     }
 
     override fun start() {
         lookingAroundTime = 10
-        zombie.teleport(zombie.location.clone().apply { pitch = 0f; yaw += randomFloat(-90f, 90f) })
+        zombie.teleport(zombie.location.clone().apply { pitch = 0f; yaw += Random.randomFloat(-90f, 90f) })
     }
 
     override fun end() {
-        cooldown = randomInt(3, 5) * 20
+        cooldown = Random.nextInt(3, 5) * 20
     }
 
     override fun endCondition(): Boolean = lookingAroundTime <= 0
@@ -103,15 +102,15 @@ class ZombieGroanAiGoal(override var entity: Entity, override var priority: Int)
     val chancePerTick = 50
 
     override fun startCondition(): Boolean {
-        return randomInt(chancePerTick, 100) == chancePerTick
+        return Random.nextInt(chancePerTick, 100) == chancePerTick
     }
 
     override fun start() {
-        zombie.playSoundToViewers(Sound("minecraft:entity.zombie.ambient", pitch = randomFloat(0.8f, 1.2f)))
+        zombie.playSoundToViewers(Sound("minecraft:entity.zombie.ambient", pitch = Random.randomFloat(0.8f, 1.2f)))
     }
 
     override fun end() {
-        cooldown = randomInt(1, 2) * 20
+        cooldown = Random.nextInt(1, 2) * 20
     }
 
     override fun endCondition(): Boolean = true

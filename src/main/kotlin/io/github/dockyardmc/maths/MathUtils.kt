@@ -8,8 +8,8 @@ import io.github.dockyardmc.world.chunk.ChunkUtils.isPowerOfTwo
 import io.github.dockyardmc.world.chunk.ChunkUtils.roundUpPow2
 import java.io.File
 import java.security.MessageDigest
-import java.util.*
 import kotlin.math.*
+import kotlin.random.Random
 
 private val MULTIPLY_DE_BRUIJN_BIT_POSITION = intArrayOf(
     0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
@@ -90,12 +90,7 @@ fun isBetween(number: Int, min: Int, max: Int): Boolean {
     return number in min..max
 }
 
-fun randomInt(min: Int, max: Int): Int = Random().nextInt(min, max)
-
-fun randomFloat(min: Float, max: Float): Float {
-    val random = Random()
-    return min + random.nextFloat() * (max - min)
-}
+fun Random.randomFloat(min: Float, max: Float) = min + nextFloat() * (max - min)
 
 fun getFileHash(file: File, algorithm: String): String {
     val digest = MessageDigest.getInstance(algorithm)

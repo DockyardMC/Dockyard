@@ -2,7 +2,10 @@ package io.github.dockyardmc.player.systems
 
 import io.github.dockyardmc.data.components.ConsumableComponent
 import io.github.dockyardmc.data.components.FoodComponent
-import io.github.dockyardmc.item.*
+import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.clone
+import io.github.dockyardmc.maths.randomFloat
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.particles.data.ItemParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.ItemInUse
@@ -11,10 +14,9 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEventPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEvent
 import io.github.dockyardmc.registry.Particles
-import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.maths.randomFloat
-import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.registry.Sounds
+import io.github.dockyardmc.sounds.playSound
+import kotlin.random.Random
 
 class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
 
@@ -37,7 +39,7 @@ class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
 
             if ((world.worldAge % 5) == 0L) {
                 val viewers = world.players.toMutableList().filter { it != player }
-                viewers.playSound(item.material.consumeSound, location, 1f, randomFloat(0.9f, 1.3f))
+                viewers.playSound(item.material.consumeSound, location, 1f, Random.randomFloat(0.9f, 1.3f))
                 val particles = consumableItemComponent?.hasParticles ?: true
                 if(particles) {
                     viewers.spawnParticle(

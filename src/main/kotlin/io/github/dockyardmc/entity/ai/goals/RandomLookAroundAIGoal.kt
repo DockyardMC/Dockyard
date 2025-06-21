@@ -2,11 +2,10 @@ package io.github.dockyardmc.entity.ai.goals
 
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.ai.AIGoal
-import io.github.dockyardmc.maths.randomInt
 import io.github.dockyardmc.maths.vectors.Vector3d
-import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.random.Random
 
 class RandomLookAroundAIGoal(override var entity: Entity, override var priority: Int, val chancePerTick: Int): AIGoal() {
 
@@ -14,7 +13,7 @@ class RandomLookAroundAIGoal(override var entity: Entity, override var priority:
     var lookingDirection: Vector3d = Vector3d(0.0)
 
     override fun startCondition(): Boolean {
-        return randomInt(chancePerTick, 100) == chancePerTick
+        return Random.nextInt(chancePerTick, 100) == chancePerTick
     }
 
     override fun start() {
@@ -33,7 +32,7 @@ class RandomLookAroundAIGoal(override var entity: Entity, override var priority:
     override fun endCondition(): Boolean = this.lookTime <= 0
 
     private fun getRandomDirection(): Vector3d {
-        val n: Double = Math.PI * 2 * Random().nextDouble()
+        val n: Double = Math.PI * 2 * Random.nextDouble()
         return Vector3d(
             cos(n),
             0.0,

@@ -6,10 +6,11 @@ import io.github.dockyardmc.commands.ItemArgument
 import io.github.dockyardmc.commands.PlayerArgument
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.maths.randomFloat
+import kotlin.random.Random
 
 class GiveCommand {
     init {
@@ -25,7 +26,7 @@ class GiveCommand {
                 val item = getArgument<Item>("item")
                 val amount = getArgumentOrNull<Int>("amount") ?: 1
                 player.give(ItemStack(item, amount))
-                player.playSound("minecraft:entity.item.pickup", pitch = randomFloat(0.8f, 1.3f))
+                player.playSound("minecraft:entity.item.pickup", pitch = Random.randomFloat(0.8f, 1.3f))
             }
         }
     }
