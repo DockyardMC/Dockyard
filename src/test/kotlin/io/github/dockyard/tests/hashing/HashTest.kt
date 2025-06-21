@@ -75,7 +75,7 @@ class HashTest {
             ConsumeEffect.TeleportRandomly() to -982207288,
             ConsumeEffect.TeleportRandomly(5.0f) to 984729518,
             CustomModelDataComponent(listOf(1f, 2f), listOf(true, false), listOf("gay", "month"), listOf(CustomColor(1, 1, 1))) to 766388248,
-            EquippableComponent(EquipmentSlot.CHESTPLATE, Sounds.ITEM_GOAT_HORN_SOUND_0, "minecraft:dockyard", null, null, true, true, false, false) to 888528263,
+            EquippableComponent(EquipmentSlot.CHESTPLATE, BuiltinSoundEvent.of(Sounds.ITEM_GOAT_HORN_SOUND_0), null, null, null, true, true, true, true, false, BuiltinSoundEvent.of(Sounds.ITEM_GOAT_HORN_SOUND_0)) to 1213362121,
             FoodComponent(2, 1.3f, true) to 474066665,
             ItemBlockStateComponent(mapOf("month?" to "gay!")) to 725075553,
             LodestoneTrackerComponent(WorldPosition("minecraft:main", Vector3(1, 2, 3)), true) to 728072173,
