@@ -4,35 +4,77 @@ import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
+import io.github.dockyardmc.utils.BiMap
+import io.github.dockyardmc.utils.MutableBiMap
 import io.netty.buffer.ByteBuf
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
 import net.kyori.adventure.nbt.BinaryTag
 import java.io.InputStream
+import java.util.zip.GZIPInputStream
 
-interface Registry {
+abstract class Registry<T : RegistryEntry> {
 
-    val identifier: String
+    abstract val identifier: String
+    private var counter: Int = 0
+    protected val protocolEntries: MutableBiMap<Int, T> = MutableBiMap()
+    protected val entries: MutableBiMap<String, T> = MutableBiMap()
 
-    operator fun get(identifier: String): RegistryEntry
-    fun getOrNull(identifier: String): RegistryEntry?
+    fun addEntry(entry: T) {
+        val id = counter++
+        protocolEntries.put(id, entry)
+        entries.put(entry.getEntryIdentifier(), entry)
+    }
 
-    fun getByProtocolId(id: Int): RegistryEntry
+    operator fun get(identifier: String): T {
+        return getOrNull(identifier) ?: throw RegistryException(identifier, entries.size)
+    }
 
-    fun getMap(): Map<String, RegistryEntry>
+    fun getOrNull(identifier: String): T? {
+        return entries.getByKeyOrNull(identifier)
+    }
 
-    fun getMaxProtocolId(): Int
+    fun getByProtocolId(id: Int): T {
+        return getByProtocolIdOrNull(id) ?: throw RegistryException(id, protocolEntries.size)
+    }
+
+    fun getByProtocolIdOrNull(id: Int): T? {
+        return protocolEntries.getByKeyOrNull(id)
+    }
+
+    fun getEntries(): BiMap<String, T> {
+        return entries.toBiMap()
+    }
+
+    fun getProtocolEntries(): BiMap<Int, T> {
+        return protocolEntries.toBiMap()
+    }
+
+    fun getMaxProtocolId(): Int {
+        return entries.size
+    }
 }
 
-interface DynamicRegistry : Registry {
-    fun getCachedPacket(): ClientboundRegistryDataPacket
-    fun updateCache()
-    fun register()
+abstract class DynamicRegistry<T : RegistryEntry> : Registry<T>() {
+    protected lateinit var cachedPacket: ClientboundRegistryDataPacket
+
+    fun getCachedPacket(): ClientboundRegistryDataPacket {
+        return cachedPacket
+    }
+
+    abstract fun updateCache()
 }
 
-interface DataDrivenRegistry : Registry {
-    fun initialize(inputStream: InputStream)
-}
+@OptIn(ExperimentalSerializationApi::class)
+abstract class DataDrivenRegistry<T : RegistryEntry> : Registry<T>() {
 
-interface DynamicDataDrivenRegistry : DataDrivenRegistry, DynamicRegistry
+    fun initialize(inputStream: InputStream) {
+        val stream = GZIPInputStream(inputStream)
+        val list = Json.decodeFromStream<List<T>>(stream)
+        list.forEach(::addEntry)
+    }
+}
 
 interface RegistryEntry : NetworkWritable {
     fun getNbt(): BinaryTag? = null
@@ -44,7 +86,7 @@ interface RegistryEntry : NetworkWritable {
     }
 
     companion object {
-        fun <T : RegistryEntry> read(buffer: ByteBuf, registry: Registry): T {
+        fun <T : RegistryEntry> read(buffer: ByteBuf, registry: Registry<*>): T {
             @Suppress("UNCHECKED_CAST")
             return registry.getByProtocolId(buffer.readVarInt()) as T
         }
