@@ -71,7 +71,7 @@ data class ItemStack(
         return nbt {
             withString("id", material.getEntryIdentifier())
             withInt("count", amount)
-            withCompound("components", CompoundBinaryTag.empty()) // TODO: real nbt of components
+            withCompound("components", CompoundBinaryTag.empty())
         }
     }
 
