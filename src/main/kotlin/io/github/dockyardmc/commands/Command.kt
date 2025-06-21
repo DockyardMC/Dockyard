@@ -5,7 +5,7 @@ import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.utils.Console
 
 @Suppress("UNCHECKED_CAST")
-class Command: Cloneable {
+class Command : Cloneable {
     lateinit var internalExecutorDoNotUse: (CommandExecutor) -> Unit
     var arguments: MutableMap<String, CommandArgumentData> = mutableMapOf()
     var permission: String = ""
@@ -33,11 +33,12 @@ class Command: Cloneable {
 
 
     inline fun <reified T> getArgument(argumentName: String): T {
-        if(T::class.java.isEnum && T::class != LegacyTextColor::class) throw IllegalStateException("Supplied generic is of type enum, please use getEnumArgument method instead.")
-        if(arguments[argumentName] == null) throw IllegalStateException("Argument with name $argumentName does not exist")
-        if(arguments[argumentName]!!.returnedValue == null) throw IllegalStateException("Argument value of $argumentName is null. Use getOrNull to get nullable value")
+        require(!T::class.java.isEnum || T::class == LegacyTextColor::class) { "Supplied generic is of type enum, please use getEnumArgument method instead." }
 
-        return arguments[argumentName]!!.returnedValue as T
+        return requireNotNull(arguments[argumentName]) { "Argument with name $argumentName does not exist" }
+            .let { argument ->
+                requireNotNull(argument.returnedValue) { "Argument value of $argumentName is null. Use getOrNull to get nullable value" } as T
+            }
     }
 
     inline fun <reified T : Enum<T>> getEnumArgument(argumentName: String): T {
@@ -46,30 +47,31 @@ class Command: Cloneable {
     }
 
     inline fun <reified T : Enum<T>> getEnumArgumentOrNull(argumentName: String): T? {
-        if(arguments[argumentName] == null) return null
+        if (arguments[argumentName] == null) return null
         val value = getArgumentOrNull<String>(argumentName) ?: return null
         return T::class.java.enumConstants.firstOrNull { it.name == value.uppercase() } ?: throw Exception("Enum ${T::class.simpleName} does not contain \"${value.uppercase()}\"")
     }
 
     inline fun <reified T> getArgumentOrNull(argumentName: String): T? {
-        if(T::class.java.isEnum && T::class != LegacyTextColor::class) throw IllegalStateException("Supplied generic is of type enum, please use getEnumArgumentOrNull method instead.")
-        if(arguments[argumentName] == null) return null
-        if(arguments[argumentName]!!.returnedValue == null) return null
-        return arguments[argumentName]!!.returnedValue as T
+        require(!T::class.java.isEnum || T::class == LegacyTextColor::class) { "Supplied generic is of type enum, please use getEnumArgumentOrNull method instead." }
+
+        return arguments[argumentName]?.returnedValue as T
     }
 
     fun addArgument(name: String, argument: CommandArgument, suggestions: ((Player) -> Collection<String>)? = null) {
-        if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands!")
+        check(subcommands.isEmpty()) { "Command cannot have both arguments and subcommands!" }
+
         val data = CommandArgumentData(argument, false, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
         arguments[name] = data
         val before = arguments.values.indexOf(data) - 1
-        if(before <= 0 ) return
-        if(arguments.values.toList()[before].optional) throw IllegalStateException("Cannot put argument after optional argument!")
+        if (before <= 0) return
 
+        check(!arguments.values.toList()[before].optional) { "Cannot put argument after optional argument!" }
     }
 
     fun addOptionalArgument(name: String, argument: CommandArgument, suggestions: ((Player) -> Collection<String>)? = null) {
-        if(subcommands.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands at the same time!")
+        check(subcommands.isEmpty()) { "Command cannot have both arguments and subcommands at the same time!" }
+
         arguments[name] = CommandArgumentData(argument, true, expectedReturnValueType = argument.expectedType, suggestions = suggestions)
     }
 
@@ -81,7 +83,8 @@ class Command: Cloneable {
     fun build(): Command = this
 
     fun addSubcommand(name: String, builder: Command.() -> Unit) {
-        if(arguments.isNotEmpty()) throw IllegalStateException("Command cannot have both arguments and subcommands at the same time!")
+        check(arguments.isEmpty()) { "Command cannot have both arguments and subcommands at the same time!" }
+
         val sanitizedName = name.lowercase().removePrefix("/")
         val subcommand = Command()
         builder.invoke(subcommand)
@@ -110,14 +113,14 @@ data class CommandExecutor(
 ) {
 
     fun getPlayerOrThrow(): Player {
-        if(player == null) throw CommandException("Command was not executed by player")
+        if (player == null) throw CommandException("Command was not executed by player")
         return player
     }
 
     fun sendMessage(message: String, isSystem: Boolean = false) {
-        if(this.isPlayer) this.player!!.sendMessage(message, isSystem) else this.console.sendMessage(message)
+        if (this.isPlayer) this.player!!.sendMessage(message, isSystem) else this.console.sendMessage(message)
     }
 
     fun hasPermission(permission: String): Boolean =
-        if(this.isPlayer) this.player!!.hasPermission(permission) else true
+        if (this.isPlayer) this.player!!.hasPermission(permission) else true
 }

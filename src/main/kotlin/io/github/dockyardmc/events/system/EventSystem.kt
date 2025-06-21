@@ -95,8 +95,7 @@ abstract class EventSystem : Disposable {
      * @throws IllegalStateException if the child is already registered to another parent
      */
     open fun addChild(child: EventSystem) {
-        if (child.parent != null && child.parent != this)
-            throw IllegalStateException("$child is already registered to parent ${child.parent}.")
+        require(child.parent == null || child.parent == this) { "$child is already registered to parent ${child.parent}." }
 
         synchronized(children) {
             children += child

@@ -39,7 +39,7 @@ data class ItemStack(
     constructor(material: Item, components: Set<DataComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
 
     init {
-        if (amount <= 0) throw IllegalArgumentException("ItemStack amount cannot be less than 1")
+        require(amount >= 1) { "ItemStack amount cannot be less than 1" }
     }
 
     companion object {

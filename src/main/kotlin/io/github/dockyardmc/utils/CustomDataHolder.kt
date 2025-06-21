@@ -14,14 +14,16 @@ class CustomDataHolder {
     inline fun <reified T> getOrNull(key: String): T? {
         if (!dataStore.containsKey(key)) return null
         val value = dataStore[key]
-        if (value !is T) throw IllegalArgumentException("Value for key $key is not of type ${T::class.simpleName}")
+        require(value is T) { "Value for key $key is not of type ${T::class.simpleName}" }
         return value
     }
 
     inline operator fun <reified T> get(key: String): T? {
-        if (!dataStore.containsKey(key)) throw IllegalArgumentException("Value for key $key not found in data holder")
+        require(dataStore.containsKey(key)) { "Value for key $key not found in data holder" }
+
         val value = dataStore[key]
-        if (value !is T) throw IllegalArgumentException("Value for key $key is not of type ${T::class.simpleName}")
+        require(value is T) { "Value for key $key is not of type ${T::class.simpleName}" }
+
         return value
     }
 
