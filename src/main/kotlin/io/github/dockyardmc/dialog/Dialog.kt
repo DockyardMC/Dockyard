@@ -5,6 +5,8 @@ import io.github.dockyardmc.dialog.body.DialogBody
 import io.github.dockyardmc.dialog.body.DialogItemBody
 import io.github.dockyardmc.dialog.body.PlainMessage
 import io.github.dockyardmc.dialog.input.*
+import io.github.dockyardmc.events.DialogCustomClickActionEvent
+import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.player.Player
@@ -115,10 +117,10 @@ sealed class Dialog : NbtWritable {
     }
 }
 
-fun Player.showDialog(dialog: DialogEntry) {
+fun Player.openDialog(dialog: DialogEntry) {
     sendPacket(ClientboundShowDialogPacket(dialog))
 }
 
-fun Player.clearDialog() {
+fun Player.closeDialog() {
     sendPacket(ClientboundClearDialogPacket())
 }

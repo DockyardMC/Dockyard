@@ -5,8 +5,14 @@ import io.github.dockyardmc.dialog.action.CommandTemplateDialogAction
 import io.github.dockyardmc.dialog.action.CustomDialogAction
 import io.github.dockyardmc.dialog.action.DialogAction
 import io.github.dockyardmc.dialog.action.StaticDialogAction
+import io.github.dockyardmc.events.DialogCustomClickActionEvent
+import io.github.dockyardmc.events.Events
+import io.github.dockyardmc.extentions.broadcastMessage
+import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.scroll.ClickEvent
+import io.github.dockyardmc.utils.debug
 import net.kyori.adventure.nbt.CompoundBinaryTag
+import java.util.*
 
 class DialogButton(
     override val label: String,
@@ -14,6 +20,7 @@ class DialogButton(
     override val width: Int,
     val action: DialogAction?,
 ) : AbstractDialogButton() {
+
     init {
         if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
     }
@@ -29,6 +36,7 @@ class DialogButton(
     @DialogDsl
     class Builder(label: String) : AbstractDialogButton.Builder(label) {
         var action: DialogAction? = null
+        private val callbacks: MutableMap<String, (Player, CompoundBinaryTag) -> Unit> = mutableMapOf()
 
         /**
          * @see CommandTemplateDialogAction
@@ -42,6 +50,17 @@ class DialogButton(
          */
         fun withCustomClickAction(id: String, additions: CompoundBinaryTag? = null) {
             action = CustomDialogAction(id, additions)
+        }
+
+        fun onClick(callback: (DialogCustomClickActionEvent) -> Unit) {
+            val id = "dockyard:${UUID.randomUUID()}"
+            action = CustomDialogAction(id, null)
+
+            Events.on<DialogCustomClickActionEvent> { event ->
+                debug("recieved $event", true)
+                if (event.id != id) return@on
+                callback.invoke(event)
+            }
         }
 
         /**

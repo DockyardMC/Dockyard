@@ -1,6 +1,6 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
-import io.github.dockyardmc.events.CustomClickActionEvent
+import io.github.dockyardmc.events.DialogCustomClickActionEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.readNBTCompound
 import io.github.dockyardmc.extentions.readString
@@ -17,15 +17,15 @@ open class ServerboundCustomClickActionPacket(val id: String, val payload: Compo
 
     companion object : NetworkReadable<ServerboundCustomClickActionPacket> {
         override fun read(buffer: ByteBuf): ServerboundCustomClickActionPacket {
-            val packet =  ServerboundCustomClickActionPacket(
+            val packet = ServerboundCustomClickActionPacket(
                 buffer.readString(),
-                buffer.readOptional { it.readNBTCompound() }
+                buffer.readOptional(ByteBuf::readNBTCompound)
             )
             return packet
         }
     }
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        Events.dispatch(CustomClickActionEvent(processor.player, this.id, this.payload, getPlayerEventContext(processor.player)))
+        Events.dispatch(DialogCustomClickActionEvent(processor.player, this.id, this.payload ?: CompoundBinaryTag.empty(), getPlayerEventContext(processor.player)))
     }
 }
