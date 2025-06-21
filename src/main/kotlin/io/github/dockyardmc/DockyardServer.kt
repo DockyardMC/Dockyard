@@ -80,7 +80,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 RegistryManager.register(BlockTagRegistry)
                 RegistryManager.register(EntityTypeTagRegistry)
                 RegistryManager.register(FluidTagRegistry)
-                RegistryManager.register(ItemTagRegistry)
                 RegistryManager.register(BiomeTagRegistry)
 
                 RegistryManager.register(DialogTypeRegistry)

@@ -29,19 +29,25 @@ object RegistryManager {
         FrogVariantRegistry::class to "registry/frog_variant.json.gz",
         ChickenVariantRegistry::class to "registry/chicken_variant.json.gz",
         PotionTypeRegistry::class to "registry/potion_type_registry.json.gz",
-    )
+        BannerPatternRegistry::class to "registry/banner_patterns.json.gz",
+        DamageTypeRegistry::class to "registry/damage_type_registry.json.gz",
+        JukeboxSongRegistry::class to "registry/jukebox_song_registry.json.gz",
+        TrimMaterialRegistry::class to "registry/trim_material_registry.json.gz",
+        TrimPatternRegistry::class to "registry/trim_pattern_registry.json.gz",
+        PaintingVariantRegistry::class to "registry/painting_variant_registry.json.gz",
+        PotionEffectRegistry::class to "registry/potion_effect_registry.json.gz",
+        )
 
-    val dynamicRegistries: MutableMap<String, Registry> = mutableMapOf()
-    val registries = mutableListOf<Registry>()
+    val dynamicRegistries: MutableMap<String, Registry<*>> = mutableMapOf()
+    val registries = mutableListOf<Registry<*>>()
 
-    fun register(registry: Registry) {
+    fun register(registry: Registry<*>) {
         registries.add(registry)
-        if (registry is DataDrivenRegistry) {
+        if (registry is DataDrivenRegistry<*>) {
             val resource = ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]) ?: throw IllegalStateException("No resource file path for registry ${registry.identifier}")
             registry.initialize(resource.openStream())
         }
         if (registry is DynamicRegistry) {
-            registry.register()
             registry.updateCache()
         }
 
@@ -56,7 +62,7 @@ object RegistryManager {
         return ClassLoader.getSystemResource(path).openStream()
     }
 
-    fun <T : Registry> getFromIdentifier(identifier: String): T {
+    fun <T : Registry<*>> getFromIdentifier(identifier: String): T {
         return (dynamicRegistries[identifier] ?: throw NoSuchElementException("Registry with identifier $identifier was not found!")) as T
     }
 }

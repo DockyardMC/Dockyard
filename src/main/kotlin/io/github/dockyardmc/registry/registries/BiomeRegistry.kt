@@ -1,86 +1,16 @@
 package io.github.dockyardmc.registry.registries
 
-import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.NbtWritable
-import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DataDrivenRegistry
-import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
-import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.sounds.CustomSoundEvent
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
 import net.kyori.adventure.nbt.BinaryTagTypes
 import net.kyori.adventure.nbt.CompoundBinaryTag
-import java.io.InputStream
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.zip.GZIPInputStream
 
-object BiomeRegistry : DataDrivenRegistry, DynamicRegistry {
-
+object BiomeRegistry : DataDrivenRegistry<Biome>() {
     override val identifier: String = "minecraft:worldgen/biome"
-
-    val biomes: MutableMap<String, Biome> = mutableMapOf()
-    val protocolIds: MutableMap<String, Int> = mutableMapOf()
-    private val protocolIdCounter = AtomicInteger()
-
-    lateinit var packet: ClientboundRegistryDataPacket
-
-    override fun getMaxProtocolId(): Int {
-        return protocolIdCounter.get()
-    }
-
-    override fun getCachedPacket(): ClientboundRegistryDataPacket {
-        if (!::packet.isInitialized) updateCache()
-        return packet
-    }
-
-    override fun updateCache() {
-        packet = ClientboundRegistryDataPacket(this)
-    }
-
-    override fun register() {}
-
-    fun addEntry(entry: Biome, updateCache: Boolean = true) {
-        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
-        biomes[entry.identifier] = entry
-        if (updateCache) updateCache()
-    }
-
-    fun addEntries(vararg entries: Biome) {
-        addEntries(entries.toList())
-    }
-
-    fun addEntries(entries: Collection<Biome>) {
-        entries.forEach { addEntry(it, false) }
-        updateCache()
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    override fun initialize(inputStream: InputStream) {
-        val stream = GZIPInputStream(inputStream)
-        val list = Json.decodeFromStream<List<Biome>>(stream)
-        addEntries(list)
-    }
-
-    override fun get(identifier: String): Biome {
-        return biomes[identifier] ?: throw RegistryException(identifier, getMap().size)
-    }
-
-    override fun getOrNull(identifier: String): Biome? {
-        return biomes[identifier]
-    }
-
-    override fun getByProtocolId(id: Int): Biome {
-        return biomes.values.toList().getOrNull(id) ?: throw RegistryException(identifier, this.getMap().size)
-    }
-
-    override fun getMap(): Map<String, Biome> {
-        return biomes
-    }
 }
 
 @Serializable
@@ -196,7 +126,7 @@ data class Biome(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return BiomeRegistry.protocolIds.getOrThrow(identifier)
+        return BiomeRegistry.getProtocolEntries().getByValue(this)
     }
 
     override fun getEntryIdentifier(): String {

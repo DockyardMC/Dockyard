@@ -73,7 +73,7 @@ data class Block(
 
     companion object {
 
-        val AIR = Block(BlockRegistry.Air)
+        val AIR = Block(BlockRegistry.AIR)
         val STONE = Block(Blocks.STONE)
 
         fun parseBlockStateString(string: String): Pair<String, Map<String, String>> {
