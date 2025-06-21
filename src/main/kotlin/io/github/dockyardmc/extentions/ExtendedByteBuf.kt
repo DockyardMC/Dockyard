@@ -147,10 +147,12 @@ fun ByteBuf.writeVarLong(long: Long): ByteBuf {
     while (true) {
         if (modLong and -0x80L == 0L) {
             this.writeByte(modLong.toInt())
+            break
         }
         this.writeByte((modLong and 0x7FL).toInt() or 0x80)
         modLong = modLong ushr 7
     }
+    return this
 }
 
 fun ByteBuf.readVarLong(): Long {
