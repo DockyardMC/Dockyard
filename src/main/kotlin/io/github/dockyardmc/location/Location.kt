@@ -115,7 +115,7 @@ data class Location(
 
     fun withLookAt(location: Location): Location {
         if (location == this) return this
-        val delta: Vector3d = (this.toVector3d() - this.toVector3d()).normalized()
+        val delta: Vector3d = (location.toVector3d() - this.toVector3d()).normalized()
         return withRotation(
             LocationUtils.getRotationYaw(delta.x, delta.z),
             LocationUtils.getRotationPitch(delta.x, delta.y, delta.z),
