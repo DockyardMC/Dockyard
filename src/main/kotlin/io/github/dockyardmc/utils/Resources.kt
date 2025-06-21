@@ -3,13 +3,14 @@ package io.github.dockyardmc.utils
 import io.github.dockyardmc.DockyardServer.Companion.versionInfo
 import io.github.dockyardmc.registry.registries.MinecraftVersion
 import java.io.InputStream
+import java.net.URL
 
 object Resources {
 
-    fun getFile(path: String): String = ClassLoader.getSystemResource(path).readText()
+    fun getFile(path: String): URL = ClassLoader.getSystemResource(path) ?: throw IllegalStateException("File with that path does not exist in resources!")
 
     @Deprecated("please use getFile()", ReplaceWith("getFile(path)", "io.github.dockyardmc.utils.Resources.getFile"))
-    fun getText(path: String): String = getFile(path)
+    fun getText(path: String): String = getFile(path).readText()
 
     fun getStream(path: String): InputStream = object {}.javaClass.getResourceAsStream(path)!!
 

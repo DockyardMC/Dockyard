@@ -39,7 +39,6 @@ bin/
 log
 dockyard.toml
 map.schem
-test.schem
 changelog.md
 .profileconfig.json
 /spark/
