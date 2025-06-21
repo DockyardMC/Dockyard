@@ -2,7 +2,6 @@ package io.github.dockyardmc.effects
 
 import io.github.dockyardmc.attributes.AttributeOperation
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.Attributes
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.registries.PotionEffect

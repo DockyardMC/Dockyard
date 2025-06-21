@@ -10,6 +10,7 @@ import io.netty.buffer.ByteBuf
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.serializer
 import net.kyori.adventure.nbt.BinaryTag
 import java.io.InputStream
 import java.util.zip.GZIPInputStream
@@ -17,11 +18,11 @@ import java.util.zip.GZIPInputStream
 abstract class Registry<T : RegistryEntry> {
 
     abstract val identifier: String
-    private var counter: Int = 0
+    protected var counter: Int = 0
     protected val protocolEntries: MutableBiMap<Int, T> = MutableBiMap()
     protected val entries: MutableBiMap<String, T> = MutableBiMap()
 
-    fun addEntry(entry: T) {
+    open fun addEntry(entry: T) {
         val id = counter++
         protocolEntries.put(id, entry)
         entries.put(entry.getEntryIdentifier(), entry)
@@ -59,6 +60,7 @@ abstract class Registry<T : RegistryEntry> {
 abstract class DynamicRegistry<T : RegistryEntry> : Registry<T>() {
     protected lateinit var cachedPacket: ClientboundRegistryDataPacket
 
+    @JvmName("getCachedPacketMethod")
     fun getCachedPacket(): ClientboundRegistryDataPacket {
         return cachedPacket
     }
@@ -69,10 +71,12 @@ abstract class DynamicRegistry<T : RegistryEntry> : Registry<T>() {
 @OptIn(ExperimentalSerializationApi::class)
 abstract class DataDrivenRegistry<T : RegistryEntry> : Registry<T>() {
 
-    fun initialize(inputStream: InputStream) {
+    inline fun <reified D: RegistryEntry> initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
-        val list = Json.decodeFromStream<List<T>>(stream)
-        list.forEach(::addEntry)
+        val list = Json.decodeFromStream<List<D>>(stream)
+        list.forEach { entry ->
+            addEntry(entry as T)
+        }
     }
 }
 

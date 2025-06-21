@@ -14,7 +14,17 @@ object BlockRegistry : DataDrivenRegistry<RegistryBlock>() {
 
     override val identifier: String = "minecraft:block"
     val AIR get() = BlockRegistry["minecraft:air"]
+    val blockStates = Int2ObjectOpenHashMap<Block>()
 
+    override fun addEntry(entry: RegistryBlock) {
+        super.addEntry(entry)
+
+        if (entry.states.isEmpty()) return
+        entry.possibleStates.forEach { (state, id) ->
+            val block = Block.getBlockFromStateStringFast(state, entry)
+            blockStates.put(id, block)
+        }
+    }
 }
 
 @Serializable

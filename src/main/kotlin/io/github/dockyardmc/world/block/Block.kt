@@ -74,7 +74,7 @@ data class Block(
     companion object {
 
         val AIR = Block(BlockRegistry.AIR)
-        val STONE = Block(Blocks.STONE)
+        val STONE = Block(BlockRegistry["minecraft:stone"])
 
         fun parseBlockStateString(string: String): Pair<String, Map<String, String>> {
             val index = string.indexOf('[')
@@ -95,7 +95,7 @@ data class Block(
             if (stateId == 0) return AIR
             if (stateId == 1) return STONE
 
-            val blockState = BlockRegistry.protocolIdToBlockStates.getOrDefault(stateId, null)
+            val blockState = BlockRegistry.blockStates.get(stateId)
             if (blockState != null) {
                 return blockState
             }
@@ -107,7 +107,7 @@ data class Block(
                 return Block(registryBlock, parsed)
             }
 
-            for (block in BlockRegistry.protocolIdToBlock) {
+            for (block in BlockRegistry.getProtocolEntries().keyToValue()) {
                 val cachedState = block.value.possibleStatesReversed
                 if (cachedState.isEmpty()) continue
                 if (!cachedState.containsKey(stateId)) continue
@@ -121,6 +121,11 @@ data class Block(
         fun getBlockFromStateString(identifier: String): Block {
             val blockIdentifier = identifier.split("[")[0]
             val block = BlockRegistry[blockIdentifier]
+            val id = block.possibleStates[identifier] ?: throw IllegalArgumentException("No matching state sequence found on ${block.identifier}")
+            return getBlockByStateId(id)
+        }
+
+        fun getBlockFromStateStringFast(identifier: String, block: RegistryBlock): Block {
             val id = block.possibleStates[identifier] ?: throw IllegalArgumentException("No matching state sequence found on ${block.identifier}")
             return getBlockByStateId(id)
         }

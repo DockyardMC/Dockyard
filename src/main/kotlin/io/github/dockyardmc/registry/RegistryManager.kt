@@ -2,6 +2,7 @@ package io.github.dockyardmc.registry
 
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.registry.registries.tags.*
+import io.github.dockyardmc.utils.debug
 import java.io.InputStream
 import kotlin.reflect.KClass
 
@@ -29,7 +30,7 @@ object RegistryManager {
         FrogVariantRegistry::class to "registry/frog_variant.json.gz",
         ChickenVariantRegistry::class to "registry/chicken_variant.json.gz",
         PotionTypeRegistry::class to "registry/potion_type_registry.json.gz",
-        BannerPatternRegistry::class to "registry/banner_patterns.json.gz",
+        BannerPatternRegistry::class to "registry/banner_pattern_registry.json.gz",
         DamageTypeRegistry::class to "registry/damage_type_registry.json.gz",
         JukeboxSongRegistry::class to "registry/jukebox_song_registry.json.gz",
         TrimMaterialRegistry::class to "registry/trim_material_registry.json.gz",
@@ -41,11 +42,12 @@ object RegistryManager {
     val dynamicRegistries: MutableMap<String, Registry<*>> = mutableMapOf()
     val registries = mutableListOf<Registry<*>>()
 
-    fun register(registry: Registry<*>) {
+    inline fun <reified T: RegistryEntry> register(registry: Registry<*>) {
+        debug("Loading ${registry::class.simpleName}..")
         registries.add(registry)
         if (registry is DataDrivenRegistry<*>) {
             val resource = ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]) ?: throw IllegalStateException("No resource file path for registry ${registry.identifier}")
-            registry.initialize(resource.openStream())
+            registry.initialize<T>(resource.openStream())
         }
         if (registry is DynamicRegistry) {
             registry.updateCache()

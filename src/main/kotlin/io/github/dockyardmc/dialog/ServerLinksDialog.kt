@@ -57,8 +57,7 @@ class ServerLinksDialog(
 }
 
 fun createServerLinksDialog(id: String, block: @DialogDsl ServerLinksDialog.Builder.() -> Unit): DialogEntry {
-    return DialogRegistry.addEntry(
-        id,
-        ServerLinksDialog.Builder().apply(block).build()
-    )
+    val entry = DialogEntry(id, ServerLinksDialog.Builder().apply(block).build())
+    DialogRegistry.addEntry(entry)
+    return entry
 }

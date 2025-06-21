@@ -1,6 +1,5 @@
 package io.github.dockyardmc
 
-import io.github.dockyardmc.utils.InstrumentationUtils
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.config.Config
@@ -13,6 +12,7 @@ import io.github.dockyardmc.implementations.commands.DefaultCommands
 import io.github.dockyardmc.npc.NpcCommand
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.NetworkCompression
+import io.github.dockyardmc.protocol.packets.configurations.Tag
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
 import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.github.dockyardmc.registry.MinecraftVersions
@@ -24,6 +24,7 @@ import io.github.dockyardmc.server.NettyServer
 import io.github.dockyardmc.server.PlayerKeepAliveTimer
 import io.github.dockyardmc.server.ServerTickManager
 import io.github.dockyardmc.spark.SparkDockyardIntegration
+import io.github.dockyardmc.utils.InstrumentationUtils
 import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.utils.UpdateChecker
 import io.github.dockyardmc.world.WorldManager
@@ -50,43 +51,43 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
                 SoundRegistry.initialize(RegistryManager.getStreamFromPath("registry/sound_registry.json.gz"))
 
-                RegistryManager.register(AttributeRegistry)
-                RegistryManager.register(BlockRegistry)
-                RegistryManager.register(EntityTypeRegistry)
-                RegistryManager.register(DimensionTypeRegistry)
-                RegistryManager.register(BannerPatternRegistry)
-                RegistryManager.register(DamageTypeRegistry)
-                RegistryManager.register(JukeboxSongRegistry)
-                RegistryManager.register(TrimMaterialRegistry)
-                RegistryManager.register(TrimPatternRegistry)
-                RegistryManager.register(ChatTypeRegistry)
-                RegistryManager.register(ParticleRegistry)
-                RegistryManager.register(PaintingVariantRegistry)
-                RegistryManager.register(PotionEffectRegistry)
-                RegistryManager.register(BiomeRegistry)
-                RegistryManager.register(ItemRegistry)
-                RegistryManager.register(FluidRegistry)
-                RegistryManager.register(PotionTypeRegistry)
+                RegistryManager.register<Attribute>(AttributeRegistry)
+                RegistryManager.register<RegistryBlock>(BlockRegistry)
+                RegistryManager.register<EntityType>(EntityTypeRegistry)
+                RegistryManager.register<DimensionType>(DimensionTypeRegistry)
+                RegistryManager.register<BannerPattern>(BannerPatternRegistry)
+                RegistryManager.register<DamageType>(DamageTypeRegistry)
+                RegistryManager.register<JukeboxSong>(JukeboxSongRegistry)
+                RegistryManager.register<TrimMaterial>(TrimMaterialRegistry)
+                RegistryManager.register<TrimPattern>(TrimPatternRegistry)
+                RegistryManager.register<ChatType>(ChatTypeRegistry)
+                RegistryManager.register<Particle>(ParticleRegistry)
+                RegistryManager.register<PaintingVariant>(PaintingVariantRegistry)
+                RegistryManager.register<PotionEffect>(PotionEffectRegistry)
+                RegistryManager.register<Biome>(BiomeRegistry)
+                RegistryManager.register<Item>(ItemRegistry)
+                RegistryManager.register<Fluid>(FluidRegistry)
+                RegistryManager.register<PotionType>(PotionTypeRegistry)
 
-                RegistryManager.register(WolfVariantRegistry)
-                RegistryManager.register(WolfSoundVariantRegistry)
-                RegistryManager.register(CatVariantRegistry)
-                RegistryManager.register(CowVariantRegistry)
-                RegistryManager.register(PigVariantRegistry)
-                RegistryManager.register(FrogVariantRegistry)
-                RegistryManager.register(ChickenVariantRegistry)
+                RegistryManager.register<WolfVariant>(WolfVariantRegistry)
+                RegistryManager.register<WolfSoundVariant>(WolfSoundVariantRegistry)
+                RegistryManager.register<CatVariant>(CatVariantRegistry)
+                RegistryManager.register<CowVariant>(CowVariantRegistry)
+                RegistryManager.register<PigVariant>(PigVariantRegistry)
+                RegistryManager.register<FrogVariant>(FrogVariantRegistry)
+                RegistryManager.register<ChickenVariant>(ChickenVariantRegistry)
 
-                RegistryManager.register(ItemTagRegistry)
-                RegistryManager.register(BlockTagRegistry)
-                RegistryManager.register(EntityTypeTagRegistry)
-                RegistryManager.register(FluidTagRegistry)
-                RegistryManager.register(BiomeTagRegistry)
+                RegistryManager.register<Tag>(ItemTagRegistry)
+                RegistryManager.register<Tag>(BlockTagRegistry)
+                RegistryManager.register<Tag>(EntityTypeTagRegistry)
+                RegistryManager.register<Tag>(FluidTagRegistry)
+                RegistryManager.register<Tag>(BiomeTagRegistry)
 
-                RegistryManager.register(DialogTypeRegistry)
-                RegistryManager.register(DialogBodyTypeRegistry)
-                RegistryManager.register(DialogRegistry)
-                RegistryManager.register(DialogInputTypeRegistry)
-                RegistryManager.register(DialogActionTypeRegistry)
+                RegistryManager.register<DialogType>(DialogTypeRegistry)
+                RegistryManager.register<DialogBodyType>(DialogBodyTypeRegistry)
+                RegistryManager.register<DialogEntry>(DialogRegistry)
+                RegistryManager.register<DialogInputType>(DialogInputTypeRegistry)
+                RegistryManager.register<DialogActionType>(DialogActionTypeRegistry)
             }
 
             profiler("Default Implementations") {

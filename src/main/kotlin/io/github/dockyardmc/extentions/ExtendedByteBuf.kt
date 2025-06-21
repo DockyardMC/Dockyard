@@ -2,13 +2,13 @@ package io.github.dockyardmc.extentions
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.effects.AppliedPotionEffect
+import io.github.dockyardmc.effects.AppliedPotionEffectSettings
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.positiveCeilDiv
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.maths.vectors.Vector3f
-import io.github.dockyardmc.registry.AppliedPotionEffect
-import io.github.dockyardmc.registry.AppliedPotionEffectSettings
 import io.github.dockyardmc.registry.Registry
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.registries.*
@@ -27,7 +27,6 @@ import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
-import java.time.Instant
 import java.util.*
 import kotlin.experimental.inv
 
@@ -247,7 +246,7 @@ fun ByteBuf.readString(i: Int): String {
     return string
 }
 
-fun <T : RegistryEntry> ByteBuf.readRegistryEntry(registry: Registry): T {
+fun <T : RegistryEntry> ByteBuf.readRegistryEntry(registry: Registry<*>): T {
     return registry.getByProtocolId(this.readVarInt()) as T
 }
 

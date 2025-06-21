@@ -21,7 +21,7 @@ class ClientboundUpdateTagsPacket(val registries: List<TagRegistry>) : Clientbou
         buffer.writeVarInt(registries.size)
         registries.forEach { registry ->
             buffer.writeString(registry.identifier)
-            buffer.writeList<Tag>(registry.tags.values.toList()) { buffer, tag -> tag.write(buffer) }
+            buffer.writeList<Tag>(registry.getEntries().keyToValue().values.toList()) { buffer, tag -> tag.write(buffer) }
         }
     }
 }
@@ -50,11 +50,11 @@ data class Tag(
     }
 
     override fun write(buffer: ByteBuf) {
-        val registry = RegistryManager.getFromIdentifier<Registry>(registryIdentifier)
+        val registry = RegistryManager.getFromIdentifier<Registry<*>>(registryIdentifier)
         buffer.writeString(identifier)
         val intTags = tags.map { tag ->
             val entry = registry[tag]
-            if(registry is BlockRegistry) (entry as RegistryBlock).getLegacyProtocolId() else entry.getProtocolId()
+            if (registry is BlockRegistry) (entry as RegistryBlock).getLegacyProtocolId() else entry.getProtocolId()
         }
         buffer.writeList(intTags, ByteBuf::writeVarInt)
     }

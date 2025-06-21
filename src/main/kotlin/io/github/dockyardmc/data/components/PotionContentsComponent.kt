@@ -3,12 +3,12 @@ package io.github.dockyardmc.data.components
 import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.HashHolder
+import io.github.dockyardmc.effects.AppliedPotionEffect
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.protocol.writeOptional
-import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.registries.PotionType
 import io.github.dockyardmc.registry.registries.PotionTypeRegistry
 import io.github.dockyardmc.scroll.CustomColor
