@@ -27,7 +27,7 @@ class MultiActionDialog(
     override val type: DialogType = DialogTypes.MULTI_ACTION
 
     init {
-        if (actions.isEmpty()) throw IllegalArgumentException("actions can't be empty")
+        require(actions.isNotEmpty()) { "actions can't be empty" }
     }
 
     override fun getNbt(): CompoundBinaryTag {

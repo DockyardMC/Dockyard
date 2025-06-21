@@ -150,16 +150,14 @@ internal class FlexiblePalette @JvmOverloads constructor(// Specific to this pal
     override fun dimension(): Int = adaptivePalette.dimension()
 
     override fun clone(): SpecializedPalette {
-        return try {
-            val palette = super.clone() as FlexiblePalette
-            palette.values = values.clone()
-            palette.paletteToValueList = paletteToValueList.clone()
-            palette.valueToPaletteMap = valueToPaletteMap.clone()
-            palette.count = count
-            palette
-        } catch (e: CloneNotSupportedException) {
-            throw IllegalStateException("Weird thing happened")
-        }
+        val palette = super.clone() as FlexiblePalette
+
+        palette.values = values.clone()
+        palette.paletteToValueList = paletteToValueList.clone()
+        palette.valueToPaletteMap = valueToPaletteMap.clone()
+        palette.count = count
+
+        return palette
     }
 
     private fun retrieveAll(consumer: EntryConsumer, consumeEmpty: Boolean) {

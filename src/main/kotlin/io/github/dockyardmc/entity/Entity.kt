@@ -116,9 +116,8 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         )
 
         team.valueChanged { event ->
-            if (event.newValue != null && !TeamManager.teams.values.containsKey(event.newValue!!.name)) throw IllegalArgumentException(
-                "Team ${event.newValue!!.name} is not registered!"
-            )
+            require(event.newValue == null || TeamManager.teams.values.containsKey(event.newValue!!.name)) { "Team ${event.newValue!!.name} is not registered!" }
+
             event.oldValue?.entities?.remove(this)
             event.newValue?.entities?.add(this)
         }

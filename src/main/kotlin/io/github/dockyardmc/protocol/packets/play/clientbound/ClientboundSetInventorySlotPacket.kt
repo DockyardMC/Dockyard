@@ -7,7 +7,8 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 class ClientboundSetInventorySlotPacket(slot: Int, itemStack: ItemStack) : ClientboundPacket() {
 
     init {
-        if (slot < 0) throw IllegalArgumentException("Slot cannot be negative")
+        require(slot >= 0) { "Slot cannot be negative" }
+
         buffer.writeVarInt(slot)
         itemStack.write(buffer)
     }

@@ -72,12 +72,8 @@ class ItemStackMeta {
     }
 
     fun withProfile(username: String? = null, uuid: UUID? = null, profile: ProfileProperty? = null) {
-        if (material != Items.PLAYER_HEAD) {
-            throw IllegalArgumentException("Item must be a player head")
-        }
-        if (username == null && uuid == null && profile == null) {
-            throw IllegalArgumentException("At least one of the parameters must be set")
-        }
+        require(material == Items.PLAYER_HEAD) { "Item must be a player head" }
+        require(username != null || uuid != null || profile != null) { "At least one of the parameters must be set" }
 
         components = components.set(
             if (profile == null) {

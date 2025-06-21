@@ -83,7 +83,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     val customDataBlocks: MutableMap<Int, Block> = mutableMapOf()
 
     init {
-        if (name.hasUpperCase()) throw IllegalArgumentException("World name cannot contain uppercase characters")
+        require(!name.hasUpperCase()) { "World name cannot contain uppercase characters" }
 
         scheduler.syncWithGlobalScheduler()
         scheduler.runRepeating(1.ticks) {
@@ -346,7 +346,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit): CompletableFuture<World> {
-        if (!isLoaded.value) throw IllegalStateException("World has not been fully loaded yet! Please use World#schedule or wait until world is fully loaded")
+        check(isLoaded.value) { "World has not been fully loaded yet! Please use World#schedule or wait until world is fully loaded" }
         val update = BatchBlockUpdate(this)
         builder.invoke(update)
         val future = CompletableFuture<World>()

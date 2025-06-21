@@ -9,7 +9,6 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.utils.getEntityEventContext
-import io.github.dockyardmc.maths.isBetween
 
 abstract class EntityInventory(val entity: Entity, val size: Int) {
     val slots: BindableMap<Int, ItemStack> = BindableMap()
@@ -17,9 +16,13 @@ abstract class EntityInventory(val entity: Entity, val size: Int) {
     abstract fun getWindowId(): Byte
 
     open operator fun set(slot: Int, item: ItemStack) {
-        var newItem: ItemStack = item
-        if (!isBetween(slot, 0, size)) throw IllegalArgumentException("Inventory does not have slot $slot")
-        if (item.amount == 0 && item.material != Items.AIR) newItem = ItemStack.AIR
+        require(slot in 0..size) { "Inventory does not have slot $slot" }
+
+        val newItem: ItemStack = if (item.amount == 0 && item.material != Items.AIR) {
+            ItemStack.AIR
+        } else {
+            item
+        }
 
         val oldItem = slots[slot] ?: ItemStack.AIR
 

@@ -59,7 +59,7 @@ class Advancement(
     private val eventPool = EventPool()
 
     init {
-        if (icon.material == Items.AIR) throw IllegalArgumentException("advancement icon can't be air")
+        require(icon.material != Items.AIR) { "advancement icon can't be air" }
 
         parent?.innerChildren?.let {
             synchronized(it) {

@@ -20,8 +20,8 @@ class TextDialogInput(
     override val type: DialogInputType = DialogInputTypes.TEXT
 
     init {
-        if (maxLength < 0) throw IllegalArgumentException("maxLength must be positive")
-        if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
+        require(maxLength > 0) { "maxLength must be positive" }
+        require(width in 1..1024) { "width must be between 1 and 1024 (inclusive)" }
     }
 
     override fun getNbt(): CompoundBinaryTag {
@@ -40,10 +40,10 @@ class TextDialogInput(
     ) : NbtWritable {
         init {
             maxLines?.let {
-                if (it < 0) throw IllegalArgumentException("maxLines must be positive")
+                require(it > 0) { "maxLines must be positive" }
             }
             height?.let {
-                if (it < 0) throw IllegalArgumentException("height must be positive")
+                require(it > 0) { "height must be positive" }
             }
         }
 

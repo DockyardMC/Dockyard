@@ -21,7 +21,7 @@ class EntityMetadataHandler(override val entity: Entity) : EntityHandler {
     }
 
     operator fun set(key: EntityMetadataType, value: EntityMetadata) {
-        if (key != value.type) throw IllegalStateException("Not matching type")
+        require(key == value.type) { "Not matching type" }
 
         synchronized(metadata) {
             metadata[key] = value

@@ -22,8 +22,8 @@ data class DialogItemBody(
     override val type: DialogBodyType = DialogBodyTypes.ITEM
 
     init {
-        if (width < 1 || width > 256) throw IllegalArgumentException("width must be between 1 and 256 (inclusive)")
-        if (height < 1 || height > 256) throw IllegalArgumentException("height must be between 1 and 256 (inclusive)")
+        require(width in 1..256) { "width must be between 1 and 256 (inclusive)" }
+        require(height in 1..256) { "height must be between 1 and 256 (inclusive)" }
     }
 
     override fun getNbt(): CompoundBinaryTag {
@@ -47,9 +47,9 @@ data class DialogItemBody(
         var width: Int = 16
         var height: Int = 16
 
-        fun withDescription(content: String, block: (PlainMessage.Builder.() -> Unit)? = null) {
+        inline fun withDescription(content: String, block: PlainMessage.Builder.() -> Unit = {}) {
             val builder = PlainMessage.Builder(content)
-            block?.let { builder.apply(it) }
+            builder.apply(block)
             description = builder.build()
         }
 

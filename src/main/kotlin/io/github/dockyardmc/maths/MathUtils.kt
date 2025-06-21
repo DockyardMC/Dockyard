@@ -82,7 +82,8 @@ fun percentOf(percent: Float, max: Double): Double = percent * max
 fun positiveCeilDiv(i: Int, j: Int): Int = -Math.floorDiv(-i, j)
 
 fun bitsToRepresent(n: Int): Int {
-    if (n < 1) throw Exception("n must be greater than 0")
+    require(n > 0) { "n must be greater than 0" }
+
     return Integer.SIZE - Integer.numberOfLeadingZeros(n)
 }
 
@@ -113,7 +114,8 @@ fun lerp(a: Double, b: Double, t: Float): Double {
 }
 
 fun locationLerp(from: Location, to: Location, t: Float): Location {
-    if(from.world != to.world) throw IllegalStateException("Two provided locations are not in the same world")
+    require(from.world == to.world) { "Two provided locations are not in the same world" }
+
     val x = lerp(from.x, to.x, t)
     val y = lerp(from.y, to.y, t)
     val z = lerp(from.z, to.z, t)

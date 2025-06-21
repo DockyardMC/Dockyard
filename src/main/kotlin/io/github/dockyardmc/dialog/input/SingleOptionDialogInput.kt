@@ -20,8 +20,8 @@ class SingleOptionDialogInput(
     override val type: DialogInputType = DialogInputTypes.SINGLE_OPTION
 
     init {
-        if (options.isEmpty()) throw IllegalArgumentException("options can't be empty")
-        if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
+        require(options.isNotEmpty()) { "options can't be empty" }
+        require(width in 1..1024) { "width must be between 1 and 1024 (inclusive)" }
     }
 
     override fun getNbt(): CompoundBinaryTag {
@@ -64,7 +64,7 @@ class SingleOptionDialogInput(
         var width: Int = 200
         var labelVisible: Boolean = true
 
-        fun addOption(id: String, block: Option.Builder.() -> Unit) {
+        inline fun addOption(id: String, block: Option.Builder.() -> Unit) {
             options.add(Option.Builder(id).apply(block).build())
         }
 

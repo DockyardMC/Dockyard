@@ -19,7 +19,7 @@ class DialogButton(
 ) : AbstractDialogButton() {
 
     init {
-        if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
+        require(width in 1..1024) { "width must be between 1 and 1024 (inclusive)" }
     }
 
     override fun getNbt(): CompoundBinaryTag {
@@ -54,7 +54,7 @@ class DialogButton(
          * @param callback [DialogCustomClickActionEvent]
          * @receiver
          */
-        fun onClick(callback: (DialogCustomClickActionEvent) -> Unit) {
+        inline fun onClick(crossinline callback: (DialogCustomClickActionEvent) -> Unit) {
             val id = "dockyard:${UUID.randomUUID()}"
             action = CustomDialogAction(id, null)
 

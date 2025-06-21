@@ -2,7 +2,6 @@ package io.github.dockyardmc.scheduler
 
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ServerTickEvent
-import java.lang.IllegalStateException
 
 object SchedulerManager {
 
@@ -10,7 +9,8 @@ object SchedulerManager {
     val list get() = innerList.toList()
 
     fun registerGlobal(scheduler: GlobalScheduler) {
-        if(innerList.contains(scheduler)) throw IllegalStateException("That schedules is already registered")
+        require(!innerList.contains(scheduler)) { "That schedules is already registered" }
+
         innerList.add(scheduler)
     }
 

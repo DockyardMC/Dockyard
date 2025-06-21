@@ -18,10 +18,8 @@ class NumberRangeDialogInput(
     override val type: DialogInputType = DialogInputTypes.NUMBER_RANGE
 
     init {
-        step?.let {
-            if (it < 0) throw IllegalArgumentException("step must be positive")
-        }
-        if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
+        require(step == null || step > 0) { "step must be positive" }
+        require(width in 1..1024) { "width must be between 1 and 1024 (inclusive)" }
     }
 
     override fun getNbt(): CompoundBinaryTag {

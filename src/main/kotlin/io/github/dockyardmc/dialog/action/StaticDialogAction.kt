@@ -19,9 +19,7 @@ class StaticDialogAction(
     override val type: DialogActionType = DialogActionTypeRegistry[clickEvent.action]
 
     init {
-        if (clickEvent is ClickEvent.OpenFile) {
-            throw IllegalArgumentException("open_file is not allowed from a server")
-        }
+        require(clickEvent !is ClickEvent.OpenFile) { "open_file is not allowed from a server" }
     }
 
     override fun getNbt(): CompoundBinaryTag {

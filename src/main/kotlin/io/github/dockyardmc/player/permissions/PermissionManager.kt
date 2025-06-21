@@ -16,11 +16,11 @@ object PermissionManager {
         val builder = PermissionGroup.Builder()
         group.invoke(builder)
 
-        if (builder.id == null) throw IllegalArgumentException("Id of a permissions group cannot be empty")
-        val lowercaseId = builder.id!!.lowercase()
+        val lowercaseId = requireNotNull(builder.id) { "Id of a permissions group cannot be empty" }
+            .lowercase()
 
-        if (lowercaseId.contains(".")) throw IllegalArgumentException("Permissions group ids cannot contain dots")
-        if (groups.containsKey(lowercaseId)) throw IllegalArgumentException("Permission group with the id of $lowercaseId already exists")
+        require(!lowercaseId.contains(".")) { "Permissions group ids cannot contain dots" }
+        require(!groups.containsKey(lowercaseId)) { "Permission group with the id of $lowercaseId already exists" }
 
         builder.id = lowercaseId
         val newGroup = PermissionGroup(lowercaseId, builder.permissions)
