@@ -22,6 +22,7 @@ import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import kotlin.math.ceil
+import kotlin.random.Random
 
 class ServerboundClickContainerPacket(
     var windowId: Int,
@@ -454,7 +455,7 @@ class ServerboundClickContainerPacket(
         player.inventory[clickedSlot] = item
 
         val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
-        player.playSound(sound, pitch = randomFloat(1.0f, 1.2f))
+        player.playSound(sound, pitch = Random.randomFloat(1.0f, 1.2f))
     }
 
     private fun unequip(player: Player, equipmentSlot: EquipmentSlot, component: EquippableComponent?) {
@@ -462,7 +463,7 @@ class ServerboundClickContainerPacket(
         player.inventory[player.inventory.getSlotId(equipmentSlot, player.heldSlotIndex.value)] = ItemStack.AIR
 
         val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
-        player.playSound(sound, pitch = randomFloat(0.6f, 0.8f))
+        player.playSound(sound, pitch = Random.randomFloat(0.6f, 0.8f))
     }
 
     private fun getDrawableClick(mode: ContainerClickMode): DrawableItemStack.ClickType {

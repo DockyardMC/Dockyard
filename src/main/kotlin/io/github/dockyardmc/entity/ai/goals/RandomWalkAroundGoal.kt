@@ -3,10 +3,10 @@ package io.github.dockyardmc.entity.ai.goals
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.ai.AIGoal
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.maths.randomInt
 import io.github.dockyardmc.pathfinding.Navigator
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toPathPosition
 import io.github.dockyardmc.pathfinding.PathfindingHelper
+import kotlin.random.Random
 
 class RandomWalkAroundGoal(override var entity: Entity, override var priority: Int, val navigator: Navigator) : AIGoal() {
 
@@ -15,7 +15,7 @@ class RandomWalkAroundGoal(override var entity: Entity, override var priority: I
     var hasFinishedWalking = false
 
     override fun startCondition(): Boolean {
-        return randomInt(chancePerTick, 100) == chancePerTick
+        return Random.nextInt(chancePerTick, 100) == chancePerTick
     }
 
     override fun start() {
