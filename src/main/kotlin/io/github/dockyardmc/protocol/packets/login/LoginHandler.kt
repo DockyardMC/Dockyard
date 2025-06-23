@@ -72,9 +72,10 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
             return
         }
 
+        val player = PlayerManager.createNewPlayer(username, uuid, connection, networkManager)
+
         if (ConfigManager.config.useMojangAuth) {
             val crypto = EncryptionUtil.getNewPlayerCrypto()
-            val player = PlayerManager.createNewPlayer(username, uuid, connection, networkManager)
 
             player.crypto = crypto
 
@@ -83,7 +84,6 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
             val encryptionRequest = ClientboundEncryptionRequestPacket("", crypto.publicKey.encoded, crypto.verifyToken, true)
             connection.sendPacket(encryptionRequest, networkManager)
         } else {
-            val player = PlayerManager.createNewPlayer(username, uuid, connection, networkManager)
             startConfigurationPhase(player, connection)
         }
     }
