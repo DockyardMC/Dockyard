@@ -1,36 +1,29 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.extentions.writeNBT
-import io.github.dockyardmc.extentions.writeOptionalOLD
+import io.github.dockyardmc.extentions.addIfNotPresent
+import io.github.dockyardmc.extentions.writeByte
 import io.github.dockyardmc.extentions.writeUUID
-import io.github.dockyardmc.extentions.writeVarInt
-import io.github.dockyardmc.player.*
+import io.github.dockyardmc.player.PlayerInfoUpdate
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.protocol.types.rawList
+import io.github.dockyardmc.protocol.types.writeMap
+import io.netty.buffer.ByteBuf
+import java.util.*
 import kotlin.experimental.or
 
-class ClientboundPlayerInfoUpdatePacket(vararg updates: PlayerInfoUpdate) : ClientboundPacket() {
+data class ClientboundPlayerInfoUpdatePacket(val actions: Map<UUID, List<PlayerInfoUpdate>>) : ClientboundPacket() {
 
     init {
-        //TODO Figure out why this wont send with multiple update actions
-        var bitMask: Byte = 0
-        updates.forEach { bitMask = bitMask or it.action.bitMask }
-
-        buffer.writeByte(bitMask.toInt())
-        buffer.writeVarInt(1)
-        buffer.writeUUID(updates[0].uuid)
-        updates.forEach {
-            when (val updateAction = it.action) {
-                is AddPlayerInfoUpdateAction -> buffer.writeProfileProperties(updateAction.profileProperty)
-                is UpdateGamemodeInfoUpdateAction -> buffer.writeVarInt(updateAction.gameMode.ordinal)
-                is SetListedInfoUpdateAction -> buffer.writeBoolean(updateAction.listed)
-                is UpdateLatencyInfoUpdateAction -> buffer.writeVarInt(updateAction.ping)
-                is SetDisplayNameInfoUpdateAction -> {
-                    buffer.writeOptionalOLD(updateAction.displayName) { optional ->
-                        optional.writeNBT(updateAction.displayName!!.toComponent().toNBT())
-                    }
-                }
+        val typesPresent: MutableSet<PlayerInfoUpdate.Type> = mutableSetOf()
+        actions.forEach { (_, updates) ->
+            updates.forEach { update ->
+                typesPresent.addIfNotPresent(update.type)
             }
         }
+        var bitMask: Byte = 0
+        typesPresent.sortedBy { it.ordinal }.forEach { type -> bitMask = bitMask or type.mask.toByte() }
+
+        buffer.writeByte(bitMask)
+        buffer.writeMap(actions, ByteBuf::writeUUID) { buf, value -> buf.rawList(value, PlayerInfoUpdate::write) }
     }
 }

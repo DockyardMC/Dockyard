@@ -39,3 +39,9 @@ fun <T> ByteBuf.writeList(list: Collection<T>, kFunction2: KFunction2<T, ByteBuf
         kFunction2.invoke(value, this)
     }
 }
+
+fun <T> ByteBuf.rawList(list: Collection<T>, kFunction2: KFunction2<T, ByteBuf, Unit>) {
+    list.forEach { value ->
+        kFunction2.invoke(value, this)
+    }
+}

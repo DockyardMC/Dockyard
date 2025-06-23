@@ -13,6 +13,7 @@ import io.github.dockyardmc.implementations.commands.DefaultCommands
 import io.github.dockyardmc.npc.NpcCommand
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.NetworkCompression
+import io.github.dockyardmc.protocol.cryptography.EncryptionUtil
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
 import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.github.dockyardmc.registry.MinecraftVersions

@@ -15,6 +15,13 @@ fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, writ
     }
 }
 
+fun <K, V> ByteBuf.writeRawMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, writeValue: (ByteBuf, V) -> Unit) {
+    map.forEach { (key, value) ->
+        writeKey.invoke(this, key)
+        writeValue.invoke(this, value)
+    }
+}
+
 @JvmName("writeMap2")
 fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, ByteBuf>, writeValue: KFunction2<V, ByteBuf, Unit>) {
     this.writeVarInt(map.size)

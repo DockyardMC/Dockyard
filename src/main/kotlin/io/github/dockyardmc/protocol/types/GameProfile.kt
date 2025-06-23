@@ -9,9 +9,10 @@ import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.writeOptional
 import io.netty.buffer.ByteBuf
+import kotlinx.serialization.Serializable
 import java.util.*
 
-data class GameProfile(val uuid: UUID, val username: String, val properties: List<Property> = listOf()) : NetworkWritable {
+data class GameProfile(val uuid: UUID, val username: String, val properties: MutableList<Property> = mutableListOf()) : NetworkWritable {
 
     override fun write(buffer: ByteBuf) {
         buffer.writeUUID(uuid)
@@ -21,7 +22,7 @@ data class GameProfile(val uuid: UUID, val username: String, val properties: Lis
 
     companion object : NetworkReadable<GameProfile> {
         override fun read(buffer: ByteBuf): GameProfile {
-            return GameProfile(buffer.readUUID(), buffer.readString(), buffer.readList(Property::read))
+            return GameProfile(buffer.readUUID(), buffer.readString(), buffer.readList(Property::read).toMutableList())
         }
     }
 
@@ -30,6 +31,7 @@ data class GameProfile(val uuid: UUID, val username: String, val properties: Lis
         require(username.length <= 16) { "Username cannot be more than 16 characters" }
     }
 
+    @Serializable
     data class Property(val name: String, val value: String, val signature: String? = null) : NetworkWritable {
 
         companion object : NetworkReadable<Property> {

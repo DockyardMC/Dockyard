@@ -9,6 +9,7 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.utils.MojangUtil
@@ -31,13 +32,13 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     val username: Bindable<String> = Bindable(username)
     val isListed: Bindable<Boolean> = Bindable(false)
 
-    val profile: Bindable<ProfilePropertyMap?> = Bindable(null)
+    val profile: Bindable<GameProfile?> = Bindable(null)
 
     init {
 
         isListed.valueChanged {
-            val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
-            viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
+//            val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
+//            viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
         }
 
         displayedSkinParts.listUpdated {
@@ -50,18 +51,18 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
         }
 
         profile.valueChanged {
-            val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
-            val addPlayerUpdate =
-                if (it.newValue != null) PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(it.newValue!!)) else null
+//            val setListedUpdate = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
+//            val addPlayerUpdate =
+//                if (it.newValue != null) PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(it.newValue!!)) else null
 
             viewers.sendPacket(ClientboundEntityRemovePacket(this))
             viewers.sendPacket(ClientboundPlayerInfoRemovePacket(uuid))
-            if (addPlayerUpdate != null) viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
+//            if (addPlayerUpdate != null) viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(addPlayerUpdate))
 
             viewers.sendPacket(
                 ClientboundSpawnEntityPacket(id, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
             )
-            viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
+//            viewers.sendPacket(ClientboundPlayerInfoUpdatePacket(setListedUpdate))
 
             displayedSkinParts.triggerUpdate()
             equipment.triggerUpdate()
@@ -78,11 +79,11 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     override fun addViewer(player: Player): Boolean {
         if (!super.addViewer(player)) return false
 
-        val profileMap = if (profile.value == null) ProfilePropertyMap(username.value, mutableListOf()) else profile.value!!
-        val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(profileMap))
-        val listedPacket = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(listedPacket))
+        val profileMap = if (profile.value == null) GameProfile(uuid, username.value, mutableListOf()) else profile.value!!
+//        val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(profileMap))
+//        val listedPacket = PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))
+//        player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
+//        player.sendPacket(ClientboundPlayerInfoUpdatePacket(listedPacket))
 
 
         sendMetadataPacket(player)
@@ -102,7 +103,7 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
     fun setSkin(uuid: UUID) {
         world.scheduler.runAsync {
             val skin = MojangUtil.getSkinFromUUID(uuid)
-            profile.value = ProfilePropertyMap(username.value, mutableListOf(skin))
+            profile.value = GameProfile(uuid, username.value, mutableListOf(skin))
         }
     }
 
