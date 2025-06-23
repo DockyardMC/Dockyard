@@ -6,7 +6,6 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.ChannelHandlers
 import io.github.dockyardmc.protocol.NetworkCompression
@@ -27,8 +26,8 @@ import io.github.dockyardmc.utils.MojangUtil
 import io.github.dockyardmc.utils.isValidMinecraftUsername
 import io.netty.channel.ChannelHandlerContext
 import java.math.BigInteger
+import java.nio.charset.StandardCharsets
 import java.util.*
-import java.util.concurrent.CompletableFuture
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
@@ -42,7 +41,12 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         const val ERROR_INVALID_PROXY_RESPONSE = "Invalid proxy response!"
         const val ERROR_VERIFY_TOKEN_DOES_NOT_MATCH = "Your encryption verify token does not match!"
         const val INVALID_BUNGEECORD_FORWARDING = "Invalid connection, please connect through the BungeeCord proxy. If you believe this is an error, contact a server administrator."
+
+        val uuidRegex = "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})".toRegex()
     }
+
+    private val crypto = EncryptionUtil.getNewPlayerCrypto()
+    private var packetUsername: String? = null
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
 
@@ -88,49 +92,36 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
     }
 
     fun handleLoginStart(packet: ServerboundLoginStartPacket, connection: ChannelHandlerContext) {
-        val username = packet.name
-        val uuid = packet.uuid
-
-        if (PlayerManager.getPlayerByUsernameOrNull(username) != null) {
-            networkManager.kick(ERROR_ALREADY_CONNECTED, connection)
-            return
-        }
-
-        if (PlayerManager.getPlayerByUUIDOrNull(uuid) != null) {
-            networkManager.kick(ERROR_ALREADY_CONNECTED, connection)
-            return
-        }
-
-        if (!isValidMinecraftUsername(username)) {
+        if (!isValidMinecraftUsername(packet.name)) {
             networkManager.kick(ERROR_INVALID_USERNAME, connection)
             return
         }
 
-        val player = PlayerManager.createNewPlayer(username, uuid, connection, networkManager)
+        packetUsername = packet.name
 
         if (ConfigManager.config.useMojangAuth) {
-            val crypto = EncryptionUtil.getNewPlayerCrypto()
-
-            player.crypto = crypto
-
-            CompletableFuture.runAsync { MojangUtil.getSkinFromUUID(uuid) }
-
-            val encryptionRequest = ClientboundEncryptionRequestPacket("", crypto.publicKey.encoded, crypto.verifyToken, true)
-            connection.sendPacket(encryptionRequest, networkManager)
+            connection.sendPacket(
+                ClientboundEncryptionRequestPacket(
+                    "",
+                    crypto.publicKey.encoded,
+                    crypto.verifyToken,
+                    true
+                ),
+                networkManager
+            )
         } else {
+            val uuid = UUID.nameUUIDFromBytes("OfflinePlayer:${packet.name}".toByteArray(StandardCharsets.UTF_8));
+
             val gameProfile: GameProfile = if (LegacyBungeeCordProxySupport.enabled) {
-                GameProfile(packet.uuid, packet.name)
+                GameProfile(uuid, packet.name)
             } else {
-                GameProfile(packet.uuid, packet.name)
+                GameProfile(uuid, packet.name)
             }
-            startConfigurationPhase(player, connection, gameProfile)
+            startConfigurationPhase(connection, gameProfile)
         }
     }
 
     fun handleEncryptionResponse(packet: ServerboundEncryptionResponsePacket, connection: ChannelHandlerContext) {
-
-        val crypto = networkManager.player.crypto!!
-
         val cipher = Cipher.getInstance("RSA")
         cipher.init(Cipher.DECRYPT_MODE, crypto.privateKey)
 
@@ -146,44 +137,53 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         val sharedSecretKey = SecretKeySpec(sharedSecret, "AES")
         val digestedData = EncryptionUtil.digestData("", EncryptionUtil.keyPair.public, sharedSecretKey)
         if (digestedData == null) {
-            log("Failed to initialize encryption for ${networkManager.player}", LogType.ERROR)
+            log("Failed to initialize encryption for $packetUsername", LogType.ERROR)
             networkManager.kick(ERROR_VERIFY_TOKEN_DOES_NOT_MATCH, connection)
             return
         }
 
         val serverId = BigInteger(digestedData).toString(16)
-        try {
-            val profileResponse = MojangUtil.authenticateSession(networkManager.player.username, serverId)
-            val uuid = UUID.fromString(profileResponse.id.replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})".toRegex(), "$1-$2-$3-$4-$5"))
+        val username = checkNotNull(packetUsername) { "Player name is not initialized" }
+
+        val profile = try {
+            val profileResponse = MojangUtil.authenticateSession(username, serverId)
+
+            val uuid = UUID.fromString(profileResponse.id.replaceFirst(uuidRegex, "$1-$2-$3-$4-$5"))
             val name = profileResponse.name
             val properties = profileResponse.properties.toMutableList()
 
-            crypto.sharedSecret = sharedSecretKey
-            crypto.isConnectionEncrypted = true
-            networkManager.encryptionEnabled = true
-
-            val pipeline = connection.channel().pipeline()
-            pipeline.addBefore(ChannelHandlers.PACKET_LENGTH_DECODER, ChannelHandlers.PACKET_DECRYPTOR, PacketDecryptionHandler(crypto))
-            pipeline.addBefore(ChannelHandlers.PACKET_LENGTH_ENCODER, ChannelHandlers.PACKET_ENCRYPTOR, PacketEncryptionHandler(crypto))
-
-            val player = networkManager.player
-            val profile = GameProfile(uuid, name, properties)
-            startConfigurationPhase(player, connection, profile)
+            GameProfile(uuid, name, properties)
         } catch (ex: Exception) {
             log(ex)
             networkManager.kick(ERROR_SESSION_SERVERS, connection)
             return
         }
+
+        crypto.sharedSecret = sharedSecretKey
+        crypto.isConnectionEncrypted = true
+        networkManager.encryptionEnabled = true
+
+        connection.channel().pipeline()
+            .addBefore(ChannelHandlers.PACKET_LENGTH_DECODER, ChannelHandlers.PACKET_DECRYPTOR, PacketDecryptionHandler(crypto))
+            .addBefore(ChannelHandlers.PACKET_LENGTH_ENCODER, ChannelHandlers.PACKET_ENCRYPTOR, PacketEncryptionHandler(crypto))
+
+        startConfigurationPhase(connection, profile)
     }
 
     fun handleLoginAcknowledge(packet: ServerboundLoginAcknowledgedPacket, connection: ChannelHandlerContext) {
         networkManager.state = ProtocolState.CONFIGURATION
     }
 
-    fun startConfigurationPhase(player: Player, connection: ChannelHandlerContext, gameProfile: GameProfile) {
-
+    fun startConfigurationPhase(connection: ChannelHandlerContext, gameProfile: GameProfile) {
         Thread.startVirtualThread {
+            if (PlayerManager.getPlayerByUUIDOrNull(gameProfile.uuid) != null) {
+                networkManager.kick(ERROR_ALREADY_CONNECTED, connection)
+                return@startVirtualThread
+            }
+
+            val player = PlayerManager.createNewPlayer(gameProfile.username, gameProfile.uuid, connection, networkManager)
             player.gameProfile = gameProfile
+
             player.sendPacket(ClientboundSetCompressionPacket(NetworkCompression.compressionThreshold))
 
             if (NetworkCompression.compressionThreshold > -1) {
