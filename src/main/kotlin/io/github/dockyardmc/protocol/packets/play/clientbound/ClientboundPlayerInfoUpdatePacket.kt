@@ -1,29 +1,36 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.extentions.addIfNotPresent
-import io.github.dockyardmc.extentions.writeByte
 import io.github.dockyardmc.extentions.writeUUID
 import io.github.dockyardmc.player.PlayerInfoUpdate
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.protocol.types.rawList
+import io.github.dockyardmc.protocol.types.writeRawList
 import io.github.dockyardmc.protocol.types.writeMap
 import io.netty.buffer.ByteBuf
 import java.util.*
-import kotlin.experimental.or
 
 data class ClientboundPlayerInfoUpdatePacket(val actions: Map<UUID, List<PlayerInfoUpdate>>) : ClientboundPacket() {
 
     init {
-        val typesPresent: MutableSet<PlayerInfoUpdate.Type> = mutableSetOf()
-        actions.forEach { (_, updates) ->
-            updates.forEach { update ->
-                typesPresent.addIfNotPresent(update.type)
+        // this is bitmask.
+        actions
+            .asIterable()
+            .map { action ->
+                action.value
+                    .fold(0) { mask, update ->
+                        mask or update.type.mask
+                    }
             }
-        }
-        var bitMask: Byte = 0
-        typesPresent.sortedBy { it.ordinal }.forEach { type -> bitMask = bitMask or type.mask.toByte() }
+            .reduce { l, r ->
+                require(l == r) { "mismatched update length. all lists need to have same type bit mask and length" }
+                l
+            }
+            .let(buffer::writeByte)
 
-        buffer.writeByte(bitMask)
-        buffer.writeMap(actions, ByteBuf::writeUUID) { buf, value -> buf.rawList(value, PlayerInfoUpdate::write) }
+        buffer.writeMap(actions, ByteBuf::writeUUID) { buf, value ->
+            buf.writeRawList(
+                value.sortedBy { it.type.ordinal },
+                PlayerInfoUpdate::write
+            )
+        }
     }
 }
