@@ -6,24 +6,25 @@ import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.utils.BiMap
 import io.github.dockyardmc.utils.MutableBiMap
+import io.github.dockyardmc.utils.debug
 import io.netty.buffer.ByteBuf
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.serializer
 import net.kyori.adventure.nbt.BinaryTag
 import java.io.InputStream
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
 
 abstract class Registry<T : RegistryEntry> {
 
     abstract val identifier: String
-    protected var counter: Int = 0
+    protected var counter: AtomicInteger = AtomicInteger()
     protected val protocolEntries: MutableBiMap<Int, T> = MutableBiMap()
     protected val entries: MutableBiMap<String, T> = MutableBiMap()
 
     open fun addEntry(entry: T) {
-        val id = counter++
+        val id = counter.getAndIncrement()
         protocolEntries.put(id, entry)
         entries.put(entry.getEntryIdentifier(), entry)
     }
@@ -71,7 +72,7 @@ abstract class DynamicRegistry<T : RegistryEntry> : Registry<T>() {
 @OptIn(ExperimentalSerializationApi::class)
 abstract class DataDrivenRegistry<T : RegistryEntry> : Registry<T>() {
 
-    inline fun <reified D: RegistryEntry> initialize(inputStream: InputStream) {
+    inline fun <reified D : RegistryEntry> initialize(inputStream: InputStream) {
         val stream = GZIPInputStream(inputStream)
         val list = Json.decodeFromStream<List<D>>(stream)
         list.forEach { entry ->

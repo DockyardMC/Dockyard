@@ -1,8 +1,8 @@
 package io.github.dockyardmc.registry
 
+import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.registry.registries.tags.*
-import io.github.dockyardmc.utils.debug
 import java.io.InputStream
 import kotlin.reflect.KClass
 
@@ -37,23 +37,24 @@ object RegistryManager {
         TrimPatternRegistry::class to "registry/trim_pattern_registry.json.gz",
         PaintingVariantRegistry::class to "registry/painting_variant_registry.json.gz",
         PotionEffectRegistry::class to "registry/potion_effect_registry.json.gz",
-        )
+    )
 
     val dynamicRegistries: MutableMap<String, Registry<*>> = mutableMapOf()
     val registries = mutableListOf<Registry<*>>()
 
-    inline fun <reified T: RegistryEntry> register(registry: Registry<*>) {
-        debug("Loading ${registry::class.simpleName}..")
-        registries.add(registry)
-        if (registry is DataDrivenRegistry<*>) {
-            val resource = ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]) ?: throw IllegalStateException("No resource file path for registry ${registry.identifier}")
-            registry.initialize<T>(resource.openStream())
-        }
-        if (registry is DynamicRegistry) {
-            registry.updateCache()
-        }
+    inline fun <reified T : RegistryEntry> register(registry: Registry<*>) {
+        profiler("Load ${registry::class.simpleName}") {
+            registries.add(registry)
+            if (registry is DataDrivenRegistry<*>) {
+                val resource = ClassLoader.getSystemResource(dataDrivenRegisterSources[registry::class]) ?: throw IllegalStateException("No resource file path for registry ${registry.identifier}")
+                registry.initialize<T>(resource.openStream())
+            }
+            if (registry is DynamicRegistry) {
+                registry.updateCache()
+            }
 
-        if (registry !is TagRegistry) dynamicRegistries[registry.identifier] = registry
+            if (registry !is TagRegistry) dynamicRegistries[registry.identifier] = registry
+        }
     }
 
     fun getStreamForClass(registry: KClass<*>): InputStream {

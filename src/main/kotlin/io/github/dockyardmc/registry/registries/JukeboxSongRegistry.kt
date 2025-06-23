@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
@@ -29,9 +30,7 @@ data class JukeboxSong(
     override fun getNbt(): CompoundBinaryTag {
         return nbt {
             withInt("comparator_output", comparatorOutput)
-            withCompound("description") {
-                withCompound("translate", description.toNBT())
-            }
+            withCompound("description", description.toNBT())
             withFloat("length_in_seconds", lengthInSeconds)
             withString("sound_event", sound)
         }
