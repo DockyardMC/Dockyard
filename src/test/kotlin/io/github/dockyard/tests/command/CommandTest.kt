@@ -5,7 +5,7 @@ import io.github.dockyardmc.player.Player
 
 abstract class CommandTest {
 
-    fun run(command: String, assert: (Player) -> Unit) {
+    inline fun run(command: String, assert: (Player) -> Unit) {
         PlayerTestUtil.getOrCreateFakePlayer().runCommand(command)
         assert.invoke(PlayerTestUtil.getOrCreateFakePlayer())
     }

@@ -117,7 +117,7 @@ data class ItemStack(
         return ItemStackMeta.fromItemStack(this).apply { withAmount(amount) }.toItemStack()
     }
 
-    fun withAmount(amount: (Int) -> Int): ItemStack {
+    inline fun withAmount(amount: (Int) -> Int): ItemStack {
         return withAmount(amount.invoke(this.amount))
     }
 
@@ -129,7 +129,7 @@ data class ItemStack(
         return ItemStackMeta.fromItemStack(this).apply { withLore(lore) }.toItemStack()
     }
 
-    fun withMeta(builder: ItemStackMeta.() -> Unit): ItemStack {
+    inline fun withMeta(builder: ItemStackMeta.() -> Unit): ItemStack {
         val meta = ItemStackMeta.fromItemStack(this)
         meta.apply(builder)
         return meta.toItemStack()

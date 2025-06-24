@@ -99,7 +99,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         }
     }
 
-    fun schedule(unit: (World) -> Unit) {
+    inline fun schedule(crossinline unit: (World) -> Unit) {
         if (isLoaded.value) {
             unit.invoke(this)
         } else {

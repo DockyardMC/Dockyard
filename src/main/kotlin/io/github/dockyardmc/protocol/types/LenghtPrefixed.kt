@@ -4,7 +4,7 @@ import io.github.dockyardmc.extentions.readVarInt
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
 
-fun <T> ByteBuf.readLengthPrefixed(maxLength: Int, reader: (ByteBuf) -> T): T {
+inline fun <T> ByteBuf.readLengthPrefixed(maxLength: Int, reader: (ByteBuf) -> T): T {
     val length = this.readVarInt()
 
     if(length > maxLength) throw DecoderException("Value is too long (length: ${length}, max: ${maxLength})")

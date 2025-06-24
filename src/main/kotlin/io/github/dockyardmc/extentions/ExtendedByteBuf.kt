@@ -33,7 +33,7 @@ import kotlin.experimental.inv
 private const val SEGMENT_BITS: Byte = 0x7F
 private const val CONTINUE_BIT = 0x80
 
-fun ByteBuf.writeOptionalOLD(item: Any?, unit: (ByteBuf) -> Unit) {
+inline fun ByteBuf.writeOptionalOLD(item: Any?, unit: (ByteBuf) -> Unit) {
     val isPresent = item != null
     this.writeBoolean(isPresent)
     if (isPresent) {
@@ -41,7 +41,7 @@ fun ByteBuf.writeOptionalOLD(item: Any?, unit: (ByteBuf) -> Unit) {
     }
 }
 
-fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
+inline fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
     val list = mutableListOf<T>()
     val size = this.readVarInt()
     for (i in 0 until size) {
@@ -102,7 +102,7 @@ fun ByteBuf.writeVarIntArray(array: List<Int>) {
 }
 
 object Buffer {
-    fun makeArray(writer: (ByteBuf) -> Unit): ByteArray {
+    inline fun makeArray(writer: (ByteBuf) -> Unit): ByteArray {
         val tempBuffer = Unpooled.buffer()
         writer.invoke(tempBuffer)
         return tempBuffer.array()

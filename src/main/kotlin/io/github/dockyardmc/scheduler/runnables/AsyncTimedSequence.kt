@@ -6,8 +6,7 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 
-fun timedSequenceAsync(unit: (AsyncTimedSequence) -> Unit) {
-
+inline fun timedSequenceAsync(crossinline unit: (AsyncTimedSequence) -> Unit) {
     val runnable = DockyardServer.scheduler.runAsync {
         unit.invoke(AsyncTimedSequence())
     }

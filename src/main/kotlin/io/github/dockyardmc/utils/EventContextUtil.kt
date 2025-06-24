@@ -42,12 +42,12 @@ fun getWorldEventContext(world: World): Event.Context {
     )
 }
 
-fun Event.Context.fistPlayerConditionOrFalse(condition: (Player) -> Boolean): Boolean {
+inline fun Event.Context.fistPlayerConditionOrFalse(condition: (Player) -> Boolean): Boolean {
     val player = players.firstOrNull() ?: return false
     return condition.invoke(player)
 }
 
-fun Event.Context.firstWorldCondition(condition: (World) -> Boolean): Boolean {
+inline fun Event.Context.firstWorldCondition(condition: (World) -> Boolean): Boolean {
     val world = worlds.firstOrNull() ?: return false
     return condition.invoke(world)
 }
