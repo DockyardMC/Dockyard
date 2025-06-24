@@ -21,7 +21,7 @@ class ClientboundUpdateTagsPacket(val registries: List<TagRegistry>) : Clientbou
         buffer.writeVarInt(registries.size)
         registries.forEach { registry ->
             buffer.writeString(registry.identifier)
-            buffer.writeList<Tag>(registry.getEntries().keyToValue().values.toList()) { buffer, tag -> tag.write(buffer) }
+            buffer.writeList<Tag>(registry.getEntries().keyToValue().values.toList()) { buffer: ByteBuf, tag -> tag.write(buffer) }
         }
     }
 }

@@ -1,13 +1,10 @@
 package io.github.dockyardmc.protocol.types
 
-
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.netty.buffer.ByteBuf
-import kotlin.reflect.KFunction2
 
-
-fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
+inline fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
     val list = mutableListOf<T>()
     val size = this.readVarInt()
     for (i in 0 until size) {
@@ -17,26 +14,18 @@ fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
 }
 
 @JvmName("writeList1")
-fun <T> ByteBuf.writeList(list: Collection<T>, kFunction2: (ByteBuf, T) -> Any) {
+inline fun <T> ByteBuf.writeList(list: Collection<T>, writer: (ByteBuf, T) -> Unit) {
     this.writeVarInt(list.size)
     list.forEach { value ->
-        kFunction2.invoke(this, value)
-    }
-}
-
-@JvmName("writeList2")
-fun <T> ByteBuf.writeList(list: Collection<T>, kFunction2: KFunction2<ByteBuf, T, Unit>) {
-    this.writeVarInt(list.size)
-    list.forEach { value ->
-        kFunction2.invoke(this, value)
+        writer.invoke(this, value)
     }
 }
 
 @JvmName("writeList3")
-fun <T> ByteBuf.writeList(list: Collection<T>, kFunction2: KFunction2<T, ByteBuf, Unit>) {
+inline fun <T> ByteBuf.writeList(list: Collection<T>, writer: (T, ByteBuf) -> Unit) {
     this.writeVarInt(list.size)
     list.forEach { value ->
-        kFunction2.invoke(value, this)
+        writer.invoke(value, this)
     }
 }
 
