@@ -47,11 +47,9 @@ class MultiActionDialog(
         var exitAction: DialogButton? = null
         var columns: Int = 2
 
-        fun addAction(label: String, block: (DialogButton.Builder.() -> Unit)? = null) {
+        inline fun addAction(label: String, block: DialogButton.Builder.() -> Unit = {}) {
             actions.add(
-                DialogButton.Builder(label).apply {
-                    block?.let { apply(it) }
-                }.build()
+                DialogButton.Builder(label).apply(block).build()
             )
         }
 
