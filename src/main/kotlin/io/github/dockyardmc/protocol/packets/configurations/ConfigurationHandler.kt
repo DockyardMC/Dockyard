@@ -90,18 +90,14 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
         processor.state = ProtocolState.PLAY
         processor.player.releaseMessagesQueue()
 
-        val event = PlayerSpawnEvent(player, WorldManager.getOrThrow("main"))
+        val event = PlayerSpawnEvent(player, WorldManager.mainWorld)
         Events.dispatch(event)
         val world = event.world
 
         processor.player.world = world
 
-        if (world.isLoaded.value) {
+        world.schedule {
             enterPlay(player, world)
-        } else {
-            world.isLoaded.valueChangedThenSelfDispose { value ->
-                if (value.newValue) enterPlay(player, world)
-            }
         }
     }
 

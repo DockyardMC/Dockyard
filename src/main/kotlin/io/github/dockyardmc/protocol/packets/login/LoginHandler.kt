@@ -4,7 +4,6 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.ChannelHandlers
@@ -19,7 +18,6 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
-import io.github.dockyardmc.protocol.proxy.LegacyBungeeCordProxySupport
 import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.registries.MinecraftVersionRegistry
 import io.github.dockyardmc.utils.MojangUtil
@@ -40,7 +38,6 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         const val ERROR_SESSION_SERVERS = "Failed to contact Mojang's Session Servers (Are they down?)"
         const val ERROR_INVALID_PROXY_RESPONSE = "Invalid proxy response!"
         const val ERROR_VERIFY_TOKEN_DOES_NOT_MATCH = "Your encryption verify token does not match!"
-        const val INVALID_BUNGEECORD_FORWARDING = "Invalid connection, please connect through the BungeeCord proxy. If you believe this is an error, contact a server administrator."
 
         val uuidRegex = "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})".toRegex()
     }
@@ -50,7 +47,6 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
 
-        var address = packet.serverAddress
         val playerVersion = MinecraftVersionRegistry.getOrNull(packet.version)?.versionName ?: "unknown"
         val requiredVersion = DockyardServer.minecraftVersion.protocolId
         if (packet.version != requiredVersion) {
@@ -61,33 +57,6 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         networkManager.playerProtocolVersion = packet.version
         if (packet.intent == ServerboundHandshakePacket.Intent.LOGIN) {
             networkManager.state = ProtocolState.LOGIN
-
-            if (LegacyBungeeCordProxySupport.enabled) {
-                val split = address.split("\u0000")
-
-                if (split.size == 3 || split.size == 4) {
-                    val hasProperties = split.size == 4
-                    if (LegacyBungeeCordProxySupport.isBungeeGuardEnabled() && !hasProperties) {
-                        networkManager.kick(INVALID_BUNGEECORD_FORWARDING, connection)
-                        return
-                    }
-
-                    address = split[0]
-                    val uuid = UUID.fromString(
-                        split[2].replaceFirst(
-                            "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)".toRegex(), "$1-$2-$3-$4-$5"
-                        )
-                    )
-
-                    val properties = mutableListOf<GameProfile.Property>()
-                    if (hasProperties) {
-                        val foundBungeeGuardToken = false
-                        val rawPropertyJson = split[3]
-                        broadcastMessage(rawPropertyJson)
-//                        val json = Json.decodeFromString<List<GameProfile.Property>>(rawPropertyJson)
-                    }
-                }
-            }
         }
     }
 
@@ -111,13 +80,7 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
             )
         } else {
             val uuid = UUID.nameUUIDFromBytes("OfflinePlayer:${packet.name}".toByteArray(StandardCharsets.UTF_8));
-
-            val gameProfile: GameProfile = if (LegacyBungeeCordProxySupport.enabled) {
-                GameProfile(uuid, packet.name)
-            } else {
-                GameProfile(uuid, packet.name)
-            }
-            startConfigurationPhase(connection, gameProfile)
+            startConfigurationPhase(connection, GameProfile(uuid, packet.name))
         }
     }
 
