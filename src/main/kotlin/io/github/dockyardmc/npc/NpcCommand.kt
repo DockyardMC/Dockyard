@@ -104,7 +104,7 @@ class NpcCommand {
                     val name = getArgument<String>("name")
 
                     val npc = npcs[id] ?: throw CommandException("Npc with id $id does not exist!")
-                    npc.setSkin(name)
+//                    npc.setSkin(name)
                     player.sendMessage("<lime>Set skin of npc <yellow>$id <lime>to <aqua>$name")
                 }
             }

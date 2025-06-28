@@ -386,6 +386,33 @@ class Player(
         }
     }
 
+    fun refreshGameProfileState() {
+        val currentLocation = this.location
+
+        val removeInfo = ClientboundPlayerInfoRemovePacket(this)
+        val entityRemovePacket = ClientboundEntityRemovePacket(this)
+        val spawnEntityPacket = ClientboundSpawnEntityPacket(this.id, this.uuid, this.type.getProtocolId(), this.location, this.location.yaw, 0, this.velocity)
+        val updates = mutableListOf(
+            PlayerInfoUpdate.AddPlayer(this.gameProfile),
+            PlayerInfoUpdate.UpdateListed(this.isListed.value),
+            PlayerInfoUpdate.UpdateDisplayName(this.customName.value),
+        )
+        val addPacket = ClientboundPlayerInfoUpdatePacket(mapOf(this.uuid to updates.toList()))
+
+        this.sendPacket(removeInfo)
+        this.sendPacket(entityRemovePacket)
+        this.sendPacket(addPacket)
+        this.respawn(false)
+
+        viewers.sendPacket(removeInfo)
+        viewers.sendPacket(entityRemovePacket)
+        viewers.sendPacket(addPacket)
+        viewers.sendPacket(spawnEntityPacket)
+
+        this.displayedSkinParts.triggerUpdate()
+        this.teleport(currentLocation)
+    }
+
     override fun teleport(location: Location) {
         if (!WorldManager.worlds.containsValue(location.world)) throw Exception("That world does not exist!")
         if (location.world != world) location.world.join(this, location)

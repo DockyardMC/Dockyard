@@ -90,7 +90,7 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
         sendEquipmentPacket(player)
         sendPotionEffectsPacket(player)
 
-        if (profile.value == null) setSkin(username.value)
+//        if (profile.value == null) setSkin(username.value)
         return true
     }
 
@@ -98,22 +98,5 @@ class PlayerNpc(location: Location, username: String) : NpcEntity(location) {
         val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this.uuid)
         player.sendPacket(playerRemovePacket)
         super.removeViewer(player)
-    }
-
-    fun setSkin(uuid: UUID) {
-        world.scheduler.runAsync {
-            val skin = MojangUtil.getSkinFromUUID(uuid)
-            profile.value = GameProfile(uuid, username.value, mutableListOf(skin))
-        }
-    }
-
-    fun setSkin(username: String) {
-        var uuid: UUID? = null
-        val asyncRunnable = world.scheduler.runAsync {
-            uuid = MojangUtil.getUUIDFromUsername(username)
-        }
-        asyncRunnable.thenAccept {
-            uuid?.let { setSkin(it) }
-        }
     }
 }

@@ -10,7 +10,7 @@ import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.ClientConfiguration
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerInfoUpdate
-import io.github.dockyardmc.player.setSkin
+//import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -155,6 +155,6 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
 
         world.join(player)
 
-        if (ConfigManager.config.useMojangAuth) player.setSkin(player.uuid)
+//        if (ConfigManager.config.useMojangAuth) player.setSkin(player.uuid)
     }
 }
