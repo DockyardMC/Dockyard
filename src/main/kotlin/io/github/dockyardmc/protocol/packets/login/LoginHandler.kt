@@ -4,6 +4,7 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.config.ConfigManager
+import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.ChannelHandlers
@@ -18,10 +19,13 @@ import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
+import io.github.dockyardmc.protocol.plugin.LoginPluginMessageHandler
+import io.github.dockyardmc.protocol.proxy.VelocityProxy
 import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.registries.MinecraftVersionRegistry
 import io.github.dockyardmc.utils.MojangUtil
 import io.github.dockyardmc.utils.isValidMinecraftUsername
+import io.netty.buffer.Unpooled
 import io.netty.channel.ChannelHandlerContext
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
@@ -38,6 +42,8 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         const val ERROR_SESSION_SERVERS = "Failed to contact Mojang's Session Servers (Are they down?)"
         const val ERROR_INVALID_PROXY_RESPONSE = "Invalid proxy response!"
         const val ERROR_VERIFY_TOKEN_DOES_NOT_MATCH = "Your encryption verify token does not match!"
+        const val ERROR_PROXY_VELOCITY_NULL_RESPONSE = "<yellow>Response from Velocity is null\n\n<gray>(are you connecting through a proxy?)\n(make sure to set your <#ededed>player-info-forwarding-mode<gray> to <#dbdbdb>\"modern\"<gray>)"
+        const val ERROR_PROXY_VELOCITY_INTEGRITY = "Failed Integrity check with Velocity"
 
         val uuidRegex = "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})".toRegex()
     }
@@ -68,6 +74,14 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
 
         packetUsername = packet.name
 
+        if (VelocityProxy.enabled) {
+            log("Requesting velocity game profile..", LogType.SECURITY)
+            networkManager.loginPluginMessageHandler.request(connection, VelocityProxy.PLAYER_INFO_CHANNEL, Unpooled.buffer()).thenAccept { response ->
+                handleVelocityResponse(response, connection)
+            }
+            return
+        }
+
         if (ConfigManager.config.useMojangAuth) {
             connection.sendPacket(
                 ClientboundEncryptionRequestPacket(
@@ -81,6 +95,31 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         } else {
             val uuid = UUID.nameUUIDFromBytes("OfflinePlayer:${packet.name}".toByteArray(StandardCharsets.UTF_8));
             startConfigurationPhase(connection, GameProfile(uuid, packet.name))
+        }
+    }
+
+    fun handleVelocityResponse(response: LoginPluginMessageHandler.Response, connection: ChannelHandlerContext) {
+        log("Received response from velocity", LogType.SECURITY)
+        try {
+            val buffer = response.responsePayload
+            if (buffer == null || buffer.readableBytes() == 0) {
+                networkManager.kick(ERROR_PROXY_VELOCITY_NULL_RESPONSE, connection)
+                return
+            }
+
+            val integrity = VelocityProxy.checkIntegrity(buffer)
+            if (!integrity) {
+                networkManager.kick(ERROR_PROXY_VELOCITY_INTEGRITY, connection)
+                return
+            }
+
+            val actualAddress = buffer.readString()
+            val gameProfile = GameProfile.read(buffer)
+            networkManager.address = actualAddress
+            startConfigurationPhase(connection, gameProfile)
+        } catch (exception: Exception) {
+            log("Error happened during authenticating with velocity proxy:", LogType.ERROR)
+            log(exception)
         }
     }
 
