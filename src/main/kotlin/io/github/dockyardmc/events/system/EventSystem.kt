@@ -3,12 +3,14 @@ package io.github.dockyardmc.events.system
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.events.EventListener
 import io.github.dockyardmc.utils.Disposable
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.util.*
 import kotlin.reflect.KClass
 
+@Suppress("UNCHECKED_CAST")
 abstract class EventSystem : Disposable {
-    val eventMap = mutableMapOf<KClass<out Event>, HandlerList>()
+    val eventMap = Object2ObjectOpenHashMap<KClass<out Event>, HandlerList>()
     var filter = EventFilter.empty()
 
     val children = ObjectOpenHashSet<EventSystem>()

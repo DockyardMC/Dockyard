@@ -3,6 +3,7 @@ package io.github.dockyardmc.schematics
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.scroll.extensions.contains
 import io.github.dockyardmc.world.block.Block
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.kyori.adventure.nbt.BinaryTagIO
 import net.kyori.adventure.nbt.CompoundBinaryTag
 import net.kyori.adventure.nbt.IntBinaryTag
@@ -11,7 +12,7 @@ import java.io.File
 
 object SchematicReader {
 
-    val READER = BinaryTagIO.reader(Long.MAX_VALUE)
+    val READER = BinaryTagIO.unlimitedReader()
 
     fun read(file: File): Schematic {
         if (!file.exists()) throw Exception("File $file does not exist!")
@@ -54,23 +55,20 @@ object SchematicReader {
             blockArray = nbt.getByteArray("BlockData")
         }
 
-        val blocks = mutableMapOf<Block, Int>()
+        val blocks = Object2IntOpenHashMap<Block>()
         pallet.forEach { entry ->
             val id = (entry.value as IntBinaryTag).value()
             val block = Block.getBlockFromStateString(entry.key)
             blocks[block] = id
         }
 
-
         val schematic = Schematic(
             size = Vector3(width, height, length),
             offset = offset,
-            pallete = blocks.toMutableMap(),
+            palette = blocks,
             blocks = blockArray.copyOf()
         )
-//        if(ConfigManager.config.implementationConfig.cacheSchematics) {
-//            cache[getFileHash(file, "SHA-256")] = schematic
-//        }
+
         return schematic
     }
 }

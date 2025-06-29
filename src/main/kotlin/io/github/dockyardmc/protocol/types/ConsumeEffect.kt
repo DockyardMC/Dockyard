@@ -3,7 +3,9 @@ package io.github.dockyardmc.protocol.types
 import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.StaticHash
-import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.extentions.read
+import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
@@ -51,7 +53,7 @@ interface ConsumeEffect : NetworkWritable, DataComponentHashable {
 
         override fun write(buffer: ByteBuf) {
             buffer.writeVarInt(ConsumeEffect.effects.getByValue(this::class))
-            buffer.writeList(effects, ByteBuf::writeAppliedPotionEffect)
+            buffer.writeList(effects, AppliedPotionEffect::write)
             buffer.writeFloat(probability)
         }
 
@@ -59,7 +61,7 @@ interface ConsumeEffect : NetworkWritable, DataComponentHashable {
             const val ID = 0
 
             override fun read(buffer: ByteBuf): ApplyEffects {
-                return ApplyEffects(buffer.readList(ByteBuf::readAppliedPotionEffect), buffer.readFloat())
+                return ApplyEffects(buffer.readList(AppliedPotionEffect::read), buffer.readFloat())
             }
         }
 

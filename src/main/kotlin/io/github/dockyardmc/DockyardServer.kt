@@ -97,7 +97,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
                 if (ConfigManager.config.implementationConfig.applyBlockPlacementRules) DefaultBlockHandlers().register()
             }
 
-            NetworkCompression.compressionThreshold = ConfigManager.config.networkCompressionThreshold
+            NetworkCompression.COMPRESSION_THRESHOLD = ConfigManager.config.networkCompressionThreshold
             WorldManager.loadDefaultWorld()
 
             Events.dispatch(ServerFinishLoadEvent(this))

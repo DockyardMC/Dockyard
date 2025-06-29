@@ -9,7 +9,6 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.DockyardBranding
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.net.URL
@@ -35,8 +34,8 @@ object ServerStatusManager {
 
     fun getCache(ip: String?): ServerStatus {
         val endpoint = endpointCache[ip]
-        if(ip == null || endpoint == null) {
-            if(!::defaultCache.isInitialized) updateCache()
+        if (ip == null || endpoint == null) {
+            if (!::defaultCache.isInitialized) updateCache()
             return defaultCache
         }
 

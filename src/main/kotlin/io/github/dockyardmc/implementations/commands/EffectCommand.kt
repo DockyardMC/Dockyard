@@ -15,6 +15,7 @@ class EffectCommand {
     init {
         Commands.add("/effect") {
             withPermission("dockyard.commands.effect")
+            withDescription("Manages effects on players")
 
             addSubcommand("give") {
                 addArgument("player", PlayerArgument())

@@ -40,6 +40,7 @@ dependencies {
     implementation("com.akuleshov7:ktoml-core:0.5.1")
     implementation("com.akuleshov7:ktoml-file:0.5.1")
     implementation("net.bytebuddy:byte-buddy-agent:1.14.12")
+    implementation("org.jctools:jctools-core:4.0.5")
 
     api("io.github.dockyardmc:bytesocks-client-java:1.0-SNAPSHOT") {
         exclude(module = "slf4j-api")

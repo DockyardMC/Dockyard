@@ -33,7 +33,7 @@ class PotionContentsComponent(
     override fun write(buffer: ByteBuf) {
         buffer.writeOptional(potion?.getProtocolId(), ByteBuf::writeVarInt)
         buffer.writeOptional(customColor, CustomColor::writePackedInt)
-        buffer.writeList(effects, ByteBuf::writeAppliedPotionEffect)
+        buffer.writeList(effects, AppliedPotionEffect::write)
         buffer.writeOptional(customName, ByteBuf::writeString)
     }
 
@@ -42,7 +42,7 @@ class PotionContentsComponent(
             return PotionContentsComponent(
                 buffer.readOptional(ByteBuf::readVarInt)?.let { PotionTypeRegistry.getByProtocolId(it) },
                 buffer.readOptional(ByteBuf::readInt)?.let { CustomColor.fromRGBInt(it) },
-                buffer.readAppliedPotionEffectsList(),
+                buffer.readList(AppliedPotionEffect::read),
                 buffer.readOptional(ByteBuf::readString)
             )
         }

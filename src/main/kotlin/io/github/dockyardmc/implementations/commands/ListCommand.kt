@@ -7,6 +7,8 @@ class ListCommand {
 
     init {
         Commands.add("/list") {
+            withDescription("Lists all players online")
+
             execute { ctx ->
                 val size = PlayerManager.players.size
                 if(size == 0) {

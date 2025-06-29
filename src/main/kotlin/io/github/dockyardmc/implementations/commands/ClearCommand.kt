@@ -9,7 +9,7 @@ class ClearCommand {
     init {
         Commands.add("/clear") {
             withPermission("dockyard.commands.clear")
-            withDescription("Clears your inventory")
+            withDescription("Clears inventory")
             addOptionalArgument("player", PlayerArgument())
             execute { ctx ->
                 val player = getArgumentOrNull<Player>("player") ?: ctx.getPlayerOrThrow()
