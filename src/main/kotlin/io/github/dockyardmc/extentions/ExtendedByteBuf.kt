@@ -27,11 +27,9 @@ import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
-import java.time.Instant
 import java.util.*
-import kotlin.experimental.inv
 
-private const val SEGMENT_BITS: Byte = 0x7F
+private const val SEGMENT_BITS: Int = 0x7F
 private const val CONTINUE_BIT = 0x80
 
 fun ByteBuf.writeOptionalOLD(item: Any?, unit: (ByteBuf) -> Unit) {
@@ -176,16 +174,13 @@ fun ByteBuf.writeVarLong(long: Long): ByteBuf {
 }
 
 fun ByteBuf.readVarLong(): Long {
-    var b: Byte
-    var long = 0L
-    var iteration = 0
-    do {
-        b = this.readByte()
-        long = long or ((b.toInt() and 0x7F).toLong() shl iteration++ * 7)
-        if (iteration <= 10) continue
-        throw RuntimeException("VarLong too big")
-    } while (hasContinuationBit(b))
-    return long
+    var result = 0L
+    for (shift in 0 until 56 step 7) {
+        val b = this.readByte()
+        result = result or ((b.toLong() and 0x7F) shl shift)
+        if (b >= 0) return result
+    }
+    return result or ((this.readByte().toLong() and 0xFF) shl 56)
 }
 
 fun hasContinuationBit(byte: Byte): Boolean = byte.toInt() and 0x80 == 128
@@ -201,19 +196,18 @@ fun <T : Enum<T>> ByteBuf.writeByteEnum(value: T) {
     this.writeByte(value.ordinal)
 }
 
-
 fun ByteBuf.readVarInt(): Int {
-    var value = 0
-    var position = 0
-    var currentByte: Byte
-    while (this.isReadable) {
-        currentByte = readByte()
-        value = value or (currentByte.toInt() and SEGMENT_BITS.toInt() shl position)
-        if (currentByte.toInt() and CONTINUE_BIT == 0) break
-        position += 7
-        if (position >= 32) throw java.lang.RuntimeException("VarInt is too big")
+    // https://github.com/jvm-profiling-tools/async-profiler/blob/a38a375dc62b31a8109f3af97366a307abb0fe6f/src/converter/one/jfr/JfrReader.java#L393
+    var result = 0
+    var shift = 0
+    while (true) {
+        val byte = readByte().toInt()
+        result = result or ((byte and 0x7f) shl shift)
+        if (byte >= 0) {
+            return result
+        }
+        shift += 7
     }
-    return value
 }
 
 fun ByteBuf.writeStringArray(list: Collection<String>) {
@@ -222,15 +216,45 @@ fun ByteBuf.writeStringArray(list: Collection<String>) {
 }
 
 
+// dark magic but its 2.05 nanoseconds per write
+// https://steinborn.me/posts/performance/how-fast-can-you-write-a-varint/
+// little bit modified to write bytes directly because kotlin fucks up the byte order
 fun ByteBuf.writeVarInt(int: Int) {
-    var value = int
-    while (true) {
-        if (value and SEGMENT_BITS.inv().toInt() == 0) {
-            writeByte(value)
-            return
+    when {
+        // 1-byte
+        (int and (-1 shl 7)) == 0 -> {
+            this.writeByte(int)
         }
-        writeByte(value and SEGMENT_BITS.toInt() or CONTINUE_BIT)
-        value = value ushr 7
+
+        // 2-byte
+        (int and (-1 shl 14)) == 0 -> {
+            val w = (int and SEGMENT_BITS or CONTINUE_BIT) shl 8 or (int ushr 7)
+            this.writeShort(w)
+        }
+
+        // 3-byte
+        (int and (-1 shl 21)) == 0 -> {
+            this.writeByte((int and SEGMENT_BITS or CONTINUE_BIT))
+            this.writeByte(((int ushr 7) and SEGMENT_BITS or CONTINUE_BIT))
+            this.writeByte((int ushr 14))
+        }
+
+        // 4-byte
+        (int and (-1 shl 28)) == 0 -> {
+            this.writeByte(int and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 7) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 14) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte(int ushr 21)
+        }
+
+        // 5-byte
+        else -> {
+            this.writeByte(int and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 7) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 14) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 21) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte(int ushr 28)
+        }
     }
 }
 
