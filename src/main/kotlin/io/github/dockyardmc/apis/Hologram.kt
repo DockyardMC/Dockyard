@@ -63,8 +63,8 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     }
 
     fun addStaticLine(line: StaticContentLine) {
-        val lineIndex = lines.size
         lines.add(line)
+        if (viewers.isEmpty()) return
         viewers.forEach(::updateFull)
     }
 
@@ -73,8 +73,8 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     }
 
     fun addPlayerLine(line: PlayerContentLine) {
-        val lineIndex = lines.size
         lines.add(line)
+        if (viewers.isEmpty()) return
         viewers.forEach(::updateFull)
     }
 

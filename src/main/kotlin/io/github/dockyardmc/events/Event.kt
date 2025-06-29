@@ -11,7 +11,7 @@ interface Event {
 
     class Context(
         players: Set<Player> = setOf<Player>(),
-        entities: Set<Entity>,
+        entities: Set<Entity> = setOf<Entity>(),
         worlds: Set<World> = setOf<World>(),
         locations: Set<Location> = setOf<Location>(),
         other: Set<Any> = setOf<Any>(),

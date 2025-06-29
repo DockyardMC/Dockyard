@@ -4,12 +4,11 @@ import io.github.dockyardmc.data.components.*
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
 object DataComponentRegistry {
 
-    val protocolIdCounter = AtomicInteger()
+    var protocolIdCounter = 0
     val dataComponentsById = Int2ObjectOpenHashMap<KClass<out DataComponent>>()
     val dataComponentsByIdentifier = Object2ObjectOpenHashMap<String, KClass<out DataComponent>>()
 
@@ -113,13 +112,14 @@ object DataComponentRegistry {
     val SHULKER_COLOR = register("minecraft:shulker/color", ShulkerColorComponent::class)
 
     fun register(identifier: String, kclass: KClass<out DataComponent>): KClass<out DataComponent> {
-        val protocolId = protocolIdCounter.getAndIncrement()
+        val protocolId = protocolIdCounter
         dataComponentsById[protocolId] = kclass
         dataComponentsByIdReversed[kclass] = protocolId
 
         dataComponentsByIdentifier[identifier] = kclass
         dataComponentsByIdentifierReversed[kclass] = identifier
 
+        protocolIdCounter++
         return kclass
     }
 }
