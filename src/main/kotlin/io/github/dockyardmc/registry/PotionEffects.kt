@@ -92,7 +92,7 @@ data class AppliedPotionEffectSettings(
     val showParticles: Boolean,
     val showIcon: Boolean,
     val hiddenEffect: AppliedPotionEffectSettings? = null
-) : DataComponentHashable {
+) : DataComponentHashable, NetworkWritable {
     companion object {
         fun read(buffer: ByteBuf): AppliedPotionEffectSettings {
             val amplifier: Int = buffer.readVarInt()
@@ -120,7 +120,7 @@ data class AppliedPotionEffectSettings(
         }
     }
 
-    fun write(buffer: ByteBuf) {
+    override fun write(buffer: ByteBuf) {
         buffer.writeVarInt(amplifier)
         buffer.writeVarInt(duration.inWholeMinecraftTicks)
         buffer.writeBoolean(isAmbient)
