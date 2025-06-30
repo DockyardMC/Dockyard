@@ -7,6 +7,7 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.extentions.writeTextComponent
 import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.npc.FakePlayer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.NetworkWritable
@@ -34,16 +35,16 @@ class Team(val name: String) : NetworkWritable, Disposable {
 
     enum class NameTagVisibility {
         VISIBLE,
+        HIDDEN,
         HIDE_OTHER_TEAMS,
         HIDE_OWN_TEAM,
-        HIDDEN,
     }
 
     enum class CollisionRule {
         ALWAYS,
+        NEVER,
         PUSH_OTHER_TEAMS,
         PUSH_OWN_TEAM,
-        NEVER,
     }
 
     init {
@@ -65,7 +66,7 @@ class Team(val name: String) : NetworkWritable, Disposable {
     fun mapEntities(): List<String> {
         return entities.values.map { entity ->
             val value = when (entity) {
-//                is FakePlayer -> entity.username.value //TODO
+                is FakePlayer -> entity.gameProfile.username
                 is Player -> entity.username
                 else -> entity.uuid.toString()
             }

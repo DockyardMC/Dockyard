@@ -2,6 +2,7 @@ package io.github.dockyard.tests.npc
 
 import io.github.dockyard.tests.TestServer
 import io.github.dockyard.tests.utils.waitUntilFuture
+import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.npc.FakePlayer
 import io.github.dockyardmc.world.WorldManager
@@ -18,6 +19,13 @@ class FakePlayerTest {
     }
 
     @Test
+    fun testTeam() {
+        val fakePlayer = WorldManager.mainWorld.spawnEntity<FakePlayer>(FakePlayer(WorldManager.mainWorld.defaultSpawnLocation))
+
+        assertEquals(fakePlayer.team.value, fakePlayer.npcTeam)
+    }
+
+    @Test
     fun testSkin() {
         val fakePlayer = WorldManager.mainWorld.spawnEntity<FakePlayer>(FakePlayer(WorldManager.mainWorld.defaultSpawnLocation))
 
@@ -31,5 +39,7 @@ class FakePlayerTest {
         fakePlayer.skin.value = null
 
         assertEquals(true, fakePlayer.gameProfile.properties.isEmpty())
+
+        WorldManager.mainWorld.despawnEntity(fakePlayer)
     }
 }

@@ -31,7 +31,6 @@ object MojangUtil {
     fun authenticateSession(loginUsername: String, serverId: String): GameProfileResponse {
         val username = URLEncoder.encode(loginUsername, StandardCharsets.UTF_8)
 
-        //TODO auth prevent proxy connection
         val url = String.format(BASE_AUTH_URL, username, serverId)
         val request = HttpRequest.newBuilder()
             .uri(URI(url))
@@ -39,7 +38,6 @@ object MojangUtil {
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
         if (response.body().isEmpty()) throw IOException("Mojang API down?")
-        broadcastMessage("$response")
         return json.decodeFromString<GameProfileResponse>(response.body())
     }
 
