@@ -17,6 +17,7 @@ import io.github.dockyardmc.protocol.encoders.CompressionEncoder
 import io.github.dockyardmc.protocol.encoders.PacketEncryptionHandler
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.protocol.packets.configurations.ConfigurationHandler
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
 import io.github.dockyardmc.protocol.plugin.LoginPluginMessageHandler
 import io.github.dockyardmc.protocol.proxy.VelocityProxy
@@ -192,6 +193,9 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
                 pipeline.addBefore(ChannelHandlers.RAW_PACKET_DECODER, ChannelHandlers.PACKET_COMPRESSION_DECODER, CompressionDecoder(player.networkManager))
                 pipeline.addBefore(ChannelHandlers.RAW_PACKET_ENCODER, ChannelHandlers.PACKET_COMPRESSION_ENCODER, CompressionEncoder(player.networkManager))
             }
+
+            player.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, gameProfile))
+            ConfigurationHandler.enterConfiguration(player, connection, true)
         }
     }
 }
