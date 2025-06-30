@@ -2,6 +2,7 @@ package io.github.dockyardmc.implementations.commands
 
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.commands.PlayerArgument
+import io.github.dockyardmc.commands.SuggestionHandler.suggestPlayers
 import io.github.dockyardmc.player.Player
 
 class TeleportCommand {
@@ -11,7 +12,7 @@ class TeleportCommand {
             withDescription("Lets you teleport players to other players")
             withPermission("dockyard.commands.teleport")
             withAliases("teleport")
-            addArgument("first", PlayerArgument())
+            addArgument("first", PlayerArgument(), ::suggestPlayers)
             addOptionalArgument("second", PlayerArgument())
             execute {
                 val second = getArgumentOrNull<Player>("second")

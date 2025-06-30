@@ -78,6 +78,7 @@ fun ByteBuf.writeCommandNode(node: CommandNode, indices: MutableMap<Int, Command
             is SoundArgument -> node.suggestionType = CommandArgumentSuggestionType.AVAILABLE_SOUNDS
             is WorldArgument -> node.suggestionType = CommandArgumentSuggestionType.ASK_SERVER
             is EnumArgument -> node.suggestionType = CommandArgumentSuggestionType.ASK_SERVER
+            is PlayerArgument -> node.suggestionType = CommandArgumentSuggestionType.ASK_SERVER
             else -> {}
         }
     }
