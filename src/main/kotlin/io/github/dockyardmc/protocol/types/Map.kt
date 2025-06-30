@@ -13,7 +13,7 @@ inline fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Uni
     }
 }
 
-fun <K, V> ByteBuf.writeRawMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, writeValue: (ByteBuf, V) -> Unit) {
+inline fun <K, V> ByteBuf.writeRawMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, writeValue: (ByteBuf, V) -> Unit) {
     map.forEach { (key, value) ->
         writeKey.invoke(this, key)
         writeValue.invoke(this, value)

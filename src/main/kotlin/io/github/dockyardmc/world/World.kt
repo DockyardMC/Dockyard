@@ -345,13 +345,17 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         if (updateChunk) chunk.sendUpdateToViewers()
     }
 
-    fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit): CompletableFuture<World> {
-        check(isLoaded.value) { "World has not been fully loaded yet! Please use World#schedule or wait until world is fully loaded" }
+    inline fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit): CompletableFuture<World> {
         val update = BatchBlockUpdate(this)
         builder.invoke(update)
+        return batchBlockUpdate(update)
+    }
+
+    fun batchBlockUpdate(update: BatchBlockUpdate): CompletableFuture<World> {
+        check(isLoaded.value) { "World has not been fully loaded yet! Please use World#schedule or wait until world is fully loaded" }
         val future = CompletableFuture<World>()
 
-        val runnable = scheduler.runAsync {
+        scheduler.runAsync {
             val chunks: MutableList<Chunk> = mutableListOf()
             update.updates.forEach { (location, block) ->
                 val chunk = getOrGenerateChunk(
@@ -365,8 +369,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
                 chunk.updateCache()
                 chunk.sendUpdateToViewers()
             }
-        }
-        runnable.thenAccept {
+
             future.complete(this)
         }
 

@@ -58,7 +58,7 @@ class DrawableItemStack(val itemStack: ItemStack, val onClick: ((Player, ClickTy
     }
 }
 
-fun drawableItemStack(unit: DrawableItemStack.Builder.() -> Unit): DrawableItemStack {
+inline fun drawableItemStack(unit: DrawableItemStack.Builder.() -> Unit): DrawableItemStack {
     val builder = DrawableItemStack.Builder()
     unit.invoke(builder)
     return builder.build()

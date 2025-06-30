@@ -57,7 +57,7 @@ class ConfirmationDialog(
     }
 }
 
-fun createConfirmationDialog(id: String, block: @DialogDsl ConfirmationDialog.Builder.() -> Unit): DialogEntry {
+inline fun createConfirmationDialog(id: String, block: @DialogDsl ConfirmationDialog.Builder.() -> Unit): DialogEntry {
     val entry = DialogEntry(id, ConfirmationDialog.Builder().apply(block).build())
     DialogRegistry.addEntry(entry)
     return entry

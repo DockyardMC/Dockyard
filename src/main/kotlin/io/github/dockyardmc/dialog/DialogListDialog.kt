@@ -68,7 +68,7 @@ class DialogListDialog(
     }
 }
 
-fun createDialogListDialog(id: String, block: @DialogDsl DialogListDialog.Builder.() -> Unit): DialogEntry {
+inline fun createDialogListDialog(id: String, block: @DialogDsl DialogListDialog.Builder.() -> Unit): DialogEntry {
     val entry = DialogEntry(id, DialogListDialog.Builder().apply(block).build())
     DialogRegistry.addEntry(entry)
     return entry

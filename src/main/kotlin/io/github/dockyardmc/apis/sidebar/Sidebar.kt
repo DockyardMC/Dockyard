@@ -142,7 +142,7 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
     }
 }
 
-fun sidebar(unit: Sidebar.Builder.() -> Unit): Sidebar {
+inline fun sidebar(unit: Sidebar.Builder.() -> Unit): Sidebar {
     val builder = Sidebar.Builder()
     unit.invoke(builder)
     return builder.build()

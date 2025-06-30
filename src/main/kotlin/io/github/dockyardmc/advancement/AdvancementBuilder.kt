@@ -106,7 +106,7 @@ class AdvancementBuilder(val id: String) {
     }
 }
 
-fun advancement(id: String, builder: AdvancementBuilder.() -> Unit): Advancement {
+inline fun advancement(id: String, builder: AdvancementBuilder.() -> Unit): Advancement {
     val adv = AdvancementBuilder(id)
     builder.invoke(adv)
     return adv.build()

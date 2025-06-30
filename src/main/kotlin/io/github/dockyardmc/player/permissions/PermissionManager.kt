@@ -12,10 +12,13 @@ object PermissionManager {
         return getOrNull(id) ?: throw IllegalArgumentException("Permissions group with id `$id` is not registered")
     }
 
-    fun addGroup(group: PermissionGroup.Builder.() -> Unit): PermissionGroup {
+    inline fun addGroup(group: PermissionGroup.Builder.() -> Unit): PermissionGroup {
         val builder = PermissionGroup.Builder()
         group.invoke(builder)
+        return addGroup(builder)
+    }
 
+    fun addGroup(builder: PermissionGroup.Builder): PermissionGroup {
         val lowercaseId = requireNotNull(builder.id) { "Id of a permissions group cannot be empty" }
             .lowercase()
 

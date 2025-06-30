@@ -126,7 +126,7 @@ object CRC32CHasher {
         return EMPTY_MAP
     }
 
-    fun of(unit: HashStruct.Builder.() -> Unit): HashStruct {
+    inline fun of(unit: HashStruct.Builder.() -> Unit): HashStruct {
         val builder = HashStruct.Builder()
         unit.invoke(builder)
         return HashStruct(builder.fields)

@@ -231,14 +231,11 @@ class ItemStackMeta {
     }
 }
 
-fun itemStack(builder: ItemStackMeta.() -> Unit): ItemStack {
+inline fun itemStack(builder: ItemStackMeta.() -> Unit): ItemStack {
     val meta = ItemStackMeta()
     builder.invoke(meta)
 
-    meta.buildLoreComponent()
-    val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes)
-    itemStack.withNoxesiumImmovable(meta.noxesiumImmovable)
-    return itemStack.clone()
+    return itemStack(meta)
 }
 
 fun itemStack(meta: ItemStackMeta): ItemStack {

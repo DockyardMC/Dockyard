@@ -41,7 +41,7 @@ class Config {
         this.maxPlayers = maxPlayers
     }
 
-    fun withImplementations(implementationConfigBuilder: ImplementationConfig.() -> Unit) {
+    inline fun withImplementations(implementationConfigBuilder: ImplementationConfig.() -> Unit) {
         implementationConfigBuilder.invoke(implementationConfig)
     }
 

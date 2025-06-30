@@ -119,10 +119,11 @@ class TablistBuilder {
     }
 }
 
-fun tablist(builder: TablistBuilder.() -> Unit): Tablist {
-    val tablistBuilder = TablistBuilder()
-    builder.invoke(tablistBuilder)
+inline fun tablist(builder: TablistBuilder.() -> Unit): Tablist {
+    return tablist(TablistBuilder().apply(builder))
+}
 
+fun tablist(tablistBuilder: TablistBuilder): Tablist {
     val tablist = Tablist()
     tablistBuilder.headerLines.forEachIndexed { index, line ->
         when (line) {

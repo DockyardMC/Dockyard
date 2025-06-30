@@ -72,7 +72,7 @@ class TextDialogInput(
         var maxLength: Int = 32
         var multiline: Multiline? = null
 
-        fun useMultiline(block: Multiline.Builder.() -> Unit) {
+        inline fun useMultiline(block: Multiline.Builder.() -> Unit = {}) {
             multiline = Multiline.Builder().apply(block).build()
         }
 
