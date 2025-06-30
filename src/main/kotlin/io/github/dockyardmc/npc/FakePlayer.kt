@@ -34,11 +34,11 @@ import io.github.dockyardmc.utils.MojangUtil
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-class FakePlayer(location: Location) : Entity(location) {
+class FakePlayer(location: Location, val name: String = UUID.randomUUID().toString().substring(0, 16)) : Entity(location) {
     override var type: EntityType = EntityTypes.PLAYER
     override val health: Bindable<Float> = bindablePool.provideBindable(20f)
     override var inventorySize: Int = 35
-    val gameProfile = GameProfile(uuid, uuid.toString().substring(0, 16))
+    val gameProfile = GameProfile(uuid, name)
 
     private val eventPool = EventPool().withFilter(EventFilter.containsEntity(this))
 
