@@ -5,6 +5,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerConnectEvent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoRemovePacket
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.ktor.util.network.*
@@ -67,9 +68,12 @@ object PlayerManager {
     fun remove(player: Player) {
         player.isConnected = false
         EntityManager.removePlayer(player)
+        SkinManager.uuidToSkinCache.remove(player.uuid)
+        SkinManager.usernameToUuidCache.remove(player.username)
 
         player.viewers.toList().forEach { viewer ->
-            player.removeViewer(viewer);
+            viewer.sendPacket(ClientboundPlayerInfoRemovePacket(player))
+            player.removeViewer(viewer)
             viewer.removeViewer(player)
         }
 

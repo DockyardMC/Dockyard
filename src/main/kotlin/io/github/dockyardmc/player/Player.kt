@@ -17,7 +17,6 @@ import io.github.dockyardmc.entity.metadata.EntityMetadata
 import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.inventory.PlayerInventory
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
@@ -36,6 +35,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundChatCommandPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
 import io.github.dockyardmc.protocol.types.EquipmentSlot
+import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items
@@ -78,7 +78,7 @@ class Player(
     override var inventorySize: Int = 35
 
     var brand: String = "minecraft:vanilla"
-    var profile: ProfilePropertyMap? = null
+    lateinit var gameProfile: GameProfile
     var clientConfiguration: ClientConfiguration? = null
 
     var isSneaking: Boolean = false
@@ -282,10 +282,13 @@ class Player(
 
     override fun addViewer(player: Player): Boolean {
         if (player == this) return false
-        val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
-        val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(customName.value)))
-        player.sendPacket(namePacket)
+
+        val updates = mutableListOf(
+            PlayerInfoUpdate.AddPlayer(gameProfile),
+            PlayerInfoUpdate.UpdateListed(isListed.value),
+            PlayerInfoUpdate.UpdateDisplayName(customName.value),
+        )
+        player.sendPacket(ClientboundPlayerInfoUpdatePacket(mapOf(uuid to updates)))
 
         if (!super.addViewer(player)) return false
 
@@ -293,7 +296,6 @@ class Player(
         this.displayedSkinParts.triggerUpdate()
         sendMetadataPacket(player)
         sendEquipmentPacket(player)
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))))
         return true
     }
 
@@ -384,6 +386,33 @@ class Player(
         }
     }
 
+    fun refreshGameProfileState() {
+        val currentLocation = this.location
+
+        val removeInfo = ClientboundPlayerInfoRemovePacket(this)
+        val entityRemovePacket = ClientboundEntityRemovePacket(this)
+        val spawnEntityPacket = ClientboundSpawnEntityPacket(this.id, this.uuid, this.type.getProtocolId(), this.location, this.location.yaw, 0, this.velocity)
+        val updates = mutableListOf(
+            PlayerInfoUpdate.AddPlayer(this.gameProfile),
+            PlayerInfoUpdate.UpdateListed(this.isListed.value),
+            PlayerInfoUpdate.UpdateDisplayName(this.customName.value),
+        )
+        val addPacket = ClientboundPlayerInfoUpdatePacket(mapOf(this.uuid to updates.toList()))
+
+        this.sendPacket(removeInfo)
+        this.sendPacket(entityRemovePacket)
+        this.sendPacket(addPacket)
+        this.respawn(false)
+
+        viewers.sendPacket(removeInfo)
+        viewers.sendPacket(entityRemovePacket)
+        viewers.sendPacket(addPacket)
+        viewers.sendPacket(spawnEntityPacket)
+
+        this.displayedSkinParts.triggerUpdate()
+        this.teleport(currentLocation)
+    }
+
     override fun teleport(location: Location) {
         if (!WorldManager.worlds.containsValue(location.world)) throw Exception("That world does not exist!")
         if (location.world != world) location.world.join(this, location)
@@ -460,7 +489,7 @@ class Player(
     }
 
     fun closeInventory() {
-        if(currentlyOpenScreen != null) currentlyOpenScreen!!.dispose()
+        if (currentlyOpenScreen != null) currentlyOpenScreen!!.dispose()
 
         sendPacket(ClientboundCloseInventoryPacket(0))
         sendPacket(ClientboundCloseInventoryPacket(1))

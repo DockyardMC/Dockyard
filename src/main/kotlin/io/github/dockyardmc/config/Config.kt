@@ -1,6 +1,7 @@
 package io.github.dockyardmc.config
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.protocol.proxy.VelocityProxy
 
 class Config {
     var ip: String = "0.0.0.0"
@@ -11,6 +12,10 @@ class Config {
     var maxPlayers: Int = 50
     var implementationConfig: ImplementationConfig = ImplementationConfig()
     var updateChecker: Boolean = true
+
+    fun withVelocitySupport(secretKey: String) {
+        VelocityProxy.enabled(secretKey)
+    }
 
     fun withUpdateChecker(updateChecker: Boolean) {
         this.updateChecker = updateChecker

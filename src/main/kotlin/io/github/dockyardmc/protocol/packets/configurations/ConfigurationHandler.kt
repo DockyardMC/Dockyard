@@ -1,12 +1,16 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.apis.serverlinks.ServerLinks
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
-import io.github.dockyardmc.player.*
+import io.github.dockyardmc.player.ClientConfiguration
+import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerInfoUpdate
+//import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -16,7 +20,6 @@ import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.tags.*
 import io.github.dockyardmc.server.FeatureFlags
-import io.github.dockyardmc.apis.serverlinks.ServerLinks
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.world.World
@@ -87,18 +90,14 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
         processor.state = ProtocolState.PLAY
         processor.player.releaseMessagesQueue()
 
-        val event = PlayerSpawnEvent(player, WorldManager.getOrThrow("main"))
+        val event = PlayerSpawnEvent(player, WorldManager.mainWorld)
         Events.dispatch(event)
         val world = event.world
 
         processor.player.world = world
 
-        if (world.isLoaded.value) {
+        world.schedule {
             enterPlay(player, world)
-        } else {
-            world.isLoaded.valueChangedThenSelfDispose { value ->
-                if (value.newValue) enterPlay(player, world)
-            }
         }
     }
 
@@ -145,11 +144,17 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
             player.sendPacket(ClientboundTeamsPacket(CreateTeamPacketAction(team.value)))
         }
 
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(player.uuid, SetListedInfoUpdateAction(player.isListed.value))))
+        val updates = mutableListOf(
+            PlayerInfoUpdate.AddPlayer(player.gameProfile),
+            PlayerInfoUpdate.UpdateListed(player.isListed.value),
+            PlayerInfoUpdate.UpdateDisplayName(player.customName.value),
+        )
+        player.sendPacket(ClientboundPlayerInfoUpdatePacket(mapOf(player.uuid to updates)))
+
         player.refreshAbilities()
 
         world.join(player)
 
-        if (ConfigManager.config.useMojangAuth) player.setSkin(player.uuid)
+//        if (ConfigManager.config.useMojangAuth) player.setSkin(player.uuid)
     }
 }
