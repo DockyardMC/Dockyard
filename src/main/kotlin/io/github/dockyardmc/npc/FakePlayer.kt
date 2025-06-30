@@ -15,10 +15,13 @@ import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
 import io.github.dockyardmc.events.PlayerPickItemFromEntityEvent
 import io.github.dockyardmc.events.system.EventFilter
+import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerAnimationPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoRemovePacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoUpdatePacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.EntityAnimation
 import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
@@ -66,6 +69,12 @@ class FakePlayer(location: Location) : Entity(location) {
         MIDDLE
     }
 
+    enum class LookCloseType {
+        NONE,
+        NORMAL,
+        CLIENT_SIDE,
+    }
+
     init {
         hologram.autoViewable = false
         hasCollision.valueChanged { npcTeam.collisionRule.value = getTeamCollision() }
@@ -73,9 +82,7 @@ class FakePlayer(location: Location) : Entity(location) {
 
         mirrorsSkin.valueChanged {
             if (viewers.isEmpty()) return@valueChanged
-            val viewersCopy = viewers.toList()
-            viewersCopy.forEach { viewer -> removeViewer(viewer) }
-            viewersCopy.forEach { viewer -> addViewer(viewer) }
+            refreshViewers()
         }
 
         eventPool.on<PlayerInteractWithEntityEvent> { event ->
@@ -108,15 +115,31 @@ class FakePlayer(location: Location) : Entity(location) {
             }
 
             if (viewers.isEmpty()) return@valueChanged
-            val viewersCopy = viewers.toList()
-            viewersCopy.forEach { viewer -> removeViewer(viewer) }
-            viewersCopy.forEach { viewer -> addViewer(viewer) }
+            refreshViewers()
         }
 
         displayedSkinParts.listUpdated {
             metadata[EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
         }
         team.value = npcTeam
+    }
+
+    private fun refreshViewers() {
+        val viewersCopy = viewers.toList()
+        viewersCopy.forEach { viewer -> removeViewer(viewer) }
+        viewersCopy.forEach { viewer -> addViewer(viewer) }
+    }
+
+    fun swingHand(hand: PlayerHand, players: List<Player> = viewers) {
+        players.sendPacket(ClientboundPlayerAnimationPacket(this, if (hand == PlayerHand.MAIN_HAND) EntityAnimation.SWING_MAIN_ARM else EntityAnimation.SWING_OFFHAND))
+    }
+
+    fun swingMainHand(players: List<Player> = viewers) {
+        swingHand(PlayerHand.MAIN_HAND, players)
+    }
+
+    fun swingOffHand(players: List<Player> = viewers) {
+        swingHand(PlayerHand.OFF_HAND, players)
     }
 
     fun getPlayerInfoUpdates(player: Player): MutableList<PlayerInfoUpdate> {

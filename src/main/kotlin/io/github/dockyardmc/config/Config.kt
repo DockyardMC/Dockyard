@@ -55,7 +55,6 @@ class ImplementationConfig {
     var commandNoPermissionsMessage: String = "You do not have permissions to execute this command!"
     var defaultEntityViewDistanceBlocks: Int = 64
     var defaultCommands: Boolean = true
-    var npcCommand: Boolean = false
     var spark: Boolean = true
     var itemDroppingAndPickup: Boolean = true
 }
