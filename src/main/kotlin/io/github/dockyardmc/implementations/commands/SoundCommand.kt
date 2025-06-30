@@ -11,7 +11,7 @@ class SoundCommand {
     init {
         Commands.add("/playsound") {
             withPermission("dockyard.commands.playsound")
-            withDescription("Plays a sound to player")
+            withDescription("Plays sounds to players")
 
             addArgument("sound", SoundArgument())
             addArgument("category", EnumArgument(SoundCategory::class))

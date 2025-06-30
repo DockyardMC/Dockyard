@@ -15,7 +15,7 @@ class CompressionEncoder(val processor: PlayerNetworkManager) : MessageToByteEnc
     override fun encode(connection: ChannelHandlerContext, buffer: ByteBuf, out: ByteBuf) {
         try {
             val dataLength = buffer.readableBytes()
-            if (dataLength < NetworkCompression.compressionThreshold) {
+            if (dataLength < NetworkCompression.COMPRESSION_THRESHOLD) {
                 out.writeVarInt(0)
                 out.writeBytes(buffer)
             } else {

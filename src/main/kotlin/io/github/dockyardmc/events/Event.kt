@@ -17,13 +17,27 @@ interface Event {
         other: Set<Any> = setOf<Any>(),
         val isGlobalEvent: Boolean = false
     ) {
-        // what the fuck
-        val players = players + entities.filterIsInstance<Player>()
-        var entities = entities + players
-        val locations = locations + this.entities.map { it.location }
-        val worlds = worlds + this.locations.map { it.world }
+        // combining sets is expensive and is done in initialization of every event.
+        // In most cases, either none or only one is accessed. Let's make them lazy so they are
+        // computed only when needed
+        val players: Set<Player> by lazy {
+            players + entities.filterIsInstance<Player>()
+        }
 
-        val other: Set<Any> = this.players + this.entities + this.worlds + this.locations + other
+        val entities: Set<Entity> by lazy {
+            entities + players
+        }
+
+        val locations: Set<Location> by lazy {
+            locations + this.entities.map { entity -> entity.location }
+        }
+        val worlds: Set<World> by lazy {
+            worlds + this.locations.map { location -> location.world }
+        }
+
+        val other: Set<Any> by lazy {
+            this.players + this.entities + this.worlds + this.locations + other
+        }
 
         operator fun contains(element: Any) = other.contains(element)
 
