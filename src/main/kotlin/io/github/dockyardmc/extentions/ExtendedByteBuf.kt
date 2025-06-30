@@ -178,17 +178,17 @@ fun ByteBuf.readVarInt(): Int {
 
     // decode only one byte first as this is the most common size of varints
     var current = this.readByte().toInt()
-    if ((current and 0x80) != 128) {
+    if ((current and CONTINUE_BIT) != 128) {
         return current
     }
 
     // no point in while loop that has higher overhead instead of for loop with max size of the varint
     val maxRead = MAXIMUM_VAR_INT_SIZE.coerceAtMost(readable)
-    var varInt = current and 0x7F
+    var varInt = current and SEGMENT_BITS
     for (i in 1..<maxRead) {
         current = this.readByte().toInt()
-        varInt = varInt or ((current and 0x7F) shl i * 7)
-        if ((current and 0x80) != 128) {
+        varInt = varInt or ((current and SEGMENT_BITS) shl i * 7)
+        if (current and CONTINUE_BIT != 128) {
             return varInt
         }
     }
