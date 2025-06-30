@@ -19,17 +19,14 @@ class SchematicTest {
     }
 
     @Test
-    fun testParsing() {
+    fun testSchematicReadingAndPlacing() {
         val world = WorldManager.mainWorld
         assertDoesNotThrow {
             val schematic = SchematicReader.read(Resources.getFile("test.schem").readBytes())
-
             world.placeSchematic(schematic, world.locationAt(0, 0, 0))
-
-            assertEquals(Blocks.RED_WOOL, world.locationAt(0, 0, 0).block.registryBlock)
-            assertEquals(Blocks.NETHER_BRICK_FENCE, world.locationAt(4, 1, 5).block.registryBlock)
-            assertEquals(Blocks.STONE, world.locationAt(27, 1, 23).block.registryBlock)
-
         }
+        assertEquals(Blocks.RED_WOOL, world.locationAt(0, 0, 0).block.registryBlock)
+        assertEquals(Blocks.NETHER_BRICK_FENCE, world.locationAt(4, 1, 5).block.registryBlock)
+        assertEquals(Blocks.STONE, world.locationAt(27, 1, 23).block.registryBlock)
     }
 }

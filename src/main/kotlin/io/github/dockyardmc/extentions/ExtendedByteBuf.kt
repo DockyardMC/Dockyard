@@ -2,21 +2,12 @@ package io.github.dockyardmc.extentions
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.positiveCeilDiv
-import io.github.dockyardmc.maths.vectors.Vector3
-import io.github.dockyardmc.maths.vectors.Vector3d
-import io.github.dockyardmc.maths.vectors.Vector3f
-import io.github.dockyardmc.registry.AppliedPotionEffect
-import io.github.dockyardmc.registry.AppliedPotionEffectSettings
 import io.github.dockyardmc.registry.Registry
 import io.github.dockyardmc.registry.RegistryEntry
-import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.sounds.Sound
-import io.github.dockyardmc.sounds.SoundEvent
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufInputStream
 import io.netty.buffer.Unpooled
@@ -27,20 +18,11 @@ import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
-import java.time.Instant
 import java.util.*
-import kotlin.experimental.inv
 
-private const val SEGMENT_BITS: Byte = 0x7F
-private const val CONTINUE_BIT = 0x80
-
-fun ByteBuf.writeOptionalOLD(item: Any?, unit: (ByteBuf) -> Unit) {
-    val isPresent = item != null
-    this.writeBoolean(isPresent)
-    if (isPresent) {
-        unit.invoke(this)
-    }
-}
+private const val SEGMENT_BITS: Int = 0x7F
+private const val CONTINUE_BIT: Int = 0x80
+private const val MAXIMUM_VAR_INT_SIZE = 5
 
 fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
     val list = mutableListOf<T>()
@@ -64,17 +46,9 @@ fun ByteBuf.readTextComponent(): Component {
     return this.readNBTCompound().toComponent()
 }
 
-fun ByteBuf.writeItemStackList(list: Collection<ItemStack>) {
-    this.writeVarInt(list.size)
-    list.forEach {
-        it.write(this)
-    }
-}
-
 fun ByteBuf.writeColor(color: CustomColor) {
     this.writeInt(color.getPackedInt())
 }
-
 
 fun ByteBuf.readUUID(): UUID {
     val most = this.readLong()
@@ -176,16 +150,13 @@ fun ByteBuf.writeVarLong(long: Long): ByteBuf {
 }
 
 fun ByteBuf.readVarLong(): Long {
-    var b: Byte
-    var long = 0L
-    var iteration = 0
-    do {
-        b = this.readByte()
-        long = long or ((b.toInt() and 0x7F).toLong() shl iteration++ * 7)
-        if (iteration <= 10) continue
-        throw RuntimeException("VarLong too big")
-    } while (hasContinuationBit(b))
-    return long
+    var result = 0L
+    for (shift in 0 until 56 step 7) {
+        val b = this.readByte()
+        result = result or ((b.toLong() and 0x7F) shl shift)
+        if (b >= 0) return result
+    }
+    return result or ((this.readByte().toLong() and 0xFF) shl 56)
 }
 
 fun hasContinuationBit(byte: Byte): Boolean = byte.toInt() and 0x80 == 128
@@ -201,19 +172,27 @@ fun <T : Enum<T>> ByteBuf.writeByteEnum(value: T) {
     this.writeByte(value.ordinal)
 }
 
-
 fun ByteBuf.readVarInt(): Int {
-    var value = 0
-    var position = 0
-    var currentByte: Byte
-    while (this.isReadable) {
-        currentByte = readByte()
-        value = value or (currentByte.toInt() and SEGMENT_BITS.toInt() shl position)
-        if (currentByte.toInt() and CONTINUE_BIT == 0) break
-        position += 7
-        if (position >= 32) throw java.lang.RuntimeException("VarInt is too big")
+    val readable = this.readableBytes()
+    if (readable == 0) throw DecoderException("Invalid VarInt")
+
+    // decode only one byte first as this is the most common size of varints
+    var current = this.readByte().toInt()
+    if ((current and CONTINUE_BIT) != 128) {
+        return current
     }
-    return value
+
+    // no point in while loop that has higher overhead instead of for loop with max size of the varint
+    val maxRead = MAXIMUM_VAR_INT_SIZE.coerceAtMost(readable)
+    var varInt = current and SEGMENT_BITS
+    for (i in 1..<maxRead) {
+        current = this.readByte().toInt()
+        varInt = varInt or ((current and SEGMENT_BITS) shl i * 7)
+        if (current and CONTINUE_BIT != 128) {
+            return varInt
+        }
+    }
+    throw DecoderException("Invalid VarInt")
 }
 
 fun ByteBuf.writeStringArray(list: Collection<String>) {
@@ -222,20 +201,52 @@ fun ByteBuf.writeStringArray(list: Collection<String>) {
 }
 
 
+// dark magic but its 2.05 nanoseconds per write
+// https://steinborn.me/posts/performance/how-fast-can-you-write-a-varint/
+// little bit modified to write bytes directly because kotlin fucks up the byte order
 fun ByteBuf.writeVarInt(int: Int) {
-    var value = int
-    while (true) {
-        if (value and SEGMENT_BITS.inv().toInt() == 0) {
-            writeByte(value)
-            return
+    when {
+        // 1-byte
+        int and (-1 shl 7) == 0 -> {
+            this.writeByte(int)
         }
-        writeByte(value and SEGMENT_BITS.toInt() or CONTINUE_BIT)
-        value = value ushr 7
+
+        // 2-byte
+        int and (-1 shl 14) == 0 -> {
+            val w = (int and SEGMENT_BITS or CONTINUE_BIT) shl 8 or (int ushr 7)
+            this.writeShort(w)
+        }
+
+        // 3-byte
+        int and (-1 shl 21) == 0 -> {
+            this.writeByte(int and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 7) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte(int ushr 14)
+        }
+
+        // 4-byte
+        int and (-1 shl 28) == 0 -> {
+            this.writeByte(int and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 7) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 14) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte(int ushr 21)
+        }
+
+        // 5-byte
+        else -> {
+            this.writeByte(int and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 7) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 14) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte((int ushr 21) and SEGMENT_BITS or CONTINUE_BIT)
+            this.writeByte(int ushr 28)
+        }
     }
 }
 
 fun ByteBuf.readString() = readString(Short.MAX_VALUE.toInt())
+
 fun ByteBuf.readUtfAndLength() = readUtfAndLength(Short.MAX_VALUE.toInt())
+
 fun ByteBuf.readString(i: Int): String {
     val maxSize = i * 3
     val size = this.readVarInt()
@@ -247,20 +258,13 @@ fun ByteBuf.readString(i: Int): String {
     return string
 }
 
+@Suppress("UNCHECKED_CAST")
 fun <T : RegistryEntry> ByteBuf.readRegistryEntry(registry: Registry): T {
     return registry.getByProtocolId(this.readVarInt()) as T
 }
 
 fun ByteBuf.writeRegistryEntry(entry: RegistryEntry) {
     this.writeVarInt(entry.getProtocolId())
-}
-
-fun ByteBuf.readStringList(): List<String> {
-    val list = mutableListOf<String>()
-    for (i in 0 until this.readVarInt()) {
-        list.add(this.readString())
-    }
-    return list
 }
 
 fun ByteBuf.readRemainingBytesAsByteArray(): ByteArray {
@@ -299,152 +303,7 @@ fun ByteBuf.toByteArraySafe(): ByteArray {
     return bytes
 }
 
-fun ByteBuf.readAppliedPotionEffect(): AppliedPotionEffect {
-    val id = this.readVarInt()
-    val settings = AppliedPotionEffectSettings.read(this)
-
-    val effect = PotionEffectRegistry.getByProtocolId(id)
-
-    return AppliedPotionEffect(effect, settings)
-}
-
-fun ByteBuf.writeAppliedPotionEffect(effect: AppliedPotionEffect) {
-    this.writeVarInt(PotionEffectRegistry[effect.effect.identifier].getProtocolId())
-    effect.settings.write(this)
-}
-
-fun ByteBuf.readAppliedPotionEffectsList(): List<AppliedPotionEffect> {
-    val list = mutableListOf<AppliedPotionEffect>()
-    for (i in 0 until this.readVarInt()) {
-        list.add(this.readAppliedPotionEffect())
-    }
-    return list
-}
-
-
 fun ByteArray.toByteBuf(): ByteBuf = Unpooled.copiedBuffer(this)
-
-inline fun <reified T : Any> ByteBuf.readOptionalOrDefault(default: T): T {
-    val optional = this.readOptionalOrNull<T>() ?: return default
-    return optional
-}
-
-inline fun <reified T : Any> ByteBuf.readOptionalOrNull(): T? {
-    val isPresent = this.readBoolean()
-    if (!isPresent) return null
-    return when (T::class) {
-        Int::class -> this.readVarInt() as T
-        String::class -> this.readString() as T
-        Boolean::class -> this.readBoolean() as T
-        Float::class -> this.readFloat() as T
-        Double::class -> this.readDouble() as T
-        Long::class -> this.readLong() as T
-        UUID::class -> this.readUUID() as T
-        ItemStack::class -> ItemStack.read(this) as T
-        Byte::class -> this.readByte() as T
-        Vector3::class -> Vector3.read(this) as T
-        Vector3d::class -> Vector3d.read(this) as T
-        Vector3f::class -> Vector3f.read(this) as T
-        BinaryTag::class -> (this.readNBT() as CompoundBinaryTag) as T
-        CompoundBinaryTag::class -> this.readNBTCompound() as T
-        Sound::class -> Sound(SoundEvent.read(this).identifier) as T
-        EntityType::class -> EntityTypeRegistry[this.readString()] as T
-        PotionEffect::class -> PotionEffectRegistry.getByProtocolId(this.readVarInt()) as T
-        CustomColor::class -> CustomColor.fromRGBInt(this.readInt()) as T
-        else -> throw IllegalArgumentException("This primitive doesn't have serializer")
-    }
-}
-
-
-fun ByteBuf.readItemList(): MutableList<Item> {
-    val size = this.readVarInt()
-    val list = mutableListOf<Item>()
-    for (i in 0 until size) {
-        list.add(ItemRegistry[this.readString()])
-    }
-    return list
-}
-
-fun ByteBuf.readPotionEffectHolder(): PotionEffect {
-    val type = this.readVarInt()
-    if (type == 0) {
-        val identifier = this.readString()
-        return PotionEffectRegistry[identifier]
-    }
-    return PotionEffectRegistry.getByProtocolId(type - 1)
-}
-
-fun ByteBuf.writeAppliedPotionEffectsList(list: Collection<AppliedPotionEffect>) {
-    this.writeVarInt(list.size)
-    list.forEach { this.writeAppliedPotionEffect(it) }
-}
-
-fun ByteBuf.readCustomColor(): CustomColor {
-    return CustomColor.fromRGBInt(this.readInt())
-}
-
-fun ByteBuf.readCustomColorList(): List<CustomColor> {
-    val list = mutableListOf<CustomColor>()
-    for (i in 0 until this.readVarInt()) {
-        list.add(this.readCustomColor())
-    }
-    return list
-}
-
-fun ByteBuf.writeCustomColorList(list: Collection<CustomColor>) {
-    this.writeVarInt(list.size)
-    list.forEach {
-        this.writeInt(it.getPackedInt())
-    }
-}
-
-fun ByteBuf.readEntityTypes(): List<EntityType> {
-    val present = this.readBoolean()
-    if (!present) return emptyList()
-
-    val type = this.readVarInt() - 1
-    if (type == -1) {
-        val identifier = this.readString()
-        return listOf(EntityTypeRegistry[identifier])
-    }
-    val list = mutableListOf<EntityType>()
-    for (i in 0 until type) {
-        list.add(readEntityTypeHolder())
-    }
-    return list
-}
-
-fun ByteBuf.readEntityTypeHolder(): EntityType {
-    val type = this.readVarInt()
-    if (type == 0) {
-        val identifier = this.readString()
-        return EntityTypeRegistry[identifier]
-    }
-    return EntityTypeRegistry.getByProtocolId(type - 1)
-}
-
-fun ByteBuf.readRepairable(): List<Item> {
-    val type = this.readVarInt() - 1
-    if (type == -1) {
-        val identifier = this.readString()
-        return listOf() //TODO tag registry
-    }
-    val list = mutableListOf<Item>()
-    for (i in 0 until type) {
-        list.add(readItemHolder())
-    }
-    return list
-}
-
-
-fun ByteBuf.readItemHolder(): Item {
-    val type = this.readVarInt()
-    if (type == 0) {
-        val identifier = this.readString()
-        return ItemRegistry[identifier]
-    }
-    return ItemRegistry.getByProtocolId(type - 1)
-}
 
 fun ByteBuf.writeByte(byte: Byte) {
     this.writeByte(byte.toInt())

@@ -11,7 +11,7 @@ class GamemodeCommand {
 
     init {
         Commands.add("/gamemode") {
-            withDescription("Changes your gamemode")
+            withDescription("Manages game mode of players")
             withPermission("dockyard.commands.gamemode")
             addArgument("game_mode", EnumArgument(GameMode::class))
             addOptionalArgument("player", PlayerArgument())

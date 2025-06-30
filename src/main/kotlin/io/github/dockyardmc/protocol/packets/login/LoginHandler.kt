@@ -128,9 +128,9 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         list.add(texturesPropertyMap)
         player.profile = texturesPropertyMap
 
-        player.sendPacket(ClientboundSetCompressionPacket(NetworkCompression.compressionThreshold))
+        player.sendPacket(ClientboundSetCompressionPacket(NetworkCompression.COMPRESSION_THRESHOLD))
 
-        if(NetworkCompression.compressionThreshold > -1) {
+        if(NetworkCompression.COMPRESSION_THRESHOLD > -1) {
             val pipeline = connection.channel().pipeline()
             pipeline.addBefore(ChannelHandlers.RAW_PACKET_DECODER, ChannelHandlers.PACKET_COMPRESSION_DECODER, CompressionDecoder(player.networkManager))
             pipeline.addBefore(ChannelHandlers.RAW_PACKET_ENCODER, ChannelHandlers.PACKET_COMPRESSION_ENCODER, CompressionEncoder(player.networkManager))

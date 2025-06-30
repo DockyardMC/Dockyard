@@ -1,12 +1,10 @@
 package io.github.dockyardmc.protocol.packets.play.clientbound
 
-import io.github.dockyardmc.extentions.writeNBT
-import io.github.dockyardmc.extentions.writeOptionalOLD
-import io.github.dockyardmc.extentions.writeUUID
-import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.protocol.writeOptional
+import io.netty.buffer.ByteBuf
 import kotlin.experimental.or
 
 class ClientboundPlayerInfoUpdatePacket(vararg updates: PlayerInfoUpdate) : ClientboundPacket() {
@@ -26,9 +24,7 @@ class ClientboundPlayerInfoUpdatePacket(vararg updates: PlayerInfoUpdate) : Clie
                 is SetListedInfoUpdateAction -> buffer.writeBoolean(updateAction.listed)
                 is UpdateLatencyInfoUpdateAction -> buffer.writeVarInt(updateAction.ping)
                 is SetDisplayNameInfoUpdateAction -> {
-                    buffer.writeOptionalOLD(updateAction.displayName) { optional ->
-                        optional.writeNBT(updateAction.displayName!!.toComponent().toNBT())
-                    }
+                    buffer.writeOptional(updateAction.displayName, ByteBuf::writeTextComponent)
                 }
             }
         }
