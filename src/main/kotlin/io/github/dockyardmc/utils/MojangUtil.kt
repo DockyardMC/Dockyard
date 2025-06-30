@@ -85,8 +85,8 @@ object MojangUtil {
         return future
     }
 
-    fun getSkinFromUUID(uuid: UUID, forceUpdate: Boolean = false): CompletableFuture<GameProfile.Property> {
-        val future = CompletableFuture<GameProfile.Property>()
+    fun getSkinFromUUID(uuid: UUID, forceUpdate: Boolean = false): CompletableFuture<GameProfile.Property?> {
+        val future = CompletableFuture<GameProfile.Property?>()
 
         if (uuidToSkinCache.containsKey(uuid) && !forceUpdate) future.complete(uuidToSkinCache[uuid]!!)
 

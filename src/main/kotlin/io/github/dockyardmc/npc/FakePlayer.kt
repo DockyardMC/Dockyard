@@ -15,16 +15,44 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerI
 import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
+import io.github.dockyardmc.utils.MojangUtil
+import java.util.*
+import java.util.concurrent.CompletableFuture
 
 class FakePlayer(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.PLAYER
     override val health: Bindable<Float> = bindablePool.provideBindable(20f)
     override var inventorySize: Int = 35
 
-    private val gameProfile = GameProfile(uuid, uuid.toString().substring(0, 16))
+    val gameProfile = GameProfile(uuid, uuid.toString().substring(0, 16))
     val isListed: Bindable<Boolean> = bindablePool.provideBindable(false)
     val skin: Bindable<GameProfile.Property?> = bindablePool.provideBindable(null)
     val displayedSkinParts: BindableList<DisplayedSkinPart> = bindablePool.provideBindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
+
+    fun setSkinFromUsername(username: String): CompletableFuture<Boolean> {
+        val future = CompletableFuture<Boolean>()
+        MojangUtil.getSkinFromUsername(username).thenAccept { property ->
+            if (property == null) {
+                future.complete(false)
+                return@thenAccept
+            }
+            skin.value = property
+            future.complete(true)
+        }
+        return future
+    }
+
+    fun setSkinFromUUID(uuid: UUID): CompletableFuture<Boolean> {
+        val future = CompletableFuture<Boolean>()
+        MojangUtil.getSkinFromUUID(uuid).thenAccept { property ->
+            if (property == null) {
+                future.complete(false)
+                return@thenAccept
+            }
+            skin.value = property
+        }
+        return future
+    }
 
     init {
         skin.valueChanged { event ->
