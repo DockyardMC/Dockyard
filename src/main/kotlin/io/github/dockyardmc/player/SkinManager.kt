@@ -30,6 +30,10 @@ object SkinManager {
 
     fun setSkinFromUUID(player: Player, uuid: UUID) {
         MojangUtil.getSkinFromUUID(uuid).thenAccept { property ->
+            if (property == null) {
+                return@thenAccept
+            }
+
             setSkin(player, property)
         }
     }
