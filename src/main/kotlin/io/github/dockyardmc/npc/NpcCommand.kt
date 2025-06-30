@@ -33,6 +33,7 @@ class NpcCommand {
                     val npc = player.world.spawnEntity<FakePlayer>(FakePlayer(player.location))
                     npcs[id] = npc
                     player.sendMessage("<lime>Created npc id <yellow>$id <lime>with name <aqua>$name")
+                    npc.skin.value = player.gameProfile.properties.first()
                 }
             }
         }
