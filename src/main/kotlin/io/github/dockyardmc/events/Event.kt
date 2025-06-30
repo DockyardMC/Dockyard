@@ -40,6 +40,9 @@ interface Event {
         }
 
         operator fun contains(element: Any) = other.contains(element)
+
+        // i hate everything about this
+        // please suggest something better.
     }
 }
 

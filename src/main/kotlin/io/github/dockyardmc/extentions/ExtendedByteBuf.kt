@@ -21,7 +21,8 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 
 private const val SEGMENT_BITS: Int = 0x7F
-private const val CONTINUE_BIT = 0x80
+private const val CONTINUE_BIT: Int = 0x80
+private const val MAXIMUM_VAR_INT_SIZE = 5
 
 fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
     val list = mutableListOf<T>()
@@ -172,17 +173,26 @@ fun <T : Enum<T>> ByteBuf.writeByteEnum(value: T) {
 }
 
 fun ByteBuf.readVarInt(): Int {
-    // https://github.com/jvm-profiling-tools/async-profiler/blob/a38a375dc62b31a8109f3af97366a307abb0fe6f/src/converter/one/jfr/JfrReader.java#L393
-    var result = 0
-    var shift = 0
-    while (true) {
-        val byte = readByte().toInt()
-        result = result or ((byte and 0x7f) shl shift)
-        if (byte >= 0) {
-            return result
-        }
-        shift += 7
+    val readable = this.readableBytes()
+    if (readable == 0) throw DecoderException("Invalid VarInt")
+
+    // decode only one byte first as this is the most common size of varints
+    var current = this.readByte().toInt()
+    if ((current and 0x80) != 128) {
+        return current
     }
+
+    // no point in while loop that has higher overhead instead of for loop with max size of the varint
+    val maxRead = MAXIMUM_VAR_INT_SIZE.coerceAtMost(readable)
+    var varInt = current and 0x7F
+    for (i in 1..<maxRead) {
+        current = this.readByte().toInt()
+        varInt = varInt or ((current and 0x7F) shl i * 7)
+        if ((current and 0x80) != 128) {
+            return varInt
+        }
+    }
+    throw DecoderException("Invalid VarInt")
 }
 
 fun ByteBuf.writeStringArray(list: Collection<String>) {
@@ -234,7 +244,9 @@ fun ByteBuf.writeVarInt(int: Int) {
 }
 
 fun ByteBuf.readString() = readString(Short.MAX_VALUE.toInt())
+
 fun ByteBuf.readUtfAndLength() = readUtfAndLength(Short.MAX_VALUE.toInt())
+
 fun ByteBuf.readString(i: Int): String {
     val maxSize = i * 3
     val size = this.readVarInt()
