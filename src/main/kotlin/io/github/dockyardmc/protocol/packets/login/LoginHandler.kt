@@ -45,7 +45,7 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         const val ERROR_PROXY_VELOCITY_NULL_RESPONSE = "<yellow>Response from Velocity is null\n\n<gray>(are you connecting through a proxy?)\n(make sure to set your <#ededed>player-info-forwarding-mode<gray> to <#dbdbdb>\"modern\"<gray>)"
         const val ERROR_PROXY_VELOCITY_INTEGRITY = "Failed Integrity check with Velocity"
 
-        val uuidRegex = "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})".toRegex()
+        val UUID_REGEX = "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})".toRegex()
     }
 
     private val crypto = EncryptionUtil.getNewPlayerCrypto()
@@ -150,7 +150,7 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
         val profile = try {
             val profileResponse = MojangUtil.authenticateSession(username, serverId)
 
-            val uuid = UUID.fromString(profileResponse.id.replaceFirst(uuidRegex, "$1-$2-$3-$4-$5"))
+            val uuid = UUID.fromString(profileResponse.id.replaceFirst(UUID_REGEX, "$1-$2-$3-$4-$5"))
             val name = profileResponse.name
             val properties = profileResponse.properties.toMutableList()
 
