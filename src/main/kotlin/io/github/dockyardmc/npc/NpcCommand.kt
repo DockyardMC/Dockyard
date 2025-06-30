@@ -67,6 +67,19 @@ class NpcCommand {
                     ctx.sendMessage("<lime>Set look close type of npc <yellow>$id<lime> to <aqua>${lookCloseType.name.properStrictCase()}")
                 }
             }
+
+            addSubcommand("mirrors_skin") {
+                addArgument("id", StringArgument(), ::suggestNpcIds)
+                addArgument("mirrors_skin", BooleanArgument())
+                execute { ctx ->
+                    val id = getArgument<String>("id")
+                    val npc = npcs[id] ?: throw IllegalArgumentException("Npc with id $id does not exist!")
+                    val collision = getArgument<Boolean>("mirrors_skin")
+                    npc.mirrorsSkin.value = collision
+                    ctx.sendMessage("<lime>Set mirrors skin of npc <yellow>$id<lime> to ${collision.toScrollText()}")
+                }
+            }
+
         }
     }
 }

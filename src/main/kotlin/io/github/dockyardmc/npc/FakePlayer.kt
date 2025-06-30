@@ -16,6 +16,7 @@ import io.github.dockyardmc.events.PlayerPickItemFromEntityEvent
 import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.*
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoRemovePacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoUpdatePacket
 import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.EntityTypes
@@ -42,10 +43,9 @@ class FakePlayer(location: Location) : Entity(location) {
     val displayedSkinParts: BindableList<DisplayedSkinPart> = bindablePool.provideBindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
     val hasCollision: Bindable<Boolean> = bindablePool.provideBindable(true)
     val teamColor: Bindable<LegacyTextColor> = bindablePool.provideBindable(LegacyTextColor.WHITE)
+    val mirrorsSkin: Bindable<Boolean> = bindablePool.provideBindable(false)
     var lookClose: LookCloseType = LookCloseType.NONE
     var lookCloseDistance: Int = 5
-
-    // BRB GETTING SOMETZHING TO DRINK
 
     val npcTeam = TeamManager.create("npc-$uuid", teamColor.value, Team.NameTagVisibility.HIDDEN, getTeamCollision())
     val hologram = hologram(this.location) {}
@@ -66,8 +66,16 @@ class FakePlayer(location: Location) : Entity(location) {
     }
 
     init {
+        hologram.autoViewable = false
         hasCollision.valueChanged { npcTeam.collisionRule.value = getTeamCollision() }
         teamColor.valueChanged { event -> npcTeam.color.value = event.newValue }
+
+        mirrorsSkin.valueChanged {
+            if (viewers.isEmpty()) return@valueChanged
+            val viewersCopy = viewers.toList()
+            viewersCopy.forEach { viewer -> removeViewer(viewer) }
+            viewersCopy.forEach { viewer -> addViewer(viewer) }
+        }
 
         eventPool.on<PlayerInteractWithEntityEvent> { event ->
             if (event.interactionHand == PlayerHand.OFF_HAND) return@on
@@ -110,32 +118,48 @@ class FakePlayer(location: Location) : Entity(location) {
         team.value = npcTeam
     }
 
+    fun getPlayerInfoUpdates(player: Player): MutableList<PlayerInfoUpdate> {
+        val updates = mutableListOf<PlayerInfoUpdate>()
+        if (mirrorsSkin.value) {
+            val textures = player.gameProfile.properties.firstOrNull { property -> property.name == "textures" }
+            if (textures != null) {
+                updates.add(PlayerInfoUpdate.AddPlayer(GameProfile(gameProfile.uuid, gameProfile.username, mutableListOf(textures))))
+            }
+        } else {
+            updates.add(PlayerInfoUpdate.AddPlayer(gameProfile))
+        }
+        updates.add(PlayerInfoUpdate.UpdateListed(isListed.value))
+        updates.add(PlayerInfoUpdate.UpdateDisplayName(customName.value))
+        return updates
+    }
+
     override fun teleport(location: Location) {
         super.teleport(location)
         hologram.teleport(getHologramLocation())
+        hologram.viewDistanceBlocks = this.viewDistanceBlocks
     }
 
     override fun addViewer(player: Player): Boolean {
 
-        val updates = mutableListOf(
-            PlayerInfoUpdate.AddPlayer(gameProfile),
-            PlayerInfoUpdate.UpdateListed(isListed.value),
-            PlayerInfoUpdate.UpdateDisplayName(customName.value),
-        )
-
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(mapOf(uuid to updates)))
+        player.sendPacket(ClientboundPlayerInfoUpdatePacket(mapOf(uuid to getPlayerInfoUpdates(player))))
         if (!super.addViewer(player)) return false
 
         this.displayedSkinParts.triggerUpdate()
         sendMetadataPacket(player)
         sendEquipmentPacket(player)
+        hologram.addViewer(player)
         return true
+    }
+
+    override fun removeViewer(player: Player) {
+        super.removeViewer(player)
+        hologram.removeViewer(player)
+        player.sendPacket(ClientboundPlayerInfoRemovePacket(this.gameProfile.uuid))
     }
 
     private fun getTeamCollision(): Team.CollisionRule {
         return if (hasCollision.value) Team.CollisionRule.ALWAYS else Team.CollisionRule.NEVER
     }
-
 
     fun setSkinFromUsername(username: String): CompletableFuture<Boolean> {
         val future = CompletableFuture<Boolean>()
