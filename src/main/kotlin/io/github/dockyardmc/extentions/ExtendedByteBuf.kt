@@ -8,6 +8,7 @@ import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.utils.BinaryTagUtils
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufInputStream
 import io.netty.buffer.Unpooled
@@ -16,7 +17,7 @@ import net.kyori.adventure.nbt.BinaryTag
 import net.kyori.adventure.nbt.BinaryTagIO
 import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.io.ByteArrayOutputStream
-import java.io.InputStream
+import java.io.DataInputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -99,8 +100,11 @@ fun ByteBuf.readByteArray(): ByteArray {
 
 fun ByteBuf.readNBT(): BinaryTag {
     try {
+        val typeId = this.readByte().toInt()
+        val type = BinaryTagUtils.nbtTypeFromId(typeId)
+
         val inputStream = ByteBufInputStream(this) // bro is greedy and takes ALL THE BYTES to himself >:(
-        val nbt = BinaryTagIO.reader().readNameless(inputStream as InputStream, BinaryTagIO.Compression.NONE)
+        val nbt = type.read(DataInputStream(inputStream))
 
         // read the rest of the bytes leftover, put them back and reset the reader index
         this.readerIndex(writerIndex() - inputStream.available())

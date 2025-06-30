@@ -5,7 +5,7 @@ import io.github.dockyardmc.dialog.action.CommandTemplateDialogAction
 import io.github.dockyardmc.dialog.action.CustomDialogAction
 import io.github.dockyardmc.dialog.action.DialogAction
 import io.github.dockyardmc.dialog.action.StaticDialogAction
-import io.github.dockyardmc.events.DialogCustomClickActionEvent
+import io.github.dockyardmc.events.CustomClickActionEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.scroll.ClickEvent
@@ -51,16 +51,16 @@ class DialogButton(
         }
 
         /**
-         * Registers event listener for [DialogCustomClickActionEvent] and runs provided callback when the event is raised with this button (no manual filtering needed)
+         * Registers event listener for [CustomClickActionEvent] and runs provided callback when the event is raised with this button (no manual filtering needed)
          *
-         * @param callback [DialogCustomClickActionEvent]
+         * @param callback [CustomClickActionEvent]
          * @receiver
          */
-        fun onClick(callback: (DialogCustomClickActionEvent) -> Unit) {
-            val id = "dockyard:${UUID.randomUUID()}"
+        fun onClick(callback: (CustomClickActionEvent) -> Unit) {
+            val id = "dockyard:dialog_${UUID.randomUUID()}"
             action = CustomDialogAction(id, null)
 
-            Events.on<DialogCustomClickActionEvent> { event ->
+            Events.on<CustomClickActionEvent> { event ->
                 if (event.id != id) return@on
                 callback.invoke(event)
             }

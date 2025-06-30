@@ -25,7 +25,7 @@ class EnforceEventTests : EnforceTestsAbstract() {
         PlayerJoinEvent::class.java,
         ServerBrandEvent::class.java,
         InstrumentationHotReloadEvent::class.java,
-        DialogCustomClickActionEvent::class.java
+        CustomClickActionEvent::class.java
     )
     override val superClass: Class<out Any> = Event::class.java
 }
