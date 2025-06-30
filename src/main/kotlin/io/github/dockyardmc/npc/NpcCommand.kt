@@ -6,6 +6,7 @@ import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.properStrictCase
 import io.github.dockyardmc.extentions.toScrollText
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import kotlin.collections.set
 
 class NpcCommand {
@@ -23,11 +24,9 @@ class NpcCommand {
 
             addSubcommand("create") {
                 addArgument("id", StringArgument(), simpleSuggestion("<id>"))
-                addArgument("name", StringArgument())
                 execute {
                     val player = it.getPlayerOrThrow()
                     val id = getArgument<String>("id")
-                    val name = getArgument<String>("name")
 
                     if (npcs[id] != null) throw CommandException("Npc with id $id already exists!")
                     val npc = player.world.spawnEntity<FakePlayer>(FakePlayer(player.location))
@@ -80,6 +79,16 @@ class NpcCommand {
                 }
             }
 
+            addSubcommand("equipment") {
+                addArgument("id", StringArgument(), ::suggestNpcIds)
+                addArgument("slot", EnumArgument(EquipmentSlot::class))
+                execute { ctx ->
+                    val id = getArgument<String>("id")
+                    val npc = npcs[id] ?: throw IllegalArgumentException("Npc with id $id does not exist!")
+                    val slot = getEnumArgument<EquipmentSlot>("slot")
+                    npc.equipment[slot] = ctx.getPlayerOrThrow().mainHandItem
+                }
+            }
         }
     }
 }

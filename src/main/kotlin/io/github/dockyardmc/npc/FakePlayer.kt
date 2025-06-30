@@ -6,6 +6,7 @@ import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.apis.Hologram
 import io.github.dockyardmc.apis.hologram
 import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.metadata.EntityMetaValue
 import io.github.dockyardmc.entity.metadata.EntityMetadata
 import io.github.dockyardmc.entity.metadata.EntityMetadataType
@@ -186,11 +187,6 @@ class FakePlayer(location: Location) : Entity(location) {
         return future
     }
 
-    override fun dispose() {
-        tickTask.cancel()
-        super.dispose()
-    }
-
     private fun getHologramLocation(): Location {
         return this.location.add(0f, (EntityTypes.PLAYER.dimensions.height - 0.1f) + hologram.lineAmount * Hologram.LINE_SIZE_MULTIPLIER.toFloat(), 0f)
     }
@@ -217,5 +213,13 @@ class FakePlayer(location: Location) : Entity(location) {
                     }
             }
         }
+    }
+
+    override fun dispose() {
+        TeamManager.remove(npcTeam)
+        tickTask.cancel()
+        world.despawnEntity(hologram)
+        hologram.dispose()
+        super.dispose()
     }
 }
