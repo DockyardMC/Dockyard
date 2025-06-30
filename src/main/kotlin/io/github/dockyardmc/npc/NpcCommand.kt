@@ -2,6 +2,7 @@ package io.github.dockyardmc.npc
 
 import io.github.dockyardmc.commands.*
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.properStrictCase
 import io.github.dockyardmc.extentions.toScrollText
 import io.github.dockyardmc.player.Player
@@ -31,8 +32,15 @@ class NpcCommand {
                     if (npcs[id] != null) throw CommandException("Npc with id $id already exists!")
                     val npc = player.world.spawnEntity<FakePlayer>(FakePlayer(player.location))
                     npcs[id] = npc
+                    npc.hologram.addStaticLine("testing testing")
+                    npc.hologram.addStaticLine("line 2")
+                    npc.hologram.addPlayerLine { p -> "Hi, $p!" }
                     player.sendMessage("<lime>Created npc id <yellow>$id <lime>with name <aqua>$name")
                     npc.skin.value = player.gameProfile.properties.first()
+
+                    npc.onClick.subscribe { (player, clickType) ->
+                        broadcastMessage("$player - $clickType")
+                    }
                 }
             }
 

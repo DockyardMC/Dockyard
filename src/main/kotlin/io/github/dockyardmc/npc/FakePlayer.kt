@@ -1,17 +1,21 @@
 package io.github.dockyardmc.npc
 
 import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindableDispatcher
 import cz.lukynka.bindables.BindableList
+import io.github.dockyardmc.apis.Hologram
+import io.github.dockyardmc.apis.hologram
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.metadata.EntityMetaValue
 import io.github.dockyardmc.entity.metadata.EntityMetadata
 import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.events.EventPool
+import io.github.dockyardmc.events.PlayerDamageEntityEvent
+import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
+import io.github.dockyardmc.events.PlayerPickItemFromEntityEvent
+import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.DisplayedSkinPart
-import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.PlayerInfoUpdate
-import io.github.dockyardmc.player.getBitMask
+import io.github.dockyardmc.player.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoUpdatePacket
 import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.EntityTypes
@@ -29,9 +33,10 @@ class FakePlayer(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.PLAYER
     override val health: Bindable<Float> = bindablePool.provideBindable(20f)
     override var inventorySize: Int = 35
-
-    private val eventPool = EventPool()
     val gameProfile = GameProfile(uuid, uuid.toString().substring(0, 16))
+
+    private val eventPool = EventPool().withFilter(EventFilter.containsEntity(this))
+
     val isListed: Bindable<Boolean> = bindablePool.provideBindable(false)
     val skin: Bindable<GameProfile.Property?> = bindablePool.provideBindable(null)
     val displayedSkinParts: BindableList<DisplayedSkinPart> = bindablePool.provideBindableList(DisplayedSkinPart.CAPE, DisplayedSkinPart.JACKET, DisplayedSkinPart.LEFT_PANTS, DisplayedSkinPart.RIGHT_PANTS, DisplayedSkinPart.LEFT_SLEEVE, DisplayedSkinPart.RIGHT_SLEEVE, DisplayedSkinPart.HAT)
@@ -40,33 +45,46 @@ class FakePlayer(location: Location) : Entity(location) {
     var lookClose: LookCloseType = LookCloseType.NONE
     var lookCloseDistance: Int = 5
 
+    // BRB GETTING SOMETZHING TO DRINK
+
     val npcTeam = TeamManager.create("npc-$uuid", teamColor.value, Team.NameTagVisibility.HIDDEN, getTeamCollision())
+    val hologram = hologram(this.location) {}
+
+    // dispatchers
+    val onTick: BindableDispatcher<Unit> = bindablePool.provideBindableDispatcher()
+    val onClick: BindableDispatcher<Pair<Player, ClickType>> = bindablePool.provideBindableDispatcher()
 
     val tickTask: SchedulerTask = world.scheduler.runRepeating(1.ticks) {
-        when (lookClose) {
-            LookCloseType.NONE -> return@runRepeating
-            LookCloseType.NORMAL -> {
-                val closestPlayer = viewers
-                    .filter { viewer -> viewer.location.distance(this.location) <= lookCloseDistance }
-                    .minByOrNull { viewer -> viewer.location.distance(this.location) }
+        onTick.dispatch(Unit)
+        updateLookClose()
+    }
 
-                if (closestPlayer == null) return@runRepeating
-                this.lookAt(closestPlayer)
-            }
-
-            LookCloseType.CLIENT_SIDE -> {
-                viewers
-                    .filter { viewer -> viewer.location.distance(this.location) <= lookCloseDistance }
-                    .forEach { viewer ->
-                        this.lookAtClientside(viewer, viewer)
-                    }
-            }
-        }
+    enum class ClickType {
+        RIGHT,
+        LEFT,
+        MIDDLE
     }
 
     init {
         hasCollision.valueChanged { npcTeam.collisionRule.value = getTeamCollision() }
         teamColor.valueChanged { event -> npcTeam.color.value = event.newValue }
+
+        eventPool.on<PlayerInteractWithEntityEvent> { event ->
+            if (event.interactionHand == PlayerHand.OFF_HAND) return@on
+            onClick.dispatch(event.player to ClickType.RIGHT)
+        }
+
+        eventPool.on<PlayerDamageEntityEvent> { event ->
+            onClick.dispatch(event.player to ClickType.LEFT)
+        }
+
+        eventPool.on<PlayerPickItemFromEntityEvent> { event ->
+            onClick.dispatch(event.player to ClickType.MIDDLE)
+        }
+
+        hologram.onLinesUpdated.subscribe {
+            hologram.teleport(getHologramLocation())
+        }
 
         skin.valueChanged { event ->
             if (event.newValue != null) {
@@ -90,6 +108,11 @@ class FakePlayer(location: Location) : Entity(location) {
             metadata[EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
         }
         team.value = npcTeam
+    }
+
+    override fun teleport(location: Location) {
+        super.teleport(location)
+        hologram.teleport(getHologramLocation())
     }
 
     override fun addViewer(player: Player): Boolean {
@@ -139,5 +162,36 @@ class FakePlayer(location: Location) : Entity(location) {
         return future
     }
 
+    override fun dispose() {
+        tickTask.cancel()
+        super.dispose()
+    }
 
+    private fun getHologramLocation(): Location {
+        return this.location.add(0f, (EntityTypes.PLAYER.dimensions.height - 0.1f) + hologram.lineAmount * Hologram.LINE_SIZE_MULTIPLIER.toFloat(), 0f)
+    }
+
+    fun updateLookClose() {
+        if (viewers.isEmpty()) return
+        when (lookClose) {
+
+            LookCloseType.NONE -> return
+            LookCloseType.NORMAL -> {
+                val closestPlayer = viewers
+                    .filter { viewer -> viewer.location.distance(this.location) <= lookCloseDistance }
+                    .minByOrNull { viewer -> viewer.location.distance(this.location) }
+
+                if (closestPlayer == null) return
+                this.lookAt(closestPlayer)
+            }
+
+            LookCloseType.CLIENT_SIDE -> {
+                viewers
+                    .filter { viewer -> viewer.location.distance(this.location) <= lookCloseDistance }
+                    .forEach { viewer ->
+                        this.lookAtClientside(viewer, viewer)
+                    }
+            }
+        }
+    }
 }
