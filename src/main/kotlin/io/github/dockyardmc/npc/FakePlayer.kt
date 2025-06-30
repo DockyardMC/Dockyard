@@ -210,7 +210,7 @@ class FakePlayer(location: Location) : Entity(location) {
     }
 
     private fun getHologramLocation(): Location {
-        return this.location.add(0f, (EntityTypes.PLAYER.dimensions.height - 0.1f) + hologram.lineAmount * Hologram.LINE_SIZE_MULTIPLIER.toFloat(), 0f)
+        return this.location.add(0f, EntityTypes.PLAYER.dimensions.height - 0.1f + hologram.lineAmount * Hologram.LINE_SIZE_MULTIPLIER.toFloat(), 0f)
     }
 
     private fun updateLookClose() {
