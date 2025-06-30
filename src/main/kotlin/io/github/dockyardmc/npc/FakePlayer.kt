@@ -54,7 +54,6 @@ class FakePlayer(location: Location) : Entity(location) {
     val npcTeam = TeamManager.create("npc-$uuid", teamColor.value, Team.NameTagVisibility.HIDDEN, getTeamCollision())
     val hologram = hologram(this.location) {}
 
-    // dispatchers
     val onTick: BindableDispatcher<Unit> = bindablePool.provideBindableDispatcher()
     val onClick: BindableDispatcher<Pair<Player, ClickType>> = bindablePool.provideBindableDispatcher()
 
@@ -214,7 +213,7 @@ class FakePlayer(location: Location) : Entity(location) {
         return this.location.add(0f, (EntityTypes.PLAYER.dimensions.height - 0.1f) + hologram.lineAmount * Hologram.LINE_SIZE_MULTIPLIER.toFloat(), 0f)
     }
 
-    fun updateLookClose() {
+    private fun updateLookClose() {
         if (viewers.isEmpty()) return
         when (lookClose) {
 
