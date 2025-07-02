@@ -1,5 +1,6 @@
 package io.github.dockyardmc.utils
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 
 // the map is BI?? 🏳️‍🌈🏳️‍🌈🏳️‍🌈🏳️‍🌈
@@ -10,11 +11,11 @@ open class BiMap<K, V>() {
     val size get() = keyToValue.size
 
     fun keyToValue(): Map<K, V> {
-        return keyToValue.toMap()
+        return Object2ObjectMaps.unmodifiable(keyToValue)
     }
 
     fun valueToKey(): Map<V, K> {
-        return valueToKey.toMap()
+        return Object2ObjectMaps.unmodifiable(valueToKey)
     }
 
     fun getByKeyOrNull(key: K): V? {
