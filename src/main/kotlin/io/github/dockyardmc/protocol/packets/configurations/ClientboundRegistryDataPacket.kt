@@ -4,6 +4,7 @@ import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.registry.Registry
 import io.netty.buffer.ByteBuf
 
@@ -15,16 +16,16 @@ class ClientboundRegistryDataPacket(val registry: Registry<*>) : ClientboundPack
 }
 
 private fun ByteBuf.writeRegistry(registry: Registry<*>) {
-    this.writeString(registry.identifier)
-    this.writeVarInt(registry.getEntries().size)
-    registry.getEntries().keyToValue().forEach { (identifier, entry) ->
-        val data = entry.getNbt()
-        val isDataPresent = data != null
+    val entries = registry.getProtocolEntries().keyToValue()
+    val size = registry.getMaxProtocolId()
 
-        this.writeString(identifier)
-        this.writeBoolean(isDataPresent)
-        if (isDataPresent) {
-            this.writeNBT(data!!)
-        }
+    this.writeString(registry.identifier)
+
+    this.writeVarInt(size)
+    for (i in 0..<size) {
+        val entry = entries[i]!!
+
+        writeString(entry.getEntryIdentifier())
+        writeOptional(entry.getNbt(), ByteBuf::writeNBT)
     }
 }

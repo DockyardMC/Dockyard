@@ -6,26 +6,23 @@ import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.utils.BiMap
 import io.github.dockyardmc.utils.MutableBiMap
-import io.github.dockyardmc.utils.debug
 import io.netty.buffer.ByteBuf
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import net.kyori.adventure.nbt.BinaryTag
 import java.io.InputStream
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPInputStream
 
 abstract class Registry<T : RegistryEntry> {
 
     abstract val identifier: String
-    protected var counter: AtomicInteger = AtomicInteger()
+    protected var counter = 0
     protected val protocolEntries: MutableBiMap<Int, T> = MutableBiMap()
     protected val entries: MutableBiMap<String, T> = MutableBiMap()
 
     open fun addEntry(entry: T) {
-        val id = counter.getAndIncrement()
-        protocolEntries.put(id, entry)
+        protocolEntries.put(counter++, entry)
         entries.put(entry.getEntryIdentifier(), entry)
     }
 
