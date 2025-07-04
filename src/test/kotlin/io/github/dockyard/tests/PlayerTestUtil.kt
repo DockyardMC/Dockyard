@@ -8,13 +8,12 @@ import io.github.dockyardmc.item.HashedItemStack
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
-import io.github.dockyardmc.player.ProfileProperty
-import io.github.dockyardmc.player.ProfilePropertyMap
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.ContainerClickMode
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClickContainerPacket
+import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.world.WorldManager
 import io.netty.channel.ChannelHandlerContext
@@ -27,6 +26,9 @@ object PlayerTestUtil {
     var player: Player? = null
 
     fun getOrCreateFakePlayer(): Player {
+        val mayaUuid = UUID.fromString("0c9151e4-7083-418d-a29c-bbc58f7c741b")
+        val mayaUsername = "LukynkaCZE"
+
         if (player == null) {
             player = Player(
                 "LukynkaCZE",
@@ -38,7 +40,7 @@ object PlayerTestUtil {
                 networkManager = PlayerNetworkManager(),
             )
 
-            player!!.profile = ProfilePropertyMap("textures", mutableListOf(ProfileProperty("textures", ":3", false, null)))
+            player!!.gameProfile = GameProfile(mayaUuid, mayaUsername)
             PlayerManager.add(player!!, player!!.networkManager)
             player!!.world.join(player!!)
             player!!.teleport(WorldManager.mainWorld.defaultSpawnLocation)

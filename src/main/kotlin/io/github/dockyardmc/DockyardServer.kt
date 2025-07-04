@@ -9,7 +9,6 @@ import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.block.DefaultBlockHandlers
 import io.github.dockyardmc.implementations.commands.DefaultCommands
-import io.github.dockyardmc.npc.NpcCommand
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.NetworkCompression
 import io.github.dockyardmc.protocol.packets.configurations.Tag
@@ -92,12 +91,11 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
             profiler("Default Implementations") {
                 if (ConfigManager.config.implementationConfig.defaultCommands) DefaultCommands().register()
-                if (ConfigManager.config.implementationConfig.npcCommand) NpcCommand()
                 if (ConfigManager.config.implementationConfig.spark) SparkDockyardIntegration().initialize()
                 if (ConfigManager.config.implementationConfig.applyBlockPlacementRules) DefaultBlockHandlers().register()
             }
 
-            NetworkCompression.compressionThreshold = ConfigManager.config.networkCompressionThreshold
+            NetworkCompression.COMPRESSION_THRESHOLD = ConfigManager.config.networkCompressionThreshold
             WorldManager.loadDefaultWorld()
 
             Events.dispatch(ServerFinishLoadEvent(this))

@@ -2,11 +2,15 @@ package io.github.dockyardmc.effects
 
 import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.HashHolder
+import io.github.dockyardmc.extentions.readRegistryEntry
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.DataComponentHashable
+import io.github.dockyardmc.protocol.NetworkReadable
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.registry.registries.PotionEffect
+import io.github.dockyardmc.registry.registries.PotionEffectRegistry
 import io.github.dockyardmc.scheduler.runnables.inWholeMinecraftTicks
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.netty.buffer.ByteBuf
@@ -16,7 +20,18 @@ data class AppliedPotionEffect(
     var effect: PotionEffect,
     val settings: AppliedPotionEffectSettings,
     var startTime: Long? = null,
-) : DataComponentHashable {
+) : DataComponentHashable, NetworkWritable {
+
+    override fun write(buffer: ByteBuf) {
+        effect.write(buffer)
+        settings.write(buffer)
+    }
+
+    companion object : NetworkReadable<AppliedPotionEffect> {
+        override fun read(buffer: ByteBuf): AppliedPotionEffect {
+            return AppliedPotionEffect(buffer.readRegistryEntry(PotionEffectRegistry), AppliedPotionEffectSettings.read(buffer))
+        }
+    }
 
     override fun hashStruct(): HashHolder {
         return CRC32CHasher.of {
@@ -36,6 +51,7 @@ data class AppliedPotionEffectSettings(
     val hiddenEffect: AppliedPotionEffectSettings? = null
 ) : DataComponentHashable {
     companion object {
+
         fun read(buffer: ByteBuf): AppliedPotionEffectSettings {
             val amplifier: Int = buffer.readVarInt()
             val duration: Int = buffer.readVarInt()

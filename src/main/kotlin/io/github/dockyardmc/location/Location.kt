@@ -232,6 +232,10 @@ data class Location(
         return locations
     }
 
+    fun add(x: Float, y: Float, z: Float): Location {
+        return add(Vector3f(x, y, z))
+    }
+
     val closestNonAirBelow: Pair<Block, Location>?
         get() {
             val minY = world.dimensionType.minY

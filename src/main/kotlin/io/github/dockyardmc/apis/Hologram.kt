@@ -1,6 +1,7 @@
 package io.github.dockyardmc.apis
 
 import cz.lukynka.bindables.Bindable
+import cz.lukynka.bindables.BindableDispatcher
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
@@ -34,8 +35,14 @@ fun hologram(location: Location, unit: HologramBuilder.() -> Unit): Hologram {
 
 class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawnLocation, spawnLocation.world) {
 
+    companion object {
+        const val LINE_SIZE_MULTIPLIER = 0.3
+    }
+
     private val lines = mutableListOf<ContentLine>()
     private val lineEntities = mutableListOf<TextDisplay>()
+
+    val lineAmount get() = lines.size
 
     override var type: EntityType = EntityTypes.MARKER
     override val health: Bindable<Float> = Bindable(0f)
@@ -45,15 +52,17 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
 
     override var tickable: Boolean = false
 
+    val onLinesUpdated: BindableDispatcher<Unit> = bindablePool.provideBindableDispatcher()
+
     override fun teleport(location: Location) {
         lineEntities.forEachIndexed { index, entity ->
-            entity.teleport(location.subtract(0.0, index * 0.3, 0.0))
+            entity.teleport(location.subtract(0.0, index * LINE_SIZE_MULTIPLIER, 0.0))
         }
     }
 
     override fun teleportClientside(location: Location, player: Player) {
         lineEntities.forEachIndexed { index, entity ->
-            entity.teleportClientside(location.subtract(0.0, index * 0.3, 0.0), player)
+            entity.teleportClientside(location.subtract(0.0, index * LINE_SIZE_MULTIPLIER, 0.0), player)
         }
     }
 
@@ -63,9 +72,10 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     }
 
     fun addStaticLine(line: StaticContentLine) {
-        val lineIndex = lines.size
         lines.add(line)
+        if (viewers.isEmpty()) return
         viewers.forEach(::updateFull)
+        onLinesUpdated.dispatch(Unit)
     }
 
     fun addStaticLine(line: String) {
@@ -73,9 +83,10 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     }
 
     fun addPlayerLine(line: PlayerContentLine) {
-        val lineIndex = lines.size
         lines.add(line)
+        if (viewers.isEmpty()) return
         viewers.forEach(::updateFull)
+        onLinesUpdated.dispatch(Unit)
     }
 
     fun addPlayerLine(line: (Player) -> String) {
@@ -149,11 +160,13 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
         val layer = display.metadataLayers[player.toPersistent()]!!
         layer[EntityMetadataType.TEXT_DISPLAY_TEXT] = EntityMetadata(EntityMetadataType.TEXT_DISPLAY_TEXT, EntityMetaValue.TEXT_COMPONENT, message.toComponent())
         display.sendMetadataPacket(player)
+        onLinesUpdated.dispatch(Unit)
     }
 
     private fun setGlobalLineContent(lineIndex: Int, message: String) {
         val display = lineEntities.getOrNull(lineIndex) ?: return
         display.text.value = if (message.replace(" ", "").isEmpty()) "" else message
+        onLinesUpdated.dispatch(Unit)
     }
 
     override fun dispose() {

@@ -4,10 +4,7 @@ import io.github.dockyardmc.events.ClientboundMoveVehiclePacket
 import io.github.dockyardmc.protocol.packets.configurations.*
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundPingResponsePacket
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundStatusResponsePacket
-import io.github.dockyardmc.protocol.packets.login.ClientboundEncryptionRequestPacket
-import io.github.dockyardmc.protocol.packets.login.ClientboundLoginDisconnectPacket
-import io.github.dockyardmc.protocol.packets.login.ClientboundLoginSuccessPacket
-import io.github.dockyardmc.protocol.packets.login.ClientboundSetCompressionPacket
+import io.github.dockyardmc.protocol.packets.login.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 
 object ClientPacketRegistry : PacketRegistry() {
@@ -20,7 +17,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addLogin(ClientboundEncryptionRequestPacket::class)
         addLogin(ClientboundLoginSuccessPacket::class)
         addLogin(ClientboundSetCompressionPacket::class)
-        skipLogin("Plugin Request")
+        addLogin(ClientboundLoginPluginRequestPacket::class)
         skipLogin("Cookie Request")
 
         skipConfiguration("Cookie Request")

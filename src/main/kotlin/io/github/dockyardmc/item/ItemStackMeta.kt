@@ -4,8 +4,8 @@ import io.github.dockyardmc.attributes.AttributeModifier
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.DataComponentPatch
 import io.github.dockyardmc.data.components.*
-import io.github.dockyardmc.player.ProfileProperty
 import io.github.dockyardmc.protocol.types.ConsumeEffect
+import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.protocol.types.ItemRarity
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
@@ -71,7 +71,7 @@ class ItemStackMeta {
         this.noxesiumImmovable = immovable
     }
 
-    fun withProfile(username: String? = null, uuid: UUID? = null, profile: ProfileProperty? = null) {
+    fun withProfile(username: String? = null, uuid: UUID? = null, profile: GameProfile? = null) {
         if (material != Items.PLAYER_HEAD) {
             throw IllegalArgumentException("Item must be a player head")
         }
@@ -83,7 +83,7 @@ class ItemStackMeta {
             if (profile == null) {
                 ProfileComponent(username, uuid, emptyList())
             } else {
-                ProfileComponent(username, uuid, listOf(ProfileComponent.Property("textures", profile.value, profile.signature)))
+                ProfileComponent(username, uuid, profile.properties.map { property -> ProfileComponent.Property(property.name, property.value, property.signature) })
             }
         )
     }
@@ -203,7 +203,7 @@ class ItemStackMeta {
     }
 
     fun withAmount(amount: Int) {
-        if(amount <= 0) this.amount = 1 else this.amount = amount
+        if (amount <= 0) this.amount = 1 else this.amount = amount
     }
 
     fun clearLore() {
