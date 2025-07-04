@@ -28,7 +28,7 @@ class ServerboundPlayerCommandPacket(val entityId: Int, val action: PlayerAction
             }
 
             PlayerAction.HORSE_JUMP_START -> HorseJumpEvent(player, true)
-            PlayerAction.HORSE_JUMP_END -> HorseJumpEvent(player, true)
+            PlayerAction.HORSE_JUMP_END -> HorseJumpEvent(player, false)
             PlayerAction.VEHICLE_INVENTORY_OPEN -> PlayerVehicleInventoryOpenEvent(player)
             PlayerAction.ELYTRA_FLYING_START -> PlayerElytraFlyingStartEvent(player)
         }

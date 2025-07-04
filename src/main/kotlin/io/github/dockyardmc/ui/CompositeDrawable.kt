@@ -52,17 +52,16 @@ abstract class CompositeDrawable(var parent: CompositeDrawable? = null) : Dispos
         withSlot(index, item)
     }
 
-    fun withSlot(slot: Int, builder: DrawableItemStack.Builder.() -> Unit) {
+    inline fun withSlot(slot: Int, builder: DrawableItemStack.Builder.() -> Unit) {
         val instance = DrawableItemStack.Builder()
         builder.invoke(instance)
-        items[slot] = instance.build()
+        withSlot(slot, instance.build())
     }
 
-    fun withSlot(x: Int, y: Int, builder: DrawableItemStack.Builder.() -> Unit) {
-        val index = getSlotIndexFromVector2(x, y)
+    inline fun withSlot(x: Int, y: Int, builder: DrawableItemStack.Builder.() -> Unit) {
         val instance = DrawableItemStack.Builder()
         builder.invoke(instance)
-        items[index] = instance.build()
+        withSlot(x, y, instance.build())
     }
 
     fun withComposite(slot: Int, compositeDrawable: CompositeDrawable) {

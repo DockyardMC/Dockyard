@@ -27,7 +27,7 @@ class MultiActionDialog(
     override val type: DialogType = DialogTypes.MULTI_ACTION
 
     init {
-        if (actions.isEmpty()) throw IllegalArgumentException("actions can't be empty")
+        require(actions.isNotEmpty()) { "actions can't be empty" }
     }
 
     override fun getNbt(): CompoundBinaryTag {
@@ -47,11 +47,9 @@ class MultiActionDialog(
         var exitAction: DialogButton? = null
         var columns: Int = 2
 
-        fun addAction(label: String, block: (DialogButton.Builder.() -> Unit)? = null) {
+        inline fun addAction(label: String, block: DialogButton.Builder.() -> Unit = {}) {
             actions.add(
-                DialogButton.Builder(label).apply {
-                    block?.let { apply(it) }
-                }.build()
+                DialogButton.Builder(label).apply(block).build()
             )
         }
 
@@ -71,7 +69,7 @@ class MultiActionDialog(
     }
 }
 
-fun createMultiActionDialog(id: String, block: @DialogDsl MultiActionDialog.Builder.() -> Unit): DialogEntry {
+inline fun createMultiActionDialog(id: String, block: @DialogDsl MultiActionDialog.Builder.() -> Unit): DialogEntry {
     val entry = DialogEntry(id, MultiActionDialog.Builder().apply(block).build())
     DialogRegistry.addEntry(entry)
     return entry

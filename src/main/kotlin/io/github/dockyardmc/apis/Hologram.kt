@@ -27,7 +27,7 @@ class HologramBuilder {
     }
 }
 
-fun hologram(location: Location, unit: HologramBuilder.() -> Unit): Hologram {
+inline fun hologram(location: Location, unit: HologramBuilder.() -> Unit): Hologram {
     val builder = HologramBuilder()
     unit.invoke(builder)
     return location.world.spawnEntity(Hologram(location, builder)) as Hologram

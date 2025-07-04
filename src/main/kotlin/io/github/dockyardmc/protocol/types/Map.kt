@@ -3,11 +3,9 @@ package io.github.dockyardmc.protocol.types
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.netty.buffer.ByteBuf
-import kotlin.reflect.KFunction1
-import kotlin.reflect.KFunction2
 
 @JvmName("writeMap1")
-fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, writeValue: (ByteBuf, V) -> Unit) {
+inline fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, writeValue: (ByteBuf, V) -> Unit) {
     this.writeVarInt(map.size)
     map.forEach { (key, value) ->
         writeKey.invoke(this, key)
@@ -15,7 +13,7 @@ fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, writ
     }
 }
 
-fun <K, V> ByteBuf.writeRawMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, writeValue: (ByteBuf, V) -> Unit) {
+inline fun <K, V> ByteBuf.writeRawMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, writeValue: (ByteBuf, V) -> Unit) {
     map.forEach { (key, value) ->
         writeKey.invoke(this, key)
         writeValue.invoke(this, value)
@@ -23,7 +21,7 @@ fun <K, V> ByteBuf.writeRawMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> Unit, w
 }
 
 @JvmName("writeMap2")
-fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, ByteBuf>, writeValue: KFunction2<V, ByteBuf, Unit>) {
+inline fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: (ByteBuf, K) -> ByteBuf, writeValue: (V, ByteBuf) -> Unit) {
     this.writeVarInt(map.size)
     map.forEach { (key, value) ->
         writeKey.invoke(this, key)
@@ -31,10 +29,10 @@ fun <K, V> ByteBuf.writeMap(map: Map<K, V>, writeKey: KFunction2<ByteBuf, K, Byt
     }
 }
 
-fun <K, V> ByteBuf.readMap(readKey: KFunction1<ByteBuf, K>, readValue: KFunction1<ByteBuf, V>): Map<K, V> {
+inline fun <K, V> ByteBuf.readMap(readKey: (ByteBuf) -> K, readValue: (ByteBuf) -> V): Map<K, V> {
     val map = mutableMapOf<K, V>()
-    val size = this.readVarInt()
-    for (i in 0 until size) {
+
+    repeat(readVarInt()) {
         val key = readKey.invoke(this)
         val value = readValue.invoke(this)
         map[key] = value

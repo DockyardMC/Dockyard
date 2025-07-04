@@ -55,7 +55,7 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
 
         val playerVersion = MinecraftVersionRegistry.getOrNull(packet.version)?.versionName ?: "unknown"
         val requiredVersion = DockyardServer.minecraftVersion.protocolId
-        if (packet.version != requiredVersion) {
+        if (!DockyardServer.allowAnyVersion && packet.version != requiredVersion) {
             networkManager.kick("You are using incompatible minecraft version <red>($playerVersion)<gray>. Please use <yellow>${DockyardServer.minecraftVersion.versionName}<gray>", connection)
             return
         }

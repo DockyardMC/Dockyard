@@ -14,7 +14,7 @@ class PlainMessage(
     override val type: DialogBodyType = DialogBodyTypes.PLAIN_MESSAGE
 
     init {
-        if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
+        require(width in 1..1024) { "width must be between 1 and 1024 (inclusive)" }
     }
 
     override fun getNbt(): CompoundBinaryTag {

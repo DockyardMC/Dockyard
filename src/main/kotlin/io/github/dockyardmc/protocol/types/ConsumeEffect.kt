@@ -48,7 +48,7 @@ interface ConsumeEffect : NetworkWritable, DataComponentHashable {
     data class ApplyEffects(val effects: List<AppliedPotionEffect>, val probability: Float) : ConsumeEffect {
 
         init {
-            if (probability < 0f || probability > 1f) throw IllegalArgumentException("Probability must be between 0f and 1f")
+            require(probability in 0f..1f) { "Probability must be between 0f and 1f" }
         }
 
         override fun write(buffer: ByteBuf) {

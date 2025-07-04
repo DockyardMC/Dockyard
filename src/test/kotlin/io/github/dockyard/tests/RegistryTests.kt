@@ -5,9 +5,9 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.ChatTypeRegistry
-import io.github.dockyardmc.maths.randomInt
 import io.github.dockyardmc.registry.registries.DialogRegistry
 import org.junit.jupiter.api.assertDoesNotThrow
+import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -64,7 +64,7 @@ class RegistryTests {
                     val random = registry.getProtocolEntries().random()
                     registry.getByProtocolId(random.getLegacyProtocolId())
                 } else {
-                    registry.getByProtocolId(randomInt(0, registry.getMaxProtocolId()))
+                    registry.getByProtocolId(Random.nextInt(0, registry.getMaxProtocolId()))
                 }
             }
         }

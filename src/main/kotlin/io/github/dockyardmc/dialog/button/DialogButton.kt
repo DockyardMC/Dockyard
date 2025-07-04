@@ -7,7 +7,6 @@ import io.github.dockyardmc.dialog.action.DialogAction
 import io.github.dockyardmc.dialog.action.StaticDialogAction
 import io.github.dockyardmc.events.CustomClickActionEvent
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.scroll.ClickEvent
 import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.*
@@ -20,7 +19,7 @@ class DialogButton(
 ) : AbstractDialogButton() {
 
     init {
-        if (width < 1 || width > 1024) throw IllegalArgumentException("width must be between 1 and 1024 (inclusive)")
+        require(width in 1..1024) { "width must be between 1 and 1024 (inclusive)" }
     }
 
     override fun getNbt(): CompoundBinaryTag {
@@ -34,7 +33,6 @@ class DialogButton(
     @DialogDsl
     class Builder(label: String) : AbstractDialogButton.Builder(label) {
         var action: DialogAction? = null
-        private val callbacks: MutableMap<String, (Player, CompoundBinaryTag) -> Unit> = mutableMapOf()
 
         /**
          * @see CommandTemplateDialogAction
@@ -56,7 +54,7 @@ class DialogButton(
          * @param callback [CustomClickActionEvent]
          * @receiver
          */
-        fun onClick(callback: (CustomClickActionEvent) -> Unit) {
+        inline fun onClick(crossinline callback: (CustomClickActionEvent) -> Unit) {
             val id = "dockyard:dialog_${UUID.randomUUID()}"
             action = CustomDialogAction(id, null)
 

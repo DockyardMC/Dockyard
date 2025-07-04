@@ -8,11 +8,15 @@ object Commands {
     var warnAboutCaseSensitivity: Boolean = true
     var warnWithClosestMatchToInvalidCommand: Boolean = false
 
-    fun add(name: String, builder: Command.() -> Unit): Command {
+    inline fun add(name: String, builder: Command.() -> Unit): Command {
         val command = Command()
+        builder.invoke(command)
+        return add(name, command)
+    }
+
+    fun add(name: String, command: Command): Command {
         val sanitizedName = name.lowercase().removePrefix("/")
         command.name = sanitizedName
-        builder.invoke(command)
 
         commands[sanitizedName] = command
         command.aliases.forEach {

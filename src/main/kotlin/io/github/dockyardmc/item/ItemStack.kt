@@ -39,7 +39,7 @@ data class ItemStack(
     constructor(material: Item, components: Set<DataComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
 
     init {
-        if (amount <= 0) throw IllegalArgumentException("ItemStack amount cannot be less than 1")
+        require(amount >= 1) { "ItemStack amount cannot be less than 1" }
     }
 
     companion object {
@@ -117,7 +117,7 @@ data class ItemStack(
         return ItemStackMeta.fromItemStack(this).apply { withAmount(amount) }.toItemStack()
     }
 
-    fun withAmount(amount: (Int) -> Int): ItemStack {
+    inline fun withAmount(amount: (Int) -> Int): ItemStack {
         return withAmount(amount.invoke(this.amount))
     }
 
@@ -129,7 +129,7 @@ data class ItemStack(
         return ItemStackMeta.fromItemStack(this).apply { withLore(lore) }.toItemStack()
     }
 
-    fun withMeta(builder: ItemStackMeta.() -> Unit): ItemStack {
+    inline fun withMeta(builder: ItemStackMeta.() -> Unit): ItemStack {
         val meta = ItemStackMeta.fromItemStack(this)
         meta.apply(builder)
         return meta.toItemStack()

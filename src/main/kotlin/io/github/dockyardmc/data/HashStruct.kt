@@ -1,8 +1,6 @@
 package io.github.dockyardmc.data
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.data.CRC32CHasher.ofMap
-import kotlin.reflect.KFunction1
 
 interface HashHolder {
 
@@ -74,7 +72,7 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
             fields.add(Field.DefaultList<T>(name, default, values, kFunction))
         }
 
-        fun <T> defaultStructList(name: String, default: Collection<T>, values: Collection<T>, struct: KFunction1<T, HashHolder>) {
+        fun <T> defaultStructList(name: String, default: Collection<T>, values: Collection<T>, struct: (T) -> HashHolder) {
             fields.add(Field.DefaultStructList<T>(name, default, values, struct))
         }
 
@@ -160,7 +158,7 @@ data class HashStruct(val fields: List<Field>) : HashHolder {
             }
         }
 
-        data class DefaultStructList<T>(override val name: String, val default: Collection<T>, val current: Collection<T>, val struct: KFunction1<T, HashHolder>) : Field {
+        data class DefaultStructList<T>(override val name: String, val default: Collection<T>, val current: Collection<T>, val struct: (T) -> HashHolder) : Field {
 
             fun getHash(): Int {
                 if (current == default) {

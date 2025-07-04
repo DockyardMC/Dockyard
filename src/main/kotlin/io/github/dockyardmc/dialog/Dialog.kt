@@ -75,39 +75,39 @@ sealed class Dialog : NbtWritable {
         val inputs = mutableListOf<DialogInput>()
         var afterAction: AfterAction = AfterAction.CLOSE
 
-        fun addItemBody(item: ItemStack, block: (DialogItemBody.Builder.() -> Unit)? = null) {
+        inline fun addItemBody(item: ItemStack, block: DialogItemBody.Builder.() -> Unit = {}) {
             val builder = DialogItemBody.Builder(item)
-            block?.let { builder.apply(it) }
+            builder.apply(block)
             body.add(builder.build())
         }
 
-        fun addItemBody(item: Item, block: (DialogItemBody.Builder.() -> Unit)? = null) = addItemBody(item.toItemStack(), block)
+        inline fun addItemBody(item: Item, block: DialogItemBody.Builder.() -> Unit = {}) = addItemBody(item.toItemStack(), block)
 
-        fun addPlainMessage(content: String, block: (PlainMessage.Builder.() -> Unit)? = null) {
+        inline fun addPlainMessage(content: String, block: PlainMessage.Builder.() -> Unit = {}) {
             val builder = PlainMessage.Builder(content)
-            block?.let { builder.apply(it) }
+            builder.apply(block)
             body.add(builder.build())
         }
 
-        fun addTextInput(key: String, block: (TextDialogInput.Builder.() -> Unit)? = null) {
+        inline fun addTextInput(key: String, block: TextDialogInput.Builder.() -> Unit = {}) {
             val builder = TextDialogInput.Builder(key)
-            block?.let { builder.apply(it) }
+            builder.apply(block)
             inputs.add(builder.build())
         }
 
-        fun addBooleanInput(key: String, block: (BooleanDialogInput.Builder.() -> Unit)? = null) {
+        inline fun addBooleanInput(key: String, block: BooleanDialogInput.Builder.() -> Unit = {}) {
             val builder = BooleanDialogInput.Builder(key)
-            block?.let { builder.apply(it) }
+            builder.apply(block)
             inputs.add(builder.build())
         }
 
-        fun addNumberRangeInput(key: String, range: ClosedFloatingPointRange<Double>, block: (NumberRangeDialogInput.Builder.() -> Unit)? = null) {
+        inline fun addNumberRangeInput(key: String, range: ClosedFloatingPointRange<Double>, block: NumberRangeDialogInput.Builder.() -> Unit = {}) {
             val builder = NumberRangeDialogInput.Builder(key, range)
-            block?.let { builder.apply(it) }
+            builder.apply(block)
             inputs.add(builder.build())
         }
 
-        fun addSingleOptionInput(key: String, block: SingleOptionDialogInput.Builder.() -> Unit) {
+        inline fun addSingleOptionInput(key: String, block: SingleOptionDialogInput.Builder.() -> Unit) {
             inputs.add(SingleOptionDialogInput.Builder(key).apply(block).build())
         }
 

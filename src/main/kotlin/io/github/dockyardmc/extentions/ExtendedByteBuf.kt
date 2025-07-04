@@ -25,7 +25,7 @@ private const val SEGMENT_BITS: Int = 0x7F
 private const val CONTINUE_BIT: Int = 0x80
 private const val MAXIMUM_VAR_INT_SIZE = 5
 
-fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
+inline fun <T> ByteBuf.readList(reader: (ByteBuf) -> T): List<T> {
     val list = mutableListOf<T>()
     val size = this.readVarInt()
     for (i in 0 until size) {
@@ -77,12 +77,10 @@ fun ByteBuf.writeVarIntArray(array: List<Int>) {
     array.forEach { this.writeVarInt(it) }
 }
 
-object Buffer {
-    fun makeArray(writer: (ByteBuf) -> Unit): ByteArray {
-        val tempBuffer = Unpooled.buffer()
-        writer.invoke(tempBuffer)
-        return tempBuffer.array()
-    }
+inline fun byteBufBytes(writer: (ByteBuf) -> Unit): ByteArray {
+    val tempBuffer = Unpooled.buffer()
+    writer.invoke(tempBuffer)
+    return tempBuffer.array()
 }
 
 fun ByteBuf.writeLongArray(array: List<Long>) {
@@ -147,10 +145,12 @@ fun ByteBuf.writeVarLong(long: Long): ByteBuf {
     while (true) {
         if (modLong and -0x80L == 0L) {
             this.writeByte(modLong.toInt())
+            break
         }
         this.writeByte((modLong and 0x7FL).toInt() or 0x80)
         modLong = modLong ushr 7
     }
+    return this
 }
 
 fun ByteBuf.readVarLong(): Long {

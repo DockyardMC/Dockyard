@@ -34,16 +34,12 @@ class ConfirmationDialog(
         lateinit var yes: DialogButton
         lateinit var no: DialogButton
 
-        fun withYes(label: String, block: (DialogButton.Builder.() -> Unit)? = null) {
-            yes = DialogButton.Builder(label).apply {
-                block?.let { apply(it) }
-            }.build()
+        inline fun withYes(label: String, block: DialogButton.Builder.() -> Unit = {}) {
+            yes = DialogButton.Builder(label).apply(block).build()
         }
 
-        fun withNo(label: String, block: (DialogButton.Builder.() -> Unit)? = null) {
-            no = DialogButton.Builder(label).apply {
-                block?.let { apply(it) }
-            }.build()
+        inline fun withNo(label: String, block: DialogButton.Builder.() -> Unit = {}) {
+            no = DialogButton.Builder(label).apply(block).build()
         }
 
         override fun build(): ConfirmationDialog {
@@ -61,7 +57,7 @@ class ConfirmationDialog(
     }
 }
 
-fun createConfirmationDialog(id: String, block: @DialogDsl ConfirmationDialog.Builder.() -> Unit): DialogEntry {
+inline fun createConfirmationDialog(id: String, block: @DialogDsl ConfirmationDialog.Builder.() -> Unit): DialogEntry {
     val entry = DialogEntry(id, ConfirmationDialog.Builder().apply(block).build())
     DialogRegistry.addEntry(entry)
     return entry

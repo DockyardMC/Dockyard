@@ -29,10 +29,8 @@ class NoticeDialog(
 class Builder : Dialog.Builder() {
     var button: DialogButton = DialogButton("<translate:'gui.ok'>", null, 150, null)
 
-    fun withButton(label: String, block: (DialogButton.Builder.() -> Unit)? = null) {
-        button = DialogButton.Builder(label).apply {
-            block?.let { apply(it) }
-        }.build()
+    inline fun withButton(label: String, block: DialogButton.Builder.() -> Unit = {}) {
+        button = DialogButton.Builder(label).apply(block).build()
     }
 
     override fun build(): NoticeDialog {
@@ -49,7 +47,7 @@ class Builder : Dialog.Builder() {
 }
 }
 
-fun createNoticeDialog(id: String, block: @DialogDsl NoticeDialog.Builder.() -> Unit): DialogEntry {
+inline fun createNoticeDialog(id: String, block: @DialogDsl NoticeDialog.Builder.() -> Unit): DialogEntry {
     val entry = DialogEntry(id, NoticeDialog.Builder().apply(block).build())
     DialogRegistry.addEntry(entry)
     return entry

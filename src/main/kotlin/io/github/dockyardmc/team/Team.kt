@@ -56,7 +56,7 @@ class Team(val name: String) : NetworkWritable, Disposable {
         suffix.valueChanged { sendTeamUpdatePacket() }
 
         entities.itemAdded { event ->
-            if (event.item.team.value != null && event.item.team.value != this) throw IllegalStateException("Entity is on another team! (${event.item.team.value?.name})")
+            check(event.item.team.value == null || event.item.team.value == this) { "Entity is on another team! (${event.item.team.value?.name})" }
 
             val packet = ClientboundTeamsPacket(AddEntitiesTeamPacketAction(this, listOf(event.item)))
             PlayerManager.players.sendPacket(packet)

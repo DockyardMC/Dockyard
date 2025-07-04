@@ -11,7 +11,7 @@ fun <T : BinaryTag> CompoundBinaryTag.putList(name: String, type: BinaryTagType<
 }
 
 
-fun CompoundBinaryTag.modify(compound: NbtBuilder.() -> Unit): CompoundBinaryTag {
+inline fun CompoundBinaryTag.modify(compound: NbtBuilder.() -> Unit): CompoundBinaryTag {
     val builder = NbtBuilder()
     compound.invoke(builder)
 
