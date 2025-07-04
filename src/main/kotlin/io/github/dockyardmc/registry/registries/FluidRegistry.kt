@@ -21,7 +21,7 @@ data class Fluid(
     override fun getNbt(): CompoundBinaryTag? = null
 
     override fun getProtocolId(): Int {
-        return FluidRegistry.getProtocolEntries().getByValue(this)
+        return FluidRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

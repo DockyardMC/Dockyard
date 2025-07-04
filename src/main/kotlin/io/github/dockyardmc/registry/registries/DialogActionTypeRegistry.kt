@@ -40,7 +40,7 @@ data class DialogActionType(
     }
 
     override fun getProtocolId(): Int {
-        return DialogActionTypeRegistry.getProtocolEntries().getByValue(this)
+        return DialogActionTypeRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

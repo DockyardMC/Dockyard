@@ -118,12 +118,12 @@ object CommandHandler {
                         //block state
                         val states = io.github.dockyardmc.world.block.Block.parseBlockStateString(value)
                         val block =
-                            BlockRegistry.getProtocolEntries().keyToValue().values.firstOrNull { it.identifier == states.first }
+                            BlockRegistry.getProtocolEntries().firstOrNull { it.identifier == states.first }
                                 ?: throw CommandException("\"${states.first}\" is not of type Block")
                         block.withBlockStates(states.second)
                     } else {
                         //not block state
-                        BlockRegistry.getProtocolEntries().keyToValue().values.firstOrNull { it.identifier == value }
+                        BlockRegistry.getProtocolEntries().firstOrNull { it.identifier == value }
                             ?: throw CommandException("\"$value\" is not of type Block")
                     }
                 }

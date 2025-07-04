@@ -26,7 +26,7 @@ data class EntityType(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return EntityTypeRegistry.getProtocolEntries().getByValue(this)
+        return EntityTypeRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

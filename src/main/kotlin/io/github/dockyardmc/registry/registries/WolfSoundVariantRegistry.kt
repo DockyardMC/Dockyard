@@ -22,7 +22,7 @@ data class WolfSoundVariant(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return WolfSoundVariantRegistry.getProtocolEntries().getByValue(this)
+        return WolfSoundVariantRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

@@ -27,7 +27,7 @@ data class Item(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return ItemRegistry.getProtocolEntries().getByValue(this)
+        return ItemRegistry.getProtocolIdByEntry(this)
     }
 
     fun toItemStack(amount: Int = 1): ItemStack {

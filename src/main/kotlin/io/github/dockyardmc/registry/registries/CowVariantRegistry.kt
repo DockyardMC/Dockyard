@@ -17,7 +17,7 @@ data class CowVariant(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return CowVariantRegistry.getProtocolEntries().getByValue(this)
+        return CowVariantRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

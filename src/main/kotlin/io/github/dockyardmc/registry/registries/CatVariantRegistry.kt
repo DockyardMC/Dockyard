@@ -21,7 +21,7 @@ data class CatVariant(
     }
 
     override fun getProtocolId(): Int {
-        return CatVariantRegistry.getProtocolEntries().getByValue(this)
+        return CatVariantRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getNbt(): CompoundBinaryTag {

@@ -24,7 +24,7 @@ data class Attribute(
     }
 
     override fun getProtocolId(): Int {
-        return AttributeRegistry.getProtocolEntries().getByValue(this)
+        return AttributeRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

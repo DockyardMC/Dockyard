@@ -31,9 +31,11 @@ class PacketLengthDecoder : ByteToMessageDecoder() {
     }
 
     override fun exceptionCaught(connection: ChannelHandlerContext, cause: Throwable) {
+        connection.channel().close().sync()
+        if (cause.message == "An established connection was aborted by the software in your host machine") return
+
         log("Error occurred while decoding frame: ", LogType.ERROR)
         val exception = (if (cause.cause == null) cause else cause.cause) as Exception
         log(exception)
-        connection.channel().close().sync()
     }
 }

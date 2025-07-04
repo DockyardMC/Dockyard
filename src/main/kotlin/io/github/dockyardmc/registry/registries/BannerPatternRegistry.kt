@@ -17,7 +17,7 @@ data class BannerPattern(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return BannerPatternRegistry.getProtocolEntries().getByValue(this)
+        return BannerPatternRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

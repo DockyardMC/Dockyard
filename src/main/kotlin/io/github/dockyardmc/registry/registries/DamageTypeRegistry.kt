@@ -21,7 +21,7 @@ data class DamageType(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return DamageTypeRegistry.getProtocolEntries().getByValue(this)
+        return DamageTypeRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

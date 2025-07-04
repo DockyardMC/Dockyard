@@ -17,7 +17,7 @@ data class FrogVariant(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return FrogVariantRegistry.getProtocolEntries().getByValue(this)
+        return FrogVariantRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getNbt(): CompoundBinaryTag {

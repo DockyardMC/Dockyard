@@ -72,7 +72,7 @@ data class RegistryBlock(
     }
 
     fun getLegacyProtocolId(): Int {
-        return BlockRegistry.getProtocolEntries().getByValue(this)
+        return BlockRegistry.getProtocolIdByEntry(this)
     }
 
     fun toItem(): Item {

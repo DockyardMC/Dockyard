@@ -21,7 +21,7 @@ data class PaintingVariant(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return PaintingVariantRegistry.getProtocolEntries().getByValue(this)
+        return PaintingVariantRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

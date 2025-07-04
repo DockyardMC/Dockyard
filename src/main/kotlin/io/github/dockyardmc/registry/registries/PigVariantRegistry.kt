@@ -17,7 +17,7 @@ data class PigVariant(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return PigVariantRegistry.getProtocolEntries().getByValue(this)
+        return PigVariantRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

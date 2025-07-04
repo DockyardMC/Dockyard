@@ -16,7 +16,7 @@ data class Particle(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return ParticleRegistry.getProtocolEntries().getByValue(this)
+        return ParticleRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

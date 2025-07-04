@@ -16,7 +16,7 @@ data class PotionType(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return PotionTypeRegistry.getProtocolEntries().getByValue(this)
+        return PotionTypeRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getNbt(): BinaryTag {

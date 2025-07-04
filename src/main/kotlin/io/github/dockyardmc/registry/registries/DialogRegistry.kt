@@ -23,7 +23,7 @@ data class DialogEntry(
     }
 
     override fun getProtocolId(): Int {
-        return DialogRegistry.getProtocolEntries().getByValue(this)
+        return DialogRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

@@ -29,7 +29,7 @@ data class DialogInputType(
     }
 
     override fun getProtocolId(): Int {
-        return DialogInputTypeRegistry.getProtocolEntries().getByValue(this)
+        return DialogInputTypeRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

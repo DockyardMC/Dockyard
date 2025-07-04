@@ -34,7 +34,7 @@ data class PotionEffect(
     }
 
     override fun getProtocolId(): Int {
-        return PotionEffectRegistry.getProtocolEntries().getByValue(this)
+        return PotionEffectRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

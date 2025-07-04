@@ -126,7 +126,7 @@ data class Biome(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return BiomeRegistry.getProtocolEntries().getByValue(this)
+        return BiomeRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

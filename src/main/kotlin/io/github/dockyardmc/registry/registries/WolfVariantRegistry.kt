@@ -21,7 +21,7 @@ data class WolfVariant(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return WolfVariantRegistry.getProtocolEntries().getByValue(this)
+        return WolfVariantRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

@@ -22,7 +22,7 @@ data class TrimMaterial(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return TrimMaterialRegistry.getProtocolEntries().getByValue(this)
+        return TrimMaterialRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {

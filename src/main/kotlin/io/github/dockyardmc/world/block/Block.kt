@@ -107,13 +107,13 @@ data class Block(
                 return Block(registryBlock, parsed)
             }
 
-            for (block in BlockRegistry.getProtocolEntries().keyToValue()) {
-                val cachedState = block.value.possibleStatesReversed
+            for (block in BlockRegistry.getProtocolEntries()) {
+                val cachedState = block.possibleStatesReversed
                 if (cachedState.isEmpty()) continue
                 if (!cachedState.containsKey(stateId)) continue
 
                 val states = parseBlockStateString(cachedState[stateId]!!).second.toMutableMap()
-                return Block(block.value, states)
+                return Block(block, states)
             }
             throw IllegalArgumentException("No block state found with $stateId")
         }

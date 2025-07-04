@@ -24,7 +24,7 @@ data class JukeboxSong(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return JukeboxSongRegistry.getProtocolEntries().getByValue(this)
+        return JukeboxSongRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getNbt(): CompoundBinaryTag {

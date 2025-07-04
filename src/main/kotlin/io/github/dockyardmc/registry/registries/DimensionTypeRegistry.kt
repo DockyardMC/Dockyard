@@ -132,7 +132,7 @@ data class DimensionType(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return DimensionTypeRegistry.getProtocolEntries().getByValue(this)
+        return DimensionTypeRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {
