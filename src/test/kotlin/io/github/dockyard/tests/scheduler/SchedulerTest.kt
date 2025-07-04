@@ -7,12 +7,13 @@ import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scheduler.CustomRateScheduler
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.seconds
+import kotlin.test.assertTrue
 
 class SchedulerTest {
 
@@ -60,7 +61,7 @@ class SchedulerTest {
         }
 
         scheduler.tick()
-        countDownLatch.await()
+        assertTrue(countDownLatch.await(5L, TimeUnit.SECONDS))
 
         assertEquals(true, completed.get())
         assertEquals(1, scheduler.ticks)
@@ -82,7 +83,7 @@ class SchedulerTest {
             countDownLatch.countDown()
         }
 
-        countDownLatch.await()
+        assertTrue(countDownLatch.await(5L, TimeUnit.SECONDS))
         assertEquals(true, repeatingTask.cancelled)
         assertEquals(20, counter.get())
         assertEquals(20, scheduler.ticks)
