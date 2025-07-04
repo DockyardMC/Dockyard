@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.extentions.writeString
@@ -7,6 +8,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.protocol.writeOptional
+import io.github.dockyardmc.registry.registries.BannerPatternRegistry
 import io.github.dockyardmc.utils.BiMap
 import io.github.dockyardmc.utils.MutableBiMap
 import io.netty.buffer.ByteBuf
@@ -46,7 +48,7 @@ abstract class Registry<T : RegistryEntry> : NetworkWritable {
         return entryToProtocolId.getInt(entry)
     }
 
-    fun getByProtocolId(id: Int): T {
+    open fun getByProtocolId(id: Int): T {
         return getByProtocolIdOrNull(id) ?: throw RegistryException(id, protocolEntries.size)
     }
 
@@ -99,6 +101,9 @@ abstract class DataDrivenRegistry<T : RegistryEntry> : Registry<T>() {
         val list = Json.decodeFromStream<List<D>>(stream)
         list.forEach { entry ->
             addEntry(entry as T)
+            if(this is BannerPatternRegistry) {
+                log("ADDING ${entry.getEntryIdentifier()}")
+            }
         }
     }
 }

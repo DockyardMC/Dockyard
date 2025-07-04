@@ -3,6 +3,7 @@ package io.github.dockyardmc.registry.registries
 import io.github.dockyardmc.extentions.reversed
 import io.github.dockyardmc.registry.DataDrivenRegistry
 import io.github.dockyardmc.registry.RegistryEntry
+import io.github.dockyardmc.registry.RegistryException
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.world.block.Block
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
@@ -25,6 +26,11 @@ object BlockRegistry : DataDrivenRegistry<RegistryBlock>() {
             blockStates.put(id, block)
         }
     }
+
+    override fun getByProtocolId(id: Int): RegistryBlock {
+        return super.getByProtocolIdOrNull(id) ?: blockStates.getOrDefault(id, null)?.registryBlock ?: throw RegistryException(id, entries.size)
+    }
+
 }
 
 @Serializable
