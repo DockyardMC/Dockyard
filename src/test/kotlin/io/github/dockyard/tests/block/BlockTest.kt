@@ -90,8 +90,8 @@ class BlockTest {
 
     @Test
     fun testIdConversion() {
-        BlockRegistry.blocks.forEach {
-            assertEquals(it.value, BlockRegistry.getByProtocolId(it.value.getProtocolId()))
+        BlockRegistry.getEntries().keyToValue().forEach {
+            assertEquals(it.value, BlockRegistry.getByProtocolId(it.value.getLegacyProtocolId()))
         }
     }
 

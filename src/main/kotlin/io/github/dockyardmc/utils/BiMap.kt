@@ -1,18 +1,21 @@
 package io.github.dockyardmc.utils
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 
 // the map is BI?? 🏳️‍🌈🏳️‍🌈🏳️‍🌈🏳️‍🌈
-class BiMap<K, V>() {
-    private val keyToValue: Object2ObjectOpenHashMap<K, V> = Object2ObjectOpenHashMap<K, V>()
-    private val valueToKey: Object2ObjectOpenHashMap<V, K> = Object2ObjectOpenHashMap<V, K>()
+open class BiMap<K, V>() {
+    protected val keyToValue: Object2ObjectOpenHashMap<K, V> = Object2ObjectOpenHashMap<K, V>()
+    protected val valueToKey: Object2ObjectOpenHashMap<V, K> = Object2ObjectOpenHashMap<V, K>()
+
+    val size get() = keyToValue.size
 
     fun keyToValue(): Map<K, V> {
-        return keyToValue.toMap()
+        return Object2ObjectMaps.unmodifiable(keyToValue)
     }
 
     fun valueToKey(): Map<V, K> {
-        return valueToKey.toMap()
+        return Object2ObjectMaps.unmodifiable(valueToKey)
     }
 
     fun getByKeyOrNull(key: K): V? {
@@ -31,20 +34,7 @@ class BiMap<K, V>() {
         return getByValueOrNull(value) ?: throw NoSuchElementException()
     }
 
-    fun put(key: K, value: V) {
-        keyToValue[key] = value
-        valueToKey[value] = key
-    }
-
-    fun removeByKey(key: K) {
-        val value = keyToValue.getOrDefault(key, null) ?: return
-        keyToValue.remove(key)
-        valueToKey.remove(value)
-    }
-
-    fun removeByValue(value: V) {
-        val key = valueToKey.getOrDefault(value, null) ?: return
-        keyToValue.remove(key)
-        valueToKey.remove(value)
+    fun toMutableBiMap(): MutableBiMap<K, V> {
+        return this as MutableBiMap<K, V>
     }
 }

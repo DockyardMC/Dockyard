@@ -7,6 +7,8 @@ import io.github.dockyardmc.attributes.EquipmentSlotGroup
 import io.github.dockyardmc.attributes.Modifier
 import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.components.*
+import io.github.dockyardmc.effects.AppliedPotionEffect
+import io.github.dockyardmc.effects.AppliedPotionEffectSettings
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.types.ConsumeEffect
@@ -85,7 +87,7 @@ class HashTest {
             SuspiciousStewEffectsComponent(
                 listOf(
                     SuspiciousStewEffectsComponent.Effect(PotionEffects.LUCK, 5.seconds),
-                    SuspiciousStewEffectsComponent.Effect(PotionEffects.BAD_LUCK, 8.seconds),
+                    SuspiciousStewEffectsComponent.Effect(PotionEffects.UNLUCK, 8.seconds),
                 )
             ) to 72427758,
             BeesComponent(listOf(BeesComponent.Bee(compound, 6, 9))) to -1245536178

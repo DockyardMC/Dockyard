@@ -263,7 +263,7 @@ fun ByteBuf.readString(i: Int): String {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T : RegistryEntry> ByteBuf.readRegistryEntry(registry: Registry): T {
+fun <T : RegistryEntry> ByteBuf.readRegistryEntry(registry: Registry<*>): T {
     return registry.getByProtocolId(this.readVarInt()) as T
 }
 

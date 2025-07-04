@@ -70,7 +70,7 @@ class InventoryTests {
         player.give(itemStack)
 
         for (i in 0 until 4) {
-            player.give(ItemRegistry.items.values.random())
+            player.give(ItemRegistry.getEntries().keyToValue().values.random())
         }
         player.give(itemStack)
 

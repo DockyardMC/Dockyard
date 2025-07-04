@@ -15,7 +15,7 @@ import io.netty.buffer.ByteBuf
 
 object RegistryCodec {
 
-    class HashType<T: RegistryEntry>(val registry: Registry) : Codec<T> {
+    class HashType<T: RegistryEntry>(val registry: Registry<*>) : Codec<T> {
 
         override fun writeNetwork(buffer: ByteBuf, value: T) {
             buffer.writeString(value.getEntryIdentifier())
@@ -43,7 +43,7 @@ object RegistryCodec {
 
     }
 
-    class NetworkType<T: RegistryEntry>(val registry: Registry) : Codec<T> {
+    class NetworkType<T: RegistryEntry>(val registry: Registry<*>) : Codec<T> {
 
         override fun writeNetwork(buffer: ByteBuf, value: T) {
             buffer.writeVarInt(value.getProtocolId())

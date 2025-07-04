@@ -50,8 +50,7 @@ class Builder : Dialog.Builder() {
 }
 
 fun createNoticeDialog(id: String, block: @DialogDsl NoticeDialog.Builder.() -> Unit): DialogEntry {
-    return DialogRegistry.addEntry(
-        id,
-        NoticeDialog.Builder().apply(block).build()
-    )
+    val entry = DialogEntry(id, NoticeDialog.Builder().apply(block).build())
+    DialogRegistry.addEntry(entry)
+    return entry
 }

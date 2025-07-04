@@ -72,8 +72,7 @@ class MultiActionDialog(
 }
 
 fun createMultiActionDialog(id: String, block: @DialogDsl MultiActionDialog.Builder.() -> Unit): DialogEntry {
-    return DialogRegistry.addEntry(
-        id,
-        MultiActionDialog.Builder().apply(block).build()
-    )
+    val entry = DialogEntry(id, MultiActionDialog.Builder().apply(block).build())
+    DialogRegistry.addEntry(entry)
+    return entry
 }

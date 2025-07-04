@@ -3,19 +3,19 @@ package io.github.dockyardmc.protocol.types
 import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.StaticHash
+import io.github.dockyardmc.effects.AppliedPotionEffect
 import io.github.dockyardmc.extentions.read
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
-import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.RegistryEntry
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.registry.registries.PotionEffectRegistry
 import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.SoundEvent
-import io.github.dockyardmc.utils.BiMap
+import io.github.dockyardmc.utils.MutableBiMap
 import io.netty.buffer.ByteBuf
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
 interface ConsumeEffect : NetworkWritable, DataComponentHashable {
 
     companion object : NetworkReadable<ConsumeEffect> {
-        val effects = BiMap<Int, KClass<out ConsumeEffect>>()
+        val effects = MutableBiMap<Int, KClass<out ConsumeEffect>>()
         private val protocolIdCounter = AtomicInteger()
 
         init {

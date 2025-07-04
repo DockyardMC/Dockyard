@@ -15,7 +15,7 @@ import kotlin.test.Test
 class RegistryTests {
 
     companion object {
-        val IGNORED_REGISTRIES = listOf<KClass<out Registry>>(
+        val IGNORED_REGISTRIES = listOf<KClass<out Registry<*>>>(
             ChatTypeRegistry::class,
             DialogRegistry::class
         )
@@ -36,7 +36,7 @@ class RegistryTests {
             DimensionTypes.OVERWORLD
             EntityTypes.PIGLIN
             Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE
-            JukeboxSongs.DISC_OTHERSIDE
+            JukeboxSongs.OTHERSIDE
             PaintingVariants.AZTEC2
             Particles.PORTAL
             PotionEffects.OOZING
@@ -61,8 +61,8 @@ class RegistryTests {
 
                 log("Testing registry ${registry.identifier}", LogType.DEBUG)
                 if(registry is BlockRegistry) {
-                    val random = registry.protocolIdToBlock.keys.random()
-                    registry.getByProtocolId(random)
+                    val random = registry.getProtocolEntries().random()
+                    registry.getByProtocolId(random.getLegacyProtocolId())
                 } else {
                     registry.getByProtocolId(randomInt(0, registry.getMaxProtocolId()))
                 }
