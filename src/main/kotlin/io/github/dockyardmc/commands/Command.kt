@@ -55,7 +55,7 @@ class Command : Cloneable {
     inline fun <reified T> getArgumentOrNull(argumentName: String): T? {
         require(!T::class.java.isEnum || T::class == LegacyTextColor::class) { "Supplied generic is of type enum, please use getEnumArgumentOrNull method instead." }
 
-        return arguments[argumentName]?.returnedValue as T
+        return arguments[argumentName]?.returnedValue as T?
     }
 
     fun addArgument(name: String, argument: CommandArgument, suggestions: ((Player) -> Collection<String>)? = null) {
