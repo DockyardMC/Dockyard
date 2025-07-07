@@ -1,12 +1,14 @@
 package io.github.dockyardmc.entity.ai
 
 import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.scheduler.runnables.ticks
 import java.util.concurrent.CompletableFuture
+import kotlin.time.Duration
 
 abstract class EntityBehaviourNode {
     open val interruptible: Boolean = true
     private var future = CompletableFuture<EntityBehaviourResult>()
-    var cooldown: Int = 0
+    var cooldown: Duration = 0.ticks
 
     fun getBehaviourFuture(): CompletableFuture<EntityBehaviourResult> = future
     fun setBehaviourFuture(newFuture: CompletableFuture<EntityBehaviourResult>) {

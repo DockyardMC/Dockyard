@@ -1,9 +1,9 @@
 package io.github.dockyardmc.entity.ai.test.nodes
 
 import de.metaphoriker.pathetic.api.pathing.result.PathfinderResult
-import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.ai.EntityBehaviourNode
+import io.github.dockyardmc.entity.ai.EntityBehaviourResult
 import io.github.dockyardmc.entity.ai.test.SculkZombieBehaviourCoordinator
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.location.Location
@@ -13,7 +13,7 @@ import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.Sound
 import kotlin.random.Random
 
-class GeneralEntityPursuitAndAttackBehaviour(val coordinator: SculkZombieBehaviourCoordinator) : EntityBehaviourNode() {
+class GeneralEntityPursuitBehaviour(val coordinator: SculkZombieBehaviourCoordinator) : EntityBehaviourNode() {
 
     companion object {
         const val ATTACK_COOLDOWN = 20
@@ -23,6 +23,7 @@ class GeneralEntityPursuitAndAttackBehaviour(val coordinator: SculkZombieBehavio
         const val LOCATION_DIFFERENCE_THRESHOLD = 1.0
     }
 
+    override val interruptible: Boolean = true
     private var pathfindResultListener: ((PathfinderResult) -> Unit)? = null
     private var pathfindingStepListener: ((Navigator.PathfindingStep) -> Unit)? = null
     private var pathfindingEndListener: ((Navigator.PathfindingStep) -> Unit)? = null
@@ -38,23 +39,20 @@ class GeneralEntityPursuitAndAttackBehaviour(val coordinator: SculkZombieBehavio
         pathfindResultListener = coordinator.navigator.pathfindResultDispatcher.subscribe { result ->
             if (result.hasFailed()) {
                 fails++
-                broadcastMessage("<red>failed ($fails)")
                 if (fails >= PATH_UPDATE_FAIL_THRESHOLD && updateFrequency != PATH_UPDATE_PERIOD_IDLE) {
                     updateFrequency = PATH_UPDATE_PERIOD_IDLE
-                    broadcastMessage("<orange>Switching to idle period <yellow>$updateFrequency")
                 }
             } else {
                 broadcastMessage("<lime>Found: ${result.path.length()}")
                 if (updateFrequency != PATH_UPDATE_PERIOD_NORMAL) {
                     updateFrequency = PATH_UPDATE_PERIOD_NORMAL
                     fails = 0
-                    broadcastMessage("<orange>Switching to normal period <yellow>$updateFrequency")
                 }
             }
         }
 
         pathfindingEndListener = coordinator.navigator.navigationCompleteDispatcher.subscribe {
-            broadcastMessage("<lime><bold>finished walking")
+            getBehaviourFuture().complete(EntityBehaviourResult.SUCCESS)
         }
 
         pathfindingStepListener = coordinator.navigator.navigationNodeStepDispatcher.subscribe {
@@ -80,17 +78,14 @@ class GeneralEntityPursuitAndAttackBehaviour(val coordinator: SculkZombieBehavio
             lastTargetLocation = coordinator.target!!.location
             val closestGroundNode = coordinator.target!!.location.closestSolidBelow ?: return
             coordinator.navigator.updatePathfindingPath(closestGroundNode.second)
-            DockyardServer.broadcastMessage("<gray>Updated pathfinding target ($tick)")
         }
-
-        //TODO attack when close
-        // maybe this should be different behaviour node?
     }
 
     override fun onGeneralTick(tick: Int) {
     }
 
     override fun onStop(entity: Entity, interrupted: Boolean) {
+        coordinator.navigator.cancelNavigating()
         pathfindingStepListener?.let { coordinator.navigator.navigationNodeStepDispatcher.unsubscribe(it) }
         pathfindingEndListener?.let { coordinator.navigator.navigationCompleteDispatcher.unsubscribe(it) }
         pathfindResultListener?.let { coordinator.navigator.pathfindResultDispatcher.unsubscribe(it) }

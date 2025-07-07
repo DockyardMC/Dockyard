@@ -9,10 +9,8 @@ import io.github.dockyardmc.events.EntityNavigatorPickOffsetEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.locationLerp
-import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toLocation
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toPathPosition
-import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.scheduler.SchedulerTask
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.utils.Disposable
@@ -53,7 +51,6 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
             pathfindResultDispatcher.dispatch(result)
 
             if (result.hasFailed()) {
-//                path.clear()
                 cancelNavigating()
                 return@thenAccept
             }
@@ -72,18 +69,6 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
 
     private fun updatePathWhileNavigating() {
         if (newPathQueue.isNotEmpty()) {
-
-//            val current = path.getOrNull(currentNavigationNodeIndex - 1)
-//            if (current != null) {
-//                if (current.distance(normalizePathLocation(entity.location)) >= newPathQueue.first().distance(normalizePathLocation(entity.location))) {
-//                    newPathQueue.removeFirst()
-////                        newPathQueue.removeFirst()
-//                }
-////                    if(current.distance(normalizePathLocation(entity.location)) < 0.1) {
-////                        newPathQueue.remove(current)
-////                    }
-//            }
-
             path.clear()
             path.addAll(newPathQueue)
             newPathQueue.clear()
@@ -95,7 +80,6 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
         if (state == State.DISPOSED) throw UsedAfterDisposedException(this)
         state = State.NAVIGATING
         currentTask?.cancel()
-//        cancelNavigating()
         updatePathWhileNavigating()
 
         currentTask = entity.world.scheduler.runRepeating(speedTicksPerBlock.ticks) { task ->
@@ -110,7 +94,7 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
 
             //TODO this is a very ugly hack please future maya removed this thank you
             // - past maya
-            if(entityPosition.getBlockLocation().apply { y = 0.0 } == nextStepPosition?.getBlockLocation()?.apply { y = 0.0 }) {
+            if (entityPosition.getBlockLocation().apply { y = 0.0 } == nextStepPosition?.getBlockLocation()?.apply { y = 0.0 }) {
                 currentNavigationNodeIndex++
                 nextStepPosition = path.getOrNull(currentNavigationNodeIndex)
             }
@@ -127,9 +111,6 @@ class Navigator(val entity: Entity, var speedTicksPerBlock: Int, val pathfinder:
             var j = 0
 
             currentInterpolationTask = entity.world.scheduler.repeat(speedTicksPerBlock, 1.ticks) { _ ->
-                path.forEach { node ->
-                    node.world.spawnParticle(node.add(0.5, 0.0, 0.5).add(0f, 1f, 0f), Particles.ELECTRIC_SPARK, speed = 0f, amount = 1)
-                }
                 if (entity.isDead) return@repeat
                 j++
                 val progress = j / speedTicksPerBlock.toDouble()

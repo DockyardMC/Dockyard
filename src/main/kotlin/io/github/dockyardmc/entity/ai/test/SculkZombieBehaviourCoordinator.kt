@@ -2,7 +2,8 @@ package io.github.dockyardmc.entity.ai.test
 
 import io.github.dockyardmc.entity.TestZombie
 import io.github.dockyardmc.entity.ai.EntityBehaviourCoordinator
-import io.github.dockyardmc.entity.ai.test.nodes.GeneralEntityPursuitAndAttackBehaviour
+import io.github.dockyardmc.entity.ai.test.nodes.GeneralEntityPursuitBehaviour
+import io.github.dockyardmc.entity.ai.test.nodes.GenericEntityAttackPlayerBehaviourNode
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.WorldTickEvent
 import io.github.dockyardmc.maths.vectors.Vector3f
@@ -17,7 +18,9 @@ class SculkZombieBehaviourCoordinator(val zombie: TestZombie) : EntityBehaviourC
     var target: Player? = null
 
     init {
-        behaviours.add(GeneralEntityPursuitAndAttackBehaviour(this))
+        behaviours.add(GeneralEntityPursuitBehaviour(this))
+        behaviours.add(GenericEntityAttackPlayerBehaviourNode(this))
+
         navigator.speedTicksPerBlock = 8
 
         navigator.navigationNodeStepDispatcher.subscribe {

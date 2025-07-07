@@ -7,6 +7,8 @@ import io.github.dockyardmc.pathfinding.IsSolidPathFilter
 import io.github.dockyardmc.pathfinding.Navigator
 import io.github.dockyardmc.pathfinding.Pathfinder
 import io.github.dockyardmc.pathfinding.RequiredHeightPathfindingFilter
+import io.github.dockyardmc.scheduler.runnables.inWholeMinecraftTicks
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.debug
 import java.util.concurrent.CompletableFuture
@@ -48,15 +50,14 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Disposable {
         behaviours.forEach { behaviour ->
             if (behaviour == activeBehaviour) return@forEach
             behaviour.onBackstageTick(backstageTicks)
-            if (behaviour.cooldown > 0) {
-                behaviour.cooldown--
+            if (behaviour.cooldown.inWholeMinecraftTicks > 0) {
+                behaviour.cooldown = behaviour.cooldown.minus(1.ticks)
             }
         }
-
     }
 
     fun stopBehaviour() {
-        if(activeBehaviour != null) debug("<red>${activeBehaviour!!::class.simpleName} stopped", true)
+        if (activeBehaviour != null) debug("<red>${activeBehaviour!!::class.simpleName} stopped", true)
         activeBehaviour?.onStop(entity, true)
         activeBehaviour?.getBehaviourFuture()?.cancel(true)
         activeBehaviour = null
@@ -79,11 +80,11 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Disposable {
 
         try {
             val filtered = behaviours.filter { behaviour ->
-                behaviour != activeBehaviour && behaviour.getScorer(entity) != 0f && behaviour.cooldown == 0
+                behaviour != activeBehaviour && behaviour.getScorer(entity) != 0f && behaviour.cooldown.inWholeMinecraftTicks == 0
             }
             val bestNode = filtered.maxByOrNull { behaviour -> behaviour.getScorer(entity) }
             if (bestNode != null) {
-                if ((activeBehaviour != null && activeBehaviour!!.interruptible && activeBehaviour!!.getScorer(entity) > currentScorer) || activeBehaviour == null) {
+                if ((activeBehaviour != null && activeBehaviour!!.interruptible && bestNode.getScorer(entity) > currentScorer) || activeBehaviour == null) {
                     debug("New best node: ${bestNode::class.simpleName} (scorer ${bestNode.getScorer(entity)})", true)
                     forceBehaviour(bestNode)
                 }

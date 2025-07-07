@@ -7,6 +7,7 @@ import io.github.dockyardmc.entity.ai.test.WardenBehaviourCoordinator
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toPathPosition
 import io.github.dockyardmc.pathfinding.PathfindingHelper
 import io.github.dockyardmc.registry.Sounds
+import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.utils.debug
 import kotlin.random.Random
@@ -22,7 +23,7 @@ class WardenWalkAroundBehaviour(val coordinator: WardenBehaviourCoordinator) : E
 
     override fun onStart(entity: Entity) {
         var foundPath = false
-        this.cooldown = Random.nextInt(40, 80)
+        this.cooldown = Random.nextInt(40, 80).ticks
 
         coordinator.navigator.navigationCompleteDispatcher.subscribe {
             getBehaviourFuture().complete(EntityBehaviourResult.SUCCESS)
