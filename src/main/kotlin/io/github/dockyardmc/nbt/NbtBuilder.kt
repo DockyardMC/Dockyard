@@ -1,6 +1,5 @@
 package io.github.dockyardmc.nbt
 
-import cz.lukynka.prettylog.log
 import net.kyori.adventure.nbt.*
 
 class NbtBuilder {
@@ -70,13 +69,13 @@ class NbtBuilder {
         return this
     }
 
-    fun withCompound(unit: NbtBuilder.() -> Unit) {
+    inline fun withCompound(unit: NbtBuilder.() -> Unit) {
         val builder = NbtBuilder()
         unit.invoke(builder)
         compound.put(builder.build())
     }
 
-    fun withCompound(name: String, unit: NbtBuilder.() -> Unit) {
+    inline fun withCompound(name: String, unit: NbtBuilder.() -> Unit) {
         val builder = NbtBuilder()
         unit.invoke(builder)
         compound.put(name, builder.build())
@@ -87,7 +86,7 @@ class NbtBuilder {
     }
 }
 
-fun nbt(compound: NbtBuilder.() -> Unit): CompoundBinaryTag {
+inline fun nbt(compound: NbtBuilder.() -> Unit): CompoundBinaryTag {
     val builder = NbtBuilder()
     compound.invoke(builder)
     return builder.build()

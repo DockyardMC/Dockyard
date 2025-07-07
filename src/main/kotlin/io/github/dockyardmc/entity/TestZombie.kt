@@ -16,7 +16,7 @@ import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.maths.randomFloat
-import io.github.dockyardmc.maths.randomInt
+import kotlin.random.Random
 
 class TestZombie(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.ZOMBIE
@@ -42,7 +42,7 @@ class TestZombie(location: Location) : Entity(location) {
             val entity = event.entity
             if (entity != this) return@on
 
-            entity.world.playSound(Sounds.ENTITY_ZOMBIE_HURT, pitch = randomFloat(0.7f, 1.2f))
+            entity.world.playSound(Sounds.ENTITY_ZOMBIE_HURT, pitch = Random.randomFloat(0.7f, 1.2f))
             entity.damage(1f, DamageTypes.GENERIC, event.player, event.entity)
             event.player.sendMessage("<red>${health.value}")
         }

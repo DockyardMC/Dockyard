@@ -10,7 +10,7 @@ import kotlin.reflect.full.declaredMemberFunctions
 fun <T> KClass<*>.asNetworkReadable(): NetworkReadable<T> {
     val companion = this.companionObject?.objectInstance ?: throw IllegalStateException("Class $simpleName does not have companion object")
 
-    if (companion !is NetworkReadable<*>) throw IllegalStateException("Companion object of class $simpleName is not of type NetworkReadable")
+    require(companion is NetworkReadable<*>) { "Companion object of class $simpleName is not of type NetworkReadable" }
 
     @Suppress("UNCHECKED_CAST")
     return companion as NetworkReadable<T>

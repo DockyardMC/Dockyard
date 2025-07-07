@@ -88,7 +88,7 @@ class EntityStateMetadataBuilder(entity: Entity) {
     var isFlying = false
 }
 
-fun getEntityMetadataState(entity: Entity, builder: (EntityStateMetadataBuilder.() -> Unit) = {}): EntityMetadata {
+inline fun getEntityMetadataState(entity: Entity, builder: (EntityStateMetadataBuilder.() -> Unit) = {}): EntityMetadata {
 
     val stateMetadata = EntityStateMetadataBuilder(entity)
     builder.invoke(stateMetadata)
@@ -126,7 +126,7 @@ class TextDisplayFormattingBuilder(textDisplay: TextDisplay) {
     var alignment = textDisplay.alignment.value
 }
 
-fun getTextDisplayFormatting(entity: TextDisplay, builder: (TextDisplayFormattingBuilder.() -> Unit) = {}): EntityMetadata {
+inline fun getTextDisplayFormatting(entity: TextDisplay, builder: (TextDisplayFormattingBuilder.() -> Unit) = {}): EntityMetadata {
 
     val formatting = TextDisplayFormattingBuilder(entity)
     builder.invoke(formatting)

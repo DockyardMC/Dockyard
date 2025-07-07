@@ -18,6 +18,7 @@ class DefaultCommands : DefaultImplementationModule {
         ListCommand()
         EffectCommand()
         WeatherCommand()
+        SkinCommand()
         if(InstrumentationUtils.isDebuggerAttached()) DebugCommands.register()
     }
 }

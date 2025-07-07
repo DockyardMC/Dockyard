@@ -718,6 +718,7 @@ object Blocks {
     val DRIED_KELP_BLOCK = BlockRegistry["minecraft:dried_kelp_block"]
     val TURTLE_EGG = BlockRegistry["minecraft:turtle_egg"]
     val SNIFFER_EGG = BlockRegistry["minecraft:sniffer_egg"]
+    val DRIED_GHAST = BlockRegistry["minecraft:dried_ghast"]
     val DEAD_TUBE_CORAL_BLOCK = BlockRegistry["minecraft:dead_tube_coral_block"]
     val DEAD_BRAIN_CORAL_BLOCK = BlockRegistry["minecraft:dead_brain_coral_block"]
     val DEAD_BUBBLE_CORAL_BLOCK = BlockRegistry["minecraft:dead_bubble_coral_block"]

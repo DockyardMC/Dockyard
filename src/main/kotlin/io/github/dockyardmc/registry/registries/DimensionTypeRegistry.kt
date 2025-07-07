@@ -1,37 +1,20 @@
 package io.github.dockyardmc.registry.registries
 
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.extentions.getOrThrow
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
-import io.github.dockyardmc.registry.RegistryException
 import net.kyori.adventure.nbt.CompoundBinaryTag
-import net.kyori.adventure.nbt.TagStringIO
-import java.util.concurrent.atomic.AtomicInteger
 
-object DimensionTypeRegistry : DynamicRegistry {
+object DimensionTypeRegistry : DynamicRegistry<DimensionType>() {
 
     override val identifier: String = "minecraft:dimension_type"
 
-    private lateinit var cachedPacket: ClientboundRegistryDataPacket
-
-    var dimensionTypes: MutableMap<String, DimensionType> = mutableMapOf()
-    var protocolIds: MutableMap<String, Int> = mutableMapOf()
-    private val protocolIdCounter = AtomicInteger()
-
-    override fun getMaxProtocolId(): Int {
-        return protocolIdCounter.get()
+    override fun updateCache() {
+        cachedPacket = ClientboundRegistryDataPacket(this)
     }
 
-    fun addEntry(entry: DimensionType, updateCache: Boolean = true) {
-        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
-        dimensionTypes[entry.identifier] = entry
-        if (updateCache) updateCache()
-    }
-
-    override fun register() {
+    init {
         addEntry(
             DimensionType(
                 "minecraft:overworld",
@@ -123,32 +106,6 @@ object DimensionTypeRegistry : DynamicRegistry {
             )
         )
     }
-
-    override fun getCachedPacket(): ClientboundRegistryDataPacket {
-        if (!DimensionTypeRegistry::cachedPacket.isInitialized) updateCache()
-        return cachedPacket
-    }
-
-    override fun updateCache() {
-        cachedPacket = ClientboundRegistryDataPacket(this)
-    }
-
-    override fun get(identifier: String): DimensionType {
-        return dimensionTypes[identifier] ?: throw RegistryException(identifier, this.getMap().size)
-    }
-
-    override fun getOrNull(identifier: String): DimensionType? {
-        return dimensionTypes[identifier]
-    }
-
-    override fun getByProtocolId(id: Int): DimensionType {
-        return dimensionTypes.values.toList().getOrNull(id)
-            ?: throw RegistryException(identifier, this.getMap().size)
-    }
-
-    override fun getMap(): Map<String, DimensionType> {
-        return dimensionTypes
-    }
 }
 
 data class DimensionType(
@@ -171,10 +128,11 @@ data class DimensionType(
     val respawnAnchorWorks: Boolean,
     val ultraWarm: Boolean,
     val fixedTime: Long? = null,
+    val cloudHeight: Int? = null
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return DimensionTypeRegistry.protocolIds.getOrThrow(identifier)
+        return DimensionTypeRegistry.getProtocolIdByEntry(this)
     }
 
     override fun getEntryIdentifier(): String {
@@ -202,6 +160,7 @@ data class DimensionType(
             withBoolean("piglin_safe", piglinSafe)
             withBoolean("respawn_anchor_works", respawnAnchorWorks)
             withBoolean("ultrawarm", ultraWarm)
+            cloudHeight?.let { withInt("cloud_height", cloudHeight) }
         }
         return nbt
     }

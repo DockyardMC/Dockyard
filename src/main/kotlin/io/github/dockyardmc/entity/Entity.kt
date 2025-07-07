@@ -5,6 +5,8 @@ import cz.lukynka.bindables.BindableList
 import cz.lukynka.bindables.BindableMap
 import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.config.ConfigManager
+import io.github.dockyardmc.effects.AppliedPotionEffect
+import io.github.dockyardmc.effects.AppliedPotionEffectSettings
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.handlers.*
 import io.github.dockyardmc.entity.metadata.EntityMetadata
@@ -22,8 +24,6 @@ import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.types.EquipmentSlot
-import io.github.dockyardmc.registry.AppliedPotionEffect
-import io.github.dockyardmc.registry.AppliedPotionEffectSettings
 import io.github.dockyardmc.registry.DamageTypes
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
@@ -116,9 +116,8 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         )
 
         team.valueChanged { event ->
-            if (event.newValue != null && !TeamManager.teams.values.containsKey(event.newValue!!.name)) throw IllegalArgumentException(
-                "Team ${event.newValue!!.name} is not registered!"
-            )
+            require(event.newValue == null || TeamManager.teams.values.containsKey(event.newValue!!.name)) { "Team ${event.newValue!!.name} is not registered!" }
+
             event.oldValue?.entities?.remove(this)
             event.newValue?.entities?.add(this)
         }

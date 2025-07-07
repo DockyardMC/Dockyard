@@ -8,8 +8,7 @@ plugins {
     `maven-publish`
     kotlin("jvm") version "2.1.0"
     kotlin("plugin.serialization") version "2.1.0"
-    id("io.ktor.plugin") version "2.2.3"
-    application
+    `java-library`
 }
 
 val minecraftVersion = "1.21.5"
@@ -22,10 +21,6 @@ version = "${dockyardVersion}_${gitCommit}@${gitBranch}_mc${minecraftVersion}"
 
 kotlin {
     jvmToolchain(21)
-}
-
-application {
-    mainClass.set("io.github.dockyard.MainKt")
 }
 
 repositories {
@@ -45,6 +40,7 @@ dependencies {
     implementation("com.akuleshov7:ktoml-core:0.5.1")
     implementation("com.akuleshov7:ktoml-file:0.5.1")
     implementation("net.bytebuddy:byte-buddy-agent:1.14.12")
+    implementation("org.jctools:jctools-core:4.0.5")
 
     api("io.github.dockyardmc:bytesocks-client-java:1.0-SNAPSHOT") {
         exclude(module = "slf4j-api")

@@ -13,7 +13,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.scheduler.SchedulerTask
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.LegacyTextColor
-import io.github.dockyardmc.team.TeamCollisionRule
+import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.viewable.Viewable
@@ -27,7 +27,7 @@ class GuardianBeam(start: Location, end: Location) : Viewable(), Disposable {
         val NO_COLLISION_TEAM = TeamManager.create("beam_no_collision_${UUID.randomUUID()}", LegacyTextColor.WHITE)
 
         init {
-            NO_COLLISION_TEAM.teamCollisionRule.value = TeamCollisionRule.NEVER
+            NO_COLLISION_TEAM.collisionRule.value = Team.CollisionRule.NEVER
         }
     }
 

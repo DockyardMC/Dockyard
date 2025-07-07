@@ -7,7 +7,9 @@ import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.inventory.InventoryClickHandler
 import io.github.dockyardmc.inventory.PlayerInventoryUtils
-import io.github.dockyardmc.item.*
+import io.github.dockyardmc.item.HashedItemStack
+import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.clone
 import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.PlayerNetworkManager
@@ -16,11 +18,11 @@ import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.ui.DrawableItemStack
-import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import kotlin.math.ceil
+import kotlin.random.Random
 
 class ServerboundClickContainerPacket(
     var windowId: Int,
@@ -452,16 +454,16 @@ class ServerboundClickContainerPacket(
         player.equipment[equipmentSlot] = item
         player.inventory[clickedSlot] = item
 
-        val sound = component?.equipSound ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
-        player.playSound(sound, pitch = randomFloat(1.0f, 1.2f))
+        val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
+        player.playSound(sound, pitch = Random.randomFloat(1.0f, 1.2f))
     }
 
     private fun unequip(player: Player, equipmentSlot: EquipmentSlot, component: EquippableComponent?) {
         player.equipment[equipmentSlot] = ItemStack.AIR
         player.inventory[player.inventory.getSlotId(equipmentSlot, player.heldSlotIndex.value)] = ItemStack.AIR
 
-        val sound = component?.equipSound ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
-        player.playSound(sound, pitch = randomFloat(0.6f, 0.8f))
+        val sound = component?.equipSound?.identifier ?: Sounds.ITEM_ARMOR_EQUIP_GENERIC
+        player.playSound(sound, pitch = Random.randomFloat(0.6f, 0.8f))
     }
 
     private fun getDrawableClick(mode: ContainerClickMode): DrawableItemStack.ClickType {

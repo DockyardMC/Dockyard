@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.registry
 
 import io.github.dockyardmc.protocol.packets.configurations.ServerboundClientInformationPacket
+import io.github.dockyardmc.protocol.packets.configurations.ServerboundConfigurationCustomClickActionPacket
 import io.github.dockyardmc.protocol.packets.configurations.ServerboundConfigurationPluginMessagePacket
 import io.github.dockyardmc.protocol.packets.configurations.ServerboundFinishConfigurationAcknowledgePacket
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
@@ -8,6 +9,7 @@ import io.github.dockyardmc.protocol.packets.handshake.ServerboundPingRequestPac
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundStatusRequestPacket
 import io.github.dockyardmc.protocol.packets.login.ServerboundEncryptionResponsePacket
 import io.github.dockyardmc.protocol.packets.login.ServerboundLoginAcknowledgedPacket
+import io.github.dockyardmc.protocol.packets.login.ServerboundLoginPluginResponsePacket
 import io.github.dockyardmc.protocol.packets.login.ServerboundLoginStartPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ServerboundChatSessionUpdatePacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
@@ -22,7 +24,7 @@ object ServerPacketRegistry : PacketRegistry() {
 
         addLogin(ServerboundLoginStartPacket::class)
         addLogin(ServerboundEncryptionResponsePacket::class)
-        skipLogin("login plugin response")
+        addLogin(ServerboundLoginPluginResponsePacket::class)
         addLogin(ServerboundLoginAcknowledgedPacket::class)
         skipLogin("cookie response")
 
@@ -34,11 +36,13 @@ object ServerPacketRegistry : PacketRegistry() {
         skipConfiguration("pong")
         skipConfiguration("resourcepack status")
         skipConfiguration("known packs")
+        addConfiguration(ServerboundConfigurationCustomClickActionPacket::class)
 
         addPlay(ServerboundTeleportConfirmationPacket::class)
         skipPlay("query block nbt")
         skipPlay("select bundle item")
         skipPlay("change difficulty")
+        addPlay(ClientChangeGameModePacket::class)
         skipPlay("chat ack")
         addPlay(ServerboundChatCommandPacket::class)
         skipPlay("signed command")
@@ -99,5 +103,6 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("test instance block action packet")
         addPlay(ServerboundUseItemOnBlockPacket::class)
         addPlay(ServerboundUseItemPacket::class)
+        addPlay(ServerboundCustomClickActionPacket::class)
     }
 }

@@ -84,6 +84,10 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
         }
     }
 
+    fun clone(): DataComponentPatch {
+        return DataComponentPatch(Int2ObjectArrayMap(components.toMap()), isPatch, isTrusted)
+    }
+
     fun isEmpty(): Boolean = components.isEmpty()
 
     fun has(component: DataComponent): Boolean {
@@ -207,7 +211,7 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
                 entry.value!!.write(buffer)
             } else {
                 // Need to length prefix it, so write to another buffer first then copy.
-                val componentData = Buffer.makeArray { b -> entry.value!!.write(b) }
+                val componentData = byteBufBytes { b -> entry.value!!.write(b) }
                 buffer.writeByteArray(componentData)
             }
         }

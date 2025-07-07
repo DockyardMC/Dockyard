@@ -48,10 +48,14 @@ data class ResourcepackResponseEvent(
     val status: ResourcepackStatus
 )
 
-fun Player.addResourcepack(name: String, resourcepack: Resourcepack.() -> Unit) {
-    val pack = Resourcepack()
-    resourcepack.invoke(pack)
+inline fun Player.addResourcepack(name: String, resourcepack: Resourcepack.() -> Unit) {
+    addResourcepack(
+        name,
+        Resourcepack().apply(resourcepack)
+    )
+}
 
+fun Player.addResourcepack(name: String, pack: Resourcepack) {
     pack.name = name
     pack.player = this
 
@@ -64,7 +68,7 @@ fun Player.removeResourcepack(name: String) {
     this.sendPacket(ClientboundRemoveResourcepackPacket(pack.uuid))
 }
 
-fun Collection<Player>.addResourcepack(name: String, resourcepack: Resourcepack.() -> Unit) {
+inline fun Collection<Player>.addResourcepack(name: String, resourcepack: Resourcepack.() -> Unit) {
     this.forEach { it.addResourcepack(name, resourcepack) }
 }
 

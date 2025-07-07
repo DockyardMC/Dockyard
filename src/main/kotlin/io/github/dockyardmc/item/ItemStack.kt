@@ -9,6 +9,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.noxesium.Noxesium
 import io.github.dockyardmc.protocol.DataComponentHashable
+import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.types.ConsumeEffect
 import io.github.dockyardmc.protocol.types.ItemRarity
@@ -31,14 +32,14 @@ data class ItemStack(
     val components: DataComponentPatch,
     val existingMeta: ItemStackMeta? = null,
     val attributes: Collection<AttributeModifier> = listOf()
-) : NetworkWritable, DataComponentHashable {
+) : NetworkWritable, DataComponentHashable, NbtWritable {
 
     constructor(material: Item, amount: Int, vararg components: DataComponent, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
     constructor(material: Item, vararg components: DataComponent, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
     constructor(material: Item, components: Set<DataComponent>, amount: Int = 1, attributes: Collection<AttributeModifier> = listOf()) : this(material, amount, DataComponentPatch.fromList(components.toList()), attributes = attributes)
 
     init {
-        if (amount <= 0) throw IllegalArgumentException("ItemStack amount cannot be less than 1")
+        require(amount >= 1) { "ItemStack amount cannot be less than 1" }
     }
 
     companion object {
@@ -64,6 +65,14 @@ data class ItemStack(
         buffer.writeVarInt(this.amount)
         buffer.writeVarInt(this.material.getProtocolId())
         DataComponentPatch.patchNetworkType(components.components).write(buffer)
+    }
+
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withString("id", material.getEntryIdentifier())
+            withInt("count", amount)
+            withCompound("components", CompoundBinaryTag.empty())
+        }
     }
 
     fun withDisplayName(displayName: String): ItemStack {
@@ -108,7 +117,7 @@ data class ItemStack(
         return ItemStackMeta.fromItemStack(this).apply { withAmount(amount) }.toItemStack()
     }
 
-    fun withAmount(amount: (Int) -> Int): ItemStack {
+    inline fun withAmount(amount: (Int) -> Int): ItemStack {
         return withAmount(amount.invoke(this.amount))
     }
 
@@ -120,7 +129,7 @@ data class ItemStack(
         return ItemStackMeta.fromItemStack(this).apply { withLore(lore) }.toItemStack()
     }
 
-    fun withMeta(builder: ItemStackMeta.() -> Unit): ItemStack {
+    inline fun withMeta(builder: ItemStackMeta.() -> Unit): ItemStack {
         val meta = ItemStackMeta.fromItemStack(this)
         meta.apply(builder)
         return meta.toItemStack()
@@ -176,9 +185,9 @@ data class ItemStack(
         return withMeta { withCustomModelData(floats, flags, strings, colors) }
     }
 
-    val customModelData: CustomDataComponent
+    val customModelData: CustomModelDataComponent
         get() {
-            return components[CustomDataComponent::class] as CustomDataComponent? ?: CustomDataComponent(CompoundBinaryTag.empty())
+            return components[CustomModelDataComponent::class] as CustomModelDataComponent? ?: CustomModelDataComponent(listOf(), listOf(), listOf(), listOf())
         }
 
     val maxStackSize: Int
@@ -304,5 +313,5 @@ fun Collection<String>.toComponents(): Collection<Component> {
 }
 
 fun ItemStack.clone(): ItemStack {
-    return ItemStack(material, amount, components, existingMeta, attributes)
+    return ItemStack(material, amount, components.clone(), existingMeta, attributes.toList())
 }

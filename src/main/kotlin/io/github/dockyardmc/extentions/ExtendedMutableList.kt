@@ -7,7 +7,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.Player.ChestAnimation
-import io.github.dockyardmc.player.setSkin
+//import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
@@ -129,13 +129,13 @@ fun Collection<Player>.setCanFly(canFly: Boolean) {
     this.toList().forEach { it.canFly.value = canFly }
 }
 
-fun Collection<Player>.setSkin(uuid: UUID) {
-    this.toList().forEach { it.setSkin(uuid) }
-}
-
-fun Collection<Player>.setSkin(username: String) {
-    this.toList().forEach { it.setSkin(username) }
-}
+//fun Collection<Player>.setSkin(uuid: UUID) {
+//    this.toList().forEach { it.setSkin(uuid) }
+//}
+//
+//fun Collection<Player>.setSkin(username: String) {
+//    this.toList().forEach { it.setSkin(username) }
+//}
 
 fun Collection<Player>.setIsFlying(isFlying: Boolean) {
     this.toList().forEach { it.isFlying.value = isFlying }

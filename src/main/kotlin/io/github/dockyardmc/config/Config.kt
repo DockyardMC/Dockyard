@@ -1,6 +1,7 @@
 package io.github.dockyardmc.config
 
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.protocol.proxy.VelocityProxy
 
 class Config {
     var ip: String = "0.0.0.0"
@@ -11,6 +12,10 @@ class Config {
     var maxPlayers: Int = 50
     var implementationConfig: ImplementationConfig = ImplementationConfig()
     var updateChecker: Boolean = true
+
+    fun withVelocitySupport(secretKey: String) {
+        VelocityProxy.enabled(secretKey)
+    }
 
     fun withUpdateChecker(updateChecker: Boolean) {
         this.updateChecker = updateChecker
@@ -36,7 +41,7 @@ class Config {
         this.maxPlayers = maxPlayers
     }
 
-    fun withImplementations(implementationConfigBuilder: ImplementationConfig.() -> Unit) {
+    inline fun withImplementations(implementationConfigBuilder: ImplementationConfig.() -> Unit) {
         implementationConfigBuilder.invoke(implementationConfig)
     }
 
@@ -50,7 +55,6 @@ class ImplementationConfig {
     var commandNoPermissionsMessage: String = "You do not have permissions to execute this command!"
     var defaultEntityViewDistanceBlocks: Int = 64
     var defaultCommands: Boolean = true
-    var npcCommand: Boolean = false
     var spark: Boolean = true
     var itemDroppingAndPickup: Boolean = true
 }

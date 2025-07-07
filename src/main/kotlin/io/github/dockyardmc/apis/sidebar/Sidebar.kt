@@ -80,12 +80,14 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
     }
 
     fun setGlobalLine(index: Int, value: String) {
+        if (viewers.isEmpty()) return
         val before = indexToLineMap[index] as SidebarLine.Static?
         indexToLineMap[index] = SidebarLine.Static(value)
         if (before?.value != value) viewers.forEach { viewer -> sendLinePacket(viewer, index) }
     }
 
     fun setPlayerLine(index: Int, value: (Player) -> String) {
+        if (viewers.isEmpty()) return
         indexToLineMap[index] = SidebarLine.Player(value)
         viewers.forEach { viewer -> sendLinePacket(viewer, index) }
     }
@@ -116,6 +118,7 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
 
     init {
         title.valueChanged { event ->
+            if (viewers.isEmpty()) return@valueChanged
             val packet = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.EDIT_TEXT, event.newValue, ScoreboardType.INTEGER)
             viewers.sendPacket(packet)
         }
@@ -139,7 +142,7 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
     }
 }
 
-fun sidebar(unit: Sidebar.Builder.() -> Unit): Sidebar {
+inline fun sidebar(unit: Sidebar.Builder.() -> Unit): Sidebar {
     val builder = Sidebar.Builder()
     unit.invoke(builder)
     return builder.build()

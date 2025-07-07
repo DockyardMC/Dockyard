@@ -5,13 +5,14 @@ import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.HashList
 import io.github.dockyardmc.protocol.NetworkReadable
-import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.protocol.types.readList
+import io.github.dockyardmc.protocol.types.writeList
 import io.netty.buffer.ByteBuf
 
 class AttributeModifiersComponent(val attributes: List<Modifier>) : DataComponent(true) {
 
     override fun write(buffer: ByteBuf) {
-        return NETWORK_CODEC.writeNetwork(buffer, this)
+        buffer.writeList(attributes, Modifier::write)
     }
 
     override fun hashStruct(): HashHolder {
@@ -19,10 +20,9 @@ class AttributeModifiersComponent(val attributes: List<Modifier>) : DataComponen
     }
 
     companion object : NetworkReadable<AttributeModifiersComponent> {
-        val NETWORK_CODEC = Codec.of("attributes", Modifier.NETWORK_CODEC.list(), AttributeModifiersComponent::attributes, ::AttributeModifiersComponent)
 
         override fun read(buffer: ByteBuf): AttributeModifiersComponent {
-            return NETWORK_CODEC.readNetwork(buffer)
+            return AttributeModifiersComponent(buffer.readList(Modifier::read))
         }
     }
 }

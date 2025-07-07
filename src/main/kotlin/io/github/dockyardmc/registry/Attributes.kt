@@ -11,6 +11,7 @@ object Attributes {
     val BLOCK_BREAK_SPEED = AttributeRegistry["minecraft:block_break_speed"]
     val BLOCK_INTERACTION_RANGE = AttributeRegistry["minecraft:block_interaction_range"]
     val BURNING_TIME = AttributeRegistry["minecraft:burning_time"]
+    val CAMERA_DISTANCE = AttributeRegistry["minecraft:camera_distance"]
     val EXPLOSION_KNOCKBACK_RESISTANCE = AttributeRegistry["minecraft:explosion_knockback_resistance"]
     val ENTITY_INTERACTION_RANGE = AttributeRegistry["minecraft:entity_interaction_range"]
     val FALL_DAMAGE_MULTIPLIER = AttributeRegistry["minecraft:fall_damage_multiplier"]
@@ -35,4 +36,6 @@ object Attributes {
     val SWEEPING_DAMAGE_RATIO = AttributeRegistry["minecraft:sweeping_damage_ratio"]
     val TEMPT_RANGE = AttributeRegistry["minecraft:tempt_range"]
     val WATER_MOVEMENT_EFFICIENCY = AttributeRegistry["minecraft:water_movement_efficiency"]
+    val WAYPOINT_TRANSMIT_RANGE = AttributeRegistry["minecraft:waypoint_transmit_range"]
+    val WAYPOINT_RECEIVE_RANGE = AttributeRegistry["minecraft:waypoint_receive_range"]
 }

@@ -12,7 +12,9 @@ import io.github.dockyardmc.protocol.packets.play.serverbound.ContainerClickMode
 import io.github.dockyardmc.protocol.packets.play.serverbound.NormalButtonAction
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.world.WorldManager
+import org.junit.jupiter.api.Assertions.assertTrue
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -165,7 +167,7 @@ class InventoryClickTest {
 
         sendSlotClick(player, -999, NormalButtonAction.LEFT_CLICK_OUTSIDE_INVENTORY.button, ContainerClickMode.NORMAL, itemStack)
 
-        countDownLatch.await()
+        assertTrue(countDownLatch.await(5L, TimeUnit.SECONDS))
         assertEquals(ItemStack.AIR, player.inventory.cursorItem.value)
         assertEquals(itemStack, droppedItem)
 
@@ -192,7 +194,7 @@ class InventoryClickTest {
 
         sendSlotClick(player, -999, NormalButtonAction.RIGHT_CLICK_OUTSIDE_INVENTORY.button, ContainerClickMode.NORMAL, itemStack)
 
-        countDownLatch.await()
+        assertTrue(countDownLatch.await(5L, TimeUnit.SECONDS))
         assertEquals(itemStack.withAmount(5), player.inventory.cursorItem.value)
         assertEquals(itemStack.withAmount(1), droppedItem)
 

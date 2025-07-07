@@ -53,16 +53,6 @@ data class Location(
     val fullY: Int get() = ceil(y).toInt()
     val fullZ: Int get() = ceil(z).toInt()
 
-    override fun equals(other: Any?): Boolean {
-        if (other == null || other !is Location) return false
-        return x == other.x &&
-                y == other.y &&
-                z == other.z &&
-                pitch == other.pitch &&
-                yaw == other.yaw &&
-                world.name == other.world.name
-    }
-
     override fun toString(): String =
         "Location(x=${x.truncate(2)}, y=${y.truncate(2)}, z=${z.truncate(2)}, yaw=$yaw, pitch=$pitch, world=${world.name})"
 
@@ -125,7 +115,7 @@ data class Location(
 
     fun withLookAt(location: Location): Location {
         if (location == this) return this
-        val delta: Vector3d = (this.toVector3d() - this.toVector3d()).normalized()
+        val delta: Vector3d = (location.toVector3d() - this.toVector3d()).normalized()
         return withRotation(
             LocationUtils.getRotationYaw(delta.x, delta.z),
             LocationUtils.getRotationPitch(delta.x, delta.y, delta.z),
@@ -230,6 +220,10 @@ data class Location(
         }
 
         return locations
+    }
+
+    fun add(x: Float, y: Float, z: Float): Location {
+        return add(Vector3f(x, y, z))
     }
 
     val closestNonAirBelow: Pair<Block, Location>?

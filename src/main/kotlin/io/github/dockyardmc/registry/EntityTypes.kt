@@ -59,6 +59,7 @@ object EntityTypes {
     val FROG = EntityTypeRegistry["minecraft:frog"]
     val FURNACE_MINECART = EntityTypeRegistry["minecraft:furnace_minecart"]
     val GHAST = EntityTypeRegistry["minecraft:ghast"]
+    val HAPPY_GHAST = EntityTypeRegistry["minecraft:happy_ghast"]
     val GIANT = EntityTypeRegistry["minecraft:giant"]
     val GLOW_ITEM_FRAME = EntityTypeRegistry["minecraft:glow_item_frame"]
     val GLOW_SQUID = EntityTypeRegistry["minecraft:glow_squid"]

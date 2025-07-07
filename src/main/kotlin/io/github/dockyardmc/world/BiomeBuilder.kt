@@ -7,7 +7,7 @@ import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.CustomColor
 
-fun customBiome(identifier: String, builder: BiomeBuilder.() -> Unit): Biome {
+inline fun customBiome(identifier: String, builder: BiomeBuilder.() -> Unit): Biome {
     val instance = BiomeBuilder(identifier)
     builder.invoke(instance)
     return instance.toBiome()

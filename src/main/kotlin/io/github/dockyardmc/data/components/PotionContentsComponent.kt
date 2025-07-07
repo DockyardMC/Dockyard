@@ -3,12 +3,12 @@ package io.github.dockyardmc.data.components
 import io.github.dockyardmc.data.CRC32CHasher
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.HashHolder
+import io.github.dockyardmc.effects.AppliedPotionEffect
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.readOptional
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.protocol.writeOptional
-import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.registries.PotionType
 import io.github.dockyardmc.registry.registries.PotionTypeRegistry
 import io.github.dockyardmc.scroll.CustomColor
@@ -33,7 +33,7 @@ class PotionContentsComponent(
     override fun write(buffer: ByteBuf) {
         buffer.writeOptional(potion?.getProtocolId(), ByteBuf::writeVarInt)
         buffer.writeOptional(customColor, CustomColor::writePackedInt)
-        buffer.writeList(effects, ByteBuf::writeAppliedPotionEffect)
+        buffer.writeList(effects, AppliedPotionEffect::write)
         buffer.writeOptional(customName, ByteBuf::writeString)
     }
 
@@ -42,7 +42,7 @@ class PotionContentsComponent(
             return PotionContentsComponent(
                 buffer.readOptional(ByteBuf::readVarInt)?.let { PotionTypeRegistry.getByProtocolId(it) },
                 buffer.readOptional(ByteBuf::readInt)?.let { CustomColor.fromRGBInt(it) },
-                buffer.readAppliedPotionEffectsList(),
+                buffer.readList(AppliedPotionEffect::read),
                 buffer.readOptional(ByteBuf::readString)
             )
         }

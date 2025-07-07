@@ -30,13 +30,13 @@ fun buildCommandGraph(player: Player? = null): MutableMap<Int, CommandNode> {
 
     var index = 0
     commands.toSortedMap().forEach {
-        if(player != null && !player.hasPermission(it.value.permission)) return@forEach
+        if (player != null && !player.hasPermission(it.value.permission)) return@forEach
         index++
         val nodeIndex = index
         val node = LiteralCommandNode(it.key)
         var nextChild: CommandNode = node
         it.value.subcommands.forEach subcommandForeach@{ subcommand ->
-            if(player != null && !player.hasPermission(subcommand.value.permission)) return@subcommandForeach
+            if (player != null && !player.hasPermission(subcommand.value.permission)) return@subcommandForeach
 
             index++
             val subNode = LiteralCommandNode(subcommand.key)
@@ -71,13 +71,14 @@ fun buildCommandGraph(player: Player? = null): MutableMap<Int, CommandNode> {
 }
 
 fun ByteBuf.writeCommandNode(node: CommandNode, indices: MutableMap<Int, CommandNode>) {
-    if(node is ArgumentCommandNode) {
-        when(node.argument) {
+    if (node is ArgumentCommandNode) {
+        when (node.argument) {
             is StringArgument -> node.suggestionType = CommandArgumentSuggestionType.ASK_SERVER
             is EntityArgument -> node.suggestionType = CommandArgumentSuggestionType.SUMMONABLE_MOBS
             is SoundArgument -> node.suggestionType = CommandArgumentSuggestionType.AVAILABLE_SOUNDS
             is WorldArgument -> node.suggestionType = CommandArgumentSuggestionType.ASK_SERVER
             is EnumArgument -> node.suggestionType = CommandArgumentSuggestionType.ASK_SERVER
+            is PlayerArgument -> node.suggestionType = CommandArgumentSuggestionType.ASK_SERVER
             else -> {}
         }
     }
@@ -89,15 +90,15 @@ fun ByteBuf.writeCommandNode(node: CommandNode, indices: MutableMap<Int, Command
         val childIndex = getCommandNodeIndex(it, indices)
         this.writeVarInt(childIndex)
     }
-    if(node.redirectNode != null) this.writeVarInt(getCommandNodeIndex(node.redirectNode, indices))
-    if(node is LiteralCommandNode) this.writeString(node.name)
-    if(node is ArgumentCommandNode) {
+    if (node.redirectNode != null) this.writeVarInt(getCommandNodeIndex(node.redirectNode, indices))
+    if (node is LiteralCommandNode) this.writeString(node.name)
+    if (node is ArgumentCommandNode) {
         val parser = node.argument.parser
         this.writeString(node.name)
         this.writeVarInt(parser.ordinal)
         node.argument.write(this)
 
-        if(node.suggestionType != null) this.writeString(node.suggestionType!!.getIdentifier())
+        if (node.suggestionType != null) this.writeString(node.suggestionType!!.getIdentifier())
     }
 }
 
@@ -115,9 +116,9 @@ fun getCommandNodeIndex(node: CommandNode, indices: MutableMap<Int, CommandNode>
 fun getCommandNodeFlags(node: CommandNode): Byte {
     var mask: Byte = 0x00
     mask = mask or node.type.byte
-    if(node.isOptional) mask = mask or 0x04
-    if(node.redirectNode != null) mask = mask or 0x08
-    if(node.suggestionType != null) mask = mask or 0x10
+    if (node.isOptional) mask = mask or 0x04
+    if (node.redirectNode != null) mask = mask or 0x08
+    if (node.suggestionType != null) mask = mask or 0x10
 
     return mask
 }
@@ -125,12 +126,13 @@ fun getCommandNodeFlags(node: CommandNode): Byte {
 class ArgumentCommandNode(
     val name: String,
     val argument: CommandArgument,
-): CommandNode(type = CommandNodeType.ARGUMENT)
+) : CommandNode(type = CommandNodeType.ARGUMENT)
 
 class LiteralCommandNode(
     val name: String
-): CommandNode(type = CommandNodeType.LITERAL)
-class RootCommandNode(): CommandNode(type = CommandNodeType.ROOT)
+) : CommandNode(type = CommandNodeType.LITERAL)
+
+class RootCommandNode() : CommandNode(type = CommandNodeType.ROOT)
 
 enum class CommandArgumentSuggestionType {
     ASK_SERVER,
@@ -193,7 +195,11 @@ enum class ArgumentCommandNodeParser {
     HEIGHTMAP,
     UUID,
     FORGE_MOD_ID,
-    FORGE_ENUM
+    FORGE_ENUM;
+
+    fun getIdentifier(): String {
+        return "minecraft:${this.name.lowercase()}"
+    }
 }
 
 enum class BrigadierStringType {

@@ -1,12 +1,12 @@
 package io.github.dockyardmc.entity.handlers
 
 import cz.lukynka.bindables.BindableMap
+import io.github.dockyardmc.effects.AppliedPotionEffect
 import io.github.dockyardmc.effects.PotionEffectAttributes
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEffectPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRemoveEntityEffectPacket
-import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.scheduler.runnables.inWholeMinecraftTicks
 import io.github.dockyardmc.utils.ticksToMs

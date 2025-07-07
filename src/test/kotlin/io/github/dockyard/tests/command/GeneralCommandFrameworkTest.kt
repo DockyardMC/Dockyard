@@ -18,9 +18,11 @@ import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.utils.Console
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.assertThrows
 import java.util.*
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -62,7 +64,7 @@ class GeneralCommandFrameworkTest {
         val player = PlayerTestUtil.getOrCreateFakePlayer()
         PlayerTestUtil.sendPacket(player, ServerboundChatCommandPacket("/ban LukynkaCZE way too gay"))
 
-        countDownLatch.await()
+        assertTrue(countDownLatch.await(5L, TimeUnit.SECONDS))
         assertEquals("LukynkaCZE", testValue.first)
         assertEquals("way too gay", testValue.second)
     }
@@ -84,7 +86,7 @@ class GeneralCommandFrameworkTest {
         val player = PlayerTestUtil.getOrCreateFakePlayer()
         PlayerTestUtil.sendPacket(player, ServerboundChatCommandPacket("/kick LukynkaCZE"))
 
-        countDownLatch.await()
+        assertTrue(countDownLatch.await(5L, TimeUnit.SECONDS))
         assertEquals("LukynkaCZE", testValue.first)
         assertEquals(null, testValue.second)
     }
@@ -174,7 +176,7 @@ class GeneralCommandFrameworkTest {
         val player = PlayerTestUtil.getOrCreateFakePlayer()
         CommandHandler.handleCommandInput("/woah LukynkaCZE main hi minecraft:entity.generic.eat minecraft:amethyst_block minecraft:barrier[waterlogged=true] minecraft:diamond_sword pink minecraft:electric_spark 69 6.9 4.20 true 5 7f6fe623-48ed-4fcc-ac44-1d48e5d9da54 adventure my lil silly <3", CommandExecutor(player, Console, "", true), true)
 
-        countdownLatch.await()
+        assertTrue(countdownLatch.await(5L, TimeUnit.SECONDS))
 
         assertEquals(expectedPlayer, actualPlayer)
         assertEquals(expectedWorld, actualWorld)

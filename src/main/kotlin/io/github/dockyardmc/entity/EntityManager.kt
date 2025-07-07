@@ -1,6 +1,5 @@
 package io.github.dockyardmc.entity
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.EntitySpawnEvent
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.player.Player
@@ -44,7 +43,7 @@ object EntityManager {
         val event = EntitySpawnEvent(entity, entity.world, getEntityEventContext(entity))
         Events.dispatch(event)
 
-        if(event.cancelled) {
+        if (event.cancelled) {
             entity.world.despawnEntity(entity)
         }
 
@@ -52,19 +51,26 @@ object EntityManager {
     }
 
     fun despawnEntity(entity: Entity) {
-        if(entity is Player) return
+        if (entity is Player) return
         synchronized(entities) {
             innerEntities.remove(entity.id)
             entity.world.removeEntity(entity)
         }
     }
 
+
     fun World.spawnEntity(entity: Entity): Entity {
         return this@EntityManager.spawnEntity(entity)
     }
 
+    @JvmName("spawnEntityWithType")
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Entity> World.spawnEntity(entity: Entity): T {
+        return this.spawnEntity(entity) as T
+    }
+
     fun World.despawnEntity(entity: Entity) {
-        if(entity is Player) return
+        if (entity is Player) return
         entity.dispose()
     }
 }
