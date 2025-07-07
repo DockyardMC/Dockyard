@@ -1,9 +1,12 @@
 package io.github.dockyardmc.entity.ai.test.nodes
 
 import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.TestZombie
 import io.github.dockyardmc.entity.ai.EntityBehaviourNode
 import io.github.dockyardmc.entity.ai.EntityBehaviourResult
 import io.github.dockyardmc.entity.ai.test.SculkZombieBehaviourCoordinator
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerAnimationPacket
+import io.github.dockyardmc.protocol.packets.play.clientbound.EntityAnimation
 import io.github.dockyardmc.registry.DamageTypes
 import kotlin.time.Duration.Companion.seconds
 
@@ -20,6 +23,7 @@ class GenericEntityAttackPlayerBehaviourNode(val coordinator: SculkZombieBehavio
             getBehaviourFuture().complete(EntityBehaviourResult.FAILED)
             return
         }
+        entity.sendPacketToViewers(ClientboundPlayerAnimationPacket(entity, EntityAnimation.SWING_MAIN_ARM))
 
         target.damage(2f, DamageTypes.GENERIC, entity)
         cooldown = 1.seconds

@@ -5,6 +5,9 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.ai.EntityBehaviourNode
 import io.github.dockyardmc.entity.ai.EntityBehaviourResult
 import io.github.dockyardmc.entity.ai.test.SculkZombieBehaviourCoordinator
+import io.github.dockyardmc.entity.metadata.EntityMetaValue
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.randomFloat
@@ -36,6 +39,7 @@ class GeneralEntityPursuitBehaviour(val coordinator: SculkZombieBehaviourCoordin
     }
 
     override fun onStart(entity: Entity) {
+        entity.metadata[EntityMetadataType.ARMOR_STAND_BITMASK] = EntityMetadata(EntityMetadataType.ARMOR_STAND_BITMASK, EntityMetaValue.BYTE, 0x04)
         pathfindResultListener = coordinator.navigator.pathfindResultDispatcher.subscribe { result ->
             if (result.hasFailed()) {
                 fails++
@@ -43,7 +47,6 @@ class GeneralEntityPursuitBehaviour(val coordinator: SculkZombieBehaviourCoordin
                     updateFrequency = PATH_UPDATE_PERIOD_IDLE
                 }
             } else {
-                broadcastMessage("<lime>Found: ${result.path.length()}")
                 if (updateFrequency != PATH_UPDATE_PERIOD_NORMAL) {
                     updateFrequency = PATH_UPDATE_PERIOD_NORMAL
                     fails = 0
@@ -85,6 +88,7 @@ class GeneralEntityPursuitBehaviour(val coordinator: SculkZombieBehaviourCoordin
     }
 
     override fun onStop(entity: Entity, interrupted: Boolean) {
+        entity.metadata[EntityMetadataType.ARMOR_STAND_BITMASK] = EntityMetadata(EntityMetadataType.ARMOR_STAND_BITMASK, EntityMetaValue.BYTE, 0x0)
         coordinator.navigator.cancelNavigating()
         pathfindingStepListener?.let { coordinator.navigator.navigationNodeStepDispatcher.unsubscribe(it) }
         pathfindingEndListener?.let { coordinator.navigator.navigationCompleteDispatcher.unsubscribe(it) }
