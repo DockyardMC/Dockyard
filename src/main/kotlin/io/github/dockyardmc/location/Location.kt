@@ -89,6 +89,14 @@ data class Location(
 
     fun distance(other: Location): Double = sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0))
 
+    fun distanceSquared(other: Location): Double {
+        val dx = this.x - other.x
+        val dy = this.y - other.y
+        val dz = this.z - other.z
+
+        return dx * dx + dy * dy + dz * dz
+    }
+
     fun distanceVector(other: Location): Vector3d {
         val dx = this.x - other.x
         val dy = this.y - other.y
@@ -171,6 +179,10 @@ data class Location(
 
     fun sameBlock(point: Vector3): Boolean {
         return sameBlock(point.x, point.y, point.z)
+    }
+
+    fun sameBlock(location: Location): Boolean {
+        return this.sameBlock(location.getBlockLocation().toVector3())
     }
 
     fun sameBlock(blockX: Int, blockY: Int, blockZ: Int): Boolean {

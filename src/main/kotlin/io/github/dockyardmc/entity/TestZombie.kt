@@ -2,20 +2,21 @@ package io.github.dockyardmc.entity
 
 import cz.lukynka.bindables.Bindable
 import de.metaphoriker.pathetic.api.pathing.configuration.HeuristicWeights
-import de.metaphoriker.pathetic.api.pathing.filter.filters.PassablePathFilter
+import io.github.dockyardmc.entity.ai.test.SculkZombieBehaviourCoordinator
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
+import io.github.dockyardmc.events.WorldTickEvent
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.pathfinding.Navigator
+import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.pathfinding.Pathfinder
-import io.github.dockyardmc.pathfinding.RequiredHeightPathfindingFilter
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.DamageTypes
 import io.github.dockyardmc.registry.EntityTypes
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.EntityType
-import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.maths.randomFloat
 import kotlin.random.Random
 
 class TestZombie(location: Location) : Entity(location) {
@@ -31,13 +32,9 @@ class TestZombie(location: Location) : Entity(location) {
         heuristicWeights(HeuristicWeights.DIRECT_PATH_WEIGHTS)
     }
 
-    val navigator = Navigator(this, 5, pathfinder, listOf(RequiredHeightPathfindingFilter(2), PassablePathFilter()))
+    val behaviourCoordinator = SculkZombieBehaviourCoordinator(this)
 
     init {
-
-//        brain.addGoal(ZombieGroanAiGoal(this, 1))
-//        brain.addGoal(RandomWalkAroundGoal(this, 1, navigator))
-
         eventPool.on<PlayerDamageEntityEvent> { event ->
             val entity = event.entity
             if (entity != this) return@on
@@ -46,6 +43,12 @@ class TestZombie(location: Location) : Entity(location) {
             entity.damage(1f, DamageTypes.GENERIC, event.player, event.entity)
             event.player.sendMessage("<red>${health.value}")
         }
+
+        eventPool.on<WorldTickEvent> {
+            behaviourCoordinator.tick()
+        }
+
+
 
 //        eventPool.on<PlayerInteractWithEntityEvent> {
 //            val entity = it.entity
@@ -60,6 +63,7 @@ class TestZombie(location: Location) : Entity(location) {
     // when entity is despawned
     override fun dispose() {
         eventPool.dispose() // automatically unregister all above events
+        behaviourCoordinator.dispose()
         super.dispose()
     }
 }

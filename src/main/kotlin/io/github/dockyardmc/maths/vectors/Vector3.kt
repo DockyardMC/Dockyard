@@ -15,7 +15,7 @@ data class Vector3(
     var x: Int,
     var y: Int,
     var z: Int,
-): NetworkWritable {
+) : NetworkWritable {
     constructor() : this(0, 0, 0)
     constructor(single: Int) : this(single, single, single)
 
@@ -86,12 +86,22 @@ data class Vector3(
     }
 
     fun distance(other: Vector3): Double {
-        return sqrt((this.x - other.x).toDouble().pow(2) +
+        return sqrt(
+            (this.x - other.x).toDouble().pow(2) +
                     (this.y - other.y).toDouble().pow(2) +
-                    (this.z - other.z).toDouble().pow(2))
+                    (this.z - other.z).toDouble().pow(2)
+        )
     }
 
     val isZero: Boolean get() = x == 0 && y == 0 && z == 0
+
+    fun distanceSquared(other: Vector3): Int {
+        val dx = this.x - other.x
+        val dy = this.y - other.y
+        val dz = this.z - other.z
+
+        return dx * dx + dy * dy + dz * dz
+    }
 
     fun toLocation(world: World): Location = Location(this.x, this.y, this.z, world)
     fun toVector3d() = Vector3d(x.toDouble(), y.toDouble(), z.toDouble())
@@ -125,7 +135,7 @@ data class Vector3(
         buffer.writeShort(this.z)
     }
 
-    companion object: NetworkReadable<Vector3> {
+    companion object : NetworkReadable<Vector3> {
 
         override fun read(buffer: ByteBuf): Vector3 {
             return Vector3(

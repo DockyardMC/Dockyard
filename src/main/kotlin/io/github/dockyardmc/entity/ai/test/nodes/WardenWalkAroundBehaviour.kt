@@ -4,12 +4,12 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.ai.EntityBehaviourNode
 import io.github.dockyardmc.entity.ai.EntityBehaviourResult
 import io.github.dockyardmc.entity.ai.test.WardenBehaviourCoordinator
-import io.github.dockyardmc.maths.randomInt
 import io.github.dockyardmc.pathfinding.PatheticPlatformDockyard.toPathPosition
 import io.github.dockyardmc.pathfinding.PathfindingHelper
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.Sound
 import io.github.dockyardmc.utils.debug
+import kotlin.random.Random
 
 class WardenWalkAroundBehaviour(val coordinator: WardenBehaviourCoordinator) : EntityBehaviourNode() {
 
@@ -22,7 +22,7 @@ class WardenWalkAroundBehaviour(val coordinator: WardenBehaviourCoordinator) : E
 
     override fun onStart(entity: Entity) {
         var foundPath = false
-        this.cooldown = randomInt(40, 80)
+        this.cooldown = Random.nextInt(40, 80)
 
         coordinator.navigator.navigationCompleteDispatcher.subscribe {
             getBehaviourFuture().complete(EntityBehaviourResult.SUCCESS)
@@ -32,7 +32,7 @@ class WardenWalkAroundBehaviour(val coordinator: WardenBehaviourCoordinator) : E
         }
 
         entity.location.getBlocksInRadius(10).shuffled().forEach blockLoop@{ location ->
-            if(foundPath) {
+            if (foundPath) {
                 return@blockLoop
             }
 
@@ -44,7 +44,7 @@ class WardenWalkAroundBehaviour(val coordinator: WardenBehaviourCoordinator) : E
                 if (!result.successful()) {
                     return@thenAccept
                 }
-                if(foundPath) return@thenAccept
+                if (foundPath) return@thenAccept
 
                 foundPath = true
                 debug("Path found: ${result.path.length()}", true)
