@@ -101,9 +101,6 @@ abstract class DataDrivenRegistry<T : RegistryEntry> : Registry<T>() {
         val list = Json.decodeFromStream<List<D>>(stream)
         list.forEach { entry ->
             addEntry(entry as T)
-            if(this is BannerPatternRegistry) {
-                log("ADDING ${entry.getEntryIdentifier()}")
-            }
         }
     }
 }
