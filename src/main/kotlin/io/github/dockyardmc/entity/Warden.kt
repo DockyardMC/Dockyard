@@ -1,13 +1,9 @@
 package io.github.dockyardmc.entity
 
 import cz.lukynka.bindables.Bindable
-import io.github.dockyardmc.entity.ai.test.WardenBehaviourCoordinator
 import io.github.dockyardmc.entity.metadata.EntityMetaValue
 import io.github.dockyardmc.entity.metadata.EntityMetadata
 import io.github.dockyardmc.entity.metadata.EntityMetadataType
-import io.github.dockyardmc.events.EventPool
-import io.github.dockyardmc.events.WorldTickEvent
-import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.EntityPose
@@ -22,16 +18,10 @@ open class Warden(location: Location) : Entity(location) {
     override var inventorySize: Int = 0
 
     val angerLevel: Bindable<Int> = Bindable(0)
-    val behaviourController = WardenBehaviourCoordinator(this)
-    val pool = EventPool.withFilter("warden-pool", EventFilter.containsWorld(location.world))
 
     init {
         angerLevel.valueChanged {
             metadata[EntityMetadataType.WARDEN_ANGER_LEVEL] = EntityMetadata(EntityMetadataType.WARDEN_ANGER_LEVEL, EntityMetaValue.VAR_INT, it.newValue)
-        }
-
-        pool.on<WorldTickEvent> {
-            behaviourController.tick()
         }
     }
 
