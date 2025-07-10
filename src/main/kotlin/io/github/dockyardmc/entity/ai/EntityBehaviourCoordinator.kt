@@ -102,6 +102,12 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Freezable(), Dis
         eventPool.dispose()
         activeBehaviour?.onStop(entity, true)
         activeBehaviour?.getBehaviourFuture()?.cancel(false)
+        stopBehaviour()
+        behaviours.clear()
+        freeze()
+        eventPool.dispose()
+        isEvaluating.set(false)
+        pathfinder.abort()
+        navigator.dispose()
     }
-
 }
