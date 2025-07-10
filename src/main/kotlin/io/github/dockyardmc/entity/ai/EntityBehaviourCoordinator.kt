@@ -11,7 +11,6 @@ import io.github.dockyardmc.scheduler.runnables.inWholeMinecraftTicks
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.Freezable
-import io.github.dockyardmc.utils.debug
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -37,7 +36,6 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Freezable(), Dis
         super.freeze()
         navigator.cancelNavigating()
         stopBehaviour()
-        debug("<aqua>Interrupted by freeze")
     }
 
     fun tick() {
@@ -48,7 +46,6 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Freezable(), Dis
         evaluateBehaviours()
 
         if (activeBehaviour?.getBehaviourFuture() != null && activeBehaviour?.getBehaviourFuture()!!.isDone) {
-            debug("<lime>${activeBehaviour!!::class.simpleName} finished", true)
             stopBehaviour()
         }
         if (activeBehaviour != null) {
@@ -66,7 +63,6 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Freezable(), Dis
     }
 
     fun stopBehaviour() {
-        if (activeBehaviour != null) debug("<red>${activeBehaviour!!::class.simpleName} stopped", true)
         activeBehaviour?.onStop(entity, true)
         activeBehaviour?.getBehaviourFuture()?.cancel(true)
         activeBehaviour = null
@@ -75,7 +71,6 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Freezable(), Dis
     fun forceBehaviour(behaviourNode: EntityBehaviourNode) {
         stopBehaviour()
 
-        debug("<aqua>Set new behaviour: ${behaviourNode::class.simpleName}")
         behaviourNode.setBehaviourFuture(CompletableFuture<EntityBehaviourResult>())
         this.activeBehaviour = behaviourNode
         behaviourNode.onStart(entity)
@@ -94,7 +89,6 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Freezable(), Dis
             val bestNode = filtered.maxByOrNull { behaviour -> behaviour.getScorer(entity) }
             if (bestNode != null) {
                 if ((activeBehaviour != null && activeBehaviour!!.interruptible && bestNode.getScorer(entity) > currentScorer) || activeBehaviour == null) {
-                    debug("New best node: ${bestNode::class.simpleName} (scorer ${bestNode.getScorer(entity)})", true)
                     forceBehaviour(bestNode)
                 }
             }
