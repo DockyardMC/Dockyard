@@ -10,11 +10,12 @@ import io.github.dockyardmc.pathfinding.RequiredHeightPathfindingFilter
 import io.github.dockyardmc.scheduler.runnables.inWholeMinecraftTicks
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.Freezable
 import io.github.dockyardmc.utils.debug
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class EntityBehaviourCoordinator(val entity: Entity) : Disposable {
+abstract class EntityBehaviourCoordinator(val entity: Entity) : Freezable(), Disposable {
 
     val eventPool = EventPool().withFilter(EventFilter.containsEntity(entity))
     val behaviours: MutableList<EntityBehaviourNode> = mutableListOf()
@@ -32,7 +33,15 @@ abstract class EntityBehaviourCoordinator(val entity: Entity) : Disposable {
     var frontStageTicks = 0
     var backstageTicks = 0
 
+    override fun freeze() {
+        super.freeze()
+        navigator.cancelNavigating()
+        stopBehaviour()
+        debug("<aqua>Interrupted by freeze")
+    }
+
     fun tick() {
+        if (frozen) return
         generalTicks++
         backstageTicks++
 
