@@ -120,8 +120,14 @@ data class Block(
 
         fun getBlockFromStateString(identifier: String): Block {
             val blockIdentifier = identifier.split("[")[0]
-            val block = BlockRegistry[blockIdentifier]
-            val id = block.possibleStates[identifier] ?: throw IllegalArgumentException("No matching state sequence found on ${block.identifier}")
+            val registryBlock = BlockRegistry[blockIdentifier]
+
+            //if no block state ids, no need to look up the block state ids map
+            if (registryBlock.states.isEmpty()) {
+                return registryBlock.toBlock()
+            }
+
+            val id = registryBlock.possibleStates[identifier] ?: throw IllegalArgumentException("No matching state sequence found on ${registryBlock.identifier}")
             return getBlockByStateId(id)
         }
 

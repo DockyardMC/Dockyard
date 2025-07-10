@@ -103,6 +103,14 @@ class BlockTest {
 
     @Test
     fun testBlockStateParsing() {
+        val matches = mutableMapOf<String, Int>(
+            "minecraft:coarse_dirt" to 11
+        )
+
+        matches.forEach { (identifier, blockStateId) ->
+            assertEquals(blockStateId, Block.getBlockFromStateString(identifier).getProtocolId())
+        }
+
         val parsed = Block.parseBlockStateString("minecraft:oak_slab[type=top]")
 
         assertEquals("minecraft:oak_slab", parsed.first)
