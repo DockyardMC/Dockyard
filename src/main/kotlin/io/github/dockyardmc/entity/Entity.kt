@@ -72,6 +72,8 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val stuckArrows: Bindable<Int> = bindablePool.provideBindable(0)
     var gravityTickCount = 0
 
+    val maxHealth get() = health.defaultValue
+
     val potionEffects: BindableMap<PotionEffect, AppliedPotionEffect> = bindablePool.provideBindableMap()
     val isInvisible: Bindable<Boolean> = bindablePool.provideBindable(false)
     val isGlowing: Bindable<Boolean> = bindablePool.provideBindable(false)
@@ -190,6 +192,11 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     open fun lookAt(target: Entity) {
         val newLoc = this.location.setDirection(target.location.toVector3d() - (this.location).toVector3d())
+        teleport(newLoc)
+    }
+
+    open fun lookAt(targetLocation: Location) {
+        val newLoc = this.location.setDirection(targetLocation.toVector3d() - (this.location).toVector3d())
         teleport(newLoc)
     }
 

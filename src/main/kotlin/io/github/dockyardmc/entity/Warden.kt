@@ -12,7 +12,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEvent
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 
-open class Warden(location: Location): Entity(location) {
+open class Warden(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.WARDEN
     override val health: Bindable<Float> = Bindable(500f)
     override var inventorySize: Int = 0
@@ -27,7 +27,7 @@ open class Warden(location: Location): Entity(location) {
 
     fun playAnimation(animation: WardenAnimation) {
 
-        when(animation) {
+        when (animation) {
             WardenAnimation.EMERGE -> pose.value = EntityPose.EMERGING
             WardenAnimation.ROAR -> pose.value = EntityPose.ROARING
             WardenAnimation.SNIFF -> pose.value = EntityPose.SNIFFING

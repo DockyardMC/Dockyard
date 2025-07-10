@@ -10,7 +10,6 @@ import io.github.dockyardmc.entity.metadata.getEntityMetadataState
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PersistentPlayer
 import io.github.dockyardmc.scroll.extensions.toComponent
-import java.lang.IllegalStateException
 
 class EntityMetadataHandler(override val entity: Entity) : EntityHandler {
 
@@ -25,6 +24,14 @@ class EntityMetadataHandler(override val entity: Entity) : EntityHandler {
 
         synchronized(metadata) {
             metadata[key] = value
+            entity.sendMetadataPacketToViewers()
+            entity.sendSelfMetadataIfPlayer()
+        }
+    }
+
+    fun remove(key: EntityMetadataType) {
+        synchronized(metadata) {
+            metadata.remove(key)
             entity.sendMetadataPacketToViewers()
             entity.sendSelfMetadataIfPlayer()
         }
