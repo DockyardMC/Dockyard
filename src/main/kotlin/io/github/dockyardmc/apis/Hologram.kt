@@ -2,9 +2,10 @@ package io.github.dockyardmc.apis
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableDispatcher
-import io.github.dockyardmc.entity.*
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.TextDisplay
 import io.github.dockyardmc.entity.metadata.EntityMetaValue
 import io.github.dockyardmc.entity.metadata.EntityMetadata
 import io.github.dockyardmc.entity.metadata.EntityMetadataType
@@ -194,6 +195,10 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
             entity.removeViewer(player)
         }
         super.removeViewer(player)
+    }
+
+    fun getLineEntities(): List<TextDisplay> {
+        return lineEntities.toList()
     }
 
     interface ContentLine
