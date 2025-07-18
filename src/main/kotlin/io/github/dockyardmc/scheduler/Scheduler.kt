@@ -29,6 +29,8 @@ abstract class Scheduler(val name: String) : Disposable {
     private val repeatingTasksAsync: MutableMap<Long, MutableList<AsyncSchedulerTask<*>>> =
         mutableMapOf() // scheduler tick % interval to task
 
+    val taskSize: Int get() = scheduledTasks.size + scheduledTasksAsync.size + repeatingTasks.size + repeatingTasksAsync.size
+
     protected val averages = mutableListOf<Long>(50)
     protected var timeSinceLastTick = Instant.now()
 
@@ -177,9 +179,10 @@ abstract class Scheduler(val name: String) : Disposable {
     open fun runRepeatingAsync(interval: Duration, unit: (AsyncSchedulerTask<Unit>) -> Unit): AsyncSchedulerTask<Unit> {
         val task = AsyncSchedulerTask(unit, SchedulerTask.Type.REPEATING)
         var list = repeatingTasksAsync[ticks]
+
         if (list == null) {
-            repeatingTasksAsync[ticks] = mutableListOf()
-            list = scheduledTasksAsync[ticks] ?: return task
+            list = mutableListOf()
+            repeatingTasksAsync[ticks] = list
         }
 
         list.add(task)

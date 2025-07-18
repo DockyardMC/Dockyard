@@ -92,12 +92,13 @@ class Bound(
     }
 
     fun resize(newFirstLocation: Location, newSecondLocation: Location) {
-        if (newFirstLocation.world != newSecondLocation.world) throw IllegalArgumentException("The two locations cannot be in different worlds (${firstLocation.world.name} - ${secondLocation.world.name})")
+        require(newFirstLocation.world == newSecondLocation.world) { "The two locations cannot be in different worlds (${firstLocation.world.name} - ${secondLocation.world.name})" }
+
         this.firstLocation = getBoundPositionRelative(newFirstLocation, newSecondLocation)
         this.secondLocation = getBoundPositionRelative(newSecondLocation, newFirstLocation)
 
         getEntities().filterIsInstance<Player>().forEach { player ->
-            if(members.contains(player)) return@forEach
+            if (members.contains(player)) return@forEach
             val event = PlayerEnterBoundEvent(player, this)
             Events.dispatch(event)
 

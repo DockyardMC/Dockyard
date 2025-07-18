@@ -2,10 +2,10 @@ package io.github.dockyardmc.entity.handlers
 
 import cz.lukynka.bindables.BindableMap
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.player.PersistentPlayer
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 
 class EntityEquipmentHandler(override val entity: Entity) : EntityHandler {
 

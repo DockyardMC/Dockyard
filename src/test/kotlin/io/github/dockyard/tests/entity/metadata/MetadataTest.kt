@@ -1,9 +1,11 @@
 package io.github.dockyard.tests.entity.metadata
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.PlayerTestUtil
 import io.github.dockyard.tests.TestServer
-import io.github.dockyardmc.entity.EntityMetadataType
-import io.github.dockyardmc.entity.getEntityMetadataStateBuilder
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
+import io.github.dockyardmc.entity.metadata.getEntityMetadataStateBuilder
 import io.github.dockyardmc.player.EntityPose
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -46,13 +48,15 @@ class MetadataTest {
         player.isInvisible.value = true
         player.pose.value = EntityPose.SWIMMING
 
-        val stateMeta = getEntityMetadataStateBuilder(player.metadata[EntityMetadataType.STATE]!!.value as Byte, player)
+        val state = player.metadata[EntityMetadataType.STATE]
 
-        assertEquals(true, player.metadata[EntityMetadataType.HAS_NO_GRAVITY]!!.value)
+        val stateMeta = getEntityMetadataStateBuilder(state.value as Byte, player)
+
+        assertEquals(true, player.metadata[EntityMetadataType.HAS_NO_GRAVITY].value)
         assertEquals(true, stateMeta.isOnFire)
-        assertEquals(10, player.metadata[EntityMetadataType.FROZEN_TICKS]!!.value)
+        assertEquals(10, player.metadata[EntityMetadataType.FROZEN_TICKS].value)
         assertEquals(true, stateMeta.isGlowing)
         assertEquals(true, stateMeta.isInvisible)
-        assertEquals(EntityPose.SWIMMING, player.metadata[EntityMetadataType.POSE]!!.value)
+        assertEquals(EntityPose.SWIMMING, player.metadata[EntityMetadataType.POSE].value)
     }
 }

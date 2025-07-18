@@ -4,10 +4,7 @@ import io.github.dockyardmc.events.ClientboundMoveVehiclePacket
 import io.github.dockyardmc.protocol.packets.configurations.*
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundPingResponsePacket
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundStatusResponsePacket
-import io.github.dockyardmc.protocol.packets.login.ClientboundEncryptionRequestPacket
-import io.github.dockyardmc.protocol.packets.login.ClientboundLoginDisconnectPacket
-import io.github.dockyardmc.protocol.packets.login.ClientboundLoginSuccessPacket
-import io.github.dockyardmc.protocol.packets.login.ClientboundSetCompressionPacket
+import io.github.dockyardmc.protocol.packets.login.*
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 
 object ClientPacketRegistry : PacketRegistry() {
@@ -20,7 +17,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addLogin(ClientboundEncryptionRequestPacket::class)
         addLogin(ClientboundLoginSuccessPacket::class)
         addLogin(ClientboundSetCompressionPacket::class)
-        skipLogin("Plugin Request")
+        addLogin(ClientboundLoginPluginRequestPacket::class)
         skipLogin("Cookie Request")
 
         skipConfiguration("Cookie Request")
@@ -40,10 +37,11 @@ object ClientPacketRegistry : PacketRegistry() {
         addConfiguration(ClientboundKnownPacksPackets::class)
         skipConfiguration("Custom Reports")
         addConfiguration(ClientboundConfigurationServerLinksPacket::class)
+        addConfiguration(ClientboundConfigurationClearDialogPacket::class)
+        skipConfiguration("show dialog")
 
         skipPlay("Bundle")
         addPlay(ClientboundSpawnEntityPacket::class)
-        skipPlay("Spawn experience orb")
         addPlay(ClientboundPlayerAnimationPacket::class)
         skipPlay("Statistics")
         addPlay(ClientboundAcknowledgeBlockChangePacket::class)
@@ -161,6 +159,7 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("nbt query response")
         addPlay(ClientboundPickupItemPacket::class)
         addPlay(ClientboundEntityTeleportPacket::class)
+        skipPlay("Test Instance block status")
         addPlay(ClientboundSetTickingStatePacket::class)
         skipPlay("tick step")
         skipPlay("transfer packet")
@@ -172,6 +171,9 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("projectile power")
         skipPlay("custom report details")
         skipPlay("server links")
+        addPlay(ClientboundTrackedWaypointPacket::class)
+        addPlay(ClientboundClearDialogPacket::class)
+        addPlay(ClientboundShowDialogPacket::class)
     }
 }
 

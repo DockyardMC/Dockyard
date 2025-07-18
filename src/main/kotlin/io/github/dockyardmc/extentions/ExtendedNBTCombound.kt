@@ -1,14 +1,19 @@
 package io.github.dockyardmc.extentions
 
-import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound
+import io.github.dockyardmc.nbt.NbtBuilder
+import net.kyori.adventure.nbt.BinaryTag
+import net.kyori.adventure.nbt.BinaryTagType
+import net.kyori.adventure.nbt.CompoundBinaryTag
+import net.kyori.adventure.nbt.ListBinaryTag
 
-
-fun MutableNBTCompound.put(key: String, long: Long) {
-    this.put(key, NBT.Long(long))
+fun <T : BinaryTag> CompoundBinaryTag.putList(name: String, type: BinaryTagType<T>, list: List<T>): CompoundBinaryTag {
+    return this.put(name, ListBinaryTag.listBinaryTag(type, list))
 }
 
-fun MutableNBTCompound.put(key: String, longArray: LongArray) {
-    this.put(key, NBT.LongArray(ImmutableLongArray(*longArray)))
+
+inline fun CompoundBinaryTag.modify(compound: NbtBuilder.() -> Unit): CompoundBinaryTag {
+    val builder = NbtBuilder()
+    compound.invoke(builder)
+
+    return this.put(builder.build())
 }

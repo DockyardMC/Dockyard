@@ -21,8 +21,6 @@ enum class ClientParticleSettings {
 }
 
 enum class PlayerAction {
-    SNEAKING_START,
-    SNEAKING_STOP,
     LEAVE_BED,
     SPRINTING_START,
     SPRINTING_END,
@@ -94,7 +92,7 @@ fun getDirection(yaw: Float, pitch: Float, noPitch: Boolean = false): Direction 
         return when {
             pitch < -45 -> Direction.UP
             pitch > 45 -> Direction.DOWN
-            else -> throw IllegalStateException("Invalid pitch value: $yaw")
+            else -> throw IllegalArgumentException("Invalid pitch value: $yaw")
         }
     }
 
@@ -104,7 +102,7 @@ fun getDirection(yaw: Float, pitch: Float, noPitch: Boolean = false): Direction 
         normalizedYaw in 135.0..225.0 -> Direction.NORTH
         normalizedYaw in 225.0..315.0 -> Direction.EAST
 
-        else -> throw IllegalStateException("Invalid yaw value: $yaw")
+        else -> throw IllegalArgumentException("Invalid yaw value: $yaw")
     }
 }
 

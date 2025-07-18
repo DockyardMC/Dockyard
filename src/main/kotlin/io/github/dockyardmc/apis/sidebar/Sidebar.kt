@@ -5,7 +5,7 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.Viewable
+import io.github.dockyardmc.utils.viewable.Viewable
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -80,12 +80,14 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
     }
 
     fun setGlobalLine(index: Int, value: String) {
+        if (viewers.isEmpty()) return
         val before = indexToLineMap[index] as SidebarLine.Static?
         indexToLineMap[index] = SidebarLine.Static(value)
         if (before?.value != value) viewers.forEach { viewer -> sendLinePacket(viewer, index) }
     }
 
     fun setPlayerLine(index: Int, value: (Player) -> String) {
+        if (viewers.isEmpty()) return
         indexToLineMap[index] = SidebarLine.Player(value)
         viewers.forEach { viewer -> sendLinePacket(viewer, index) }
     }
@@ -116,15 +118,17 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
 
     init {
         title.valueChanged { event ->
+            if (viewers.isEmpty()) return@valueChanged
             val packet = ClientboundScoreboardObjectivePacket(objective, ScoreboardMode.EDIT_TEXT, event.newValue, ScoreboardType.INTEGER)
             viewers.sendPacket(packet)
         }
     }
 
-    override fun addViewer(player: Player) {
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
         sendCreatePackets(player)
         sendLinesPackets(player)
-        viewers.add(player)
+        return true
     }
 
     override fun removeViewer(player: Player) {
@@ -138,7 +142,7 @@ class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewa
     }
 }
 
-fun sidebar(unit: Sidebar.Builder.() -> Unit): Sidebar {
+inline fun sidebar(unit: Sidebar.Builder.() -> Unit): Sidebar {
     val builder = Sidebar.Builder()
     unit.invoke(builder)
     return builder.build()

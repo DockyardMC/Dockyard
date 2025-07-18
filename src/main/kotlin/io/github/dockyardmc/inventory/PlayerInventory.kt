@@ -8,12 +8,11 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDropItemEvent
 import io.github.dockyardmc.events.PlayerEquipEvent
 import io.github.dockyardmc.events.PlayerSwapOffhandEvent
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.isSameAs
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventoryCursorPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetInventorySlotPacket
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.utils.getPlayerEventContext
 
@@ -47,6 +46,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
             EquipmentSlot.LEGGINGS -> PlayerInventoryUtils.LEGGINGS_SLOT
             EquipmentSlot.BOOTS -> PlayerInventoryUtils.BOOTS_SLOT
             EquipmentSlot.BODY -> PlayerInventoryUtils.CHESTPLATE_SLOT
+            else -> 0
         }
     }
 
@@ -72,7 +72,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
         val event = PlayerSwapOffhandEvent(player, mainHandItem, offhandItem, getPlayerEventContext(player))
         Events.dispatch(event)
-        if(event.cancelled) return
+        if (event.cancelled) return
 
         player.mainHandItem = event.offHandItem
         player.offHandItem = event.mainHandItem
@@ -80,14 +80,14 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
     fun getSlotByItemStack(itemStack: ItemStack): Int? {
         slots.values.forEach { (index, item) ->
-            if(item.isSameAs(itemStack)) return index
+            if (item.isSameAs(itemStack)) return index
         }
         return null
     }
 
     fun getSlotByItem(item: Item): Int? {
         slots.values.forEach { (index, itemStack) ->
-            if(itemStack.material == item) {
+            if (itemStack.material == item) {
                 return index
             }
         }
@@ -128,17 +128,19 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
     }
 
     override fun sendInventoryUpdate(slot: Int) {
-
         val equipmentSlot = getEquipmentSlot(slot, player.heldSlotIndex.value)
         if (equipmentSlot != null) player.equipment.triggerUpdate()
         player.sendPacket(ClientboundSetInventorySlotPacket(slot, slots[slot] ?: ItemStack.AIR))
     }
 
     fun sendFullInventoryUpdate() {
-        for (i in 0 until INNER_INVENTORY_SIZE) {
-            sendInventoryUpdate(i)
+        if(player.currentlyOpenScreen?.isFullscreen != true) {
+            for (i in 0 until INNER_INVENTORY_SIZE) {
+                sendInventoryUpdate(i)
+            }
         }
         player.inventory.cursorItem.triggerUpdate()
+        player.equipment.triggerUpdate()
     }
 
     fun drop(itemStack: ItemStack): Boolean {
@@ -146,12 +148,15 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
 
         val event = PlayerDropItemEvent(player, itemStack)
         Events.dispatch(event)
+
+        if (itemStack.noxesiumImmovable) return true
+
         if (event.cancelled) {
             sendFullInventoryUpdate()
             return true
         }
 
-        if(ConfigManager.config.implementationConfig.itemDroppingAndPickup) {
+        if (ConfigManager.config.implementationConfig.itemDroppingAndPickup) {
             player.world.spawnEntity(ItemDropEntity(player.location, itemStack))
         }
         return false

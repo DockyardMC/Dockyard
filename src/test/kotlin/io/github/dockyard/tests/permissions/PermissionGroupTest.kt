@@ -9,6 +9,8 @@ class PermissionGroupTest {
 
     @Test
     fun testPermissionGroup() {
+        PermissionManager.removeAll()
+
         val group = PermissionManager.addGroup {
             withId("admin")
             withPermissions("dockyard.commands.gamemode.*")
@@ -21,11 +23,12 @@ class PermissionGroupTest {
         assertEquals(true, group.hasPermission("dockyard.commands.fly"))
         assertEquals(false, group.hasPermission("dockyard.commands.time"))
 
-        PermissionManager.removeGroup(group)
+        PermissionManager.removeAll()
     }
 
     @Test
     fun testInheritance() {
+
         val builderGroup = PermissionManager.addGroup {
             withId("builder")
             withPermissions("dockyard.commands.gamemode.*")
@@ -62,9 +65,8 @@ class PermissionGroupTest {
         assertEquals(false, moderatorGroup.hasPermission("dockyard.commands.gamemode.survival"))
         assertEquals(false, moderatorGroup.hasPermission("worldedit.commands.paste"))
 
-        PermissionManager.removeGroup(builderGroup)
-        PermissionManager.removeGroup(adminGroup)
-        PermissionManager.removeGroup(moderatorGroup)
+        PermissionManager.removeAll()
+
     }
 
     @Test
@@ -105,6 +107,7 @@ class PermissionGroupTest {
                 withPermissions("group.admin")
             }
         }
-        PermissionManager.removeGroup("admin")
+
+        PermissionManager.removeAll()
     }
 }

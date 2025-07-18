@@ -1,68 +1,74 @@
 package io.github.dockyardmc.schematics
 
-import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.maths.vectors.Vector3
-import org.jglrxavpok.hephaistos.collections.ImmutableByteArray
-import org.jglrxavpok.hephaistos.nbt.*
+import io.github.dockyardmc.scroll.extensions.contains
+import io.github.dockyardmc.world.block.Block
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
+import net.kyori.adventure.nbt.BinaryTagIO
+import net.kyori.adventure.nbt.CompoundBinaryTag
+import net.kyori.adventure.nbt.IntBinaryTag
+import java.io.ByteArrayInputStream
 import java.io.File
 
 object SchematicReader {
 
+    val READER = BinaryTagIO.unlimitedReader()
+
     fun read(file: File): Schematic {
-        if(!file.exists()) throw Exception("File $file does not exist!")
+        if (!file.exists()) throw Exception("File $file does not exist!")
         return read(file.readBytes())
     }
 
     fun read(byteArray: ByteArray): Schematic {
 
-        var nbt = NBTReader(byteArray, CompressedProcesser.GZIP).readNamed().second as NBTCompound
-        val innerSchematic = nbt.getCompound("Schematic")
-        if(innerSchematic != null) nbt = innerSchematic
+        var nbt = READER.read(ByteArrayInputStream(byteArray), BinaryTagIO.Compression.GZIP)
 
-        val width: Int = (nbt.getShort("Width") ?: throw Exception("Field Width was not found in the schematic file!")).toInt()
-        val height: Int = (nbt.getShort("Height") ?: throw Exception("Field Height was not found in the schematic file!")).toInt()
-        val length: Int = (nbt.getShort("Length") ?: throw Exception("Field Length was not found in the schematic file!")).toInt()
+        // newer versions of FAWE put it in there for some reason?
+        if (nbt.contains("Schematic")) {
+            nbt = nbt.getCompound("Schematic")
+        }
 
-        val metadata = nbt.getCompound("Metadata") ?: throw Exception("No metadata in schematic file!")
+        val width: Int = (nbt.getShort("Width")).toInt()
+        val height: Int = (nbt.getShort("Height")).toInt()
+        val length: Int = (nbt.getShort("Length")).toInt()
+
+        val metadata = nbt.getCompound("Metadata")
 
         var offset = Vector3()
-        val version = nbt.getInt("Version")!!
-        if(metadata.containsKey("WEOffsetX")) {
+        val version = nbt.getInt("Version")
+        if (metadata.contains("WEOffsetX")) {
             offset = Vector3(
-                x = metadata.getInt("WEOffsetX") ?: 0,
-                y = metadata.getInt("WEOffsetY") ?: 0,
-                z = metadata.getInt("WEOffsetZ") ?: 0
+                x = metadata.getInt("WEOffsetX"),
+                y = metadata.getInt("WEOffsetY"),
+                z = metadata.getInt("WEOffsetZ")
             )
         }
 
-        val pallet: NBTCompound
-        val blockArray: ImmutableByteArray
-        if(version == 3) {
-            val blockEntries = nbt.getCompound("Blocks") ?: throw Exception("No Blocks field in schematic file!")
-            pallet = blockEntries.getCompound("Palette") ?: throw Exception("No Palette field in schematic file!")
-            blockArray = blockEntries.getByteArray("Data") ?: throw Exception("No Data field in schematic file!")
+        val pallet: CompoundBinaryTag
+        val blockArray: ByteArray
+        if (version == 3) {
+            val blockEntries = nbt.getCompound("Blocks")
+            pallet = blockEntries.getCompound("Palette")
+            blockArray = blockEntries.getByteArray("Data")
         } else {
-            pallet = nbt.getCompound("Palette") ?: throw Exception("No Palette field in schematic file!")
-            blockArray = nbt.getByteArray("BlockData") ?: throw Exception("No Data field in schematic file!")
+            pallet = nbt.getCompound("Palette")
+            blockArray = nbt.getByteArray("BlockData")
         }
 
-        val blocks = mutableMapOf<io.github.dockyardmc.world.block.Block, Int>()
+        val blocks = Object2IntOpenHashMap<Block>()
         pallet.forEach { entry ->
-            val id = (entry.value as NBTInt).getValue()
-            val block = io.github.dockyardmc.world.block.Block.getBlockFromStateString(entry.key) ?: return@forEach
+            val id = (entry.value as IntBinaryTag).value()
+            val block = Block.getBlockFromStateString(entry.key)
             blocks[block] = id
         }
-
 
         val schematic = Schematic(
             size = Vector3(width, height, length),
             offset = offset,
-            pallete = blocks.toMutableMap(),
-            blocks = blockArray.copyArray()
+            palette = blocks,
+            blocks = blockArray.copyOf()
         )
-//        if(ConfigManager.config.implementationConfig.cacheSchematics) {
-//            cache[getFileHash(file, "SHA-256")] = schematic
-//        }
+
         return schematic
     }
 }

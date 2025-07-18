@@ -2,6 +2,7 @@ package io.github.dockyardmc.world
 
 import cz.lukynka.prettylog.AnsiPair
 import cz.lukynka.prettylog.CustomLogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.registry.Biomes
@@ -29,16 +30,21 @@ object WorldManager {
     }
 
     fun generateDefaultStonePlatform(world: World, size: Int = 30) {
+        try {
 
-        val centerX = (size - 1) / 2
-        val centerZ = (size - 1) / 2
+            val centerX = (size - 1) / 2
+            val centerZ = (size - 1) / 2
 
-        world.defaultSpawnLocation = Location(centerX + 0.5, 1.0, centerZ + 0.5, world)
+            world.defaultSpawnLocation = Location(centerX + 0.5, 1.0, centerZ + 0.5, world)
 
-        for (x in 0 until size) {
-            for (z in 0 until size) {
-                world.setBlock(x, 0, z, Blocks.STONE)
+            for (x in 0 until size) {
+                for (z in 0 until size) {
+                    world.setBlock(x, 0, z, Blocks.STONE)
+                }
             }
+
+        } catch (ex: Exception) {
+            log(ex)
         }
     }
 

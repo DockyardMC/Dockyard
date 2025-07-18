@@ -12,15 +12,18 @@ object PermissionManager {
         return getOrNull(id) ?: throw IllegalArgumentException("Permissions group with id `$id` is not registered")
     }
 
-    fun addGroup(group: PermissionGroup.Builder.() -> Unit): PermissionGroup {
+    inline fun addGroup(group: PermissionGroup.Builder.() -> Unit): PermissionGroup {
         val builder = PermissionGroup.Builder()
         group.invoke(builder)
+        return addGroup(builder)
+    }
 
-        if (builder.id == null) throw IllegalArgumentException("Id of a permissions group cannot be empty")
-        val lowercaseId = builder.id!!.lowercase()
+    fun addGroup(builder: PermissionGroup.Builder): PermissionGroup {
+        val lowercaseId = requireNotNull(builder.id) { "Id of a permissions group cannot be empty" }
+            .lowercase()
 
-        if (lowercaseId.contains(".")) throw IllegalArgumentException("Permissions group ids cannot contain dots")
-        if (groups.containsKey(lowercaseId)) throw IllegalArgumentException("Permission group with the id of $lowercaseId already exists")
+        require(!lowercaseId.contains(".")) { "Permissions group ids cannot contain dots" }
+        require(!groups.containsKey(lowercaseId)) { "Permission group with the id of $lowercaseId already exists" }
 
         builder.id = lowercaseId
         val newGroup = PermissionGroup(lowercaseId, builder.permissions)
@@ -31,6 +34,10 @@ object PermissionManager {
 
     fun removeGroup(group: PermissionGroup) {
         groups.remove(group.id)
+    }
+
+    fun removeAll() {
+        groups.clear()
     }
 
     fun removeGroup(id: String) {

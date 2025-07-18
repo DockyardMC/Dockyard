@@ -9,9 +9,9 @@ import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.block.DefaultBlockHandlers
 import io.github.dockyardmc.implementations.commands.DefaultCommands
-import io.github.dockyardmc.npc.NpcCommand
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.NetworkCompression
+import io.github.dockyardmc.protocol.packets.configurations.Tag
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
 import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.github.dockyardmc.registry.MinecraftVersions
@@ -23,6 +23,7 @@ import io.github.dockyardmc.server.NettyServer
 import io.github.dockyardmc.server.PlayerKeepAliveTimer
 import io.github.dockyardmc.server.ServerTickManager
 import io.github.dockyardmc.spark.SparkDockyardIntegration
+import io.github.dockyardmc.utils.InstrumentationUtils
 import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.utils.UpdateChecker
 import io.github.dockyardmc.world.WorldManager
@@ -40,50 +41,71 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             instance = this
             configBuilder.invoke(config)
 
-            profiler("Load Registries") {
+            profiler("Register packets") {
                 ServerPacketRegistry.load()
                 ClientPacketRegistry.load()
+            }
+
+            profiler("Load Registries") {
 
                 SoundRegistry.initialize(RegistryManager.getStreamFromPath("registry/sound_registry.json.gz"))
 
-                RegistryManager.register(AttributeRegistry)
-                RegistryManager.register(BlockRegistry)
-                RegistryManager.register(EntityTypeRegistry)
-                RegistryManager.register(DimensionTypeRegistry)
-                RegistryManager.register(WolfVariantRegistry)
-                RegistryManager.register(BannerPatternRegistry)
-                RegistryManager.register(DamageTypeRegistry)
-                RegistryManager.register(JukeboxSongRegistry)
-                RegistryManager.register(TrimMaterialRegistry)
-                RegistryManager.register(TrimPatternRegistry)
-                RegistryManager.register(ChatTypeRegistry)
-                RegistryManager.register(ParticleRegistry)
-                RegistryManager.register(PaintingVariantRegistry)
-                RegistryManager.register(PotionEffectRegistry)
-                RegistryManager.register(BiomeRegistry)
-                RegistryManager.register(ItemRegistry)
-                RegistryManager.register(FluidRegistry)
+                RegistryManager.register<Attribute>(AttributeRegistry)
+                RegistryManager.register<RegistryBlock>(BlockRegistry)
+                RegistryManager.register<EntityType>(EntityTypeRegistry)
+                RegistryManager.register<DimensionType>(DimensionTypeRegistry)
+                RegistryManager.register<BannerPattern>(BannerPatternRegistry)
+                RegistryManager.register<DamageType>(DamageTypeRegistry)
+                RegistryManager.register<JukeboxSong>(JukeboxSongRegistry)
+                RegistryManager.register<TrimMaterial>(TrimMaterialRegistry)
+                RegistryManager.register<TrimPattern>(TrimPatternRegistry)
+                RegistryManager.register<ChatType>(ChatTypeRegistry)
+                RegistryManager.register<Particle>(ParticleRegistry)
+                RegistryManager.register<PaintingVariant>(PaintingVariantRegistry)
+                RegistryManager.register<PotionEffect>(PotionEffectRegistry)
+                RegistryManager.register<Biome>(BiomeRegistry)
+                RegistryManager.register<Item>(ItemRegistry)
+                RegistryManager.register<Fluid>(FluidRegistry)
+                RegistryManager.register<PotionType>(PotionTypeRegistry)
 
-                RegistryManager.register(ItemTagRegistry)
-                RegistryManager.register(BlockTagRegistry)
-                RegistryManager.register(EntityTypeTagRegistry)
-                RegistryManager.register(FluidTagRegistry)
-                RegistryManager.register(ItemTagRegistry)
-                RegistryManager.register(BiomeTagRegistry)
+                RegistryManager.register<WolfVariant>(WolfVariantRegistry)
+                RegistryManager.register<WolfSoundVariant>(WolfSoundVariantRegistry)
+                RegistryManager.register<CatVariant>(CatVariantRegistry)
+                RegistryManager.register<CowVariant>(CowVariantRegistry)
+                RegistryManager.register<PigVariant>(PigVariantRegistry)
+                RegistryManager.register<FrogVariant>(FrogVariantRegistry)
+                RegistryManager.register<ChickenVariant>(ChickenVariantRegistry)
+
+                RegistryManager.register<Tag>(ItemTagRegistry)
+                RegistryManager.register<Tag>(BlockTagRegistry)
+                RegistryManager.register<Tag>(EntityTypeTagRegistry)
+                RegistryManager.register<Tag>(FluidTagRegistry)
+                RegistryManager.register<Tag>(BiomeTagRegistry)
+
+                RegistryManager.register<DialogType>(DialogTypeRegistry)
+                RegistryManager.register<DialogBodyType>(DialogBodyTypeRegistry)
+                RegistryManager.register<DialogEntry>(DialogRegistry)
+                RegistryManager.register<DialogInputType>(DialogInputTypeRegistry)
+                RegistryManager.register<DialogActionType>(DialogActionTypeRegistry)
             }
 
             profiler("Default Implementations") {
                 if (ConfigManager.config.implementationConfig.defaultCommands) DefaultCommands().register()
-                if (ConfigManager.config.implementationConfig.npcCommand) NpcCommand()
                 if (ConfigManager.config.implementationConfig.spark) SparkDockyardIntegration().initialize()
                 if (ConfigManager.config.implementationConfig.applyBlockPlacementRules) DefaultBlockHandlers().register()
             }
 
-            NetworkCompression.compressionThreshold = ConfigManager.config.networkCompressionThreshold
+            NetworkCompression.COMPRESSION_THRESHOLD = ConfigManager.config.networkCompressionThreshold
             WorldManager.loadDefaultWorld()
 
             Events.dispatch(ServerFinishLoadEvent(this))
             if (ConfigManager.config.updateChecker) UpdateChecker()
+
+            if (InstrumentationUtils.isDebuggerAttached()) {
+                profiler("Setup hot reload detection") {
+                    InstrumentationUtils.setupHotReloadDetection()
+                }
+            }
         }
     }
 
@@ -107,7 +129,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     companion object {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         lateinit var instance: DockyardServer
-        val minecraftVersion = MinecraftVersions.v1_21_4
+        val minecraftVersion = MinecraftVersions.v1_21_6
         var allowAnyVersion: Boolean = false
 
         val scheduler = GlobalScheduler("main_scheduler")
@@ -131,7 +153,8 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             "ClientboundChunkDataPacket",
             "ServerboundClientTickEndPacket",
             "ClientboundEntityTeleportPacket",
-            "ClientboundUnloadChunkPacket"
+            "ClientboundUnloadChunkPacket",
+            "ClientboundTrackedWaypointPacket"
         )
     }
 }

@@ -1,9 +1,15 @@
 package io.github.dockyardmc.protocol
 
-import org.jglrxavpok.hephaistos.nbt.NBT
+import net.kyori.adventure.nbt.BinaryTag
+import net.kyori.adventure.nbt.CompoundBinaryTag
+
 
 interface NbtWritable {
 
-    fun getNbt(): NBT
+    fun getNbt(): BinaryTag
+
+    fun getNbtAsCompound(): CompoundBinaryTag {
+        return getNbt() as CompoundBinaryTag
+    }
 
 }

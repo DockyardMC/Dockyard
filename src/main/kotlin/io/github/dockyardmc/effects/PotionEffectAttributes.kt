@@ -2,7 +2,6 @@ package io.github.dockyardmc.effects
 
 import io.github.dockyardmc.attributes.AttributeOperation
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.registry.AppliedPotionEffect
 import io.github.dockyardmc.registry.Attributes
 import io.github.dockyardmc.registry.PotionEffects
 import io.github.dockyardmc.registry.registries.PotionEffect
@@ -12,28 +11,28 @@ object PotionEffectAttributes {
     fun onEffectApply(entity: Player, effect: AppliedPotionEffect) {
         when (effect.effect) {
             PotionEffects.SPEED -> {
-                entity.attributes[Attributes.MOVEMENT_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * 0.20, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.MOVEMENT_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * 0.20, AttributeOperation.ADD_MULTIPLY_BASE)
             }
 
             PotionEffects.SLOWNESS -> {
-                entity.attributes[Attributes.MOVEMENT_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * -0.20, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.MOVEMENT_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * -0.20, AttributeOperation.ADD_MULTIPLY_BASE)
             }
 
             PotionEffects.HASTE -> {
-                entity.attributes[Attributes.ATTACK_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * 0.10, AttributeOperation.MULTIPLY_BASE)
-                entity.attributes[Attributes.MINING_EFFICIENCY].addModifier(effect.effect.identifier, effect.settings.amplifier * 20.0, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.ATTACK_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * 0.10, AttributeOperation.ADD_MULTIPLY_BASE)
+                entity.attributes[Attributes.MINING_EFFICIENCY].addModifier(effect.effect.identifier, effect.settings.amplifier * 20.0, AttributeOperation.ADD_MULTIPLY_BASE)
             }
 
             PotionEffects.MINING_FATIGUE -> {
-                entity.attributes[Attributes.ATTACK_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * -0.10, AttributeOperation.MULTIPLY_BASE)
-                entity.attributes[Attributes.MINING_EFFICIENCY].addModifier(effect.effect.identifier, effect.settings.amplifier * -20.0, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.ATTACK_SPEED].addModifier(effect.effect.identifier, effect.settings.amplifier * -0.10, AttributeOperation.ADD_MULTIPLY_BASE)
+                entity.attributes[Attributes.MINING_EFFICIENCY].addModifier(effect.effect.identifier, effect.settings.amplifier * -20.0, AttributeOperation.ADD_MULTIPLY_BASE)
             }
 
             PotionEffects.STRENGTH -> {}
             PotionEffects.INSTANT_HEALTH -> {}
             PotionEffects.INSTANT_DAMAGE -> {}
             PotionEffects.JUMP_BOOST -> {
-                entity.attributes[Attributes.JUMP_STRENGTH].addModifier(effect.effect.identifier, effect.settings.amplifier * 0.1, AttributeOperation.MULTIPLY_BASE)
+                entity.attributes[Attributes.JUMP_STRENGTH].addModifier(effect.effect.identifier, effect.settings.amplifier * 0.1, AttributeOperation.ADD_MULTIPLY_BASE)
             }
 
             PotionEffects.REGENERATION -> {}

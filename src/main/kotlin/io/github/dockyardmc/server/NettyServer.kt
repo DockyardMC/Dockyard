@@ -23,8 +23,8 @@ import kotlin.system.exitProcess
 
 class NettyServer(val instance: DockyardServer) {
 
-    private val bossGroup = NioEventLoopGroup()
-    private val workerGroup = NioEventLoopGroup()
+    val bossGroup = NioEventLoopGroup()
+    val workerGroup = NioEventLoopGroup()
 
     fun start(): CompletableFuture<Void> {
         return CompletableFuture.supplyAsync {

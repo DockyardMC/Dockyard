@@ -12,9 +12,9 @@ class SchedulerCommand {
     init {
         Commands.add("/scheduler") {
             withPermission("dockyard.commands.scheduler")
-            withDescription("Lets you change tickrate/pause/resume scheduler of a world")
+            withDescription("Manages tickrate and state of world scheduler")
 
-            addSubcommand("set") {
+            addSubcommand("tickrate") {
                 addArgument("world", WorldArgument())
                 addArgument("rate", IntArgument())
                 execute {

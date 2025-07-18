@@ -18,6 +18,7 @@ import io.github.dockyardmc.protocol.packets.login.ClientboundLoginDisconnectPac
 import io.github.dockyardmc.protocol.packets.login.LoginHandler
 import io.github.dockyardmc.protocol.packets.play.PlayHandler
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundDisconnectPacket
+import io.github.dockyardmc.protocol.plugin.LoginPluginMessageHandler
 import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.server.ServerMetrics
 import io.github.dockyardmc.utils.debug
@@ -42,6 +43,8 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
     var loginHandler = LoginHandler(this)
     var configurationHandler = ConfigurationHandler(this)
     var playHandler = PlayHandler(this)
+
+    val loginPluginMessageHandler = LoginPluginMessageHandler(this)
 
     override fun channelRead(connection: ChannelHandlerContext, msg: Any) {
         if (!this::address.isInitialized) address = connection.channel().remoteAddress().address
@@ -83,8 +86,8 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
     }
 
     fun kick(message: String, connection: ChannelHandlerContext, raw: Boolean = false) {
-        val formattedMessage = if(raw) message else getSystemKickMessage(message)
-        val packet = when(state) {
+        val formattedMessage = if (raw) message else getSystemKickMessage(message)
+        val packet = when (state) {
             ProtocolState.HANDSHAKE,
             ProtocolState.STATUS,
             ProtocolState.LOGIN -> ClientboundLoginDisconnectPacket(formattedMessage)
@@ -115,7 +118,7 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
 
     override fun exceptionCaught(connection: ChannelHandlerContext, cause: Throwable) {
         log(cause as Exception)
-        if(player.isFullyInitialized) {
+        if (player.isFullyInitialized) {
             kick(getSystemKickMessage("There was an error while writing packet: ${cause.message}"), connection)
         }
         connection.flush()

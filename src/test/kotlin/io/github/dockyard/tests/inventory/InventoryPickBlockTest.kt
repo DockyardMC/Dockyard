@@ -16,10 +16,12 @@ import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.WorldManager
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class InventoryPickBlockTest {
 
@@ -60,7 +62,7 @@ class InventoryPickBlockTest {
 
         PlayerTestUtil.sendPacket(player, ServerboundPickItemFromBlockPacket(Vector3(0), false))
 
-        countdownLatch.await()
+        assertTrue(countdownLatch.await(5L, TimeUnit.SECONDS))
         assertEquals(0, player.heldSlotIndex.value)
         assertEquals(diamondBlock, player.getHeldItem(PlayerHand.MAIN_HAND))
 
@@ -73,7 +75,7 @@ class InventoryPickBlockTest {
 
         PlayerTestUtil.sendPacket(player, ServerboundPickItemFromBlockPacket(Vector3(1), false))
 
-        countdownLatch.await()
+        assertTrue(countdownLatch.await(5L, TimeUnit.SECONDS))
         assertEquals(0, player.heldSlotIndex.value)
         assertEquals(player.inventory[20], diamondBlock)
         assertEquals(netheriteBlock, player.getHeldItem(PlayerHand.MAIN_HAND))

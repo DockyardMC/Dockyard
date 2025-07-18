@@ -28,7 +28,7 @@ object TestServer {
     fun beforeAll() {
         server = DockyardServer {
             withIp("0.0.0.0")
-            withPort(25565)
+            withPort(25576)
             withNetworkCompressionThreshold(-1)
             useMojangAuth(false)
             withUpdateChecker(false)

@@ -1,6 +1,11 @@
 package io.github.dockyardmc.player.systems
 
-import io.github.dockyardmc.item.*
+import io.github.dockyardmc.data.components.ConsumableComponent
+import io.github.dockyardmc.data.components.FoodComponent
+import io.github.dockyardmc.item.ItemStack
+import io.github.dockyardmc.item.clone
+import io.github.dockyardmc.maths.randomFloat
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.particles.data.ItemParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.ItemInUse
@@ -9,9 +14,9 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityEventPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.EntityEvent
 import io.github.dockyardmc.registry.Particles
+import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.maths.randomFloat
-import io.github.dockyardmc.maths.vectors.Vector3f
+import kotlin.random.Random
 
 class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
 
@@ -30,12 +35,12 @@ class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
             }
 
             item = player.getHeldItem(PlayerHand.MAIN_HAND)
-            val consumableItemComponent = item.components.firstOrNullByType<ConsumableItemComponent>(ConsumableItemComponent::class)
+            val consumableItemComponent = item.components[ConsumableComponent::class] as ConsumableComponent?
 
             if ((world.worldAge % 5) == 0L) {
                 val viewers = world.players.toMutableList().filter { it != player }
-                viewers.playSound(item.material.consumeSound, location, 1f, randomFloat(0.9f, 1.3f))
-                val particles = consumableItemComponent?.hasConsumeParticles ?: true
+                viewers.playSound(item.material.consumeSound, location, 1f, Random.randomFloat(0.9f, 1.3f))
+                val particles = consumableItemComponent?.hasParticles ?: true
                 if(particles) {
                     viewers.spawnParticle(
                         location = location.clone().apply { y += 1.5 },
@@ -54,7 +59,7 @@ class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
                 val sound = getFinishConsumingSoundEffect(consumableItemComponent!!.animation)
                 if(sound != null) world.playSound("minecraft:entity.player.burp", location)
 
-                val component = item.components.firstOrNullByType<FoodItemComponent>(FoodItemComponent::class)
+                val component = item.components[FoodComponent::class] as FoodComponent?
                 if(component != null) {
                     val foodToAdd = component.nutrition + food.value
                     if (foodToAdd > 20) {
@@ -77,20 +82,20 @@ class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
         }
     }
 
-    fun getFinishConsumingSoundEffect(animation: ConsumableAnimation): String? {
+    fun getFinishConsumingSoundEffect(animation: ConsumableComponent.Animation): String? {
         return when(animation) {
-            ConsumableAnimation.EAT -> "minecraft:entity.player.burp"
-            ConsumableAnimation.DRINK -> "minecraft:entity.generic.drink"
+            ConsumableComponent.Animation.EAT -> Sounds.ENTITY_PLAYER_BURP
+            ConsumableComponent.Animation.DRINK -> Sounds.ENTITY_GENERIC_EAT
             else -> null
         }
     }
 }
 
 fun startConsumingIfApplicable(item: ItemStack, player: Player) {
-    val hasConsumableComponent = item.components.hasType(ConsumableItemComponent::class)
+    val hasConsumableComponent = item.components.has(ConsumableComponent::class)
     if(hasConsumableComponent) {
         if(player.itemInUse != null) return
-        val component = item.components.firstOrNullByType<ConsumableItemComponent>(ConsumableItemComponent::class)!!
+        val component = item.components[ConsumableComponent::class]!! as ConsumableComponent
         val eatingTime = component.consumeSeconds
         val useTime = (eatingTime * 20f).toInt()
         val startTime = player.world.worldAge

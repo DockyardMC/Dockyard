@@ -14,8 +14,11 @@ data class Vector3d(
     var x: Double,
     var y: Double,
     var z: Double,
-): NetworkWritable {
+) : NetworkWritable {
     constructor() : this(0.0, 0.0, 0.0)
+    constructor(x: Int, y: Int, z: Int) : this(x.toDouble(), y.toDouble(), z.toDouble())
+    constructor(x: Int, y: Double, z: Int) : this(x.toDouble(), y, z.toDouble())
+    constructor(x: Double, y: Int, z: Double) : this(x, y.toDouble(), z)
     constructor(single: Double) : this(single, single, single)
 
     operator fun minus(vector: Vector3d): Vector3d {
@@ -108,7 +111,7 @@ data class Vector3d(
         buffer.writeDouble(this.z)
     }
 
-    companion object: NetworkReadable<Vector3d> {
+    companion object : NetworkReadable<Vector3d> {
 
         override fun read(buffer: ByteBuf): Vector3d {
             return Vector3d(

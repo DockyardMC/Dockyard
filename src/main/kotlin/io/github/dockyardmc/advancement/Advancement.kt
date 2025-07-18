@@ -13,7 +13,7 @@ import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.Viewable
+import io.github.dockyardmc.utils.viewable.Viewable
 import io.netty.buffer.ByteBuf
 import kotlin.properties.Delegates
 
@@ -59,7 +59,7 @@ class Advancement(
     private val eventPool = EventPool()
 
     init {
-        if (icon.material == Items.AIR) throw IllegalArgumentException("advancement icon can't be air")
+        require(icon.material != Items.AIR) { "advancement icon can't be air" }
 
         parent?.innerChildren?.let {
             synchronized(it) {
@@ -108,14 +108,14 @@ class Advancement(
      * Adds the player as a viewer to this advancement
      * and all parents, all the way to root
      */
-    override fun addViewer(player: Player) {
-        if (viewers.contains(player)) return
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
 
         // parents first
         this.parent?.addViewer(player)
 
         player.advancementTracker.onAdvancementAdded(this)
-        viewers.add(player)
+        return true
     }
 
     /**
@@ -146,7 +146,7 @@ class Advancement(
         }
 
         player.advancementTracker.onAdvancementRemoved(this)
-        viewers.remove(player)
+        super.removeViewer(player)
     }
 
     fun getFlags(): Int {

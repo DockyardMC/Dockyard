@@ -2,9 +2,9 @@ package io.github.dockyardmc.protocol.packets.play.clientbound
 
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.writeVarInt
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
+import io.github.dockyardmc.protocol.types.EquipmentSlot
 
 class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: Map<EquipmentSlot, ItemStack>): ClientboundPacket() {
 
@@ -18,6 +18,7 @@ class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: Map
         equipmentList[4] = equipment.getOrDefault(EquipmentSlot.CHESTPLATE, ItemStack.AIR)
         equipmentList[5] = equipment.getOrDefault(EquipmentSlot.HELMET, ItemStack.AIR)
         equipmentList[6] = equipment.getOrDefault(EquipmentSlot.BODY, ItemStack.AIR)
+        equipmentList[7] = equipment.getOrDefault(EquipmentSlot.SADDLE, ItemStack.AIR)
 
         var index = 0
         equipmentList.forEach {

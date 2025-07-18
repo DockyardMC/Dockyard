@@ -5,7 +5,7 @@ import io.github.dockyardmc.events.PlayerBlockPlaceEvent
 import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerFinishPlacingBlockEvent
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.maths.vectors.Vector3
@@ -60,6 +60,11 @@ class ServerboundUseItemOnBlockPacket(
             Direction.NORTH -> newPos.z += -1
         }
 
+        // prevent desync?
+        pos.toLocation(player.world).getChunk()?.let { chunk ->
+            player.sendPacket(chunk.packet)
+        }
+
         val event = PlayerBlockRightClickEvent(
             player,
             item,
@@ -81,11 +86,6 @@ class ServerboundUseItemOnBlockPacket(
         if (used) {
             player.lastInteractionTime = System.currentTimeMillis()
             return
-        }
-
-        // prevent desync?
-        pos.toLocation(player.world).getChunk()?.let { chunk ->
-            player.sendPacket(chunk.packet)
         }
 
         if ((item.material.isBlock) && (item.material != Items.AIR) && (player.gameMode.value != GameMode.ADVENTURE && player.gameMode.value != GameMode.SPECTATOR)) {
@@ -157,9 +157,9 @@ class ServerboundUseItemOnBlockPacket(
     companion object {
         fun read(buf: ByteBuf): ServerboundUseItemOnBlockPacket {
             return ServerboundUseItemOnBlockPacket(
-                buf.readVarIntEnum<PlayerHand>(),
+                buf.readEnum<PlayerHand>(),
                 buf.readBlockPosition(),
-                buf.readVarIntEnum<Direction>(),
+                buf.readEnum<Direction>(),
                 buf.readFloat(),
                 buf.readFloat(),
                 buf.readFloat(),

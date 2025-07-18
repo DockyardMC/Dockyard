@@ -2,9 +2,9 @@ package io.github.dockyardmc.player
 
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.Viewable
+import io.github.dockyardmc.utils.viewable.Viewable
 
-class Tablist: Disposable, Viewable() {
+class Tablist : Disposable, Viewable() {
 
     override var autoViewable: Boolean = false
 
@@ -14,15 +14,16 @@ class Tablist: Disposable, Viewable() {
     private val footerLines: MutableMap<Int, TablistLine> = mutableMapOf()
     val footer: Map<Int, TablistLine> get() = footerLines.toMap()
 
-    override fun addViewer(player: Player) {
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
         update(player)
-        viewers.add(player)
+        return true
     }
 
     override fun removeViewer(player: Player) {
         player.tabListFooter.value = "".toComponent()
         player.tabListHeader.value = "".toComponent()
-        viewers.remove(player)
+        super.removeViewer(player)
     }
 
     fun setHeaderLine(line: Int, value: String) {
@@ -62,8 +63,7 @@ class Tablist: Disposable, Viewable() {
     }
 
     override fun dispose() {
-        viewers.toList().forEach(::removeViewer)
-        viewers.clear()
+        clearViewers()
         headerLines.clear()
         footerLines.clear()
     }
@@ -71,7 +71,7 @@ class Tablist: Disposable, Viewable() {
     private fun update(player: Player) {
         val headerComponent = buildString {
             headerLines.toList().sortedByDescending { line -> line.first }.reversed().forEach { (_, line) ->
-                when(line) {
+                when (line) {
                     is GlobalTablistLine -> append("${line.value}<r>\n")
                     is PlayerTablistLine -> {
                         val playerLine = line.getValue(player)
@@ -83,7 +83,7 @@ class Tablist: Disposable, Viewable() {
 
         val footerComponent = buildString {
             footerLines.toList().sortedByDescending { it.first }.reversed().forEach { (_, line) ->
-                when(line) {
+                when (line) {
                     is GlobalTablistLine -> append("${line.value}\n")
                     is PlayerTablistLine -> {
                         val playerLine = line.getValue(player)
@@ -119,20 +119,21 @@ class TablistBuilder {
     }
 }
 
-fun tablist(builder: TablistBuilder.() -> Unit): Tablist {
-    val tablistBuilder = TablistBuilder()
-    builder.invoke(tablistBuilder)
+inline fun tablist(builder: TablistBuilder.() -> Unit): Tablist {
+    return tablist(TablistBuilder().apply(builder))
+}
 
+fun tablist(tablistBuilder: TablistBuilder): Tablist {
     val tablist = Tablist()
     tablistBuilder.headerLines.forEachIndexed { index, line ->
-        when(line) {
+        when (line) {
             is GlobalTablistLine -> tablist.setHeaderLine(index, line)
             is PlayerTablistLine -> tablist.setPlayerHeaderLine(index, line)
         }
     }
 
     tablistBuilder.footerLines.forEachIndexed { index, line ->
-        when(line) {
+        when (line) {
             is GlobalTablistLine -> tablist.setFooterLine(index, line)
             is PlayerTablistLine -> tablist.setPlayerFooterLine(index, line)
         }
@@ -143,8 +144,8 @@ fun tablist(builder: TablistBuilder.() -> Unit): Tablist {
 
 interface TablistLine
 
-data class GlobalTablistLine(val value: String): TablistLine
+data class GlobalTablistLine(val value: String) : TablistLine
 
-data class PlayerTablistLine(val value: (Player) -> String): TablistLine {
+data class PlayerTablistLine(val value: (Player) -> String) : TablistLine {
     fun getValue(player: Player): String = value(player)
 }

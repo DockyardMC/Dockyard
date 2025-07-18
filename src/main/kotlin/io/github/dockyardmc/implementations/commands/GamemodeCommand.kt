@@ -11,8 +11,8 @@ class GamemodeCommand {
 
     init {
         Commands.add("/gamemode") {
-            withDescription("Changes your gamemode")
-            withPermission("dockyard.commands.creative")
+            withDescription("Manages game mode of players")
+            withPermission("dockyard.commands.gamemode")
             addArgument("game_mode", EnumArgument(GameMode::class))
             addOptionalArgument("player", PlayerArgument())
             execute {
@@ -34,7 +34,7 @@ class GamemodeCommand {
         Commands.add("/gmc") {
             withAliases("gms", "gma", "gmsp")
             withDescription("Sets players gamemode")
-            withPermission("dockyard.commands.creative")
+            withPermission("dockyard.commands.gamemode")
 
             addOptionalArgument("player", PlayerArgument())
 

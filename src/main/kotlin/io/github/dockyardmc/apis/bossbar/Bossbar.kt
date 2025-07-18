@@ -8,7 +8,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.BossbarPacketAction
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundBossbarPacket
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.Viewable
+import io.github.dockyardmc.utils.viewable.Viewable
 import java.util.*
 
 class Bossbar(
@@ -43,7 +43,7 @@ class Bossbar(
         notches.valueChanged { viewers.sendPacket(ClientboundBossbarPacket(BossbarPacketAction.UPDATE_STYLE, this)) }
 
         eventPool.on<PlayerLeaveEvent> { event ->
-            if(!viewers.contains(event.player)) return@on
+            if (!viewers.contains(event.player)) return@on
             removeViewer(event.player)
         }
     }
@@ -53,16 +53,17 @@ class Bossbar(
         viewers.toList().forEach(::removeViewer)
     }
 
-    override fun addViewer(player: Player) {
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
         val createPacket = ClientboundBossbarPacket(BossbarPacketAction.ADD, this)
         player.sendPacket(createPacket)
-        viewers.add(player)
+        return true
     }
 
     override fun removeViewer(player: Player) {
         val removePacket = ClientboundBossbarPacket(BossbarPacketAction.REMOVE, this)
         player.sendPacket(removePacket)
-        viewers.remove(player)
+        super.removeViewer(player)
     }
 }
 

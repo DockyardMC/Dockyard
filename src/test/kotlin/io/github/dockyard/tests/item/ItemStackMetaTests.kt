@@ -1,7 +1,9 @@
 package io.github.dockyard.tests.item
 
 import io.github.dockyard.tests.TestServer
+import io.github.dockyardmc.data.components.*
 import io.github.dockyardmc.item.*
+import io.github.dockyardmc.protocol.types.ItemRarity
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.scroll.CustomColor
 import org.junit.jupiter.api.Test
@@ -28,9 +30,9 @@ class ItemStackMetaTests {
             withDisplayName("<aqua><underline>Cool Diamond Sword")
             withRarity(ItemRarity.EPIC)
             withCustomModelData(69f)
-            withMaxStackSize(420)
+            withMaxStackSize(99)
             withEnchantmentGlint(true)
-            withUnbreakable(true)
+            withUnbreakable(false)
             withAmount(1)
             withConsumable(2f)
             withFood(2, 0f, true)
@@ -38,18 +40,18 @@ class ItemStackMetaTests {
             withDyedColor(color)
         }
 
-        assertEquals(10, item.components.size)
-        assertContains(item.components.map { it::class }, CustomNameItemComponent::class)
-        assertContains(item.components.map { it::class }, ConsumableItemComponent::class)
-        assertContains(item.components.map { it::class }, FoodItemComponent::class)
+        assertEquals(10, item.components.components.size)
+        assertTrue(item.components.get<CustomNameComponent>() != null)
+        assertTrue(item.components.get<ConsumableComponent>() != null)
+        assertTrue(item.components.get<FoodComponent>() != null)
 
-        assertContains(item.components, RarityItemComponent(ItemRarity.EPIC))
-        assertContains(item.components, CustomModelDataItemComponent(listOf(69f)))
-        assertContains(item.components, MaxStackSizeItemComponent(420))
-        assertContains(item.components, EnchantmentGlintOverrideItemComponent(true))
-        assertContains(item.components, UnbreakableItemComponent(false))
-        assertContains(item.components, UseCooldownItemComponent(2f))
-        assertContains(item.components, DyedColorItemComponent(color))
+        assertEquals(ItemRarity.EPIC, item.components.get<RarityComponent>()?.rarity)
+        assertEquals(listOf(69f), item.components.get<CustomModelDataComponent>()?.floats)
+        assertEquals(99, item.components.get<MaxStackSizeComponent>()?.size)
+        assertNotNull(item.components.get<EnchantmentGlintOverrideComponent>())
+        assertNull(item.components.get<UnbreakableComponent>())
+        assertEquals(2f, item.components.get<UseCooldownComponent>()?.seconds)
+        assertEquals(color, item.components.get<DyedColorComponent>()?.color)
     }
 
     @Test
@@ -58,10 +60,9 @@ class ItemStackMetaTests {
             withMaterial(Items.DIAMOND_SWORD)
             withDisplayName("<aqua><underline>Cool Diamond Sword")
             withRarity(ItemRarity.EPIC)
-            withCustomModelData(69)
+            withCustomModelData(69f)
             withMaxStackSize(420)
             withEnchantmentGlint(true)
-            withUnbreakable(true)
             withAmount(1)
             withConsumable(2f)
             withFood(2, 0f, true)

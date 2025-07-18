@@ -3,12 +3,14 @@ package io.github.dockyardmc.events.system
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.events.EventListener
 import io.github.dockyardmc.utils.Disposable
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.util.*
 import kotlin.reflect.KClass
 
+@Suppress("UNCHECKED_CAST")
 abstract class EventSystem : Disposable {
-    val eventMap = mutableMapOf<KClass<out Event>, HandlerList>()
+    val eventMap = Object2ObjectOpenHashMap<KClass<out Event>, HandlerList>()
     var filter = EventFilter.empty()
 
     val children = ObjectOpenHashSet<EventSystem>()
@@ -93,8 +95,7 @@ abstract class EventSystem : Disposable {
      * @throws IllegalStateException if the child is already registered to another parent
      */
     open fun addChild(child: EventSystem) {
-        if (child.parent != null && child.parent != this)
-            throw IllegalStateException("$child is already registered to parent ${child.parent}.")
+        require(child.parent == null || child.parent == this) { "$child is already registered to parent ${child.parent}." }
 
         synchronized(children) {
             children += child
@@ -163,11 +164,12 @@ abstract class EventSystem : Disposable {
     fun debugTree(indent: Int = 1): String {
         return buildString {
             append(name)
-            children.forEach {
+            append(" <gray>(${eventList().size} listeners)")
+            children.forEach { child ->
                 appendLine()
                 append(" ".repeat(indent))
                 append("<gray>⇒ <aqua>")
-                append(it.debugTree(indent + 1))
+                append(child.debugTree(indent + 1))
             }
         }
     }

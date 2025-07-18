@@ -1,86 +1,16 @@
 package io.github.dockyardmc.registry.registries
 
-import io.github.dockyardmc.extentions.getOrThrow
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.NbtWritable
-import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DataDrivenRegistry
-import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
-import io.github.dockyardmc.registry.RegistryException
-import io.github.dockyardmc.scroll.extensions.put
 import io.github.dockyardmc.sounds.CustomSoundEvent
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
-import org.jglrxavpok.hephaistos.nbt.NBT
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
-import java.io.InputStream
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.zip.GZIPInputStream
+import net.kyori.adventure.nbt.BinaryTagTypes
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
-object BiomeRegistry : DataDrivenRegistry, DynamicRegistry {
-
+object BiomeRegistry : DataDrivenRegistry<Biome>() {
     override val identifier: String = "minecraft:worldgen/biome"
-
-    val biomes: MutableMap<String, Biome> = mutableMapOf()
-    val protocolIds: MutableMap<String, Int> = mutableMapOf()
-    private val protocolIdCounter = AtomicInteger()
-
-    lateinit var packet: ClientboundRegistryDataPacket
-
-    override fun getMaxProtocolId(): Int {
-        return protocolIdCounter.get()
-    }
-
-    override fun getCachedPacket(): ClientboundRegistryDataPacket {
-        if (!::packet.isInitialized) updateCache()
-        return packet
-    }
-
-    override fun updateCache() {
-        packet = ClientboundRegistryDataPacket(this)
-    }
-
-    override fun register() {}
-
-    fun addEntry(entry: Biome, updateCache: Boolean = true) {
-        protocolIds[entry.identifier] = protocolIdCounter.getAndIncrement()
-        biomes[entry.identifier] = entry
-        if (updateCache) updateCache()
-    }
-
-    fun addEntries(vararg entries: Biome) {
-        addEntries(entries.toList())
-    }
-
-    fun addEntries(entries: Collection<Biome>) {
-        entries.forEach { addEntry(it, false) }
-        updateCache()
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    override fun initialize(inputStream: InputStream) {
-        val stream = GZIPInputStream(inputStream)
-        val list = Json.decodeFromStream<List<Biome>>(stream)
-        addEntries(list)
-    }
-
-    override fun get(identifier: String): Biome {
-        return biomes[identifier] ?: throw RegistryException(identifier, getMap().size)
-    }
-
-    override fun getOrNull(identifier: String): Biome? {
-        return biomes[identifier]
-    }
-
-    override fun getByProtocolId(id: Int): Biome {
-        return biomes.values.toList().getOrNull(id) ?: throw RegistryException(identifier, this.getMap().size)
-    }
-
-    override fun getMap(): Map<String, Biome> {
-        return biomes
-    }
 }
 
 @Serializable
@@ -90,12 +20,12 @@ data class MoodSound(
     val sound: String,
     val tickDelay: Int,
 ) {
-    fun toNBT(): NBTCompound {
-        return NBT.Compound {
-            it.put("block_search_extent", blockSearchExtent)
-            it.put("offset", soundPositionOffset)
-            it.put("sound", sound)
-            it.put("tick_delay", tickDelay)
+    fun toNBT(): CompoundBinaryTag {
+        return nbt {
+            withInt("block_search_extent", blockSearchExtent)
+            withDouble("offset", soundPositionOffset)
+            withString("sound", sound)
+            withInt("tick_delay", tickDelay)
         }
     }
 }
@@ -107,12 +37,12 @@ data class BackgroundMusic(
     val replaceCurrentMusic: Boolean,
     val sound: String,
 ) {
-    fun toNBT(): NBTCompound {
-        return NBT.Compound {
-            it.put("sound", CustomSoundEvent(sound, null).getNbt())
-            it.put("max_delay", maxDelay)
-            it.put("min_delay", minDelay)
-            it.put("replace_current_music", replaceCurrentMusic)
+    fun toNBT(): CompoundBinaryTag {
+        return nbt {
+            withCompound("sound", CustomSoundEvent(sound, null).getNbt())
+            withInt("max_delay", maxDelay)
+            withInt("min_delay", minDelay)
+            withBoolean("replace_current_music", replaceCurrentMusic)
         }
     }
 }
@@ -122,10 +52,10 @@ data class AmbientAdditions(
     val sound: String,
     val tickChance: Double,
 ) {
-    fun toNBT(): NBTCompound {
-        return NBT.Compound {
-            it.put("sound", sound)
-            it.put("tick_chance", tickChance)
+    fun toNBT(): CompoundBinaryTag {
+        return nbt {
+            withString("sound", sound)
+            withDouble("tick_chance", tickChance)
         }
     }
 }
@@ -135,12 +65,12 @@ data class BiomeParticles(
     val options: ParticleOptions,
     val probability: Float,
 ) {
-    fun toNBT(): NBTCompound {
-        return NBT.Compound {
-            it.put("options", NBT.Compound { oc ->
-                oc.put("type", options.type)
-            })
-            it.put("probability", probability)
+    fun toNBT(): CompoundBinaryTag {
+        return nbt {
+            withCompound("options") {
+                withString("type", options.type)
+            }
+            withFloat("probability", probability)
         }
     }
 }
@@ -166,21 +96,21 @@ data class Effects(
     val waterColor: Int,
     val waterFogColor: Int,
 ) {
-    fun toNBT(): NBTCompound {
-        return NBT.Compound {
-            if (fogColor != null) it.put("fog_color", fogColor)
-            if (foliageColor != null) it.put("foliage_color", foliageColor)
-            if (grassColor != null) it.put("grass_color", grassColor)
-            if (grassColorModifier != null) it.put("grass_color_modifier", grassColorModifier)
-            if (moodSound != null) it.put("mood_sound", moodSound.toNBT())
-            if (music != null) it.put("music", music.map { music -> music.getNbt() })
-            if (musicVolume != null) it.put("music_volume", musicVolume)
-            if (ambientAdditions != null) it.put("additions_sound", ambientAdditions.toNBT())
-            if (particle != null) it.put("particle", particle.toNBT())
-            if (ambientLoop != null) it.put("ambient_sound", ambientLoop)
-            it.put("sky_color", skyColor)
-            it.put("water_color", waterColor)
-            it.put("water_fog_color", waterFogColor)
+    fun toNBT(): CompoundBinaryTag {
+        return nbt {
+            if (fogColor != null) withInt("fog_color", fogColor)
+            if (foliageColor != null) withInt("foliage_color", foliageColor)
+            if (grassColor != null) withInt("grass_color", grassColor)
+            if (grassColorModifier != null) withString("grass_color_modifier", grassColorModifier)
+            if (moodSound != null) withCompound("mood_sound", moodSound.toNBT())
+            if (music != null) withList("music", BinaryTagTypes.COMPOUND, music.map { music -> music.getNbt() })
+            if (musicVolume != null) withFloat("music_volume", musicVolume)
+            if (ambientAdditions != null) withCompound("additions_sound", ambientAdditions.toNBT())
+            if (particle != null) withCompound("particle", particle.toNBT())
+            if (ambientLoop != null) withString("ambient_sound", ambientLoop)
+            withInt("sky_color", skyColor)
+            withInt("water_color", waterColor)
+            withInt("water_fog_color", waterFogColor)
         }
     }
 }
@@ -196,26 +126,30 @@ data class Biome(
 ) : RegistryEntry {
 
     override fun getProtocolId(): Int {
-        return BiomeRegistry.protocolIds.getOrThrow(identifier)
+        return BiomeRegistry.getProtocolIdByEntry(this)
     }
 
-    override fun getNbt(): NBTCompound {
-        return NBT.Compound {
-            it.put("downfall", downfall)
-            it.put("effects", effects.toNBT())
-            it.put("has_precipitation", hasRain)
-            it.put("temperature", temperature)
-            if (temperatureModifier != null) it.put("temperature_modifier", temperatureModifier)
+    override fun getEntryIdentifier(): String {
+        return identifier
+    }
+
+    override fun getNbt(): CompoundBinaryTag {
+        return nbt {
+            withFloat("downfall", downfall)
+            withCompound("effects", effects.toNBT())
+            withBoolean("has_precipitation", hasRain)
+            withFloat("temperature", temperature)
+            if (temperatureModifier != null) withString("temperature_modifier", temperatureModifier)
         }
     }
 
     @Serializable
     data class WeightedBackgroundMusic(val music: BackgroundMusic, val weight: Int) : NbtWritable {
 
-        override fun getNbt(): NBTCompound {
-            return NBT.Compound { builder ->
-                builder.put("data", music.toNBT())
-                builder.put("weight", weight)
+        override fun getNbt(): CompoundBinaryTag {
+            return nbt {
+                withCompound("data", music.toNBT())
+                withInt("weight", weight)
             }
         }
 

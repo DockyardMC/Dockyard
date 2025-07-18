@@ -18,7 +18,7 @@ class RawPacketDecoder(val processor: PlayerNetworkManager) : MessageToMessageDe
 
     @OptIn(ExperimentalStdlibApi::class)
     override fun decode(connection: ChannelHandlerContext, buffer: ByteBuf, out: MutableList<Any>) {
-        if (!connection.channel().isActive) return // connection was closed
+        if (!connection.channel().isActive) return // the connection was closed
 
         try {
             val packetId = buffer.readVarInt()

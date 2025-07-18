@@ -1,56 +1,65 @@
 package io.github.dockyardmc.ui
 
 import io.github.dockyardmc.item.ItemStack
-import io.github.dockyardmc.item.ItemStackMeta
-import io.github.dockyardmc.item.itemStack
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.registry.registries.Item
 
-class DrawableItemStack {
+class DrawableItemStack(val itemStack: ItemStack, val onClick: ((Player, ClickType) -> Unit)? = null) {
 
-    var itemStack: ItemStack = ItemStack.AIR
-    var clickListener: ((Player, DrawableClickType) -> Unit)? = null
-
-    fun withItem(builder: ItemStackMeta.() -> Unit): ItemStack {
-        return itemStack(builder)
+    enum class ClickType {
+        LEFT_CLICK,
+        RIGHT_CLICK,
+        LEFT_CLICK_SHIFT,
+        RIGHT_CLICK_SHIFT,
+        MIDDLE_CLICK,
+        HOTKEY,
+        OFFHAND,
+        DROP,
+        LEFT_CLICK_OUTSIDE_INVENTORY,
+        RIGHT_CLICK_OUTSIDE_INVENTORY
     }
 
-    fun withItem(itemStack: ItemStack) {
-        this.itemStack = itemStack
-    }
+    class Builder {
+        private var itemStack: ItemStack = ItemStack.AIR
+        private var onClick: ((Player, ClickType) -> Unit)? = null
+        private var noxesiumImmovable: Boolean = true
 
-    fun withItem(item: Item, amount: Int = 1) {
-        this.itemStack = item.toItemStack(amount)
-    }
+        fun withItemStack(itemStack: ItemStack) {
+            this.itemStack = itemStack
+        }
 
-    fun onClick(unit: (Player, DrawableClickType) -> Unit) {
-        this.clickListener = unit
+        fun withItem(item: Item) {
+            withItemStack(item.toItemStack())
+        }
+
+        fun withName(name: String) {
+            itemStack = itemStack.withDisplayName(name)
+        }
+
+        fun withLore(vararg lore: String) {
+            itemStack = itemStack.withLore(*lore)
+        }
+
+        fun withAmount(amount: Int) {
+            itemStack = itemStack.withAmount(amount)
+        }
+
+        fun onClick(onClick: (Player, ClickType) -> Unit) {
+            this.onClick = onClick
+        }
+
+        fun withNoxesiumImmovable(immovable: Boolean) {
+            this.noxesiumImmovable = immovable
+        }
+
+        fun build(): DrawableItemStack {
+            return DrawableItemStack(itemStack.withNoxesiumImmovable(noxesiumImmovable), onClick)
+        }
     }
 }
 
-fun Item.toDrawable(): DrawableItemStack {
-    return drawableItemStack { withItem(this@toDrawable) }
-}
-
-fun ItemStack.toDrawable(): DrawableItemStack {
-    return drawableItemStack { withItem(this@toDrawable) }
-}
-
-fun drawableItemStack(unit: DrawableItemStack.() -> Unit): DrawableItemStack {
-    val item = DrawableItemStack()
-    unit.invoke(item)
-    return item
-}
-
-enum class DrawableClickType {
-    LEFT_CLICK,
-    RIGHT_CLICK,
-    LEFT_CLICK_SHIFT,
-    RIGHT_CLICK_SHIFT,
-    MIDDLE_CLICK,
-    HOTKEY,
-    OFFHAND,
-    DROP,
-    LEFT_CLICK_OUTSIDE_INVENTORY,
-    RIGHT_CLICK_OUTSIDE_INVENTORY
+inline fun drawableItemStack(unit: DrawableItemStack.Builder.() -> Unit): DrawableItemStack {
+    val builder = DrawableItemStack.Builder()
+    unit.invoke(builder)
+    return builder.build()
 }

@@ -46,10 +46,10 @@ object CommandHandler {
                 if (testEnv) throw IllegalArgumentException(ex)
                 if (ex is CommandException) {
                     val message = "<red>${ex.message}"
-                    executor.sendMessage(message)
+                    executor.sendMessage(message, true)
                 } else {
                     log(ex)
-                    executor.sendMessage("<dark_red>Error <dark_gray>| <red>A <orange><hover:show_text:'<dark_red>${ex.message}'>${ex::class.qualifiedName}</hover> <red>was thrown during execution of this command!")
+                    executor.sendMessage("<hover:show_text:'<dark_red>${ex.message}'><dark_red>Error <dark_gray>| <red>A <orange>${ex::class.simpleName} <red>was thrown during execution of this command! <gray>(Hover for more info)</hover>", true)
                 }
             }
         }
@@ -118,12 +118,12 @@ object CommandHandler {
                         //block state
                         val states = io.github.dockyardmc.world.block.Block.parseBlockStateString(value)
                         val block =
-                            BlockRegistry.protocolIdToBlock.values.firstOrNull { it.identifier == states.first }
+                            BlockRegistry.getProtocolEntries().firstOrNull { it.identifier == states.first }
                                 ?: throw CommandException("\"${states.first}\" is not of type Block")
                         block.withBlockStates(states.second)
                     } else {
                         //not block state
-                        BlockRegistry.protocolIdToBlock.values.firstOrNull { it.identifier == value }
+                        BlockRegistry.getProtocolEntries().firstOrNull { it.identifier == value }
                             ?: throw CommandException("\"$value\" is not of type Block")
                     }
                 }

@@ -1,9 +1,14 @@
 package io.github.dockyardmc.apis
 
 import cz.lukynka.bindables.Bindable
-import io.github.dockyardmc.entity.*
+import cz.lukynka.bindables.BindableDispatcher
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.TextDisplay
+import io.github.dockyardmc.entity.metadata.EntityMetaValue
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
@@ -23,7 +28,7 @@ class HologramBuilder {
     }
 }
 
-fun hologram(location: Location, unit: HologramBuilder.() -> Unit): Hologram {
+inline fun hologram(location: Location, unit: HologramBuilder.() -> Unit): Hologram {
     val builder = HologramBuilder()
     unit.invoke(builder)
     return location.world.spawnEntity(Hologram(location, builder)) as Hologram
@@ -31,8 +36,14 @@ fun hologram(location: Location, unit: HologramBuilder.() -> Unit): Hologram {
 
 class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawnLocation, spawnLocation.world) {
 
+    companion object {
+        const val LINE_SIZE_MULTIPLIER = 0.3
+    }
+
     private val lines = mutableListOf<ContentLine>()
     private val lineEntities = mutableListOf<TextDisplay>()
+
+    val lineAmount get() = lines.size
 
     override var type: EntityType = EntityTypes.MARKER
     override val health: Bindable<Float> = Bindable(0f)
@@ -42,15 +53,17 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
 
     override var tickable: Boolean = false
 
+    val onLinesUpdated: BindableDispatcher<Unit> = bindablePool.provideBindableDispatcher()
+
     override fun teleport(location: Location) {
         lineEntities.forEachIndexed { index, entity ->
-            entity.teleport(location.subtract(0.0, index * 0.3, 0.0))
+            entity.teleport(location.subtract(0.0, index * LINE_SIZE_MULTIPLIER, 0.0))
         }
     }
 
     override fun teleportClientside(location: Location, player: Player) {
         lineEntities.forEachIndexed { index, entity ->
-            entity.teleportClientside(location.subtract(0.0, index * 0.3, 0.0), player)
+            entity.teleportClientside(location.subtract(0.0, index * LINE_SIZE_MULTIPLIER, 0.0), player)
         }
     }
 
@@ -60,9 +73,10 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     }
 
     fun addStaticLine(line: StaticContentLine) {
-        val lineIndex = lines.size
         lines.add(line)
+        if (viewers.isEmpty()) return
         viewers.forEach(::updateFull)
+        onLinesUpdated.dispatch(Unit)
     }
 
     fun addStaticLine(line: String) {
@@ -70,9 +84,10 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     }
 
     fun addPlayerLine(line: PlayerContentLine) {
-        val lineIndex = lines.size
         lines.add(line)
+        if (viewers.isEmpty()) return
         viewers.forEach(::updateFull)
+        onLinesUpdated.dispatch(Unit)
     }
 
     fun addPlayerLine(line: (Player) -> String) {
@@ -86,12 +101,12 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     fun setStaticLine(lineIndex: Int, line: StaticContentLine) {
         val currentLine = lines.getOrNull(lineIndex) ?: return
 
-        if(currentLine !is StaticContentLine) {
+        if (currentLine !is StaticContentLine) {
             viewers.forEach(::updateFull)
             return
         }
 
-        if(line.line == currentLine.line) return
+        if (line.line == currentLine.line) return
 
         lines[lineIndex] = currentLine
         setGlobalLineContent(lineIndex, line.line)
@@ -104,7 +119,7 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     fun setPlayerLine(lineIndex: Int, line: PlayerContentLine) {
         val currentLine = lines.getOrNull(lineIndex) ?: return
 
-        if(currentLine !is PlayerContentLine) {
+        if (currentLine !is PlayerContentLine) {
             viewers.forEach(::updateFull)
             return
         }
@@ -118,19 +133,21 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
 
     private fun updateFull(player: Player) {
 
-        lines.forEachIndexed { index, line  ->
+        lines.forEachIndexed { index, line ->
             var entity = lineEntities.getOrNull(index)
-            if(entity == null) {
+            if (entity == null) {
                 entity = location.world.spawnEntity(TextDisplay(location.subtract(0.0, index * 0.3, 0.0))) as TextDisplay
                 entity.autoViewable = false
                 entity.lineWidth.value = Int.MAX_VALUE
                 lineEntities.add(entity)
             }
-            if(line !is PlayerContentLine && entity.metadataLayers.values.isNotEmpty()) entity.metadataLayers.clear()
+            if (line !is PlayerContentLine && entity.metadataLayers.values.isNotEmpty()) entity.metadataLayers.clear()
 
-            when(line) {
+            when (line) {
                 is StaticContentLine -> setGlobalLineContent(index, line.line)
-                is PlayerContentLine -> { setPlayerLineContent(player, index, line.line.invoke(player)) }
+                is PlayerContentLine -> {
+                    setPlayerLineContent(player, index, line.line.invoke(player))
+                }
             }
 
             entity.addViewer(player)
@@ -140,42 +157,48 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
     private fun setPlayerLineContent(player: Player, lineIndex: Int, message: String) {
         val display = lineEntities.getOrNull(lineIndex) ?: return
 
-        if(display.metadataLayers[player.toPersistent()] == null) display.metadataLayers[player.toPersistent()] = mutableMapOf()
+        if (display.metadataLayers[player.toPersistent()] == null) display.metadataLayers[player.toPersistent()] = mutableMapOf()
         val layer = display.metadataLayers[player.toPersistent()]!!
         layer[EntityMetadataType.TEXT_DISPLAY_TEXT] = EntityMetadata(EntityMetadataType.TEXT_DISPLAY_TEXT, EntityMetaValue.TEXT_COMPONENT, message.toComponent())
         display.sendMetadataPacket(player)
+        onLinesUpdated.dispatch(Unit)
     }
 
     private fun setGlobalLineContent(lineIndex: Int, message: String) {
         val display = lineEntities.getOrNull(lineIndex) ?: return
-        display.text.value = if(message.replace(" ", "").isEmpty()) "" else message
+        display.text.value = if (message.replace(" ", "").isEmpty()) "" else message
+        onLinesUpdated.dispatch(Unit)
     }
 
     override fun dispose() {
         lineEntities.toList().forEach { entity ->
             world.despawnEntity(entity)
         }
-        viewers.clear()
+        clearViewers()
         lines.clear()
         lineEntities.clear()
         super.dispose()
     }
 
-    override fun addViewer(player: Player) {
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
+
         lineEntities.forEach { entity ->
             entity.addViewer(player)
         }
-        viewers.add(player)
         updateFull(player)
-        super.addViewer(player)
+        return true
     }
 
     override fun removeViewer(player: Player) {
         lineEntities.forEach { entity ->
             entity.removeViewer(player)
         }
-        viewers.remove(player)
         super.removeViewer(player)
+    }
+
+    fun getLineEntities(): List<TextDisplay> {
+        return lineEntities.toList()
     }
 
     interface ContentLine

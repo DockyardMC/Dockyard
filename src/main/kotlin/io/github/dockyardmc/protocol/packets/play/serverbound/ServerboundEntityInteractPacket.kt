@@ -7,7 +7,7 @@ import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.events.PlayerInteractAtEntityEvent
 import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
 import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.readVarIntEnum
+import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
@@ -51,11 +51,13 @@ class ServerboundEntityInteractPacket(
 
     companion object {
         fun read(buf: ByteBuf): ServerboundEntityInteractPacket {
-
             val entityId = buf.readVarInt()
             val entity = EntityManager.entities.firstOrNull { entity -> entity.id == entityId }
-            if (entity == null) throw IllegalStateException("Entity with id $entityId was not found")
-            val type = buf.readVarIntEnum<EntityInteractionType>()
+                .let {
+                    checkNotNull(it) { "Entity with id $entityId was not found" }
+                }
+
+            val type = buf.readEnum<EntityInteractionType>()
             var targetX: Float? = null
             var targetY: Float? = null
             var targetZ: Float? = null
@@ -67,7 +69,7 @@ class ServerboundEntityInteractPacket(
             }
             var hand: PlayerHand? = null
             if (type == EntityInteractionType.INTERACT_AT || type == EntityInteractionType.INTERACT) {
-                hand = buf.readVarIntEnum<PlayerHand>()
+                hand = buf.readEnum<PlayerHand>()
             }
             val sneaking = buf.readBoolean()
 

@@ -1,15 +1,16 @@
 package io.github.dockyardmc.utils
 
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.entity.EntityMetadata
-import io.github.dockyardmc.entity.EntityMetadataType
-import io.github.dockyardmc.entity.getEntityMetadataState
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
+import io.github.dockyardmc.entity.metadata.getEntityMetadataState
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.SocketException
 import java.security.MessageDigest
+import java.util.*
 import kotlin.experimental.and
 import kotlin.reflect.KClass
 
@@ -110,4 +111,30 @@ fun isAddressInUse(host: String, port: Int): Boolean {
     }
 
     return false
+}
+
+fun UUID.toIntArray(): IntArray {
+    return uuidToIntArray(this)
+}
+
+fun IntArray.toUUID(): UUID {
+    return intArrayToUuid(this)
+}
+
+fun intArrayToUuid(array: IntArray): UUID {
+    val uuidMost = array[0].toLong() shl 32 or (array[1].toLong() and 0xFFFFFFFFL)
+    val uuidLeast = array[2].toLong() shl 32 or (array[3].toLong() and 0xFFFFFFFFL)
+
+    return UUID(uuidMost, uuidLeast)
+}
+
+fun uuidToIntArray(uuid: UUID): IntArray {
+    val uuidMost = uuid.mostSignificantBits
+    val uuidLeast = uuid.leastSignificantBits
+    return intArrayOf(
+        (uuidMost shr 32).toInt(),
+        uuidMost.toInt(),
+        (uuidLeast shr 32).toInt(),
+        uuidLeast.toInt()
+    )
 }

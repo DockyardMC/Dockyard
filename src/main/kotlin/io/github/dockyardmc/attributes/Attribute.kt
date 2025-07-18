@@ -1,15 +1,23 @@
 package io.github.dockyardmc.attributes
 
+import io.github.dockyardmc.data.CRC32CHasher
+import io.github.dockyardmc.data.HashHolder
+import io.github.dockyardmc.data.HashStruct
 import io.github.dockyardmc.extentions.*
-import io.github.dockyardmc.item.AttributeModifiersItemComponent
+import io.github.dockyardmc.protocol.DataComponentHashable
+import io.github.dockyardmc.protocol.NetworkReadable
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.registries.Attribute
 import io.github.dockyardmc.registry.registries.AttributeRegistry
+import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.Codecs
 import io.netty.buffer.ByteBuf
 
 enum class AttributeOperation {
-    ADD,
-    MULTIPLY_BASE,
-    MULTIPLY_TOTAL
+    ADD_VALUE,
+    ADD_MULTIPLY_BASE,
+    ADD_MULTIPLY_TOTAL
 }
 
 enum class AttributeSlot {
@@ -25,36 +33,121 @@ enum class AttributeSlot {
     BODY
 }
 
-fun ByteBuf.readModifierList(): AttributeModifiersItemComponent {
-    val size = this.readVarInt()
-    val list = mutableListOf<Modifier>()
-    for (i in 0 until size) {
-        val modifier = Modifier.read(this)
-        list.add(modifier)
-    }
-    val showInTooltip = this.readBoolean()
-    return AttributeModifiersItemComponent(list, showInTooltip)
-}
-
-
 data class Modifier(
     val attribute: Attribute,
     val attributeModifier: AttributeModifier,
-    val equipmentSlot: EquipmentSlotGroup
-) {
+    val equipmentSlot: EquipmentSlotGroup,
+    val display: Display
+) : DataComponentHashable {
+
     fun write(buffer: ByteBuf) {
         buffer.writeVarInt(attribute.getProtocolId())
         attributeModifier.write(buffer)
-        buffer.writeVarIntEnum<EquipmentSlotGroup>(equipmentSlot)
+        buffer.writeEnum<EquipmentSlotGroup>(equipmentSlot)
+        display.write(buffer)
     }
 
     companion object {
+
         fun read(buffer: ByteBuf): Modifier {
             val attribute = AttributeRegistry.getByProtocolId(buffer.readVarInt())
             val attributeModifier = AttributeModifier.read(buffer)
-            val slot = buffer.readVarIntEnum<EquipmentSlotGroup>()
+            val slot = buffer.readEnum<EquipmentSlotGroup>()
+            val display = Display.read(buffer)
 
-            return Modifier(attribute, attributeModifier, slot)
+            return Modifier(attribute, attributeModifier, slot, display)
+        }
+    }
+
+    override fun hashStruct(): HashStruct {
+        return CRC32CHasher.of {
+            static("type", CRC32CHasher.ofString(attribute.identifier))
+            inline(attributeModifier.hashStruct())
+            default("slot", EquipmentSlotGroup.ANY, equipmentSlot, CRC32CHasher::ofEnum)
+            defaultStruct("display", Display.Default.INSTANCE, display, Display::hashStruct)
+        }
+    }
+
+    interface Display : NetworkWritable, DataComponentHashable {
+
+        val type: Type
+
+        enum class Type {
+            DEFAULT,
+            HIDDEN,
+            OVERRIDE
+        }
+
+        override fun write(buffer: ByteBuf) {
+            buffer.writeEnum(type)
+        }
+
+        companion object : NetworkReadable<Display> {
+            override fun read(buffer: ByteBuf): Display {
+                val type = buffer.readEnum<Type>()
+                return when (type) {
+                    Type.DEFAULT -> Default.read(buffer)
+                    Type.HIDDEN -> Hidden.read(buffer)
+                    Type.OVERRIDE -> Override.read(buffer)
+                }
+            }
+
+        }
+
+        class Default : Display {
+            override val type: Type = Type.DEFAULT
+
+            companion object : NetworkReadable<Default> {
+                val INSTANCE = Default()
+                override fun read(buffer: ByteBuf): Default {
+                    return INSTANCE
+                }
+            }
+
+            override fun hashStruct(): HashHolder {
+                return CRC32CHasher.of {
+                    static("type", CRC32CHasher.ofEnum(type))
+                }
+            }
+        }
+
+        class Hidden : Display {
+            override val type: Type = Type.HIDDEN
+
+            companion object : NetworkReadable<Hidden> {
+                val INSTANCE = Hidden()
+                override fun read(buffer: ByteBuf): Hidden {
+                    return INSTANCE
+                }
+            }
+
+            override fun hashStruct(): HashHolder {
+                return CRC32CHasher.of {
+                    static("type", CRC32CHasher.ofEnum(type))
+                }
+            }
+        }
+
+        class Override(val component: Component) : Display {
+            override val type: Type = Type.OVERRIDE
+
+            override fun write(buffer: ByteBuf) {
+                super.write(buffer)
+                buffer.writeTextComponent(component)
+            }
+
+            companion object : NetworkReadable<Override> {
+                override fun read(buffer: ByteBuf): Override {
+                    return Override(buffer.readTextComponent())
+                }
+            }
+
+            override fun hashStruct(): HashHolder {
+                return CRC32CHasher.of {
+                    static("type", CRC32CHasher.ofEnum(type))
+                    static("value", CRC32CHasher.ofComponent(component))
+                }
+            }
         }
     }
 }
@@ -63,19 +156,34 @@ data class AttributeModifier(
     val id: String,
     val amount: Double,
     val operation: AttributeOperation
-) {
+) : DataComponentHashable {
     fun write(buffer: ByteBuf) {
         buffer.writeString(id)
         buffer.writeDouble(amount)
-        buffer.writeVarIntEnum<AttributeOperation>(operation)
+        buffer.writeEnum<AttributeOperation>(operation)
+    }
+
+    override fun hashStruct(): HashStruct {
+        return CRC32CHasher.of {
+            static("id", CRC32CHasher.ofString(id))
+            static("amount", CRC32CHasher.ofDouble(amount))
+            static("operation", CRC32CHasher.ofEnum(operation))
+        }
     }
 
     companion object {
+        val CODEC = Codec.of(
+            "id", Codecs.String, AttributeModifier::id,
+            "amount", Codecs.Double, AttributeModifier::amount,
+            "operation", Codec.enum<AttributeOperation>(), AttributeModifier::operation,
+            ::AttributeModifier
+        )
+
         fun read(buffer: ByteBuf): AttributeModifier {
             return AttributeModifier(
                 buffer.readString(),
                 buffer.readDouble(),
-                buffer.readVarIntEnum<AttributeOperation>()
+                buffer.readEnum<AttributeOperation>()
             )
         }
     }
@@ -91,5 +199,6 @@ enum class EquipmentSlotGroup {
     CHEST,
     HEAD,
     ARMOR,
-    BODY
+    BODY,
+    SADDLE,
 }

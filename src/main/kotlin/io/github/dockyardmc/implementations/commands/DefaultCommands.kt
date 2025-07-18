@@ -1,9 +1,9 @@
 package io.github.dockyardmc.implementations.commands
 
-import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.implementations.DefaultImplementationModule
+import io.github.dockyardmc.utils.InstrumentationUtils
 
-class DefaultCommands: DefaultImplementationModule {
+class DefaultCommands : DefaultImplementationModule {
 
     override fun register() {
         GamemodeCommand()
@@ -18,8 +18,7 @@ class DefaultCommands: DefaultImplementationModule {
         ListCommand()
         EffectCommand()
         WeatherCommand()
-        if(ConfigManager.config.debug) {
-            DebugCommand()
-        }
+        SkinCommand()
+        if(InstrumentationUtils.isDebuggerAttached()) DebugCommands.register()
     }
 }

@@ -1,76 +1,62 @@
 package io.github.dockyardmc.team
 
 import cz.lukynka.bindables.Bindable
-import cz.lukynka.bindables.BindableList
+import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.extentions.writeString
+import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.extentions.writeTextComponent
 import io.github.dockyardmc.extentions.writeVarInt
-import io.github.dockyardmc.npc.PlayerNpc
+import io.github.dockyardmc.npc.FakePlayer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.play.clientbound.AddEntitiesTeamPacketAction
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundTeamsPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.UpdateTeamPacketAction
 import io.github.dockyardmc.scroll.LegacyTextColor
+import io.github.dockyardmc.utils.Disposable
 import io.netty.buffer.ByteBuf
 import kotlin.experimental.or
 
-enum class TeamNameTagVisibility(val vanilla: String) {
-    VISIBLE("always"),
-    HIDE_OTHER_TEAMS("hideForOtherTeams"),
-    HIDE_OWN_TEAM("hideForOwnTeam"),
-    HIDDEN("never")
-}
+class Team(val name: String) : NetworkWritable, Disposable {
 
-enum class TeamCollisionRule(val value: String) {
-    ALWAYS("always"),
-    PUSH_OTHER_TEAMS("pushOtherTeams"),
-    PUSH_OWN_TEAM("pushOwnTeam"),
-    NEVER("never")
-}
+    val bindablePool = BindablePool()
 
-class Team(
-    val name: String,
-    val displayName: Bindable<String> = Bindable(name),
-    val teamNameTagVisibility: Bindable<TeamNameTagVisibility> = Bindable(TeamNameTagVisibility.VISIBLE),
-    val teamCollisionRule: Bindable<TeamCollisionRule> = Bindable(TeamCollisionRule.ALWAYS),
-    val color: Bindable<LegacyTextColor> = Bindable(LegacyTextColor.WHITE),
-    val prefix: Bindable<String?> = Bindable(null),
-    val suffix: Bindable<String?> = Bindable(null)
-) {
+    val displayName: Bindable<String> = bindablePool.provideBindable(name)
+    val nameTagVisibility: Bindable<NameTagVisibility> = bindablePool.provideBindable(NameTagVisibility.VISIBLE)
+    val collisionRule: Bindable<CollisionRule> = bindablePool.provideBindable(CollisionRule.ALWAYS)
+    val color: Bindable<LegacyTextColor> = bindablePool.provideBindable(LegacyTextColor.WHITE)
+    val prefix: Bindable<String?> = bindablePool.provideBindable(null)
+    val suffix: Bindable<String?> = bindablePool.provideBindable(null)
+    val entities = bindablePool.provideBindableList<Entity>()
+    var allowFriendlyFire: Boolean = true
+    var seeFriendlyInvisibles: Boolean = true
 
-    constructor(
-        name: String,
-        color: LegacyTextColor,
-        teamNameTagVisibility: TeamNameTagVisibility = TeamNameTagVisibility.VISIBLE,
-        teamCollisionRule: TeamCollisionRule = TeamCollisionRule.ALWAYS,
-        displayName: String = name,
-        prefix: String? = null,
-        suffix: String? = null
-    ): this(
-        name,
-        Bindable<String>(displayName),
-        Bindable<TeamNameTagVisibility>(teamNameTagVisibility),
-        Bindable<TeamCollisionRule>(teamCollisionRule),
-        Bindable<LegacyTextColor>(color),
-        Bindable<String?>(prefix),
-        Bindable<String?>(suffix)
-    )
+    enum class NameTagVisibility {
+        VISIBLE,
+        HIDDEN,
+        HIDE_OTHER_TEAMS,
+        HIDE_OWN_TEAM,
+    }
 
-    val entities = BindableList<Entity>()
+    enum class CollisionRule {
+        ALWAYS,
+        NEVER,
+        PUSH_OTHER_TEAMS,
+        PUSH_OWN_TEAM,
+    }
 
     init {
         displayName.valueChanged { sendTeamUpdatePacket() }
-        teamNameTagVisibility.valueChanged { sendTeamUpdatePacket() }
-        teamCollisionRule.valueChanged { sendTeamUpdatePacket() }
+        nameTagVisibility.valueChanged { sendTeamUpdatePacket() }
+        collisionRule.valueChanged { sendTeamUpdatePacket() }
         color.valueChanged { sendTeamUpdatePacket() }
         prefix.valueChanged { sendTeamUpdatePacket() }
         suffix.valueChanged { sendTeamUpdatePacket() }
 
         entities.itemAdded { event ->
-            if(event.item.team.value != null && event.item.team.value != this) throw IllegalArgumentException("Entity is on another team! (${event.item.team.value?.name})")
+            check(event.item.team.value == null || event.item.team.value == this) { "Entity is on another team! (${event.item.team.value?.name})" }
 
             val packet = ClientboundTeamsPacket(AddEntitiesTeamPacketAction(this, listOf(event.item)))
             PlayerManager.players.sendPacket(packet)
@@ -78,38 +64,39 @@ class Team(
     }
 
     fun mapEntities(): List<String> {
-        return entities.values.map {
-            val value = when(it) {
-                is PlayerNpc -> it.username.value
-                is Player -> it.username
-                else -> it.uuid.toString()
+        return entities.values.map { entity ->
+            val value = when (entity) {
+                is FakePlayer -> entity.gameProfile.username
+                is Player -> entity.username
+                else -> entity.uuid.toString()
             }
             return listOf(value)
         }
     }
 
-    fun sendTeamUpdatePacket() {
+    private fun sendTeamUpdatePacket() {
         val packet = ClientboundTeamsPacket(UpdateTeamPacketAction(this))
         PlayerManager.players.sendPacket(packet)
     }
 
-    var allowFriendlyFire: Boolean = true
-    var seeFriendlyInvisibles: Boolean = true
-
-    fun getFlags(): Byte {
+    private fun getFlags(): Byte {
         var mask: Byte = 0x00
-        if(allowFriendlyFire) mask = (mask or 0x01)
-        if(seeFriendlyInvisibles) mask = (mask or 0x02)
+        if (allowFriendlyFire) mask = (mask or 0x01)
+        if (seeFriendlyInvisibles) mask = (mask or 0x02)
         return mask
     }
-}
 
-fun ByteBuf.writeTeamInfo(team: Team) {
-    this.writeTextComponent(team.displayName.value)
-    this.writeByte(team.getFlags().toInt())
-    this.writeString(team.teamNameTagVisibility.value.vanilla)
-    this.writeString(team.teamCollisionRule.value.value)
-    this.writeVarInt(team.color.value.ordinal)
-    this.writeTextComponent((team.prefix.value ?: ""))
-    this.writeTextComponent((team.suffix.value ?: ""))
+    override fun write(buffer: ByteBuf) {
+        buffer.writeTextComponent(this.displayName.value)
+        buffer.writeByte(this.getFlags().toInt())
+        buffer.writeEnum(this.nameTagVisibility.value)
+        buffer.writeEnum(this.collisionRule.value)
+        buffer.writeVarInt(this.color.value.ordinal)
+        buffer.writeTextComponent((this.prefix.value ?: ""))
+        buffer.writeTextComponent((this.suffix.value ?: ""))
+    }
+
+    override fun dispose() {
+        bindablePool.dispose()
+    }
 }

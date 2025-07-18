@@ -7,15 +7,18 @@ import io.github.dockyardmc.advancement.PlayerAdvancementTracker
 import io.github.dockyardmc.attributes.PlayerAttributes
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
-import io.github.dockyardmc.entity.*
+import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.ItemDropEntity
+import io.github.dockyardmc.entity.LightningBolt
+import io.github.dockyardmc.entity.metadata.EntityMetaValue
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
-import io.github.dockyardmc.inventory.ContainerInventory
 import io.github.dockyardmc.inventory.PlayerInventory
 import io.github.dockyardmc.inventory.give
-import io.github.dockyardmc.item.EquipmentSlot
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.percentOf
@@ -31,6 +34,8 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundChatCommandPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
+import io.github.dockyardmc.protocol.types.EquipmentSlot
+import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.Items
@@ -42,7 +47,7 @@ import io.github.dockyardmc.resourcepack.Resourcepack
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.ui.DrawableContainerScreen
+import io.github.dockyardmc.ui.Screen
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.now
 import io.github.dockyardmc.world.PlayerChunkViewSystem
@@ -73,7 +78,7 @@ class Player(
     override var inventorySize: Int = 35
 
     var brand: String = "minecraft:vanilla"
-    var profile: ProfilePropertyMap? = null
+    lateinit var gameProfile: GameProfile
     var clientConfiguration: ClientConfiguration? = null
 
     var isSneaking: Boolean = false
@@ -133,8 +138,8 @@ class Player(
     val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
 
     var lastInteractionTime: Long = -1L
-    var currentOpenInventory: ContainerInventory? = null
-    val hasInventoryOpen: Boolean get() = currentOpenInventory != null
+    var currentlyOpenScreen: Screen? = null
+    val hasInventoryOpen: Boolean get() = currentlyOpenScreen != null
     var itemInUse: ItemInUse? = null
 
     private val pingRequestCounter = AtomicInteger(0)
@@ -142,63 +147,86 @@ class Player(
     var lastPingRequest: Long? = null
     var lastPingRequestFuture: CompletableFuture<Long>? = null
 
-    val heldInputs: MutableList<ServerboundClientInputPacket.Input> = mutableListOf()
+    val heldInputs = BindableList<ServerboundClientInputPacket.Input>()
 
     lateinit var lastSentPacket: ClientboundPacket
 
     override fun toString(): String = username
 
     init {
-
         gameModeSystem.handle(gameMode)
         playerInfoSystem.handle(customName, isListed)
 
-        heldSlotIndex.valueChanged {
-            this.sendPacket(ClientboundSetHeldItemPacket(it.newValue))
-            val item = inventory[it.newValue]
+        heldSlotIndex.valueChanged { index ->
+            this.sendPacket(ClientboundSetHeldItemPacket(index.newValue))
+            val item = inventory[index.newValue]
             equipment[EquipmentSlot.MAIN_HAND] = item
         }
 
-        isFlying.valueChanged {
-            if (it.newValue) {
+        isFlying.valueChanged { event ->
+            if (event.newValue) {
                 // force standing pose if player is flying
                 this.pose.value = EntityPose.STANDING
             } else if (this.isSneaking) {
                 this.pose.value = EntityPose.SNEAKING
             }
 
-            this.sendPacket(ClientboundPlayerAbilitiesPacket(it.newValue, isInvulnerable, canFly.value, flySpeed.value))
+            this.sendPacket(ClientboundPlayerAbilitiesPacket(event.newValue, isInvulnerable, canFly.value, flySpeed.value))
         }
-        canFly.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, it.newValue, flySpeed.value)) }
 
-        fovModifier.valueChanged { this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, it.newValue)) }
+        canFly.valueChanged { event -> this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, event.newValue, flySpeed.value)) }
+
+        fovModifier.valueChanged { event -> this.sendPacket(ClientboundPlayerAbilitiesPacket(isFlying.value, isInvulnerable, canFly.value, flySpeed.value, event.newValue)) }
 
         health.valueChanged { sendHealthUpdatePacket() }
         food.valueChanged { sendHealthUpdatePacket() }
         saturation.valueChanged { sendHealthUpdatePacket() }
 
-        tabListHeader.valueChanged { sendPacket(ClientboundTabListPacket(it.newValue, tabListFooter.value)) }
-        tabListFooter.valueChanged { sendPacket(ClientboundTabListPacket(tabListHeader.value, it.newValue)) }
+        tabListHeader.valueChanged { event -> sendPacket(ClientboundTabListPacket(event.newValue, tabListFooter.value)) }
+        tabListFooter.valueChanged { event -> sendPacket(ClientboundTabListPacket(tabListHeader.value, event.newValue)) }
 
-        redVignette.valueChanged {
-            val distance = percentOf(it.newValue * 10, world.worldBorder.diameter).toInt()
+        redVignette.valueChanged { event ->
+            val distance = percentOf(event.newValue * 10, world.worldBorder.diameter).toInt()
             sendPacket(ClientboundSetWorldBorderWarningDistance(distance))
         }
 
-        pose.valueChanged {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.POSE, EntityMetaValue.POSE, it.newValue)
-            sendMetadataPacketToViewers()
-            sendSelfMetadataPacket()
-        }
-
         displayedSkinParts.listUpdated {
-            metadata[EntityMetadataType.POSE] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
+            metadata[EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
         }
 
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
         experienceLevel.valueChanged { sendUpdateExperiencePacket() }
         time.valueChanged { updateWorldTime() }
         clientWeather.valueChanged { updateWeatherState() }
+
+        heldInputs.itemAdded {
+            if (it.item == ServerboundClientInputPacket.Input.SHIFT) {
+                isSneaking = true
+
+                // the only pose that allows sneaking
+                if (pose.value == EntityPose.STANDING &&
+                    !isFlying.value
+                ) {
+                    pose.value = EntityPose.SNEAKING
+                }
+
+                dismountCurrentVehicle()
+
+                Events.dispatch(PlayerSneakToggleEvent(this, true))
+            }
+        }
+
+        heldInputs.itemRemoved {
+            if (it.item == ServerboundClientInputPacket.Input.SHIFT) {
+                isSneaking = false
+
+                if (pose.value == EntityPose.SNEAKING) {
+                    pose.value = EntityPose.STANDING
+                }
+
+                Events.dispatch(PlayerSneakToggleEvent(this, false))
+            }
+        }
 
         hasNoGravity.value = false
     }
@@ -252,20 +280,23 @@ class Player(
         health.value = 0f
     }
 
-    override fun addViewer(player: Player) {
-        if (player == this) return
-        val infoUpdatePacket = PlayerInfoUpdate(uuid, AddPlayerInfoUpdateAction(ProfilePropertyMap(username, mutableListOf(profile!!.properties[0]))))
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(infoUpdatePacket))
-        val namePacket = ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetDisplayNameInfoUpdateAction(customName.value)))
-        player.sendPacket(namePacket)
+    override fun addViewer(player: Player): Boolean {
+        if (player == this) return false
 
-        super.addViewer(player)
+        val updates = mutableListOf(
+            PlayerInfoUpdate.AddPlayer(gameProfile),
+            PlayerInfoUpdate.UpdateListed(isListed.value),
+            PlayerInfoUpdate.UpdateDisplayName(customName.value),
+        )
+        player.sendPacket(ClientboundPlayerInfoUpdatePacket(mapOf(uuid to updates)))
+
+        if (!super.addViewer(player)) return false
 
         player.sendMetadataPacket(this)
         this.displayedSkinParts.triggerUpdate()
         sendMetadataPacket(player)
         sendEquipmentPacket(player)
-        player.sendPacket(ClientboundPlayerInfoUpdatePacket(PlayerInfoUpdate(uuid, SetListedInfoUpdateAction(isListed.value))))
+        return true
     }
 
     fun getHeldItem(hand: PlayerHand): ItemStack {
@@ -287,19 +318,13 @@ class Player(
 
     override fun removeViewer(player: Player) {
         if (player == this) return
-//        //
-//        if(isDisconnect) {
-//            val playerRemovePacket = ClientboundPlayerInfoRemovePacket(this)
-//            player.sendPacket(playerRemovePacket)
-//        }
-        viewers.remove(player)
         super.removeViewer(player)
     }
 
     // Hold messages client receives before state is PLAY, then send them after state changes to PLAY
-    private var queuedMessages = mutableListOf<Pair<Component, Boolean>>()
+    private var queuedMessages = mutableListOf<Pair<String, Boolean>>()
     fun releaseMessagesQueue() {
-        queuedMessages.forEach { sendSystemMessage(it.first, it.second) }
+        queuedMessages.forEach { message -> sendSystemMessage(message.first, message.second) }
         queuedMessages.clear()
     }
 
@@ -319,29 +344,32 @@ class Player(
         this.networkManager.kick(reason, connection)
     }
 
-    fun sendMessage(message: String) {
-        this.sendMessage(message.toComponent())
-    }
-
-    fun sendMessage(component: Component) {
-        sendSystemMessage(component, false)
+    fun sendMessage(message: String, isSystem: Boolean = false) {
+        this.sendSystemMessage(message, false, isSystem)
     }
 
     fun sendActionBar(message: String) {
-        this.sendActionBar(message.toComponent())
+        this.sendSystemMessage(message, isActionBar = true, isSystem = false)
     }
 
-    fun sendActionBar(component: Component) {
-        sendSystemMessage(component, true)
-    }
-
-    private fun sendSystemMessage(component: Component, isActionBar: Boolean) {
+    private fun sendSystemMessage(message: String, isActionBar: Boolean, isSystem: Boolean = false) {
         if (!isConnected) return
+
+        // this event and the `isSystem` arg is quite literally only for one feature in my other project,
+        // but it's my server implementation anyway I can do whatever I want
+        // - maya
+        if (!isActionBar) {
+            val event = ServerSendPlayerMessageEvent(this, message, isSystem, getPlayerEventContext(this))
+            Events.dispatch(event)
+            if (event.cancelled) return
+        }
+
         if (networkManager.state != ProtocolState.PLAY) {
-            queuedMessages.add(component to isActionBar)
+            queuedMessages.add(message to isActionBar)
             return
         }
-        this.sendPacket(ClientboundSystemChatMessagePacket(component, isActionBar))
+
+        this.sendPacket(ClientboundSystemChatMessagePacket(message.toComponent(), isActionBar))
     }
 
     fun sendPacket(packet: ClientboundPacket) {
@@ -358,9 +386,36 @@ class Player(
         }
     }
 
+    fun refreshGameProfileState() {
+        val currentLocation = this.location
+
+        val removeInfo = ClientboundPlayerInfoRemovePacket(this)
+        val entityRemovePacket = ClientboundEntityRemovePacket(this)
+        val spawnEntityPacket = ClientboundSpawnEntityPacket(this.id, this.uuid, this.type.getProtocolId(), this.location, this.location.yaw, 0, this.velocity)
+        val updates = mutableListOf(
+            PlayerInfoUpdate.AddPlayer(this.gameProfile),
+            PlayerInfoUpdate.UpdateListed(this.isListed.value),
+            PlayerInfoUpdate.UpdateDisplayName(this.customName.value),
+        )
+        val addPacket = ClientboundPlayerInfoUpdatePacket(mapOf(this.uuid to updates.toList()))
+
+        this.sendPacket(removeInfo)
+        this.sendPacket(entityRemovePacket)
+        this.sendPacket(addPacket)
+        this.respawn(false)
+
+        viewers.sendPacket(removeInfo)
+        viewers.sendPacket(entityRemovePacket)
+        viewers.sendPacket(addPacket)
+        viewers.sendPacket(spawnEntityPacket)
+
+        this.displayedSkinParts.triggerUpdate()
+        this.teleport(currentLocation)
+    }
+
     override fun teleport(location: Location) {
         if (!WorldManager.worlds.containsValue(location.world)) throw Exception("That world does not exist!")
-        if (location.world != world) location.world.join(this)
+        if (location.world != world) location.world.join(this, location)
 
         val teleportPacket = ClientboundPlayerSynchronizePositionPacket(location)
         this.sendPacket(teleportPacket)
@@ -434,6 +489,8 @@ class Player(
     }
 
     fun closeInventory() {
+        if (currentlyOpenScreen != null) currentlyOpenScreen!!.dispose()
+
         sendPacket(ClientboundCloseInventoryPacket(0))
         sendPacket(ClientboundCloseInventoryPacket(1))
         if (inventory.cursorItem.value != ItemStack.AIR) {
@@ -458,19 +515,7 @@ class Player(
         sendPacket(packet)
     }
 
-    fun openInventory(inventory: ContainerInventory) {
-        this.currentOpenInventory = inventory
-        sendPacket(ClientboundOpenContainerPacket(InventoryType.valueOf("GENERIC_9X${inventory.rows}"), inventory.name))
-        inventory.contents.forEach {
-            sendPacket(ClientboundSetContainerSlotPacket(it.key, it.value))
-        }
-        if (inventory is DrawableContainerScreen) {
-            inventory.slots.triggerUpdate()
-            inventory.onOpen(this)
-        }
-    }
-
-    fun playTotemAnimation(customModelData: Int? = null) {
+    fun playTotemAnimation(customModelData: Float? = null) {
         val held = getHeldItem(PlayerHand.MAIN_HAND)
         if (customModelData != null) {
             val totem = ItemStack(Items.TOTEM_OF_UNDYING).withCustomModelData(customModelData)
@@ -544,7 +589,7 @@ class Player(
     }
 
     fun playChestAnimation(chestLocation: Location, animation: ChestAnimation) {
-        sendPacket(ClientboundBlockActionPacket(chestLocation, 1, animation.ordinal.toByte(), Blocks.CHEST))
+        sendPacket(ClientboundBlockActionPacket(chestLocation, 1, animation.ordinal.toByte(), location.block.registryBlock))
     }
 
     fun stopSound(sound: String? = null, category: SoundCategory? = null) {

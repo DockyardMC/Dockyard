@@ -15,7 +15,7 @@ import io.github.dockyardmc.world.chunk.Chunk
 import io.netty.buffer.ByteBuf
 import kotlin.math.*
 
-class Location(
+data class Location(
     var x: Double,
     var y: Double,
     var z: Double,
@@ -53,16 +53,6 @@ class Location(
     val fullY: Int get() = ceil(y).toInt()
     val fullZ: Int get() = ceil(z).toInt()
 
-    override fun equals(other: Any?): Boolean {
-        if (other == null || other !is Location) return false
-        return x == other.x &&
-                y == other.y &&
-                z == other.z &&
-                pitch == other.pitch &&
-                yaw == other.yaw &&
-                world.name == other.world.name
-    }
-
     override fun toString(): String =
         "Location(x=${x.truncate(2)}, y=${y.truncate(2)}, z=${z.truncate(2)}, yaw=$yaw, pitch=$pitch, world=${world.name})"
 
@@ -99,6 +89,14 @@ class Location(
 
     fun distance(other: Location): Double = sqrt((this.x - other.x).pow(2.0) + (this.y - other.y).pow(2.0) + (this.z - other.z).pow(2.0))
 
+    fun distanceSquared(other: Location): Double {
+        val dx = this.x - other.x
+        val dy = this.y - other.y
+        val dz = this.z - other.z
+
+        return dx * dx + dy * dy + dz * dz
+    }
+
     fun distanceVector(other: Location): Vector3d {
         val dx = this.x - other.x
         val dy = this.y - other.y
@@ -125,7 +123,7 @@ class Location(
 
     fun withLookAt(location: Location): Location {
         if (location == this) return this
-        val delta: Vector3d = (this.toVector3d() - this.toVector3d()).normalized()
+        val delta: Vector3d = (location.toVector3d() - this.toVector3d()).normalized()
         return withRotation(
             LocationUtils.getRotationYaw(delta.x, delta.z),
             LocationUtils.getRotationPitch(delta.x, delta.y, delta.z),
@@ -183,6 +181,10 @@ class Location(
         return sameBlock(point.x, point.y, point.z)
     }
 
+    fun sameBlock(location: Location): Boolean {
+        return this.sameBlock(location.getBlockLocation().toVector3())
+    }
+
     fun sameBlock(blockX: Int, blockY: Int, blockZ: Int): Boolean {
         return this.blockX == blockX && this.blockY == blockY && this.blockZ == blockZ
     }
@@ -230,6 +232,10 @@ class Location(
         }
 
         return locations
+    }
+
+    fun add(x: Float, y: Float, z: Float): Location {
+        return add(Vector3f(x, y, z))
     }
 
     val closestNonAirBelow: Pair<Block, Location>?
@@ -336,9 +342,21 @@ fun ByteBuf.writeBlockPosition(location: Location) {
     val blockX = location.blockX.toLong()
     val blockY = location.blockY.toLong()
     val blockZ = location.blockZ.toLong()
-    val encoded = (((blockX and 0x3FFFFFF) shl 38) or ((blockZ and 0x3FFFFFF) shl 12) or (blockY and 0xFFF))
+    val longPos = ((blockX and 0x3FFFFFFL) shl 38) or
+            ((blockZ and 0x3FFFFFFL) shl 12) or
+            (blockY and 0xFFFL)
+
+    this.writeLong(longPos)
+}
+
+fun ByteBuf.writeBlockPosition(vector: Vector3) {
+    val blockX = vector.x.toLong()
+    val blockY = vector.y.toLong()
+    val blockZ = vector.z.toLong()
+    val encoded = ((blockX and 0x3FFFFFF shl 38) or ((blockZ and 0x3FFFFFF) shl 12) or (blockY and 0xFFF))
     this.writeLong(encoded)
 }
+
 
 fun ByteBuf.readBlockPosition(): Vector3 {
     val value: Long = this.readLong()

@@ -1,8 +1,9 @@
-[<img src="https://github.com/user-attachments/assets/cfac1e41-d046-4092-9c84-befb79a48d96">](https://github.com/DockyardMC/Dockyard)
+[<img src="https://github.com/user-attachments/assets/5c488d9e-30b0-4025-9b32-b3e474fc4eb1">](https://github.com/DockyardMC/Dockyard)
 
 ---
 [![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmvn.devos.one%2Freleases%2Fio%2Fgithub%2Fdockyardmc%2Fdockyard%2Fmaven-metadata.xml&style=for-the-badge&logo=maven&logoColor=%23FFFFFF&label=Latest%20Version&color=%23afff87)](https://mvn.devos.one/#/releases/io/github/dockyardmc/dockyard)
-[![Static Badge](https://img.shields.io/badge/Language-Kotlin-Kotlin?style=for-the-badge&color=%23963cf4)](https://kotlinlang.org/)
+[![Mc Version](https://img.shields.io/badge/Minecraft_Version-1.21.6-Minecraft?style=for-the-badge&color=%23ff9969)](https://kotlinlang.org/)
+[![Language](https://img.shields.io/badge/Language-Kotlin-Kotlin?style=for-the-badge&color=%23ff6969)](https://kotlinlang.org/)
 
 [![wakatime](https://wakatime.com/badge/github/DockyardMC/Dockyard.svg?style=for-the-badge)](https://wakatime.com/badge/github/DockyardMC/Dockyard)
 [![Discord](https://img.shields.io/discord/1242845647892123650?label=Discord%20Server&color=%237289DA&style=for-the-badge&logo=discord&logoColor=%23FFFFFF)](https://discord.gg/SA9nmfMkdc)
@@ -73,7 +74,7 @@ Commands.add("/explode") {
 
 ---
 
-### Built-in Bossbar and Sidebar APIs
+### Built-in APIs for bossbar, sidebar, dialogs, advancements and others
 
 #### Sidebar API
 ```kotlin
@@ -103,9 +104,40 @@ Events.on<PlayerJoinEvent> { event ->
 ```
 Again, changing any properties of the bossbar will automatically send updates to the viewers 
 
----
 
-### Advancement API
+#### Dialog API
+
+```kotlin
+val poll = createNoticeDialog("dockyard:poll") {
+    title = "Important poll !!!!"
+    canCloseWithEsc = false
+
+    addBooleanInput("plays_league") {
+        label = "Do you play league of legends?"
+    }
+
+    addTextInput("reason") {
+        label = "If so, why?"
+    }
+
+    withButton("Submit") {
+        // No need to manually listen on `DialogCustomClickActionEvent`
+        onClick { event ->
+            val playsLeague = event.payload.getBoolean("plays_league")
+            val reason = event.payload.getString("reason")
+
+            if (playsLeague) {
+                event.player.kick("Stinky league player")
+                broadcastMessage("<red>${event.player} plays league and tried to justify it with reason: $reason!!!1 !")
+            }
+        }
+    }
+}
+player.openDialog(dialog)
+```
+The dialog object gets automatically added to the registry
+
+#### Advancement API
 
 ```kotlin
 // here's how to make an advancement
@@ -182,7 +214,7 @@ Contributions are always welcome! Please always check branches to see if the fea
 ## Related Libraries / Projects
 
 - **[Scroll](https://github.com/DockyardMC/Scroll/)** - Minecraft component library made for DockyardMC
-- **[Chart](https://github.com/DockyardMC/Chart)** - Minecraft NBT library made for DockyardMC
+- **[adventure-nbt](https://github.com/KyoriPowered/adventure/tree/main/4/nbt)** - Minecraft NBT library
 - **[kotlin-bindables](https://github.com/LukynkaCZE/kotlin-bindables)** - Bindable system inspired by [osu!framework](https://github.com/ppy/osu-framework/)
 - **[Pathetic](https://github.com/Metaphoriker/pathetic)** - A powerful, optimized and easy-to-use Java A* Pathfinding Library for 3D environments.
 - **[Spark](https://github.com/lucko/spark)** - A performance profiler for Minecraft clients, servers, and proxies
@@ -199,6 +231,7 @@ Contributions are always welcome! Please always check branches to see if the fea
 - [KevDev](https://github.com/TrasherMC)
 - [BluSpring](https://github.com/BluSpring)
 - [Asoji](https://github.com/asoji)
+- [MattW](https://github.com/mworzala) / [Minestom](https://github.com/Minestom/Minestom)
 - All the contributors
 - Twitch chat who watches me code this! <3
 

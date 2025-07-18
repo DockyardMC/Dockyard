@@ -1,22 +1,19 @@
 package io.github.dockyardmc.world.chunk
 
-import io.github.dockyardmc.extentions.put
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundChunkDataPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUnloadChunkPacket
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateLightPacket
 import io.github.dockyardmc.registry.registries.Biome
-import io.github.dockyardmc.utils.Viewable
+import io.github.dockyardmc.utils.viewable.Viewable
 import io.github.dockyardmc.world.Light
-import io.github.dockyardmc.world.LightEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.block.BlockEntity
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import org.jglrxavpok.hephaistos.collections.ImmutableLongArray
-import org.jglrxavpok.hephaistos.nbt.NBT
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.*
 
 class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
@@ -30,46 +27,25 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
     val minSection = world.dimensionType.minY / 16
     val maxSection = world.dimensionType.height / 16
     private lateinit var cachedPacket: ClientboundChunkDataPacket
-    private lateinit var cachedLightPacket: ClientboundUpdateLightPacket
     override var autoViewable: Boolean = true
 
     val heightmaps = EnumMap<_, ChunkHeightmap>(ChunkHeightmap.Type::class.java)
 
-    val motionBlocking: ImmutableLongArray = ImmutableLongArray(37) { 0 }
-    val worldSurface: ImmutableLongArray = ImmutableLongArray(37) { 0 }
+    val motionBlocking: LongArray = LongArray(37) { 0 }
+    val worldSurface: LongArray = LongArray(37) { 0 }
+
+    val heightMap: LongArray = LongArray(37) { 0 }
 
     val sections: MutableList<ChunkSection> = mutableListOf()
     val blockEntities: Int2ObjectOpenHashMap<BlockEntity> = Int2ObjectOpenHashMap(0)
 
-    val lightEngine = LightEngine(this)
+    val light: Light = Light()
 
     val packet: ClientboundChunkDataPacket
         get() {
             if (!this::cachedPacket.isInitialized) updateCache()
             return cachedPacket
         }
-    val lightPacket: ClientboundUpdateLightPacket
-        get() {
-            if(!this::cachedLightPacket.isInitialized) updateLight()
-            return cachedLightPacket
-        }
-
-    fun updateCache() {
-        val heightmapNbt = NBT.Compound { builder ->
-            heightmaps.forEach { map ->
-                if (map.key.sendToClient()) {
-                    builder.put(map.key.name, map.value.getRawData())
-                }
-            }
-        }
-        updateLight()
-        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightmapNbt, sections, blockEntities.values, Light(lightEngine))
-    }
-
-    fun updateLight() {
-        lightEngine.recalculateChunk()
-        cachedLightPacket = ClientboundUpdateLightPacket(chunkX, chunkZ, Light(lightEngine))
-    }
 
     init {
         val sectionsAmount = maxSection - minSection
@@ -80,6 +56,33 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
             getOrCreateHeightmap(type)
             ChunkHeightmap.generate(this, setOf(type))
         }
+        updateCache()
+    }
+
+    fun updateCache() {
+        val heightmapData: MutableMap<ChunkHeightmap.Type, LongArray> = mutableMapOf()
+
+        heightmaps.forEach { (type, heightmap) ->
+            if (!type.sendToClient()) return@forEach
+            heightmapData[type] = heightmap.getRawData()
+        }
+
+        val heightmapNbt = nbt {
+            heightmaps.forEach { map ->
+                if (map.key.sendToClient()) {
+                    withLongArray(map.key.name, map.value.getRawData())
+                }
+            }
+        }
+        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightmapData, sections, blockEntities.values, light)
+    }
+
+    init {
+        val sectionsAmount = maxSection - minSection
+        repeat(sectionsAmount) {
+            sections.add(ChunkSection.empty())
+        }
+        updateCache()
     }
 
     fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int, shouldCache: Boolean = true) {
@@ -130,7 +133,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         val index = ChunkUtils.chunkBlockIndex(x, y, z)
 
         if (block.registryBlock.isBlockEntity) {
-            val blockEntity = BlockEntity(index, block.registryBlock, NBT.Compound())
+            val blockEntity = BlockEntity(index, block.registryBlock, CompoundBinaryTag.empty())
             blockEntities[index] = blockEntity
         } else {
             blockEntities.remove(index)
@@ -193,18 +196,21 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
     fun getOrCreateHeightmap(type: ChunkHeightmap.Type): ChunkHeightmap = heightmaps.computeIfAbsent(type) { ChunkHeightmap(this, type) }
 
     fun sendUpdateToViewers() {
-        viewers.sendPacket(packet)
-        viewers.sendPacket(lightPacket)
+        viewers.sendPacket(cachedPacket)
     }
 
-    override fun addViewer(player: Player) {
-        viewers.add(player)
-        player.sendPacket(packet)
-        player.sendPacket(lightPacket)
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
+        player.sendPacket(cachedPacket)
+        return true
     }
 
     override fun removeViewer(player: Player) {
-        viewers.remove(player)
+        super.removeViewer(player)
         player.sendPacket(ClientboundUnloadChunkPacket(this.chunkPos))
+    }
+
+    override fun toString(): String {
+        return "Chunk(${chunkPos.x}, ${chunkPos.z}, ${world.name})"
     }
 }

@@ -2,7 +2,9 @@
 
 package io.github.dockyardmc.commands
 
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSuggestionsResponse
 import io.github.dockyardmc.utils.getEnumEntries
 import io.github.dockyardmc.world.WorldManager
@@ -17,7 +19,7 @@ object SuggestionHandler {
 
         val currentlyTyped = tokens.last()
 
-        if(tokens.size >= 2 && command.subcommands[tokens[1]] != null) {
+        if (tokens.size >= 2 && command.subcommands[tokens[1]] != null) {
             val subcommand = command.subcommands[tokens[1]]!!
             val current = subcommand.arguments.values.toList().getOrNull(tokens.size - 3) ?: return
             handleSuggestion(current, inputCommand, currentlyTyped, player, transactionId)
@@ -25,6 +27,10 @@ object SuggestionHandler {
             val current = command.arguments.values.toList().getOrNull(tokens.size - 2) ?: return
             handleSuggestion(current, inputCommand, currentlyTyped, player, transactionId)
         }
+    }
+
+    fun suggestPlayers(player: Player): List<String> {
+        return PlayerManager.usernameToPlayerMap.keys.toList()
     }
 
     fun suggestWorlds(player: Player): List<String> {
@@ -37,8 +43,8 @@ object SuggestionHandler {
 
     fun handleSuggestion(current: CommandArgumentData, inputCommand: String, currentlyTyped: String, player: Player, transactionId: Int) {
         // Auto suggest enum entries if user defined suggestion is null
-        if(current.suggestions == null) {
-            when(current.argument ) {
+        if (current.suggestions == null) {
+            when (current.argument) {
                 is EnumArgument -> {
                     val enum = current.argument.enumType as KClass<Enum<*>>
                     current.suggestions = suggestEnums(player, enum)
@@ -46,6 +52,10 @@ object SuggestionHandler {
 
                 is WorldArgument -> {
                     current.suggestions = ::suggestWorlds
+                }
+
+                is PlayerArgument -> {
+                    current.suggestions = ::suggestPlayers
                 }
             }
         }

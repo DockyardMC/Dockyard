@@ -12,10 +12,17 @@ import io.github.dockyardmc.scroll.LegacyTextColor
 object TeamManager {
     val teams = BindableMap<String, Team>()
 
-    fun create(name: String, color: LegacyTextColor, teamNameTagVisibility: TeamNameTagVisibility = TeamNameTagVisibility.VISIBLE, teamCollisionRule: TeamCollisionRule = TeamCollisionRule.ALWAYS, displayName: String = name, prefix: String? = null, suffix: String? = null): Team {
+    fun create(name: String, color: LegacyTextColor, nameTagVisibility: Team.NameTagVisibility = Team.NameTagVisibility.VISIBLE, teamCollisionRule: Team.CollisionRule = Team.CollisionRule.ALWAYS, displayName: String = name, prefix: String? = null, suffix: String? = null): Team {
         require(teams[name] == null) { "Team with name $name already exists!" }
 
-        val team = Team(name, color, teamNameTagVisibility, teamCollisionRule, displayName, prefix, suffix)
+        val team = Team(name)
+        team.color.value = color
+        team.nameTagVisibility.value = nameTagVisibility
+        team.collisionRule.value = teamCollisionRule
+        team.displayName.value = displayName
+        team.prefix.value = prefix
+        team.suffix.value = suffix
+
         val teamCreatePacket = ClientboundTeamsPacket(CreateTeamPacketAction(team))
         PlayerManager.players.sendPacket(teamCreatePacket)
         teams[name] = team

@@ -10,7 +10,6 @@ import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.LightningBolt
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.SHA256Long
-import io.github.dockyardmc.extentions.addIfNotPresent
 import io.github.dockyardmc.extentions.hasUpperCase
 import io.github.dockyardmc.extentions.removeIfPresent
 import io.github.dockyardmc.location.Location
@@ -50,7 +49,7 @@ import java.util.concurrent.CompletableFuture
 class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType) : Disposable {
 
     val eventPool = EventPool()
-    private val bindablePool = BindablePool()
+    val bindablePool = BindablePool()
     val scheduler = CustomRateScheduler("${name}_world_scheduler")
     val uuid = UUID.randomUUID()
 
@@ -74,7 +73,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     val entities get() = innerEntities.toList()
 
     val isLoaded: Bindable<Boolean> = bindablePool.provideBindable(false)
-    val playerJoinQueue: MutableList<Player> = mutableListOf()
+    val playerJoinQueue: MutableMap<Player, Location> = mutableMapOf()
 
     var isHardcore: Boolean = false
     var freezeTime: Boolean = false
@@ -84,7 +83,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     val customDataBlocks: MutableMap<Int, Block> = mutableMapOf()
 
     init {
-        if (name.hasUpperCase()) throw IllegalArgumentException("World name cannot contain uppercase characters")
+        require(!name.hasUpperCase()) { "World name cannot contain uppercase characters" }
 
         scheduler.syncWithGlobalScheduler()
         scheduler.runRepeating(1.ticks) {
@@ -100,7 +99,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         }
     }
 
-    fun schedule(unit: (World) -> Unit) {
+    inline fun schedule(crossinline unit: (World) -> Unit) {
         if (isLoaded.value) {
             unit.invoke(this)
         } else {
@@ -155,20 +154,26 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         }
     }
 
-    fun join(player: Player) {
+    fun join(player: Player, location: Location? = null) {
         if (player.world == this && player.isFullyInitialized) return
-        if (!isLoaded.value && !playerJoinQueue.contains(player)) {
-            playerJoinQueue.addIfNotPresent(player)
+        if (!isLoaded.value && !playerJoinQueue.containsKey(player)) {
+            playerJoinQueue[player] = location ?: player.location
             debug("$player joined before world $name is loaded, added to joinQueue", logType = LogType.DEBUG)
             return
         }
 
         val oldWorld = player.world
 
+        player.entityViewSystem.lock.lock()
+        player.chunkViewSystem.lock.lock()
+
+        oldWorld.removePlayer(player)
+        oldWorld.chunks.filter { chunk -> chunk.value.viewers.contains(player) }.forEach { (_, chunk) ->
+            chunk.removeViewer(player)
+        }
+
         player.world.innerPlayers.removeIfPresent(player)
         player.world = this
-
-        player.entityViewSystem.lock.lock()
 
         player.viewers.toList().forEach { viewer ->
             viewer.removeViewer(player)
@@ -182,19 +187,21 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
         Events.dispatch(PlayerChangeWorldEvent(player, oldWorld, this))
 
-        playerJoinQueue.removeIfPresent(player)
+        playerJoinQueue.remove(player)
 
         player.entityViewSystem.lock.unlock()
+        player.chunkViewSystem.lock.unlock()
 
         player.respawn()
         player.entityViewSystem.tick()
-        player.sendPacketToViewers(ClientboundEntityTeleportPacket(player, player.location))
+        player.sendPacketToViewers(ClientboundEntityTeleportPacket(player, location ?: player.location))
 
         player.isFullyInitialized = true
         player.updateWorldTime()
     }
 
     fun load(): CompletableFuture<Unit> {
+        val future = CompletableFuture<Unit>()
         val task = scheduler.runAsync {
             if (generator.generateBaseChunks) {
                 generateBaseChunks(6)
@@ -205,9 +212,12 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         task.thenAccept {
             log("World $name has finished loading!", WorldManager.LOG_TYPE)
             isLoaded.value = true
-            playerJoinQueue.forEach(::join)
+            playerJoinQueue.forEach { (player, location) ->
+                join(player, location)
+            }
             val event = WorldFinishLoadingEvent(this)
             Events.dispatch(event)
+            future.complete(Unit)
         }
 
         time.valueChanged {
@@ -226,7 +236,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
                 time.setSilently(time.value + 1)
             }
         }
-        return task
+        return future
     }
 
     fun getChunkAt(x: Int, z: Int): Chunk? {
@@ -242,7 +252,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     }
 
     fun getChunk(x: Int, z: Int): Chunk? {
-        return chunks[ChunkUtils.getChunkIndex(x, z)]
+        return chunks.getOrDefault(ChunkUtils.getChunkIndex(x, z), null)
     }
 
     fun destroyNaturally(vector: Vector3) {
@@ -335,13 +345,17 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         if (updateChunk) chunk.sendUpdateToViewers()
     }
 
-    fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit): CompletableFuture<World> {
-        if (!isLoaded.value) throw IllegalStateException("World has not been fully loaded yet! Please use World#schedule or wait until world is fully loaded")
+    inline fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit): CompletableFuture<World> {
         val update = BatchBlockUpdate(this)
         builder.invoke(update)
+        return batchBlockUpdate(update)
+    }
+
+    fun batchBlockUpdate(update: BatchBlockUpdate): CompletableFuture<World> {
+        check(isLoaded.value) { "World has not been fully loaded yet! Please use World#schedule or wait until world is fully loaded" }
         val future = CompletableFuture<World>()
 
-        val runnable = scheduler.runAsync {
+        scheduler.runAsync {
             val chunks: MutableList<Chunk> = mutableListOf()
             update.updates.forEach { (location, block) ->
                 val chunk = getOrGenerateChunk(
@@ -355,8 +369,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
                 chunk.updateCache()
                 chunk.sendUpdateToViewers()
             }
-        }
-        runnable.thenAccept {
+
             future.complete(this)
         }
 
@@ -398,7 +411,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             is VoidWorldGenerator -> {
                 chunk.sections.forEach { section ->
                     section.fillBiome((generator as VoidWorldGenerator).defaultBiome.getProtocolId())
-                    section.fillBlock(BlockRegistry.Air.defaultBlockStateId)
+                    section.fillBlock(BlockRegistry.AIR.defaultBlockStateId)
                 }
             }
 

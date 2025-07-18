@@ -5,7 +5,6 @@ import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeStringArray
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.team.Team
-import io.github.dockyardmc.team.writeTeamInfo
 import io.netty.buffer.ByteBuf
 
 class ClientboundTeamsPacket(teamPacketAction: TeamPacketAction) : ClientboundPacket() {
@@ -25,7 +24,7 @@ sealed interface TeamPacketAction {
 class CreateTeamPacketAction(override val team: Team) : TeamPacketAction {
     override val id: Byte = 0x00
     override fun write(buffer: ByteBuf) {
-        buffer.writeTeamInfo(team)
+        team.write(buffer)
         buffer.writeStringArray(team.mapEntities())
     }
 }
@@ -40,7 +39,7 @@ class RemoveTeamPacketAction(override val team: Team) : TeamPacketAction {
 class UpdateTeamPacketAction(override val team: Team) : TeamPacketAction {
     override val id: Byte = 0x02
     override fun write(buffer: ByteBuf) {
-        buffer.writeTeamInfo(team)
+        team.write(buffer)
     }
 }
 

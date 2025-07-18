@@ -72,6 +72,7 @@ class HeldItemTest {
     @Test
     fun testOffhand() {
         val player = PlayerTestUtil.getOrCreateFakePlayer()
+        player.clearInventory()
 
         player.inventory[0] = ItemStack(Items.DIAMOND_SWORD)
         PlayerTestUtil.sendPacket(player, ServerboundSetPlayerHeldItemPacket(0))

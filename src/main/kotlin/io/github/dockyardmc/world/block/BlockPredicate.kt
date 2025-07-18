@@ -2,13 +2,13 @@ package io.github.dockyardmc.world.block
 
 import io.github.dockyardmc.extentions.*
 import io.netty.buffer.ByteBuf
-import org.jglrxavpok.hephaistos.nbt.NBTCompound
+import net.kyori.adventure.nbt.CompoundBinaryTag
 
 data class BlockPredicate(
     val hasBlocks: Boolean,
     val blocks: BlockSet?,
     val properties: MutableList<BlockPredicateProperty>?,
-    val nbt: NBTCompound?
+    val nbt: CompoundBinaryTag?
 )
 
 data class BlockSet(
@@ -28,19 +28,19 @@ data class BlockPredicateProperty(
 fun ByteBuf.readBlockPredicate(): BlockPredicate {
     val hasBlocks = this.readBoolean()
     var blockSet: BlockSet? = null
-    if(hasBlocks) {
+    if (hasBlocks) {
         blockSet = this.readBlockSet()
     }
     val hasProperties = this.readBoolean()
     val properties = mutableListOf<BlockPredicateProperty>()
-    if(hasProperties) {
+    if (hasProperties) {
         val size = this.readVarInt()
         for (i in 0 until size) {
             properties.add(this.readBlockProperty())
         }
     }
     val hasNbt = this.readBoolean()
-    val nbt = if(hasNbt) (this.readNBT() as NBTCompound) else null
+    val nbt = if (hasNbt) (this.readNBTCompound()) else null
 
     return BlockPredicate(
         hasBlocks,
@@ -72,7 +72,7 @@ fun ByteBuf.readBlockSet(): BlockSet {
     val type = this.readVarInt()
     var tagName: String? = null
     var blockIds: MutableList<Int>? = null
-    if(type == 0) {
+    if (type == 0) {
         tagName = this.readString()
     } else {
         val size = type - 1
@@ -101,9 +101,9 @@ fun ByteBuf.readBlockProperty(): BlockPredicateProperty {
     val name = this.readString()
     val isExactMatch = this.readBoolean()
 
-    val exactValue = if(isExactMatch) this.readString() else null
-    val minValue = if(!isExactMatch) this.readString() else null
-    val maxValue = if(!isExactMatch) this.readString() else null
+    val exactValue = if (isExactMatch) this.readString() else null
+    val minValue = if (!isExactMatch) this.readString() else null
+    val maxValue = if (!isExactMatch) this.readString() else null
 
     return BlockPredicateProperty(name, isExactMatch, exactValue, minValue, maxValue)
 }

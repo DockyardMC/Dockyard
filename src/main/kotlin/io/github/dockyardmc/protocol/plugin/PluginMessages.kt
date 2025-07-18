@@ -23,7 +23,7 @@ object PluginMessages {
 
         val pluginMessage = channels[channel]
         if(pluginMessage == null) {
-            log("Received plugin message with no handler: $channel", LogType.ERROR)
+            log("Received plugin message with no handler: $channel", LogType.WARNING)
             payload.release()
             return
         }

@@ -9,12 +9,13 @@ import kotlin.time.Duration.Companion.seconds
 class EffectCommand {
 
     private fun suggestEffects(player: Player): List<String> {
-        return PotionEffectRegistry.potionEffects.keys.toList()
+        return PotionEffectRegistry.getEntries().keyToValue().keys.toList()
     }
 
     init {
         Commands.add("/effect") {
             withPermission("dockyard.commands.effect")
+            withDescription("Manages effects on players")
 
             addSubcommand("give") {
                 addArgument("player", PlayerArgument())
@@ -42,7 +43,7 @@ class EffectCommand {
                     val player = getArgumentOrNull<Player>("player") ?: ctx.getPlayerOrThrow()
                     val effect = getArgumentOrNull<PotionEffect>("effect")
 
-                    if(player.potionEffects.values.isEmpty()) throw CommandException("Target has no effects ")
+                    if (player.potionEffects.values.isEmpty()) throw CommandException("Target has no effects ")
 
                     val message: String
 

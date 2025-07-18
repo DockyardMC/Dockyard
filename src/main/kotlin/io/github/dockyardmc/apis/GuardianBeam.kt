@@ -7,27 +7,27 @@ import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.Guardian
 import io.github.dockyardmc.entity.Squid
 import io.github.dockyardmc.location.Location
-import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.scheduler.runnables.ticks
-import io.github.dockyardmc.scheduler.SchedulerTask
-import io.github.dockyardmc.scroll.LegacyTextColor
-import io.github.dockyardmc.team.TeamCollisionRule
-import io.github.dockyardmc.team.TeamManager
-import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.Viewable
 import io.github.dockyardmc.maths.locationLerp
 import io.github.dockyardmc.maths.percent
+import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.scheduler.SchedulerTask
+import io.github.dockyardmc.scheduler.runnables.ticks
+import io.github.dockyardmc.scroll.LegacyTextColor
+import io.github.dockyardmc.team.Team
+import io.github.dockyardmc.team.TeamManager
+import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.viewable.Viewable
 import java.util.*
 import kotlin.math.round
 import kotlin.time.Duration
 
-class GuardianBeam(start: Location, end: Location): Viewable(), Disposable {
+class GuardianBeam(start: Location, end: Location) : Viewable(), Disposable {
 
     private companion object {
         val NO_COLLISION_TEAM = TeamManager.create("beam_no_collision_${UUID.randomUUID()}", LegacyTextColor.WHITE)
 
         init {
-            NO_COLLISION_TEAM.teamCollisionRule.value = TeamCollisionRule.NEVER
+            NO_COLLISION_TEAM.collisionRule.value = Team.CollisionRule.NEVER
         }
     }
 
@@ -62,9 +62,11 @@ class GuardianBeam(start: Location, end: Location): Viewable(), Disposable {
         }
     }
 
-    override fun addViewer(player: Player) {
+    override fun addViewer(player: Player): Boolean {
+        if (!super.addViewer(player)) return false
         targetEntity.addViewer(player)
         guardianEntity.addViewer(player)
+        return true
     }
 
     override fun removeViewer(player: Player) {
@@ -87,7 +89,7 @@ class GuardianBeam(start: Location, end: Location): Viewable(), Disposable {
         var currentTick = 0
         currentEndMoveTask = scheduler.runRepeating(1.ticks) {
             currentTick++
-            if(currentTick == totalTicks) currentEndMoveTask?.cancel()
+            if (currentTick == totalTicks) currentEndMoveTask?.cancel()
 
             val time = percent(totalTicks, currentTick) / 100f
             val loc = locationLerp(targetEntity.location, newLocation, time)
@@ -104,7 +106,7 @@ class GuardianBeam(start: Location, end: Location): Viewable(), Disposable {
         var currentTick = 0
         currentStartMoveTask = scheduler.runRepeating(1.ticks) {
             currentTick++
-            if(currentTick == totalTicks) currentStartMoveTask?.cancel()
+            if (currentTick == totalTicks) currentStartMoveTask?.cancel()
 
             val time = percent(totalTicks, currentTick) / 100f
             val loc = locationLerp(guardianEntity.location, newLocation, time)

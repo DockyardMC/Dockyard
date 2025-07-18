@@ -38,6 +38,7 @@ object Particles {
     val INFESTED = ParticleRegistry["minecraft:infested"]
     val CHERRY_LEAVES = ParticleRegistry["minecraft:cherry_leaves"]
     val PALE_OAK_LEAVES = ParticleRegistry["minecraft:pale_oak_leaves"]
+    val TINTED_LEAVES = ParticleRegistry["minecraft:tinted_leaves"]
     val SCULK_SOUL = ParticleRegistry["minecraft:sculk_soul"]
     val SCULK_CHARGE = ParticleRegistry["minecraft:sculk_charge"]
     val SCULK_CHARGE_POP = ParticleRegistry["minecraft:sculk_charge_pop"]
@@ -115,4 +116,5 @@ object Particles {
     val RAID_OMEN = ParticleRegistry["minecraft:raid_omen"]
     val TRIAL_OMEN = ParticleRegistry["minecraft:trial_omen"]
     val BLOCK_CRUMBLE = ParticleRegistry["minecraft:block_crumble"]
+    val FIREFLY = ParticleRegistry["minecraft:firefly"]
 }

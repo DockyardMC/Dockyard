@@ -5,6 +5,7 @@ import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.PlayerChatMessageEvent
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundPlayerChatMessagePacket
+import kotlinx.datetime.Clock
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
@@ -26,7 +27,7 @@ class PlayerChatMessageEventTest {
             count.countDown()
         }
 
-        PlayerTestUtil.sendPacket(ServerboundPlayerChatMessagePacket("I <3 Dockyard"))
+        PlayerTestUtil.sendPacket(ServerboundPlayerChatMessagePacket("I <3 Dockyard", Clock.System.now(), 3, null, 0, null, 1))
 
         assertTrue(count.await(5L, TimeUnit.SECONDS))
         pool.dispose()
