@@ -14,6 +14,7 @@ import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
 import io.github.dockyardmc.noxesium.protocol.clientbound.*
 import io.github.dockyardmc.noxesium.protocol.serverbound.*
+import io.github.dockyardmc.noxesium.rules.NoxesiumRuleContainer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayPluginMessagePacket
@@ -39,6 +40,8 @@ object Noxesium {
     private val _players: MutableList<Player> = mutableListOf()
     val players: List<Player> get() = _players.toList()
 
+    val globalRuleContainer: NoxesiumRuleContainer = NoxesiumRuleContainer()
+
     private val settings: MutableMap<Player, ClientSettings> = mutableMapOf()
 //    private val profiles: MutableMap<Player, ClientSettings> = mutableMapOf() //TODO
 
@@ -52,6 +55,7 @@ object Noxesium {
     fun removePlayer(player: Player) {
         _players.remove(player)
         waiting.remove(player)
+        globalRuleContainer.removeViewer(player)
     }
 
     val BUKKIT_COMPOUND = nbt {
@@ -103,6 +107,7 @@ object Noxesium {
                 } else {
                     waiting.remove(event.player)
                     _players.add(event.player)
+                    globalRuleContainer.addViewer(event.player)
                 }
             }
 
