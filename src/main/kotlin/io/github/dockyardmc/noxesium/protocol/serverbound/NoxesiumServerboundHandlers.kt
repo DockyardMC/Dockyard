@@ -4,6 +4,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.noxesium.NoxesiumClientInformationEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumClientSettingsEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumQibTriggeredEvent
+import io.github.dockyardmc.events.noxesium.NoxesiumRiptideEvent
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.utils.getPlayerEventContext
 
@@ -19,6 +20,10 @@ object NoxesiumServerboundHandlers {
 
     fun handleQibTriggered(player: Player, packet: ServerboundNoxesiumQibTriggeredPacket) {
         Events.dispatch(NoxesiumQibTriggeredEvent(player, packet.behaviour, packet.qibType, packet.entityId, getPlayerEventContext(player)))
+    }
+
+    fun handleRiptide(player: Player, packet: ServerboundNoxesiumRiptidePacket) {
+        Events.dispatch(NoxesiumRiptideEvent(player, packet.slot, getPlayerEventContext(player)))
     }
 
 }

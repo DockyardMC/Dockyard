@@ -4,7 +4,7 @@ import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
 import io.github.dockyardmc.tide.Codec
 import io.github.dockyardmc.tide.Codecs
 
-class ServerboundNoxesiumClientInformationPacket(
+data class ServerboundNoxesiumClientInformationPacket(
     val protocolVersion: Int,
     val versionString: String,
 ) : NoxesiumPacket {

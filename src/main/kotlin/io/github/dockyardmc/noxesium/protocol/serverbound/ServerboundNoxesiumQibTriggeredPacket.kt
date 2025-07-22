@@ -4,7 +4,7 @@ import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
 import io.github.dockyardmc.tide.Codec
 import io.github.dockyardmc.tide.Codecs
 
-class ServerboundNoxesiumQibTriggeredPacket(
+data class ServerboundNoxesiumQibTriggeredPacket(
     val behaviour: String,
     val qibType: Type,
     val entityId: Int,
