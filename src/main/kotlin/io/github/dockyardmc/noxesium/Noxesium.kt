@@ -1,10 +1,15 @@
 package io.github.dockyardmc.noxesium
 
 import com.noxcrew.noxesium.api.NoxesiumReferences
+import com.noxcrew.noxesium.api.protocol.ClientSettings
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
+import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PluginMessageReceivedEvent
+import io.github.dockyardmc.events.noxesium.NoxesiumClientInformationEvent
+import io.github.dockyardmc.events.noxesium.NoxesiumClientSettingsEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumPacketReceiveEvent
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
 import io.github.dockyardmc.noxesium.protocol.clientbound.*
@@ -25,9 +30,29 @@ object Noxesium {
     val serverboundPackets: MutableBiMap<String, NoxesiumServerboundPacketInfo<out NoxesiumPacket>> = MutableBiMap()
     val clientboundPackets: MutableBiMap<KClass<out NoxesiumPacket>, NoxesiumClientboundPacketInfo<out NoxesiumPacket>> = MutableBiMap()
 
+    private val eventPool = EventPool(Events, "Noxesium Listeners")
+
     const val IMMOVABLE_TAG = "noxesium:immovable"
     const val BUKKIT_TAG = "PublicBukkitValues"
     const val PACKET_NAMESPACE = "${NoxesiumReferences.NAMESPACE}-v2"
+
+    private val _players: MutableList<Player> = mutableListOf()
+    val players: List<Player> get() = _players.toList()
+
+    private val settings: MutableMap<Player, ClientSettings> = mutableMapOf()
+//    private val profiles: MutableMap<Player, ClientSettings> = mutableMapOf() //TODO
+
+    private val waiting: MutableList<Player> = mutableListOf()
+
+    fun addPlayer(player: Player) {
+        waiting.add(player)
+        player.sendPacket(ClientboundNoxesiumServerInformationPacket(NoxesiumReferences.VERSION).getPluginMessagePacket())
+    }
+
+    fun removePlayer(player: Player) {
+        _players.remove(player)
+        waiting.remove(player)
+    }
 
     val BUKKIT_COMPOUND = nbt {
         withBoolean(IMMOVABLE_TAG, true)
@@ -56,7 +81,7 @@ object Noxesium {
             PluginMessages.registeredChannels.addAll(clientboundPackets.valueToKey().map { "${PACKET_NAMESPACE}:${it.key.identifier}" })
             PluginMessages.registeredChannels.addAll(serverboundPackets.keyToValue().map { "${PACKET_NAMESPACE}:${it.key}" })
 
-            Events.on<PluginMessageReceivedEvent> { event ->
+            eventPool.on<PluginMessageReceivedEvent> { event ->
                 val split = event.channel.split(":")
 
                 val namespace = split.getOrNull(0) ?: throw DecoderException("Plugin message does not have valid identifier")
@@ -67,6 +92,23 @@ object Noxesium {
                     handlePacket<NoxesiumPacket>(packetInfo as NoxesiumServerboundPacketInfo<NoxesiumPacket>, event.player, event.data)
                     event.cancel()
                 }
+            }
+
+            eventPool.on<NoxesiumClientInformationEvent> { event ->
+                if (!waiting.contains(event.player)) return@on
+                if (event.protocolVersion != NoxesiumReferences.VERSION) {
+                    val state = if (event.protocolVersion > NoxesiumReferences.VERSION) "more up-to-date" else "outdated"
+                    log("${event.player} is using $state of noxesium than the server is running (player: ${event.protocolVersion}, server: ${NoxesiumReferences.VERSION})", LogType.WARNING)
+                    waiting.remove(event.player)
+                } else {
+                    waiting.remove(event.player)
+                    _players.add(event.player)
+                }
+            }
+
+            eventPool.on<NoxesiumClientSettingsEvent> { event ->
+                if (!_players.contains(event.player)) return@on
+                settings[event.player] = event.clientSettings
             }
         }
     }
