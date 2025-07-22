@@ -4,16 +4,20 @@ import com.noxcrew.noxesium.api.NoxesiumReferences
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PluginMessageReceivedEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumPacketReceiveEvent
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
 import io.github.dockyardmc.noxesium.protocol.clientbound.*
 import io.github.dockyardmc.noxesium.protocol.serverbound.*
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.profiler.profiler
+import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayPluginMessagePacket
+import io.github.dockyardmc.protocol.plugin.PluginMessages
 import io.github.dockyardmc.tide.Codec
 import io.github.dockyardmc.utils.MutableBiMap
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
 import kotlin.reflect.KClass
 
@@ -49,13 +53,16 @@ object Noxesium {
             serverboundPackets.put("qib_triggered", NoxesiumServerboundPacketInfo(ServerboundNoxesiumQibTriggeredPacket.STREAM_CODEC, NoxesiumServerboundHandlers::handleQibTriggered))
             serverboundPackets.put("riptide", NoxesiumServerboundPacketInfo(ServerboundNoxesiumRiptidePacket.STREAM_CODEC, NoxesiumServerboundHandlers::handleRiptide))
 
+            PluginMessages.registeredChannels.addAll(clientboundPackets.valueToKey().map { "${PACKET_NAMESPACE}:${it.key.identifier}" })
+            PluginMessages.registeredChannels.addAll(serverboundPackets.keyToValue().map { "${PACKET_NAMESPACE}:${it.key}" })
+
             Events.on<PluginMessageReceivedEvent> { event ->
                 val split = event.channel.split(":")
 
                 val namespace = split.getOrNull(0) ?: throw DecoderException("Plugin message does not have valid identifier")
                 val channel = split.getOrNull(1) ?: throw DecoderException("Plugin message does not have valid identifier")
 
-                if (event.channel == PACKET_NAMESPACE) {
+                if (namespace == PACKET_NAMESPACE) {
                     val packetInfo = serverboundPackets.getByKeyOrNull(channel) ?: throw DecoderException("No noxesium packet for $channel ($namespace)")
                     handlePacket<NoxesiumPacket>(packetInfo as NoxesiumServerboundPacketInfo<NoxesiumPacket>, event.player, event.data)
                     event.cancel()
@@ -75,5 +82,11 @@ object Noxesium {
     }
 
     data class NoxesiumServerboundPacketInfo<T : NoxesiumPacket>(val streamCodec: Codec<T>, val handler: ((Player, T) -> Unit)? = null)
-    data class NoxesiumClientboundPacketInfo<T : NoxesiumPacket>(val identifier: String, val streamCodec: Codec<T>)
+    data class NoxesiumClientboundPacketInfo<T : NoxesiumPacket>(val identifier: String, val streamCodec: Codec<T>) {
+        fun getPluginMessagePacket(value: T): ClientboundPlayPluginMessagePacket {
+            val buffer = Unpooled.buffer()
+            streamCodec.writeNetwork(buffer, value)
+            return ClientboundPlayPluginMessagePacket("$PACKET_NAMESPACE:$identifier", buffer)
+        }
+    }
 }
