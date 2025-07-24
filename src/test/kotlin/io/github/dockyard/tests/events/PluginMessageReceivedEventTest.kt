@@ -32,8 +32,7 @@ class PluginMessageReceivedEventTest {
 
         val player = PlayerTestUtil.getOrCreateFakePlayer()
         val buffer = Unpooled.buffer(0)
-        PlayerTestUtil.sendPacket(player, ServerboundPlayPluginMessagePacket("test", buffer))
-        buffer.release()
+        PlayerTestUtil.sendPacket(player, ServerboundPlayPluginMessagePacket("test:test", buffer))
 
         assertTrue(count.await(5L, TimeUnit.SECONDS))
         pool.dispose()

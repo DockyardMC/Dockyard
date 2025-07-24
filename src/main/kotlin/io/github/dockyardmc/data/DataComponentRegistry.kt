@@ -15,6 +15,10 @@ object DataComponentRegistry {
     val dataComponentsByIdReversed = Object2IntOpenHashMap<KClass<out DataComponent>>()
     val dataComponentsByIdentifierReversed = Object2ObjectOpenHashMap<KClass<out DataComponent>, String>()
 
+    fun getIdentifierById(id: Int): String {
+        return dataComponentsByIdentifierReversed.getValue(dataComponentsById.getValue(id))
+    }
+
     val CUSTOM_DATA = register("minecraft:custom_data", CustomDataComponent::class)
     val MAX_STACK_SIZE = register("minecraft:max_stack_size", MaxStackSizeComponent::class)
     val MAX_DAMAGE = register("minecraft:max_damage", MaxDamageComponent::class)

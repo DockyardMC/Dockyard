@@ -7,7 +7,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.ticksToMs
 
-class CooldownSystem(val player: Player): TickablePlayerSystem {
+class CooldownSystem(val player: Player) : TickablePlayerSystem {
 
     val cooldowns: BindableMap<String, ItemGroupCooldown> = player.bindablePool.provideBindableMap()
 
@@ -18,6 +18,10 @@ class CooldownSystem(val player: Player): TickablePlayerSystem {
                 Events.dispatch(ItemGroupCooldownEndEvent(player, cooldown, getPlayerEventContext(player)))
             }
         }
+    }
+
+    override fun dispose() {
+        cooldowns.dispose()
     }
 }
 

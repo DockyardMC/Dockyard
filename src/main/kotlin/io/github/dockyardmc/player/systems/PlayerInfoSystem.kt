@@ -26,4 +26,6 @@ class PlayerInfoSystem(val player: Player) : PlayerSystem {
             player.sendPacket(packet)
         }
     }
+
+    override fun dispose() {}
 }
