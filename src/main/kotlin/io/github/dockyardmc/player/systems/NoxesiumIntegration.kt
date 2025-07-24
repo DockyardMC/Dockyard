@@ -114,7 +114,9 @@ class NoxesiumIntegration(val player: Player) : PlayerSystem {
     }
 
     fun getEntityRulesPackets(): Collection<ClientboundNoxesiumSetExtraEntityDataPacket> {
-        val mergedRules = Noxesium.globalEntityRuleContainer.entityToRulesMap.mapValues { it.value.toMutableMap() }.toMutableMap() // what the fuck
+
+        // what the fuck
+        val mergedRules = Noxesium.globalEntityRuleContainer.entityToRulesMap.mapValues { it.value.toMutableMap() }.toMutableMap()
 
         broadcastMessage("<orange>Base $mergedRules")
 

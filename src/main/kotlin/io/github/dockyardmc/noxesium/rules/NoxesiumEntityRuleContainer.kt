@@ -64,10 +64,6 @@ class NoxesiumEntityRuleContainer : Disposable, Viewable() {
     }
 
     fun removeEntity(entity: Entity) {
-//        val resetPacket = ClientboundNoxesiumResetExtraEntityDataPacket(entity.id, ALL_ENTITY_INDICES)
-//        viewers.forEach { viewer ->
-//            viewer.sendPacket(resetPacket.getPluginMessagePacket())
-//        }
         _entityToRulesMap.remove(entity)
         updateViewers()
     }
