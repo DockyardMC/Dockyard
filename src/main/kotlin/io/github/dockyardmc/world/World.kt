@@ -48,7 +48,7 @@ import java.util.concurrent.CompletableFuture
 
 class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType) : Disposable {
 
-    val eventPool = EventPool()
+    val eventPool = EventPool(Events, "$name world listeners")
     val bindablePool = BindablePool()
     val scheduler = CustomRateScheduler("${name}_world_scheduler")
     val uuid = UUID.randomUUID()

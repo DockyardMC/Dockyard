@@ -130,6 +130,7 @@ class Player(
     val permissionSystem = PermissionSystem(this, permissions)
     val attributes = PlayerAttributes(this)
     val advancementTracker = PlayerAdvancementTracker(this)
+    val noxesiumIntegration: NoxesiumIntegration = NoxesiumIntegration(this)
 
     val decoupledEntityViewSystemTicking = DockyardServer.scheduler.runRepeating(1.ticks) {
         entityViewSystem.tick()
@@ -370,6 +371,10 @@ class Player(
         }
 
         this.sendPacket(ClientboundSystemChatMessagePacket(message.toComponent(), isActionBar))
+    }
+
+    fun sendPackets(packets: Collection<ClientboundPacket>) {
+        packets.forEach(::sendPacket)
     }
 
     fun sendPacket(packet: ClientboundPacket) {

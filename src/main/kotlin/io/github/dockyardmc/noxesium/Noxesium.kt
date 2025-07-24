@@ -14,6 +14,7 @@ import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
 import io.github.dockyardmc.noxesium.protocol.clientbound.*
 import io.github.dockyardmc.noxesium.protocol.serverbound.*
+import io.github.dockyardmc.noxesium.rules.NoxesiumEntityRuleContainer
 import io.github.dockyardmc.noxesium.rules.NoxesiumRuleContainer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.profiler.profiler
@@ -41,10 +42,9 @@ object Noxesium {
     val players: List<Player> get() = _players.toList()
 
     val globalRuleContainer: NoxesiumRuleContainer = NoxesiumRuleContainer()
+    val globalEntityRuleContainer: NoxesiumEntityRuleContainer = NoxesiumEntityRuleContainer()
 
     private val settings: MutableMap<Player, ClientSettings> = mutableMapOf()
-//    private val profiles: MutableMap<Player, ClientSettings> = mutableMapOf() //TODO
-
     private val waiting: MutableList<Player> = mutableListOf()
 
     fun addPlayer(player: Player) {
@@ -108,6 +108,7 @@ object Noxesium {
                     waiting.remove(event.player)
                     _players.add(event.player)
                     globalRuleContainer.addViewer(event.player)
+                    event.player.noxesiumIntegration.isUsingNoxesium.value = true
                 }
             }
 
@@ -129,6 +130,7 @@ object Noxesium {
     }
 
     data class NoxesiumServerboundPacketInfo<T : NoxesiumPacket>(val streamCodec: Codec<T>, val handler: ((Player, T) -> Unit)? = null)
+
     data class NoxesiumClientboundPacketInfo<T : NoxesiumPacket>(val identifier: String, val streamCodec: Codec<T>) {
         fun getPluginMessagePacket(value: T): ClientboundPlayPluginMessagePacket {
             val buffer = Unpooled.buffer()

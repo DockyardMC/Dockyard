@@ -10,10 +10,7 @@ import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.metadata.EntityMetaValue
 import io.github.dockyardmc.entity.metadata.EntityMetadata
 import io.github.dockyardmc.entity.metadata.EntityMetadataType
-import io.github.dockyardmc.events.EventPool
-import io.github.dockyardmc.events.PlayerDamageEntityEvent
-import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
-import io.github.dockyardmc.events.PlayerPickItemFromEntityEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
@@ -40,7 +37,7 @@ class FakePlayer(location: Location, val name: String = UUID.randomUUID().toStri
     override var inventorySize: Int = 35
     val gameProfile = GameProfile(uuid, name)
 
-    private val eventPool = EventPool().withFilter(EventFilter.containsEntity(this))
+    private val eventPool = EventPool(Events, "FakePlayer listeners").withFilter(EventFilter.containsEntity(this))
 
     val isListed: Bindable<Boolean> = bindablePool.provideBindable(false)
     val skin: Bindable<GameProfile.Property?> = bindablePool.provideBindable(null)

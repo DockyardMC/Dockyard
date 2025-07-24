@@ -7,17 +7,17 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 
 abstract class Viewable {
 
-    private val innerViewers: ObjectOpenHashSet<Player> = ObjectOpenHashSet()
-    val viewers: List<Player> get() = innerViewers.toList()
+    private val _viewers: ObjectOpenHashSet<Player> = ObjectOpenHashSet()
+    val viewers: List<Player> get() = _viewers.toList()
 
-    private val innerRules: MutableMap<String, ViewRule> = mutableMapOf()
-    val rules get() = innerRules.toMap()
+    private val _rules: MutableMap<String, ViewRule> = mutableMapOf()
+    val rules get() = _rules.toMap()
 
     abstract var autoViewable: Boolean
 
     fun addViewRule(identifier: String, filter: (Player) -> Boolean) {
-        if (innerRules.containsKey(identifier)) throw IllegalArgumentException("View Rule with identifier `$identifier` already exists on this viewable")
-        innerRules[identifier] = ViewRule(filter)
+        if (_rules.containsKey(identifier)) throw IllegalArgumentException("View Rule with identifier `$identifier` already exists on this viewable")
+        _rules[identifier] = ViewRule(filter)
     }
 
     fun passesViewRules(player: Player): Boolean {
@@ -26,8 +26,8 @@ abstract class Viewable {
 
     open fun addViewer(player: Player): Boolean {
         if (rules.all { (_, rule) -> rule.passes(player) && !viewers.contains(player) }) {
-            synchronized(innerViewers) {
-                innerViewers.add(player)
+            synchronized(_viewers) {
+                _viewers.add(player)
             }
             return true
         }
@@ -35,8 +35,8 @@ abstract class Viewable {
     }
 
     open fun removeViewer(player: Player) {
-        synchronized(innerViewers) {
-            innerViewers.remove(player)
+        synchronized(_viewers) {
+            _viewers.remove(player)
         }
     }
 

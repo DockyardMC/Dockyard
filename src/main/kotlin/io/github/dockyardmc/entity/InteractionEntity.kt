@@ -17,7 +17,7 @@ class Interaction(location: Location): Entity(location) {
     override val health: Bindable<Float> = bindablePool.provideBindable(0f)
     override var inventorySize: Int = 0
 
-    private val eventPool = EventPool()
+    private val eventPool = EventPool(Events, "Interaction Listeners")
 
     val width: Bindable<Float> = bindablePool.provideBindable(1f)
     val height: Bindable<Float> = bindablePool.provideBindable(1f)

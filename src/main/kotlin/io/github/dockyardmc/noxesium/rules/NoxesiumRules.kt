@@ -3,9 +3,7 @@ package io.github.dockyardmc.noxesium.rules
 import com.noxcrew.noxesium.api.protocol.rule.EntityRuleIndices
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices
 import com.noxcrew.noxesium.api.qib.QibDefinition
-import io.github.dockyardmc.extentions.write
-import io.github.dockyardmc.extentions.writeString
-import io.github.dockyardmc.extentions.writeVarInt
+import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.protocol.types.writeMap
@@ -15,7 +13,13 @@ import io.netty.buffer.ByteBuf
 
 object NoxesiumRules {
 
-    data class RuleFunction<T : Any?>(val index: Int, val rule: (Int) -> NoxesiumServerRule<T>)
+    data class RuleFunction<T : Any?>(val index: Int, val rule: (Int) -> NoxesiumServerRule<T>) {
+        fun createRule(value: T): NoxesiumServerRule<T> {
+            val rule = rule.invoke(index)
+            rule.value = value
+            return rule
+        }
+    }
 
     object Entity {
         val DISABLE_BUBBLES = register<Boolean>(EntityRuleIndices.DISABLE_BUBBLES, ::BooleanServerRule)
@@ -105,7 +109,11 @@ object NoxesiumRules {
 
     class ColorServerRule(index: Int, defaultV: CustomColor? = null) : NoxesiumServerRule<CustomColor?>(index, defaultV) {
         override fun write(value: CustomColor?, buffer: ByteBuf) {
-            buffer.writeOptional(value, CustomColor::write)
+            buffer.writeOptional(value?.asRGB(), ByteBuf::writeVarInt)
+        }
+
+        override fun toString(): String {
+            return "ColorServerRule($value)"
         }
     }
 
@@ -124,7 +132,7 @@ object NoxesiumRules {
 
     class IntListServerRule(index: Int, defaultV: List<Int> = listOf()) : NoxesiumServerRule<List<Int>>(index, defaultV) {
         override fun write(value: List<Int>, buffer: ByteBuf) {
-            buffer.writeList(value, ByteBuf::writeInt)
+            buffer.writeList(value, ByteBuf::writeVarInt)
         }
     }
 }
