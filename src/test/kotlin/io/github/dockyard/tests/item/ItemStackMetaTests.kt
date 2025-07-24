@@ -40,7 +40,7 @@ class ItemStackMetaTests {
             withDyedColor(color)
         }
 
-        assertEquals(10, item.components.components.size)
+        assertEquals(11, item.components.components.size)
         assertTrue(item.components.get<CustomNameComponent>() != null)
         assertTrue(item.components.get<ConsumableComponent>() != null)
         assertTrue(item.components.get<FoodComponent>() != null)

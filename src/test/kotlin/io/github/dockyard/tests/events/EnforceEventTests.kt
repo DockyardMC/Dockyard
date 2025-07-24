@@ -2,6 +2,7 @@ package io.github.dockyard.tests.events
 
 import io.github.dockyard.tests.EnforceTestsAbstract
 import io.github.dockyardmc.events.*
+import io.github.dockyardmc.events.noxesium.*
 
 class EnforceEventTests : EnforceTestsAbstract() {
     override val testsPackage: String = "io.github.dockyard.tests.events"
@@ -25,7 +26,12 @@ class EnforceEventTests : EnforceTestsAbstract() {
         PlayerJoinEvent::class.java,
         ServerBrandEvent::class.java,
         InstrumentationHotReloadEvent::class.java,
-        CustomClickActionEvent::class.java
+        CustomClickActionEvent::class.java,
+        NoxesiumClientInformationEvent::class.java,
+        NoxesiumQibTriggeredEvent::class.java,
+        NoxesiumPacketReceiveEvent::class.java,
+        NoxesiumRiptideEvent::class.java,
+        NoxesiumClientSettingsEvent::class.java,
     )
     override val superClass: Class<out Any> = Event::class.java
 }
