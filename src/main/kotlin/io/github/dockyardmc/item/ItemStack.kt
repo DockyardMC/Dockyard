@@ -1,5 +1,6 @@
 package io.github.dockyardmc.item
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.AttributeModifier
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.DataComponentPatch
@@ -208,22 +209,24 @@ data class ItemStack(
     var noxesiumImmovable: Boolean
         set(value) {
             if (value) {
-                setCustomData<CompoundBinaryTag>(Noxesium.BUKKIT_TAG, Noxesium.BUKKIT_COMPOUND)
+                setCustomData<Boolean>(Noxesium.IMMOVABLE_TAG, true)
             } else {
-                removeCustomData(Noxesium.BUKKIT_TAG)
+                removeCustomData(Noxesium.IMMOVABLE_TAG)
             }
         }
         get() {
-            val tag = getCustomDataOrNull<CompoundBinaryTag>(Noxesium.BUKKIT_TAG)?.getBoolean(Noxesium.IMMOVABLE_TAG) ?: false
+            val tag = getCustomDataOrNull<Boolean>(Noxesium.IMMOVABLE_TAG) ?: false
             return tag
         }
 
 
     private val customDataHolder = CustomDataHolder()
+
     var customData: CompoundBinaryTag = CompoundBinaryTag.empty()
 
     fun <T : Any> setCustomData(key: String, value: T) {
         customDataHolder[key] = value
+        log("set custom data $key, $value")
         rebuildCustomDataNbt()
     }
 
@@ -240,6 +243,7 @@ data class ItemStack(
 
     fun withNoxesiumImmovable(immovable: Boolean): ItemStack {
         noxesiumImmovable = immovable
+        rebuildCustomDataNbt()
         return this
     }
 
@@ -273,9 +277,11 @@ data class ItemStack(
                     is Long -> withLong(data.key, data.value as Long)
                     is Byte -> withByte(data.key, data.value as Byte)
                     is Boolean -> withBoolean(data.key, data.value as Boolean)
+                    is CompoundBinaryTag -> withCompound(data.key, data.value as CompoundBinaryTag)
                 }
             }
         }
+        components.set(CustomDataComponent(customData))
     }
 
     fun <T : Any> getCustomData(key: String): T {

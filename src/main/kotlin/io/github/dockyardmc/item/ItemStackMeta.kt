@@ -240,7 +240,6 @@ inline fun itemStack(builder: ItemStackMeta.() -> Unit): ItemStack {
 
 fun itemStack(meta: ItemStackMeta): ItemStack {
     meta.buildLoreComponent()
-    val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes)
-    itemStack.withNoxesiumImmovable(meta.noxesiumImmovable)
+    val itemStack = ItemStack(meta.material, meta.amount, meta.components, meta, meta.attributes).withNoxesiumImmovable(meta.noxesiumImmovable)
     return itemStack.clone()
 }

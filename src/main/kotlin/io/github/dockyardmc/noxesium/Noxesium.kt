@@ -37,7 +37,6 @@ object Noxesium {
     private val eventPool = EventPool(Events, "Noxesium Listeners")
 
     const val IMMOVABLE_TAG = "noxesium:immovable"
-    const val BUKKIT_TAG = "PublicBukkitValues"
     const val PACKET_NAMESPACE = "${NoxesiumReferences.NAMESPACE}-v2"
 
     private val _players: MutableList<Player> = mutableListOf()
@@ -58,10 +57,6 @@ object Noxesium {
         _players.remove(player)
         waiting.remove(player)
         globalRuleContainer.removeViewer(player)
-    }
-
-    val BUKKIT_COMPOUND = nbt {
-        withBoolean(IMMOVABLE_TAG, true)
     }
 
     @Suppress("UNCHECKED_CAST")
