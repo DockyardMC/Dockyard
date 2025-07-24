@@ -25,7 +25,7 @@ object NoxesiumRules {
         val DISABLE_BUBBLES = register<Boolean>(EntityRuleIndices.DISABLE_BUBBLES, ::BooleanServerRule)
         val BEAM_COLOR = register<CustomColor?>(EntityRuleIndices.BEAM_COLOR, ::ColorServerRule)
         val QIB_BEHAVIOUR = register<String>(EntityRuleIndices.QIB_BEHAVIOR) { StringServerRule(it, "") }
-        val INTERACTION_WIDTH_Z = register<Double>(EntityRuleIndices.QIB_WIDTH_Z, ::DoubleServerRule)
+        val QIB_INTERACTION_WIDTH_Z = register<Double>(EntityRuleIndices.QIB_WIDTH_Z, ::DoubleServerRule)
         val BEAM_FADE_COLOR = register<CustomColor?>(EntityRuleIndices.BEAM_COLOR_FADE, ::ColorServerRule)
         val CUSTOM_GLOW_COLOR = register<CustomColor?>(EntityRuleIndices.CUSTOM_GLOW_COLOR, ::ColorServerRule)
 

@@ -7,6 +7,7 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PluginMessageReceivedEvent
+import io.github.dockyardmc.events.RegisterPluginChannelsEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumClientInformationEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumClientSettingsEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumPacketReceiveEvent
@@ -18,6 +19,7 @@ import io.github.dockyardmc.noxesium.rules.NoxesiumEntityRuleContainer
 import io.github.dockyardmc.noxesium.rules.NoxesiumRuleContainer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.profiler.profiler
+import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayPluginMessagePacket
 import io.github.dockyardmc.protocol.plugin.PluginMessages
 import io.github.dockyardmc.tide.Codec
@@ -116,6 +118,16 @@ object Noxesium {
                 if (!_players.contains(event.player)) return@on
                 settings[event.player] = event.clientSettings
             }
+
+            eventPool.on<RegisterPluginChannelsEvent> { event ->
+                if (event.player.networkManager.state != ProtocolState.PLAY) return@on
+                PluginMessages.sendRegisteredChannels(event.player)
+
+                if (event.channels.contains("$PACKET_NAMESPACE:${clientboundPackets.getByKey(ClientboundNoxesiumServerInformationPacket::class).identifier}")) {
+                    addPlayer(event.player)
+                }
+            }
+
         }
     }
 

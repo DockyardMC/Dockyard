@@ -9,6 +9,7 @@ import io.github.dockyardmc.events.ServerFinishLoadEvent
 import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.block.DefaultBlockHandlers
 import io.github.dockyardmc.implementations.commands.DefaultCommands
+import io.github.dockyardmc.noxesium.Noxesium
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.NetworkCompression
 import io.github.dockyardmc.protocol.packets.configurations.Tag
@@ -100,6 +101,10 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
 
             Events.dispatch(ServerFinishLoadEvent(this))
             if (ConfigManager.config.updateChecker) UpdateChecker()
+
+            if (ConfigManager.config.implementationConfig.noxesium) {
+                Noxesium.register()
+            }
 
             if (InstrumentationUtils.isDebuggerAttached()) {
                 profiler("Setup hot reload detection") {

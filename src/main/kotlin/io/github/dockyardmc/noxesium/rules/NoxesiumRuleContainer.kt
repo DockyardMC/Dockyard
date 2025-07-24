@@ -1,5 +1,6 @@
 package io.github.dockyardmc.noxesium.rules
 
+import com.noxcrew.noxesium.api.util.DebugOption
 import io.github.dockyardmc.noxesium.protocol.clientbound.ClientboundNoxesiumResetPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.utils.Disposable
@@ -27,6 +28,54 @@ class NoxesiumRuleContainer : Viewable(), Disposable {
 
     fun sendUpdate() {
         viewers.forEach(::updateViewer)
+    }
+
+    fun setCameraLocked(value: Boolean) {
+        set(NoxesiumRules.Server.CAMERA_LOCKED.createRule(value))
+    }
+
+    fun setHeldItemOffset(value: Int) {
+        set(NoxesiumRules.Server.HELD_ITEM_NAME_OFFSET.createRule(value))
+    }
+
+    fun disableVanillaMusic(value: Boolean) {
+        set(NoxesiumRules.Server.DISABLE_VANILLA_MUSIC.createRule(value))
+    }
+
+    fun showMapUi(value: Boolean) {
+        set(NoxesiumRules.Server.SHOW_MAP_IN_UI.createRule(value))
+    }
+
+    fun disableMapUi(value: Boolean) {
+        set(NoxesiumRules.Server.DISABLE_MAP_UI.createRule(value))
+    }
+
+    fun disableBoatCollision(value: Boolean) {
+        set(NoxesiumRules.Server.DISABLE_BOAT_COLLISION.createRule(value))
+    }
+
+//    fun customCreativeItems(value: List<ItemStack>) {
+//        rules.set(NoxesiumRules.Server.CUSTOM_CREATIVE_ITEMS.createRule(value))
+//    }
+
+    fun disableDefferedChunkUpdates(value: Boolean) {
+        set(NoxesiumRules.Server.DISABLE_DEFFERED_CHUNK_UPDATES.createRule(value))
+    }
+
+    fun overrideGraphicsMode(value: NoxesiumRules.Server.GraphicsType) {
+        set(NoxesiumRules.Server.OVERRIDE_GRAPHICS_MODE.createRule(value))
+    }
+
+    fun setRiptideCoyoteTime(value: Int) {
+        set(NoxesiumRules.Server.RIPTIDE_COYOTE_TIME.createRule(value))
+    }
+
+    fun setRiptidePreCharging(value: Boolean) {
+        set(NoxesiumRules.Server.RIPTIDE_PRE_CHARGING.createRule(value))
+    }
+
+    fun restrictDebugOptions(value: List<DebugOption>) {
+        set(NoxesiumRules.Server.RESTRICT_DEBUG_OPTIONS.createRule(value.map { it.keyCode }))
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -1,9 +1,7 @@
 package io.github.dockyardmc.player.systems
 
-import com.noxcrew.noxesium.api.util.DebugOption
 import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.noxesium.Noxesium
 import io.github.dockyardmc.noxesium.getWriters
 import io.github.dockyardmc.noxesium.protocol.clientbound.ClientboundNoxesiumChangeServerRulesPacket
@@ -12,7 +10,6 @@ import io.github.dockyardmc.noxesium.protocol.clientbound.ClientboundNoxesiumSet
 import io.github.dockyardmc.noxesium.rules.NoxesiumEntityRuleContainer
 import io.github.dockyardmc.noxesium.rules.NoxesiumEntityRuleContainer.Companion.ALL_ENTITY_INDICES
 import io.github.dockyardmc.noxesium.rules.NoxesiumRuleContainer
-import io.github.dockyardmc.noxesium.rules.NoxesiumRules
 import io.github.dockyardmc.player.Player
 
 class NoxesiumIntegration(val player: Player) : PlayerSystem {
@@ -44,53 +41,6 @@ class NoxesiumIntegration(val player: Player) : PlayerSystem {
         }
     }
 
-    fun cameraLocked(value: Boolean) {
-        rulesContainer.set(NoxesiumRules.Server.CAMERA_LOCKED.createRule(value))
-    }
-
-    fun heldItemOffset(value: Int) {
-        rulesContainer.set(NoxesiumRules.Server.HELD_ITEM_NAME_OFFSET.createRule(value))
-    }
-
-    fun vanillaMusic(value: Boolean) {
-        rulesContainer.set(NoxesiumRules.Server.DISABLE_VANILLA_MUSIC.createRule(value))
-    }
-
-    fun showMapUi(value: Boolean) {
-        rulesContainer.set(NoxesiumRules.Server.SHOW_MAP_IN_UI.createRule(value))
-    }
-
-    fun disableMapUi(value: Boolean) {
-        rulesContainer.set(NoxesiumRules.Server.DISABLE_MAP_UI.createRule(value))
-    }
-
-    fun disableBoatCollision(value: Boolean) {
-        rulesContainer.set(NoxesiumRules.Server.DISABLE_BOAT_COLLISION.createRule(value))
-    }
-
-//    fun customCreativeItems(value: List<ItemStack>) {
-//        rules.set(NoxesiumRules.Server.CUSTOM_CREATIVE_ITEMS.createRule(value))
-//    }
-
-    fun disableDefferedChunkUpdates(value: Boolean) {
-        rulesContainer.set(NoxesiumRules.Server.DISABLE_DEFFERED_CHUNK_UPDATES.createRule(value))
-    }
-
-    fun overrideGraphicsMode(value: NoxesiumRules.Server.GraphicsType) {
-        rulesContainer.set(NoxesiumRules.Server.OVERRIDE_GRAPHICS_MODE.createRule(value))
-    }
-
-    fun riptideCoyoteTime(value: Int) {
-        rulesContainer.set(NoxesiumRules.Server.RIPTIDE_COYOTE_TIME.createRule(value))
-    }
-
-    fun riptidePreCharging(value: Boolean) {
-        rulesContainer.set(NoxesiumRules.Server.RIPTIDE_PRE_CHARGING.createRule(value))
-    }
-
-    fun restrictDebugOptions(value: List<DebugOption>) {
-        rulesContainer.set(NoxesiumRules.Server.RESTRICT_DEBUG_OPTIONS.createRule(value.map { it.keyCode }))
-    }
 
     fun getRulesPacket(): ClientboundNoxesiumChangeServerRulesPacket {
         val mergedRules = Noxesium.globalRuleContainer.noxesiumRules.toMutableMap()
@@ -118,20 +68,15 @@ class NoxesiumIntegration(val player: Player) : PlayerSystem {
         // what the fuck
         val mergedRules = Noxesium.globalEntityRuleContainer.entityToRulesMap.mapValues { it.value.toMutableMap() }.toMutableMap()
 
-        broadcastMessage("<orange>Base $mergedRules")
-
         this.entityRulesContainer.entityToRulesMap.forEach { (entity, rules) ->
-            broadcastMessage("<lime>Merging $rules")
             val entityRules = mergedRules.getOrPut(entity) { mutableMapOf() }
             entityRules.putAll(rules)
         }
 
-        broadcastMessage("<pink>$mergedRules")
         return mergedRules.map { (entity, rules) ->
             ClientboundNoxesiumSetExtraEntityDataPacket(entity.id, rules.getWriters())
         }
     }
-
 
     override fun dispose() {
         rulesContainer.dispose()
