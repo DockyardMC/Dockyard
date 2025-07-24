@@ -1,23 +1,19 @@
 package io.github.dockyardmc.noxesium
 
 import com.noxcrew.noxesium.api.NoxesiumReferences
-import com.noxcrew.noxesium.api.protocol.ClientSettings
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.events.EventPool
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PluginMessageReceivedEvent
-import io.github.dockyardmc.events.RegisterPluginChannelsEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.events.noxesium.NoxesiumClientInformationEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumClientSettingsEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumPacketReceiveEvent
-import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
 import io.github.dockyardmc.noxesium.protocol.clientbound.*
 import io.github.dockyardmc.noxesium.protocol.serverbound.*
 import io.github.dockyardmc.noxesium.rules.NoxesiumEntityRuleContainer
 import io.github.dockyardmc.noxesium.rules.NoxesiumRuleContainer
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayPluginMessagePacket
@@ -45,7 +41,6 @@ object Noxesium {
     val globalRuleContainer: NoxesiumRuleContainer = NoxesiumRuleContainer()
     val globalEntityRuleContainer: NoxesiumEntityRuleContainer = NoxesiumEntityRuleContainer()
 
-    private val settings: MutableMap<Player, ClientSettings> = mutableMapOf()
     private val waiting: MutableList<Player> = mutableListOf()
 
     fun addPlayer(player: Player) {
@@ -111,7 +106,7 @@ object Noxesium {
 
             eventPool.on<NoxesiumClientSettingsEvent> { event ->
                 if (!_players.contains(event.player)) return@on
-                settings[event.player] = event.clientSettings
+                event.player.noxesiumIntegration.settings = event.clientSettings
             }
 
             eventPool.on<RegisterPluginChannelsEvent> { event ->
@@ -120,6 +115,17 @@ object Noxesium {
 
                 if (event.channels.contains("$PACKET_NAMESPACE:${clientboundPackets.getByKey(ClientboundNoxesiumServerInformationPacket::class).identifier}")) {
                     addPlayer(event.player)
+                }
+            }
+
+            eventPool.on<PlayerDisconnectEvent> { event ->
+                val player = event.player
+                this.globalEntityRuleContainer.removeEntity(player)
+                this.globalEntityRuleContainer.removeViewer(player)
+                this.globalRuleContainer.removeViewer(player)
+
+                PlayerManager.players.forEach { loopPlayer ->
+                    loopPlayer.noxesiumIntegration.entityRulesContainer.removeEntity(event.player)
                 }
             }
 

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.player.systems
 
+import com.noxcrew.noxesium.api.protocol.ClientSettings
 import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.noxesium.Noxesium
@@ -17,6 +18,7 @@ class NoxesiumIntegration(val player: Player) : PlayerSystem {
     val rulesContainer: NoxesiumRuleContainer = NoxesiumRuleContainer()
     val entityRulesContainer: NoxesiumEntityRuleContainer = NoxesiumEntityRuleContainer()
     val isUsingNoxesium: Bindable<Boolean> = player.bindablePool.provideBindable(false)
+    var settings: ClientSettings? = null
 
     private var scheduledActions: MutableList<() -> Unit> = mutableListOf()
 

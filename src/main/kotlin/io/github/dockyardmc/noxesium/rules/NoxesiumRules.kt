@@ -3,7 +3,9 @@ package io.github.dockyardmc.noxesium.rules
 import com.noxcrew.noxesium.api.protocol.rule.EntityRuleIndices
 import com.noxcrew.noxesium.api.protocol.rule.ServerRuleIndices
 import com.noxcrew.noxesium.api.qib.QibDefinition
-import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.extentions.asRGB
+import io.github.dockyardmc.extentions.writeString
+import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.protocol.types.writeMap
@@ -96,14 +98,29 @@ object NoxesiumRules {
     }
 
     class ItemStackServerRule(index: Int, defaultV: ItemStack = ItemStack.AIR) : NoxesiumServerRule<ItemStack>(index, defaultV) {
+        companion object {
+            fun write(value: ItemStack, buffer: ByteBuf) {
+                if (value.isEmpty()) {
+                    buffer.writeVarInt(0)
+                } else {
+                    buffer.writeVarInt(1)
+                    buffer.writeString(value.material.identifier)
+                    value.components.writeNoxesiumType(buffer)
+                }
+            }
+        }
+
         override fun write(value: ItemStack, buffer: ByteBuf) {
-            value.write(buffer)
+            ItemStackServerRule.write(value, buffer)
         }
     }
 
     class ItemStackListServerRule(index: Int, defaultV: List<ItemStack> = listOf()) : NoxesiumServerRule<List<ItemStack>>(index, defaultV) {
         override fun write(value: List<ItemStack>, buffer: ByteBuf) {
-            buffer.writeList(value, ItemStack::write)
+            buffer.writeVarInt(value.size)
+            value.forEach { itemStack ->
+                ItemStackServerRule.write(itemStack, buffer)
+            }
         }
     }
 

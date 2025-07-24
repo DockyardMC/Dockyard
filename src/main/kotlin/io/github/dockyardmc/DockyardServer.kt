@@ -135,7 +135,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         lateinit var instance: DockyardServer
         val minecraftVersion = MinecraftVersions.v1_21_6
-        var allowAnyVersion: Boolean = false
+        var allowAnyVersion: Boolean = true
 
         val scheduler = GlobalScheduler("main_scheduler")
 

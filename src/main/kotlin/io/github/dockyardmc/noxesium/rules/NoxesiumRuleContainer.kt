@@ -1,6 +1,7 @@
 package io.github.dockyardmc.noxesium.rules
 
 import com.noxcrew.noxesium.api.util.DebugOption
+import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.noxesium.protocol.clientbound.ClientboundNoxesiumResetPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.utils.Disposable
@@ -54,9 +55,9 @@ class NoxesiumRuleContainer : Viewable(), Disposable {
         set(NoxesiumRules.Server.DISABLE_BOAT_COLLISION.createRule(value))
     }
 
-//    fun customCreativeItems(value: List<ItemStack>) {
-//        rules.set(NoxesiumRules.Server.CUSTOM_CREATIVE_ITEMS.createRule(value))
-//    }
+    fun customCreativeItems(value: List<ItemStack>) {
+        set(NoxesiumRules.Server.CUSTOM_CREATIVE_ITEMS.createRule(value))
+    }
 
     fun disableDefferedChunkUpdates(value: Boolean) {
         set(NoxesiumRules.Server.DISABLE_DEFFERED_CHUNK_UPDATES.createRule(value))
@@ -78,7 +79,6 @@ class NoxesiumRuleContainer : Viewable(), Disposable {
         set(NoxesiumRules.Server.RESTRICT_DEBUG_OPTIONS.createRule(value.map { it.keyCode }))
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun updateViewer(player: Player) {
         // Reset all server rules
         player.sendPacket(ClientboundNoxesiumResetPacket(0x01).getPluginMessagePacket())
