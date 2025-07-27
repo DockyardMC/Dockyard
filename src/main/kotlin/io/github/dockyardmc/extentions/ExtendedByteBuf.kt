@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
+import kotlin.reflect.KClass
 
 private const val SEGMENT_BITS: Int = 0x7F
 private const val CONTINUE_BIT: Int = 0x80
@@ -166,6 +167,7 @@ fun ByteBuf.readVarLong(): Long {
 fun hasContinuationBit(byte: Byte): Boolean = byte.toInt() and 0x80 == 128
 
 inline fun <reified T : Enum<T>> ByteBuf.readEnum(): T = T::class.java.enumConstants[readVarInt()]
+fun <T : Enum<T>> ByteBuf.readEnumClass(kClass: KClass<out T>): T = kClass.java.enumConstants[readVarInt()]
 inline fun <reified T : Enum<T>> ByteBuf.readByteEnum(): T = T::class.java.enumConstants[readByte().toInt()]
 
 inline fun <reified T : Enum<T>> ByteBuf.writeEnum(value: T) {

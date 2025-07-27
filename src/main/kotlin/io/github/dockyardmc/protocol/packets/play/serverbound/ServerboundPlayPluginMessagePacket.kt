@@ -12,9 +12,11 @@ import io.netty.channel.ChannelHandlerContext
 class ServerboundPlayPluginMessagePacket(val channel: String, val data: ByteBuf) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
+
         val event = PluginMessageReceivedEvent(processor.player, channel, data)
         Events.dispatch(event)
         if (event.cancelled) return
+
         PluginMessages.handle(channel, data, processor.player)
     }
 

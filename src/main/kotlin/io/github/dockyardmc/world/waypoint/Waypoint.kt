@@ -3,6 +3,7 @@ package io.github.dockyardmc.world.waypoint
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.events.EventPool
+import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerChangeWorldEvent
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.sendPacket
@@ -18,7 +19,7 @@ class Waypoint(initialLocation: Location, val id: Either<UUID, String> = Either.
 
     override var autoViewable: Boolean = false
 
-    val eventPool = EventPool()
+    val eventPool = EventPool(Events, "Waypoint Listeners")
     val bindablePool = BindablePool()
     val location: Bindable<Location> = bindablePool.provideBindable(initialLocation)
     val icon: Bindable<WaypointData.Icon> = bindablePool.provideBindable(WaypointData.Icon.DEFAULT)

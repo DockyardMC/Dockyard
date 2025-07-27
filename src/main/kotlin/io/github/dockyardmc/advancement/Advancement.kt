@@ -2,6 +2,7 @@ package io.github.dockyardmc.advancement
 
 import cz.lukynka.bindables.BindableList
 import io.github.dockyardmc.events.EventPool
+import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerLeaveEvent
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeStringArray
@@ -56,7 +57,7 @@ class Advancement(
 
     override var autoViewable: Boolean = false
 
-    private val eventPool = EventPool()
+    private val eventPool = EventPool(Events, "Advancement Listeners")
 
     init {
         require(icon.material != Items.AIR) { "advancement icon can't be air" }

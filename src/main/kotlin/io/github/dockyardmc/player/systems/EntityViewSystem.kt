@@ -39,4 +39,9 @@ class EntityViewSystem(val player: Player) : TickablePlayerSystem {
             entity.removeViewer(player)
         }
     }
+
+    override fun dispose() {
+        lock.lock()
+        visibleEntities.clear()
+    }
 }

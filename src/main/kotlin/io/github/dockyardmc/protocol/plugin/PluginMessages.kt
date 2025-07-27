@@ -19,14 +19,21 @@ object PluginMessages {
         "minecraft:brand" to BrandPluginMessage::class
     )
 
+    val registeredChannels: MutableList<String> = mutableListOf()
+
+    fun sendRegisteredChannels(player: Player) {
+        player.sendPacket(RegisterPluginMessage(registeredChannels).asPlayPacket("minecraft:register"))
+    }
+
     fun handle(channel: String, payload: ByteBuf, player: Player) {
 
         val pluginMessage = channels[channel]
-        if(pluginMessage == null) {
+        if (pluginMessage == null) {
             log("Received plugin message with no handler: $channel", LogType.WARNING)
             payload.release()
             return
         }
+
         val companionObject = pluginMessage.companionObject ?: throw IllegalStateException("${pluginMessage.simpleName} doesn't have a companion object")
         val readFunction = companionObject.declaredMemberFunctions.find { it.name == "read" } ?: throw IllegalStateException("${pluginMessage.simpleName} doesn't have read(ByteBuf) companion function")
 
@@ -36,8 +43,7 @@ object PluginMessages {
         } catch (ex: Exception) {
             log("Failed to read plugin message ${pluginMessage.simpleName}:", LogType.ERROR)
             log(ex)
-        }
-        finally {
+        } finally {
             payload.release()
         }
     }

@@ -89,6 +89,9 @@ class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
             else -> null
         }
     }
+
+    override fun dispose() {}
+
 }
 
 fun startConsumingIfApplicable(item: ItemStack, player: Player) {

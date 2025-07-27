@@ -56,6 +56,7 @@ class ImplementationConfig {
     var defaultEntityViewDistanceBlocks: Int = 64
     var defaultCommands: Boolean = true
     var spark: Boolean = true
+    var noxesium: Boolean = true
     var itemDroppingAndPickup: Boolean = true
 }
 

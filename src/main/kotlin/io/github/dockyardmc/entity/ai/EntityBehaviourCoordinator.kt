@@ -2,6 +2,7 @@ package io.github.dockyardmc.entity.ai
 
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.events.EventPool
+import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.pathfinding.IsSolidPathFilter
 import io.github.dockyardmc.pathfinding.Navigator
@@ -16,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class EntityBehaviourCoordinator(val entity: Entity) : Freezable(), Disposable {
 
-    val eventPool = EventPool().withFilter(EventFilter.containsEntity(entity))
+    val eventPool = EventPool(Events, "EBC Listeners (${entity::class.simpleName})").withFilter(EventFilter.containsEntity(entity))
     val behaviours: MutableList<EntityBehaviourNode> = mutableListOf()
     var activeBehaviour: EntityBehaviourNode? = null
     private val isEvaluating = AtomicBoolean(false)
