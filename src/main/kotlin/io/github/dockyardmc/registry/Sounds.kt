@@ -940,6 +940,7 @@ object Sounds {
     const val MUSIC_DISC_CAT = "minecraft:music_disc.cat"
     const val MUSIC_DISC_CHIRP = "minecraft:music_disc.chirp"
     const val MUSIC_DISC_FAR = "minecraft:music_disc.far"
+    const val MUSIC_DISC_LAVA_CHICKEN = "minecraft:music_disc.lava_chicken"
     const val MUSIC_DISC_MALL = "minecraft:music_disc.mall"
     const val MUSIC_DISC_MELLOHI = "minecraft:music_disc.mellohi"
     const val MUSIC_DISC_PIGSTEP = "minecraft:music_disc.pigstep"

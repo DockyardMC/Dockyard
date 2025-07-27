@@ -14,6 +14,7 @@ object JukeboxSongs {
     val CREATOR = JukeboxSongRegistry["minecraft:creator"]
     val CREATOR_MUSIC_BOX = JukeboxSongRegistry["minecraft:creator_music_box"]
     val FAR = JukeboxSongRegistry["minecraft:far"]
+    val LAVA_CHICKEN = JukeboxSongRegistry["minecraft:lava_chicken"]
     val MALL = JukeboxSongRegistry["minecraft:mall"]
     val MELLOHI = JukeboxSongRegistry["minecraft:mellohi"]
     val OTHERSIDE = JukeboxSongRegistry["minecraft:otherside"]
