@@ -1259,6 +1259,7 @@ object Items {
     val MUSIC_DISC_CREATOR = ItemRegistry["minecraft:music_disc_creator"]
     val MUSIC_DISC_CREATOR_MUSIC_BOX = ItemRegistry["minecraft:music_disc_creator_music_box"]
     val MUSIC_DISC_FAR = ItemRegistry["minecraft:music_disc_far"]
+    val MUSIC_DISC_LAVA_CHICKEN = ItemRegistry["minecraft:music_disc_lava_chicken"]
     val MUSIC_DISC_MALL = ItemRegistry["minecraft:music_disc_mall"]
     val MUSIC_DISC_MELLOHI = ItemRegistry["minecraft:music_disc_mellohi"]
     val MUSIC_DISC_STAL = ItemRegistry["minecraft:music_disc_stal"]
