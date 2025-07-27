@@ -2,7 +2,7 @@
 
 ---
 [![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmvn.devos.one%2Freleases%2Fio%2Fgithub%2Fdockyardmc%2Fdockyard%2Fmaven-metadata.xml&style=for-the-badge&logo=maven&logoColor=%23FFFFFF&label=Latest%20Version&color=%23afff87)](https://mvn.devos.one/#/releases/io/github/dockyardmc/dockyard)
-[![Mc Version](https://img.shields.io/badge/Minecraft_Version-1.21.6-Minecraft?style=for-the-badge&color=%23ff9969)](https://kotlinlang.org/)
+[![Mc Version](https://img.shields.io/badge/Minecraft_Version-1.21.8-Minecraft?style=for-the-badge&color=%23ff9969)](https://kotlinlang.org/)
 [![Language](https://img.shields.io/badge/Language-Kotlin-Kotlin?style=for-the-badge&color=%23ff6969)](https://kotlinlang.org/)
 
 [![wakatime](https://wakatime.com/badge/github/DockyardMC/Dockyard.svg?style=for-the-badge)](https://wakatime.com/badge/github/DockyardMC/Dockyard)
@@ -24,6 +24,7 @@ You can read how to set up and use dockyard [here](https://dockyard.lukynka.clou
 - Ability to take full control over every aspect of the server
 - Fully multithreaded worlds
 - Built-in [Spark](https://github.com/lucko/spark) profiler
+- Built-in [Noxesium](https://github.com/Noxcrew/noxesium) integration
 
 ## API Examples
 
@@ -215,9 +216,10 @@ Contributions are always welcome! Please always check branches to see if the fea
 
 - **[Scroll](https://github.com/DockyardMC/Scroll/)** - Minecraft component library made for DockyardMC
 - **[adventure-nbt](https://github.com/KyoriPowered/adventure/tree/main/4/nbt)** - Minecraft NBT library
-- **[kotlin-bindables](https://github.com/LukynkaCZE/kotlin-bindables)** - Bindable system inspired by [osu!framework](https://github.com/ppy/osu-framework/)
-- **[Pathetic](https://github.com/Metaphoriker/pathetic)** - A powerful, optimized and easy-to-use Java A* Pathfinding Library for 3D environments.
 - **[Spark](https://github.com/lucko/spark)** - A performance profiler for Minecraft clients, servers, and proxies
+- **[Noxesium](https://github.com/Noxcrew/noxesium)** - A client-side fabric mod that improves your experience on large multiplayer servers.
+- **[Pathetic](https://github.com/Metaphoriker/pathetic)** - A powerful, optimized and easy-to-use Java A* Pathfinding Library for 3D environments.
+- **[kotlin-bindables](https://github.com/LukynkaCZE/kotlin-bindables)** - Bindable system inspired by [osu!framework](https://github.com/ppy/osu-framework/)
 - **[PrettyLog](https://github.com/LukynkaCZE/PrettyLog/)** - Fancy logging library
 
 ## Authors
@@ -228,7 +230,7 @@ Contributions are always welcome! Please always check branches to see if the fea
 
 ## Additional thanks to
 
-- [KevDev](https://github.com/TrasherMC)
+- [Lumanyx](https://github.com/Lumanyx)
 - [BluSpring](https://github.com/BluSpring)
 - [Asoji](https://github.com/asoji)
 - [MattW](https://github.com/mworzala) / [Minestom](https://github.com/Minestom/Minestom)
