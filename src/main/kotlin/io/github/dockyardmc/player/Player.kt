@@ -34,6 +34,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundChatCommandPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
+import io.github.dockyardmc.protocol.types.ClientSettings
 import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.Blocks
@@ -78,8 +79,8 @@ class Player(
     override var inventorySize: Int = 35
 
     var brand: String = "minecraft:vanilla"
+    var clientSettings: ClientSettings = ClientSettings.DEFAULT
     lateinit var gameProfile: GameProfile
-    var clientConfiguration: ClientConfiguration? = null
 
     var isSneaking: Boolean = false
     var isSprinting: Boolean = false

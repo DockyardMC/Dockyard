@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
+//import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.apis.serverlinks.ServerLinks
 import io.github.dockyardmc.commands.buildCommandGraph
@@ -7,18 +8,14 @@ import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
-import io.github.dockyardmc.noxesium.Noxesium
-import io.github.dockyardmc.player.ClientConfiguration
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerInfoUpdate
-//import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.plugin.PluginMessages
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
-import io.github.dockyardmc.protocol.plugin.messages.RegisterPluginMessage
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.tags.*
 import io.github.dockyardmc.server.FeatureFlags
@@ -70,21 +67,9 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
     }
 
     fun handleClientInformation(packet: ServerboundClientInformationPacket, connection: ChannelHandlerContext) {
-        val clientConfiguration = ClientConfiguration(
-            packet.locale,
-            packet.viewDistance,
-            packet.chatMode,
-            packet.chatColors,
-            packet.displayedSkinParts,
-            packet.mainHandSide,
-            packet.enableTextFiltering,
-            packet.allowServerListing,
-            packet.particleSettings
-        )
-
-        val event = PlayerClientConfigurationEvent(clientConfiguration, processor.player)
+        val event = PlayerClientSettingsEvent(packet.clientSettings, processor.player, getPlayerEventContext(processor.player))
         Events.dispatch(event)
-        processor.player.clientConfiguration = event.configuration
+        processor.player.clientSettings = packet.clientSettings
     }
 
     fun handleConfigurationFinishAcknowledge(packet: ServerboundFinishConfigurationAcknowledgePacket, connection: ChannelHandlerContext) {

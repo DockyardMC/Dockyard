@@ -51,7 +51,7 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("chunk batch received")
         addPlay(ServerboundClientStatusPacket::class)
         addPlay(ServerboundClientTickEndPacket::class)
-        skipPlay("client settings update")
+        addPlay(ServerboundClientSettingsUpdatePacket::class)
         addPlay(ServerboundCommandSuggestionPacket::class)
         skipPlay("configuration ack")
         skipPlay("click container button")

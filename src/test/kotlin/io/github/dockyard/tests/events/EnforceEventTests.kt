@@ -11,7 +11,7 @@ class EnforceEventTests : EnforceTestsAbstract() {
         PlayerSendFeatureFlagsEvent::class.java,
         PlayerLeaveEvent::class.java,
         ServerFinishLoadEvent::class.java,
-        PlayerClientConfigurationEvent::class.java,
+        PlayerClientSettingsEvent::class.java,
         PlayerSpawnEvent::class.java,
         PacketSentEvent::class.java,
         EntityNavigatorPickOffsetEvent::class.java,
