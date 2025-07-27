@@ -1,4 +1,4 @@
-[<img src="https://github.com/user-attachments/assets/5c488d9e-30b0-4025-9b32-b3e474fc4eb1">](https://github.com/DockyardMC/Dockyard)
+[<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/48604271/471209883-3f1ee6b1-8531-4d5b-a076-f83a7fe58017.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250727T140331Z&X-Amz-Expires=300&X-Amz-Signature=438142883996aa551b42578fe4721b32cefdf261c09a7741cdd85e8592e96ba3&X-Amz-SignedHeaders=host">](https://github.com/DockyardMC/Dockyard)
 
 ---
 [![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmvn.devos.one%2Freleases%2Fio%2Fgithub%2Fdockyardmc%2Fdockyard%2Fmaven-metadata.xml&style=for-the-badge&logo=maven&logoColor=%23FFFFFF&label=Latest%20Version&color=%23afff87)](https://mvn.devos.one/#/releases/io/github/dockyardmc/dockyard)
