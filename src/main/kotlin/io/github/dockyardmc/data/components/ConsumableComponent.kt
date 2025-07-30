@@ -57,17 +57,17 @@ class ConsumableComponent(
         }
     }
 
-    enum class Animation {
-        NONE,
-        EAT,
-        DRINK,
-        BLOCK,
-        BOW,
-        SPEAR,
-        CROSSBOW,
-        SPYGLASS,
-        TOOT_HORN,
-        BRUSH,
-        BUNDLE;
+    enum class Animation(val decreasesAmount: Boolean) {
+        NONE(false),
+        EAT(true),
+        DRINK(true),
+        BLOCK(false),
+        BOW(false),
+        SPEAR(false),
+        CROSSBOW(false),
+        SPYGLASS(false),
+        TOOT_HORN(false),
+        BRUSH(false),
+        BUNDLE(false);
     }
 }
