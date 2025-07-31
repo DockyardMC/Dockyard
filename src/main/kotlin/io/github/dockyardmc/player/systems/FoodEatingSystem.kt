@@ -3,6 +3,7 @@ package io.github.dockyardmc.player.systems
 import io.github.dockyardmc.data.components.ConsumableComponent
 import io.github.dockyardmc.data.components.FoodComponent
 import io.github.dockyardmc.events.*
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.maths.vectors.Vector3f
