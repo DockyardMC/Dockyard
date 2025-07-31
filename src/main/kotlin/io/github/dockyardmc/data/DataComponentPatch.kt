@@ -241,4 +241,11 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
             }
         }
     }
+
+    override fun toString(): String {
+        val added = components.values.filterNotNull().map { it::class.simpleName }
+        val removed = components.values.filter { it == null }.size
+
+        return "DataComponentPatch(added = $added, removed = $removed)"
+    }
 }

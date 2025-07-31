@@ -1,22 +1,20 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.data.components.ConsumableComponent
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerCancelledDiggingEvent
-import io.github.dockyardmc.events.PlayerFinishedDiggingEvent
-import io.github.dockyardmc.events.PlayerStartDiggingBlockEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.readByteEnum
-import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readEnum
+import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.readBlockPosition
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.PlayerHand
+import io.github.dockyardmc.player.systems.FoodEatingSystem
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.getPlayerEventContext
-import io.github.dockyardmc.maths.vectors.Vector3
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -46,21 +44,21 @@ class ServerboundPlayerActionPacket(
         val block = player.world.getBlock(location)
 
         if (action == PlayerAction.CANCELLED_DIGGING) {
-            if(cannotDig.contains(player.gameMode.value)) return
+            if (cannotDig.contains(player.gameMode.value)) return
 
             Events.dispatch(PlayerCancelledDiggingEvent(player, location, block, getPlayerEventContext(player)))
             player.isDigging = false
         }
 
         if (action == PlayerAction.FINISHED_DIGGING) {
-            if(cannotDig.contains(player.gameMode.value)) return
+            if (cannotDig.contains(player.gameMode.value)) return
 
             Events.dispatch(PlayerFinishedDiggingEvent(player, location, block, getPlayerEventContext(player)))
             player.breakBlock(location, block, face)
         }
 
         if (action == PlayerAction.START_DIGGING) {
-            if(cannotDig.contains(player.gameMode.value)) return
+            if (cannotDig.contains(player.gameMode.value)) return
 
             Events.dispatch(PlayerStartDiggingBlockEvent(player, location, block, getPlayerEventContext(player)))
             player.isDigging = true
@@ -73,8 +71,10 @@ class ServerboundPlayerActionPacket(
 
             val item = player.getHeldItem(PlayerHand.MAIN_HAND)
             val isConsumable = item.components.has(ConsumableComponent::class)
-            if (isConsumable) {
+            if (isConsumable && player.itemInUse?.item == item) {
                 player.itemInUse = null
+                player.foodEatingSystem.tick = 0
+                Events.dispatch(PlayerCancelledConsumingEvent(player, item, getPlayerEventContext(player)))
             }
         }
 
@@ -101,7 +101,7 @@ class ServerboundPlayerActionPacket(
             player.setHeldItem(PlayerHand.MAIN_HAND, ItemStack.AIR)
         }
 
-        if(action == PlayerAction.SWAP_ITEM) {
+        if (action == PlayerAction.SWAP_ITEM) {
             player.inventory.swapOffhand()
         }
     }
