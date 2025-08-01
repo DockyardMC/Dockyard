@@ -44,7 +44,8 @@ import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.Item
-import io.github.dockyardmc.resourcepack.Resourcepack
+import io.github.dockyardmc.resourcepack.ResourcePack
+import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -137,7 +138,7 @@ class Player(
         entityViewSystem.tick()
     }
 
-    val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
+    val resourcepacks: MutableList<ResourcePack> = mutableListOf()
 
     var lastInteractionTime: Long = -1L
     var currentlyOpenScreen: Screen? = null
@@ -231,6 +232,10 @@ class Player(
         }
 
         hasNoGravity.value = false
+    }
+
+    fun sendResourcePack(resourcePack: ResourcePack): CompletableFuture<ResourcePack.Status> {
+        return ResourcepackManager.sendResourcePack(this, resourcePack)
     }
 
     override fun canPickupItem(dropEntity: ItemDropEntity, item: ItemStack): Boolean {
