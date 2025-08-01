@@ -1,9 +1,6 @@
 package io.github.dockyardmc.protocol.packets.registry
 
-import io.github.dockyardmc.protocol.packets.configurations.ServerboundClientInformationPacket
-import io.github.dockyardmc.protocol.packets.configurations.ServerboundConfigurationCustomClickActionPacket
-import io.github.dockyardmc.protocol.packets.configurations.ServerboundConfigurationPluginMessagePacket
-import io.github.dockyardmc.protocol.packets.configurations.ServerboundFinishConfigurationAcknowledgePacket
+import io.github.dockyardmc.protocol.packets.configurations.*
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundPingRequestPacket
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundStatusRequestPacket
@@ -34,7 +31,7 @@ object ServerPacketRegistry : PacketRegistry() {
         addConfiguration(ServerboundFinishConfigurationAcknowledgePacket::class)
         skipConfiguration("keep alive")
         skipConfiguration("pong")
-        skipConfiguration("resourcepack status")
+        addConfiguration(ServerboundConfigurationResourcepackResponsePacket::class)
         skipConfiguration("known packs")
         addConfiguration(ServerboundConfigurationCustomClickActionPacket::class)
 
@@ -86,7 +83,7 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("set recipe book state")
         skipPlay("set recipe book seen")
         skipPlay("name item")
-        addPlay(ServerboundResourcepackResponsePacket::class)
+        addPlay(ServerboundPlayResourcepackResponsePacket::class)
         addPlay(ServerboundSelectAdvancementsTabPacket::class)
         skipPlay("select trade")
         skipPlay("set beacon effect")

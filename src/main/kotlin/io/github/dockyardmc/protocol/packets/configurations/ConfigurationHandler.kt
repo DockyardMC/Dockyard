@@ -1,11 +1,13 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
 //import io.github.dockyardmc.player.setSkin
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.apis.serverlinks.ServerLinks
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.Player
@@ -18,6 +20,7 @@ import io.github.dockyardmc.protocol.plugin.PluginMessages
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.tags.*
+import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.getPlayerEventContext
@@ -25,6 +28,7 @@ import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.chunk.ChunkPos
 import io.netty.channel.ChannelHandlerContext
+import java.util.concurrent.CompletableFuture
 
 class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(processor) {
 
@@ -61,8 +65,22 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
             RegistryManager.dynamicRegistries.values.forEach { registry -> connection.sendPacket(ClientboundRegistryDataPacket(registry), networkManager) }
             connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), networkManager)
 
+            Events.dispatch(PlayerEnterConfigurationEvent(player, getPlayerEventContext(player)))
+
             val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
-            connection.sendPacket(finishConfigurationPacket, networkManager)
+            val pendingPacks = ResourcepackManager.pendingResourcePacks[player] ?: mutableMapOf()
+
+            if (pendingPacks.isNotEmpty()) {
+                val futures = pendingPacks.map { it.value.future }
+                log("Waiting for pack futures $player (${futures.size})")
+                CompletableFuture.allOf(*futures.toTypedArray()).thenAccept {
+                    log("Finished resourcepacks for $player")
+                    connection.sendPacket(finishConfigurationPacket, networkManager)
+                }
+            } else {
+                log("no packs to wait for")
+                connection.sendPacket(finishConfigurationPacket, networkManager)
+            }
         }
     }
 

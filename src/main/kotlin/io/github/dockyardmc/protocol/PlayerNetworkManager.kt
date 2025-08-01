@@ -73,9 +73,7 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
             player.isConnected = false
             player.team.value = null
             PlayerManager.remove(player)
-            ResourcepackManager.pending.toList().filter { it.player == player }.forEach { pack ->
-                ResourcepackManager.pending.remove(pack)
-            }
+            ResourcepackManager.remove(player)
             Events.dispatch(PlayerDisconnectEvent(player))
             if (player.isFullyInitialized) {
                 ServerStatusManager.updateCache()
