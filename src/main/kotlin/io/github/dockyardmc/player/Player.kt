@@ -462,6 +462,7 @@ class Player(
 
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
+        isDead = false
 
         chunkViewSystem.resendChunks()
 
