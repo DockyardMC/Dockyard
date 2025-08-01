@@ -1,6 +1,5 @@
 package io.github.dockyardmc.resourcepack
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -58,7 +57,6 @@ object ResourcepackManager {
         DockyardServer.scheduler.runLater(1.ticks) {
             player.sendPacket(packet)
         }
-        log("Sending packet $packet")
         return future
     }
 }

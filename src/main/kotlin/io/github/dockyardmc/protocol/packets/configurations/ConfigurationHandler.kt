@@ -23,6 +23,7 @@ import io.github.dockyardmc.registry.registries.tags.*
 import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.team.TeamManager
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
@@ -72,13 +73,12 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
 
             if (pendingPacks.isNotEmpty()) {
                 val futures = pendingPacks.map { it.value.future }
-                log("Waiting for pack futures $player (${futures.size})")
+                debug("Waiting for pack futures for $player (${futures.size} futures)")
                 CompletableFuture.allOf(*futures.toTypedArray()).thenAccept {
-                    log("Finished resourcepacks for $player")
+                    debug("Finished loading resourcepacks for $player, entering play state")
                     connection.sendPacket(finishConfigurationPacket, networkManager)
                 }
             } else {
-                log("no packs to wait for")
                 connection.sendPacket(finishConfigurationPacket, networkManager)
             }
         }

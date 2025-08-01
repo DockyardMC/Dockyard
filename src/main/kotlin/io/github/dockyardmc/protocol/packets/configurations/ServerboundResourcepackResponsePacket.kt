@@ -17,7 +17,6 @@ data class ServerboundConfigurationResourcepackResponsePacket(var uuid: UUID, va
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
-        log("$uuid $player $response", LogType.FATAL)
         ResourcepackManager.handleResponse(player, uuid, response)
     }
 
