@@ -1,16 +1,17 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
+//import io.github.dockyardmc.player.setSkin
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.apis.serverlinks.ServerLinks
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
-import io.github.dockyardmc.player.ClientConfiguration
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerInfoUpdate
-//import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
@@ -19,13 +20,16 @@ import io.github.dockyardmc.protocol.plugin.PluginMessages
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.tags.*
+import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.server.FeatureFlags
 import io.github.dockyardmc.team.TeamManager
+import io.github.dockyardmc.utils.debug
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.chunk.ChunkPos
 import io.netty.channel.ChannelHandlerContext
+import java.util.concurrent.CompletableFuture
 
 class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(processor) {
 
@@ -62,27 +66,28 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
             RegistryManager.dynamicRegistries.values.forEach { registry -> connection.sendPacket(ClientboundRegistryDataPacket(registry), networkManager) }
             connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), networkManager)
 
+            Events.dispatch(PlayerEnterConfigurationEvent(player, getPlayerEventContext(player)))
+
             val finishConfigurationPacket = ClientboundFinishConfigurationPacket()
-            connection.sendPacket(finishConfigurationPacket, networkManager)
+            val pendingPacks = ResourcepackManager.pendingResourcePacks[player] ?: mutableMapOf()
+
+            if (pendingPacks.isNotEmpty()) {
+                val futures = pendingPacks.map { it.value.future }
+                debug("Waiting for pack futures for $player (${futures.size} futures)")
+                CompletableFuture.allOf(*futures.toTypedArray()).thenAccept {
+                    debug("Finished loading resourcepacks for $player, entering play state")
+                    connection.sendPacket(finishConfigurationPacket, networkManager)
+                }
+            } else {
+                connection.sendPacket(finishConfigurationPacket, networkManager)
+            }
         }
     }
 
     fun handleClientInformation(packet: ServerboundClientInformationPacket, connection: ChannelHandlerContext) {
-        val clientConfiguration = ClientConfiguration(
-            packet.locale,
-            packet.viewDistance,
-            packet.chatMode,
-            packet.chatColors,
-            packet.displayedSkinParts,
-            packet.mainHandSide,
-            packet.enableTextFiltering,
-            packet.allowServerListing,
-            packet.particleSettings
-        )
-
-        val event = PlayerClientConfigurationEvent(clientConfiguration, processor.player)
+        val event = PlayerClientSettingsEvent(packet.clientSettings, processor.player, getPlayerEventContext(processor.player))
         Events.dispatch(event)
-        processor.player.clientConfiguration = event.configuration
+        processor.player.clientSettings = packet.clientSettings
     }
 
     fun handleConfigurationFinishAcknowledge(packet: ServerboundFinishConfigurationAcknowledgePacket, connection: ChannelHandlerContext) {

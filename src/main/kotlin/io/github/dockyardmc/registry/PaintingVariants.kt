@@ -19,6 +19,7 @@ object PaintingVariants {
     val COTAN = PaintingVariantRegistry["minecraft:cotan"]
     val COURBET = PaintingVariantRegistry["minecraft:courbet"]
     val CREEBET = PaintingVariantRegistry["minecraft:creebet"]
+    val DENNIS = PaintingVariantRegistry["minecraft:dennis"]
     val DONKEY_KONG = PaintingVariantRegistry["minecraft:donkey_kong"]
     val EARTH = PaintingVariantRegistry["minecraft:earth"]
     val ENDBOSS = PaintingVariantRegistry["minecraft:endboss"]

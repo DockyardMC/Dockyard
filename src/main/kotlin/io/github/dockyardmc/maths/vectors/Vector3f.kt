@@ -3,6 +3,8 @@ package io.github.dockyardmc.maths.vectors
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
+import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.Codecs
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import kotlin.math.pow
@@ -12,7 +14,7 @@ data class Vector3f(
     var x: Float,
     var y: Float,
     var z: Float,
-): NetworkWritable {
+) : NetworkWritable {
     constructor() : this(0f, 0f, 0f)
     constructor(x: Int, y: Int, z: Int) : this(x.toFloat(), y.toFloat(), z.toFloat())
     constructor(x: Int, y: Float, z: Int) : this(x.toFloat(), y, z.toFloat())
@@ -111,7 +113,14 @@ data class Vector3f(
         buffer.writeFloat(this.z)
     }
 
-    companion object: NetworkReadable<Vector3f> {
+    companion object : NetworkReadable<Vector3f> {
+
+        val STREAM_CODEC = Codec.of(
+            "x", Codecs.Float, Vector3f::x,
+            "y", Codecs.Float, Vector3f::y,
+            "z", Codecs.Float, Vector3f::z,
+            ::Vector3f
+        )
 
         override fun read(buffer: ByteBuf): Vector3f {
             return Vector3f(

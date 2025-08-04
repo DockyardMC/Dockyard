@@ -34,6 +34,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundChatCommandPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
+import io.github.dockyardmc.protocol.types.ClientSettings
 import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.protocol.types.GameProfile
 import io.github.dockyardmc.registry.Blocks
@@ -43,7 +44,8 @@ import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.registries.DamageType
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.registry.registries.Item
-import io.github.dockyardmc.resourcepack.Resourcepack
+import io.github.dockyardmc.resourcepack.ResourcePack
+import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -78,8 +80,8 @@ class Player(
     override var inventorySize: Int = 35
 
     var brand: String = "minecraft:vanilla"
+    var clientSettings: ClientSettings = ClientSettings.DEFAULT
     lateinit var gameProfile: GameProfile
-    var clientConfiguration: ClientConfiguration? = null
 
     var isSneaking: Boolean = false
     var isSprinting: Boolean = false
@@ -130,12 +132,13 @@ class Player(
     val permissionSystem = PermissionSystem(this, permissions)
     val attributes = PlayerAttributes(this)
     val advancementTracker = PlayerAdvancementTracker(this)
+    val noxesiumIntegration: NoxesiumIntegration = NoxesiumIntegration(this)
 
     val decoupledEntityViewSystemTicking = DockyardServer.scheduler.runRepeating(1.ticks) {
         entityViewSystem.tick()
     }
 
-    val resourcepacks: MutableMap<String, Resourcepack> = mutableMapOf()
+    val resourcepacks: MutableList<ResourcePack> = mutableListOf()
 
     var lastInteractionTime: Long = -1L
     var currentlyOpenScreen: Screen? = null
@@ -229,6 +232,10 @@ class Player(
         }
 
         hasNoGravity.value = false
+    }
+
+    fun sendResourcePack(resourcePack: ResourcePack): CompletableFuture<ResourcePack.Status> {
+        return ResourcepackManager.sendResourcePack(this, resourcePack)
     }
 
     override fun canPickupItem(dropEntity: ItemDropEntity, item: ItemStack): Boolean {
@@ -372,6 +379,10 @@ class Player(
         this.sendPacket(ClientboundSystemChatMessagePacket(message.toComponent(), isActionBar))
     }
 
+    fun sendPackets(packets: Collection<ClientboundPacket>) {
+        packets.forEach(::sendPacket)
+    }
+
     fun sendPacket(packet: ClientboundPacket) {
         if (!isConnected) return
         if (packet.state != networkManager.state) return
@@ -451,6 +462,7 @@ class Player(
 
         sendPacket(ClientboundRespawnPacket(this, ClientboundRespawnPacket.RespawnDataKept.KEEP_ALL))
         location = this.world.defaultSpawnLocation
+        isDead = false
 
         chunkViewSystem.resendChunks()
 

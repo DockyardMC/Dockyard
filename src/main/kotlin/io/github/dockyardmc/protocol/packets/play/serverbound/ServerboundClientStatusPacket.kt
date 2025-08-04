@@ -9,7 +9,7 @@ import io.netty.channel.ChannelHandlerContext
 class ServerboundClientStatusPacket(val action: ClientStatusAction) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        if (action == ClientStatusAction.RESPAWN) {
+        if (action == ClientStatusAction.RESPAWN && processor.player.isDead) {
             processor.player.respawn(true)
         }
     }

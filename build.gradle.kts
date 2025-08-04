@@ -11,7 +11,7 @@ plugins {
     `java-library`
 }
 
-val minecraftVersion = "1.21.6"
+val minecraftVersion = "1.21.8"
 val dockyardVersion = properties["dockyard.version"]!!
 val gitBranch = "git rev-parse --abbrev-ref HEAD".runCommand()
 val gitCommit = "git rev-parse --short=8 HEAD".runCommand()
@@ -30,6 +30,7 @@ repositories {
     maven("https://jitpack.io")
     maven("https://repo.spongepowered.org/repository/maven-public/")
     maven("https://repo.viaversion.com")
+    maven("https://maven.noxcrew.com/public")
 }
 
 dependencies {
@@ -51,6 +52,7 @@ dependencies {
     api("io.github.dockyardmc:scroll:3.2")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
     api("net.kyori:adventure-nbt:4.21.0")
+    api("com.noxcrew.noxesium:api:2.7.7")
 
     // Pathfinding
     api("com.github.Metaphoriker.pathetic:pathetic-engine:4.0")

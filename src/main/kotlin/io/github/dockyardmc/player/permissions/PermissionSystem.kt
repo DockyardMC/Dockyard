@@ -21,4 +21,6 @@ class PermissionSystem(val player: Player, val bindable: BindableList<String>): 
         }
     }
 
+    override fun dispose() {}
+
 }

@@ -188,6 +188,22 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
         }.getHashed()
     }
 
+    fun writeNoxesiumType(buffer: ByteBuf) {
+        val components = this.components.filter { it.value != null }
+        val emptyComponents = this.components.filter { it.value == null }
+
+        buffer.writeVarInt(components.size)
+        buffer.writeVarInt(emptyComponents.size)
+
+        components.forEach { (key, value) ->
+            buffer.writeString(DataComponentRegistry.getIdentifierById(key))
+            value!!.write(buffer)
+        }
+        emptyComponents.forEach { (key, _) ->
+            buffer.writeString(DataComponentRegistry.getIdentifierById(key))
+        }
+    }
+
     override fun write(buffer: ByteBuf) {
         var added = 0
         components.values.forEach { component ->
@@ -224,5 +240,12 @@ class DataComponentPatch(internal val components: Int2ObjectMap<DataComponent?>,
                 buffer.writeVarInt(entry.intKey)
             }
         }
+    }
+
+    override fun toString(): String {
+        val added = components.values.filterNotNull().map { it::class.simpleName }
+        val removed = components.values.filter { it == null }.size
+
+        return "DataComponentPatch(added = $added, removed = $removed)"
     }
 }
