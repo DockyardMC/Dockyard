@@ -49,7 +49,7 @@ data class ChunkPos(val x: Int, val z: Int) : NetworkWritable {
             val x = ChunkUtils.getChunkCoordinate(location.x)
             val z = ChunkUtils.getChunkCoordinate(location.z)
 
-            return ChunkPos(x, z)
+            return ChunkPos(z, x)
         }
     }
 }
