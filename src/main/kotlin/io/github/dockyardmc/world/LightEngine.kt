@@ -1,7 +1,10 @@
 package io.github.dockyardmc.world
 
+import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkSection
+import java.util.*
 
 class LightEngine(
     val chunk: Chunk
@@ -28,7 +31,8 @@ class LightEngine(
             for (z in 0..15) {
                 var foundSolid = false
                 for (y in 15 downTo 0) {
-                    var light = 15
+                    var light = 0
+//                    var light = 15
 
                     foundSolid = foundSolid || section.getBlock(x, y, z) != 0
 
@@ -37,15 +41,75 @@ class LightEngine(
                     }
 
                     set(x, y, z, light)
-                    //if(light == 0) {
-                    //    log("Writing light 0 for $x, $y, $z (section index $sectionIndex)")
-                    //    log("${recalcArray[getCoordIndex(x, y, z)  ushr 1]}")
-                    //}
+                }
+            }
+        }
+        skyLight[sectionIndex] = recalcArray
+        recalculateBlockLight(section, sectionIndex)
+    }
+
+    fun recalculateBlockLight(section: ChunkSection, sectionIndex: Int) {
+        recalcArray = ByteArray(ARRAY_SIZE)
+        val lightQueue: Queue<Vector3> = ArrayDeque()
+
+        for (x in 0..15) {
+            for (z in 0..15) {
+                for (y in 15 downTo 0) {
+                    var light = 0
+
+                    val blockId = section.getBlock(x, y, z)
+                    val block = Block.getBlockByStateId(blockId).registryBlock
+
+                    if (block.lightEmission > 0) {
+                        light = block.lightEmission
+                        lightQueue.add(Vector3(x, y, z))
+                    }
+
+                    set(x, y, z, light)
                 }
             }
         }
 
-        skyLight[sectionIndex] = recalcArray
+        lightPropagation(lightQueue, section, sectionIndex)
+        blockLight[sectionIndex] = recalcArray
+    }
+
+    fun lightPropagation(queue: Queue<Vector3>, section: ChunkSection, sectionIndex: Int) {
+        val directions = arrayOf(
+            Vector3(1, 0, 0), Vector3(-1, 0, 0),
+            Vector3(0, 1, 0), Vector3(0, -1, 0),
+            Vector3(0, 0, 1), Vector3(0, 0, -1)
+        )
+
+        while (queue.isNotEmpty()) {
+            val (x, y, z) = queue.poll()
+            val currentLightLevel = get(x, y, z)
+
+            if (currentLightLevel <= 1) {
+                continue
+            }
+
+            val newLightLevel = currentLightLevel - 1
+
+            for ((dX, dY, dZ) in directions) {
+                val neighborX = x + dX
+                val neighborY = y + dY
+                val neighborZ = z + dZ
+                if (neighborX in 0..15 && neighborY in 0..15 && neighborZ in 0..15) {
+                    val neighborBlockId = section.getBlock(neighborX, neighborY, neighborZ)
+                    val neighborBlock = Block.getBlockByStateId(neighborBlockId).registryBlock
+
+                    if (!neighborBlock.canOcclude) {
+                        val neighborCurrentLight = get(neighborX, neighborY, neighborZ)
+
+                        if (newLightLevel > neighborCurrentLight) {
+                            set(neighborX, neighborY, neighborZ, newLightLevel)
+                            queue.add(Vector3(neighborX, neighborY, neighborZ))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     operator fun set(x: Int, y: Int, z: Int, value: Int) {
@@ -58,6 +122,17 @@ class LightEngine(
         val shift = index and 1 shl 2
         val i = index ushr 1
         recalcArray[i] = (recalcArray[i].toInt() and (0xF0 ushr shift) or (value shl shift)).toByte()
+    }
+
+    operator fun get(x: Int, y: Int, z: Int): Int {
+        return this[x or (z shl 4) or (y shl 8)]
+    }
+
+    operator fun get(index: Int): Int {
+        val shift = index and 1 shl 2
+        val i = index ushr 1
+
+        return (recalcArray[i].toInt() ushr shift) and 0xF
     }
 
     fun hasNonZeroData(array: ByteArray?): Boolean {
