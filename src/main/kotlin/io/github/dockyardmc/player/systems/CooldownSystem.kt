@@ -5,7 +5,7 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.ItemGroupCooldownEndEvent
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.utils.getPlayerEventContext
-import io.github.dockyardmc.utils.ticksToMs
+import kotlin.time.Duration
 
 class CooldownSystem(val player: Player) : TickablePlayerSystem {
 
@@ -13,7 +13,7 @@ class CooldownSystem(val player: Player) : TickablePlayerSystem {
 
     override fun tick() {
         cooldowns.values.forEach { (group, cooldown) ->
-            if (System.currentTimeMillis() >= cooldown.startTime + ticksToMs(cooldown.durationTicks)) {
+            if (System.currentTimeMillis() >= cooldown.startTime + cooldown.duration.inWholeMilliseconds) {
                 cooldowns.remove(group)
                 Events.dispatch(ItemGroupCooldownEndEvent(player, cooldown, getPlayerEventContext(player)))
             }
@@ -28,5 +28,5 @@ class CooldownSystem(val player: Player) : TickablePlayerSystem {
 data class ItemGroupCooldown(
     var group: String,
     var startTime: Long,
-    var durationTicks: Int
+    var duration: Duration
 )

@@ -56,11 +56,13 @@ import io.github.dockyardmc.world.PlayerChunkViewSystem
 import io.github.dockyardmc.world.Weather
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
+import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.block.handlers.BlockHandlerManager
 import io.netty.channel.ChannelHandlerContext
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration
 
 class Player(
     val username: String,
@@ -410,7 +412,6 @@ class Player(
         )
         val addPacket = ClientboundPlayerInfoUpdatePacket(mapOf(this.uuid to updates.toList()))
 
-        this.sendPacket(removeInfo)
         this.sendPacket(entityRemovePacket)
         this.sendPacket(addPacket)
         this.respawn(false)
@@ -446,15 +447,15 @@ class Player(
         sendPacket(ClientboundClearTitlePacket(reset))
     }
 
-    fun sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
+    fun sendTitle(title: String, subtitle: String = "", fadeIn: Duration, stay: Duration, fadeOut: Duration) {
         val packets = mutableListOf(
             ClientboundSetSubtitlePacket(subtitle.toComponent()),
             ClientboundSetTitleTimesPacket(fadeIn, stay, fadeOut),
             ClientboundSetTitlePacket(title.toComponent()),
         )
 
-        packets.forEach {
-            this.sendPacket(it)
+        packets.forEach { packet ->
+            this.sendPacket(packet)
         }
     }
 
@@ -491,7 +492,7 @@ class Player(
         refreshAbilities()
         displayedSkinParts.triggerUpdate()
         sendPacket(ClientboundPlayerSynchronizePositionPacket(location))
-        sendPacketToViewers(ClientboundEntityTeleportPacket(this, location))
+        viewers.sendPacket(ClientboundEntityTeleportPacket(this, location))
         updateWeatherState()
     }
 
@@ -541,18 +542,18 @@ class Player(
         }
     }
 
-    fun setCooldown(item: Item, cooldownTicks: Int) {
-        setCooldown(item.identifier, cooldownTicks)
+    fun setCooldown(item: Item, cooldown: Duration) {
+        setCooldown(item.identifier, cooldown)
     }
 
-    fun setCooldown(group: String, cooldownTicks: Int) {
-        val cooldown = ItemGroupCooldown(group, System.currentTimeMillis(), cooldownTicks)
-        val event = ItemGroupCooldownStartEvent(this, cooldown, getPlayerEventContext(this))
+    fun setCooldown(group: String, cooldown: Duration) {
+        val groupCooldown = ItemGroupCooldown(group, System.currentTimeMillis(), cooldown)
+        val event = ItemGroupCooldownStartEvent(this, groupCooldown, getPlayerEventContext(this))
         Events.dispatch(event)
         if (event.cancelled) return
 
         cooldownSystem.cooldowns[group] = event.cooldown
-        sendPacket(SetItemCooldownPacket(event.cooldown.group, event.cooldown.durationTicks))
+        sendPacket(SetItemCooldownPacket(event.cooldown.group, event.cooldown.duration))
     }
 
     fun isOnCooldown(group: String): Boolean {
@@ -563,7 +564,7 @@ class Player(
         return isOnCooldown(item.identifier)
     }
 
-    fun breakBlock(location: Location, block: io.github.dockyardmc.world.block.Block, face: Direction) {
+    fun breakBlock(location: Location, block: Block, face: Direction) {
 
         val event = PlayerBlockBreakEvent(this, block, location)
         val item = this.getHeldItem(PlayerHand.MAIN_HAND)
@@ -622,10 +623,10 @@ class Player(
     }
 
     fun setVelocity(velocity: Vector3d) {
-        //this.velocity = velocity //specifically NOT set, this would be wrong + simulation needs to be written, so It's accurate with client
+        //this.velocity = velocity //specifically NOT set, this would be wrong + simulation needs to be written, so It's accurate with the client
         val packet = ClientboundSetEntityVelocityPacket(this, velocity * Vector3d(8000.0 / 20.0))
         sendPacket(packet)
-        sendPacketToViewers(packet)
+        viewers.sendPacket(packet)
     }
 
     override fun dispose() {

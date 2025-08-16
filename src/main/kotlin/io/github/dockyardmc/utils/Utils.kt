@@ -14,12 +14,14 @@ import java.util.*
 import kotlin.experimental.and
 import kotlin.reflect.KClass
 
+private val MINECRAFT_USERNAME_REGEX = Regex("^[a-zA-Z0-9_]*$")
+
 fun isValidMinecraftUsername(username: String): Boolean {
-    if(username.isEmpty()) return false
-    if(username.contains(" ")) return false
-    if(!username.matches(Regex("^[a-zA-Z0-9_]*$"))) return false
-    if(username.length <= 2) return false
-    if(username.length > 16) return false
+    if (username.isEmpty()) return false
+    if (username.contains(" ")) return false
+    if (!username.matches(MINECRAFT_USERNAME_REGEX)) return false
+    if (username.length <= 2) return false
+    if (username.length > 16) return false
 
     return true
 }
@@ -35,8 +37,6 @@ fun bitMask(mask: Byte, compare: Byte): Boolean {
 fun bitMask(mask: Byte, compare: Int): Boolean {
     return bitMask(mask, compare.toByte())
 }
-
-fun ticksToMs(ticks: Int): Int = ticks * 50
 
 fun getEnumEntries(enumClass: KClass<Enum<*>>): List<Enum<*>> = enumClass.java.enumConstants.toList()
 

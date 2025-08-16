@@ -21,6 +21,7 @@ import io.github.dockyardmc.particles.data.BlockParticleData
 import io.github.dockyardmc.particles.spawnParticle
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityTeleportPacket
+import io.github.dockyardmc.provider.PlayerMessageProvider
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.registry.registries.BlockRegistry
@@ -46,12 +47,15 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType) : Disposable {
+class World(var name: String, var generator: WorldGenerator, var dimensionType: DimensionType) : Disposable, PlayerMessageProvider {
+
+    override val playerGetter: Collection<Player>
+        get() = players
 
     val eventPool = EventPool(Events, "$name world listeners")
     val bindablePool = BindablePool()
     val scheduler = CustomRateScheduler("${name}_world_scheduler")
-    val uuid = UUID.randomUUID()
+    val uuid: UUID = UUID.randomUUID()
 
     val worldSeed = UUID.randomUUID().leastSignificantBits.toString()
     var seed: Long = worldSeed.SHA256Long()
@@ -395,9 +399,8 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         if (chunk == null) {
             generateChunk(x, z)
             return getChunk(x, z)!!
-        } else {
-            return chunk
         }
+        return chunk
     }
 
     fun generateChunk(pos: ChunkPos): Chunk {
@@ -481,5 +484,6 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         WorldManager.worlds.remove(this.name)
         scheduler.dispose()
         eventPool.dispose()
+        bindablePool.dispose()
     }
 }

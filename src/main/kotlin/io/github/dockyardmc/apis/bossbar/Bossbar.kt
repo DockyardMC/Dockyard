@@ -7,6 +7,8 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.BossbarPacketAction
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundBossbarPacket
+import io.github.dockyardmc.provider.PlayerMessageProvider
+import io.github.dockyardmc.provider.PlayerPacketProvider
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.viewable.Viewable
 import java.util.*
@@ -16,7 +18,10 @@ class Bossbar(
     val progress: Bindable<Float> = Bindable(0f),
     val color: Bindable<BossbarColor> = Bindable(BossbarColor.WHITE),
     val notches: Bindable<BossbarNotches> = Bindable(BossbarNotches.NO_NOTCHES),
-) : Disposable, Viewable() {
+) : Disposable, Viewable(), PlayerMessageProvider, PlayerPacketProvider {
+
+    override val playerGetter: Collection<Player>
+        get() = viewers
 
     override var autoViewable: Boolean = false
 
