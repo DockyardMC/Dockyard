@@ -4,12 +4,14 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.provider.PlayerMessageProvider
+import io.github.dockyardmc.provider.PlayerPacketProvider
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
 import java.util.concurrent.CompletableFuture
@@ -17,9 +19,12 @@ import java.util.concurrent.CompletableFuture
 class Bound(
     var firstLocation: Location,
     var secondLocation: Location,
-) : Disposable {
+) : Disposable, PlayerMessageProvider, PlayerPacketProvider {
     val world get() = firstLocation.world
     val size: Vector3 get() = firstLocation.distanceVector(secondLocation).toVector3()
+
+    override val playerGetter: Collection<Player>
+        get() = members
 
     private val members: MutableList<Player> = mutableListOf()
     val players: List<Player> get() = members.toList()

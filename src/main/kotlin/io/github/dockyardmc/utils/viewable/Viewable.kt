@@ -44,13 +44,13 @@ abstract class Viewable {
         return viewers.contains(player)
     }
 
-    fun sendPacketToViewers(packet: ClientboundPacket) {
-        viewers.sendPacket(packet)
-    }
-
     fun clearViewers() {
         viewers.toList().forEach { viewer ->
             removeViewer(viewer)
         }
+    }
+
+    fun sendPacketToViewers(packet: ClientboundPacket) {
+        viewers.sendPacket(packet)
     }
 }

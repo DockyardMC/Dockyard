@@ -4,15 +4,20 @@ import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
+import io.github.dockyardmc.provider.PlayerMessageProvider
+import io.github.dockyardmc.provider.PlayerPacketProvider
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.viewable.Viewable
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewable(), Disposable {
+class Sidebar(initialTitle: String, initialLines: Map<Int, SidebarLine>) : Viewable(), Disposable, PlayerMessageProvider, PlayerPacketProvider {
 
     val title: Bindable<String> = Bindable(initialTitle)
+
+    override val playerGetter: Collection<Player>
+        get() = viewers
 
     private val indexToLineMap: Int2ObjectOpenHashMap<SidebarLine> = Int2ObjectOpenHashMap(initialLines)
     val lines get() = indexToLineMap.toList()

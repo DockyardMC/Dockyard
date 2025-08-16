@@ -7,7 +7,6 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.Player.ChestAnimation
-//import io.github.dockyardmc.player.setSkin
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
@@ -15,6 +14,7 @@ import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.Screen
 import java.util.*
+import kotlin.time.Duration
 
 fun <T> MutableList<T>.addAllNonDuplicates(other: Collection<T>) {
     val nonDuplicates = other.filter { item -> !this.contains(item) }
@@ -65,12 +65,12 @@ fun Collection<Player>.playTotemAnimation(customModelData: Float? = null) {
     this.forEach { player -> player.playTotemAnimation(customModelData) }
 }
 
-fun Collection<Player>.setCooldown(item: Item, cooldownTicks: Int) {
-    this.forEach { player -> player.setCooldown(item, cooldownTicks) }
+fun Collection<Player>.setCooldown(item: Item, cooldown: Duration) {
+    this.forEach { player -> player.setCooldown(item, cooldown) }
 }
 
-fun Collection<Player>.setCooldown(group: String, cooldownTicks: Int) {
-    this.forEach { player -> player.setCooldown(group, cooldownTicks) }
+fun Collection<Player>.setCooldown(group: String, cooldown: Duration) {
+    this.forEach { player -> player.setCooldown(group, cooldown) }
 }
 
 fun Collection<Player>.playChestAnimation(chestLocation: Location, animation: ChestAnimation) {
@@ -97,7 +97,7 @@ fun Collection<Player>.sendActionBar(message: String) {
     this.toList().forEach { player -> player.sendActionBar(message) }
 }
 
-fun Collection<Player>.sendTitle(title: String, subtitle: String = "", fadeIn: Int = 10, stay: Int = 60, fadeOut: Int = 10) {
+fun Collection<Player>.sendTitle(title: String, subtitle: String = "", fadeIn: Duration, stay: Duration, fadeOut: Duration) {
     this.toList().forEach { it.sendTitle(title, subtitle, fadeIn, stay, fadeOut) }
 }
 
