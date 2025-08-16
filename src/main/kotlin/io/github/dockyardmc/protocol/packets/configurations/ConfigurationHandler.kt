@@ -1,13 +1,11 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
 //import io.github.dockyardmc.player.setSkin
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.apis.serverlinks.ServerLinks
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.Player
@@ -29,7 +27,6 @@ import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.chunk.ChunkPos
 import io.netty.channel.ChannelHandlerContext
-import java.util.concurrent.CompletableFuture
 
 class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(processor) {
 
@@ -72,9 +69,8 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
             val pendingPacks = ResourcepackManager.pendingResourcePacks[player] ?: mutableMapOf()
 
             if (pendingPacks.isNotEmpty()) {
-                val futures = pendingPacks.map { it.value.future }
-                debug("Waiting for pack futures for $player (${futures.size} futures)")
-                CompletableFuture.allOf(*futures.toTypedArray()).thenAccept {
+                debug("Waiting for pack futures for $player..")
+                ResourcepackManager.sendQueuedConfigurationPacks(player).thenAccept {
                     debug("Finished loading resourcepacks for $player, entering play state")
                     connection.sendPacket(finishConfigurationPacket, networkManager)
                 }
