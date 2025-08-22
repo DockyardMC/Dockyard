@@ -21,13 +21,13 @@ class ClientboundSetEntityEquipmentPacket(val entity: Entity, val equipment: Map
         equipmentList[7] = equipment.getOrDefault(EquipmentSlot.SADDLE, ItemStack.AIR)
 
         var index = 0
-        equipmentList.forEach {
+        equipmentList.forEach { entry ->
             val last = index++ == equipmentList.size - 1
-            var slotEnum = it.key.toByte()
+            var slotEnum = entry.key.toByte()
             if (!last) slotEnum = (slotEnum.toInt() or 0x80).toByte()
 
             buffer.writeByte(slotEnum.toInt())
-            it.value.write(buffer)
+            entry.value.write(buffer)
         }
     }
 

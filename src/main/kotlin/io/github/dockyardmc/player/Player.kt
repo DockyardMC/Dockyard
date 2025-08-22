@@ -163,7 +163,6 @@ class Player(
         playerInfoSystem.handle(customName, isListed)
 
         heldSlotIndex.valueChanged { index ->
-            this.sendPacket(ClientboundSetHeldItemPacket(index.newValue))
             val item = inventory[index.newValue]
             equipment[EquipmentSlot.MAIN_HAND] = item
         }
@@ -242,6 +241,11 @@ class Player(
 
     override fun canPickupItem(dropEntity: ItemDropEntity, item: ItemStack): Boolean {
         return this.give(item)
+    }
+
+    fun forceSetHeldSlotIndex(slot: Int) {
+        this.sendPacket(ClientboundSetHeldItemPacket(slot))
+        heldSlotIndex.value = slot
     }
 
     override fun tick() {

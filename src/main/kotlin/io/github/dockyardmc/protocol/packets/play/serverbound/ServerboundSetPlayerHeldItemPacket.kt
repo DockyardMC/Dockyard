@@ -10,17 +10,16 @@ import io.netty.channel.ChannelHandlerContext
 class ServerboundSetPlayerHeldItemPacket(val slot: Int) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        // Spectator mode scroll for fly speed
         val beforeSlot = processor.player.heldSlotIndex.value
-        processor.player.heldSlotIndex.setSilently(slot)
 
         val event = PlayerSelectedHotbarSlotChangeEvent(processor.player, slot)
         Events.dispatch(event)
 
         if (event.cancelled) {
-            processor.player.heldSlotIndex.setSilently(beforeSlot)
+            processor.player.heldSlotIndex.value = beforeSlot
             return
         }
+        processor.player.heldSlotIndex.value = slot
     }
 
     companion object {
