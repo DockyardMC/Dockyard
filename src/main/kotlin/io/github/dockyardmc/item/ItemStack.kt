@@ -226,7 +226,6 @@ data class ItemStack(
 
     fun <T : Any> setCustomData(key: String, value: T) {
         customDataHolder[key] = value
-        log("set custom data $key, $value")
         rebuildCustomDataNbt()
     }
 
