@@ -6,13 +6,13 @@ import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.StaticHash
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.types.ItemRarity
-import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.netty.buffer.ByteBuf
 
-class RarityComponent(val rarity: ItemRarity) : DataComponent(true) {
+data class RarityComponent(val rarity: ItemRarity) : DataComponent(true) {
 
     override fun write(buffer: ByteBuf) {
-        CODEC.writeNetwork(buffer, this)
+        STREAM_CODEC.write(buffer, this)
     }
 
     override fun hashStruct(): HashHolder {
@@ -20,13 +20,13 @@ class RarityComponent(val rarity: ItemRarity) : DataComponent(true) {
     }
 
     companion object : NetworkReadable<RarityComponent> {
-        val CODEC = Codec.of(
-            "rarity", Codec.enum<ItemRarity>(), RarityComponent::rarity,
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.enum(), RarityComponent::rarity,
             ::RarityComponent
         )
 
         override fun read(buffer: ByteBuf): RarityComponent {
-            return CODEC.readNetwork(buffer)
+            return STREAM_CODEC.read(buffer)
         }
     }
 }

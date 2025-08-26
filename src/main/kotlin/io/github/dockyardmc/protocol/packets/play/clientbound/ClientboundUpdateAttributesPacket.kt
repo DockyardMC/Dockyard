@@ -13,14 +13,14 @@ import io.github.dockyardmc.registry.registries.Attribute
 import io.github.dockyardmc.registry.registries.AttributeRegistry
 import io.netty.buffer.ByteBuf
 
-class ClientboundUpdateAttributesPacket(val entity: Entity, val properties: Collection<Property>): ClientboundPacket() {
+class ClientboundUpdateAttributesPacket(val entity: Entity, val properties: Collection<Property>) : ClientboundPacket() {
 
     init {
         buffer.writeVarInt(entity.id)
         buffer.writeList(properties, Property::write)
     }
 
-    data class Property(val attribute: Attribute, val value: Double, val modifiers: Collection<AttributeModifier>): NetworkWritable {
+    data class Property(val attribute: Attribute, val value: Double, val modifiers: Collection<AttributeModifier>) : NetworkWritable {
 
         override fun write(buffer: ByteBuf) {
             buffer.writeVarInt(attribute.getProtocolId())
@@ -28,13 +28,13 @@ class ClientboundUpdateAttributesPacket(val entity: Entity, val properties: Coll
             buffer.writeList(modifiers, AttributeModifier::write)
         }
 
-        companion object: NetworkReadable<Property> {
+        companion object : NetworkReadable<Property> {
 
             override fun read(buffer: ByteBuf): Property {
                 return Property(
                     attribute = AttributeRegistry.getByProtocolId(buffer.readVarInt()),
                     value = buffer.readDouble(),
-                    modifiers = buffer.readList(AttributeModifier::read)
+                    modifiers = buffer.readList { b -> AttributeModifier.STREAM_CODEC.read(b) }
                 )
             }
         }
