@@ -9,9 +9,9 @@ import kotlin.math.floor
 fun blockRaycast(origin: Location, direction: Vector3d, maxDistance: Double, stepSize: Double = 0.1): Pair<Location, io.github.dockyardmc.world.block.Block>? {
     var currentPosition = origin
     var distanceTraveled = 0.0
+    val stepVector = direction.normalized() * Vector3d(stepSize)
 
     while (distanceTraveled < maxDistance) {
-        val stepVector = direction.normalized() * Vector3d(stepSize)
         currentPosition = currentPosition.add(stepVector)
         distanceTraveled += stepSize
 
@@ -38,5 +38,5 @@ fun hitSolidBlock(position: Location): Pair<Boolean, io.github.dockyardmc.world.
 
     val block = position.world.getBlock(blockX, blockY, blockZ)
     val isSolid = block.registryBlock.isSolid
-    return if (!isSolid) (true to Blocks.AIR.toBlock()) else (false to block)
+    return if (!isSolid) (false to Blocks.AIR.toBlock()) else (true to block)
 }
