@@ -43,6 +43,17 @@ interface Event {
             this.players + this.entities + this.worlds + this.locations + other
         }
 
+        fun withContext(context: Context): Context {
+            val newContext = Context(
+                this.players + context.players,
+                this.entities + context.entities,
+                this.worlds + context.worlds,
+                this.locations + context.locations,
+                this.other + context.other,
+            )
+            return newContext
+        }
+
         operator fun contains(element: Any) = other.contains(element)
 
         // I hate everything about this

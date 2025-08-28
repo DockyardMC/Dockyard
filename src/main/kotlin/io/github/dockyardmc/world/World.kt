@@ -31,10 +31,7 @@ import io.github.dockyardmc.scheduler.CustomRateScheduler
 import io.github.dockyardmc.scheduler.runLaterAsync
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.UsedAfterDisposedException
-import io.github.dockyardmc.utils.debug
-import io.github.dockyardmc.utils.getWorldEventContext
+import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.block.BatchBlockUpdate
 import io.github.dockyardmc.world.block.Block
@@ -189,7 +186,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         addEntity(player)
         addPlayer(player)
 
-        Events.dispatch(PlayerChangeWorldEvent(player, oldWorld, this))
+        Events.dispatch(PlayerChangeWorldEvent(player, oldWorld, this, getPlayerEventContext(player).withContext(getWorldEventContext(oldWorld))))
 
         playerJoinQueue.remove(player)
 
@@ -219,7 +216,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
             playerJoinQueue.forEach { (player, location) ->
                 join(player, location)
             }
-            val event = WorldFinishLoadingEvent(this)
+            val event = WorldFinishLoadingEvent(this, getWorldEventContext(this))
             Events.dispatch(event)
             future.complete(Unit)
         }

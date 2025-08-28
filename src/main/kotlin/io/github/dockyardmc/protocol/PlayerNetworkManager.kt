@@ -22,6 +22,7 @@ import io.github.dockyardmc.protocol.plugin.LoginPluginMessageHandler
 import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.server.ServerMetrics
 import io.github.dockyardmc.utils.debug
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
@@ -57,7 +58,7 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
             debug("-> Received $className", logType = LogType.NETWORK)
         }
 
-        val event = PacketReceivedEvent(packet.packet, this, connection, packet.size, packet.id)
+        val event = PacketReceivedEvent(packet.packet, this, connection, packet.size, packet.id, getPlayerEventContext(this.player))
         Events.dispatch(event)
         if (event.cancelled) return
 

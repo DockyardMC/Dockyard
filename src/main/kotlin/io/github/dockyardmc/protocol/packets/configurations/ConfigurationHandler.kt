@@ -31,7 +31,7 @@ import io.netty.channel.ChannelHandlerContext
 class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(processor) {
 
     fun handlePluginMessage(packet: ServerboundConfigurationPluginMessagePacket, connection: ChannelHandlerContext) {
-        val event = PluginMessageReceivedEvent(processor.player, packet.channel, packet.data)
+        val event = PluginMessageReceivedEvent(processor.player, packet.channel, packet.data, getPlayerEventContext(processor.player))
         Events.dispatch(event)
         if (event.cancelled) {
             packet.data.release()
@@ -49,14 +49,12 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
             val networkManager = player.networkManager
 
             // Send server brand
-            val serverBrandEvent = ServerBrandEvent("§3DockyardMC ${DockyardServer.versionInfo.getFormatted(DockyardServer.minecraftVersion)}§r")
+            val serverBrandEvent = ServerBrandEvent("§3DockyardMC ${DockyardServer.versionInfo.getFormatted(DockyardServer.minecraftVersion)}§r", getPlayerEventContext(player))
             Events.dispatch(serverBrandEvent)
             connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"), networkManager)
 
             // Send feature flags
-            val featureFlagsEvent = PlayerSendFeatureFlagsEvent(FeatureFlags.enabledFlags, getPlayerEventContext(player))
-            Events.dispatch(featureFlagsEvent)
-            connection.sendPacket(ClientboundFeatureFlagsPacket(featureFlagsEvent.featureFlags), networkManager)
+            connection.sendPacket(ClientboundFeatureFlagsPacket(FeatureFlags.enabledFlags), networkManager)
 
             connection.sendPacket(cachedTagPacket, networkManager)
 
@@ -91,7 +89,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
         processor.state = ProtocolState.PLAY
         processor.player.releaseMessagesQueue()
 
-        val event = PlayerSpawnEvent(player, WorldManager.mainWorld)
+        val event = PlayerSpawnEvent(player, WorldManager.mainWorld, getPlayerEventContext(player))
         Events.dispatch(event)
         val world = event.world
 
@@ -134,7 +132,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
         player.sendPacket(gameEventPacket)
 
         ServerStatusManager.updateCache()
-        Events.dispatch(PlayerJoinEvent(processor.player))
+        Events.dispatch(PlayerJoinEvent(processor.player, getPlayerEventContext(processor.player)))
 
         player.sendPacket(ClientboundCommandsPacket(buildCommandGraph(player)))
 

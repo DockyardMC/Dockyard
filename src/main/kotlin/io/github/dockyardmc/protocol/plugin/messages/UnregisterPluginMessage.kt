@@ -3,6 +3,7 @@ package io.github.dockyardmc.protocol.plugin.messages
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.UnregisterPluginChannelsEvent
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.util.AsciiString
 import java.nio.charset.StandardCharsets
@@ -30,7 +31,7 @@ class UnregisterPluginMessage(val channels: List<String>): PluginMessageHandler(
     }
 
     override fun handle(player: Player) {
-        val event = UnregisterPluginChannelsEvent(player, channels)
+        val event = UnregisterPluginChannelsEvent(player, channels, getPlayerEventContext(player))
         Events.dispatch(event)
     }
 

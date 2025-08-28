@@ -31,6 +31,7 @@ import io.github.dockyardmc.spark.SparkDockyardIntegration
 import io.github.dockyardmc.utils.InstrumentationUtils
 import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.utils.UpdateChecker
+import io.github.dockyardmc.utils.getWorldEventContext
 import io.github.dockyardmc.world.WorldManager
 
 class DockyardServer(configBuilder: Config.() -> Unit) {
@@ -132,7 +133,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             nettyServer.start()
         }
 
-        Events.dispatch(WorldFinishLoadingEvent(WorldManager.mainWorld))
+        Events.dispatch(WorldFinishLoadingEvent(WorldManager.mainWorld, getWorldEventContext(WorldManager.mainWorld)))
     }
 
     companion object : PlayerMessageProvider, PlayerPacketProvider {

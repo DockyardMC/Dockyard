@@ -4,22 +4,24 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerSelectedHotbarSlotChangeEvent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 class ServerboundSetPlayerHeldItemPacket(val slot: Int) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        val beforeSlot = processor.player.heldSlotIndex.value
+        val player = processor.player
+        val beforeSlot = player.heldSlotIndex.value
 
-        val event = PlayerSelectedHotbarSlotChangeEvent(processor.player, slot)
+        val event = PlayerSelectedHotbarSlotChangeEvent(processor.player, slot, getPlayerEventContext(player))
         Events.dispatch(event)
 
         if (event.cancelled) {
-            processor.player.heldSlotIndex.value = beforeSlot
+            player.heldSlotIndex.value = beforeSlot
             return
         }
-        processor.player.heldSlotIndex.value = slot
+        player.heldSlotIndex.value = slot
     }
 
     companion object {

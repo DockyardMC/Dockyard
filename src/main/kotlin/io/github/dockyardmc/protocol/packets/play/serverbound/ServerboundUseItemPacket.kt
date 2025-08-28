@@ -9,6 +9,7 @@ import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.player.systems.startConsumingIfApplicable
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -18,7 +19,7 @@ class ServerboundUseItemPacket(val hand: PlayerHand, val sequence: Int, val yaw:
         val player = processor.player
         val item = player.getHeldItem(PlayerHand.MAIN_HAND)
 
-        val event = PlayerRightClickWithItemEvent(player, item)
+        val event = PlayerRightClickWithItemEvent(player, item, getPlayerEventContext(player))
         Events.dispatch(event)
         if(event.cancelled) return
 
