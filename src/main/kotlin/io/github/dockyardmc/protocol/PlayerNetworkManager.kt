@@ -55,7 +55,7 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
             debug("-> Received $className", logType = LogType.NETWORK)
         }
 
-        val context = if (isPlayerInitialized()) getPlayerEventContext(this.player) else Event.Context()
+        val context = if (isPlayerInitialized()) getPlayerEventContext(this.player) else Event.Context.EMPTY
         val event = PacketReceivedEvent(packet.packet, this, connection, packet.size, packet.id, context)
         Events.dispatch(event)
         if (event.cancelled) return
