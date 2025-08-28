@@ -19,6 +19,7 @@ interface Event {
     ) {
         companion object {
             val GLOBAL = Context(isGlobalEvent = true)
+            val EMPTY = Context()
         }
 
         // Combining sets is expensive and is done in initialization of every event.

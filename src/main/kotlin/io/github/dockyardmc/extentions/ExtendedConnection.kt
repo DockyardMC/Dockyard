@@ -2,6 +2,7 @@ package io.github.dockyardmc.extentions
 
 import cz.lukynka.prettylog.LogType
 import io.github.dockyardmc.DockyardServer
+import io.github.dockyardmc.events.Event
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PacketSentEvent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
@@ -13,7 +14,8 @@ import io.netty.channel.ChannelHandlerContext
 
 fun ChannelHandlerContext.sendPacket(packet: ClientboundPacket, processor: PlayerNetworkManager) {
 
-    val event = PacketSentEvent(packet, processor, this, getPlayerEventContext(processor.player))
+    val context = if (processor.isPlayerInitialized()) getPlayerEventContext(processor.player) else Event.Context.EMPTY
+    val event = PacketSentEvent(packet, processor, this, context)
     Events.dispatch(event)
     if (event.cancelled) return
 
