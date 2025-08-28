@@ -1,9 +1,7 @@
 package io.github.dockyardmc.protocol.packets.play.serverbound
 
 import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PlayerIputEvent
-import io.github.dockyardmc.extentions.addIfNotPresent
-import io.github.dockyardmc.extentions.removeIfPresent
+import io.github.dockyardmc.events.PlayerInputEvent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.utils.bitMask
@@ -31,7 +29,7 @@ class ServerboundClientInputPacket(
         if(shift) player.heldInputs.addIfNotPresent(Input.SHIFT) else player.heldInputs.removeIfPresent(Input.SHIFT)
         if(sprint) player.heldInputs.addIfNotPresent(Input.SPRINT) else player.heldInputs.removeIfPresent(Input.SPRINT)
 
-        Events.dispatch(PlayerIputEvent(processor.player, forward, backward, left, right, jump, shift, sprint, getPlayerEventContext(processor.player)))
+        Events.dispatch(PlayerInputEvent(processor.player, forward, backward, left, right, jump, shift, sprint, getPlayerEventContext(processor.player)))
     }
 
     enum class Input {
