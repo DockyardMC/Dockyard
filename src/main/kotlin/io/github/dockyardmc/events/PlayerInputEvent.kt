@@ -4,7 +4,7 @@ import io.github.dockyardmc.annotations.EventDocumentation
 import io.github.dockyardmc.player.Player
 
 @EventDocumentation("when player uses movement input")
-data class PlayerIputEvent(
+data class PlayerInputEvent(
     val player: Player,
     val forward: Boolean,
     val backward: Boolean,

@@ -5,7 +5,5 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 
-@EventDocumentation("when player steers a vehicle", false)
-class PlayerSteerVehicleEvent(val player: Player, val vehicle: Entity, val location: Location, override val context: Event.Context) : Event {
-
-}
+@EventDocumentation("when player steers a vehicle")
+data class PlayerSteerVehicleEvent(val player: Player, val vehicle: Entity, val location: Location, override val context: Event.Context) : Event

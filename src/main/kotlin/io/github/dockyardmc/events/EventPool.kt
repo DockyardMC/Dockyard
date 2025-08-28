@@ -4,7 +4,7 @@ import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.events.system.EventSystem
 
 class EventPool(override var parent: EventSystem? = Events, name: String? = null) : EventSystem() {
-    override var name: String = name ?: super.name.replace("eventsystem", "eventpool")
+    override var name: String = name ?: super.name.replace("event_system", "event_pool")
 
     init {
         parent?.addChild(this)

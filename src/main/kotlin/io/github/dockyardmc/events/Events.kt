@@ -12,7 +12,7 @@ object Events : EventSystem() {
     }
 
     /**
-     * Removes all event listeners, and all children from main
+     * Removes all event listeners and all children from the main
      * events tree
      */
     override fun dispose() {
