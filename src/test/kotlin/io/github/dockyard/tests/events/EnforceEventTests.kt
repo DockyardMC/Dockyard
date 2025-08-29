@@ -9,7 +9,6 @@ class EnforceEventTests : EnforceTestsAbstract() {
     override val prodPackage: String = "io.github.dockyardmc.events"
     override val ignoredClasses: List<Class<*>> = listOf(
         PlayerEnterConfigurationEvent::class.java,
-        PlayerSendFeatureFlagsEvent::class.java,
         PlayerLeaveEvent::class.java,
         ServerFinishLoadEvent::class.java,
         PlayerClientSettingsEvent::class.java,
