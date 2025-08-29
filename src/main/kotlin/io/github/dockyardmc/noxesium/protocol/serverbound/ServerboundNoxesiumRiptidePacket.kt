@@ -1,20 +1,19 @@
 package io.github.dockyardmc.noxesium.protocol.serverbound
 
 import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
-import io.github.dockyardmc.tide.Codec
-import io.github.dockyardmc.tide.Codecs
+import io.github.dockyardmc.tide.stream.StreamCodec
 
 data class ServerboundNoxesiumRiptidePacket(
     val slot: Int
 ) : NoxesiumPacket {
 
-    override fun getStreamCodec(): Codec<out NoxesiumPacket> {
+    override fun getStreamCodec(): StreamCodec<out NoxesiumPacket> {
         return STREAM_CODEC
     }
 
     companion object {
-        val STREAM_CODEC = Codec.of(
-            "slot", Codecs.VarInt, ServerboundNoxesiumRiptidePacket::slot,
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.VAR_INT, ServerboundNoxesiumRiptidePacket::slot,
             ::ServerboundNoxesiumRiptidePacket
         )
     }

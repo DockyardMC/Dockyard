@@ -4,8 +4,8 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerBlockPlaceEvent
 import io.github.dockyardmc.events.PlayerBlockRightClickEvent
 import io.github.dockyardmc.events.PlayerFinishPlacingBlockEvent
-import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readEnum
+import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.readBlockPosition
 import io.github.dockyardmc.maths.vectors.Vector3
@@ -19,6 +19,7 @@ import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.registries.BlockRegistry
+import io.github.dockyardmc.utils.getLocationEventContext
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.isDoubleInteract
 import io.github.dockyardmc.world.block.Block
@@ -42,6 +43,7 @@ class ServerboundUseItemOnBlockPacket(
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
         val item = player.getHeldItem(hand)
+        val location = pos.toLocation(player.world)
 
         // since minecraft sends 2 packets at once, we need to make sure that only one gets handled
         if (isDoubleInteract(player)) return
@@ -49,7 +51,7 @@ class ServerboundUseItemOnBlockPacket(
         var cancelled = false
 
         val newPos = pos.copy()
-        val originalBlock = player.world.getBlock(pos.toLocation(player.world))
+        val originalBlock = player.world.getBlock(location)
 
         when (face) {
             Direction.UP -> newPos.y += 1
@@ -61,16 +63,17 @@ class ServerboundUseItemOnBlockPacket(
         }
 
         // prevent desync?
-        pos.toLocation(player.world).getChunk()?.let { chunk ->
+        location.getChunk()?.let { chunk ->
             player.sendPacket(chunk.packet)
         }
 
         val event = PlayerBlockRightClickEvent(
             player,
             item,
-            player.world.getBlock(pos.toLocation(player.world)),
+            player.world.getBlock(location),
             face,
-            pos.toLocation(player.world)
+            location,
+            getPlayerEventContext(player).withContext(getLocationEventContext(location))
         )
         Events.dispatch(event)
 
@@ -111,7 +114,8 @@ class ServerboundUseItemOnBlockPacket(
                 cancelled = true
             }
 
-            val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation(player.world))
+            val newLocation = newPos.toLocation(player.world)
+            val blockPlaceEvent = PlayerBlockPlaceEvent(player, block, newPos.toLocation(player.world), getPlayerEventContext(player).withContext(getLocationEventContext(newLocation)))
 
             Events.dispatch(blockPlaceEvent)
 
@@ -149,7 +153,7 @@ class ServerboundUseItemOnBlockPacket(
             return
         }
 
-        if(!cancelled) {
+        if (!cancelled) {
             player.lastInteractionTime = System.currentTimeMillis()
         }
     }

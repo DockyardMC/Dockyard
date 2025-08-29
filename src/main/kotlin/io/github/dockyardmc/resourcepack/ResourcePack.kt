@@ -1,8 +1,6 @@
 package io.github.dockyardmc.resourcepack
 
-import io.github.dockyardmc.codec.ComponentCodecs
-import io.github.dockyardmc.tide.Codec
-import io.github.dockyardmc.tide.Codecs
+import io.github.dockyardmc.tide.stream.StreamCodec
 import java.util.*
 
 data class ResourcePack(
@@ -13,12 +11,12 @@ data class ResourcePack(
     val promptMessage: String?,
 ) {
     companion object {
-        val STREAM_CODEC = Codec.of(
-            "id", Codecs.UUID, ResourcePack::uuid,
-            "url", Codecs.String, ResourcePack::url,
-            "hash", Codecs.String, ResourcePack::hash,
-            "required", Codecs.Boolean, ResourcePack::required,
-            "prompt", ComponentCodecs.StringType.optional(), ResourcePack::promptMessage,
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.UUID, ResourcePack::uuid,
+            StreamCodec.STRING, ResourcePack::url,
+            StreamCodec.STRING, ResourcePack::hash,
+            StreamCodec.BOOLEAN, ResourcePack::required,
+            StreamCodec.STRING.optional(), ResourcePack::promptMessage,
             ::ResourcePack
         )
     }

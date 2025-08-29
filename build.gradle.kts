@@ -43,11 +43,6 @@ dependencies {
     implementation("net.bytebuddy:byte-buddy-agent:1.14.12")
     implementation("org.jctools:jctools-core:4.0.5")
 
-    api("io.github.dockyardmc:bytesocks-client-java:1.0-SNAPSHOT") {
-        exclude(module = "slf4j-api")
-    }
-    api("com.google.protobuf:protobuf-javalite:4.28.2")
-
     // Minecraft
     api("io.github.dockyardmc:scroll:3.2")
     implementation("io.github.dockyardmc:wikivg-datagen:1.3")
@@ -61,7 +56,11 @@ dependencies {
 
     // Networking
     api("io.ktor:ktor-server-netty:3.1.2")
-    api("io.github.dockyardmc:tide:1.7")
+    api("io.github.dockyardmc:tide:3.1")
+    api("io.github.dockyardmc:bytesocks-client-java:1.0-SNAPSHOT") {
+        exclude(module = "slf4j-api")
+    }
+    api("com.google.protobuf:protobuf-javalite:4.28.2")
 
     // Logging
     implementation("org.slf4j:slf4j-nop:2.0.9")
@@ -74,9 +73,11 @@ dependencies {
     api("it.unimi.dsi:fastutil:8.5.13")
     api("cz.lukynka:kotlin-bindables:2.2")
 
+    // Spark
     api("io.github.dockyardmc:spark-api:1.12-SNAPSHOT")
     api("io.github.dockyardmc:spark-common:1.12-SNAPSHOT")
 
+    // Testing
     testImplementation(kotlin("test"))
     testImplementation("org.mockito:mockito-core:5.4.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")

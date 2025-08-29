@@ -8,6 +8,7 @@ import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoRemovePacket
 import io.github.dockyardmc.provider.PlayerMessageProvider
 import io.github.dockyardmc.provider.PlayerPacketProvider
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.ktor.util.network.*
@@ -67,7 +68,7 @@ object PlayerManager : PlayerMessageProvider, PlayerPacketProvider {
 
         processor.player = player
         EntityManager.addPlayer(player)
-        Events.dispatch(PlayerConnectEvent(player))
+        Events.dispatch(PlayerConnectEvent(player, getPlayerEventContext(player)))
     }
 
     fun remove(player: Player) {

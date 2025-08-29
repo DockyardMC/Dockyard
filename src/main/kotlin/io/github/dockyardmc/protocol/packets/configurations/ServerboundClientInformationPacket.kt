@@ -3,11 +3,11 @@ package io.github.dockyardmc.protocol.packets.configurations
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.protocol.types.ClientSettings
-import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
-class ServerboundClientInformationPacket(
+data class ServerboundClientInformationPacket(
     val clientSettings: ClientSettings
 ) : ServerboundPacket {
 
@@ -17,13 +17,13 @@ class ServerboundClientInformationPacket(
 
     companion object {
 
-        val STREAM_CODEC = Codec.of(
-            "client_settings", ClientSettings.STREAM_CODEC, ServerboundClientInformationPacket::clientSettings,
+        val STREAM_CODEC = StreamCodec.of(
+            ClientSettings.STREAM_CODEC, ServerboundClientInformationPacket::clientSettings,
             ::ServerboundClientInformationPacket
         )
 
         fun read(buffer: ByteBuf): ServerboundClientInformationPacket {
-            return STREAM_CODEC.readNetwork(buffer)
+            return STREAM_CODEC.read(buffer)
         }
     }
 }

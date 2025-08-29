@@ -3,6 +3,7 @@ package io.github.dockyardmc.datagen
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.annotations.EventDocumentation
+import io.github.dockyardmc.events.CancellableEvent
 import java.io.File
 import java.time.Instant
 import kotlin.reflect.full.declaredMemberProperties
@@ -22,11 +23,12 @@ class EventsDocumentationGenerator {
             append("# Event List\n")
             annotatedClasses.forEach { loopClass ->
                 val annotation = loopClass.getAnnotation(EventDocumentation::class.java)
+                val isCancellable = loopClass.kotlin is CancellableEvent
                 val fields = loopClass.kotlin.declaredMemberProperties
                 appendLine("## `${loopClass.simpleName}`")
                 appendLine("This event is dispatched ${annotation.description}")
                 appendLine("")
-                appendLine("Event is cancellable: `${annotation.cancellable}`")
+                appendLine("Event is cancellable: `${isCancellable}`")
                 appendLine("")
                 appendLine("Fields:")
                 fields.forEach fieldLoop@{ field ->
@@ -36,7 +38,7 @@ class EventsDocumentationGenerator {
                         .replace("class ", "")
                         .replace("interface ", "")
 
-                    if(fullTypeName.contains("Event\$Context")) return@fieldLoop
+                    if (fullTypeName.contains("Event\$Context")) return@fieldLoop
 
                     val nullableIndicator = if (field.returnType.isMarkedNullable) "?" else ""
                     appendLine("- ${field.name}: `${fullTypeName}$nullableIndicator`")

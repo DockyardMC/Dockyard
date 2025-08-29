@@ -18,7 +18,7 @@ import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayPluginMessagePacket
 import io.github.dockyardmc.protocol.plugin.PluginMessages
-import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.github.dockyardmc.utils.MutableBiMap
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
@@ -133,7 +133,7 @@ object Noxesium {
     }
 
     private fun <T : NoxesiumPacket> handlePacket(packetInfo: NoxesiumServerboundPacketInfo<T>, player: Player, buffer: ByteBuf) {
-        val packet = packetInfo.streamCodec.readNetwork(buffer)
+        val packet = packetInfo.streamCodec.read(buffer)
 
         val event = NoxesiumPacketReceiveEvent(player, packet, getPlayerEventContext(player))
         Events.dispatch(event)
@@ -142,12 +142,12 @@ object Noxesium {
         packetInfo.handler?.invoke(player, packet)
     }
 
-    data class NoxesiumServerboundPacketInfo<T : NoxesiumPacket>(val streamCodec: Codec<T>, val handler: ((Player, T) -> Unit)? = null)
+    data class NoxesiumServerboundPacketInfo<T : NoxesiumPacket>(val streamCodec: StreamCodec<T>, val handler: ((Player, T) -> Unit)? = null)
 
-    data class NoxesiumClientboundPacketInfo<T : NoxesiumPacket>(val identifier: String, val streamCodec: Codec<T>) {
+    data class NoxesiumClientboundPacketInfo<T : NoxesiumPacket>(val identifier: String, val streamCodec: StreamCodec<T>) {
         fun getPluginMessagePacket(value: T): ClientboundPlayPluginMessagePacket {
             val buffer = Unpooled.buffer()
-            streamCodec.writeNetwork(buffer, value)
+            streamCodec.write(buffer, value)
             return ClientboundPlayPluginMessagePacket("$PACKET_NAMESPACE:$identifier", buffer)
         }
     }

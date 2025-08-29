@@ -35,6 +35,8 @@ import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.team.Team
 import io.github.dockyardmc.team.TeamManager
 import io.github.dockyardmc.utils.Disposable
+import io.github.dockyardmc.utils.getEntityEventContext
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.mergeEntityMetadata
 import io.github.dockyardmc.utils.viewable.Viewable
 import io.github.dockyardmc.world.World
@@ -149,7 +151,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     override fun addViewer(player: Player): Boolean {
         if (this.isDead) return false
 
-        val event = EntityViewerAddEvent(this, player)
+        val event = EntityViewerAddEvent(this, player, getPlayerEventContext(player).withContext(getEntityEventContext(this)))
         Events.dispatch(event)
         if (event.cancelled) return false
 
@@ -176,7 +178,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     override fun removeViewer(player: Player) {
 
-        val event = EntityViewerRemoveEvent(this, player)
+        val event = EntityViewerRemoveEvent(this, player, getPlayerEventContext(player).withContext(getEntityEventContext(player)))
         Events.dispatch(event)
         if (event.cancelled) return
 
@@ -246,7 +248,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         viewers.sendPacket(ClientboundSetHeadYawPacket(this))
 
         if (passengers.values.isNotEmpty()) {
-            viewers.sendPacket(ClientboundMoveVehiclePacket(this))
+            viewers.sendPacket(ClientboundMoveVehiclePacket(this.location.toVector3()))
         }
     }
 
@@ -261,14 +263,14 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun damage(damage: Float, damageType: DamageType, attacker: Entity? = null, projectile: Entity? = null) {
-        val event = EntityDamageEvent(this, damage, damageType, attacker, projectile)
+        var context = getEntityEventContext(this)
+        if (attacker != null) context = context.withContext(getEntityEventContext(attacker))
+        if (projectile != null) context = context.withContext(getEntityEventContext(projectile))
+
+        val event = EntityDamageEvent(this, damage, damageType, attacker, projectile, context)
         Events.dispatch(event)
         if (event.cancelled) return
         if (isDead) return
-
-//        var location: Location?
-//        if (attacker != null) location = attacker.location
-//        if (projectile != null) location = projectile.location
 
         if (event.damage > 0) {
             playDamageAnimation(damageType)
@@ -296,7 +298,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     open fun kill() {
         if (isDead) return
-        val event = EntityDeathEvent(this)
+        val event = EntityDeathEvent(this, getEntityEventContext(this))
         Events.dispatch(event)
         if (event.cancelled) {
             health.value = 0.1f

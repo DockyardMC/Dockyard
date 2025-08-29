@@ -5,6 +5,7 @@ import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
 import kotlin.math.abs
@@ -136,6 +137,13 @@ data class Vector3(
     }
 
     companion object : NetworkReadable<Vector3> {
+
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.VAR_INT, Vector3::x,
+            StreamCodec.VAR_INT, Vector3::y,
+            StreamCodec.VAR_INT, Vector3::z,
+            ::Vector3
+        )
 
         override fun read(buffer: ByteBuf): Vector3 {
             return Vector3(

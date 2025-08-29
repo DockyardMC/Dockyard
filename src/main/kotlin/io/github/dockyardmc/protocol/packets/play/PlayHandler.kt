@@ -10,6 +10,7 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSetHead
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateEntityRotationPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.*
 import io.github.dockyardmc.maths.vectors.Vector2f
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.channel.ChannelHandlerContext
 
 class PlayHandler(var processor: PlayerNetworkManager): PacketHandler(processor) {
@@ -38,7 +39,7 @@ class PlayHandler(var processor: PlayerNetworkManager): PacketHandler(processor)
 
         if(oldLocation == location) return
 
-        val event = PlayerMoveEvent(oldLocation, location, player, isOnlyHeadMovement)
+        val event = PlayerMoveEvent(oldLocation, location, player, isOnlyHeadMovement, getPlayerEventContext(player))
         Events.dispatch(event)
         if(event.cancelled) {
             player.teleport(oldLocation)

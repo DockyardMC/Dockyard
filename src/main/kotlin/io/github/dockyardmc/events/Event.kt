@@ -17,7 +17,12 @@ interface Event {
         other: Set<Any> = setOf<Any>(),
         val isGlobalEvent: Boolean = false
     ) {
-        // combining sets is expensive and is done in initialization of every event.
+        companion object {
+            val GLOBAL = Context(isGlobalEvent = true)
+            val EMPTY = Context()
+        }
+
+        // Combining sets is expensive and is done in initialization of every event.
         // In most cases, either none or only one is accessed. Let's make them lazy so they are
         // computed only when needed
         val players: Set<Player> by lazy {
@@ -39,9 +44,20 @@ interface Event {
             this.players + this.entities + this.worlds + this.locations + other
         }
 
+        fun withContext(context: Context): Context {
+            val newContext = Context(
+                this.players + context.players,
+                this.entities + context.entities,
+                this.worlds + context.worlds,
+                this.locations + context.locations,
+                this.other + context.other,
+            )
+            return newContext
+        }
+
         operator fun contains(element: Any) = other.contains(element)
 
-        // i hate everything about this
+        // I hate everything about this
         // please suggest something better.
     }
 }

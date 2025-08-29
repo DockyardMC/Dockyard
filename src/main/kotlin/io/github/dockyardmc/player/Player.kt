@@ -50,6 +50,8 @@ import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.ui.Screen
+import io.github.dockyardmc.utils.getEntityEventContext
+import io.github.dockyardmc.utils.getLocationEventContext
 import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.now
 import io.github.dockyardmc.world.PlayerChunkViewSystem
@@ -216,7 +218,7 @@ class Player(
 
                 dismountCurrentVehicle()
 
-                Events.dispatch(PlayerSneakToggleEvent(this, true))
+                Events.dispatch(PlayerSneakToggleEvent(this, true, getPlayerEventContext(this)))
             }
         }
 
@@ -228,7 +230,7 @@ class Player(
                     pose.value = EntityPose.STANDING
                 }
 
-                Events.dispatch(PlayerSneakToggleEvent(this, false))
+                Events.dispatch(PlayerSneakToggleEvent(this, false, getPlayerEventContext(this)))
             }
         }
 
@@ -266,7 +268,11 @@ class Player(
 
     override fun damage(damage: Float, damageType: DamageType, attacker: Entity?, projectile: Entity?) {
 
-        val event = PlayerDamageEvent(this, damage, damageType, attacker, projectile)
+        var context = getPlayerEventContext(this)
+        if (attacker != null) context = context.withContext(getEntityEventContext(attacker))
+        if (projectile != null) context = context.withContext(getEntityEventContext(projectile))
+
+        val event = PlayerDamageEvent(this, damage, damageType, attacker, projectile, context)
         Events.dispatch(event)
         if (event.cancelled) return
 
@@ -284,7 +290,7 @@ class Player(
     }
 
     override fun kill() {
-        val event = PlayerDeathEvent(this)
+        val event = PlayerDeathEvent(this, getPlayerEventContext(this))
         Events.dispatch(event)
         if (event.cancelled) {
             health.value = 0.1f
@@ -334,7 +340,7 @@ class Player(
         super.removeViewer(player)
     }
 
-    // Hold messages client receives before state is PLAY, then send them after state changes to PLAY
+    // Hold messages the client receives before state is PLAY, then send them after state changes to PLAY
     private var queuedMessages = mutableListOf<Pair<String, Boolean>>()
     fun releaseMessagesQueue() {
         queuedMessages.forEach { message -> sendSystemMessage(message.first, message.second) }
@@ -473,7 +479,7 @@ class Player(
 
         refreshClientStateAfterRespawn()
 
-        Events.dispatch(PlayerRespawnEvent(this, isBecauseDeath))
+        Events.dispatch(PlayerRespawnEvent(this, isBecauseDeath, getPlayerEventContext(this)))
         if (isBecauseDeath) {
             isOnFire.value = false
             health.value = 20f
@@ -570,7 +576,7 @@ class Player(
 
     fun breakBlock(location: Location, block: Block, face: Direction) {
 
-        val event = PlayerBlockBreakEvent(this, block, location)
+        val event = PlayerBlockBreakEvent(this, block, location, face, getPlayerEventContext(this).withContext(getLocationEventContext(location)))
         val item = this.getHeldItem(PlayerHand.MAIN_HAND)
         var cancelled = false
 

@@ -5,14 +5,13 @@ import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.StaticHash
 import io.github.dockyardmc.protocol.NetworkReadable
-import io.github.dockyardmc.tide.Codec
-import io.github.dockyardmc.tide.Codecs
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.netty.buffer.ByteBuf
 
-class MaxStackSizeComponent(val size: Int) : DataComponent(true) {
+data class MaxStackSizeComponent(val size: Int) : DataComponent(true) {
 
     override fun write(buffer: ByteBuf) {
-        CODEC.writeNetwork(buffer, this)
+        STREAM_CODEC.write(buffer, this)
     }
 
     override fun hashStruct(): HashHolder {
@@ -20,13 +19,13 @@ class MaxStackSizeComponent(val size: Int) : DataComponent(true) {
     }
 
     companion object : NetworkReadable<MaxStackSizeComponent> {
-        val CODEC = Codec.of(
-            "size", Codecs.VarInt, MaxStackSizeComponent::size,
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.VAR_INT, MaxStackSizeComponent::size,
             ::MaxStackSizeComponent
         )
 
         override fun read(buffer: ByteBuf): MaxStackSizeComponent {
-            return CODEC.readNetwork(buffer)
+            return STREAM_CODEC.read(buffer)
         }
     }
 }

@@ -1,0 +1,6 @@
+{
+  "codec": {},
+  "stream_codec": {
+    "Component": "ComponentCodecs.STREAM"
+  }
+}

@@ -6,6 +6,6 @@ import io.github.dockyardmc.resourcepack.ResourcePack
 data class ClientboundConfigurationAddResourcePackPacket(val resourcePack: ResourcePack) : ClientboundPacket() {
 
     init {
-        ResourcePack.STREAM_CODEC.writeNetwork(buffer, resourcePack)
+        ResourcePack.STREAM_CODEC.write(buffer, resourcePack)
     }
 }

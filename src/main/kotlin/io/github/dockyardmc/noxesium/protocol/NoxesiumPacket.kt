@@ -2,10 +2,10 @@ package io.github.dockyardmc.noxesium.protocol
 
 import io.github.dockyardmc.noxesium.Noxesium
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayPluginMessagePacket
-import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.stream.StreamCodec
 
 interface NoxesiumPacket {
-    fun getStreamCodec(): Codec<out NoxesiumPacket>
+    fun getStreamCodec(): StreamCodec<out NoxesiumPacket>
 
     @Suppress("UNCHECKED_CAST")
     fun getPluginMessagePacket(): ClientboundPlayPluginMessagePacket {

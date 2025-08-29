@@ -6,5 +6,5 @@ import io.github.dockyardmc.events.Event
 import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
 import io.github.dockyardmc.player.Player
 
-@EventDocumentation("when server receives packet from noxesium", true)
+@EventDocumentation("when server receives packet from noxesium")
 class NoxesiumPacketReceiveEvent(val player: Player, val packet: NoxesiumPacket, override val context: Event.Context) : CancellableEvent()
