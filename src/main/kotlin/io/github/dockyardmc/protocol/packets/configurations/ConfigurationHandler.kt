@@ -1,12 +1,12 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
 //import io.github.dockyardmc.player.setSkin
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.apis.serverlinks.ServerLinks
 import io.github.dockyardmc.commands.buildCommandGraph
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerInfoUpdate
@@ -16,6 +16,7 @@ import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.plugin.PluginMessageRegistry
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
+import io.github.dockyardmc.protocol.plugin.messages.PluginMessage
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.tags.*
 import io.github.dockyardmc.resourcepack.ResourcepackManager
@@ -31,13 +32,13 @@ import io.netty.channel.ChannelHandlerContext
 class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(processor) {
 
     fun handlePluginMessage(packet: ServerboundConfigurationPluginMessagePacket, connection: ChannelHandlerContext) {
-        val event = PluginMessageReceivedEvent(processor.player, packet.channel, packet.data, getPlayerEventContext(processor.player))
+        val event = PluginMessageReceivedEvent(processor.player, packet.contents, getPlayerEventContext(processor.player))
         Events.dispatch(event)
         if (event.cancelled) {
-            packet.data.release()
+            packet.contents.data.release()
             return
         }
-        PluginMessageRegistry.handle(event.channel, event.data, processor.player)
+        PluginMessageRegistry.handle<PluginMessage>(event.contents, processor)
     }
 
     companion object {
@@ -46,20 +47,18 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
 
         fun enterConfiguration(player: Player, connection: ChannelHandlerContext, isFirstConfiguration: Boolean) {
 
-            val networkManager = player.networkManager
-
             // Send server brand
             val serverBrandEvent = ServerBrandEvent("§3DockyardMC ${DockyardServer.versionInfo.getFormatted(DockyardServer.minecraftVersion)}§r", getPlayerEventContext(player))
             Events.dispatch(serverBrandEvent)
-            connection.sendPacket(BrandPluginMessage(serverBrandEvent.brand).asConfigPacket("minecraft:brand"), networkManager)
+            player.sendPluginMessage(BrandPluginMessage(serverBrandEvent.brand))
 
             // Send feature flags
-            connection.sendPacket(ClientboundFeatureFlagsPacket(FeatureFlags.enabledFlags), networkManager)
+            player.sendPacket(ClientboundFeatureFlagsPacket(FeatureFlags.enabledFlags))
 
-            connection.sendPacket(cachedTagPacket, networkManager)
+            player.sendPacket(cachedTagPacket)
 
-            RegistryManager.dynamicRegistries.values.forEach { registry -> connection.sendPacket(ClientboundRegistryDataPacket(registry), networkManager) }
-            connection.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links), networkManager)
+            RegistryManager.dynamicRegistries.values.forEach { registry -> player.sendPacket(ClientboundRegistryDataPacket(registry)) }
+            player.sendPacket(ClientboundConfigurationServerLinksPacket(ServerLinks.links))
 
             Events.dispatch(PlayerEnterConfigurationEvent(player, getPlayerEventContext(player)))
 
@@ -70,10 +69,10 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
                 debug("Waiting for pack futures for $player..")
                 ResourcepackManager.sendQueuedConfigurationPacks(player).thenAccept {
                     debug("Finished loading resourcepacks for $player, entering play state")
-                    connection.sendPacket(finishConfigurationPacket, networkManager)
+                    player.sendPacket(finishConfigurationPacket)
                 }
             } else {
-                connection.sendPacket(finishConfigurationPacket, networkManager)
+                player.sendPacket(finishConfigurationPacket)
             }
         }
     }
@@ -153,7 +152,5 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
         player.refreshAbilities()
 
         world.join(player)
-
-//        if (ConfigManager.config.useMojangAuth) player.setSkin(player.uuid)
     }
 }

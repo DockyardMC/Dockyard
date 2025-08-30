@@ -10,7 +10,7 @@ interface PlayerPacketProvider : Provider {
     }
 
     fun sendPluginMessage(pluginMessage: PluginMessage) {
-        playerGetter.forEach { player -> player.se }
+        playerGetter.forEach { player -> player.sendPluginMessage(pluginMessage) }
     }
 
 }

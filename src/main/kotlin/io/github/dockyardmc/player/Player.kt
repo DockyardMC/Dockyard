@@ -2,6 +2,7 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.advancement.PlayerAdvancementTracker
 import io.github.dockyardmc.attributes.PlayerAttributes

@@ -1,5 +1,6 @@
 package io.github.dockyardmc.noxesium.protocol.serverbound
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.noxesium.NoxesiumClientInformationEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumClientSettingsEvent

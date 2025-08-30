@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.plugin
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.RegisterPluginChannelsEvent

@@ -1,5 +1,7 @@
 package io.github.dockyardmc.protocol.plugin
 
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PluginMessageReceivedEvent
 import io.github.dockyardmc.extentions.properStrictCase
@@ -24,8 +26,9 @@ object PluginMessageRegistry {
     init {
         registerBoth("minecraft:brand", BrandPluginMessage::class, BrandPluginMessage.STREAM_CODEC)
 
-        registerConfiguration("minecraft:register", RegisterPluginMessage::class, RegisterPluginMessage.STREAM_CODEC, playPluginMessageHandler::handleRegister)
-        registerConfiguration("minecraft:unregister", UnregisterPluginMessage::class, UnregisterPluginMessage.STREAM_CODEC, playPluginMessageHandler::handleUnregister)
+        registerPlay("minecraft:register", RegisterPluginMessage::class, RegisterPluginMessage.STREAM_CODEC, playPluginMessageHandler::handleRegister)
+        registerPlay("minecraft:unregister", UnregisterPluginMessage::class, UnregisterPluginMessage.STREAM_CODEC, playPluginMessageHandler::handleUnregister)
+
     }
 
     fun <T : PluginMessage> registerBoth(channel: String, kClass: KClass<T>, streamCodec: StreamCodec<T>, handler: ((T, PlayerNetworkManager) -> Unit)? = null) {
@@ -99,7 +102,12 @@ object PluginMessageRegistry {
             else -> throw IllegalStateException("Received plugin message in protocol state that does not accept plugin messages (${networkManager.state})")
         }
 
-        val pluginMessageData = getByChannel(state, contents.channel) as PluginMessageData<PluginMessage>
+        val pluginMessageData = getByChannelOrNull(state, contents.channel) as PluginMessageData<PluginMessage>?
+        if (pluginMessageData == null) {
+            log("Received unhandled plugin message with channel ${contents.channel}!", LogType.WARNING)
+            contents.data.release()
+            return
+        }
         val decoded = pluginMessageData.streamCodec.read(contents.data)
         pluginMessageData.handler?.invoke(decoded, networkManager)
     }
