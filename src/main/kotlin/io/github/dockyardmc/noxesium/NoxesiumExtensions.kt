@@ -3,7 +3,7 @@ package io.github.dockyardmc.noxesium
 
 import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
 import io.github.dockyardmc.noxesium.rules.NoxesiumServerRule
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayPluginMessagePacket
+import io.github.dockyardmc.protocol.packets.configurations.ClientboundPlayPluginMessagePacket
 import io.netty.buffer.ByteBuf
 
 fun Collection<NoxesiumPacket>.toPluginMessagePackets(): Collection<ClientboundPlayPluginMessagePacket> {

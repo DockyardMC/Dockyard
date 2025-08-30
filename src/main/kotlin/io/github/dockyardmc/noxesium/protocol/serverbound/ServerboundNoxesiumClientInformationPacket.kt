@@ -1,14 +1,14 @@
 package io.github.dockyardmc.noxesium.protocol.serverbound
 
-import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
+import io.github.dockyardmc.protocol.plugin.messages.PluginMessage
 import io.github.dockyardmc.tide.stream.StreamCodec
 
 data class ServerboundNoxesiumClientInformationPacket(
     val protocolVersion: Int,
     val versionString: String,
-) : NoxesiumPacket {
+) : PluginMessage {
 
-    override fun getStreamCodec(): StreamCodec<out NoxesiumPacket> {
+    override fun getStreamCodec(): StreamCodec<out PluginMessage> {
         return STREAM_CODEC
     }
 

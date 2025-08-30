@@ -1,6 +1,7 @@
 package io.github.dockyardmc.protocol.packets.registry
 
 import io.github.dockyardmc.protocol.packets.configurations.*
+import io.github.dockyardmc.protocol.packets.configurations.ClientboundPlayPluginMessagePacket
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundPingResponsePacket
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundStatusResponsePacket
 import io.github.dockyardmc.protocol.packets.login.*

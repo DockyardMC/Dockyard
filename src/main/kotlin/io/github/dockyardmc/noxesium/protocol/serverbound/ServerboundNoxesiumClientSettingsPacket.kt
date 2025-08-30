@@ -2,12 +2,12 @@ package io.github.dockyardmc.noxesium.protocol.serverbound
 
 import com.noxcrew.noxesium.api.protocol.ClientSettings
 import io.github.dockyardmc.noxesium.protocol.NoxesiumCodecs
-import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
+import io.github.dockyardmc.protocol.plugin.messages.PluginMessage
 import io.github.dockyardmc.tide.stream.StreamCodec
 
-data class ServerboundNoxesiumClientSettingsPacket(val clientSettings: ClientSettings) : NoxesiumPacket {
+data class ServerboundNoxesiumClientSettingsPacket(val clientSettings: ClientSettings) : PluginMessage {
 
-    override fun getStreamCodec(): StreamCodec<out NoxesiumPacket> {
+    override fun getStreamCodec(): StreamCodec<out PluginMessage> {
         return STREAM_CODEC
     }
 

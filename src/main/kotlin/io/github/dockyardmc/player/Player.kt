@@ -31,9 +31,13 @@ import io.github.dockyardmc.player.systems.*
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.protocol.packets.configurations.ClientboundConfigurationPluginMessagePacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundChatCommandPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
+import io.github.dockyardmc.protocol.plugin.PluginMessageRegistry
+import io.github.dockyardmc.protocol.plugin.PluginMessageRegistry.Type
+import io.github.dockyardmc.protocol.plugin.messages.PluginMessage
 import io.github.dockyardmc.protocol.types.ClientSettings
 import io.github.dockyardmc.protocol.types.EquipmentSlot
 import io.github.dockyardmc.protocol.types.GameProfile
@@ -49,6 +53,7 @@ import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.scheduler.runnables.ticks
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.github.dockyardmc.ui.Screen
 import io.github.dockyardmc.utils.getEntityEventContext
 import io.github.dockyardmc.utils.getLocationEventContext
@@ -60,6 +65,7 @@ import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.block.handlers.BlockHandlerManager
+import io.netty.buffer.Unpooled
 import io.netty.channel.ChannelHandlerContext
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -400,6 +406,27 @@ class Player(
         if (packet.state != networkManager.state) return
         connection.sendPacket(packet, networkManager)
         lastSentPacket = packet
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun sendPluginMessage(pluginMessage: PluginMessage) {
+        val state = when (networkManager.state) {
+            ProtocolState.PLAY -> Type.PLAY
+            ProtocolState.CONFIGURATION -> Type.CONFIGURATION
+            else -> throw IllegalArgumentException("You can't send plugin messages in ${networkManager.state.name} protocol state")
+        }
+        val data = PluginMessageRegistry.getByClass(state, pluginMessage::class)
+        val buffer = Unpooled.buffer()
+        (pluginMessage.getStreamCodec() as StreamCodec<PluginMessage>).write(buffer, pluginMessage)
+        val contents = PluginMessage.Contents(data.channel, buffer)
+
+        val packet = when (networkManager.state) {
+            ProtocolState.PLAY -> ClientboundPlayPluginMessagePacket(contents)
+            ProtocolState.CONFIGURATION -> ClientboundConfigurationPluginMessagePacket(contents)
+            else -> throw IllegalArgumentException("You can't send plugin messages in ${networkManager.state.name} protocol state")
+        }
+
+        this.sendPacket(packet)
     }
 
     fun sendToViewers(packet: ClientboundPacket) {

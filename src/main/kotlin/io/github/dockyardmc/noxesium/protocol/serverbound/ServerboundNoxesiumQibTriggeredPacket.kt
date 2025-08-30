@@ -1,13 +1,13 @@
 package io.github.dockyardmc.noxesium.protocol.serverbound
 
-import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
+import io.github.dockyardmc.protocol.plugin.messages.PluginMessage
 import io.github.dockyardmc.tide.stream.StreamCodec
 
 data class ServerboundNoxesiumQibTriggeredPacket(
     val behaviour: String,
     val qibType: Type,
     val entityId: Int,
-) : NoxesiumPacket {
+) : PluginMessage {
 
     enum class Type {
         JUMP,
@@ -16,7 +16,7 @@ data class ServerboundNoxesiumQibTriggeredPacket(
         LEAVE,
     }
 
-    override fun getStreamCodec(): StreamCodec<out NoxesiumPacket> {
+    override fun getStreamCodec(): StreamCodec<out PluginMessage> {
         return STREAM_CODEC
     }
 

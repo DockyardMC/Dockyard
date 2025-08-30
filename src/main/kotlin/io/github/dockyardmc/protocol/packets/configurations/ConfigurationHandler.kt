@@ -14,7 +14,7 @@ import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
-import io.github.dockyardmc.protocol.plugin.PluginMessages
+import io.github.dockyardmc.protocol.plugin.PluginMessageRegistry
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.tags.*
@@ -37,7 +37,7 @@ class ConfigurationHandler(val processor: PlayerNetworkManager) : PacketHandler(
             packet.data.release()
             return
         }
-        PluginMessages.handle(event.channel, event.data, processor.player)
+        PluginMessageRegistry.handle(event.channel, event.data, processor.player)
     }
 
     companion object {

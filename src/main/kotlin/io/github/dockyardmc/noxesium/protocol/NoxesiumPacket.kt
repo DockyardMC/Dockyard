@@ -1,7 +1,7 @@
 package io.github.dockyardmc.noxesium.protocol
 
 import io.github.dockyardmc.noxesium.Noxesium
-import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayPluginMessagePacket
+import io.github.dockyardmc.protocol.packets.configurations.ClientboundPlayPluginMessagePacket
 import io.github.dockyardmc.tide.stream.StreamCodec
 
 interface NoxesiumPacket {

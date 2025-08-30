@@ -1,16 +1,19 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
-import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
-import io.netty.buffer.ByteBuf
+import io.github.dockyardmc.protocol.plugin.messages.PluginMessage
+import io.github.dockyardmc.tide.stream.StreamCodec
 
-class ClientboundConfigurationPluginMessagePacket(
-    channel: String,
-    payload: ByteBuf,
-): ClientboundPacket() {
+data class ClientboundConfigurationPluginMessagePacket(val contents: PluginMessage.Contents) : ClientboundPacket() {
+
+    companion object {
+        val STREAM_CODEC = StreamCodec.of(
+            PluginMessage.Contents.STREAM_CODEC, ClientboundConfigurationPluginMessagePacket::contents,
+            ::ClientboundConfigurationPluginMessagePacket
+        )
+    }
 
     init {
-        buffer.writeString(channel)
-        buffer.writeBytes(payload)
+        STREAM_CODEC.write(buffer, this)
     }
 }

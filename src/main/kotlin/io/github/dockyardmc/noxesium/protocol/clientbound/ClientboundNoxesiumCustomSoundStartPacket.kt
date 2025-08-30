@@ -1,8 +1,8 @@
 package io.github.dockyardmc.noxesium.protocol.clientbound
 
 import io.github.dockyardmc.maths.vectors.Vector3f
-import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.SoundCategory
+import io.github.dockyardmc.protocol.plugin.messages.PluginMessage
 import io.github.dockyardmc.tide.stream.StreamCodec
 
 data class ClientboundNoxesiumCustomSoundStartPacket(
@@ -18,9 +18,9 @@ data class ClientboundNoxesiumCustomSoundStartPacket(
     val entityId: Int? = null,
     val unix: Long? = null,
     val offset: Float? = null
-) : NoxesiumPacket {
+) : PluginMessage {
 
-    override fun getStreamCodec(): StreamCodec<out NoxesiumPacket> {
+    override fun getStreamCodec(): StreamCodec<out PluginMessage> {
         return STREAM_CODEC
     }
 
