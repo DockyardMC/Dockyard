@@ -13,9 +13,11 @@ import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.sounds.BuiltinSoundEvent
 import io.github.dockyardmc.sounds.CustomSoundEvent
 import io.github.dockyardmc.sounds.SoundEvent
+import io.github.dockyardmc.tide.codec.Codec
+import io.github.dockyardmc.tide.codec.StructCodec
 import io.netty.buffer.ByteBuf
 
-class ConsumableComponent(
+data class ConsumableComponent(
     val consumeSeconds: Float,
     val animation: Animation,
     val sound: String,
@@ -23,28 +25,22 @@ class ConsumableComponent(
     val effects: List<ConsumeEffect>
 ) : DataComponent() {
 
-    override fun write(buffer: ByteBuf) {
-        buffer.writeFloat(consumeSeconds)
-        buffer.writeEnum(animation)
-        CustomSoundEvent(sound).write(buffer)
-        buffer.writeBoolean(hasParticles)
-        buffer.writeList(effects, ConsumeEffect::write)
-    }
-
-    override fun hashStruct(): HashHolder {
-        return CRC32CHasher.of {
-            default("consume_seconds", CONSUME_SECONDS_DEFAULT, consumeSeconds, CRC32CHasher::ofFloat)
-            default("animation", Animation.EAT, animation, CRC32CHasher::ofEnum)
-            defaultStruct("sound", BuiltinSoundEvent.of(Sounds.ENTITY_GENERIC_EAT), CustomSoundEvent(sound), SoundEvent::hashStruct)
-            default<Boolean>("has_consume_particles", HAS_CONSUME_PARTICLES_DEFAULT, hasParticles, CRC32CHasher::ofBoolean)
-            defaultStructList("on_consume_effects", listOf(), effects, ConsumeEffect::hashStruct)
-        }
-    }
-
     companion object : NetworkReadable<ConsumableComponent> {
 
         const val CONSUME_SECONDS_DEFAULT = 1.6f
         const val HAS_CONSUME_PARTICLES_DEFAULT = true
+        val ANIMATION_DEFAULT = Animation.EAT
+        val SOUND_DEFAULT = BuiltinSoundEvent.of(Sounds.ENTITY_GENERIC_EAT)
+        val CONSUME_EFFECTS_DEFAULT = listOf<ConsumeEffect>()
+
+        val CODEC = StructCodec.of(
+            "consume_seconds", Codec.FLOAT.default(CONSUME_SECONDS_DEFAULT), ConsumableComponent::consumeSeconds,
+            "animation", Codec.enum<Animation>().default(ANIMATION_DEFAULT), ConsumableComponent::animation,
+            "sound", Codec.STRING, ConsumableComponent::sound, //WRONG
+            "has_consume_particles", Codec.BOOLEAN.default(HAS_CONSUME_PARTICLES_DEFAULT), ConsumableComponent::hasParticles,
+            "on_consume_effects", ConsumeEffect.CODEC.list().default(CONSUME_EFFECTS_DEFAULT), ConsumableComponent::effects,
+            ::ConsumableComponent
+        )
 
         override fun read(buffer: ByteBuf): ConsumableComponent {
             return ConsumableComponent(
@@ -56,6 +52,25 @@ class ConsumableComponent(
             )
         }
     }
+
+    override fun hashStruct(): HashHolder {
+        return CRC32CHasher.of {
+            default("consume_seconds", CONSUME_SECONDS_DEFAULT, consumeSeconds, CRC32CHasher::ofFloat)
+            default("animation",ANIMATION_DEFAULT, animation, CRC32CHasher::ofEnum)
+            defaultStruct("sound", BuiltinSoundEvent.of(Sounds.ENTITY_GENERIC_EAT), CustomSoundEvent(sound), SoundEvent::hashStruct)
+            default<Boolean>("has_consume_particles", HAS_CONSUME_PARTICLES_DEFAULT, hasParticles, CRC32CHasher::ofBoolean)
+            defaultStructList("on_consume_effects", listOf(), effects, ConsumeEffect::hashStruct)
+        }
+    }
+
+    override fun write(buffer: ByteBuf) {
+        buffer.writeFloat(consumeSeconds)
+        buffer.writeEnum(animation)
+        CustomSoundEvent(sound).write(buffer)
+        buffer.writeBoolean(hasParticles)
+        buffer.writeList(effects, ConsumeEffect::write)
+    }
+
 
     enum class Animation(val decreasesAmount: Boolean) {
         NONE(false),
