@@ -1,5 +1,6 @@
 package io.github.dockyardmc.world.chunk
 
+import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.vectors.Vector3
 import kotlin.math.abs
 import kotlin.math.sin
@@ -13,6 +14,10 @@ object ChunkUtils {
     private val SIN = FloatArray(65536) { sin(it.toDouble() * Math.PI * 2.0 / 65536.0).toFloat() }
     const val EPSILON: Float = 1.0E-5F
     const val TO_RADIANS_FACTOR = Math.PI.toFloat() / 180F
+
+    fun chunkBlockIndex(location: Location): Int {
+        return chunkBlockIndex(location.x.toInt(), location.y.toInt(), location.z.toInt())
+    }
 
     fun chunkBlockIndex(x: Int, y: Int, z: Int): Int {
         var xCoord = x
@@ -59,7 +64,7 @@ object ChunkUtils {
 
     fun getChunkCoordinate(xz: Int): Int = xz shr 4
 
-    fun sectionRelative(xyz: Int): Int = xyz and 0xF
+    fun chunkRelative(xyz: Int): Int = xyz and 0xF
 
     fun getChunkIndex(chunk: Chunk): Long = getChunkIndex(chunk.chunkX, chunk.chunkZ)
 

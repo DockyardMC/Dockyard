@@ -9,9 +9,7 @@ import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.LightningBolt
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.SHA256Long
-import io.github.dockyardmc.extentions.hasUpperCase
-import io.github.dockyardmc.extentions.removeIfPresent
+import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.vectors.Vector2f
 import io.github.dockyardmc.maths.vectors.Vector3
@@ -30,17 +28,21 @@ import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.scheduler.CustomRateScheduler
 import io.github.dockyardmc.scheduler.runLaterAsync
 import io.github.dockyardmc.scheduler.runnables.ticks
+import io.github.dockyardmc.schematics.Schematic
 import io.github.dockyardmc.sounds.playSound
 import io.github.dockyardmc.utils.*
 import io.github.dockyardmc.world.WorldManager.mainWorld
 import io.github.dockyardmc.world.block.BatchBlockUpdate
 import io.github.dockyardmc.world.block.Block
+import io.github.dockyardmc.world.block.BlockEntity
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkPos
 import io.github.dockyardmc.world.chunk.ChunkUtils
 import io.github.dockyardmc.world.generators.VoidWorldGenerator
 import io.github.dockyardmc.world.generators.WorldGenerator
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -56,6 +58,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
 
     val worldSeed = UUID.randomUUID().leastSignificantBits.toString()
     var seed: Long = worldSeed.SHA256Long()
+    val random = Random(seed)
 
     val difficulty: Bindable<Difficulty> = bindablePool.provideBindable(Difficulty.NORMAL)
     val worldBorder = WorldBorder(this)
@@ -285,7 +288,6 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
     fun setBlock(x: Int, y: Int, z: Int, block: Block) {
         val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $y is does not exist!")
         chunk.setBlock(x, y, z, block, true)
-        chunk.sendUpdateToViewers()
     }
 
     fun getBlock(location: Location): Block = this.getBlock(location.x.toInt(), location.y.toInt(), location.z.toInt())
@@ -340,10 +342,27 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         setBlockRaw(location.x.toInt(), location.y.toInt(), location.z.toInt(), blockStateId, updateChunk)
     }
 
+    fun getBlockEntityDataOrNull(location: Location): BlockEntity? {
+        return getBlockEntityDataOrNull(location.x.toInt(), location.y.toInt(), location.z.toInt())
+    }
+
+    fun getBlockEntityDataOrNull(x: Int, y: Int, z: Int): BlockEntity? {
+        val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $y is does not exist!")
+        return chunk.getBlockEntityDataOrNull(x, y, z)
+    }
+
+    fun setBlockEntityData(location: Location, data: CompoundBinaryTag, registryBlock: RegistryBlock, shouldCache: Boolean) {
+        this.setBlockEntityData(location.x.toInt(), location.y.toInt(), location.z.toInt(), data, registryBlock, shouldCache)
+    }
+
+    fun setBlockEntityData(x: Int, y: Int, z: Int, data: CompoundBinaryTag, registryBlock: RegistryBlock, shouldCache: Boolean = true) {
+        val chunk = getChunkAt(x, z) ?: throw IllegalStateException("Chunk at $x, $y is does not exist!")
+        chunk.setBlockEntityData(x, y, z, data, registryBlock, shouldCache)
+    }
+
     fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int, updateChunk: Boolean = true) {
         val chunk = getChunkAt(x, z) ?: return
         chunk.setBlockRaw(x, y, z, blockStateId, updateChunk)
-        if (updateChunk) chunk.sendUpdateToViewers()
     }
 
     inline fun batchBlockUpdate(builder: BatchBlockUpdate.() -> Unit): CompletableFuture<World> {
@@ -367,8 +386,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
                 setBlockRaw(location, block.getProtocolId(), false)
             }
             chunks.forEach { chunk ->
-                chunk.updateCache()
-                chunk.sendUpdateToViewers()
+                chunk.update()
             }
 
             future.complete(this)
@@ -429,7 +447,7 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
                 }
             }
         }
-        chunk.updateCache()
+        chunk.update()
         if (getChunk(x, z) == null) {
             synchronized(chunks) {
                 chunks[ChunkUtils.getChunkIndex(x, z)] = (chunk)
@@ -463,7 +481,71 @@ class World(var name: String, var generator: WorldGenerator, var dimensionType: 
         return Location(vector.x, vector.y, vector.z, this)
     }
 
-    fun getRandom(): Random = Random(seed)
+    fun World.placeSchematicAsync(schematic: Schematic, location: Location): CompletableFuture<Unit> {
+        return this.scheduler.runAsync {
+            this.placeSchematic(schematic, location)
+        }
+    }
+
+    fun placeSchematic(
+        schematic: Schematic,
+        location: Location,
+    ) {
+        val blocks = schematic.blocks.toByteBuf()
+        val updateChunks = ObjectOpenHashSet<Chunk>()
+        val loadChunk = ObjectOpenHashSet<ChunkPos>()
+        val batchBlockUpdate = ObjectOpenHashSet<Schematic.SchematicBlock>()
+        val flippedPallet = schematic.palette.reversed()
+
+        for (y in 0 until schematic.size.y) {
+            for (z in 0 until schematic.size.z) {
+                for (x in 0 until schematic.size.x) {
+
+                    val localSpacePlaceVec = Vector3(x, y, z)
+                    val localSpacePlaceLoc = localSpacePlaceVec.toLocation(location.world)
+                    val placeLoc = localSpacePlaceLoc.add(location)
+                    val id = blocks.readVarInt()
+                    val block = flippedPallet[id] ?: Schematic.RED_STAINED_GLASS
+
+                    val chunkPos = ChunkPos.fromLocation(placeLoc)
+                    val chunk = placeLoc.world.getOrGenerateChunk(chunkPos)
+
+                    loadChunk.add(chunkPos)
+                    updateChunks.add(chunk)
+
+                    val schematicBlock: Schematic.SchematicBlock = if (schematic.blockEntities.containsKey(localSpacePlaceVec)) {
+                        Schematic.SchematicBlock.BlockEntity(localSpacePlaceLoc, placeLoc, block, schematic.blockEntities.getOrThrow(localSpacePlaceVec))
+                    } else {
+                        Schematic.SchematicBlock.Normal(localSpacePlaceLoc, placeLoc, block.getProtocolId())
+                    }
+                    batchBlockUpdate.add(schematicBlock)
+                }
+            }
+        }
+
+        batchBlockUpdate.forEach { schematicBlock ->
+            try {
+                when (schematicBlock) {
+                    is Schematic.SchematicBlock.Normal -> {
+                        this.setBlockRaw(schematicBlock.location, schematicBlock.id, false)
+                    }
+
+                    is Schematic.SchematicBlock.BlockEntity -> {
+                        this.setBlockRaw(schematicBlock.location, schematicBlock.block.getProtocolId(), false)
+                        this.setBlockEntityData(schematicBlock.location, schematicBlock.data, schematicBlock.block.registryBlock, false)
+                    }
+                }
+
+            } catch (ex: Exception) {
+                log("Error while placing block in schematic at ${location}: $ex", LogType.ERROR)
+                log(ex)
+            }
+        }
+
+        updateChunks.forEach { chunk ->
+            chunk.update()
+        }
+    }
 
     override fun dispose() {
         players.forEach { player ->
