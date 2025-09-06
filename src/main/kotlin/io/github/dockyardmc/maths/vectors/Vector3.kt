@@ -1,6 +1,5 @@
 package io.github.dockyardmc.maths.vectors
 
-import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.NetworkReadable
@@ -146,11 +145,7 @@ data class Vector3(
         )
 
         override fun read(buffer: ByteBuf): Vector3 {
-            return Vector3(
-                buffer.readVarInt(),
-                buffer.readVarInt(),
-                buffer.readVarInt()
-            )
+            return STREAM_CODEC.read(buffer)
         }
     }
 }
