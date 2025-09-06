@@ -29,7 +29,6 @@ class EnforceEventTests : EnforceTestsAbstract() {
         CustomClickActionEvent::class.java,
         NoxesiumClientInformationEvent::class.java,
         NoxesiumQibTriggeredEvent::class.java,
-        NoxesiumPacketReceiveEvent::class.java,
         NoxesiumRiptideEvent::class.java,
         NoxesiumClientSettingsEvent::class.java,
     )
