@@ -12,9 +12,9 @@ object CRC32CHasher {
     // should have 0 probability to appear as CRC32C hash due to odd parity, we can use it as marker for inline values in maps
     const val INLINE: Int = 0x00000001
 
-    private val KEY_COMPARATOR: Comparator<Map.Entry<Int, Int>> = java.util.Map.Entry.comparingByKey(Comparator.comparingLong { x: Int -> Integer.toUnsignedLong(x) })
-    private val VALUE_COMPARATOR: Comparator<Map.Entry<Int, Int>> = java.util.Map.Entry.comparingByValue(Comparator.comparingLong { x: Int -> Integer.toUnsignedLong(x) })
-    private val MAP_COMPARATOR: Comparator<Map.Entry<Int, Int>> = KEY_COMPARATOR.thenComparing(VALUE_COMPARATOR)
+    val KEY_COMPARATOR: Comparator<Map.Entry<Int, Int>> = java.util.Map.Entry.comparingByKey(Comparator.comparingLong { x: Int -> Integer.toUnsignedLong(x) })
+    val VALUE_COMPARATOR: Comparator<Map.Entry<Int, Int>> = java.util.Map.Entry.comparingByValue(Comparator.comparingLong { x: Int -> Integer.toUnsignedLong(x) })
+    val MAP_COMPARATOR: Comparator<Map.Entry<Int, Int>> = KEY_COMPARATOR.thenComparing(VALUE_COMPARATOR)
 
     const val TAG_EMPTY: Byte = 1
     const val TAG_MAP_START: Byte = 2

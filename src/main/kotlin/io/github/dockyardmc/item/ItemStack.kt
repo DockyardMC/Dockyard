@@ -1,6 +1,5 @@
 package io.github.dockyardmc.item
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.AttributeModifier
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.DataComponentPatch
