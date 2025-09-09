@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf
 data class DummyInstrument(val soundEvent: SoundEvent, val useDuration: Float, val range: Float, val description: Component) : NetworkWritable {
 
     override fun write(buffer: ByteBuf) {
-        soundEvent.write(buffer)
+        SoundEvent.STREAM_CODEC.write(buffer, soundEvent)
         buffer.writeFloat(useDuration)
         buffer.writeFloat(range)
         buffer.writeTextComponent(description)
@@ -20,7 +20,7 @@ data class DummyInstrument(val soundEvent: SoundEvent, val useDuration: Float, v
     companion object : NetworkReadable<DummyInstrument> {
         override fun read(buffer: ByteBuf): DummyInstrument {
             return DummyInstrument(
-                SoundEvent.read(buffer),
+                SoundEvent.STREAM_CODEC.read(buffer),
                 buffer.readFloat(),
                 buffer.readFloat(),
                 buffer.readTextComponent()

@@ -6,7 +6,6 @@ import cz.lukynka.bindables.BindableMap
 import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.effects.AppliedPotionEffect
-import io.github.dockyardmc.effects.AppliedPotionEffectSettings
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.handlers.*
 import io.github.dockyardmc.entity.metadata.EntityMetadata
@@ -337,7 +336,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         showBlueBorder: Boolean = false,
         showIconOnHud: Boolean = false,
     ) {
-        val potionEffect = AppliedPotionEffect(effect, AppliedPotionEffectSettings(amplifier, duration, showBlueBorder, showParticles, showIconOnHud))
+        val potionEffect = AppliedPotionEffect(effect, AppliedPotionEffect.Settings(amplifier, duration, showBlueBorder, showParticles, showIconOnHud))
         this.potionEffects[effect] = potionEffect
     }
 
