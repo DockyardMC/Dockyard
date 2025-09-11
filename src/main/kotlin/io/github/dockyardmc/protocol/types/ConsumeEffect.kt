@@ -1,12 +1,10 @@
 package io.github.dockyardmc.protocol.types
 
 import io.github.dockyardmc.codec.RegistryCodec
-import io.github.dockyardmc.data.CRC32CHasher
+import io.github.dockyardmc.codec.transcoder.CRC32CTranscoder
 import io.github.dockyardmc.data.HashHolder
 import io.github.dockyardmc.data.StaticHash
 import io.github.dockyardmc.effects.AppliedPotionEffect
-import io.github.dockyardmc.extentions.readEnum
-import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.protocol.DataComponentHashable
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.registry.registries.PotionEffect
@@ -15,82 +13,82 @@ import io.github.dockyardmc.sounds.SoundEvent
 import io.github.dockyardmc.tide.codec.Codec
 import io.github.dockyardmc.tide.codec.StructCodec
 import io.github.dockyardmc.tide.stream.StreamCodec
-import io.github.dockyardmc.tide.transcoder.Transcoder
 import io.netty.buffer.ByteBuf
-import kotlin.reflect.KClass
 
-interface ConsumeEffect : DataComponentHashable {
+sealed interface ConsumeEffect : DataComponentHashable {
 
-    fun getCodec(): Codec<out ConsumeEffect>
-    fun getStreamCodec(): StreamCodec<out ConsumeEffect>
-
-    enum class Type(val key: String, val kclass: KClass<out ConsumeEffect>, val codec: Codec<out ConsumeEffect>, val streamCodec: StreamCodec<out ConsumeEffect>) {
-        APPLY_EFFECTS("apply_effects", ApplyEffects::class, ApplyEffects.CODEC, ApplyEffects.STREAM_CODEC),
-        REMOVE_EFFECTS("remove_effects", ApplyEffects::class, RemoveEffects.CODEC, RemoveEffects.STREAM_CODEC),
-        CLEAR_ALL_EFFECTS("clear_all_effects", ApplyEffects::class, ClearAllEffects.CODEC, ClearAllEffects.STREAM_CODEC),
-        TELEPORT_RANDOMLY("teleport_randomly", ApplyEffects::class, TeleportRandomly.CODEC, TeleportRandomly.STREAM_CODEC),
-        PLAY_SOUND("play_sound", ApplyEffects::class, PlaySound.CODEC, PlaySound.STREAM_CODEC);
+    enum class Type(val key: String) {
+        APPLY_EFFECTS("minecraft:apply_effects"),
+        REMOVE_EFFECTS("minecraft:remove_effects"),
+        CLEAR_ALL_EFFECTS("minecraft:clear_all_effects"),
+        TELEPORT_RANDOMLY("minecraft:teleport_randomly"),
+        PLAY_SOUND("minecraft:play_sound");
 
         companion object {
-            fun getForClass(kclass: KClass<out ConsumeEffect>): Type {
-                return entries.first { it.kclass == kclass }
-            }
-
             val CODEC = Codec.STRING.transform<Type>({ from -> Type.entries.first { it.key == from } }, { to -> to.key })
         }
     }
 
+    override fun hashStruct(): HashHolder {
+        return StaticHash(CODEC.encode(CRC32CTranscoder, this))
+    }
+
     companion object : NetworkReadable<ConsumeEffect> {
 
-        val STREAM_CODEC = object : StreamCodec<ConsumeEffect> {
-
-            @Suppress("UNCHECKED_CAST")
-            override fun write(buffer: ByteBuf, value: ConsumeEffect) {
-                buffer.writeEnum(Type.getForClass(value::class))
-                (value.getStreamCodec() as StreamCodec<ConsumeEffect>).write(buffer, value)
+        val STREAM_CODEC = StreamCodec.enum<Type>().union(
+            { type ->
+                when (type) {
+                    Type.APPLY_EFFECTS -> ApplyEffects.STREAM_CODEC
+                    Type.REMOVE_EFFECTS -> RemoveEffects.STREAM_CODEC
+                    Type.CLEAR_ALL_EFFECTS -> ClearAllEffects.STREAM_CODEC
+                    Type.TELEPORT_RANDOMLY -> TeleportRandomly.STREAM_CODEC
+                    Type.PLAY_SOUND -> PlaySound.STREAM_CODEC
+                }
+            },
+            { effect ->
+                when (effect) {
+                    is ApplyEffects -> Type.APPLY_EFFECTS
+                    is ClearAllEffects -> Type.CLEAR_ALL_EFFECTS
+                    is PlaySound -> Type.PLAY_SOUND
+                    is RemoveEffects -> Type.REMOVE_EFFECTS
+                    is TeleportRandomly -> Type.TELEPORT_RANDOMLY
+                }
             }
+        )
 
-            override fun read(buffer: ByteBuf): ConsumeEffect {
-                val type = buffer.readEnum<Type>()
-                return type.streamCodec.read(buffer)
+        val CODEC = Type.CODEC.union(
+            { type ->
+                when (type) {
+                    Type.APPLY_EFFECTS -> ApplyEffects.CODEC
+                    Type.REMOVE_EFFECTS -> RemoveEffects.CODEC
+                    Type.CLEAR_ALL_EFFECTS -> ClearAllEffects.CODEC
+                    Type.TELEPORT_RANDOMLY -> TeleportRandomly.CODEC
+                    Type.PLAY_SOUND -> PlaySound.CODEC
+                }
+            },
+            { effect ->
+                when (effect) {
+                    is ApplyEffects -> Type.APPLY_EFFECTS
+                    is ClearAllEffects -> Type.CLEAR_ALL_EFFECTS
+                    is PlaySound -> Type.PLAY_SOUND
+                    is RemoveEffects -> Type.REMOVE_EFFECTS
+                    is TeleportRandomly -> Type.TELEPORT_RANDOMLY
+                }
             }
-        }
-        
-        val CODEC = object : Codec<ConsumeEffect> {
-
-            @Suppress("UNCHECKED_CAST")
-            override fun <D> encode(transcoder: Transcoder<D>, value: ConsumeEffect): D {
-                transcoder.encodeString(Type.getForClass(value::class).key)
-                return (value.getCodec() as Codec<ConsumeEffect>).encode(transcoder, value)
-            }
-
-            override fun <D> decode(transcoder: Transcoder<D>, value: D): ConsumeEffect {
-                val type = Type.CODEC.decode(transcoder, value)
-                return type.codec.decode(transcoder, value)
-            }
-        }
+        )
 
         override fun read(buffer: ByteBuf): ConsumeEffect {
             return STREAM_CODEC.read(buffer)
         }
     }
 
-    data class ApplyEffects(val effects: List<AppliedPotionEffect>, val probability: Float) : ConsumeEffect {
+    data class ApplyEffects(val effects: List<AppliedPotionEffect>, val probability: Float = 1f) : ConsumeEffect {
 
         init {
             require(probability in 0f..1f) { "Probability must be between 0f and 1f" }
         }
 
-        override fun getCodec(): Codec<out ConsumeEffect> {
-            return CODEC
-        }
-
-        override fun getStreamCodec(): StreamCodec<out ConsumeEffect> {
-            return STREAM_CODEC
-        }
-
         companion object {
-            const val ID = 0
             const val DEFAULT_PROBABILITY = 1f
 
             val STREAM_CODEC = StreamCodec.of(
@@ -101,33 +99,15 @@ interface ConsumeEffect : DataComponentHashable {
 
             val CODEC = StructCodec.of(
                 "effects", AppliedPotionEffect.CODEC.list(), ApplyEffects::effects,
-                "probability", Codec.FLOAT.default(1f), ApplyEffects::probability,
+                "probability", Codec.FLOAT.default(DEFAULT_PROBABILITY), ApplyEffects::probability,
                 ::ApplyEffects
             )
         }
-
-        override fun hashStruct(): HashHolder {
-            return CRC32CHasher.of {
-                structList("effects", effects, AppliedPotionEffect::hashStruct)
-                default("probability", 1f, probability, CRC32CHasher::ofFloat)
-            }
-        }
-
     }
 
     data class RemoveEffects(val effects: List<PotionEffect>) : ConsumeEffect {
 
-        override fun getCodec(): Codec<out ConsumeEffect> {
-            return CODEC
-        }
-
-        override fun getStreamCodec(): StreamCodec<out ConsumeEffect> {
-            return STREAM_CODEC
-        }
-
         companion object {
-            const val ID = 1
-
             val STREAM_CODEC = StreamCodec.of(
                 RegistryCodec.stream(PotionEffectRegistry).list(), RemoveEffects::effects,
                 ::RemoveEffects
@@ -138,50 +118,22 @@ interface ConsumeEffect : DataComponentHashable {
                 ::RemoveEffects
             )
         }
-
-        override fun hashStruct(): HashHolder {
-            return CRC32CHasher.of {
-                list("effects", effects, CRC32CHasher::ofRegistryEntry)
-            }
-        }
     }
 
     class ClearAllEffects : ConsumeEffect {
 
-        override fun getCodec(): Codec<out ConsumeEffect> {
-            return CODEC
-        }
-
-        override fun getStreamCodec(): StreamCodec<out ConsumeEffect> {
-            return STREAM_CODEC
-        }
-
         companion object {
-            const val ID = 3
-            private val INSTANCE = ClearAllEffects()
+//            private val INSTANCE get() = ClearAllEffects()
 
-            val CODEC = StructCodec.of<ClearAllEffects> { INSTANCE }
-            val STREAM_CODEC = StreamCodec.of { INSTANCE }
-        }
-
-        override fun hashStruct(): HashHolder {
-            return StaticHash(CRC32CHasher.EMPTY_MAP)
+            val CODEC = StructCodec.of(::ClearAllEffects)
+            val STREAM_CODEC = StreamCodec.of(::ClearAllEffects)
         }
     }
 
     data class TeleportRandomly(val diameter: Float = DEFAULT_DIAMETER) : ConsumeEffect {
 
-        override fun getCodec(): Codec<out ConsumeEffect> {
-            return CODEC
-        }
-
-        override fun getStreamCodec(): StreamCodec<out ConsumeEffect> {
-            return STREAM_CODEC
-        }
-
         companion object {
             const val DEFAULT_DIAMETER = 16.0f
-            const val ID = 3
 
             val STREAM_CODEC = StreamCodec.of(
                 StreamCodec.FLOAT, TeleportRandomly::diameter,
@@ -193,27 +145,11 @@ interface ConsumeEffect : DataComponentHashable {
                 ::TeleportRandomly
             )
         }
-
-        override fun hashStruct(): HashHolder {
-            return CRC32CHasher.of {
-                default("diameter", DEFAULT_DIAMETER, diameter, CRC32CHasher::ofFloat)
-            }
-        }
     }
 
     data class PlaySound(val sound: SoundEvent) : ConsumeEffect {
 
-        override fun getCodec(): Codec<out ConsumeEffect> {
-            return CODEC
-        }
-
-        override fun getStreamCodec(): StreamCodec<out ConsumeEffect> {
-            return STREAM_CODEC
-        }
-
         companion object {
-            const val ID = 4
-
             val CODEC = StructCodec.of(
                 "sound", SoundEvent.CODEC, PlaySound::sound,
                 ::PlaySound
@@ -223,12 +159,6 @@ interface ConsumeEffect : DataComponentHashable {
                 SoundEvent.STREAM_CODEC, PlaySound::sound,
                 ::PlaySound
             )
-        }
-
-        override fun hashStruct(): HashHolder {
-            return CRC32CHasher.of {
-                static("sound", sound.hashStruct().getHashed())
-            }
         }
     }
 }

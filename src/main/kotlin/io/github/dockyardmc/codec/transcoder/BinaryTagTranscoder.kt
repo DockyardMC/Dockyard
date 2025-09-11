@@ -125,7 +125,7 @@ object BinaryTagTranscoder : Transcoder<BinaryTag> {
             }
 
             override fun put(key: String, value: BinaryTag): Transcoder.VirtualMapBuilder<BinaryTag> {
-                compound.put(key, value)
+                if (value !is EndBinaryTag) compound.put(key, value)
                 return this
             }
         }

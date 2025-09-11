@@ -1,5 +1,6 @@
 package io.github.dockyard.tests.hashing
 
+import cz.lukynka.prettylog.log
 import io.github.dockyard.tests.TestServer
 import io.github.dockyardmc.attributes.AttributeModifier
 import io.github.dockyardmc.attributes.AttributeOperation
@@ -65,15 +66,15 @@ class HashTest {
             AttributeModifiersComponent(listOf()) to -1978007022,
             CustomSoundEvent(Sounds.BLOCK_NOTE_BLOCK_BANJO, null) to 2036171673,
             BuiltinSoundEvent(Sounds.BLOCK_NOTE_BLOCK_BANJO) to 952047800,
-            ConsumableComponent(1.6f, ConsumableComponent.Animation.EAT, BuiltinSoundEvent(Sounds.ITEM_GOAT_HORN_SOUND_0), true, listOf()) to -102904843,
-            ConsumableComponent(0.3f, ConsumableComponent.Animation.BLOCK, BuiltinSoundEvent(Sounds.ITEM_BOOK_PUT), false, listOf()) to -1085734156,
-            AppliedPotionEffect(PotionEffects.LUCK, AppliedPotionEffect.Settings(1, 5.seconds, true, false, true, null)) to -1904986478,
-            ConsumeEffect.ApplyEffects(listOf(AppliedPotionEffect(PotionEffects.LUCK, AppliedPotionEffect.Settings(1, 5.seconds, true, false, true, null))), 1.0f) to -181115074,
-            ConsumeEffect.RemoveEffects(listOf(PotionEffects.LUCK, PotionEffects.HASTE)) to -1438921926,
+            ConsumeEffect.ApplyEffects(listOf(), 1.0f) to 2028610984,
+            ConsumeEffect.RemoveEffects(listOf(PotionEffects.LUCK, PotionEffects.HASTE)) to 497533033,
             ConsumeEffect.ClearAllEffects() to -982207288,
-            ConsumeEffect.PlaySound(BuiltinSoundEvent(Sounds.ITEM_GOAT_HORN_SOUND_0)) to -102904843,
-            ConsumeEffect.TeleportRandomly() to -982207288,
-            ConsumeEffect.TeleportRandomly(5.0f) to 984729518,
+            ConsumeEffect.PlaySound(BuiltinSoundEvent(Sounds.ITEM_GOAT_HORN_SOUND_0)) to 257203246,
+            ConsumeEffect.TeleportRandomly() to 813409391,
+            ConsumeEffect.TeleportRandomly(5.0f) to -1764715223,
+            ConsumableComponent(1.6f, ConsumableComponent.Animation.EAT, BuiltinSoundEvent(Sounds.ITEM_GOAT_HORN_SOUND_0), true, listOf()) to 1795682327,
+            ConsumableComponent(0.3f, ConsumableComponent.Animation.BLOCK, BuiltinSoundEvent(Sounds.ITEM_BOOK_PUT), false, listOf()) to -349184012,
+            AppliedPotionEffect(PotionEffects.LUCK, AppliedPotionEffect.Settings(1, 5.seconds, true, false, true, null)) to -1904986478,
             CustomModelDataComponent(listOf(1f, 2f), listOf(true, false), listOf("gay", "month"), listOf(CustomColor(1, 1, 1))) to 766388248,
             EquippableComponent(EquipmentSlot.CHESTPLATE, BuiltinSoundEvent(Sounds.ITEM_GOAT_HORN_SOUND_0), null, null, null, true, true, true, true, false, BuiltinSoundEvent(Sounds.ITEM_GOAT_HORN_SOUND_0)) to 1213362121,
             FoodComponent(2, 1.3f, true) to 474066665,
@@ -93,6 +94,7 @@ class HashTest {
 
         expectedHashes.forEach { (hashable, hash) ->
             assertEquals(-340533995, CRC32CHasher.ofColor(CustomColor(1, 1, 1)))
+            log("Testing: ${hashable::class.simpleName}")
             assertEquals(hash, hashable.hashStruct().getHashed())
         }
     }
