@@ -55,13 +55,6 @@ data class ConsumableComponent(
 
     override fun hashStruct(): HashHolder {
         return StaticHash(CODEC.encode(CRC32CTranscoder, this))
-//        return CRC32CHasher.of {
-//            default("consume_seconds", CONSUME_SECONDS_DEFAULT, consumeSeconds, CRC32CHasher::ofFloat)
-//            default("animation", ANIMATION_DEFAULT, animation, CRC32CHasher::ofEnum)
-//            defaultStruct("sound", SOUND_DEFAULT, sound, SoundEvent::hashStruct)
-//            default<Boolean>("has_consume_particles", HAS_CONSUME_PARTICLES_DEFAULT, hasParticles, CRC32CHasher::ofBoolean)
-//            defaultStructList("on_consume_effects", listOf(), effects, ConsumeEffect::hashStruct)
-//        }
     }
 
     override fun write(buffer: ByteBuf) {
