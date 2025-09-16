@@ -2,7 +2,6 @@ package io.github.dockyardmc.data.components
 
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.HashHolder
-import io.github.dockyardmc.extentions.readNBT
 import io.github.dockyardmc.extentions.readNBTCompound
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.protocol.NetworkReadable
@@ -16,7 +15,7 @@ class BlockEntityDataComponent(val nbt: CompoundBinaryTag) : DataComponent() {
     }
 
     override fun hashStruct(): HashHolder {
-        return unsupported(this::class)
+        return unsupported(this)
     }
 
     companion object : NetworkReadable<BlockEntityDataComponent> {

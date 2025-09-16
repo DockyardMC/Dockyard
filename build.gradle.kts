@@ -56,7 +56,7 @@ dependencies {
 
     // Networking
     api("io.ktor:ktor-server-netty:3.1.2")
-    api("io.github.dockyardmc:tide:3.1")
+    api("io.github.dockyardmc:tide:3.7")
     api("io.github.dockyardmc:bytesocks-client-java:1.0-SNAPSHOT") {
         exclude(module = "slf4j-api")
     }

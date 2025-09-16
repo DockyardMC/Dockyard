@@ -2,23 +2,12 @@
 
 package io.github.dockyardmc.schematics
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.extentions.getOrThrow
-import io.github.dockyardmc.extentions.readVarInt
-import io.github.dockyardmc.extentions.reversed
-import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.registry.Blocks
-import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
-import io.github.dockyardmc.world.chunk.Chunk
-import io.github.dockyardmc.world.chunk.ChunkPos
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.kyori.adventure.nbt.CompoundBinaryTag
-import java.util.concurrent.CompletableFuture
 
 data class Schematic(
     var size: Vector3,

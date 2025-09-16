@@ -1,9 +1,11 @@
 package io.github.dockyardmc.maths.vectors
 
+import io.github.dockyardmc.extentions.toVector3
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
+import io.github.dockyardmc.tide.codec.Codec
 import io.github.dockyardmc.tide.stream.StreamCodec
 import io.github.dockyardmc.world.World
 import io.netty.buffer.ByteBuf
@@ -135,7 +137,13 @@ data class Vector3(
         buffer.writeShort(this.z)
     }
 
+    fun toIntArray(): IntArray {
+        return intArrayOf(x, y, z)
+    }
+
     companion object : NetworkReadable<Vector3> {
+
+        val CODEC = Codec.INT_ARRAY.transform<Vector3>({ from -> from.toVector3() }, { to -> to.toIntArray() })
 
         val STREAM_CODEC = StreamCodec.of(
             StreamCodec.VAR_INT, Vector3::x,

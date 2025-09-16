@@ -1,8 +1,10 @@
 {
   "codec": {
-    "Component": "ComponentCodecs.STRING"
+    "Component": "ComponentCodecs.STRING",
+    "PotionEffect": "RegistryCodec.codec(PotionEffectRegistry)"
   },
   "stream_codec": {
-    "Component": "ComponentCodecs.STREAM"
+    "Component": "ComponentCodecs.STREAM",
+    "PotionEffect": "RegistryCodec.stream(PotionEffectRegistry)"
   }
 }

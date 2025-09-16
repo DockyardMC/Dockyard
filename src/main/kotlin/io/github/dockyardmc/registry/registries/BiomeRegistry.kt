@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
+import io.github.dockyardmc.codec.transcoder.BinaryTagTranscoder
 import io.github.dockyardmc.nbt.nbt
 import io.github.dockyardmc.protocol.NbtWritable
 import io.github.dockyardmc.registry.DataDrivenRegistry
@@ -39,7 +40,7 @@ data class BackgroundMusic(
 ) {
     fun toNBT(): CompoundBinaryTag {
         return nbt {
-            withCompound("sound", CustomSoundEvent(sound, null).getNbt())
+            withCompound("sound", CustomSoundEvent.CODEC.encode(BinaryTagTranscoder, CustomSoundEvent(sound, null)) as CompoundBinaryTag)
             withInt("max_delay", maxDelay)
             withInt("min_delay", minDelay)
             withBoolean("replace_current_music", replaceCurrentMusic)

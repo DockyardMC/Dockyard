@@ -1,7 +1,5 @@
 package io.github.dockyardmc.resourcepack
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ProtocolState
 import io.github.dockyardmc.protocol.packets.configurations.ClientboundConfigurationAddResourcePackPacket

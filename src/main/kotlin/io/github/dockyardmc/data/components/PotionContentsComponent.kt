@@ -7,7 +7,6 @@ import io.github.dockyardmc.effects.AppliedPotionEffect
 import io.github.dockyardmc.extentions.*
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.readOptional
-import io.github.dockyardmc.protocol.types.writeList
 import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.registry.registries.PotionType
 import io.github.dockyardmc.registry.registries.PotionTypeRegistry
@@ -33,7 +32,7 @@ class PotionContentsComponent(
     override fun write(buffer: ByteBuf) {
         buffer.writeOptional(potion?.getProtocolId(), ByteBuf::writeVarInt)
         buffer.writeOptional(customColor, CustomColor::writePackedInt)
-        buffer.writeList(effects, AppliedPotionEffect::write)
+        AppliedPotionEffect.STREAM_CODEC.list().write(buffer, effects)
         buffer.writeOptional(customName, ByteBuf::writeString)
     }
 
@@ -42,7 +41,7 @@ class PotionContentsComponent(
             return PotionContentsComponent(
                 buffer.readOptional(ByteBuf::readVarInt)?.let { PotionTypeRegistry.getByProtocolId(it) },
                 buffer.readOptional(ByteBuf::readInt)?.let { CustomColor.fromRGBInt(it) },
-                buffer.readList(AppliedPotionEffect::read),
+                AppliedPotionEffect.STREAM_CODEC.list().read(buffer),
                 buffer.readOptional(ByteBuf::readString)
             )
         }

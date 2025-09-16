@@ -7,68 +7,89 @@ import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
-import io.github.dockyardmc.nbt.nbt
-import io.github.dockyardmc.protocol.*
+import io.github.dockyardmc.protocol.DataComponentHashable
+import io.github.dockyardmc.protocol.readOptional
+import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.registry.registries.SoundRegistry
+import io.github.dockyardmc.tide.codec.Codec
+import io.github.dockyardmc.tide.codec.StructCodec
+import io.github.dockyardmc.tide.stream.StreamCodec
+import io.github.dockyardmc.tide.transcoder.Transcoder
 import io.netty.buffer.ByteBuf
-import net.kyori.adventure.nbt.BinaryTag
-import net.kyori.adventure.nbt.CompoundBinaryTag
-import net.kyori.adventure.nbt.StringBinaryTag
 
-interface SoundEvent : NetworkWritable, NbtWritable, DataComponentHashable {
-    companion object {
-        fun read(buffer: ByteBuf): SoundEvent {
-            val id = buffer.readVarInt() - 1
-            if (id != -1) {
-                val sound = SoundRegistry.getByProtocolId(id)
-                return BuiltinSoundEvent(sound, id)
-            }
-
-            val identifier = buffer.readString()
-            val range = buffer.readOptional(ByteBuf::readFloat)
-            return CustomSoundEvent(identifier, range)
-        }
-    }
+sealed interface SoundEvent : DataComponentHashable {
 
     val identifier: String
+
+    companion object {
+        val STREAM_CODEC = object : StreamCodec<SoundEvent> {
+
+            @Suppress("UNCHECKED_CAST")
+            override fun write(buffer: ByteBuf, value: SoundEvent) {
+                when (value) {
+                    is BuiltinSoundEvent -> buffer.writeVarInt(value.protocolId + 1)
+                    is CustomSoundEvent -> {
+                        buffer.writeVarInt(0)
+                        buffer.writeString(value.identifier)
+                        buffer.writeOptional(value.range, ByteBuf::writeFloat)
+                    }
+                }
+            }
+
+            override fun read(buffer: ByteBuf): SoundEvent {
+                val id = buffer.readVarInt() - 1
+                if (id != -1) return BuiltinSoundEvent(id)
+
+                return CustomSoundEvent(buffer.readString(), buffer.readOptional(ByteBuf::readFloat))
+            }
+        }
+
+        val CODEC = object : Codec<SoundEvent> {
+
+            override fun <D> encode(transcoder: Transcoder<D>, value: SoundEvent): D {
+                return when (value) {
+                    is BuiltinSoundEvent -> transcoder.encodeString(value.identifier)
+                    is CustomSoundEvent -> CustomSoundEvent.CODEC.encode(transcoder, value)
+                }
+            }
+
+            override fun <D> decode(transcoder: Transcoder<D>, value: D): SoundEvent {
+                val result = runCatching { transcoder.decodeString(value) }
+                if (result.isSuccess) return BuiltinSoundEvent(result.getOrThrow())
+
+                return CustomSoundEvent.CODEC.decode(transcoder, value)
+            }
+        }
+    }
 }
 
-data class BuiltinSoundEvent(override val identifier: String, val id: Int) : SoundEvent {
+data class BuiltinSoundEvent(override val identifier: String) : SoundEvent {
 
-    override fun write(buffer: ByteBuf) {
-        buffer.writeVarInt(id + 1)
-    }
+    constructor(id: Int) : this(SoundRegistry.getByProtocolId(id))
 
-    override fun getNbt(): BinaryTag {
-        return StringBinaryTag.stringBinaryTag(identifier)
-    }
+    val protocolId = SoundRegistry[identifier]
 
     override fun hashStruct(): HashHolder {
         return StaticHash(CRC32CHasher.ofString(identifier))
-    }
-
-    companion object {
-        fun of(identifier: String): BuiltinSoundEvent {
-            val id = SoundRegistry[identifier]
-            return BuiltinSoundEvent(identifier, id)
-        }
     }
 }
 
 data class CustomSoundEvent(override val identifier: String, val range: Float? = null) : SoundEvent {
 
-    override fun write(buffer: ByteBuf) {
-        buffer.writeVarInt(0)
-        buffer.writeString(identifier)
-        buffer.writeOptional<Float>(range, ByteBuf::writeFloat)
+    companion object {
+        val CODEC = StructCodec.of(
+            "sound_id", Codec.STRING, CustomSoundEvent::identifier,
+            "range", Codec.FLOAT.optional(), CustomSoundEvent::range,
+            ::CustomSoundEvent
+        )
     }
 
-    override fun getNbt(): CompoundBinaryTag {
-        return nbt {
-            withString("sound_id", identifier)
-            if (range != null) withFloat("range", range)
-        }
-    }
+//    override fun write(buffer: ByteBuf) {
+//        buffer.writeVarInt(0)
+//        buffer.writeString(identifier)
+//        buffer.writeOptional<Float>(range, ByteBuf::writeFloat)
+//    }
+
 
     override fun hashStruct(): HashHolder {
         return CRC32CHasher.of {
