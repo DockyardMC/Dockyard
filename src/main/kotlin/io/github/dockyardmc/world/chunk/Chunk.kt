@@ -53,7 +53,7 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
 
     val lightPacket: ClientboundUpdateLightPacket
         get() {
-            if(!this::cachedLightPacket.isInitialized) updateLight()
+            if (!this::cachedLightPacket.isInitialized) updateLightOnly()
             return cachedLightPacket
         }
 
@@ -81,17 +81,10 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
         sendUpdateToViewers()
     }
 
-    fun updateLight() {
+    fun updateLightOnly() {
         lightEngine.recalculateChunk()
         cachedLightPacket = ClientboundUpdateLightPacket(chunkX, chunkZ, Light(lightEngine))
-    }
-
-    init {
-        val sectionsAmount = maxSection - minSection
-        repeat(sectionsAmount) {
-            sections.add(ChunkSection.empty())
-        }
-        update()
+        sendUpdateToViewers()
     }
 
     fun setBlockRaw(x: Int, y: Int, z: Int, blockStateId: Int, shouldCache: Boolean = true) {
