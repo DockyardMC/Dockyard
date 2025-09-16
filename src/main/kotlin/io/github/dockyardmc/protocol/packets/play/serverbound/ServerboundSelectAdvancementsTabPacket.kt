@@ -7,6 +7,7 @@ import io.github.dockyardmc.extentions.readString
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundSelectAdvancementsTabPacket
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -14,10 +15,10 @@ class ServerboundSelectAdvancementsTabPacket(val action: Action, val identifier:
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
 
-        val event = PlayerSelectAdvancementsTabEvent(player, action, identifier)
+        val event = PlayerSelectAdvancementsTabEvent(player, action, identifier, getPlayerEventContext(player))
         Events.dispatch(event)
 
-        if(event.cancelled) {
+        if (event.cancelled) {
             player.sendPacket(ClientboundSelectAdvancementsTabPacket(player.advancementTracker.selectedTab.value))
             return
         }

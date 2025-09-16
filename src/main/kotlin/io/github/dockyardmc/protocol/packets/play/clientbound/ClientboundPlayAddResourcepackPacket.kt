@@ -6,6 +6,6 @@ import io.github.dockyardmc.resourcepack.ResourcePack
 class ClientboundPlayAddResourcepackPacket(resourcepack: ResourcePack) : ClientboundPacket() {
 
     init {
-        ResourcePack.STREAM_CODEC.writeNetwork(buffer, resourcepack)
+        ResourcePack.STREAM_CODEC.write(buffer, resourcepack)
     }
 }

@@ -1,26 +1,26 @@
 package io.github.dockyardmc.protocol.plugin.messages
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.extentions.readString
-import io.github.dockyardmc.extentions.writeString
-import io.github.dockyardmc.player.Player
-import io.netty.buffer.ByteBuf
+import io.github.dockyardmc.tide.stream.StreamCodec
 
-class BrandPluginMessage(val brand: String): PluginMessageHandler() {
+data class BrandPluginMessage(val brand: String) : PluginMessage {
+
+    override fun getStreamCodec(): StreamCodec<out PluginMessage> {
+        return STREAM_CODEC
+    }
 
     companion object {
-        fun read(buf: ByteBuf): BrandPluginMessage {
-            return BrandPluginMessage(buf.readString())
-        }
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.STRING, BrandPluginMessage::brand,
+            ::BrandPluginMessage
+        )
     }
-
-    override fun handle(player: Player) {
-        log("Received client brand from $player: $brand", LogType.DEBUG)
-        player.brand = brand
-    }
-
-    override fun write(buffer: ByteBuf) {
-        buffer.writeString(brand)
-    }
+//
+//    override fun handle(player: Player) {
+//        log("Received client brand from $player: $brand", LogType.DEBUG)
+//        player.brand = brand
+//    }
+//
+//    override fun write(buffer: ByteBuf) {
+//        buffer.writeString(brand)
+//    }
 }

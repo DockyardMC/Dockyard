@@ -4,12 +4,15 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
+import io.github.dockyardmc.provider.PlayerMessageProvider
+import io.github.dockyardmc.provider.PlayerPacketProvider
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.maths.vectors.Vector3
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
 import java.util.concurrent.CompletableFuture
@@ -17,9 +20,12 @@ import java.util.concurrent.CompletableFuture
 class Bound(
     var firstLocation: Location,
     var secondLocation: Location,
-) : Disposable {
+) : Disposable, PlayerMessageProvider, PlayerPacketProvider {
     val world get() = firstLocation.world
     val size: Vector3 get() = firstLocation.distanceVector(secondLocation).toVector3()
+
+    override val playerGetter: Collection<Player>
+        get() = members
 
     private val members: MutableList<Player> = mutableListOf()
     val players: List<Player> get() = members.toList()
@@ -99,7 +105,7 @@ class Bound(
 
         getEntities().filterIsInstance<Player>().forEach { player ->
             if (members.contains(player)) return@forEach
-            val event = PlayerEnterBoundEvent(player, this)
+            val event = PlayerEnterBoundEvent(player, this, getPlayerEventContext(player))
             Events.dispatch(event)
 
             members.add(player)
@@ -133,13 +139,13 @@ class Bound(
             PlayerManager.players.toList().forEach { player ->
                 if (player.world != world) return@forEach
                 if (player.location.isWithinBound(this) && !members.contains(player)) {
-                    val event = PlayerEnterBoundEvent(player, this)
+                    val event = PlayerEnterBoundEvent(player, this, getPlayerEventContext(player))
                     Events.dispatch(event)
 
                     members.add(player)
                     onEnter?.invoke(player)
                 } else if (!player.location.isWithinBound(this) && members.contains(player)) {
-                    val event = PlayerLeaveBoundEvent(player, this)
+                    val event = PlayerLeaveBoundEvent(player, this, getPlayerEventContext(player))
                     Events.dispatch(event)
 
                     members.remove(player)
@@ -149,7 +155,7 @@ class Bound(
         }
 
         getEntities().filterIsInstance<Player>().forEach { player ->
-            val event = PlayerEnterBoundEvent(player, this)
+            val event = PlayerEnterBoundEvent(player, this, getPlayerEventContext(player))
             Events.dispatch(event)
 
             members.add(player)

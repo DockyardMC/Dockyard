@@ -12,6 +12,8 @@ import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.sounds.BuiltinSoundEvent
+import io.github.dockyardmc.sounds.SoundEvent
 import java.util.*
 
 class ItemStackMeta {
@@ -91,7 +93,7 @@ class ItemStackMeta {
     fun withConsumable(
         consumeTimeSeconds: Float,
         animation: ConsumableComponent.Animation = ConsumableComponent.Animation.EAT,
-        sound: String = Sounds.ENTITY_GENERIC_EAT,
+        sound: SoundEvent = BuiltinSoundEvent(Sounds.ENTITY_GENERIC_EAT),
         hasParticles: Boolean = true,
         consumeEffects: List<ConsumeEffect> = listOf()
     ) {

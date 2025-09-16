@@ -1,29 +1,30 @@
 package io.github.dockyardmc.noxesium.protocol.serverbound
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.noxesium.NoxesiumClientInformationEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumClientSettingsEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumQibTriggeredEvent
 import io.github.dockyardmc.events.noxesium.NoxesiumRiptideEvent
-import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.utils.getPlayerEventContext
 
-object NoxesiumServerboundHandlers {
+internal class NoxesiumServerboundHandlers {
 
-    fun handleClientInfo(player: Player, packet: ServerboundNoxesiumClientInformationPacket) {
-        Events.dispatch(NoxesiumClientInformationEvent(player, packet.protocolVersion, packet.versionString, getPlayerEventContext(player)))
+    fun handleClientInfo(packet: ServerboundNoxesiumClientInformationPacket, playerNetworkManager: PlayerNetworkManager) {
+        Events.dispatch(NoxesiumClientInformationEvent(playerNetworkManager.player, packet.protocolVersion, packet.versionString, getPlayerEventContext(playerNetworkManager.player)))
     }
 
-    fun handleClientSettings(player: Player, packet: ServerboundNoxesiumClientSettingsPacket) {
-        Events.dispatch(NoxesiumClientSettingsEvent(player, packet.clientSettings, getPlayerEventContext(player)))
+    fun handleClientSettings(packet: ServerboundNoxesiumClientSettingsPacket, playerNetworkManager: PlayerNetworkManager) {
+        Events.dispatch(NoxesiumClientSettingsEvent(playerNetworkManager.player, packet.clientSettings, getPlayerEventContext(playerNetworkManager.player)))
     }
 
-    fun handleQibTriggered(player: Player, packet: ServerboundNoxesiumQibTriggeredPacket) {
-        Events.dispatch(NoxesiumQibTriggeredEvent(player, packet.behaviour, packet.qibType, packet.entityId, getPlayerEventContext(player)))
+    fun handleQibTriggered(packet: ServerboundNoxesiumQibTriggeredPacket, playerNetworkManager: PlayerNetworkManager) {
+        Events.dispatch(NoxesiumQibTriggeredEvent(playerNetworkManager.player, packet.behaviour, packet.qibType, packet.entityId, getPlayerEventContext(playerNetworkManager.player)))
     }
 
-    fun handleRiptide(player: Player, packet: ServerboundNoxesiumRiptidePacket) {
-        Events.dispatch(NoxesiumRiptideEvent(player, packet.slot, getPlayerEventContext(player)))
+    fun handleRiptide(packet: ServerboundNoxesiumRiptidePacket, playerNetworkManager: PlayerNetworkManager) {
+        Events.dispatch(NoxesiumRiptideEvent(playerNetworkManager.player, packet.slot, getPlayerEventContext(playerNetworkManager.player)))
     }
 
 }

@@ -1,22 +1,21 @@
 package io.github.dockyardmc.noxesium.protocol.serverbound
 
-import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
-import io.github.dockyardmc.tide.Codec
-import io.github.dockyardmc.tide.Codecs
+import io.github.dockyardmc.protocol.plugin.messages.PluginMessage
+import io.github.dockyardmc.tide.stream.StreamCodec
 
 data class ServerboundNoxesiumClientInformationPacket(
     val protocolVersion: Int,
     val versionString: String,
-) : NoxesiumPacket {
+) : PluginMessage {
 
-    override fun getStreamCodec(): Codec<out NoxesiumPacket> {
+    override fun getStreamCodec(): StreamCodec<out PluginMessage> {
         return STREAM_CODEC
     }
 
     companion object {
-        val STREAM_CODEC = Codec.of(
-            "protocol_version", Codecs.VarInt, ServerboundNoxesiumClientInformationPacket::protocolVersion,
-            "version_string", Codecs.String, ServerboundNoxesiumClientInformationPacket::versionString,
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.VAR_INT, ServerboundNoxesiumClientInformationPacket::protocolVersion,
+            StreamCodec.STRING, ServerboundNoxesiumClientInformationPacket::versionString,
             ::ServerboundNoxesiumClientInformationPacket
         )
     }

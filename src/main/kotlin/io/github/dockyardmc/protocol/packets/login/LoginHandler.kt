@@ -30,6 +30,7 @@ import io.netty.channel.ChannelHandlerContext
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
@@ -50,6 +51,7 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
 
     private val crypto = EncryptionUtil.getNewPlayerCrypto()
     private var packetUsername: String? = null
+    private val loginAckFuture: CompletableFuture<Unit> = CompletableFuture()
 
     fun handleHandshake(packet: ServerboundHandshakePacket, connection: ChannelHandlerContext) {
 
@@ -174,10 +176,12 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
 
     fun handleLoginAcknowledge(packet: ServerboundLoginAcknowledgedPacket, connection: ChannelHandlerContext) {
         networkManager.state = ProtocolState.CONFIGURATION
+        loginAckFuture.complete(Unit)
     }
 
     fun startConfigurationPhase(connection: ChannelHandlerContext, gameProfile: GameProfile) {
         Thread.startVirtualThread {
+
             if (PlayerManager.getPlayerByUUIDOrNull(gameProfile.uuid) != null) {
                 networkManager.kick(ERROR_ALREADY_CONNECTED, connection)
                 return@startVirtualThread
@@ -195,6 +199,7 @@ class LoginHandler(var networkManager: PlayerNetworkManager) : PacketHandler(net
             }
 
             player.sendPacket(ClientboundLoginSuccessPacket(player.uuid, player.username, gameProfile))
+            loginAckFuture.join()
             ConfigurationHandler.enterConfiguration(player, connection, true)
         }
     }

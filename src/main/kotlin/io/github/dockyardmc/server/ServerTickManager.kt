@@ -24,7 +24,7 @@ class ServerTickManager {
                 Events.dispatch(ServerTickEvent(serverTicks))
 
                 val end = now()
-                Events.dispatch(ServerTickMonitorEvent(end - start, serverTicks, Event.Context()))
+                Events.dispatch(ServerTickMonitorEvent(end - start, serverTicks))
             }
         } catch (ex: Exception) {
             log("Exception was thrown in the tick timer thread:", LogType.EXCEPTION)

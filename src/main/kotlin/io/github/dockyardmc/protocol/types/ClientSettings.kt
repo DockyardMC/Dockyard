@@ -2,8 +2,7 @@ package io.github.dockyardmc.protocol.types
 
 import io.github.dockyardmc.player.ClientParticleSettings
 import io.github.dockyardmc.player.PlayerHand
-import io.github.dockyardmc.tide.Codec
-import io.github.dockyardmc.tide.Codecs
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.github.dockyardmc.world.PlayerChunkViewSystem
 
 data class ClientSettings(
@@ -31,16 +30,16 @@ data class ClientSettings(
             ClientParticleSettings.ALL
         )
 
-        val STREAM_CODEC = Codec.of(
-            "locale", Codecs.String, ClientSettings::locale,
-            "view_distance", Codecs.Byte, ClientSettings::viewDistance,
-            "chat_message_type", Codec.enum<ChatMessageType>(), ClientSettings::chatMessageType,
-            "chat_colors", Codecs.Boolean, ClientSettings::chatColors,
-            "displayed_skin_parts", Codecs.Byte, ClientSettings::displayedSkinParts,
-            "main_hand", Codec.enum<PlayerHand>(), ClientSettings::mainHand,
-            "enable_text_filtering", Codecs.Boolean, ClientSettings::enableTextFiltering,
-            "allow_server_listings", Codecs.Boolean, ClientSettings::allowServerListings,
-            "particle_settings", Codec.enum<ClientParticleSettings>(), ClientSettings::particleSettings,
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.STRING, ClientSettings::locale,
+            StreamCodec.BYTE, ClientSettings::viewDistance,
+            StreamCodec.enum<ChatMessageType>(), ClientSettings::chatMessageType,
+            StreamCodec.BOOLEAN, ClientSettings::chatColors,
+            StreamCodec.BYTE, ClientSettings::displayedSkinParts,
+            StreamCodec.enum<PlayerHand>(), ClientSettings::mainHand,
+            StreamCodec.BOOLEAN, ClientSettings::enableTextFiltering,
+            StreamCodec.BOOLEAN, ClientSettings::allowServerListings,
+            StreamCodec.enum<ClientParticleSettings>(), ClientSettings::particleSettings,
             ::ClientSettings
         )
     }

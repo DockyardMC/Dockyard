@@ -2,7 +2,6 @@ package io.github.dockyardmc.noxesium.rules
 
 import com.noxcrew.noxesium.api.protocol.rule.EntityRuleIndices
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.noxesium.toPluginMessagePackets
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.utils.Disposable
@@ -26,8 +25,8 @@ class NoxesiumEntityRuleContainer : Disposable, Viewable() {
 
     private fun updateViewers() {
         viewers.forEach { viewer ->
-            viewer.noxesiumIntegration.getEntityRulesResetPackets().toPluginMessagePackets().forEach(viewer::sendPacket)
-            viewer.noxesiumIntegration.getEntityRulesPackets().toPluginMessagePackets().forEach(viewer::sendPacket)
+            viewer.noxesiumIntegration.getEntityRulesResetPackets().forEach(viewer::sendPluginMessage)
+            viewer.noxesiumIntegration.getEntityRulesPackets().forEach(viewer::sendPluginMessage)
         }
     }
 
@@ -36,7 +35,7 @@ class NoxesiumEntityRuleContainer : Disposable, Viewable() {
         if (!player.noxesiumIntegration.isUsingNoxesium.value) return false
 
         val entityRulesPacket = player.noxesiumIntegration.getEntityRulesPackets()
-        entityRulesPacket.toPluginMessagePackets().forEach(player::sendPacket)
+        entityRulesPacket.forEach(player::sendPluginMessage)
 
         return true
     }
@@ -44,7 +43,7 @@ class NoxesiumEntityRuleContainer : Disposable, Viewable() {
     override fun removeViewer(player: Player) {
         super.removeViewer(player)
         if (!player.noxesiumIntegration.isUsingNoxesium.value) return
-        player.noxesiumIntegration.getEntityRulesResetPackets().toPluginMessagePackets().forEach(player::sendPacket)
+        player.noxesiumIntegration.getEntityRulesResetPackets().forEach(player::sendPluginMessage)
     }
 
     operator fun set(entity: Entity, rule: NoxesiumServerRule<*>) {

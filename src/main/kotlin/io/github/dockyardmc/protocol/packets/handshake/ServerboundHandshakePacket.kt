@@ -32,7 +32,7 @@ class ServerboundHandshakePacket(
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
 
-        val event = ServerHandshakeEvent(version, serverAddress, port, intent, Event.Context(isGlobalEvent = true))
+        val event = ServerHandshakeEvent(version, serverAddress, port, intent, Event.Context.GLOBAL)
         Events.dispatch(event)
         if (event.cancelled) return
 

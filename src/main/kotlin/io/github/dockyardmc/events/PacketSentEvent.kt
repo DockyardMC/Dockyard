@@ -5,11 +5,10 @@ import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.netty.channel.ChannelHandlerContext
 
-@EventDocumentation("server sends packet to client", true)
-class PacketSentEvent(
+@EventDocumentation("server sends packet to client")
+data class PacketSentEvent(
     var packet: ClientboundPacket,
     val processor: PlayerNetworkManager,
-    var connection: ChannelHandlerContext
-) : CancellableEvent() {
-    override val context = Event.Context(other = setOf(processor))
-}
+    var connection: ChannelHandlerContext,
+    override val context: Event.Context
+) : CancellableEvent()

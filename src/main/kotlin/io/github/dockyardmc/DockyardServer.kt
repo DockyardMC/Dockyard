@@ -10,11 +10,15 @@ import io.github.dockyardmc.events.WorldFinishLoadingEvent
 import io.github.dockyardmc.implementations.block.DefaultBlockHandlers
 import io.github.dockyardmc.implementations.commands.DefaultCommands
 import io.github.dockyardmc.noxesium.Noxesium
+import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.NetworkCompression
 import io.github.dockyardmc.protocol.packets.configurations.Tag
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
 import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
+import io.github.dockyardmc.provider.PlayerMessageProvider
+import io.github.dockyardmc.provider.PlayerPacketProvider
 import io.github.dockyardmc.registry.MinecraftVersions
 import io.github.dockyardmc.registry.RegistryManager
 import io.github.dockyardmc.registry.registries.*
@@ -27,6 +31,7 @@ import io.github.dockyardmc.spark.SparkDockyardIntegration
 import io.github.dockyardmc.utils.InstrumentationUtils
 import io.github.dockyardmc.utils.Resources
 import io.github.dockyardmc.utils.UpdateChecker
+import io.github.dockyardmc.utils.getWorldEventContext
 import io.github.dockyardmc.world.WorldManager
 
 class DockyardServer(configBuilder: Config.() -> Unit) {
@@ -128,16 +133,19 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
             nettyServer.start()
         }
 
-        Events.dispatch(WorldFinishLoadingEvent(WorldManager.mainWorld))
+        Events.dispatch(WorldFinishLoadingEvent(WorldManager.mainWorld, getWorldEventContext(WorldManager.mainWorld)))
     }
 
-    companion object {
+    companion object : PlayerMessageProvider, PlayerPacketProvider {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         lateinit var instance: DockyardServer
         val minecraftVersion = MinecraftVersions.v1_21_8
         var allowAnyVersion: Boolean = false
 
         val scheduler = GlobalScheduler("main_scheduler")
+
+        override val playerGetter: Collection<Player>
+            get() = PlayerManager.players
 
         var tickRate: Int = 20
         val debug get() = ConfigManager.config.debug

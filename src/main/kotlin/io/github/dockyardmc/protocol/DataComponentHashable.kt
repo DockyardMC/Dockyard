@@ -4,6 +4,8 @@ import io.github.dockyardmc.data.HashHolder
 import kotlin.reflect.KClass
 
 interface DataComponentHashable {
+
+    @Deprecated("Please use CODEC and CRC32CTranscoder", replaceWith = ReplaceWith("CRC32Transcoder"))
     fun hashStruct(): HashHolder {
         return unsupported(this)
     }

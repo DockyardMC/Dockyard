@@ -1,8 +1,11 @@
 package io.github.dockyardmc.schematics
 
+import io.github.dockyardmc.extentions.toByteArraySafe
+import io.github.dockyardmc.extentions.toVector3
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.scroll.extensions.contains
 import io.github.dockyardmc.world.block.Block
+import io.netty.buffer.ByteBuf
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.kyori.adventure.nbt.BinaryTagIO
 import net.kyori.adventure.nbt.CompoundBinaryTag
@@ -12,11 +15,15 @@ import java.io.File
 
 object SchematicReader {
 
-    val READER = BinaryTagIO.unlimitedReader()
+    private val READER = BinaryTagIO.unlimitedReader()
 
     fun read(file: File): Schematic {
-        if (!file.exists()) throw Exception("File $file does not exist!")
-        return read(file.readBytes())
+        require(file.exists()) { "File $file does not exist!" }
+        return this.read(file.readBytes())
+    }
+
+    fun read(buffer: ByteBuf): Schematic {
+        return this.read(buffer.toByteArraySafe())
     }
 
     fun read(byteArray: ByteArray): Schematic {
@@ -62,11 +69,20 @@ object SchematicReader {
             blocks[block] = id
         }
 
+        val blockEntities = mutableMapOf<Vector3, CompoundBinaryTag>()
+        val blockEntitiesCompound = nbt.getCompound("Blocks").getList("BlockEntities")
+        blockEntitiesCompound.forEach { blockEntity ->
+            if (blockEntity !is CompoundBinaryTag) return@forEach
+            val pos = blockEntity.getIntArray("Pos")
+            blockEntities[pos.toVector3()] = blockEntity
+        }
+
         val schematic = Schematic(
             size = Vector3(width, height, length),
             offset = offset,
             palette = blocks,
-            blocks = blockArray.copyOf()
+            blocks = blockArray.copyOf(),
+            blockEntities
         )
 
         return schematic

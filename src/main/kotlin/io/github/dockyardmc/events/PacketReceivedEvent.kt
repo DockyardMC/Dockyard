@@ -5,13 +5,12 @@ import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
 import io.netty.channel.ChannelHandlerContext
 
-@EventDocumentation("server receives packet from client", true)
-class PacketReceivedEvent(
+@EventDocumentation("server receives packet from client")
+data class PacketReceivedEvent(
     val packet: ServerboundPacket,
     val processor: PlayerNetworkManager,
     val connection: ChannelHandlerContext,
     val size: Int,
-    val id: Int
-): CancellableEvent() {
-    override val context = Event.Context(other = setOf(processor))
-}
+    val id: Int,
+    override val context: Event.Context
+) : CancellableEvent()

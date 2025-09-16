@@ -1,6 +1,5 @@
 package io.github.dockyardmc.item
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.attributes.AttributeModifier
 import io.github.dockyardmc.data.DataComponent
 import io.github.dockyardmc.data.DataComponentPatch
@@ -22,6 +21,7 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
 import io.github.dockyardmc.scroll.extensions.toComponent
+import io.github.dockyardmc.sounds.BuiltinSoundEvent
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.netty.buffer.ByteBuf
 import net.kyori.adventure.nbt.*
@@ -99,7 +99,7 @@ data class ItemStack(
         hasParticles: Boolean = true,
         consumeEffects: List<ConsumeEffect> = listOf()
     ): ItemStack {
-        return ItemStackMeta.fromItemStack(this).apply { withConsumable(consumeTimeSeconds, animation, sound, hasParticles, consumeEffects) }.toItemStack()
+        return ItemStackMeta.fromItemStack(this).apply { this.withConsumable(consumeTimeSeconds, animation, BuiltinSoundEvent(sound), hasParticles, consumeEffects) }.toItemStack()
     }
 
     fun withRarity(rarity: ItemRarity): ItemStack {
@@ -226,7 +226,6 @@ data class ItemStack(
 
     fun <T : Any> setCustomData(key: String, value: T) {
         customDataHolder[key] = value
-        log("set custom data $key, $value")
         rebuildCustomDataNbt()
     }
 

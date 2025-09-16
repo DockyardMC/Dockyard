@@ -3,10 +3,7 @@ package io.github.dockyardmc.protocol
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
-import io.github.dockyardmc.events.Events
-import io.github.dockyardmc.events.PacketReceivedEvent
-import io.github.dockyardmc.events.PlayerDisconnectEvent
-import io.github.dockyardmc.events.PlayerLeaveEvent
+import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.motd.ServerStatusManager
 import io.github.dockyardmc.player.Player
@@ -22,6 +19,7 @@ import io.github.dockyardmc.protocol.plugin.LoginPluginMessageHandler
 import io.github.dockyardmc.resourcepack.ResourcepackManager
 import io.github.dockyardmc.server.ServerMetrics
 import io.github.dockyardmc.utils.debug
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
@@ -57,7 +55,8 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
             debug("-> Received $className", logType = LogType.NETWORK)
         }
 
-        val event = PacketReceivedEvent(packet.packet, this, connection, packet.size, packet.id)
+        val context = if (isPlayerInitialized()) getPlayerEventContext(this.player) else Event.Context.EMPTY
+        val event = PacketReceivedEvent(packet.packet, this, connection, packet.size, packet.id, context)
         Events.dispatch(event)
         if (event.cancelled) return
 
@@ -74,10 +73,10 @@ class PlayerNetworkManager : ChannelInboundHandlerAdapter() {
             player.team.value = null
             PlayerManager.remove(player)
             ResourcepackManager.remove(player)
-            Events.dispatch(PlayerDisconnectEvent(player))
+            Events.dispatch(PlayerDisconnectEvent(player, getPlayerEventContext(player)))
             if (player.isFullyInitialized) {
                 ServerStatusManager.updateCache()
-                Events.dispatch(PlayerLeaveEvent(player))
+                Events.dispatch(PlayerLeaveEvent(player, getPlayerEventContext(player)))
             }
             player.dispose()
         }

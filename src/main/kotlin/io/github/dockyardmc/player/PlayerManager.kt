@@ -6,23 +6,29 @@ import io.github.dockyardmc.events.PlayerConnectEvent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayerInfoRemovePacket
+import io.github.dockyardmc.provider.PlayerMessageProvider
+import io.github.dockyardmc.provider.PlayerPacketProvider
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import io.ktor.util.network.*
 import io.netty.channel.ChannelHandlerContext
 import java.util.*
 
-object PlayerManager {
+object PlayerManager : PlayerMessageProvider, PlayerPacketProvider {
 
-    private val innerPlayers: MutableList<Player> = mutableListOf()
-    private val innerUUIDToPlayerMap: MutableMap<UUID, Player> = mutableMapOf()
-    private val innerUsernameToPlayerMap: MutableMap<String, Player> = mutableMapOf()
-    private val innerPlayerToEntityIdMap = mutableMapOf<Int, Player>()
+    override val playerGetter: Collection<Player>
+        get() = _players
 
-    val players get() = innerPlayers.toList()
-    val uuidToPlayerMap get() = innerUUIDToPlayerMap.toMap()
-    val playerToEntityIdMap get() = innerPlayerToEntityIdMap.toMap()
-    val usernameToPlayerMap get() = innerUsernameToPlayerMap.toMap()
+    private val _players: MutableList<Player> = mutableListOf()
+    private val _UUIDToPlayerMap: MutableMap<UUID, Player> = mutableMapOf()
+    private val _UsernameToPlayerMap: MutableMap<String, Player> = mutableMapOf()
+    private val _PlayerToEntityIdMap = mutableMapOf<Int, Player>()
+
+    val players get() = _players.toList()
+    val uuidToPlayerMap get() = _UUIDToPlayerMap.toMap()
+    val playerToEntityIdMap get() = _PlayerToEntityIdMap.toMap()
+    val usernameToPlayerMap get() = _UsernameToPlayerMap.toMap()
 
     fun getPlayerByUsernameOrNull(username: String): Player? {
         return usernameToPlayerMap[username]
@@ -49,20 +55,20 @@ object PlayerManager {
     }
 
     fun add(player: Player, processor: PlayerNetworkManager) {
-        synchronized(innerPlayers) {
-            innerPlayers.add(player)
-            innerUsernameToPlayerMap[player.username] = player
+        synchronized(_players) {
+            _players.add(player)
+            _UsernameToPlayerMap[player.username] = player
         }
-        synchronized(innerPlayerToEntityIdMap) {
-            innerPlayerToEntityIdMap[player.id] = player
+        synchronized(_PlayerToEntityIdMap) {
+            _PlayerToEntityIdMap[player.id] = player
         }
-        synchronized(innerUUIDToPlayerMap) {
-            innerUUIDToPlayerMap[player.uuid] = player
+        synchronized(_UUIDToPlayerMap) {
+            _UUIDToPlayerMap[player.uuid] = player
         }
 
         processor.player = player
         EntityManager.addPlayer(player)
-        Events.dispatch(PlayerConnectEvent(player))
+        Events.dispatch(PlayerConnectEvent(player, getPlayerEventContext(player)))
     }
 
     fun remove(player: Player) {
@@ -77,15 +83,15 @@ object PlayerManager {
             viewer.removeViewer(player)
         }
 
-        synchronized(innerPlayers) {
-            innerPlayers.remove(player)
-            innerUsernameToPlayerMap.remove(player.username)
+        synchronized(_players) {
+            _players.remove(player)
+            _UsernameToPlayerMap.remove(player.username)
         }
         synchronized(playerToEntityIdMap) {
-            innerPlayerToEntityIdMap.remove(player.id)
+            _PlayerToEntityIdMap.remove(player.id)
         }
-        synchronized(innerUUIDToPlayerMap) {
-            innerUUIDToPlayerMap.remove(player.uuid)
+        synchronized(_UUIDToPlayerMap) {
+            _UUIDToPlayerMap.remove(player.uuid)
         }
 
         player.world.removePlayer(player)
@@ -111,4 +117,5 @@ object PlayerManager {
         this.add(player, networkManager)
         return player
     }
+
 }

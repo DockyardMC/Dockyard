@@ -2,6 +2,7 @@ package io.github.dockyardmc.player.systems
 
 import com.noxcrew.noxesium.api.protocol.ClientSettings
 import cz.lukynka.bindables.Bindable
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.noxesium.Noxesium
 import io.github.dockyardmc.noxesium.getWriters

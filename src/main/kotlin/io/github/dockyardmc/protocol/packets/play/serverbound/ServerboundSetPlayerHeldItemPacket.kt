@@ -4,23 +4,24 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerSelectedHotbarSlotChangeEvent
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
 class ServerboundSetPlayerHeldItemPacket(val slot: Int) : ServerboundPacket {
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
-        // Spectator mode scroll for fly speed
-        val beforeSlot = processor.player.heldSlotIndex.value
-        processor.player.heldSlotIndex.setSilently(slot)
+        val player = processor.player
+        val beforeSlot = player.heldSlotIndex.value
 
-        val event = PlayerSelectedHotbarSlotChangeEvent(processor.player, slot)
+        val event = PlayerSelectedHotbarSlotChangeEvent(processor.player, slot, getPlayerEventContext(player))
         Events.dispatch(event)
 
         if (event.cancelled) {
-            processor.player.heldSlotIndex.setSilently(beforeSlot)
+            player.heldSlotIndex.value = beforeSlot
             return
         }
+        player.heldSlotIndex.value = slot
     }
 
     companion object {

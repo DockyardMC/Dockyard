@@ -81,8 +81,10 @@ class NoxesiumRuleContainer : Viewable(), Disposable {
 
     private fun updateViewer(player: Player) {
         // Reset all server rules
-        player.sendPacket(ClientboundNoxesiumResetPacket(0x01).getPluginMessagePacket())
-        player.sendPacket(player.noxesiumIntegration.getRulesPacket().getPluginMessagePacket())
+        player.noxesiumIntegration.schedule {
+            player.sendPluginMessage(ClientboundNoxesiumResetPacket(0x01))
+            player.sendPluginMessage(player.noxesiumIntegration.getRulesPacket())
+        }
     }
 
     override fun addViewer(player: Player): Boolean {
@@ -96,7 +98,9 @@ class NoxesiumRuleContainer : Viewable(), Disposable {
     override fun removeViewer(player: Player) {
         super.removeViewer(player)
         if (!player.noxesiumIntegration.isUsingNoxesium.value) return
-        player.sendPacket(ClientboundNoxesiumResetPacket(0x01).getPluginMessagePacket())
+        player.noxesiumIntegration.schedule {
+            player.sendPluginMessage(ClientboundNoxesiumResetPacket(0x01))
+        }
     }
 
     override fun dispose() {

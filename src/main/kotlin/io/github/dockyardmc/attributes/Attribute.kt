@@ -10,8 +10,9 @@ import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.registries.Attribute
 import io.github.dockyardmc.registry.registries.AttributeRegistry
 import io.github.dockyardmc.scroll.Component
-import io.github.dockyardmc.tide.Codec
-import io.github.dockyardmc.tide.Codecs
+import io.github.dockyardmc.tide.codec.Codec
+import io.github.dockyardmc.tide.codec.StructCodec
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.netty.buffer.ByteBuf
 
 enum class AttributeOperation {
@@ -51,7 +52,7 @@ data class Modifier(
 
         fun read(buffer: ByteBuf): Modifier {
             val attribute = AttributeRegistry.getByProtocolId(buffer.readVarInt())
-            val attributeModifier = AttributeModifier.read(buffer)
+            val attributeModifier = AttributeModifier.STREAM_CODEC.read(buffer)
             val slot = buffer.readEnum<EquipmentSlotGroup>()
             val display = Display.read(buffer)
 
@@ -157,10 +158,9 @@ data class AttributeModifier(
     val amount: Double,
     val operation: AttributeOperation
 ) : DataComponentHashable {
+
     fun write(buffer: ByteBuf) {
-        buffer.writeString(id)
-        buffer.writeDouble(amount)
-        buffer.writeEnum<AttributeOperation>(operation)
+        STREAM_CODEC.write(buffer, this)
     }
 
     override fun hashStruct(): HashStruct {
@@ -172,20 +172,19 @@ data class AttributeModifier(
     }
 
     companion object {
-        val CODEC = Codec.of(
-            "id", Codecs.String, AttributeModifier::id,
-            "amount", Codecs.Double, AttributeModifier::amount,
+        val CODEC = StructCodec.of(
+            "id", Codec.STRING, AttributeModifier::id,
+            "amount", Codec.DOUBLE, AttributeModifier::amount,
             "operation", Codec.enum<AttributeOperation>(), AttributeModifier::operation,
             ::AttributeModifier
         )
 
-        fun read(buffer: ByteBuf): AttributeModifier {
-            return AttributeModifier(
-                buffer.readString(),
-                buffer.readDouble(),
-                buffer.readEnum<AttributeOperation>()
-            )
-        }
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.STRING, AttributeModifier::id,
+            StreamCodec.DOUBLE, AttributeModifier::amount,
+            StreamCodec.enum<AttributeOperation>(), AttributeModifier::operation,
+            ::AttributeModifier
+        )
     }
 }
 

@@ -146,7 +146,7 @@ class PlayerInventory(var player: Player) : EntityInventory(player, INVENTORY_SI
     fun drop(itemStack: ItemStack): Boolean {
         val player = entity as Player
 
-        val event = PlayerDropItemEvent(player, itemStack)
+        val event = PlayerDropItemEvent(player, itemStack, getPlayerEventContext(player))
         Events.dispatch(event)
 
         if (itemStack.noxesiumImmovable) return true

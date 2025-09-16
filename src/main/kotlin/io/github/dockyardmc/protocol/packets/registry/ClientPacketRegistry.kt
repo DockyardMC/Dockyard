@@ -1,6 +1,5 @@
 package io.github.dockyardmc.protocol.packets.registry
 
-import io.github.dockyardmc.events.ClientboundMoveVehiclePacket
 import io.github.dockyardmc.protocol.packets.configurations.*
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundPingResponsePacket
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundStatusResponsePacket

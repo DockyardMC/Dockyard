@@ -6,6 +6,7 @@ import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.player.PlayerAction
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -16,21 +17,22 @@ class ServerboundPlayerCommandPacket(val entityId: Int, val action: PlayerAction
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
+        val eventContext = getPlayerEventContext(processor.player)
 
         val event = when (action) {
-            PlayerAction.LEAVE_BED -> PlayerBedLeaveEvent(player)
+            PlayerAction.LEAVE_BED -> PlayerBedLeaveEvent(player, eventContext)
             PlayerAction.SPRINTING_START -> {
-                player.isSprinting = true; PlayerSprintToggleEvent(player, true)
+                player.isSprinting = true; PlayerSprintToggleEvent(player, true, eventContext)
             }
 
             PlayerAction.SPRINTING_END -> {
-                player.isSprinting = false; PlayerSprintToggleEvent(player, false)
+                player.isSprinting = false; PlayerSprintToggleEvent(player, false, eventContext)
             }
 
-            PlayerAction.HORSE_JUMP_START -> HorseJumpEvent(player, true)
-            PlayerAction.HORSE_JUMP_END -> HorseJumpEvent(player, false)
-            PlayerAction.VEHICLE_INVENTORY_OPEN -> PlayerVehicleInventoryOpenEvent(player)
-            PlayerAction.ELYTRA_FLYING_START -> PlayerElytraFlyingStartEvent(player)
+            PlayerAction.HORSE_JUMP_START -> HorseJumpEvent(player, true, eventContext)
+            PlayerAction.HORSE_JUMP_END -> HorseJumpEvent(player, false, eventContext)
+            PlayerAction.VEHICLE_INVENTORY_OPEN -> PlayerVehicleInventoryOpenEvent(player, eventContext)
+            PlayerAction.ELYTRA_FLYING_START -> PlayerElytraFlyingStartEvent(player, eventContext)
         }
 
         Events.dispatch(event)

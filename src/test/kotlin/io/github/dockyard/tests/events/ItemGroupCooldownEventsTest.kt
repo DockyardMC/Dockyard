@@ -7,6 +7,7 @@ import io.github.dockyardmc.events.EventPool
 import io.github.dockyardmc.events.ItemGroupCooldownEndEvent
 import io.github.dockyardmc.events.ItemGroupCooldownStartEvent
 import io.github.dockyardmc.registry.Items
+import io.github.dockyardmc.scheduler.runnables.ticks
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
@@ -34,7 +35,7 @@ class ItemGroupCooldownEventsTest {
         }
 
         val player = PlayerTestUtil.getOrCreateFakePlayer()
-        player.setCooldown(Items.ENDER_PEARL, 1)
+        player.setCooldown(Items.ENDER_PEARL, 1.ticks)
 
         assertTrue(startCount.await(5L, TimeUnit.SECONDS), "ItemGroupCooldownStartEvent didn't work")
         assertTrue(endCount.await(5L, TimeUnit.SECONDS), "ItemGroupCooldownEndEvent didn't work")

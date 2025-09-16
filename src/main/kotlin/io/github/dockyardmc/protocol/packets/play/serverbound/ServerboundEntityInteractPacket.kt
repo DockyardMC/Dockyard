@@ -6,13 +6,15 @@ import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerDamageEntityEvent
 import io.github.dockyardmc.events.PlayerInteractAtEntityEvent
 import io.github.dockyardmc.events.PlayerInteractWithEntityEvent
-import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.readEnum
+import io.github.dockyardmc.extentions.readVarInt
+import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.player.PlayerHand
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket
+import io.github.dockyardmc.utils.getEntityEventContext
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.utils.isDoubleInteract
-import io.github.dockyardmc.maths.vectors.Vector3f
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 
@@ -28,9 +30,10 @@ class ServerboundEntityInteractPacket(
 
     override fun handle(processor: PlayerNetworkManager, connection: ChannelHandlerContext, size: Int, id: Int) {
         val player = processor.player
+        val eventContext = getPlayerEventContext(player).withContext(getEntityEventContext(entity))
 
         if (interactionType == EntityInteractionType.ATTACK) {
-            val event = PlayerDamageEntityEvent(player, entity)
+            val event = PlayerDamageEntityEvent(player, entity, eventContext)
             Events.dispatch(event)
         }
 
@@ -38,13 +41,13 @@ class ServerboundEntityInteractPacket(
 
             if (isDoubleInteract(player)) return
 
-            val event = PlayerInteractWithEntityEvent(player, entity, hand!!)
+            val event = PlayerInteractWithEntityEvent(player, entity, hand!!, eventContext)
             Events.dispatch(event)
         }
 
         if (interactionType == EntityInteractionType.INTERACT_AT) {
 
-            val event = PlayerInteractAtEntityEvent(player, entity, Vector3f(targetX!!, targetY!!, targetZ!!), hand!!)
+            val event = PlayerInteractAtEntityEvent(player, entity, Vector3f(targetX!!, targetY!!, targetZ!!), hand!!, eventContext)
             Events.dispatch(event)
         }
     }

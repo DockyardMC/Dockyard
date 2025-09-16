@@ -1,18 +1,17 @@
 package io.github.dockyardmc.noxesium.protocol.clientbound
 
-import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
-import io.github.dockyardmc.tide.Codec
-import io.github.dockyardmc.tide.Codecs
+import io.github.dockyardmc.protocol.plugin.messages.PluginMessage
+import io.github.dockyardmc.tide.stream.StreamCodec
 
-data class ClientboundNoxesiumResetServerRulesPacket(val indices: List<Int>) : NoxesiumPacket {
+data class ClientboundNoxesiumResetServerRulesPacket(val indices: List<Int>) : PluginMessage {
 
-    override fun getStreamCodec(): Codec<out NoxesiumPacket> {
+    override fun getStreamCodec(): StreamCodec<out PluginMessage> {
         return STREAM_CODEC
     }
 
     companion object {
-        val STREAM_CODEC = Codec.of(
-            "indices", Codecs.VarInt.list(), ClientboundNoxesiumResetServerRulesPacket::indices,
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.VAR_INT.list(), ClientboundNoxesiumResetServerRulesPacket::indices,
             ::ClientboundNoxesiumResetServerRulesPacket
         )
     }

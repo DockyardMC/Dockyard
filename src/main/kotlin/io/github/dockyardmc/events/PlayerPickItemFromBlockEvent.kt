@@ -4,8 +4,8 @@ import io.github.dockyardmc.annotations.EventDocumentation
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 
-@EventDocumentation("when player picks a item from block", true)
-class PlayerPickItemFromBlockEvent(
+@EventDocumentation("when player picks a item from block")
+data class PlayerPickItemFromBlockEvent(
     val player: Player,
     val blockLocation: Location,
     var block: io.github.dockyardmc.world.block.Block,

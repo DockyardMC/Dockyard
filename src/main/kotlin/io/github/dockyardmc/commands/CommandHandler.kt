@@ -6,6 +6,7 @@ import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager
 import io.github.dockyardmc.events.CommandExecuteEvent
+import io.github.dockyardmc.events.Event
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.extentions.getLegacyTextColorNameFromVanilla
 import io.github.dockyardmc.extentions.isUppercase
@@ -15,6 +16,7 @@ import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.sounds.Sound
+import io.github.dockyardmc.utils.getPlayerEventContext
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.WorldManager
 import java.util.*
@@ -168,7 +170,8 @@ object CommandHandler {
         }
 
 
-        val event = CommandExecuteEvent(inputCommand, command, executor)
+        val context = if (executor.player != null) getPlayerEventContext(executor.player) else Event.Context.GLOBAL
+        val event = CommandExecuteEvent(inputCommand, command, executor, context)
         Events.dispatch(event)
         if (event.cancelled) return
 

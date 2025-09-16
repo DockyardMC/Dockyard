@@ -3,7 +3,6 @@ package io.github.dockyardmc.team
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindablePool
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.extentions.writeTextComponent
 import io.github.dockyardmc.extentions.writeVarInt
@@ -14,15 +13,19 @@ import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.protocol.packets.play.clientbound.AddEntitiesTeamPacketAction
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundTeamsPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.UpdateTeamPacketAction
+import io.github.dockyardmc.provider.PlayerMessageProvider
+import io.github.dockyardmc.provider.PlayerPacketProvider
 import io.github.dockyardmc.scroll.LegacyTextColor
 import io.github.dockyardmc.utils.Disposable
 import io.netty.buffer.ByteBuf
 import kotlin.experimental.or
 
-class Team(val name: String) : NetworkWritable, Disposable {
+class Team(val name: String) : NetworkWritable, Disposable, PlayerMessageProvider, PlayerPacketProvider {
+
+    override val playerGetter: Collection<Player>
+        get() = entities.values.filterIsInstance<Player>()
 
     val bindablePool = BindablePool()
-
     val displayName: Bindable<String> = bindablePool.provideBindable(name)
     val nameTagVisibility: Bindable<NameTagVisibility> = bindablePool.provideBindable(NameTagVisibility.VISIBLE)
     val collisionRule: Bindable<CollisionRule> = bindablePool.provideBindable(CollisionRule.ALWAYS)
@@ -59,7 +62,7 @@ class Team(val name: String) : NetworkWritable, Disposable {
             check(event.item.team.value == null || event.item.team.value == this) { "Entity is on another team! (${event.item.team.value?.name})" }
 
             val packet = ClientboundTeamsPacket(AddEntitiesTeamPacketAction(this, listOf(event.item)))
-            PlayerManager.players.sendPacket(packet)
+            PlayerManager.sendPacket(packet)
         }
     }
 
@@ -76,7 +79,7 @@ class Team(val name: String) : NetworkWritable, Disposable {
 
     private fun sendTeamUpdatePacket() {
         val packet = ClientboundTeamsPacket(UpdateTeamPacketAction(this))
-        PlayerManager.players.sendPacket(packet)
+        PlayerManager.sendPacket(packet)
     }
 
     private fun getFlags(): Byte {

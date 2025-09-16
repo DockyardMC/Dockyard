@@ -9,7 +9,6 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundEntityE
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundRemoveEntityEffectPacket
 import io.github.dockyardmc.registry.registries.PotionEffect
 import io.github.dockyardmc.scheduler.runnables.inWholeMinecraftTicks
-import io.github.dockyardmc.utils.ticksToMs
 
 class EntityPotionEffectsHandler(override val entity: Entity) : TickableEntityHandler {
 
@@ -28,21 +27,21 @@ class EntityPotionEffectsHandler(override val entity: Entity) : TickableEntityHa
 
             entity.sendPacketToViewers(packet)
             entity.sendSelfPacketIfPlayer(packet)
-            if(entity is Player) PotionEffectAttributes.onEffectApply(entity, it.value)
+            if (entity is Player) PotionEffectAttributes.onEffectApply(entity, it.value)
         }
 
         potionEffects.itemRemoved {
             val packet = ClientboundRemoveEntityEffectPacket(entity, it.value)
             entity.sendPacketToViewers(packet)
-            if(entity is Player) PotionEffectAttributes.onEffectRemoved(entity, it.value.effect)
+            if (entity is Player) PotionEffectAttributes.onEffectRemoved(entity, it.value.effect)
             entity.sendSelfPacketIfPlayer(packet)
         }
     }
 
     override fun tick() {
         entity.potionEffects.values.forEach { effect ->
-            if(effect.value.settings.duration.isInfinite()) return@forEach
-            if (System.currentTimeMillis() >= effect.value.startTime!! + ticksToMs(effect.value.settings.duration.inWholeMinecraftTicks)) {
+            if (effect.value.settings.duration.isInfinite()) return@forEach
+            if (System.currentTimeMillis() >= effect.value.startTime!! + effect.value.settings.duration.inWholeMilliseconds) {
                 entity.potionEffects.remove(effect.key)
             }
         }

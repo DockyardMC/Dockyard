@@ -3,7 +3,6 @@ package io.github.dockyardmc.player.systems
 import io.github.dockyardmc.data.components.ConsumableComponent
 import io.github.dockyardmc.data.components.FoodComponent
 import io.github.dockyardmc.events.*
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.maths.vectors.Vector3f
@@ -49,7 +48,7 @@ class FoodEatingSystem(val player: Player) : TickablePlayerSystem {
             // Eating
             if ((world.worldAge % 5) == 0L && consumableComponent.animation == ConsumableComponent.Animation.EAT) {
                 val players = world.players.filter { it != player }
-                players.playSound(consumableComponent.sound, location, 1f, Random.randomFloat(0.9f, 1.3f))
+                players.playSound(consumableComponent.sound.identifier, location, 1f, Random.randomFloat(0.9f, 1.3f))
                 if (consumableComponent.hasParticles) {
                     players.spawnParticle(
                         location = location.clone().apply { y += 1.5 },

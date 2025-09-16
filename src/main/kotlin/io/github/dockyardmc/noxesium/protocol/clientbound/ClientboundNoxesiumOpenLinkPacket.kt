@@ -1,24 +1,23 @@
 package io.github.dockyardmc.noxesium.protocol.clientbound
 
 import io.github.dockyardmc.codec.ComponentCodecs
-import io.github.dockyardmc.noxesium.protocol.NoxesiumPacket
+import io.github.dockyardmc.protocol.plugin.messages.PluginMessage
 import io.github.dockyardmc.scroll.Component
-import io.github.dockyardmc.tide.Codec
-import io.github.dockyardmc.tide.Codecs
+import io.github.dockyardmc.tide.stream.StreamCodec
 
 data class ClientboundNoxesiumOpenLinkPacket(
     val text: Component?,
     val url: String
-) : NoxesiumPacket {
+) : PluginMessage {
 
-    override fun getStreamCodec(): Codec<out NoxesiumPacket> {
+    override fun getStreamCodec(): StreamCodec<out PluginMessage> {
         return STREAM_CODEC
     }
 
     companion object {
-        val STREAM_CODEC = Codec.of(
-            "text", ComponentCodecs.ComponentType.optional(), ClientboundNoxesiumOpenLinkPacket::text,
-            "url", Codecs.String, ClientboundNoxesiumOpenLinkPacket::url,
+        val STREAM_CODEC = StreamCodec.of(
+            ComponentCodecs.STREAM.optional(), ClientboundNoxesiumOpenLinkPacket::text,
+            StreamCodec.STRING, ClientboundNoxesiumOpenLinkPacket::url,
             ::ClientboundNoxesiumOpenLinkPacket
         )
     }
