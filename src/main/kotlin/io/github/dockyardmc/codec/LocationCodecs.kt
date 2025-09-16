@@ -10,7 +10,7 @@ object LocationCodecs {
             val blockX = from.x.toLong()
             val blockY = from.y.toLong()
             val blockZ = from.z.toLong()
-            ((blockX and 0x3FFFFFF shl 38) or ((blockZ and 0x3FFFFFF) shl 12) or (blockY and 0xFFF))
+            (blockX and 0x3FFFFFF shl 38) or ((blockZ and 0x3FFFFFF) shl 12) or (blockY and 0xFFF)
         },
         { to ->
             val x = (to shr 38).toInt()
