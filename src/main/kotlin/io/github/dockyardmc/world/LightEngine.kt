@@ -1,9 +1,11 @@
 package io.github.dockyardmc.world
 
+import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.chunk.Chunk
 import io.github.dockyardmc.world.chunk.ChunkSection
+import io.netty.buffer.ByteBuf
 import java.util.*
 
 class LightEngine(
@@ -17,6 +19,42 @@ class LightEngine(
 
     val skyLight: Array<ByteArray> = Array(chunk.maxSection - chunk.minSection) { ByteArray(0) }
     val blockLight: Array<ByteArray> = Array(chunk.maxSection - chunk.minSection) { ByteArray(0) }
+
+
+    fun createLightData(): LightData {
+        val skyMask = BitSet()
+        val blockMask = BitSet()
+        val emptySkyMask = BitSet()
+        val emptyBlockMask = BitSet()
+        val skyLight = mutableListOf<ByteBuf>()
+        val blockLight = mutableListOf<ByteBuf>()
+
+        // first section is below the world. how awesome. we love minecraft
+        emptySkyMask.set(0)
+        emptyBlockMask.set(0)
+
+        // last section is one section above the world. why.
+        emptySkyMask.set(this.skyLight.size + 1)
+        emptyBlockMask.set(this.skyLight.size + 1)
+
+        this.skyLight.indices.forEach { i ->
+            if (this.hasNonZeroData(this.skyLight[i])) {
+                skyMask.set(i + 1)
+                skyLight.add(this.skyLight[i].toByteBuf())
+            } else {
+                emptySkyMask.set(i + 1)
+            }
+
+            if (this.hasNonZeroData(this.blockLight[i])) {
+                blockMask.set(i + 1)
+                blockLight.add(this.blockLight[i].toByteBuf())
+            } else {
+                emptyBlockMask.set(i + 1)
+            }
+        }
+
+        return LightData(skyMask, blockMask, emptySkyMask, emptyBlockMask, skyLight, blockLight)
+    }
 
     fun recalculateChunk() {
         chunk.sections.forEachIndexed { i, section ->

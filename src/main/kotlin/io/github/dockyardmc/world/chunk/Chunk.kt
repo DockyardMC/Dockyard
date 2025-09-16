@@ -9,7 +9,6 @@ import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundUpdateL
 import io.github.dockyardmc.registry.registries.Biome
 import io.github.dockyardmc.registry.registries.RegistryBlock
 import io.github.dockyardmc.utils.viewable.Viewable
-import io.github.dockyardmc.world.Light
 import io.github.dockyardmc.world.LightEngine
 import io.github.dockyardmc.world.World
 import io.github.dockyardmc.world.block.Block
@@ -77,13 +76,13 @@ class Chunk(val chunkX: Int, val chunkZ: Int, val world: World) : Viewable() {
             heightmapData[type] = heightmap.getRawData()
         }
 
-        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightmapData, sections, blockEntities.values, Light(lightEngine))
+        cachedPacket = ClientboundChunkDataPacket(chunkX, chunkZ, heightmapData, sections, blockEntities.values.toList(), lightEngine.createLightData())
         sendUpdateToViewers()
     }
 
     fun updateLightOnly() {
         lightEngine.recalculateChunk()
-        cachedLightPacket = ClientboundUpdateLightPacket(chunkX, chunkZ, Light(lightEngine))
+        cachedLightPacket = ClientboundUpdateLightPacket(chunkX, chunkZ, lightEngine.createLightData())
         sendUpdateToViewers()
     }
 
