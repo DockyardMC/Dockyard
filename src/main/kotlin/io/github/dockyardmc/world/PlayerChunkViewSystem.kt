@@ -27,7 +27,7 @@ class PlayerChunkViewSystem(val player: Player) {
 
         world.scheduler.runAsync {
 
-            val currentChunkPos = player.getCurrentChunkPos()
+            val currentChunkPos = player.chunk.chunkPos
             val currentChunkIndex = currentChunkPos.pack()
             val (currentChunkX, currentChunkZ) = ChunkPos.unpack(currentChunkIndex)
 
@@ -60,7 +60,7 @@ class PlayerChunkViewSystem(val player: Player) {
 
     fun resendChunks() {
         player.world.scheduler.runAsync {
-            getChunksInRange(player.getCurrentChunkPos()).forEach {
+            getChunksInRange(player.chunk.chunkPos).forEach {
                 loadChunk(ChunkPos.fromIndex(it))
             }
         }

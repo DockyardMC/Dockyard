@@ -94,6 +94,8 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val potionEffectsHandler = EntityPotionEffectsHandler(this)
     val itemPickupHandler = EntityItemPickupHandler(this)
 
+    val chunk: Chunk get() = world.chunks[ChunkPos.fromLocation(location).pack()]
+
     var isDead: Boolean = false
 
     override var autoViewable: Boolean = true
@@ -124,14 +126,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             event.oldValue?.entities?.remove(this)
             event.newValue?.entities?.add(this)
         }
-    }
-
-    fun getCurrentChunk(): Chunk? {
-        return world.chunks[getCurrentChunkPos().pack()]
-    }
-
-    fun getCurrentChunkPos(): ChunkPos {
-        return ChunkPos.fromLocation(location)
     }
 
     fun updateEntity(player: Player, respawn: Boolean = false) {
