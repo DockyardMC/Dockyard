@@ -15,7 +15,6 @@ data class LightData(
     val skyLight: List<ByteBuf> = mutableListOf(),
     val blockLight: List<ByteBuf> = mutableListOf()
 ) {
-
     companion object {
 
         val STREAM_CODEC = StreamCodec.of(

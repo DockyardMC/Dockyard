@@ -4,6 +4,7 @@ import io.github.dockyardmc.extentions.toByteBuf
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.world.block.Block
 import io.github.dockyardmc.world.chunk.Chunk
+import io.github.dockyardmc.world.chunk.ChunkPos
 import io.github.dockyardmc.world.chunk.ChunkSection
 import io.netty.buffer.ByteBuf
 import java.util.*
@@ -133,6 +134,7 @@ class LightEngine(
                 val neighborX = x + dX
                 val neighborY = y + dY
                 val neighborZ = z + dZ
+
                 if (neighborX in 0..15 && neighborY in 0..15 && neighborZ in 0..15) {
                     val neighborBlockId = section.getBlock(neighborX, neighborY, neighborZ)
                     val neighborBlock = Block.getBlockByStateId(neighborBlockId).registryBlock
@@ -145,9 +147,28 @@ class LightEngine(
                             queue.add(Vector3(neighborX, neighborY, neighborZ))
                         }
                     }
+                } else {
+                    propagateToNeighborChunk(neighborX, neighborY, neighborZ, newLightLevel, sectionIndex)
                 }
             }
         }
+    }
+
+    private fun propagateToNeighborChunk(x: Int, y: Int, z: Int, lightLevel: Int, sectionIndex: Int) {
+        val neighborChunk = when {
+            x < 0 -> chunk.world.getChunk(ChunkPos(chunk.chunkX - 1, chunk.chunkZ))
+            x > 15 -> chunk.world.getChunk(ChunkPos(chunk.chunkX + 1, chunk.chunkZ))
+            z < 0 -> chunk.world.getChunk(ChunkPos(chunk.chunkX, chunk.chunkZ - 1))
+            z > 15 -> chunk.world.getChunk(ChunkPos(chunk.chunkX, chunk.chunkZ + 1))
+            else -> return // shouldn't happen
+        } ?: return
+
+        val neighborLight = neighborChunk.lightEngine
+//        neighborLight[x, y, z] = lightLevel
+
+//        neighborLight.recalculateChunk()
+        // Just tell the neighbor to recalculate this section
+//        neighborChunk.lightEngine?.recalculateSection(neighborChunk.sections[sectionIndex], sectionIndex)
     }
 
     operator fun set(x: Int, y: Int, z: Int, value: Int) {
