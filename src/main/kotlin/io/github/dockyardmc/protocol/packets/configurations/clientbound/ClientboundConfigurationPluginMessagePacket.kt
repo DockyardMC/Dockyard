@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.packets.configurations
+package io.github.dockyardmc.protocol.packets.configurations.clientbound
 
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.plugin.messages.PluginMessage

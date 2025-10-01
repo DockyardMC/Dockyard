@@ -3,7 +3,7 @@ package io.github.dockyardmc.registry.registries
 import io.github.dockyardmc.dialog.body.DialogBody
 import io.github.dockyardmc.dialog.body.DialogItemBody
 import io.github.dockyardmc.dialog.body.PlainMessage
-import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
+import io.github.dockyardmc.protocol.packets.configurations.clientbound.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 import net.kyori.adventure.nbt.CompoundBinaryTag

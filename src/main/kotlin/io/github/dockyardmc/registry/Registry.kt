@@ -1,14 +1,12 @@
 package io.github.dockyardmc.registry
 
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.extentions.readVarInt
 import io.github.dockyardmc.extentions.writeNBT
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt
 import io.github.dockyardmc.protocol.NetworkWritable
-import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
+import io.github.dockyardmc.protocol.packets.configurations.clientbound.ClientboundRegistryDataPacket
 import io.github.dockyardmc.protocol.writeOptional
-import io.github.dockyardmc.registry.registries.BannerPatternRegistry
 import io.github.dockyardmc.utils.BiMap
 import io.github.dockyardmc.utils.MutableBiMap
 import io.netty.buffer.ByteBuf

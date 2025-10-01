@@ -1,8 +1,5 @@
-package io.github.dockyardmc.protocol.packets.configurations
+package io.github.dockyardmc.protocol.packets.configurations.serverbound
 
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.extentions.readEnum
 import io.github.dockyardmc.extentions.readUUID
 import io.github.dockyardmc.protocol.PlayerNetworkManager

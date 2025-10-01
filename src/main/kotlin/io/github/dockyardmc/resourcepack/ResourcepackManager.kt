@@ -2,7 +2,7 @@ package io.github.dockyardmc.resourcepack
 
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.protocol.packets.configurations.ClientboundConfigurationAddResourcePackPacket
+import io.github.dockyardmc.protocol.packets.configurations.clientbound.ClientboundConfigurationAddResourcePackPacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundPlayAddResourcepackPacket
 import io.github.dockyardmc.utils.debug
 import java.util.*
