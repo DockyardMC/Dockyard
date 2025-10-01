@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
 
 class LoginPluginMessageHandler(val networkManager: PlayerNetworkManager) {
+
     companion object {
         val REQUEST_ID = AtomicInteger(0)
     }

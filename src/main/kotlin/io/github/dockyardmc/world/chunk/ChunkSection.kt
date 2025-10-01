@@ -1,17 +1,18 @@
 package io.github.dockyardmc.world.chunk
 
-import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.registry.Biomes
 import io.github.dockyardmc.registry.Blocks
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.github.dockyardmc.world.palette.Palette
 import io.github.dockyardmc.world.palette.writePalette
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
 
-class ChunkSection(
+data class ChunkSection(
     private var blockPalette: Palette,
     private var biomePalette: Palette,
+) {
 
-    ) : NetworkWritable {
     var nonEmptyBlockCount: Int = 0
 
     init {
@@ -61,6 +62,33 @@ class ChunkSection(
     }
 
     companion object {
+
+        val BYTE_ARRAY_STREAM_CODEC = StreamCodec.BYTE_ARRAY.transform<List<ChunkSection>>(
+            { from ->
+                val innerBuffer = Unpooled.buffer()
+                from.forEach { section ->
+                    STREAM_CODEC.write(innerBuffer, section)
+                }
+                innerBuffer
+            },
+            { _ ->
+                throw UnsupportedOperationException()
+            }
+        )
+
+        val STREAM_CODEC = object : StreamCodec<ChunkSection> {
+
+            override fun write(buffer: ByteBuf, value: ChunkSection) {
+                buffer.writeShort(value.blockPalette.count())
+                buffer.writePalette(value.blockPalette)
+                buffer.writePalette(value.biomePalette)
+            }
+
+            override fun read(buffer: ByteBuf): ChunkSection {
+                throw UnsupportedOperationException()
+            }
+        }
+
         fun empty(): ChunkSection {
             val defaultBlocks = Palette.blocks()
             val defaultBiomes = Palette.biomes()
@@ -68,11 +96,5 @@ class ChunkSection(
             defaultBiomes.fill(Biomes.THE_VOID.getProtocolId())
             return ChunkSection(defaultBlocks, defaultBiomes)
         }
-    }
-
-    override fun write(buffer: ByteBuf) {
-        buffer.writeShort(this.blockPalette.count())
-        buffer.writePalette(this.blockPalette)
-        buffer.writePalette(this.biomePalette)
     }
 }
