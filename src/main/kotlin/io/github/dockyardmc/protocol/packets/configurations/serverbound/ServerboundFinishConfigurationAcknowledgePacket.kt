@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.packets.configurations
+package io.github.dockyardmc.protocol.packets.configurations.serverbound
 
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ServerboundPacket

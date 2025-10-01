@@ -14,7 +14,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.NetworkCompression
-import io.github.dockyardmc.protocol.packets.configurations.Tag
+import io.github.dockyardmc.protocol.packets.configurations.clientbound.Tag
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
 import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.github.dockyardmc.provider.PlayerMessageProvider
