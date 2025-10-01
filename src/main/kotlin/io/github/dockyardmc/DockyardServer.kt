@@ -139,7 +139,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     companion object : PlayerMessageProvider, PlayerPacketProvider {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         lateinit var instance: DockyardServer
-        val minecraftVersion = MinecraftVersions.v1_21_8
+        val minecraftVersion = MinecraftVersions.v1_21_9
         var allowAnyVersion: Boolean = false
 
         val scheduler = GlobalScheduler("main_scheduler")
