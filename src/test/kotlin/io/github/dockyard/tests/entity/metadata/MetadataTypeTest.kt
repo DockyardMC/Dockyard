@@ -12,7 +12,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class MetadataTest {
+class MetadataTypeTest {
 
     @BeforeTest
     fun prepare() {

@@ -3,10 +3,7 @@ package io.github.dockyardmc.entity.handlers
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableMap
 import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.entity.metadata.EntityMetaValue
-import io.github.dockyardmc.entity.metadata.EntityMetadata
-import io.github.dockyardmc.entity.metadata.EntityMetadataType
-import io.github.dockyardmc.entity.metadata.getEntityMetadataState
+import io.github.dockyardmc.entity.metadata.*
 import io.github.dockyardmc.player.EntityPose
 import io.github.dockyardmc.player.PersistentPlayer
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -17,6 +14,13 @@ class EntityMetadataHandler(override val entity: Entity) : EntityHandler {
 
     fun getValues(): Map<EntityMetadataType, EntityMetadata> {
         return metadata.toMap()
+    }
+
+    fun <T> setNew(definition: Metadata.MetadataDefinitionEntry<T>, value: T) {
+        when (definition) {
+            is Metadata.MetadataDefinition<T> -> {}
+            is Metadata.BitmaskFlagDefinition<T> -> {}
+        }
     }
 
     operator fun set(key: EntityMetadataType, value: EntityMetadata) {

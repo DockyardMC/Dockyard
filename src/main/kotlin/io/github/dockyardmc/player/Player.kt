@@ -2,7 +2,6 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.advancement.PlayerAdvancementTracker
 import io.github.dockyardmc.attributes.PlayerAttributes
@@ -32,7 +31,7 @@ import io.github.dockyardmc.player.systems.*
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.protocol.packets.configurations.ClientboundConfigurationPluginMessagePacket
+import io.github.dockyardmc.protocol.packets.configurations.clientbound.ClientboundConfigurationPluginMessagePacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundChatCommandPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket

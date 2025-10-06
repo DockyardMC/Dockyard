@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.packets.configurations
+package io.github.dockyardmc.protocol.packets.configurations.serverbound
 
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundCustomClickActionPacket
 import net.kyori.adventure.nbt.CompoundBinaryTag

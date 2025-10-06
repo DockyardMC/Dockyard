@@ -1,4 +1,4 @@
-package io.github.dockyardmc.protocol.packets.configurations
+package io.github.dockyardmc.protocol.packets.configurations.clientbound
 
 import io.github.dockyardmc.extentions.writeString
 import io.github.dockyardmc.extentions.writeVarInt

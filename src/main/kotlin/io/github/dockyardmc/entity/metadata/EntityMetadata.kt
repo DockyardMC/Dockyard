@@ -18,7 +18,6 @@ import io.github.dockyardmc.registry.registries.ChickenVariant
 import io.github.dockyardmc.registry.registries.CowVariant
 import io.github.dockyardmc.registry.registries.PigVariant
 import io.netty.buffer.ByteBuf
-import net.kyori.adventure.nbt.CompoundBinaryTag
 import java.util.*
 import kotlin.experimental.and
 import kotlin.experimental.or
@@ -43,7 +42,7 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
             is Byte -> this.writeByte(v.toInt())
         }
         EntityMetaValue.VAR_INT -> this.writeVarInt(v as Int)
-        EntityMetaValue.VAR_LONG -> this.writeVarLong(v as Long)
+        EntityMetaValue.LONG -> this.writeVarLong(v as Long)
         EntityMetaValue.FLOAT -> this.writeFloat(v as Float)
         EntityMetaValue.STRING -> this.writeString(v as String)
         EntityMetaValue.TEXT_COMPONENT -> this.writeNBT((metadata.value as Component).toNBT())
@@ -51,13 +50,12 @@ fun ByteBuf.writeMetadata(metadata: EntityMetadata) {
         EntityMetaValue.ITEM_STACK -> (v as ItemStack).write(this)
         EntityMetaValue.BOOLEAN -> this.writeBoolean(v as Boolean)
         EntityMetaValue.ROTATION -> (v as Vector3f).write(this)
-        EntityMetaValue.POSITION -> this.writeLocation(v as Location)
-        EntityMetaValue.OPTIONAL_POSITION -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeLocation(v as Location)}
+        EntityMetaValue.BLOCK_POSITION -> this.writeLocation(v as Location)
+        EntityMetaValue.OPTIONAL_BLOCK_POSITION -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeLocation(v as Location)}
         EntityMetaValue.DIRECTION -> this.writeVarInt((v as Direction).ordinal)
         EntityMetaValue.OPTIONAL_UUID -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeUUID(v as UUID)}
         EntityMetaValue.BLOCK_STATE -> this.writeVarInt((v as io.github.dockyardmc.world.block.Block).getProtocolId())
         EntityMetaValue.OPTIONAL_BLOCK_STATE -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
-        EntityMetaValue.NBT -> this.writeNBT(v as CompoundBinaryTag)
         EntityMetaValue.PARTICLE -> TODO()
         EntityMetaValue.VILLAGER_DATA -> (v as Vector3).write(this)
         EntityMetaValue.OPTIONAL_VAR_INT -> { this.writeBoolean(valuePresent); if(valuePresent) this.writeVarInt(v as Int)}
@@ -355,7 +353,7 @@ enum class EntityMetadataType(var protocolIndex: Int) {
 enum class EntityMetaValue {
     BYTE,
     VAR_INT,
-    VAR_LONG,
+    LONG,
     FLOAT,
     STRING,
     TEXT_COMPONENT,
@@ -363,13 +361,12 @@ enum class EntityMetaValue {
     ITEM_STACK,
     BOOLEAN,
     ROTATION,
-    POSITION,
-    OPTIONAL_POSITION,
+    BLOCK_POSITION,
+    OPTIONAL_BLOCK_POSITION,
     DIRECTION,
     OPTIONAL_UUID,
     BLOCK_STATE,
     OPTIONAL_BLOCK_STATE,
-    NBT,
     PARTICLE,
     PARTICLE_LIST,
     VILLAGER_DATA,
@@ -382,10 +379,13 @@ enum class EntityMetaValue {
     FROG_VARIANT,
     PIG_VARIANT,
     CHICKEN_VARIANT,
-    OPTIONAL_GLOBAL_POSITION,
+    OPTIONAL_GLOBAL_POSITION, //unused
     PAINTING_VARIANT,
     SNIFFER_STATE,
     ARMADILLO_STATE,
+    COPPER_GOLEM_STATE,
+    WEATHER_STATE,
     VECTOR3,
     QUATERNION,
+    RESOLVABLE_PROFILE
 }

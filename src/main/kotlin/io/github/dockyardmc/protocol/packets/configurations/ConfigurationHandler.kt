@@ -1,7 +1,6 @@
 package io.github.dockyardmc.protocol.packets.configurations
 
 //import io.github.dockyardmc.player.setSkin
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.apis.serverlinks.ServerLinks
 import io.github.dockyardmc.commands.buildCommandGraph
@@ -13,6 +12,10 @@ import io.github.dockyardmc.player.PlayerInfoUpdate
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.PacketHandler
 import io.github.dockyardmc.protocol.packets.ProtocolState
+import io.github.dockyardmc.protocol.packets.configurations.clientbound.*
+import io.github.dockyardmc.protocol.packets.configurations.serverbound.ServerboundClientInformationPacket
+import io.github.dockyardmc.protocol.packets.configurations.serverbound.ServerboundConfigurationPluginMessagePacket
+import io.github.dockyardmc.protocol.packets.configurations.serverbound.ServerboundFinishConfigurationAcknowledgePacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.plugin.PluginMessageRegistry
 import io.github.dockyardmc.protocol.plugin.messages.BrandPluginMessage
