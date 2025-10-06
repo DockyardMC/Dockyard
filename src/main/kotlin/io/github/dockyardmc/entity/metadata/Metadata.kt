@@ -16,8 +16,13 @@ import java.util.concurrent.atomic.AtomicInteger
 
 object Metadata : MetadataGroup() {
 
-    val ENTITY_FLAGS = define(MetadataType.VAR_INT, 0)
-    //TODO bitmask
+    val ENTITY_FLAGS = define(MetadataType.BYTE, 0)
+    val IS_ON_FIRE = bitmask<Boolean>(ENTITY_FLAGS, 0x01, false)
+    val IS_CROUCHING = bitmask<Boolean>(ENTITY_FLAGS, 0x02, false)
+    val IS_SPRINTING = bitmask<Boolean>(ENTITY_FLAGS, 0x03, false)
+    val IS_SWIMMING = bitmask<Boolean>(ENTITY_FLAGS, 0x04, false)
+    val IS_INVISIBLE = bitmask<Boolean>(ENTITY_FLAGS, 0x05, false)
+    val HAS_GLOWING_EFFECT = bitmask<Boolean>(ENTITY_FLAGS, 0x06, false)
     val AIR_TICKS = define(MetadataType.VAR_INT, 300)
     val CUSTOM_NAME = define(MetadataType.OPTIONAL_COMPONENT, null)
     val CUSTOM_NAME_VISIBLE = define(MetadataType.BOOLEAN, false)
@@ -174,7 +179,20 @@ object Metadata : MetadataGroup() {
 
     //next: LivingEntity
 
-    data class MetadataDefinition<T>(val index: Int, val type: MetadataSerializer<T>, val default: T)
+    interface MetadataDefinitionEntry<T>
+
+    data class MetadataDefinition<T>(val index: Int, val type: MetadataSerializer<T>, val default: T) : MetadataDefinitionEntry<T>
+
+    data class BitmaskFlagDefinition<T>(
+        val parent: MetadataDefinition<Byte>,
+        val bitMask: Byte,
+        val defaultValue: T
+    ) : MetadataDefinitionEntry<T> {
+//        fun isSet(value: Byte): Boolean = (value and bitMask) != 0.toByte()
+//        fun set(value: Byte): Byte = (value.toInt() or bitMask.toInt()).toByte()
+//        fun unset(value: Byte): Byte = (value.toInt() and bitMask.toInt().inv()).toByte()
+    }
+
 }
 
 abstract class MetadataGroup(initialValue: Int = 0) {
@@ -184,5 +202,9 @@ abstract class MetadataGroup(initialValue: Int = 0) {
 
     protected fun <T> define(type: MetadataSerializer<T>, default: T): MetadataDefinition<T> {
         return MetadataDefinition(counter.getAndIncrement(), type, default)
+    }
+
+    protected fun <T> bitmask(parent: MetadataDefinition<Byte>, bitMask: Byte, defaultValue: T): Metadata.BitmaskFlagDefinition<T> {
+        return Metadata.BitmaskFlagDefinition<T>(parent, bitMask, defaultValue)
     }
 }
