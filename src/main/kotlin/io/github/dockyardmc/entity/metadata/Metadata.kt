@@ -1,6 +1,5 @@
 package io.github.dockyardmc.entity.metadata
 
-import io.github.dockyardmc.entity.metadata.Metadata.MetadataDefinition
 import io.github.dockyardmc.entity.metadata.MetadataType.MetadataSerializer
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.maths.Quaternion
@@ -12,7 +11,6 @@ import io.github.dockyardmc.protocol.types.ResolvableProfile
 import io.github.dockyardmc.registry.*
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.world.block.Block
-import java.util.concurrent.atomic.AtomicInteger
 
 object Metadata : MetadataGroup() {
 
@@ -462,168 +460,156 @@ object Metadata : MetadataGroup() {
         val STAYS_STILL = define(MetadataType.BOOLEAN, false)
     }
 
-    object IronGolem: MetadataGroup(Mob) {
+    object IronGolem : MetadataGroup(Mob) {
         val IRON_GOLEM_FLAGS = define(MetadataType.BYTE, 0)
         val IS_PLAYER_CREATED = bitmask(IRON_GOLEM_FLAGS, 0x01, false)
     }
 
-    object SnowGolem: MetadataGroup(Mob) {
+    object SnowGolem : MetadataGroup(Mob) {
         val SNOW_GOLEM_FLAGS = define(MetadataType.BYTE, 0)
         val PUMPKIN_HAT = bitmask(SNOW_GOLEM_FLAGS, 0x01, false)
     }
 
-    object Shulker: MetadataGroup(Mob) {
+    object Shulker : MetadataGroup(Mob) {
         val ATTACH_FACE = define(MetadataType.DIRECTION, Direction.DOWN)
         val SHIELD_HEIGHT = define(MetadataType.BYTE, 0)
         val COLOR = define(MetadataType.BYTE, 16)
     }
 
-    object CopperGolem: MetadataGroup(Mob) {
+    object CopperGolem : MetadataGroup(Mob) {
         val WEATHER_STATE = define(MetadataType.COPPER_GOLEM_WEATHER_STATE, io.github.dockyardmc.entity.entities.CopperGolem.WeatherState.UNAFFECTED)
         val STATE = define(MetadataType.COPPER_GOLEM_STATE, io.github.dockyardmc.entity.entities.CopperGolem.State.IDLE)
     }
 
-    object BasePiglin: MetadataGroup(Mob) {
+    object BasePiglin : MetadataGroup(Mob) {
         val IMMUNE_ZOMBIFICATION = define(MetadataType.BOOLEAN, false)
     }
 
-    object Piglin: MetadataGroup(BasePiglin) {
+    object Piglin : MetadataGroup(BasePiglin) {
         val IS_BABY = define(MetadataType.BOOLEAN, false)
         val IS_CHARING_CROSSBOW = define(MetadataType.BOOLEAN, false)
         val IS_DANCING = define(MetadataType.BOOLEAN, false)
     }
 
-    object Blaze: MetadataGroup(Mob) {
+    object Blaze : MetadataGroup(Mob) {
         val BLAZE_FLAGS = define(MetadataType.BYTE, 0)
         val IS_ON_FIRE = bitmask(BLAZE_FLAGS, 0x01, false)
     }
 
-    object Bogged: MetadataGroup(Mob) {
+    object Bogged : MetadataGroup(Mob) {
         val IS_SHEARED = define(MetadataType.BOOLEAN, false)
     }
 
-    object Creeking: MetadataGroup(Mob) {
+    object Creeking : MetadataGroup(Mob) {
         val CAN_MOVE = define(MetadataType.BOOLEAN, true)
         val IS_ACTIVE = define(MetadataType.BOOLEAN, false)
         val IS_TEARING_DOWN = define(MetadataType.BOOLEAN, false)
         val HOME_POS = define(MetadataType.OPTIONAL_BLOCK_POSITION, null)
     }
 
-    object Creeper: MetadataGroup(Mob) {
+    object Creeper : MetadataGroup(Mob) {
         val STATE = define(MetadataType.VAR_INT, -1)
         val IS_CHARGED = define(MetadataType.BOOLEAN, false)
         val IS_IGNITED = define(MetadataType.BOOLEAN, false)
     }
 
-    object Guardian: MetadataGroup(Mob) {
+    object Guardian : MetadataGroup(Mob) {
         val IS_RETRACTING_SPIKES = define(MetadataType.BOOLEAN, false)
         val TARGET_EID = define(MetadataType.VAR_INT, 0)
     }
 
-    object Raider: MetadataGroup(Mob) {
+    object Raider : MetadataGroup(Mob) {
         val IS_CELEBRATING = define(MetadataType.BOOLEAN, false)
     }
 
-    object Pillager: MetadataGroup(Raider) {
+    object Pillager : MetadataGroup(Raider) {
         val IS_CHARING = define(MetadataType.BOOLEAN, false)
     }
 
-    object SpellcasterIllager: MetadataGroup(Raider) {
+    object SpellcasterIllager : MetadataGroup(Raider) {
         val SPELL = define(MetadataType.BYTE, 0)
     }
 
-    object Witch: MetadataGroup(Raider) {
+    object Witch : MetadataGroup(Raider) {
         val IS_DRINKING_POTION = define(MetadataType.BOOLEAN, false)
     }
 
-    object Spider: MetadataGroup(Mob) {
+    object Spider : MetadataGroup(Mob) {
         val SPIDER_FLAGS = define(MetadataType.BYTE, 0)
         val IS_CLIMBING = bitmask(SPIDER_FLAGS, 0x01, false)
     }
 
-    object Vex: MetadataGroup(Mob) {
+    object Vex : MetadataGroup(Mob) {
         val VEX_FLAGS = define(MetadataType.BYTE, 0)
         val IS_ATTACKING = bitmask(VEX_FLAGS, 0x01, false)
     }
 
-    object Warden: MetadataGroup(Mob) {
+    object Warden : MetadataGroup(Mob) {
         val ANGER_LEVEL = define(MetadataType.VAR_INT, 0)
     }
 
-    object Wither: MetadataGroup(Mob) {
+    object Wither : MetadataGroup(Mob) {
         val CENTER_HEAD_TARGET = define(MetadataType.VAR_INT, 0)
         val LEFT_HEAD_TARGET = define(MetadataType.VAR_INT, 0)
         val RIGHT_HEAD_TARGET = define(MetadataType.VAR_INT, 0)
         val INVULNERABLE_TIME = define(MetadataType.VAR_INT, 0)
     }
 
-    object Zoglin: MetadataGroup(Mob) {
+    object Zoglin : MetadataGroup(Mob) {
         val IS_BABY = define(MetadataType.BOOLEAN, false)
     }
 
-    object Zombie: MetadataGroup(Mob) {
+    object Zombie : MetadataGroup(Mob) {
         val IS_BABY = define(MetadataType.BOOLEAN, false)
         val IS_BECOMING_DROWNED = define(MetadataType.BOOLEAN, false)
     }
 
-    object ZombieVillager: MetadataGroup(Mob) {
+    object ZombieVillager : MetadataGroup(Mob) {
         val IS_CONVERTING = define(MetadataType.BOOLEAN, false)
         //TODO VillagerData
     }
 
-    object Enderman: MetadataGroup(Mob) {
+    object Enderman : MetadataGroup(Mob) {
         val CARRIED_BLOCK = define(MetadataType.OPTIONAL_BLOCK_STATE, null)
         val IS_SCREAMING = define(MetadataType.BOOLEAN, false)
         val IS_STARING = define(MetadataType.BOOLEAN, false)
     }
 
-    object EnderDragon: MetadataGroup(Mob) {
+    object EnderDragon : MetadataGroup(Mob) {
         val DRAGON_PHASE = define(MetadataType.VAR_INT, 10)
     }
 
-    object Ghast: MetadataGroup(Mob) {
+    object Ghast : MetadataGroup(Mob) {
         val IS_ATTACKING = define(MetadataType.BOOLEAN, false)
     }
 
-    object Phantom: MetadataGroup(Mob) {
+    object Phantom : MetadataGroup(Mob) {
         val SIZE = define(MetadataType.VAR_INT, 0)
     }
 
-    object Slime: MetadataGroup(Mob) {
+    object Slime : MetadataGroup(Mob) {
         val SIZE = define(MetadataType.VAR_INT, 1)
     }
 
-    object PrimedTnt: MetadataGroup(Metadata) {
+    object PrimedTnt : MetadataGroup(Metadata) {
         val FUSE_TIME = define(MetadataType.VAR_INT, 80)
         val BLOCK_STATE = define(MetadataType.BLOCK_STATE, DEFAULT_PRIMED_TNT_BLOCK_STATE)
     }
 
-    object OminousItemSpawner: MetadataGroup(Metadata) {
+    object OminousItemSpawner : MetadataGroup(Metadata) {
         val ITEM = define(MetadataType.ITEM_STACK, ItemStack.AIR)
     }
 
-    interface MetadataDefinitionEntry<T>
+    sealed interface MetadataDefinitionEntry<T>
 
-    data class MetadataDefinition<T>(val index: Int, val type: MetadataSerializer<T>, val default: T) : MetadataDefinitionEntry<T>
+    data class MetadataDefinition<T>(val index: Int, val type: MetadataSerializer<T>, val default: T) : MetadataDefinitionEntry<T> {
+        data class Value<T>(val parent: MetadataDefinition<T>, val value: T)
+    }
 
-    data class BitmaskFlagDefinition<T>(
+    data class BitmaskFlagDefinition(
         val parent: MetadataDefinition<Byte>,
         val bitMask: Byte,
-        val defaultValue: T
-    ) : MetadataDefinitionEntry<T>
+        val defaultValue: Boolean
+    ) : MetadataDefinitionEntry<Boolean>
 
-}
-
-abstract class MetadataGroup(initialValue: Int = 0) {
-    constructor(parent: MetadataGroup) : this(parent.counter.get())
-
-    protected val counter = AtomicInteger(initialValue)
-
-    protected fun <T> define(type: MetadataSerializer<T>, default: T): MetadataDefinition<T> {
-        return MetadataDefinition(counter.getAndIncrement(), type, default)
-    }
-
-    protected fun <T> bitmask(parent: MetadataDefinition<Byte>, bitMask: Byte, defaultValue: T): Metadata.BitmaskFlagDefinition<T> {
-        return Metadata.BitmaskFlagDefinition<T>(parent, bitMask, defaultValue)
-    }
 }

@@ -15,11 +15,9 @@ import io.github.dockyardmc.protocol.types.ResolvableProfile
 import io.github.dockyardmc.registry.registries.*
 import io.github.dockyardmc.tide.stream.StreamCodec
 import io.github.dockyardmc.world.block.Block
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 object MetadataType {
-    val MAX_INDEX: Object2IntOpenHashMap<String> = Object2IntOpenHashMap()
     private val serializers = mutableListOf<MetadataSerializer<*>>()
     private val metadataType = AtomicInteger()
 
