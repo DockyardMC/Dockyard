@@ -8,6 +8,7 @@ import io.github.dockyardmc.maths.Quaternion
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.EntityPose
+import io.github.dockyardmc.protocol.types.ResolvableProfile
 import io.github.dockyardmc.registry.registries.PaintingVariantRegistry
 import io.github.dockyardmc.registry.registries.ParticleRegistry
 import io.github.dockyardmc.tide.stream.StreamCodec
@@ -33,12 +34,13 @@ object MetadataType {
     val BLOCK_POSITION = next(LocationCodecs.BLOCK_POSITION)
     val OPTIONAL_BLOCK_POSITION = next(LocationCodecs.BLOCK_POSITION.optional())
     val PARTICLE = next(RegistryCodec.stream(ParticleRegistry))
+    val PARTICLE_LIST = next(RegistryCodec.stream(ParticleRegistry).list())
     val DIRECTION = next(StreamCodec.enum<Direction>())
     val PAINTING_VARIANT = next(RegistryCodec.stream(PaintingVariantRegistry))
-
     val OPTIONAL_COMPONENT = next(ComponentCodecs.STREAM.optional())
     val COMPONENT = next(ComponentCodecs.STREAM)
     val FLOAT = next(StreamCodec.FLOAT)
+    val RESOLVABLE_PROFILE = next(ResolvableProfile.STREAM_CODEC)
 
     data class MetadataSerializer<T>(val type: Int, val streamCodec: StreamCodec<T>)
 

@@ -8,9 +8,11 @@ import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.maths.vectors.Vector3f
 import io.github.dockyardmc.player.Direction
 import io.github.dockyardmc.player.EntityPose
+import io.github.dockyardmc.protocol.types.ResolvableProfile
 import io.github.dockyardmc.registry.PaintingVariants
 import io.github.dockyardmc.registry.Particles
 import io.github.dockyardmc.scroll.Component
+import io.github.dockyardmc.utils.bitMask
 import io.github.dockyardmc.world.block.Block
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -69,7 +71,11 @@ object Metadata : MetadataGroup() {
         val BACKGROUND_COLOR = define(MetadataType.VAR_INT, 0x40000000)
         val TEXT_OPACITY = define(MetadataType.BYTE, -1)
         val TEXT_DISPLAY_FLAGS = define(MetadataType.BYTE, 0)
-        //TODO bitmask
+        val HAS_SHADOW = bitmask<Boolean>(TEXT_DISPLAY_FLAGS, 0x01, false)
+        val IS_SEE_THROUGH = bitmask<Boolean>(TEXT_DISPLAY_FLAGS, 0x02, false)
+        val USE_DEFAULT_BACKGROUND = bitmask<Boolean>(TEXT_DISPLAY_FLAGS, 0x04, false)
+        val ALIGN_LEFT = bitmask<Boolean>(TEXT_DISPLAY_FLAGS, 0x08, false)
+        val ALIGN_RIGHT = bitmask<Boolean>(TEXT_DISPLAY_FLAGS, 0x10, false)
     }
 
     object ExperienceOrb : MetadataGroup(Metadata) {
@@ -102,7 +108,10 @@ object Metadata : MetadataGroup() {
 
     object AbstractArrow : MetadataGroup(Metadata) {
         val ARROW_FLAGS = define(MetadataType.BYTE, 0)
-        //TODO bitmask
+        val IS_CRITICAL = bitmask(ARROW_FLAGS, 0x01, false)
+        val IS_NO_CLIP = bitmask(ARROW_FLAGS, 0x02, false)
+        val PIERCING_LEVEL = define(MetadataType.BYTE, 0)
+        val IN_GROUND = define(MetadataType.BOOLEAN, false)
     }
 
     object Arrow : MetadataGroup(AbstractArrow) {
@@ -177,7 +186,42 @@ object Metadata : MetadataGroup() {
         val ITEM = define(MetadataType.ITEM_STACK, ItemStack.AIR)
     }
 
-    //next: LivingEntity
+    object LivingEntity : MetadataGroup(Metadata) {
+        val LIVING_ENTITY_FLAGS = define(MetadataType.BYTE, 0)
+        val IS_HAND_ACTIVE = bitmask(LIVING_ENTITY_FLAGS, 0x01, false)
+        val ACTIVE_HAND = bitmask(LIVING_ENTITY_FLAGS, 0x02, false)
+        val IS_RIPTIDE_SPIN_ATTACK = bitmask(LIVING_ENTITY_FLAGS, 0x04, false)
+        val HEALTH = define(MetadataType.FLOAT, 1f)
+        val POTION_EFFECT_PARTICLES = define(MetadataType.PARTICLE_LIST, listOf())
+        val IS_POTION_EFFECT_AMBIENT = define(MetadataType.BOOLEAN, false)
+        val NUMBER_OF_ARROWS = define(MetadataType.VAR_INT, 0)
+        val NUMBER_OF_BEE_STINGERS = define(MetadataType.VAR_INT, 0)
+        val BED_LOCATION = define(MetadataType.OPTIONAL_BLOCK_POSITION, null)
+    }
+
+    object Avatar : MetadataGroup(LivingEntity) {
+        val MAIN_HAND = define(MetadataType.BYTE, 1)
+        val DISPLAYED_MODEL_PARTS_FLAG = define(MetadataType.BYTE, 1)
+        val IS_CAPE_ENABLED = bitmask(DISPLAYED_MODEL_PARTS_FLAG, 0x01, false)
+        val IS_JACKET_ENABLED = bitmask(DISPLAYED_MODEL_PARTS_FLAG, 0x02, false)
+        val IS_LEFT_SLEEVE_ENABLED = bitmask(DISPLAYED_MODEL_PARTS_FLAG, 0x04, false)
+        val IS_RIGHT_SLEEVE_ENABLED = bitmask(DISPLAYED_MODEL_PARTS_FLAG, 0x08, false)
+        val IS_LEFT_PANTS_LEG_ENABLED = bitmask(DISPLAYED_MODEL_PARTS_FLAG, 0x10, false)
+        val IS_RIGHT_PANTS_LEG_ENABLED = bitmask(DISPLAYED_MODEL_PARTS_FLAG, 0x20, false)
+        val IS_HAT_ENABLED = bitmask(MAIN_HAND, 0x40, false)
+    }
+
+    object Player : MetadataGroup(Avatar) {
+        val ADDITIONAL_HEARTS = define(MetadataType.FLOAT, 0f)
+        val SCORE = define(MetadataType.VAR_INT, 0)
+        val LEFT_SHOULDER_ENTITY_DATA = define(MetadataType.OPTIONAL_VAR_INT, null)
+        val RIGHT_SHOULDER_ENTITY_DATA = define(MetadataType.OPTIONAL_VAR_INT, null)
+    }
+
+    object Mannequin : MetadataGroup(Avatar) {
+        val PROFILE = define(MetadataType.RESOLVABLE_PROFILE, ResolvableProfile.EMPTY)
+
+    }
 
     interface MetadataDefinitionEntry<T>
 
@@ -187,11 +231,7 @@ object Metadata : MetadataGroup() {
         val parent: MetadataDefinition<Byte>,
         val bitMask: Byte,
         val defaultValue: T
-    ) : MetadataDefinitionEntry<T> {
-//        fun isSet(value: Byte): Boolean = (value and bitMask) != 0.toByte()
-//        fun set(value: Byte): Byte = (value.toInt() or bitMask.toInt()).toByte()
-//        fun unset(value: Byte): Byte = (value.toInt() and bitMask.toInt().inv()).toByte()
-    }
+    ) : MetadataDefinitionEntry<T>
 
 }
 

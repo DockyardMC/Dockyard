@@ -2,7 +2,6 @@ package io.github.dockyardmc.scheduler
 
 import io.github.dockyardmc.extentions.round
 import io.github.dockyardmc.utils.Disposable
-import io.github.dockyardmc.utils.debug
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
