@@ -308,7 +308,7 @@ object Metadata : MetadataGroup() {
 
     object Camel : MetadataGroup(AbstractHorse) {
         val DASHING = define(MetadataType.BOOLEAN, false)
-        val LAST_POSE_CHANGE_TICK = define(MetadataType.VAR_LONG, 0)
+        val LAST_POSE_CHANGE_TICK = define(MetadataType.LONG, 0)
     }
 
     object ChestedHorse : MetadataGroup(AbstractHorse) {
