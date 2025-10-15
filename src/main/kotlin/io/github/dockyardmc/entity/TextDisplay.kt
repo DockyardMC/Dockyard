@@ -25,7 +25,7 @@ class TextDisplay(location: Location): DisplayEntity(location) {
     val alignment: Bindable<TextDisplayAlignment> = Bindable(TextDisplayAlignment.CENTER)
 
     init {
-        billboard.value = DisplayBillboard.CENTER
+        billboard.value = BillboardConstraints.CENTER
         text.valueChanged {
             val type = EntityMetadataType.TEXT_DISPLAY_TEXT
             metadata[type] = EntityMetadata(type, EntityMetaValue.TEXT_COMPONENT, it.newValue.toComponent())

@@ -1,23 +1,21 @@
 package io.github.dockyardmc.entity
 
 import cz.lukynka.bindables.Bindable
-import io.github.dockyardmc.entity.metadata.EntityMetaValue
-import io.github.dockyardmc.entity.metadata.EntityMetadata
-import io.github.dockyardmc.entity.metadata.EntityMetadataType
+import io.github.dockyardmc.entity.metadata.Metadata
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.Blocks
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
+import io.github.dockyardmc.world.block.Block
 
-class BlockDisplay(location: Location): DisplayEntity(location) {
+class BlockDisplay(location: Location) : DisplayEntity(location) {
 
     override var type: EntityType = EntityTypes.BLOCK_DISPLAY
-    val block: Bindable<io.github.dockyardmc.world.block.Block> = Bindable(Blocks.STONE.toBlock())
+    val block: Bindable<Block> = bindablePool.provideBindable(Blocks.STONE.toBlock())
 
     init {
-        block.valueChanged {
-            val type = EntityMetadataType.BLOCK_DISPLAY_BLOCK
-            metadata[type] = EntityMetadata(type, EntityMetaValue.BLOCK_STATE, it.newValue)
+        block.valueChanged { event ->
+            metadata[Metadata.BlockDisplay.DISPLAYED_BLOCK_STATE] = event.newValue
         }
     }
 }

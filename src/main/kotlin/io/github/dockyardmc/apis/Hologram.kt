@@ -6,9 +6,7 @@ import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.TextDisplay
-import io.github.dockyardmc.entity.metadata.EntityMetaValue
-import io.github.dockyardmc.entity.metadata.EntityMetadata
-import io.github.dockyardmc.entity.metadata.EntityMetadataType
+import io.github.dockyardmc.entity.metadata.Metadata
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.toPersistent
@@ -159,7 +157,7 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
 
         if (display.metadataLayers[player.toPersistent()] == null) display.metadataLayers[player.toPersistent()] = mutableMapOf()
         val layer = display.metadataLayers[player.toPersistent()]!!
-        layer[EntityMetadataType.TEXT_DISPLAY_TEXT] = EntityMetadata(EntityMetadataType.TEXT_DISPLAY_TEXT, EntityMetaValue.TEXT_COMPONENT, message.toComponent())
+        layer[Metadata.TextDisplay.TEXT] = message.toComponent()
         display.sendMetadataPacket(player)
         onLinesUpdated.dispatch(Unit)
     }
