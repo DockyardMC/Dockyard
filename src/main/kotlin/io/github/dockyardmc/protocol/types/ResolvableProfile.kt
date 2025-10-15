@@ -8,13 +8,13 @@ import java.util.*
 
 data class ResolvableProfile(val profile: Either<GameProfile, Partial>, val patch: PlayerSkin.Patch) {
 
-    constructor(profile: GameProfile): this(Either.left(profile), PlayerSkin.Patch.EMPTY)
+    constructor(profile: GameProfile) : this(Either.left(profile), PlayerSkin.Patch.EMPTY)
 
-    constructor(profile: GameProfile, patch: PlayerSkin.Patch): this(Either.left(profile), patch)
+    constructor(profile: GameProfile, patch: PlayerSkin.Patch) : this(Either.left(profile), patch)
 
-    constructor(partial: Partial): this(Either.right(partial), PlayerSkin.Patch.EMPTY)
+    constructor(partial: Partial) : this(Either.right(partial), PlayerSkin.Patch.EMPTY)
 
-    constructor(partial: Partial, patch: PlayerSkin.Patch): this(Either.right(partial), patch)
+    constructor(partial: Partial, patch: PlayerSkin.Patch) : this(Either.right(partial), patch)
 
     companion object {
         val EMPTY = ResolvableProfile(Either.right(Partial.EMPTY), PlayerSkin.Patch.EMPTY)

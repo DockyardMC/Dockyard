@@ -52,7 +52,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     abstract var type: EntityType
     abstract val health: Bindable<Float>
-    abstract var inventorySize: Int
+    open var inventorySize: Int = 0
 
     open var id: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
