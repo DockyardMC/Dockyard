@@ -13,7 +13,7 @@ abstract class MetadataGroup(initialValue: Int = 0) {
         return MetadataDefinition(counter.getAndIncrement(), type, default)
     }
 
-    protected fun <T> bitmask(parent: MetadataDefinition<Byte>, bitMask: Byte, defaultValue: T): Metadata.BitmaskFlagDefinition<T> {
-        return Metadata.BitmaskFlagDefinition<T>(parent, bitMask, defaultValue)
+    protected fun bitmask(parent: MetadataDefinition<Byte>, bitMask: Byte, defaultValue: Boolean): Metadata.BitmaskFlagDefinition {
+        return Metadata.BitmaskFlagDefinition(parent, bitMask, defaultValue)
     }
 }

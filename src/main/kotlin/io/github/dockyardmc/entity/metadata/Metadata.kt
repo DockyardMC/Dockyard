@@ -18,12 +18,12 @@ object Metadata : MetadataGroup() {
     private val DEFAULT_PRIMED_TNT_BLOCK_STATE = Blocks.TNT.toBlock()
 
     val ENTITY_FLAGS = define(MetadataType.BYTE, 0)
-    val IS_ON_FIRE = bitmask<Boolean>(ENTITY_FLAGS, 0x01, false)
-    val IS_CROUCHING = bitmask<Boolean>(ENTITY_FLAGS, 0x02, false)
-    val IS_SPRINTING = bitmask<Boolean>(ENTITY_FLAGS, 0x03, false)
-    val IS_SWIMMING = bitmask<Boolean>(ENTITY_FLAGS, 0x04, false)
-    val IS_INVISIBLE = bitmask<Boolean>(ENTITY_FLAGS, 0x05, false)
-    val HAS_GLOWING_EFFECT = bitmask<Boolean>(ENTITY_FLAGS, 0x06, false)
+    val IS_ON_FIRE = bitmask(ENTITY_FLAGS, 0x01, false)
+    val IS_CROUCHING = bitmask(ENTITY_FLAGS, 0x02, false)
+    val IS_SPRINTING = bitmask(ENTITY_FLAGS, 0x03, false)
+    val IS_SWIMMING = bitmask(ENTITY_FLAGS, 0x04, false)
+    val IS_INVISIBLE = bitmask(ENTITY_FLAGS, 0x05, false)
+    val HAS_GLOWING_EFFECT = bitmask(ENTITY_FLAGS, 0x06, false)
     val AIR_TICKS = define(MetadataType.VAR_INT, 300)
     val CUSTOM_NAME = define(MetadataType.OPTIONAL_COMPONENT, null)
     val CUSTOM_NAME_VISIBLE = define(MetadataType.BOOLEAN, false)
@@ -62,6 +62,7 @@ object Metadata : MetadataGroup() {
 
     object ItemDisplay : MetadataGroup(Display) {
         val DISPLAYED_ITEM = define(MetadataType.ITEM_STACK, ItemStack.AIR)
+        val DISPLAY_TYPE = define(MetadataType.BYTE, 0)
     }
 
     object TextDisplay : MetadataGroup(Display) {
@@ -70,11 +71,11 @@ object Metadata : MetadataGroup() {
         val BACKGROUND_COLOR = define(MetadataType.VAR_INT, 0x40000000)
         val TEXT_OPACITY = define(MetadataType.BYTE, -1)
         val TEXT_DISPLAY_FLAGS = define(MetadataType.BYTE, 0)
-        val HAS_SHADOW = bitmask<Boolean>(TEXT_DISPLAY_FLAGS, 0x01, false)
-        val IS_SEE_THROUGH = bitmask<Boolean>(TEXT_DISPLAY_FLAGS, 0x02, false)
-        val USE_DEFAULT_BACKGROUND = bitmask<Boolean>(TEXT_DISPLAY_FLAGS, 0x04, false)
-        val ALIGN_LEFT = bitmask<Boolean>(TEXT_DISPLAY_FLAGS, 0x08, false)
-        val ALIGN_RIGHT = bitmask<Boolean>(TEXT_DISPLAY_FLAGS, 0x10, false)
+        val HAS_SHADOW = bitmask(TEXT_DISPLAY_FLAGS, 0x01, false)
+        val IS_SEE_THROUGH = bitmask(TEXT_DISPLAY_FLAGS, 0x02, false)
+        val USE_DEFAULT_BACKGROUND = bitmask(TEXT_DISPLAY_FLAGS, 0x04, false)
+        val ALIGN_LEFT = bitmask(TEXT_DISPLAY_FLAGS, 0x08, false)
+        val ALIGN_RIGHT = bitmask(TEXT_DISPLAY_FLAGS, 0x10, false)
     }
 
     object ExperienceOrb : MetadataGroup(Metadata) {

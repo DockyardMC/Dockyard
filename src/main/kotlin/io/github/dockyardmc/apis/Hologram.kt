@@ -9,7 +9,6 @@ import io.github.dockyardmc.entity.TextDisplay
 import io.github.dockyardmc.entity.metadata.Metadata
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.toPersistent
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -139,7 +138,7 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
                 entity.lineWidth.value = Int.MAX_VALUE
                 lineEntities.add(entity)
             }
-            if (line !is PlayerContentLine && entity.metadataLayers.values.isNotEmpty()) entity.metadataLayers.clear()
+            if (line !is PlayerContentLine && entity.metadata.getMetadataLayers().values.isNotEmpty()) entity.metadata.clearMetadataLayers()
 
             when (line) {
                 is StaticContentLine -> setGlobalLineContent(index, line.line)
@@ -154,10 +153,7 @@ class Hologram(spawnLocation: Location, builder: HologramBuilder) : Entity(spawn
 
     private fun setPlayerLineContent(player: Player, lineIndex: Int, message: String) {
         val display = lineEntities.getOrNull(lineIndex) ?: return
-
-        if (display.metadataLayers[player.toPersistent()] == null) display.metadataLayers[player.toPersistent()] = mutableMapOf()
-        val layer = display.metadataLayers[player.toPersistent()]!!
-        layer[Metadata.TextDisplay.TEXT] = message.toComponent()
+        display.metadata.setForPlayer(player, Metadata.TextDisplay.TEXT, message.toComponent())
         display.sendMetadataPacket(player)
         onLinesUpdated.dispatch(Unit)
     }

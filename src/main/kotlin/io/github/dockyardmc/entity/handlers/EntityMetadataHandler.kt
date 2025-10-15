@@ -13,11 +13,19 @@ class EntityMetadataHandler(override val entity: Entity) : EntityHandler, Dispos
     private val metadata: MutableMap<Metadata.MetadataDefinition<*>, Metadata.MetadataDefinition.Value<*>> = mutableMapOf()
     private val metadataLayers: MutableMap<Player, MutableMap<Metadata.MetadataDefinition<*>, Metadata.MetadataDefinition.Value<*>>> = mutableMapOf()
 
+    fun clearMetadataLayers() {
+        metadataLayers.clear()
+    }
+
+    fun getMetadataLayers(): Map<Player, MutableMap<Metadata.MetadataDefinition<*>, Metadata.MetadataDefinition.Value<*>>> {
+        return metadataLayers.toMap()
+    }
+
     fun getValues(): Map<Metadata.MetadataDefinition<*>, Metadata.MetadataDefinition.Value<*>> {
         return metadata.toMap()
     }
 
-    fun getValuesFor(player: Player): Map<Metadata.MetadataDefinition<*>, Metadata.MetadataDefinition.Value<*>> {
+    fun getValuesFor(player: Player): Map<Metadata.MetadataDefinitionEntry<*>, Metadata.MetadataDefinition.Value<*>> {
         if (!metadataLayers.containsKey(player)) {
             metadataLayers[player] = mutableMapOf()
         }

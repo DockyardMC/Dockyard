@@ -1,5 +1,6 @@
 package io.github.dockyardmc.protocol.types
 
+import io.github.dockyardmc.codec.mutableList
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
 import io.github.dockyardmc.tide.codec.Codec
@@ -9,7 +10,7 @@ import io.netty.buffer.ByteBuf
 import kotlinx.serialization.Serializable
 import java.util.*
 
-data class GameProfile(val uuid: UUID, val username: String, val properties: List<Property> = listOf()) : NetworkWritable {
+data class GameProfile(val uuid: UUID, val username: String, val properties: MutableList<Property> = mutableListOf()) : NetworkWritable {
 
     override fun write(buffer: ByteBuf) {
         STREAM_CODEC.write(buffer, this)
@@ -19,14 +20,14 @@ data class GameProfile(val uuid: UUID, val username: String, val properties: Lis
         val STREAM_CODEC = StreamCodec.of(
             StreamCodec.UUID, GameProfile::uuid,
             StreamCodec.STRING, GameProfile::username,
-            Property.STREAM_CODEC.list(), GameProfile::properties,
+            Property.STREAM_CODEC.mutableList(), GameProfile::properties,
             ::GameProfile
         )
 
         val CODEC = StructCodec.of(
             "uuid", Codec.UUID, GameProfile::uuid,
             "username", Codec.STRING, GameProfile::username,
-            "properties", Property.CODEC.list(), GameProfile::properties,
+            "properties", Property.CODEC.mutableList(), GameProfile::properties,
             ::GameProfile
         )
 

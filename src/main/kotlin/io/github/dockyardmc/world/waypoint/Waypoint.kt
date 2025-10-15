@@ -10,7 +10,7 @@ import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.protocol.packets.play.clientbound.ClientboundTrackedWaypointPacket
-import io.github.dockyardmc.protocol.types.Either
+import io.github.dockyardmc.tide.types.Either
 import io.github.dockyardmc.utils.Disposable
 import io.github.dockyardmc.utils.viewable.Viewable
 import java.util.*
