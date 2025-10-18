@@ -1,6 +1,6 @@
 package io.github.dockyardmc.registry.registries
 
-import io.github.dockyardmc.protocol.packets.configurations.ClientboundRegistryDataPacket
+import io.github.dockyardmc.protocol.packets.configurations.clientbound.ClientboundRegistryDataPacket
 import io.github.dockyardmc.registry.DynamicRegistry
 import io.github.dockyardmc.registry.RegistryEntry
 

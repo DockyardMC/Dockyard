@@ -8,8 +8,6 @@ import io.github.dockyardmc.config.ConfigManager
 import io.github.dockyardmc.effects.AppliedPotionEffect
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.handlers.*
-import io.github.dockyardmc.entity.metadata.EntityMetadata
-import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.item.ItemStack
@@ -52,7 +50,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
 
     abstract var type: EntityType
     abstract val health: Bindable<Float>
-    abstract var inventorySize: Int
+    open var inventorySize: Int = 0
 
     open var id: Int = EntityManager.entityIdCounter.incrementAndGet()
     open var uuid: UUID = UUID.randomUUID()
@@ -65,12 +63,12 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     val customNameVisible: Bindable<Boolean> = bindablePool.provideBindable(false)
     val metadata: EntityMetadataHandler = EntityMetadataHandler(this)
     val pose: Bindable<EntityPose> = bindablePool.provideBindable(EntityPose.STANDING)
-    val metadataLayers: BindableMap<PersistentPlayer, MutableMap<EntityMetadataType, EntityMetadata>> = bindablePool.provideBindableMap()
     val isOnFire: Bindable<Boolean> = bindablePool.provideBindable(false)
     val freezeTicks: Bindable<Int> = bindablePool.provideBindable(0)
     val hasNoGravity: Bindable<Boolean> = bindablePool.provideBindable(true)
     val isSilent: Bindable<Boolean> = bindablePool.provideBindable(false)
     val stuckArrows: Bindable<Int> = bindablePool.provideBindable(0)
+    val stuckStringers: Bindable<Int> = bindablePool.provideBindable(0)
     var gravityTickCount = 0
 
     val maxHealth get() = health.defaultValue
@@ -108,7 +106,6 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             hasNoGravity = hasNoGravity,
             entityIsOnFire = isOnFire,
             freezeTicks = freezeTicks,
-            metadataLayers = metadataLayers,
             isGlowing = isGlowing,
             isInvisible = isInvisible,
             pose = pose,
@@ -116,6 +113,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
             customName = customName,
             customNameVisible = customNameVisible,
             stuckArrows = stuckArrows,
+            stuckStingers = stuckStringers
         )
 
         team.valueChanged { event ->
@@ -157,7 +155,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         if (!super.addViewer(player)) return false
 
         sendMetadataPacket(player)
-        val entitySpawnPacket = ClientboundSpawnEntityPacket(id, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
+        val entitySpawnPacket = ClientboundSpawnEntityPacket(id, uuid, type, location, location.yaw, 0, velocity)
         isOnGround = true
 
         synchronized(player.entityViewSystem.visibleEntities) {
@@ -216,7 +214,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     }
 
     open fun sendMetadataPacket(player: Player) {
-        val metadata = mergeEntityMetadata(this, metadataLayers[player.toPersistent()])
+        val metadata = mergeEntityMetadata(this, metadata.getValuesFor(player))
         val packet = ClientboundSetEntityMetadataPacket(this, metadata)
         player.sendPacket(packet)
     }
@@ -289,6 +287,10 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     fun playDamageAnimation(damageType: DamageType = DamageTypes.GENERIC) {
         val packet = ClientboundDamageEventPacket(this, damageType, null, null, null)
         viewers.sendPacket(packet)
+    }
+
+    fun playSoundToViewers(sound: String, location: Location? = null, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
+        playSoundToViewers(Sound(sound, volume, pitch, category), location)
     }
 
     fun playSoundToViewers(sound: Sound, location: Location? = this.location) {
@@ -396,8 +398,8 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         team.value = null
         equipmentLayers.clear()
         viewers.toList().forEach { removeViewer(it) }
-        metadataLayers.clear()
         passengers.values.forEach(passengers::removeIfPresent)
+        metadata.dispose()
         bindablePool.dispose()
         despawnEntity(this)
     }

@@ -1,19 +1,12 @@
 package io.github.dockyardmc.entity
 
 import cz.lukynka.bindables.Bindable
-import io.github.dockyardmc.entity.metadata.EntityMetaValue
-import io.github.dockyardmc.entity.metadata.EntityMetadata
-import io.github.dockyardmc.entity.metadata.EntityMetadataType
+import io.github.dockyardmc.entity.metadata.Metadata
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 
-open class Guardian(location: Location): Entity(location) {
-
-    companion object {
-        val RETRACTING_SPIKES_METADATA = EntityMetadataType.GUARDIAN_RETRACTING_SPIKES
-        val TARGET_ENTITY_ID = EntityMetadataType.GUARDIAN_TARGET_ENTITY_ID
-    }
+open class Guardian(location: Location) : Entity(location) {
 
     override var type: EntityType = EntityTypes.GUARDIAN
     override val health: Bindable<Float> = bindablePool.provideBindable(30f)
@@ -23,12 +16,12 @@ open class Guardian(location: Location): Entity(location) {
     val target: Bindable<Entity?> = bindablePool.provideBindable(null)
 
     init {
-        isRetractingSpikes.valueChanged { change ->
-            metadata[RETRACTING_SPIKES_METADATA] = EntityMetadata(RETRACTING_SPIKES_METADATA, EntityMetaValue.BOOLEAN, change.newValue)
+        isRetractingSpikes.valueChanged { event ->
+            metadata[Metadata.Guardian.IS_RETRACTING_SPIKES] = event.newValue
         }
 
-        target.valueChanged { change ->
-            metadata[TARGET_ENTITY_ID] = EntityMetadata(TARGET_ENTITY_ID, EntityMetaValue.VAR_INT, change.newValue?.id ?: 0)
+        target.valueChanged { event ->
+            metadata[Metadata.Guardian.TARGET_EID] = event.newValue?.id ?: 0
         }
     }
 }

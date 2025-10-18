@@ -1,10 +1,7 @@
 package io.github.dockyardmc.entity
 
 import cz.lukynka.bindables.Bindable
-import io.github.dockyardmc.entity.metadata.EntityMetaValue
-import io.github.dockyardmc.entity.metadata.EntityMetadata
-import io.github.dockyardmc.entity.metadata.EntityMetadataType
-import io.github.dockyardmc.entity.metadata.getTextDisplayFormatting
+import io.github.dockyardmc.entity.metadata.Metadata
 import io.github.dockyardmc.extentions.getPackedInt
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityTypes
@@ -15,48 +12,49 @@ import io.github.dockyardmc.scroll.extensions.toComponent
 class TextDisplay(location: Location): DisplayEntity(location) {
 
     override var type: EntityType = EntityTypes.TEXT_DISPLAY
-    val text: Bindable<String> = Bindable("")
-    val lineWidth: Bindable<Int> = Bindable(200)
-    val backgroundColor: Bindable<CustomColor> = Bindable(CustomColor(64, 0, 0))
-    val opacity: Bindable<Int> = Bindable(255)
-    val hasShadow: Bindable<Boolean> = Bindable(false)
-    val isSeeThrough: Bindable<Boolean> = Bindable(false)
-    val useDefaultBackgroundColor: Bindable<Boolean> = Bindable(true)
-    val alignment: Bindable<TextDisplayAlignment> = Bindable(TextDisplayAlignment.CENTER)
+    val text: Bindable<String> = bindablePool.provideBindable("")
+    val lineWidth: Bindable<Int> = bindablePool.provideBindable(200)
+    val backgroundColor: Bindable<CustomColor> = bindablePool.provideBindable(CustomColor(64, 0, 0))
+    val opacity: Bindable<Int> = bindablePool.provideBindable(255)
+    val hasShadow: Bindable<Boolean> = bindablePool.provideBindable(false)
+    val isSeeThrough: Bindable<Boolean> = bindablePool.provideBindable(false)
+    val useDefaultBackgroundColor: Bindable<Boolean> = bindablePool.provideBindable(true)
+    val alignment: Bindable<Alignment> = bindablePool.provideBindable(Alignment.CENTER)
+
+    enum class Alignment(val left: Boolean, val right: Boolean) {
+        CENTER(false, false),
+        LEFT(true, false),
+        RIGHT(false, true)
+    }
 
     init {
-        billboard.value = DisplayBillboard.CENTER
-        text.valueChanged {
-            val type = EntityMetadataType.TEXT_DISPLAY_TEXT
-            metadata[type] = EntityMetadata(type, EntityMetaValue.TEXT_COMPONENT, it.newValue.toComponent())
+        billboard.value = BillboardConstraints.CENTER
+        text.valueChanged { event ->
+            metadata[Metadata.TextDisplay.TEXT] = event.newValue.toComponent()
         }
-        lineWidth.valueChanged {
-            val type = EntityMetadataType.TEXT_DISPLAY_LINE_WIDTH
-            metadata[type] = EntityMetadata(type, EntityMetaValue.VAR_INT, it.newValue)
+        lineWidth.valueChanged { event ->
+            metadata[Metadata.TextDisplay.LINE_WIDTH] = event.newValue
         }
-        backgroundColor.valueChanged {
-            val type = EntityMetadataType.TEXT_DISPLAY_BACKGROUND_COLOR
-            metadata[type] = EntityMetadata(type, EntityMetaValue.VAR_INT, it.newValue.getPackedInt())
+        backgroundColor.valueChanged { event ->
+            metadata[Metadata.TextDisplay.BACKGROUND_COLOR] = event.newValue.getPackedInt()
         }
-        opacity.valueChanged {
-            val type = EntityMetadataType.TEXT_DISPLAY_TEXT_OPACITY
-            metadata[type] = EntityMetadata(type, EntityMetaValue.BYTE, it.newValue)
+        opacity.valueChanged { event ->
+            metadata[Metadata.TextDisplay.TEXT_OPACITY] = event.newValue.toByte()
         }
-        hasShadow.valueChanged { updateTextDisplayFormatting() }
-        isSeeThrough.valueChanged { updateTextDisplayFormatting() }
-        useDefaultBackgroundColor.valueChanged { updateTextDisplayFormatting() }
-        alignment.valueChanged { updateTextDisplayFormatting() }
+        hasShadow.valueChanged { event ->
+            metadata[Metadata.TextDisplay.HAS_SHADOW] = event.newValue
+        }
+        isSeeThrough.valueChanged { event ->
+            metadata[Metadata.TextDisplay.IS_SEE_THROUGH] = event.newValue
+        }
+        useDefaultBackgroundColor.valueChanged { event ->
+            metadata[Metadata.TextDisplay.USE_DEFAULT_BACKGROUND] = event.newValue
+        }
+        alignment.valueChanged { event ->
+            metadata[Metadata.TextDisplay.ALIGN_LEFT] = event.newValue.left
+            metadata[Metadata.TextDisplay.ALIGN_RIGHT] = event.newValue.right
+        }
         interpolationDelay.triggerUpdate()
     }
-
-    private fun updateTextDisplayFormatting() {
-        val type = EntityMetadataType.TEXT_DISPLAY_FORMATTING
-        metadata[type] = getTextDisplayFormatting(this)
-    }
 }
 
-enum class TextDisplayAlignment(val mask: Byte) {
-    CENTER(0x00),
-    LEFT(0x08),
-    RIGHT(0x016)
-}

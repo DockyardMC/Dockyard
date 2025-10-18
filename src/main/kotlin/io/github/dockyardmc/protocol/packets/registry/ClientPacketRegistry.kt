@@ -1,6 +1,6 @@
 package io.github.dockyardmc.protocol.packets.registry
 
-import io.github.dockyardmc.protocol.packets.configurations.*
+import io.github.dockyardmc.protocol.packets.configurations.clientbound.*
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundPingResponsePacket
 import io.github.dockyardmc.protocol.packets.handshake.ClientboundStatusResponsePacket
 import io.github.dockyardmc.protocol.packets.login.*
@@ -38,6 +38,7 @@ object ClientPacketRegistry : PacketRegistry() {
         addConfiguration(ClientboundConfigurationServerLinksPacket::class)
         addConfiguration(ClientboundConfigurationClearDialogPacket::class)
         skipConfiguration("show dialog")
+        addConfiguration(ClientboundCodeOfConductPacket::class)
 
         skipPlay("Bundle")
         addPlay(ClientboundSpawnEntityPacket::class)
@@ -65,7 +66,11 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("Chat suggestion")
         addPlay(ClientboundPlayPluginMessagePacket::class)
         addPlay(ClientboundDamageEventPacket::class)
-        skipPlay("Debug sample")
+        skipPlay("debug block value")
+        skipPlay("debug chunk value")
+        skipPlay("debug entity value")
+        skipPlay("debug event")
+        skipPlay("debug sample")
         skipPlay("Delete chat")
         addPlay(ClientboundDisconnectPacket::class)
         skipPlay("Disguised chat packet")
@@ -74,6 +79,7 @@ object ClientPacketRegistry : PacketRegistry() {
         skipPlay("Explosion")
         addPlay(ClientboundUnloadChunkPacket::class)
         addPlay(ClientboundGameEventPacket::class)
+        skipPlay("game test highlight pos")
         skipPlay("open horse inventory")
         skipPlay("hit animation")
         addPlay(ClientboundInitializeWorldBorderPacket::class)

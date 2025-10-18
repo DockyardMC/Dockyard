@@ -1,42 +1,54 @@
 package io.github.dockyardmc.world.waypoint
 
-import io.github.dockyardmc.extentions.*
+import io.github.dockyardmc.codec.ExtraCodecs
+import io.github.dockyardmc.extentions.readEnum
+import io.github.dockyardmc.extentions.writeEnum
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.maths.vectors.Vector3
 import io.github.dockyardmc.protocol.NetworkReadable
 import io.github.dockyardmc.protocol.NetworkWritable
-import io.github.dockyardmc.protocol.readOptional
-import io.github.dockyardmc.protocol.types.Either
-import io.github.dockyardmc.protocol.types.writeEither
-import io.github.dockyardmc.protocol.writeOptional
 import io.github.dockyardmc.scroll.CustomColor
+import io.github.dockyardmc.tide.stream.StreamCodec
+import io.github.dockyardmc.tide.types.Either
 import io.github.dockyardmc.world.chunk.ChunkPos
 import io.netty.buffer.ByteBuf
 import java.util.*
 
 data class WaypointData(val id: Either<UUID, String>, val icon: Icon, val target: Target) : NetworkWritable {
 
+    companion object {
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.either(StreamCodec.UUID, StreamCodec.STRING), WaypointData::id,
+            Icon.STREAM_CODEC, WaypointData::icon,
+            Target.STREAM_CODEC, WaypointData::target,
+            ::WaypointData
+        )
+    }
+
     override fun write(buffer: ByteBuf) {
-        buffer.writeEither(id, ByteBuf::writeUUID, ByteBuf::writeString)
-        icon.write(buffer)
-        target.write(buffer)
+        STREAM_CODEC.write(buffer, this)
     }
 
     data class Icon(val style: String, val color: CustomColor?) : NetworkWritable {
 
         companion object : NetworkReadable<Icon> {
 
+            val STREAM_CODEC = StreamCodec.of(
+                StreamCodec.STRING, Icon::style,
+                ExtraCodecs.CUSTOM_COLOR_STREAM.optional(), Icon::color,
+                ::Icon
+            )
+
             const val DEFAULT_STYLE = "minecraft:default"
             val DEFAULT = Icon(DEFAULT_STYLE, null)
 
             override fun read(buffer: ByteBuf): Icon {
-                return Icon(buffer.readString(), buffer.readOptional(CustomColor::read))
+                return STREAM_CODEC.read(buffer)
             }
         }
 
         override fun write(buffer: ByteBuf) {
-            buffer.writeString(style)
-            buffer.writeOptional(color, CustomColor::write)
+            STREAM_CODEC.write(buffer, this)
         }
     }
 
@@ -56,6 +68,18 @@ data class WaypointData(val id: Either<UUID, String>, val icon: Icon, val target
         fun writeInner(buffer: ByteBuf)
 
         companion object : NetworkReadable<Target> {
+
+            val STREAM_CODEC = object : StreamCodec<Target> {
+
+                override fun write(buffer: ByteBuf, value: Target) {
+                    value.write(buffer)
+                }
+
+                override fun read(buffer: ByteBuf): Target {
+                    return Companion.read(buffer)
+                }
+
+            }
 
             override fun read(buffer: ByteBuf): Target {
                 val type = buffer.readEnum<Type>()

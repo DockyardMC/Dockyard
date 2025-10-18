@@ -8,6 +8,7 @@ object Particles {
     val BLOCK_MARKER = ParticleRegistry["minecraft:block_marker"]
     val BUBBLE = ParticleRegistry["minecraft:bubble"]
     val CLOUD = ParticleRegistry["minecraft:cloud"]
+    val COPPER_FIRE_FLAME = ParticleRegistry["minecraft:copper_fire_flame"]
     val CRIT = ParticleRegistry["minecraft:crit"]
     val DAMAGE_INDICATOR = ParticleRegistry["minecraft:damage_indicator"]
     val DRAGON_BREATH = ParticleRegistry["minecraft:dragon_breath"]

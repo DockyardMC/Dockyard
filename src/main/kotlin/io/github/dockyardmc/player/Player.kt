@@ -2,7 +2,6 @@ package io.github.dockyardmc.player
 
 import cz.lukynka.bindables.Bindable
 import cz.lukynka.bindables.BindableList
-import cz.lukynka.prettylog.log
 import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.advancement.PlayerAdvancementTracker
 import io.github.dockyardmc.attributes.PlayerAttributes
@@ -13,9 +12,7 @@ import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.entity.ItemDropEntity
 import io.github.dockyardmc.entity.LightningBolt
-import io.github.dockyardmc.entity.metadata.EntityMetaValue
-import io.github.dockyardmc.entity.metadata.EntityMetadata
-import io.github.dockyardmc.entity.metadata.EntityMetadataType
+import io.github.dockyardmc.entity.metadata.Metadata
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.extentions.sendPacket
 import io.github.dockyardmc.inventory.PlayerInventory
@@ -32,7 +29,7 @@ import io.github.dockyardmc.player.systems.*
 import io.github.dockyardmc.protocol.PlayerNetworkManager
 import io.github.dockyardmc.protocol.packets.ClientboundPacket
 import io.github.dockyardmc.protocol.packets.ProtocolState
-import io.github.dockyardmc.protocol.packets.configurations.ClientboundConfigurationPluginMessagePacket
+import io.github.dockyardmc.protocol.packets.configurations.clientbound.ClientboundConfigurationPluginMessagePacket
 import io.github.dockyardmc.protocol.packets.play.clientbound.*
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundChatCommandPacket
 import io.github.dockyardmc.protocol.packets.play.serverbound.ServerboundClientInputPacket
@@ -204,7 +201,7 @@ class Player(
         }
 
         displayedSkinParts.listUpdated {
-            metadata[EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
+            metadata[Metadata.Avatar.DISPLAYED_MODEL_PARTS_FLAG] = displayedSkinParts.values.getBitMask()
         }
 
         experienceBar.valueChanged { sendUpdateExperiencePacket() }
@@ -241,7 +238,7 @@ class Player(
             }
         }
 
-        hasNoGravity.value = false
+//        hasNoGravity.value = false
     }
 
     fun sendResourcePack(resourcePack: ResourcePack): CompletableFuture<ResourcePack.Status> {
@@ -437,12 +434,18 @@ class Player(
         }
     }
 
+    fun swingHand(hand: PlayerHand = PlayerHand.MAIN_HAND) {
+        val packet = ClientboundPlayerAnimationPacket(this, if (hand == PlayerHand.MAIN_HAND) EntityAnimation.SWING_MAIN_ARM else EntityAnimation.SWING_OFFHAND)
+        viewers.sendPacket(packet)
+        this.sendPacket(packet)
+    }
+
     fun refreshGameProfileState() {
         val currentLocation = this.location
 
         val removeInfo = ClientboundPlayerInfoRemovePacket(this)
         val entityRemovePacket = ClientboundEntityRemovePacket(this)
-        val spawnEntityPacket = ClientboundSpawnEntityPacket(this.id, this.uuid, this.type.getProtocolId(), this.location, this.location.yaw, 0, this.velocity)
+        val spawnEntityPacket = ClientboundSpawnEntityPacket(this.id, this.uuid, this.type, this.location, this.location.yaw, 0, this.velocity)
         val updates = mutableListOf(
             PlayerInfoUpdate.AddPlayer(this.gameProfile),
             PlayerInfoUpdate.UpdateListed(this.isListed.value),

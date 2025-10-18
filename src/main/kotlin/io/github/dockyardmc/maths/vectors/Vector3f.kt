@@ -114,6 +114,8 @@ data class Vector3f(
 
     companion object : NetworkReadable<Vector3f> {
 
+        val ZERO = Vector3f(0f)
+
         val STREAM_CODEC = StreamCodec.of(
             StreamCodec.FLOAT, Vector3f::x,
             StreamCodec.FLOAT, Vector3f::y,

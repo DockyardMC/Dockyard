@@ -1,11 +1,5 @@
 package io.github.dockyardmc.utils
 
-import io.github.dockyardmc.entity.Entity
-import io.github.dockyardmc.entity.metadata.EntityMetadata
-import io.github.dockyardmc.entity.metadata.EntityMetadataType
-import io.github.dockyardmc.entity.metadata.getEntityMetadataState
-import io.github.dockyardmc.player.Player
-import io.github.dockyardmc.player.toPersistent
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.SocketException
@@ -39,46 +33,6 @@ fun bitMask(mask: Byte, compare: Int): Boolean {
 }
 
 fun getEnumEntries(enumClass: KClass<Enum<*>>): List<Enum<*>> = enumClass.java.enumConstants.toList()
-
-fun Entity.setGlowingFor(player: Player, state: Boolean) {
-    val entityState = getEntityMetadataState(this) {
-        isGlowing = state
-    }
-    val playerMetadataLayer = this.metadataLayers[player.toPersistent()] ?: mutableMapOf<EntityMetadataType, EntityMetadata>()
-
-    playerMetadataLayer[EntityMetadataType.STATE] = entityState
-    this.metadataLayers[player.toPersistent()] = playerMetadataLayer
-}
-
-fun Entity.setInvisibleFor(player: Player, state: Boolean) {
-    val entityState = getEntityMetadataState(this) {
-        isInvisible = state
-    }
-    val playerMetadataLayer = this.metadataLayers[player.toPersistent()] ?: mutableMapOf<EntityMetadataType, EntityMetadata>()
-
-    playerMetadataLayer[EntityMetadataType.STATE] = entityState
-    this.metadataLayers[player.toPersistent()] = playerMetadataLayer
-}
-
-fun Entity.setIsOnFireFor(player: Player, state: Boolean) {
-    val entityState = getEntityMetadataState(this) {
-        isOnFire = state
-    }
-    val playerMetadataLayer = this.metadataLayers[player.toPersistent()] ?: mutableMapOf<EntityMetadataType, EntityMetadata>()
-
-    playerMetadataLayer[EntityMetadataType.STATE] = entityState
-    this.metadataLayers[player.toPersistent()] = playerMetadataLayer
-}
-
-fun Entity.setIsCrouchingFor(player: Player, state: Boolean) {
-    val entityState = getEntityMetadataState(this) {
-        isCrouching = state
-    }
-    val playerMetadataLayer = this.metadataLayers[player.toPersistent()] ?: mutableMapOf<EntityMetadataType, EntityMetadata>()
-
-    playerMetadataLayer[EntityMetadataType.STATE] = entityState
-    this.metadataLayers[player.toPersistent()] = playerMetadataLayer
-}
 
 
 fun generateSHA1(input: String): String {

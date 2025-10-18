@@ -143,6 +143,8 @@ data class Vector3(
 
     companion object : NetworkReadable<Vector3> {
 
+        val ZERO = Vector3(0)
+
         val CODEC = Codec.INT_ARRAY.transform<Vector3>({ from -> from.toVector3() }, { to -> to.toIntArray() })
 
         val STREAM_CODEC = StreamCodec.of(

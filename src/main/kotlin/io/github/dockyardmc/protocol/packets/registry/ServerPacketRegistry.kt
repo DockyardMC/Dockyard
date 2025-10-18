@@ -1,6 +1,6 @@
 package io.github.dockyardmc.protocol.packets.registry
 
-import io.github.dockyardmc.protocol.packets.configurations.*
+import io.github.dockyardmc.protocol.packets.configurations.serverbound.*
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundHandshakePacket
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundPingRequestPacket
 import io.github.dockyardmc.protocol.packets.handshake.ServerboundStatusRequestPacket
@@ -57,7 +57,7 @@ object ServerPacketRegistry : PacketRegistry() {
         skipPlay("container slot state")
         skipPlay("cookie response")
         addPlay(ServerboundPlayPluginMessagePacket::class)
-        skipPlay("debug sample subscription")
+        skipPlay("debug subscription request")
         skipPlay("edit book")
         skipPlay("query entity nbt")
         addPlay(ServerboundEntityInteractPacket::class)
@@ -101,5 +101,6 @@ object ServerPacketRegistry : PacketRegistry() {
         addPlay(ServerboundUseItemOnBlockPacket::class)
         addPlay(ServerboundUseItemPacket::class)
         addPlay(ServerboundCustomClickActionPacket::class)
+        addPlay(ServerboundAcceptCodeOfConductPacket::class)
     }
 }

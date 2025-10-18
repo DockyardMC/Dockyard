@@ -22,6 +22,7 @@ import io.github.dockyardmc.scroll.CustomColor
 import io.github.dockyardmc.scroll.extensions.stripComponentTags
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.sounds.BuiltinSoundEvent
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.github.dockyardmc.utils.CustomDataHolder
 import io.netty.buffer.ByteBuf
 import net.kyori.adventure.nbt.*
@@ -45,6 +46,18 @@ data class ItemStack(
 
     companion object {
         val AIR = ItemStack(Items.AIR, 1)
+
+        val STREAM_CODEC = object : StreamCodec<ItemStack> {
+
+            override fun write(buffer: ByteBuf, value: ItemStack) {
+                value.write(buffer)
+            }
+
+            override fun read(buffer: ByteBuf): ItemStack {
+                return ItemStack.read(buffer)
+            }
+
+        }
 
         fun read(buffer: ByteBuf, isPatch: Boolean = true, isTrusted: Boolean = true): ItemStack {
             val count = buffer.readVarInt()

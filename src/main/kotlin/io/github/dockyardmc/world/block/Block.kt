@@ -5,6 +5,7 @@ import io.github.dockyardmc.registry.registries.BlockRegistry
 import io.github.dockyardmc.registry.registries.Item
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.registry.registries.RegistryBlock
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.github.dockyardmc.utils.CustomDataHolder
 
 data class Block(
@@ -72,6 +73,8 @@ data class Block(
     }
 
     companion object {
+
+        val STREAM_CODEC = StreamCodec.VAR_INT.transform<Block>({ from -> from.getProtocolId() }, { to -> getBlockByStateId(to) })
 
         val AIR = Block(BlockRegistry.AIR)
         val STONE = Block(BlockRegistry["minecraft:stone"])

@@ -7,9 +7,7 @@ import io.github.dockyardmc.apis.Hologram
 import io.github.dockyardmc.apis.hologram
 import io.github.dockyardmc.entity.Entity
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
-import io.github.dockyardmc.entity.metadata.EntityMetaValue
-import io.github.dockyardmc.entity.metadata.EntityMetadata
-import io.github.dockyardmc.entity.metadata.EntityMetadataType
+import io.github.dockyardmc.entity.metadata.Metadata
 import io.github.dockyardmc.events.*
 import io.github.dockyardmc.events.system.EventFilter
 import io.github.dockyardmc.extentions.sendPacket
@@ -115,7 +113,7 @@ class FakePlayer(location: Location, val name: String = UUID.randomUUID().toStri
         }
 
         displayedSkinParts.listUpdated {
-            metadata[EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS] = EntityMetadata(EntityMetadataType.PLAYER_DISPLAY_SKIN_PARTS, EntityMetaValue.BYTE, displayedSkinParts.values.getBitMask())
+            metadata[Metadata.Avatar.DISPLAYED_MODEL_PARTS_FLAG] = displayedSkinParts.values.getBitMask()
         }
         team.value = npcTeam
     }

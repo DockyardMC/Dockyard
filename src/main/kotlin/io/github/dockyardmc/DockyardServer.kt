@@ -14,7 +14,7 @@ import io.github.dockyardmc.player.Player
 import io.github.dockyardmc.player.PlayerManager
 import io.github.dockyardmc.profiler.profiler
 import io.github.dockyardmc.protocol.NetworkCompression
-import io.github.dockyardmc.protocol.packets.configurations.Tag
+import io.github.dockyardmc.protocol.packets.configurations.clientbound.Tag
 import io.github.dockyardmc.protocol.packets.registry.ClientPacketRegistry
 import io.github.dockyardmc.protocol.packets.registry.ServerPacketRegistry
 import io.github.dockyardmc.provider.PlayerMessageProvider
@@ -45,6 +45,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         profiler("Server Load") {
 
             instance = this
+            versionInfo = Resources.getDockyardVersion()
             configBuilder.invoke(config)
 
             profiler("Register packets") {
@@ -123,7 +124,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     val port get() = config.port
 
     fun start() {
-        versionInfo = Resources.getDockyardVersion()
         log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${minecraftVersion.versionName})", LogType.RUNTIME)
         log("DockyardMC is still under heavy development. Things will break (I warned you)", LogType.WARNING)
 
@@ -139,7 +139,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     companion object : PlayerMessageProvider, PlayerPacketProvider {
         lateinit var versionInfo: Resources.DockyardVersionInfo
         lateinit var instance: DockyardServer
-        val minecraftVersion = MinecraftVersions.v1_21_8
+        val minecraftVersion = MinecraftVersions.v1_21_9
         var allowAnyVersion: Boolean = false
 
         val scheduler = GlobalScheduler("main_scheduler")

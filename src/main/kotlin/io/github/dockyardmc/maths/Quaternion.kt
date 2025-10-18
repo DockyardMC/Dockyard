@@ -1,6 +1,7 @@
 package io.github.dockyardmc.maths
 
 import io.github.dockyardmc.maths.vectors.Vector3f
+import io.github.dockyardmc.tide.stream.StreamCodec
 import io.netty.buffer.ByteBuf
 import kotlin.math.PI
 import kotlin.math.cos
@@ -26,6 +27,17 @@ data class Quaternion(
     fun conjugate(): Quaternion = Quaternion(this.w, -this.x, -this.y, -this.z)
 
     companion object {
+
+        val DEFAULT = Quaternion(0f, 0f, 0f, 1f)
+
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.FLOAT, Quaternion::x,
+            StreamCodec.FLOAT, Quaternion::y,
+            StreamCodec.FLOAT, Quaternion::z,
+            StreamCodec.FLOAT, Quaternion::w,
+            ::Quaternion
+        )
+
         fun fromAxis(axisX: Float, axisY: Float, axisZ: Float): Quaternion {
             val xRadians = degreesToRadians(axisX)
             val yRadians = degreesToRadians(axisY)
