@@ -2,14 +2,23 @@ package io.github.dockyardmc.entity.entities
 
 import cz.lukynka.bindables.Bindable
 import io.github.dockyardmc.entity.Entity
+import io.github.dockyardmc.entity.metadata.Metadata
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.registry.EntityTypes
 import io.github.dockyardmc.registry.registries.EntityType
 
 // clanker
-open class CopperGolem(location: Location): Entity(location) {
+open class CopperGolem(location: Location) : Entity(location) {
     override var type: EntityType = EntityTypes.COPPER_GOLEM
     override val health: Bindable<Float> = bindablePool.provideBindable(14f)
+
+    val weatherState: Bindable<WeatherState> = bindablePool.provideBindable(WeatherState.UNAFFECTED)
+
+    init {
+        weatherState.valueChanged { event ->
+            metadata[Metadata.CopperGolem.WEATHER_STATE] = event.newValue
+        }
+    }
 
     enum class WeatherState {
         UNAFFECTED,

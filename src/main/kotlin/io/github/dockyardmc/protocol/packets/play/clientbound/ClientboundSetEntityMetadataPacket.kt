@@ -9,9 +9,7 @@ class ClientboundSetEntityMetadataPacket(entity: Entity, metadata: Collection<Me
 
     init {
         buffer.writeVarInt(entity.id)
-        metadata.forEach {
-            writeMetadataValue<Any?>(it)
-        }
+        metadata.forEach { entry -> writeMetadataValue<Any?>(entry) }
         // array end byte
         buffer.writeByte(0xFF)
     }
@@ -19,6 +17,8 @@ class ClientboundSetEntityMetadataPacket(entity: Entity, metadata: Collection<Me
     @Suppress("UNCHECKED_CAST")
     private fun <T> writeMetadataValue(value: Metadata.MetadataDefinition.Value<*>) {
         val typedValue = value as Metadata.MetadataDefinition.Value<T>
+        buffer.writeByte(value.parent.index)
+        buffer.writeVarInt(typedValue.parent.type.index)
         typedValue.parent.type.streamCodec.write(buffer, typedValue.value)
     }
 }

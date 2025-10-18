@@ -7,10 +7,7 @@ import io.github.dockyardmc.world.chunk.ChunkUtils.isPowerOfTwo
 import io.github.dockyardmc.world.chunk.ChunkUtils.roundUpPow2
 import java.io.File
 import java.security.MessageDigest
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 import kotlin.random.Random
 
 private val MULTIPLY_DE_BRUIJN_BIT_POSITION = intArrayOf(
@@ -30,6 +27,10 @@ fun multiplyQuaternions(q1: Quaternion, q2: Quaternion): Quaternion {
 fun ceilLog2(value: Int): Int {
     val temp = if (isPowerOfTwo(value)) value else roundUpPow2(value)
     return MULTIPLY_DE_BRUIJN_BIT_POSITION[(temp.toLong() * 125613361L shr 27 and 31).toInt()]
+}
+
+fun absMax(first: Double, second: Double): Double {
+    return max(abs(first), abs(second))
 }
 
 fun degreesToRadians(degrees: Float): Float = (degrees * (PI / 180.0)).toFloat()
@@ -153,4 +154,9 @@ fun chunkInSpiral(id: Int, xOffset: Int = 0, zOffset: Int = 0): Pair<Int, Int> {
 
 fun sin(float: Float): Float {
     return sin(float.toDouble()).toFloat()
+}
+
+fun ceilLong(value: Double): Long {
+    val i = value.toLong()
+    return if (value > i) i + 1L else i
 }

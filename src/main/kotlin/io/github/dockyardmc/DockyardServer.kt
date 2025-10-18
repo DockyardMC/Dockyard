@@ -45,6 +45,7 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
         profiler("Server Load") {
 
             instance = this
+            versionInfo = Resources.getDockyardVersion()
             configBuilder.invoke(config)
 
             profiler("Register packets") {
@@ -123,7 +124,6 @@ class DockyardServer(configBuilder: Config.() -> Unit) {
     val port get() = config.port
 
     fun start() {
-        versionInfo = Resources.getDockyardVersion()
         log("Starting DockyardMC Version ${versionInfo.dockyardVersion} (${versionInfo.gitCommit}@${versionInfo.gitBranch} for MC ${minecraftVersion.versionName})", LogType.RUNTIME)
         log("DockyardMC is still under heavy development. Things will break (I warned you)", LogType.WARNING)
 

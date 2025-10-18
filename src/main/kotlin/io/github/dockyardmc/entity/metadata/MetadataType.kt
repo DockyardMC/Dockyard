@@ -59,7 +59,7 @@ object MetadataType {
     val QUATERNION = next(Quaternion.STREAM_CODEC)
     val RESOLVABLE_PROFILE = next(ResolvableProfile.STREAM_CODEC)
 
-    data class MetadataSerializer<T>(val type: Int, val streamCodec: StreamCodec<T>)
+    data class MetadataSerializer<T>(val index: Int, val streamCodec: StreamCodec<T>)
 
     fun <T> next(streamCodec: StreamCodec<T>): MetadataSerializer<T> {
         return MetadataSerializer<T>(metadataType.getAndIncrement(), streamCodec)

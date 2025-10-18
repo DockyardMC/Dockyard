@@ -155,7 +155,7 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
         if (!super.addViewer(player)) return false
 
         sendMetadataPacket(player)
-        val entitySpawnPacket = ClientboundSpawnEntityPacket(id, uuid, type.getProtocolId(), location, location.yaw, 0, velocity)
+        val entitySpawnPacket = ClientboundSpawnEntityPacket(id, uuid, type, location, location.yaw, 0, velocity)
         isOnGround = true
 
         synchronized(player.entityViewSystem.visibleEntities) {
@@ -287,6 +287,10 @@ abstract class Entity(open var location: Location, open var world: World) : Disp
     fun playDamageAnimation(damageType: DamageType = DamageTypes.GENERIC) {
         val packet = ClientboundDamageEventPacket(this, damageType, null, null, null)
         viewers.sendPacket(packet)
+    }
+
+    fun playSoundToViewers(sound: String, location: Location? = null, volume: Float = 0.5f, pitch: Float = 1.0f, category: SoundCategory = SoundCategory.MASTER) {
+        playSoundToViewers(Sound(sound, volume, pitch, category), location)
     }
 
     fun playSoundToViewers(sound: Sound, location: Location? = this.location) {

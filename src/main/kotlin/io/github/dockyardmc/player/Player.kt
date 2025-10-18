@@ -238,7 +238,7 @@ class Player(
             }
         }
 
-        hasNoGravity.value = false
+//        hasNoGravity.value = false
     }
 
     fun sendResourcePack(resourcePack: ResourcePack): CompletableFuture<ResourcePack.Status> {
@@ -434,12 +434,18 @@ class Player(
         }
     }
 
+    fun swingHand(hand: PlayerHand = PlayerHand.MAIN_HAND) {
+        val packet = ClientboundPlayerAnimationPacket(this, if (hand == PlayerHand.MAIN_HAND) EntityAnimation.SWING_MAIN_ARM else EntityAnimation.SWING_OFFHAND)
+        viewers.sendPacket(packet)
+        this.sendPacket(packet)
+    }
+
     fun refreshGameProfileState() {
         val currentLocation = this.location
 
         val removeInfo = ClientboundPlayerInfoRemovePacket(this)
         val entityRemovePacket = ClientboundEntityRemovePacket(this)
-        val spawnEntityPacket = ClientboundSpawnEntityPacket(this.id, this.uuid, this.type.getProtocolId(), this.location, this.location.yaw, 0, this.velocity)
+        val spawnEntityPacket = ClientboundSpawnEntityPacket(this.id, this.uuid, this.type, this.location, this.location.yaw, 0, this.velocity)
         val updates = mutableListOf(
             PlayerInfoUpdate.AddPlayer(this.gameProfile),
             PlayerInfoUpdate.UpdateListed(this.isListed.value),

@@ -20,10 +20,11 @@ object Metadata : MetadataGroup() {
     val ENTITY_FLAGS = define(MetadataType.BYTE, 0)
     val IS_ON_FIRE = bitmask(ENTITY_FLAGS, 0x01, false)
     val IS_CROUCHING = bitmask(ENTITY_FLAGS, 0x02, false)
-    val IS_SPRINTING = bitmask(ENTITY_FLAGS, 0x03, false)
-    val IS_SWIMMING = bitmask(ENTITY_FLAGS, 0x04, false)
-    val IS_INVISIBLE = bitmask(ENTITY_FLAGS, 0x05, false)
-    val HAS_GLOWING_EFFECT = bitmask(ENTITY_FLAGS, 0x06, false)
+    val IS_SPRINTING = bitmask(ENTITY_FLAGS, 0x08, false)
+    val IS_SWIMMING = bitmask(ENTITY_FLAGS, 0x10, false)
+    val IS_INVISIBLE = bitmask(ENTITY_FLAGS, 0x20, false)
+    val HAS_GLOWING_EFFECT = bitmask(ENTITY_FLAGS, 0x40, false)
+    val IS_FLYING_ELYTRA = bitmask(ENTITY_FLAGS, 0x80.toByte(), false)
     val AIR_TICKS = define(MetadataType.VAR_INT, 300)
     val CUSTOM_NAME = define(MetadataType.OPTIONAL_COMPONENT, null)
     val CUSTOM_NAME_VISIBLE = define(MetadataType.BOOLEAN, false)
@@ -567,7 +568,6 @@ object Metadata : MetadataGroup() {
 
     object ZombieVillager : MetadataGroup(Mob) {
         val IS_CONVERTING = define(MetadataType.BOOLEAN, false)
-        //TODO VillagerData
     }
 
     object Enderman : MetadataGroup(Mob) {

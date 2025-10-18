@@ -57,7 +57,9 @@ class EntityMetadataHandler(override val entity: Entity) : EntityHandler, Dispos
     }
 
     operator fun <T> set(definition: Metadata.MetadataDefinitionEntry<T>, value: T) {
-        return setInternal(definition, value, metadata)
+        setInternal(definition, value, metadata)
+        entity.sendMetadataPacketToViewers()
+        entity.sendSelfMetadataIfPlayer()
     }
 
     fun removeForPlayer(player: Player, definition: Metadata.MetadataDefinitionEntry<*>) {
@@ -92,7 +94,7 @@ class EntityMetadataHandler(override val entity: Entity) : EntityHandler, Dispos
         }
     }
 
-    fun <T> setInternal(definition: Metadata.MetadataDefinitionEntry<T>, value: T, map: MutableMap<Metadata.MetadataDefinition<*>, Metadata.MetadataDefinition.Value<*>>) {
+    private fun <T> setInternal(definition: Metadata.MetadataDefinitionEntry<T>, value: T, map: MutableMap<Metadata.MetadataDefinition<*>, Metadata.MetadataDefinition.Value<*>>) {
         when (definition) {
             is Metadata.MetadataDefinition<T> -> {
                 map[definition] = Metadata.MetadataDefinition.Value(definition, value)
